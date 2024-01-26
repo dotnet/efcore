@@ -1571,25 +1571,25 @@ namespace TestNamespace
 
                     var complexType = complexProperty.ComplexType;
                     complexProperty.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity)),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity))) == null,
+                        (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)),
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null,
                         (CompiledModelTestBase.OwnedType instance) => ReadPrincipal(instance),
                         (CompiledModelTestBase.OwnedType instance) => ReadPrincipal(instance) == null);
                     complexProperty.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
                         {
-                            var level1 = (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity);
+                            var level1 = ReadOwned(entity);
                             WritePrincipal(level1, value);
                         });
                     complexProperty.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
                         {
-                            var level1 = (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity);
+                            var level1 = ReadOwned(entity);
                             WritePrincipal(level1, value);
                         });
                     complexProperty.SetAccessors(
-                        (InternalEntityEntry entry) => (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                        (InternalEntityEntry entry) => (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                        (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                        (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                         null,
                         (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(complexProperty),
                         null);

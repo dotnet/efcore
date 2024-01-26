@@ -14,7 +14,7 @@ using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
+public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper)
 {
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
@@ -38,7 +38,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
             literalRepresentation);
 
     [Fact]
-    public void Constant_DateTime()
+    public void Constant_DateTime_default()
         => AssertExpression(Constant(default(DateTime)), "default(DateTime)");
 
     [Fact]
@@ -55,15 +55,15 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
 
     [Fact]
     public void Enum()
-        => AssertExpression(Constant(SomeEnum.One), "LinqToCSharpTranslatorTest.SomeEnum.One");
+        => AssertExpression(Constant(SomeEnum.One), "LinqToCSharpSyntaxTranslatorTest.SomeEnum.One");
 
     [Fact]
     public void Enum_with_multiple_values()
-        => AssertExpression(Constant(SomeEnum.One | SomeEnum.Two), "LinqToCSharpTranslatorTest.SomeEnum.One | LinqToCSharpTranslatorTest.SomeEnum.Two");
+        => AssertExpression(Constant(SomeEnum.One | SomeEnum.Two), "LinqToCSharpSyntaxTranslatorTest.SomeEnum.One | LinqToCSharpSyntaxTranslatorTest.SomeEnum.Two");
 
     [Fact]
     public void Enum_with_unknown_value()
-        => AssertExpression(Constant((SomeEnum)1000), "(LinqToCSharpTranslatorTest.SomeEnum)1000L");
+        => AssertExpression(Constant((SomeEnum)1000), "(LinqToCSharpSyntaxTranslatorTest.SomeEnum)1000L");
 
     [Theory]
     [InlineData(ExpressionType.Add, "+")]
@@ -111,7 +111,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
             Assign(
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            """typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, 3)""");
+            """typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 3)""");
 
     [Theory]
     [InlineData(ExpressionType.AddAssign, "+")]
@@ -130,7 +130,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
                 expressionType,
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            $"""typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog) {op} 3)""");
+            $"""typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, (int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog) {op} 3)""");
 
     [Theory]
     [InlineData(ExpressionType.Negate, "-i")]
@@ -165,7 +165,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 MakeUnary(expressionType, i, typeof(int))),
             $$"""
 {
@@ -233,7 +233,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
     public void Private_instance_field_read()
         => AssertExpression(
             Field(Parameter(typeof(Blog), "blog"), "_privateField"),
-            """(int)typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
+            """(int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog)""");
 
     [Fact]
     public void Private_instance_field_write()
@@ -241,13 +241,13 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
             Assign(
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(8)),
-            """typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, 8)""");
+            """typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 8)""");
 
     [Fact]
     public void Internal_instance_field_read()
         => AssertExpression(
             Field(Parameter(typeof(Blog), "blog"), "InternalField"),
-            """(int)typeof(LinqToCSharpTranslatorTest.Blog).GetField("InternalField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
+            """(int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("InternalField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog)""");
 
     [Fact]
     public void Not()
@@ -265,7 +265,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
                 Bind(typeof(Blog).GetProperty(nameof(Blog.PublicProperty))!, Constant(8)),
                 Bind(typeof(Blog).GetField(nameof(Blog.PublicField))!, Constant(9))),
             """
-new LinqToCSharpTranslatorTest.Blog("foo")
+new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
 {
     PublicProperty = 8,
     PublicField = 9
@@ -284,7 +284,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
                     ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(8)),
                     ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(9)))),
             """
-new LinqToCSharpTranslatorTest.Blog("foo")
+new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
 {
     ListOfInts =
     {
@@ -309,7 +309,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
                         ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(8)),
                         ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(9))))),
             """
-new LinqToCSharpTranslatorTest.Blog("foo")
+new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
 {
     Details =
     {
@@ -330,14 +330,14 @@ new LinqToCSharpTranslatorTest.Blog("foo")
 
         AssertStatement(
             Block(
-                variables: new[] { blog },
+                variables: [blog],
                 Assign(blog, New(Blog.Constructor)),
                 Call(
                     blog,
                     typeof(Blog).GetMethod(nameof(Blog.SomeInstanceMethod))!)),
             """
 {
-    var blog = new LinqToCSharpTranslatorTest.Blog();
+    var blog = new LinqToCSharpSyntaxTranslatorTest.Blog();
     blog.SomeInstanceMethod();
 }
 """);
@@ -347,13 +347,13 @@ new LinqToCSharpTranslatorTest.Blog("foo")
     public void Method_call_static()
         => AssertExpression(
             Call(ReturnsIntWithParamMethod, Constant(8)),
-            "LinqToCSharpTranslatorTest.ReturnsIntWithParam(8)");
+            "LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(8)");
 
     [Fact]
     public void Method_call_static_on_nested_type()
         => AssertExpression(
             Call(typeof(Blog).GetMethod(nameof(Blog.Static_method_on_nested_type))!),
-            "LinqToCSharpTranslatorTest.Blog.Static_method_on_nested_type()");
+            "LinqToCSharpSyntaxTranslatorTest.Blog.Static_method_on_nested_type()");
 
     [Fact]
     public void Method_call_extension()
@@ -362,7 +362,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
 
         AssertStatement(
             Block(
-                variables: new[] { blog },
+                variables: [blog],
                 Assign(blog, New(LinqExpressionToRoslynTranslatorExtensionType.Constructor)),
                 Call(LinqExpressionToRoslynTranslatorExtensions.SomeExtensionMethod, blog)),
             """
@@ -388,15 +388,15 @@ new LinqToCSharpTranslatorTest.Blog("foo")
 
         AssertStatement(
             Block(
-                variables: new[] { blog },
+                variables: [blog],
                 Assign(blog, New(Blog.Constructor)),
                 Call(
                     GenericMethod.MakeGenericMethod(typeof(Blog)),
                     blog)),
             """
 {
-    var blog = new LinqToCSharpTranslatorTest.Blog();
-    LinqToCSharpTranslatorTest.GenericMethodImplementation(blog);
+    var blog = new LinqToCSharpSyntaxTranslatorTest.Blog();
+    LinqToCSharpSyntaxTranslatorTest.GenericMethodImplementation(blog);
 }
 """);
     }
@@ -406,10 +406,10 @@ new LinqToCSharpTranslatorTest.Blog("foo")
     {
         var (translator, _) = CreateTranslator();
         var namespaces = new HashSet<string>();
-        _ = translator.TranslateExpression(Call(FooMethod), null, null, namespaces);
+        _ = translator.TranslateExpression(Call(FooMethod), null, namespaces);
         Assert.Collection(
             namespaces,
-            ns => Assert.Equal(typeof(LinqToCSharpTranslatorTest).Namespace, ns));
+            ns => Assert.Equal(typeof(LinqToCSharpSyntaxTranslatorTest).Namespace, ns));
     }
 
     [Fact]
@@ -421,14 +421,14 @@ new LinqToCSharpTranslatorTest.Blog("foo")
 
         AssertStatement(
             Block(
-                variables: new[] { inParam, outParam, refParam },
+                variables: [inParam, outParam, refParam],
                 Call(WithInOutRefParameterMethod, [inParam, outParam, refParam])),
             """
 {
     int inParam;
     int outParam;
     int refParam;
-    LinqToCSharpTranslatorTest.WithInOutRefParameter(in inParam, out outParam, ref refParam);
+    LinqToCSharpSyntaxTranslatorTest.WithInOutRefParameter(in inParam, out outParam, ref refParam);
 }
 """);
     }
@@ -439,7 +439,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
             New(
                 typeof(Blog).GetConstructor([typeof(string)])!,
                 Constant("foo")),
-            """new LinqToCSharpTranslatorTest.Blog("foo")""");
+            """new LinqToCSharpSyntaxTranslatorTest.Blog("foo")""");
 
     [Fact]
     public void Instantiation_with_required_properties_and_parameterless_constructor()
@@ -447,7 +447,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
             New(
                 typeof(BlogWithRequiredProperties).GetConstructor([])!),
             """
-Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>()
+Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties>()
 """);
 
     [Fact]
@@ -464,7 +464,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
             New(
                 typeof(BlogWithRequiredProperties).GetConstructor([typeof(string), typeof(int)])!,
                 Constant("foo"), Constant(8)),
-            """new LinqToCSharpTranslatorTest.BlogWithRequiredProperties("foo", 8)""");
+            """new LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties("foo", 8)""");
 
     [Fact]
     public void Lambda_with_expression_body()
@@ -480,7 +480,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
         AssertExpression(
             Lambda<Func<int>>(
                 Block(
-                    variables: new[] { i },
+                    variables: [i],
                     Assign(i, Constant(8)),
                     i)),
             """
@@ -534,7 +534,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i,
                     Add(
@@ -542,7 +542,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
                         Invoke((Expression<Func<int, int>>)(f => f + f), Call(FooMethod))))),
             """
 {
-    var f = LinqToCSharpTranslatorTest.Foo();
+    var f = LinqToCSharpSyntaxTranslatorTest.Foo();
     var i = 5 + f + f;
 }
 """);
@@ -571,11 +571,11 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
 {
     if (true)
     {
-        LinqToCSharpTranslatorTest.Foo();
+        LinqToCSharpSyntaxTranslatorTest.Foo();
     }
     else
     {
-        LinqToCSharpTranslatorTest.Bar();
+        LinqToCSharpSyntaxTranslatorTest.Bar();
     }
 }
 """);
@@ -585,7 +585,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
     {
         var parameter = Parameter(typeof(int), "i");
         var block = Block(
-            variables: new[] { parameter },
+            variables: [parameter],
             expressions: Assign(parameter, Constant(8)));
 
         AssertStatement(
@@ -605,12 +605,12 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
     {
         var parameter1 = Parameter(typeof(int), "i");
         var block1 = Block(
-            variables: new[] { parameter1 },
+            variables: [parameter1],
             expressions: Assign(parameter1, Constant(8)));
 
         var parameter2 = Parameter(typeof(int), "j");
         var block2 = Block(
-            variables: new[] { parameter2 },
+            variables: [parameter2],
             expressions: Assign(parameter2, Constant(9)));
 
         AssertStatement(
@@ -636,7 +636,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
 
         AssertStatement(
             Block(
-                variables: new[] { variable },
+                variables: [variable],
                 expressions: IfThenElse(
                     Constant(true),
                     Block(Assign(variable, Constant(1))),
@@ -678,7 +678,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
 {
     if (true)
     {
-        LinqToCSharpTranslatorTest.Foo();
+        LinqToCSharpSyntaxTranslatorTest.Foo();
         return 8;
     }
     else
@@ -695,7 +695,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i, Block(
                         // We're in expression context. Do anything that will get lifted.
@@ -710,11 +710,11 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
                         Constant(8)))),
             """
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
     if (true)
     {
-        LinqToCSharpTranslatorTest.Bar();
-        LinqToCSharpTranslatorTest.Baz();
+        LinqToCSharpSyntaxTranslatorTest.Bar();
+        LinqToCSharpSyntaxTranslatorTest.Baz();
     }
 
     var i = 8;
@@ -748,7 +748,7 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
 
         AssertStatement(
             Block(
-                variables: new[] { i, j, k },
+                variables: [i, j, k],
                 Assign(j, Constant(8)),
                 Assign(
                     i,
@@ -822,7 +822,7 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { parameter },
+                variables: [parameter],
                 expressions: Switch(
                     Constant(7),
                     SwitchCase(Block(typeof(void), Assign(parameter, Constant(9))), Constant(-9)),
@@ -855,7 +855,7 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { parameter },
+                variables: [parameter],
                 expressions: Switch(
                     Constant(7),
                     Assign(parameter, Constant(0)),
@@ -887,7 +887,7 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { parameter },
+                variables: [parameter],
                 expressions: Switch(
                     Constant(7),
                     Assign(parameter, Constant(0)),
@@ -920,7 +920,7 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(i, Constant(8))),
             """
 {
@@ -936,7 +936,7 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { s },
+                variables: [s],
                 Assign(s, Constant(null, typeof(string)))),
             """
 {
@@ -954,23 +954,23 @@ else
         AssertStatement(
             Block(
                 Block(
-                    variables: new[] { i1 },
+                    variables: [i1],
                     Assign(i1, Constant(8)),
                     Call(ReturnsIntWithParamMethod, i1)),
                 Block(
-                    variables: new[] { i2 },
+                    variables: [i2],
                     Assign(i2, Constant(8)),
                     Call(ReturnsIntWithParamMethod, i2))),
             """
 {
     {
         var i = 8;
-        LinqToCSharpTranslatorTest.ReturnsIntWithParam(i);
+        LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(i);
     }
 
     {
         var i = 8;
-        LinqToCSharpTranslatorTest.ReturnsIntWithParam(i);
+        LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(i);
     }
 }
 """);
@@ -984,22 +984,22 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { i1 },
+                variables: [i1],
                 Assign(i1, Constant(8)),
                 Call(ReturnsIntWithParamMethod, i1),
                 Block(
-                    variables: new[] { i2 },
+                    variables: [i2],
                     Assign(i2, Constant(8)),
                     Call(ReturnsIntWithParamMethod, i2),
                     Call(ReturnsIntWithParamMethod, i1))),
             """
 {
     var i = 8;
-    LinqToCSharpTranslatorTest.ReturnsIntWithParam(i);
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(i);
     {
         var i0 = 8;
-        LinqToCSharpTranslatorTest.ReturnsIntWithParam(i0);
-        LinqToCSharpTranslatorTest.ReturnsIntWithParam(i);
+        LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(i0);
+        LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(i);
     }
 }
 """);
@@ -1014,7 +1014,7 @@ else
 
         AssertStatement(
             Block(
-                variables: new[] { i1 },
+                variables: [i1],
                 Assign(i1, Constant(8)),
                 Assign(
                     f, Lambda<Func<int, bool>>(
@@ -1074,16 +1074,16 @@ f1 = (int i) =>
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i, Block(
-                        variables: new[] { j },
+                        variables: [j],
                         Assign(j, Call(FooMethod)),
                         Call(ReturnsIntWithParamMethod, j)))),
             """
 {
-    var j = LinqToCSharpTranslatorTest.Foo();
-    var i = LinqToCSharpTranslatorTest.ReturnsIntWithParam(j);
+    var j = LinqToCSharpSyntaxTranslatorTest.Foo();
+    var i = LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(j);
 }
 """);
     }
@@ -1099,8 +1099,8 @@ f1 = (int i) =>
                         Call(BarMethod)))),
             """
 {
-    LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.ReturnsIntWithParam(LinqToCSharpTranslatorTest.Bar());
+    LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(LinqToCSharpSyntaxTranslatorTest.Bar());
 }
 """);
 
@@ -1112,20 +1112,20 @@ f1 = (int i) =>
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i,
                     Block(
-                        variables: new[] { j },
+                        variables: [j],
                         Assign(j, Call(FooMethod)),
                         Block(
                             Call(BarMethod),
                             Call(ReturnsIntWithParamMethod, j))))),
             """
 {
-    var j = LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.Bar();
-    var i = LinqToCSharpTranslatorTest.ReturnsIntWithParam(j);
+    var j = LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
+    var i = LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(j);
 }
 """);
     }
@@ -1137,7 +1137,7 @@ f1 = (int i) =>
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i,
                     Add(
@@ -1147,9 +1147,9 @@ f1 = (int i) =>
                             Call(BazMethod))))),
             """
 {
-    var lifted = LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.Bar();
-    var i = lifted + LinqToCSharpTranslatorTest.Baz();
+    var lifted = LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
+    var i = lifted + LinqToCSharpSyntaxTranslatorTest.Baz();
 }
 """);
     }
@@ -1161,7 +1161,7 @@ f1 = (int i) =>
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i,
                     Add(
@@ -1171,8 +1171,8 @@ f1 = (int i) =>
                             Call(BazMethod))))),
             """
 {
-    LinqToCSharpTranslatorTest.Bar();
-    var i = 5 + LinqToCSharpTranslatorTest.Baz();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
+    var i = 5 + LinqToCSharpSyntaxTranslatorTest.Baz();
 }
 """);
     }
@@ -1184,11 +1184,11 @@ f1 = (int i) =>
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i,
                     Call(
-                        typeof(LinqToCSharpTranslatorTest).GetMethod(nameof(MethodWithSixParams))!,
+                        typeof(LinqToCSharpSyntaxTranslatorTest).GetMethod(nameof(MethodWithSixParams))!,
                         Call(FooMethod),
                         Constant(5),
                         Block(Call(BarMethod), Call(BazMethod)),
@@ -1197,12 +1197,12 @@ f1 = (int i) =>
                         Call(FooMethod)))),
             """
 {
-    var liftedArg = LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.Bar();
-    var liftedArg0 = LinqToCSharpTranslatorTest.Baz();
-    var liftedArg1 = LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.Baz();
-    var i = LinqToCSharpTranslatorTest.MethodWithSixParams(liftedArg, 5, liftedArg0, liftedArg1, LinqToCSharpTranslatorTest.Bar(), LinqToCSharpTranslatorTest.Foo());
+    var liftedArg = LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
+    var liftedArg0 = LinqToCSharpSyntaxTranslatorTest.Baz();
+    var liftedArg1 = LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Baz();
+    var i = LinqToCSharpSyntaxTranslatorTest.MethodWithSixParams(liftedArg, 5, liftedArg0, liftedArg1, LinqToCSharpSyntaxTranslatorTest.Bar(), LinqToCSharpSyntaxTranslatorTest.Foo());
 }
 """);
     }
@@ -1214,7 +1214,7 @@ f1 = (int i) =>
 
         AssertStatement(
             Block(
-                variables: new[] { b },
+                variables: [b],
                 Assign(
                     b,
                     New(
@@ -1225,9 +1225,9 @@ f1 = (int i) =>
                             Call(BazMethod))))),
             """
 {
-    var liftedArg = LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.Bar();
-    var b = new LinqToCSharpTranslatorTest.Blog(liftedArg, LinqToCSharpTranslatorTest.Baz());
+    var liftedArg = LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
+    var b = new LinqToCSharpSyntaxTranslatorTest.Blog(liftedArg, LinqToCSharpSyntaxTranslatorTest.Baz());
 }
 """);
     }
@@ -1274,7 +1274,7 @@ new int[]
         // a = new[] { Foo(), { Bar(); Baz(); } }
         AssertStatement(
             Block(
-                variables: new[] { a },
+                variables: [a],
                 Assign(
                     a,
                     NewArrayInit(
@@ -1285,12 +1285,12 @@ new int[]
                             Call(BazMethod))))),
             """
 {
-    var liftedArg = LinqToCSharpTranslatorTest.Foo();
-    LinqToCSharpTranslatorTest.Bar();
+    var liftedArg = LinqToCSharpSyntaxTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
     var a = new int[]
     {
         liftedArg,
-        LinqToCSharpTranslatorTest.Baz()
+        LinqToCSharpSyntaxTranslatorTest.Baz()
     };
 }
 """);
@@ -1304,10 +1304,10 @@ new int[]
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i, Block(
-                        variables: new[] { j },
+                        variables: [j],
                         Block(
                             Call(FooMethod),
                             Assign(j, Constant(8)),
@@ -1315,7 +1315,7 @@ new int[]
             """
 {
     int j;
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
     j = 8;
     var i = 9;
 }
@@ -1335,8 +1335,8 @@ new int[]
             """
 () =>
 {
-    LinqToCSharpTranslatorTest.Foo();
-    return LinqToCSharpTranslatorTest.ReturnsIntWithParam(LinqToCSharpTranslatorTest.Bar());
+    LinqToCSharpSyntaxTranslatorTest.Foo();
+    return LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(LinqToCSharpSyntaxTranslatorTest.Bar());
 }
 """);
 
@@ -1381,7 +1381,7 @@ new int[]
 
         AssertStatement(
             Block(
-                variables: new[] { i, j },
+                variables: [i, j],
                 Assign(j, Constant(8)),
                 Assign(
                     i,
@@ -1403,8 +1403,8 @@ new int[]
     {
         case 8:
         {
-            k = LinqToCSharpTranslatorTest.Foo();
-            i = LinqToCSharpTranslatorTest.ReturnsIntWithParam(k);
+            k = LinqToCSharpSyntaxTranslatorTest.Foo();
+            i = LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(k);
             break;
         }
 
@@ -1429,7 +1429,7 @@ new int[]
 
         AssertStatement(
             Block(
-                variables: new[] { i, j, k },
+                variables: [i, j, k],
                 Assign(j, Constant(8)),
                 Assign(
                     i,
@@ -1443,7 +1443,7 @@ new int[]
                                 defaultBody: Constant(0),
                                 SwitchCase(
                                     Block(
-                                        variables: new[] { l },
+                                        variables: [l],
                                         Assign(l, Call(FooMethod)),
                                         Call(ReturnsIntWithParamMethod, l)),
                                     Constant(200)),
@@ -1465,8 +1465,8 @@ new int[]
             {
                 case 200:
                 {
-                    var l = LinqToCSharpTranslatorTest.Foo();
-                    i = LinqToCSharpTranslatorTest.ReturnsIntWithParam(l);
+                    var l = LinqToCSharpSyntaxTranslatorTest.Foo();
+                    i = LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(l);
                     break;
                 }
 
@@ -1496,7 +1496,7 @@ new int[]
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(
                     i,
                     Switch(
@@ -1518,14 +1518,14 @@ new int[]
     int i;
     if (blog1 == blog2)
     {
-        LinqToCSharpTranslatorTest.ReturnsIntWithParam(8);
+        LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(8);
         i = 1;
     }
     else
     {
         if (blog1 == blog3)
         {
-            LinqToCSharpTranslatorTest.ReturnsIntWithParam(9);
+            LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(9);
             i = 2;
         }
         else
@@ -1579,7 +1579,7 @@ new List<int>()
 {
     goto label1;
     label1:
-        LinqToCSharpTranslatorTest.Foo();
+        LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 """);
     }
@@ -1619,7 +1619,7 @@ new List<int>()
 {
     if (true)
     {
-        LinqToCSharpTranslatorTest.Foo();
+        LinqToCSharpSyntaxTranslatorTest.Foo();
         goto unnamedLabel;
     }
 
@@ -1667,7 +1667,7 @@ new List<int>()
             """
 while (true)
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 """);
 
@@ -1680,7 +1680,7 @@ while (true)
 
         AssertStatement(
             Block(
-                variables: new[] { i },
+                variables: [i],
                 Assign(i, Constant(0)),
                 Loop(
                     Block(
@@ -1733,15 +1733,15 @@ while (true)
             """
 try
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 catch (InvalidOperationException e)
 {
-    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
 }
 catch (InvalidOperationException e)
 {
-    LinqToCSharpTranslatorTest.Baz();
+    LinqToCSharpSyntaxTranslatorTest.Baz();
 }
 """);
     }
@@ -1755,11 +1755,11 @@ catch (InvalidOperationException e)
             """
 try
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 finally
 {
-    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
 }
 """);
 
@@ -1784,20 +1784,20 @@ finally
             """
 try
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 catch (InvalidOperationException e)
 {
-    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
 }
 catch (InvalidOperationException e)when (e.Message == "foo")
 {
-    LinqToCSharpTranslatorTest.Baz();
+    LinqToCSharpSyntaxTranslatorTest.Baz();
 }
 finally
 {
-    LinqToCSharpTranslatorTest.Bar();
-    LinqToCSharpTranslatorTest.Baz();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Baz();
 }
 """);
     }
@@ -1819,11 +1819,11 @@ finally
             """
 try
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 catch (InvalidOperationException e)when (e.Message == "foo")
 {
-    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
 }
 """);
     }
@@ -1839,11 +1839,11 @@ catch (InvalidOperationException e)when (e.Message == "foo")
             """
 try
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 catch (InvalidOperationException)
 {
-    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
 }
 """);
 
@@ -1856,11 +1856,11 @@ catch (InvalidOperationException)
             """
 try
 {
-    LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpSyntaxTranslatorTest.Foo();
 }
 catch
 {
-    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpSyntaxTranslatorTest.Bar();
 }
 """);
 
@@ -1926,37 +1926,37 @@ catch
     // ReSharper disable MemberCanBePrivate.Local
 
     private static readonly MethodInfo ReturnsIntWithParamMethod
-        = typeof(LinqToCSharpTranslatorTest).GetMethod(nameof(ReturnsIntWithParam))!;
+        = typeof(LinqToCSharpSyntaxTranslatorTest).GetMethod(nameof(ReturnsIntWithParam))!;
 
     public static int ReturnsIntWithParam(int i)
         => i + 1;
 
     private static readonly MethodInfo WithInOutRefParameterMethod
-        = typeof(LinqToCSharpTranslatorTest).GetMethod(nameof(WithInOutRefParameter))!;
+        = typeof(LinqToCSharpSyntaxTranslatorTest).GetMethod(nameof(WithInOutRefParameter))!;
 
     public static void WithInOutRefParameter(in int inParam, out int outParam, ref int refParam)
         => outParam = 8;
 
     private static readonly MethodInfo GenericMethod
-        = typeof(LinqToCSharpTranslatorTest).GetMethods().Single(m => m.Name == nameof(GenericMethodImplementation));
+        = typeof(LinqToCSharpSyntaxTranslatorTest).GetMethods().Single(m => m.Name == nameof(GenericMethodImplementation));
 
     public static int GenericMethodImplementation<T>(T t)
         => 0;
 
     private static readonly MethodInfo FooMethod
-        = typeof(LinqToCSharpTranslatorTest).GetMethod(nameof(Foo))!;
+        = typeof(LinqToCSharpSyntaxTranslatorTest).GetMethod(nameof(Foo))!;
 
     public static int Foo()
         => 1;
 
     private static readonly MethodInfo BarMethod
-        = typeof(LinqToCSharpTranslatorTest).GetMethod(nameof(Bar))!;
+        = typeof(LinqToCSharpSyntaxTranslatorTest).GetMethod(nameof(Bar))!;
 
     public static int Bar()
         => 1;
 
     private static readonly MethodInfo BazMethod
-        = typeof(LinqToCSharpTranslatorTest).GetMethod(nameof(Baz))!;
+        = typeof(LinqToCSharpSyntaxTranslatorTest).GetMethod(nameof(Baz))!;
 
     public static int Baz()
         => 1;

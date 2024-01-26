@@ -594,7 +594,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             var propertyVariables = new Dictionary<object, string>();
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                Create(property, propertyVariables, replacementMethods: null, parameters);
+                Create(property, propertyVariables, memberAccessReplacements: null, parameters);
             }
 
             foreach (var property in entityType.GetDeclaredServiceProperties())
@@ -814,13 +814,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void Create(
         IProperty property,
-        Dictionary<object, string> knownInstances,
-        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        Dictionary<object, string> constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
 
-        Create(property, variableName, knownInstances, replacementMethods, parameters);
+        Create(property, variableName, constantReplacements, memberAccessReplacements, parameters);
 
         CreateAnnotations(
             property,
@@ -833,8 +833,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private void Create(
         IProperty property,
         string variableName,
-        Dictionary<object, string> knownInstances,
-        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        Dictionary<object, string> constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var valueGeneratorFactoryType = (Type?)property[CoreAnnotationNames.ValueGeneratorFactoryType];
@@ -852,7 +852,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .IncrementIndent()
             .Append(_code.Literal(property.Name));
 
-        PropertyBaseParameters(property, parameters);
+        GeneratePropertyBaseParameters(property, parameters);
 
         if (property.IsNullable)
         {
@@ -995,7 +995,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         var propertyParameters = parameters with { TargetName = variableName };
 
-        SetPropertyBaseProperties(property, knownInstances, replacementMethods, propertyParameters);
+        SetPropertyBaseProperties(property, constantReplacements, memberAccessReplacements, propertyParameters);
 
         mainBuilder.Append(variableName).Append(".TypeMapping = ");
         _annotationCodeGenerator.Create(property.GetTypeMapping(), property, propertyParameters);
@@ -1026,17 +1026,17 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private void
         SetPropertyBaseProperties(
         IPropertyBase property,
-        Dictionary<object, string>? knownInstances,
-        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        Dictionary<object, string>? constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var variableName = parameters.TargetName;
         var mainBuilder = parameters.MainBuilder;
-        knownInstances ??= new Dictionary<object, string>();
-        knownInstances[property] = variableName;
+        constantReplacements ??= [];
+        constantReplacements[property] = variableName;
         if (!property.IsShadowProperty())
         {
-            replacementMethods = CreatePrivateAccessors(property, replacementMethods, parameters);
+            memberAccessReplacements = CreatePrivateAccessors(property, memberAccessReplacements, parameters);
 
             ClrPropertyGetterFactory.Instance.Create(
                 property,
@@ -1048,13 +1048,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(getterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(getterExpression, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(hasSentinelExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(hasSentinelExpression, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(structuralGetterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(structuralGetterExpression, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(hasStructuralSentinelExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(hasStructuralSentinelExpression, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1063,7 +1063,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetSetter(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(setterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(setterExpression, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1072,7 +1072,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetMaterializationSetter(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(materializationSetterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(materializationSetterExpression, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1086,19 +1086,19 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetAccessors(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(currentValueGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(currentValueGetter, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(preStoreGeneratedCurrentValueGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(preStoreGeneratedCurrentValueGetter, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(originalValueGetter == null
                     ? "null"
-                    : _code.Expression(originalValueGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                    : _code.Expression(originalValueGetter, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(relationshipSnapshotGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(relationshipSnapshotGetter, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(valueBufferGetter == null
                     ? "null"
-                    : _code.Expression(valueBufferGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                    : _code.Expression(valueBufferGetter, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
         }
@@ -1115,9 +1115,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .DecrementIndent();
     }
 
-    private Dictionary<(MemberInfo, bool), string>? CreatePrivateAccessors(
+    private Dictionary<MemberAccess, string>? CreatePrivateAccessors(
         IPropertyBase property,
-        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         bool create = true,
         bool qualify = false)
@@ -1125,42 +1125,42 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (property.IsShadowProperty()
             || property.IsIndexerProperty())
         {
-            return replacementMethods;
+            return memberAccessReplacements;
         }
 
-        replacementMethods = CreatePrivateAccessor(property, forMaterialization: false, forSet: false, create, qualify, replacementMethods, parameters);
-        replacementMethods = CreatePrivateAccessor(property, forMaterialization: false, forSet: true, create, qualify, replacementMethods, parameters);
-        replacementMethods = CreatePrivateAccessor(property, forMaterialization: true, forSet: false, create, qualify, replacementMethods, parameters);
-        replacementMethods = CreatePrivateAccessor(property, forMaterialization: true, forSet: true, create, qualify, replacementMethods, parameters);
+        memberAccessReplacements = CreatePrivateAccessor(property, forMaterialization: false, forSet: false, create, qualify, memberAccessReplacements, parameters);
+        memberAccessReplacements = CreatePrivateAccessor(property, forMaterialization: false, forSet: true, create, qualify, memberAccessReplacements, parameters);
+        memberAccessReplacements = CreatePrivateAccessor(property, forMaterialization: true, forSet: false, create, qualify, memberAccessReplacements, parameters);
+        memberAccessReplacements = CreatePrivateAccessor(property, forMaterialization: true, forSet: true, create, qualify, memberAccessReplacements, parameters);
 
-        return replacementMethods;
+        return memberAccessReplacements;
     }
 
-    private Dictionary<(MemberInfo, bool), string>? CreatePrivateAccessor(
+    private Dictionary<MemberAccess, string>? CreatePrivateAccessor(
         IPropertyBase property,
         bool forMaterialization,
         bool forSet,
         bool create,
         bool qualify,
-        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var member = property.GetMemberInfo(forMaterialization, forSet);
         if (member is not FieldInfo field
             || field.IsPublic)
         {
-            return replacementMethods;
+            return memberAccessReplacements;
         }
 
-        if (replacementMethods?.ContainsKey((member, forSet)) != true)
+        if (memberAccessReplacements?.ContainsKey(new MemberAccess(member, forSet)) != true)
         {
-            replacementMethods ??= new();
+            memberAccessReplacements ??= [];
 
             var methodName = (forSet ? "Write" : "Read") + property.Name;
             if (create)
             {
                 var methodBuilder = parameters.MethodBuilder;
-                if (!replacementMethods.ContainsKey((member, !forSet)))
+                if (!memberAccessReplacements.ContainsKey(new MemberAccess(member, !forSet)))
                 {
                     AddNamespace(typeof(UnsafeAccessorAttribute), parameters.Namespaces);
                     methodBuilder
@@ -1204,10 +1204,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 methodName = parameters.ConfigurationClassNames[property.DeclaringType] + "." + methodName;
             }
 
-            replacementMethods.Add((field, forSet), methodName);
+            memberAccessReplacements.Add(new MemberAccess(field, forSet), methodName);
         }
 
-        return replacementMethods;
+        return memberAccessReplacements;
     }
 
     private static Type? GetValueConverterType(IProperty property)
@@ -1219,7 +1219,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .ValueConverterType;
     }
 
-    private void PropertyBaseParameters(
+    private void GeneratePropertyBaseParameters(
         IPropertyBase property,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         bool skipType = false)
@@ -1343,7 +1343,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .IncrementIndent()
             .Append(_code.Literal(property.Name));
 
-        PropertyBaseParameters(property, parameters, skipType: true);
+        GeneratePropertyBaseParameters(property, parameters, skipType: true);
 
         AddNamespace(property.ClrType, parameters.Namespaces);
         mainBuilder
@@ -1504,7 +1504,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     configurationClassNames,
                     nullable);
 
-                PropertyBaseParameters(complexProperty, parameters, skipType: true);
+                GeneratePropertyBaseParameters(complexProperty, parameters, skipType: true);
 
                 if (complexProperty.IsNullable)
                 {
@@ -1570,19 +1570,19 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 var complexTypeParameters = parameters with { TargetName = complexTypeVariable };
                 var complexPropertyParameters = parameters with { TargetName = complexPropertyVariable };
 
-                var knownInstances = new Dictionary<object, string>();
-                Dictionary<(MemberInfo, bool), string>? replacementMethods = null;
-
-                SetPropertyBaseProperties(complexProperty, knownInstances, replacementMethods, complexPropertyParameters);
+                var constantReplacements = new Dictionary<object, string>();
+                Dictionary<MemberAccess, string>? memberAccessReplacements = null;
 
                 foreach (var chainedComplexProperty in complexProperty.GetChainToComplexProperty())
                 {
-                    replacementMethods = CreatePrivateAccessors(chainedComplexProperty, replacementMethods, complexTypeParameters, create: false);
+                    memberAccessReplacements = CreatePrivateAccessors(chainedComplexProperty, memberAccessReplacements, complexTypeParameters, create: chainedComplexProperty == complexProperty);
                 }
+
+                SetPropertyBaseProperties(complexProperty, constantReplacements, memberAccessReplacements, complexPropertyParameters);
 
                 foreach (var property in complexType.GetProperties())
                 {
-                    Create(property, knownInstances, replacementMethods, complexTypeParameters);
+                    Create(property, constantReplacements, memberAccessReplacements, complexTypeParameters);
                 }
 
                 foreach (var nestedComplexProperty in complexType.GetComplexProperties())
@@ -1763,7 +1763,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .Append(foreignKeyVariable).AppendLine(",")
             .Append("onDependent: ").Append(_code.Literal(navigation.IsOnDependent));
 
-        PropertyBaseParameters(navigation, parameters);
+        GeneratePropertyBaseParameters(navigation, parameters);
 
         if (navigation.IsEagerLoaded)
         {
@@ -1784,19 +1784,19 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         var navigationParameters = parameters with { TargetName = navigationVariable };
 
-        var knownInstances = new Dictionary<object, string>();
-        var replacementMethods = CreatePrivateAccessors(navigation, null, navigationParameters, create: false, qualify: true);
-        SetPropertyBaseProperties(navigation, knownInstances, replacementMethods, navigationParameters);
+        var constantReplacements = new Dictionary<object, string>();
+        var memberAccessReplacements = CreatePrivateAccessors(navigation, null, navigationParameters, create: false, qualify: true);
+        SetPropertyBaseProperties(navigation, constantReplacements, memberAccessReplacements, navigationParameters);
 
-        SetNavigationBaseProperties(navigation, knownInstances, replacementMethods, navigationParameters);
+        SetNavigationBaseProperties(navigation, constantReplacements, memberAccessReplacements, navigationParameters);
 
         CreateAnnotations(navigation, _annotationCodeGenerator.Generate, navigationParameters);
     }
 
     private void SetNavigationBaseProperties(
         INavigationBase navigation,
-        Dictionary<object, string> knownInstances,
-        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        Dictionary<object, string> constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!navigation.IsCollection)
@@ -1823,23 +1823,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .IncrementIndent()
             .AppendLines(getCollection == null
                 ? "null"
-                : _code.Expression(getCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                : _code.Expression(getCollection, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(setCollection == null
                 ? "null"
-                : _code.Expression(setCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                : _code.Expression(setCollection, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(setCollectionForMaterialization == null
                 ? "null"
-                : _code.Expression(setCollectionForMaterialization, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                : _code.Expression(setCollectionForMaterialization, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(createAndSetCollection == null
                 ? "null"
-                : _code.Expression(createAndSetCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                : _code.Expression(createAndSetCollection, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(createCollection == null
                 ? "null"
-                : _code.Expression(createCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                : _code.Expression(createCollection, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
             .AppendLine(");")
             .DecrementIndent();
     }
@@ -1916,7 +1916,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.Literal(navigation.IsCollection)).AppendLine(",")
                 .Append(_code.Literal(navigation.IsOnDependent));
 
-            PropertyBaseParameters(navigation, parameters with { TargetName = declaringEntityType });
+            GeneratePropertyBaseParameters(navigation, parameters with { TargetName = declaringEntityType });
 
             if (navigation.IsEagerLoaded)
             {
@@ -1953,11 +1953,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine("}")
                 .AppendLine();
 
-            var knownInstances = new Dictionary<object, string>();
-            var replacementMethods = new Dictionary<(MemberInfo, bool), string>();
-            SetPropertyBaseProperties(navigation, knownInstances, replacementMethods, parameters);
+            var constantReplacements = new Dictionary<object, string>();
+            var memberAccessReplacements = new Dictionary<MemberAccess, string>();
+            SetPropertyBaseProperties(navigation, constantReplacements, memberAccessReplacements, parameters);
 
-            SetNavigationBaseProperties(navigation, knownInstances, replacementMethods, parameters);
+            SetNavigationBaseProperties(navigation, constantReplacements, memberAccessReplacements, parameters);
 
             CreateAnnotations(navigation, _annotationCodeGenerator.Generate, parameters);
 
@@ -2020,27 +2020,27 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     configurationClassNames,
                     nullable);
 
-            var knownInstances = new Dictionary<object, string>() { { entityType, parameters.TargetName } };
+            var constantReplacements = new Dictionary<object, string>() { { entityType, parameters.TargetName } };
 
             var baseType = entityType.BaseType;
             while (baseType != null)
             {
-                if (!knownInstances.ContainsKey(baseType))
+                if (!constantReplacements.ContainsKey(baseType))
                 {
-                    knownInstances[baseType] = parameters.TargetName;
+                    constantReplacements[baseType] = parameters.TargetName;
                 }
                 baseType = baseType.BaseType;
             }
 
-            Dictionary<(MemberInfo, bool), string>? replacementMethods = null;
-            replacementMethods = GenerateMemberReferences(entityType, knownInstances, replacementMethods, parameters);
+            Dictionary<MemberAccess, string>? memberAccessReplacements = null;
+            memberAccessReplacements = GenerateMemberReferences(entityType, constantReplacements, memberAccessReplacements, parameters);
 
             foreach (var navigation in entityType.GetNavigations())
             {
                 var variableName = _code.Identifier(navigation.Name, parameters.ScopeVariables, capitalize: false);
-                knownInstances[navigation] = variableName;
+                constantReplacements[navigation] = variableName;
 
-                replacementMethods = CreatePrivateAccessors(navigation, replacementMethods, parameters, create: navigation.DeclaringType == entityType, qualify: navigation.DeclaringType != entityType);
+                memberAccessReplacements = CreatePrivateAccessors(navigation, memberAccessReplacements, parameters, create: navigation.DeclaringType == entityType, qualify: navigation.DeclaringType != entityType);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
@@ -2053,7 +2053,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetOriginalValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(originalValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(originalValuesFactory, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2061,7 +2061,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetStoreGeneratedValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(storeGeneratedValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(storeGeneratedValuesFactory, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2069,7 +2069,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetTemporaryValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(temporaryValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(temporaryValuesFactory, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2077,7 +2077,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetShadowValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(shadowValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(shadowValuesFactory, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2085,7 +2085,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetEmptyShadowValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(emptyShadowValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(emptyShadowValuesFactory, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2093,7 +2093,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetRelationshipSnapshotFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(relationshipSnapshotFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(_code.Expression(relationshipSnapshotFactory, constantReplacements, memberAccessReplacements, parameters.Namespaces), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2123,10 +2123,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine()
             .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
 
-        Dictionary<(MemberInfo, bool), string>? GenerateMemberReferences(
+        Dictionary<MemberAccess, string>? GenerateMemberReferences(
             ITypeBase structuralType,
-            Dictionary<object, string> knownInstances,
-            Dictionary<(MemberInfo, bool), string>? replacementMethods,
+            Dictionary<object, string> constantReplacements,
+            Dictionary<MemberAccess, string>? memberAccessReplacements,
             CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
             bool nested = false)
         {
@@ -2134,39 +2134,39 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             foreach (var property in structuralType.GetProperties())
             {
                 var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
-                knownInstances[property] = variableName;
+                constantReplacements[property] = variableName;
 
-                replacementMethods = CreatePrivateAccessors(
-                    property, replacementMethods, parameters, create: false, qualify: nested || property.DeclaringType != structuralType);
+                memberAccessReplacements = CreatePrivateAccessors(
+                    property, memberAccessReplacements, parameters, create: false, qualify: nested || property.DeclaringType != structuralType);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
-                    .AppendLine($"{knownInstances[property.DeclaringType]}.FindProperty({_code.Literal(property.Name)})!;");
+                    .AppendLine($"{constantReplacements[property.DeclaringType]}.FindProperty({_code.Literal(property.Name)})!;");
             }
 
             foreach (var complexProperty in structuralType.GetComplexProperties())
             {
                 var variableName = _code.Identifier(complexProperty.Name, parameters.ScopeVariables, capitalize: false);
-                knownInstances[complexProperty] = variableName;
+                constantReplacements[complexProperty] = variableName;
 
-                replacementMethods = CreatePrivateAccessors(
-                    complexProperty, replacementMethods, parameters, create: false, qualify: nested || complexProperty.DeclaringType != structuralType);
+                memberAccessReplacements = CreatePrivateAccessors(
+                    complexProperty, memberAccessReplacements, parameters, create: false, qualify: nested || complexProperty.DeclaringType != structuralType);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
-                    .AppendLine($"{knownInstances[complexProperty.DeclaringType]}.FindComplexProperty({_code.Literal(complexProperty.Name)})!;");
+                    .AppendLine($"{constantReplacements[complexProperty.DeclaringType]}.FindComplexProperty({_code.Literal(complexProperty.Name)})!;");
 
                 var typeVariableName = _code.Identifier(complexProperty.ComplexType.ShortName(), parameters.ScopeVariables, capitalize: false);
-                knownInstances[complexProperty.ComplexType] = typeVariableName;
+                constantReplacements[complexProperty.ComplexType] = typeVariableName;
 
                 mainBuilder
                     .Append($"var {typeVariableName} = ")
                     .AppendLine($"{variableName}.ComplexType;");
 
-                GenerateMemberReferences(complexProperty.ComplexType, knownInstances, replacementMethods, parameters, nested: true);
+                GenerateMemberReferences(complexProperty.ComplexType, constantReplacements, memberAccessReplacements, parameters, nested: true);
             }
 
-            return replacementMethods;
+            return memberAccessReplacements;
         }
     }
 
@@ -2184,7 +2184,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

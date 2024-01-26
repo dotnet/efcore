@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSyntaxTranslator
+public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 {
     private sealed record StackFrame(
         Dictionary<ParameterExpression, string> Variables,
@@ -32,13 +33,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         HashSet<string> UnnamedLabelNames);
 
     private readonly Stack<StackFrame> _stack
-        = new(
-            new[]
-            {
-                new StackFrame(
-                    new Dictionary<ParameterExpression, string>(), [], new Dictionary<LabelTarget, string>(),
-                    [])
-            });
+        = new([new StackFrame([], [], [], [])]);
 
     private int _unnamedParameterCounter;
 
@@ -50,17 +45,14 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
     private LiftedState _liftedState = new([], new Dictionary<ParameterExpression, string>(), [], []);
 
-    private ExpressionContext? _context;
-    private Dictionary<object, ExpressionSyntax>? _knownInstances;
-    private Dictionary<(MemberInfo, bool), ExpressionSyntax>? _replacementMethods;
+    private ExpressionContext _context;
+    private Dictionary<object, ExpressionSyntax>? _constantReplacements;
     private bool _onLastLambdaLine;
 
     private readonly HashSet<ParameterExpression> _capturedVariables = [];
     private ISet<string> _collectedNamespaces = null!;
 
     private static MethodInfo? _activatorCreateInstanceMethod;
-    private static MethodInfo? _typeGetFieldMethod;
-    private static MethodInfo? _fieldGetValueMethod;
     private static MethodInfo? _mathPowMethod;
 
     private readonly SideEffectDetectionSyntaxWalker _sideEffectDetector = new();
@@ -84,7 +76,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IReadOnlySet<ParameterExpression> CapturedVariables
+    public virtual IReadOnlySet<ParameterExpression> CapturedVariables
         => _capturedVariables.ToHashSet();
 
     /// <summary>
@@ -103,13 +95,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     /// </summary>
     public virtual SyntaxNode TranslateStatement(
         Expression node,
-        Dictionary<object, ExpressionSyntax>? knownInstances,
-        Dictionary<(MemberInfo, bool), ExpressionSyntax>? replacementMethods,
+        Dictionary<object, ExpressionSyntax>? constantReplacements,
         ISet<string> collectedNamespaces)
-    {
-        bool? statementContext = true;
-        return TranslateCore(node, knownInstances, replacementMethods, collectedNamespaces, ref statementContext);
-    }
+        => TranslateCore(node, constantReplacements, collectedNamespaces, statementContext: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,33 +107,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     /// </summary>
     public virtual SyntaxNode TranslateExpression(
         Expression node,
-        Dictionary<object, ExpressionSyntax>? knownInstances,
-        Dictionary<(MemberInfo, bool), ExpressionSyntax>? replacementMethods,
+        Dictionary<object, ExpressionSyntax>? constantReplacements,
         ISet<string> collectedNamespaces)
-    {
-        bool? statementContext = false;
-        var result = TranslateCore(node, knownInstances, replacementMethods, collectedNamespaces, ref statementContext);
-        return result;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SyntaxNode Translate(
-        Expression node,
-        Dictionary<object, ExpressionSyntax>? knownInstances,
-        Dictionary<(MemberInfo, bool), ExpressionSyntax>? replacementMethods,
-        ISet<string> collectedNamespaces,
-        out bool isStatement)
-    {
-        bool? statementContext = null;
-        var result = TranslateCore(node, knownInstances, replacementMethods, collectedNamespaces, ref statementContext);
-        isStatement = statementContext == true;
-        return result;
-    }
+        => TranslateCore(node, constantReplacements, collectedNamespaces, statementContext: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,38 +119,23 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     /// </summary>
     protected virtual SyntaxNode TranslateCore(
         Expression node,
-        Dictionary<object, ExpressionSyntax>? knownInstances,
-        Dictionary<(MemberInfo, bool), ExpressionSyntax>? replacementMethods,
+        Dictionary<object, ExpressionSyntax>? constantReplacements,
         ISet<string> collectedNamespaces,
-        ref bool? statementContext)
+        bool statementContext)
     {
         _capturedVariables.Clear();
-        _knownInstances = knownInstances;
-        _replacementMethods = replacementMethods;
+        _constantReplacements = constantReplacements;
         _collectedNamespaces = collectedNamespaces;
         _unnamedParameterCounter = 0;
-        _context = statementContext.HasValue
-            ? statementContext.Value ? ExpressionContext.Statement : ExpressionContext.Expression
-            : null;
+        _context = statementContext ? ExpressionContext.Statement : ExpressionContext.Expression;
         _onLastLambdaLine = true;
 
         Visit(node);
 
-        if (_liftedState.Statements.Count > 0)
+        if (_liftedState.Statements.Count > 0
+            && _context == ExpressionContext.Expression)
         {
-            if (statementContext == false)
-            {
-                throw new NotSupportedException("Lifted expressions remaining at top-level in expression context");
-            }
-            else
-            {
-                statementContext = true;
-            }
-        }
-
-        if (statementContext == null)
-        {
-            statementContext = _context == ExpressionContext.Statement;
+            throw new NotSupportedException("Lifted expressions remaining at top-level in expression context");
         }
 
         Check.DebugAssert(_stack.Count == 1, "_parameterStack.Count == 1");
@@ -405,99 +354,33 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
         Expression VisitAssignment(BinaryExpression assignment, SyntaxKind kind)
         {
-            if (assignment.Left is MemberExpression member
-                && _replacementMethods?.TryGetValue((member.Member, true), out var methodName) == true)
+            if (assignment.Left is MemberExpression { Member: FieldInfo { IsPublic: false } } member)
             {
-                Result = InvocationExpression(
-                    methodName,
-                    ArgumentList(SeparatedList(new[]
-                        {
-                            Argument(Translate<ExpressionSyntax>(member.Expression)),
-                            Argument(Translate<ExpressionSyntax>(assignment.Right))
-                        })));
+                TranslateNonPublicFieldAssignment(member, assignment.Right, kind);
 
                 return assignment;
             }
 
+            // TODO: Private property
+
             var translatedLeft = Translate<ExpressionSyntax>(assignment.Left);
 
-            ExpressionSyntax translatedRight;
+            // Identify assignment where the RHS supports assignment lowering (switch, conditional). If the e.g. switch expression is
+            // lifted out (because some arm contains a block), this will lower the variable to be assigned inside the resulting switch
+            // statement, rather then adding another useless temporary variable.
+            var translatedRight = Translate(
+                assignment.Right,
+                lowerableAssignmentVariable: translatedLeft as IdentifierNameSyntax);
 
-            // LINQ expression trees can directly access private members, but C# code cannot.
-            // If a private member is being set, VisitMember generated a reflection GetValue invocation for it; detect
-            // that here and replace it with SetValue instead.
-            // TODO: Private property
-            if (translatedLeft is ParenthesizedExpressionSyntax
-                {
-                    Expression: CastExpressionSyntax
-                    {
-                        Expression: ParenthesizedExpressionSyntax
-                        {
-                            Expression: InvocationExpressionSyntax
-                            {
-                                Expression: MemberAccessExpressionSyntax
-                                {
-                                    Name.Identifier.Text: nameof(FieldInfo.GetValue),
-                                    Expression: var fieldInfoExpression
-                                },
-                                ArgumentList.Arguments: [var lValue]
-                            }
-                        }
-                    }
-                })
+            // If the RHS was lifted out and the assignment lowering succeeded, Translate above returns the lowered assignment variable;
+            // this would mean that we return a useless identity assignment (i = i). Instead, just return it.
+            if (translatedRight == translatedLeft)
             {
-                // If we have a simple assignment, use the RHS directly (fieldInfo.SetValue(lValue, rValue)).
-                // For compound assignment operators, apply the appropriate operator (fieldInfo.setValue(lValue, rValue + lValue)
-                translatedRight = Translate<ExpressionSyntax>(assignment.Right);
-
-                if (kind != SyntaxKind.SimpleAssignmentExpression)
-                {
-                    var nonAssignmentOperator = kind switch
-                    {
-                        SyntaxKind.AddAssignmentExpression => SyntaxKind.AddExpression,
-                        SyntaxKind.MultiplyAssignmentExpression => SyntaxKind.MultiplyExpression,
-                        SyntaxKind.DivideAssignmentExpression => SyntaxKind.DivideExpression,
-                        SyntaxKind.ModuloAssignmentExpression => SyntaxKind.ModuloExpression,
-                        SyntaxKind.SubtractAssignmentExpression => SyntaxKind.SubtractExpression,
-                        SyntaxKind.AndAssignmentExpression => SyntaxKind.BitwiseAndExpression,
-                        SyntaxKind.OrAssignmentExpression => SyntaxKind.BitwiseOrExpression,
-                        SyntaxKind.LeftShiftAssignmentExpression => SyntaxKind.LeftShiftExpression,
-                        SyntaxKind.RightShiftAssignmentExpression => SyntaxKind.RightShiftExpression,
-                        SyntaxKind.ExclusiveOrAssignmentExpression => SyntaxKind.ExclusiveOrExpression,
-
-                        _ => throw new UnreachableException()
-                    };
-
-                    translatedRight = BinaryExpression(nonAssignmentOperator, translatedLeft, translatedRight);
-                }
-
-                Result = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        fieldInfoExpression,
-                        IdentifierName(nameof(FieldInfo.SetValue))),
-                    ArgumentList(
-                        SeparatedList(new[] { lValue, Argument(translatedRight) })));
+                Result = translatedRight;
             }
             else
             {
-                // Identify assignment where the RHS supports assignment lowering (switch, conditional). If the e.g. switch expression is
-                // lifted out (because some arm contains a block), this will lower the variable to be assigned inside the resulting switch
-                // statement, rather then adding another useless temporary variable.
-                translatedRight = Translate(
-                    assignment.Right,
-                    lowerableAssignmentVariable: translatedLeft as IdentifierNameSyntax);
-
-                // If the RHS was lifted out and the assignment lowering succeeded, Translate above returns the lowered assignment variable;
-                // this would mean that we return a useless identity assignment (i = i). Instead, just return it.
-                if (translatedRight == translatedLeft)
-                {
-                    Result = translatedRight;
-                }
-                else
-                {
-                    Result = AssignmentExpression(kind, translatedLeft, translatedRight);
-                }
+                Result = AssignmentExpression(kind, translatedLeft, translatedRight);
             }
 
             return assignment;
@@ -507,7 +390,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     /// <inheritdoc />
     protected override Expression VisitBlock(BlockExpression block)
     {
-        var blockContext = _context ?? ExpressionContext.Expression;
+        var blockContext = _context;
 
         var parentOnLastLambdaLine = _onLastLambdaLine;
         var parentLiftedState = _liftedState;
@@ -539,15 +422,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 {
                     if (_liftedState.Variables.ContainsKey(parameter))
                     {
-                        if (_context == null)
-                        {
-                            _context = ExpressionContext.Statement;
-                            return VisitBlock(block);
-                        }
-                        else
-                        {
-                            throw new NotSupportedException("Parameter clash during expression lifting for: " + parameter.Name);
-                        }
+                        throw new NotSupportedException("Parameter clash during expression lifting for: " + parameter.Name);
                     }
 
                     _liftedState.Variables.Add(parameter, uniquifiedName);
@@ -579,7 +454,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
                 // Any lines before the last are evaluated in statement context (they aren't returned); the last line is evaluated in the
                 // context of the block as a whole. _context now refers to the statement's context, blockContext to the block's.
-                var statementContext = onLastBlockLine ? blockContext : ExpressionContext.Statement;
+                var statementContext = onLastBlockLine ? _context : ExpressionContext.Statement;
 
                 SyntaxNode translated;
                 using (ChangeContext(statementContext))
@@ -614,7 +489,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     var useExplicitVariableType = valueSyntax.Kind() == SyntaxKind.NullLiteralExpression;
 
                     translated = useExplicitVariableType
-                        ? _g.LocalDeclarationStatement(Translate(lValue.Type), LookupVariableName(lValue), valueSyntax)
+                        ? _g.LocalDeclarationStatement(Generate(lValue.Type), LookupVariableName(lValue), valueSyntax)
                         : _g.LocalDeclarationStatement(LookupVariableName(lValue), valueSyntax);
                 }
 
@@ -714,7 +589,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             // and either add them to the block, or lift them if we're an expression block.
             var unassignedVariableDeclarations =
                 unassignedVariables.Select(
-                    v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(Translate(v.Type), LookupVariableName(v)));
+                    v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(Generate(v.Type), LookupVariableName(v)));
 
             if (blockContext == ExpressionContext.Expression)
             {
@@ -832,7 +707,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
         var catchDeclaration = noType
             ? null
-            : CatchDeclaration(Translate(catchBlock.Test));
+            : CatchDeclaration(Generate(catchBlock.Test));
 
         if (catchBlock.Variable is not null)
         {
@@ -938,7 +813,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     var name = UniquifyVariableName("liftedConditional");
                     var parameter = E.Parameter(conditional.Type, name);
                     assignmentVariable = IdentifierName(name);
-                    loweredAssignmentVariableType = Translate(parameter.Type);
+                    loweredAssignmentVariableType = Generate(parameter.Type);
                 }
                 else
                 {
@@ -1032,16 +907,23 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         Result = GenerateValue(constant.Value);
 
         return constant;
+    }
 
-        ExpressionSyntax GenerateValue(object? value)
-            => value switch
-            {
-                int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
-                    => (ExpressionSyntax)_g.LiteralExpression(constant.Value),
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual ExpressionSyntax GenerateValue(object? value)
+    {
+        return value switch
+        {
+            int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
+            or string or bool or null
+                => (ExpressionSyntax)_g.LiteralExpression(value),
 
-            string or bool or null => (ExpressionSyntax)_g.LiteralExpression(constant.Value),
-
-            Type t => TypeOfExpression(Translate(t)),
+            Type t => TypeOfExpression(Generate(t)),
             Enum e => HandleEnum(e),
 
             Guid g => ObjectCreationExpression(IdentifierName(nameof(Guid)))
@@ -1063,102 +945,103 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 when equalityComparer == ReferenceEqualityComparer.Instance
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(ReferenceEqualityComparer)),
+                    Generate(typeof(ReferenceEqualityComparer)),
                     IdentifierName(nameof(ReferenceEqualityComparer.Instance))),
-
-            Snapshot snapshot
-                when snapshot == Snapshot.Empty
-                => MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Snapshot)),
-                    IdentifierName(nameof(Snapshot.Empty))),
 
             IEqualityComparer c
                 when c == StructuralComparisons.StructuralEqualityComparer
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(StructuralComparisons)),
+                    Generate(typeof(StructuralComparisons)),
                     IdentifierName(nameof(StructuralComparisons.StructuralEqualityComparer))),
 
             CultureInfo cultureInfo when cultureInfo == CultureInfo.InvariantCulture
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(CultureInfo)),
+                    Generate(typeof(CultureInfo)),
                     IdentifierName(nameof(CultureInfo.InvariantCulture))),
 
             CultureInfo cultureInfo when cultureInfo == CultureInfo.InstalledUICulture
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(CultureInfo)),
+                    Generate(typeof(CultureInfo)),
                     IdentifierName(nameof(CultureInfo.InstalledUICulture))),
 
             CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentCulture
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(CultureInfo)),
+                    Generate(typeof(CultureInfo)),
                     IdentifierName(nameof(CultureInfo.CurrentCulture))),
 
             CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentUICulture
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(CultureInfo)),
+                    Generate(typeof(CultureInfo)),
                     IdentifierName(nameof(CultureInfo.CurrentUICulture))),
 
             CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentCulture
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(CultureInfo)),
+                    Generate(typeof(CultureInfo)),
                     IdentifierName(nameof(CultureInfo.DefaultThreadCurrentCulture))),
 
             CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentUICulture
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(CultureInfo)),
+                    Generate(typeof(CultureInfo)),
                     IdentifierName(nameof(CultureInfo.DefaultThreadCurrentUICulture))),
 
             Encoding encoding when encoding == Encoding.ASCII
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.ASCII))),
 
             Encoding encoding when encoding == Encoding.Unicode
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.Unicode))),
 
             Encoding encoding when encoding == Encoding.BigEndianUnicode
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.BigEndianUnicode))),
 
             Encoding encoding when encoding == Encoding.UTF8
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.UTF8))),
 
             Encoding encoding when encoding == Encoding.UTF32
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.UTF32))),
 
             Encoding encoding when encoding == Encoding.Latin1
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.Latin1))),
 
             Encoding encoding when encoding == Encoding.Default
                 => MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    Translate(typeof(Encoding)),
+                    Generate(typeof(Encoding)),
                     IdentifierName(nameof(Encoding.Default))),
 
-            _ => HandleUnknownConstant(value)
+            FieldInfo fieldInfo
+                => HandleFieldInfo(fieldInfo),
+
+            //TODO: Handle PropertyInfo
+
+            _ => _constantReplacements != null
+                && _constantReplacements.TryGetValue(value, out var instance)
+                ? instance
+                : GenerateUnknownValue(value)
         };
 
         ExpressionSyntax HandleEnum(Enum e)
@@ -1174,7 +1057,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     var underlyingType = enumType.GetEnumUnderlyingType();
 
                     return CastExpression(
-                        Translate(enumType),
+                        Generate(enumType),
                         LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
                             underlyingType == typeof(sbyte)
@@ -1194,13 +1077,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 (last, next) => last is null
                     ? MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
-                        Translate(enumType),
+                        Generate(enumType),
                         IdentifierName(next))
                     : BinaryExpression(
                         SyntaxKind.BitwiseOrExpression, last,
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            Translate(enumType),
+                            Generate(enumType),
                             IdentifierName(next))))!;
         }
 
@@ -1215,25 +1098,46 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             return TupleExpression(SeparatedList(arguments));
         }
 
-        ExpressionSyntax HandleUnknownConstant(object value)
+        ExpressionSyntax HandleFieldInfo(FieldInfo fieldInfo)
+            => fieldInfo.DeclaringType is null
+                ? throw new NotSupportedException("Field without a declaring type: " + fieldInfo.Name)
+                : (ExpressionSyntax)InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        TypeOfExpression(Generate(fieldInfo.DeclaringType)),
+                        IdentifierName(nameof(Type.GetField))),
+                    ArgumentList(
+                        SeparatedList(new[] {
+                            Argument(LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(fieldInfo.Name))),
+                            Argument(BinaryExpression(
+                                SyntaxKind.BitwiseOrExpression,
+                                HandleEnum(fieldInfo.IsStatic ? BindingFlags.Static : BindingFlags.Instance),
+                                BinaryExpression(
+                                    SyntaxKind.BitwiseOrExpression,
+                                    HandleEnum(fieldInfo.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic),
+                                    HandleEnum(BindingFlags.DeclaredOnly)))) })));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual ExpressionSyntax GenerateUnknownValue(object value)
+    {
+        var type = value.GetType();
+        if (type.IsValueType
+            && value.Equals(type.GetDefaultValue()))
         {
-            if (_knownInstances != null
-                && _knownInstances.TryGetValue(value, out var instance))
-            {
-                return instance;
-            }
-
-            var type = value.GetType();
-            if (type.IsValueType
-                && value.Equals(type.GetDefaultValue()))
-            {
-                return DefaultExpression(Translate(type));
-            }
-
-            throw new NotSupportedException(
-                $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
-                + Environment.NewLine + value.ToString());
+            return DefaultExpression(Generate(type));
         }
+
+        throw new NotSupportedException(
+            $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
+            + Environment.NewLine + value.ToString());
     }
 
     /// <inheritdoc />
@@ -1243,7 +1147,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     /// <inheritdoc />
     protected override Expression VisitDefault(DefaultExpression node)
     {
-        Result = DefaultExpression(Translate(node.Type));
+        Result = DefaultExpression(Generate(node.Type));
 
         return node;
     }
@@ -1334,7 +1238,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         return IdentifierName(_stack.Peek().Labels[labelTarget]);
     }
 
-    private TypeSyntax Translate(Type type)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual TypeSyntax Generate(Type type)
     {
         if (type.IsGenericType)
         {
@@ -1347,11 +1257,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
             var generic = GenericName(
                 Identifier(type.Name.Substring(0, type.Name.IndexOf('`'))),
-                TypeArgumentList(SeparatedList(type.GenericTypeArguments.Select(Translate))));
+                TypeArgumentList(SeparatedList(type.GenericTypeArguments.Select(Generate))));
             if (type.IsNested)
             {
                 return QualifiedName(
-                    (NameSyntax)Translate(type.DeclaringType!),
+                    (NameSyntax)Generate(type.DeclaringType!),
                     generic);
             }
 
@@ -1365,7 +1275,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
         if (type.IsArray)
         {
-            return ArrayType(Translate(type.GetElementType()!))
+            return ArrayType(Generate(type.GetElementType()!))
                 .WithRankSpecifiers(SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
         }
 
@@ -1452,7 +1362,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         if (type.IsNested)
         {
             return QualifiedName(
-                (NameSyntax)Translate(type.DeclaringType!),
+                (NameSyntax)Generate(type.DeclaringType!),
                 IdentifierName(type.Name));
         }
 
@@ -1503,7 +1413,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     lambda.Parameters.Select(
                         p =>
                             Parameter(Identifier(LookupVariableName(p)))
-                                .WithType(p.Type.IsAnonymousType() ? null : Translate(p.Type))))),
+                                .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
             body);
 
         var popped = _stack.Pop();
@@ -1576,37 +1486,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
         switch (member)
         {
-            case { Member: FieldInfo { IsPublic: false } fieldInfo }:
-                if (member.Expression is null)
-                {
-                    throw new NotImplementedException("Private static field access");
-                }
-
-                if (member.Member.DeclaringType is null)
-                {
-                    throw new NotSupportedException("Private field without a declaring type: " + member.Member.Name);
-                }
-
-                if (_replacementMethods?.TryGetValue((member.Member, false), out var methodName) == true)
-                {
-                    Result = InvocationExpression(
-                        methodName,
-                        ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(member.Expression)) })));
-
-                    break;
-                }
-
-                Result = Translate(
-                    E.Convert(
-                        E.Call(
-                            E.Call(
-                                E.Constant(member.Member.DeclaringType),
-                                _typeGetFieldMethod ??= typeof(Type).GetMethod(nameof(Type.GetField), [typeof(string), typeof(BindingFlags)])!,
-                                E.Constant(fieldInfo.Name),
-                                E.Constant(BindingFlags.NonPublic | BindingFlags.Instance)),
-                            _fieldGetValueMethod ??= typeof(FieldInfo).GetMethod(nameof(FieldInfo.GetValue), [typeof(object)])!,
-                            member.Expression),
-                        member.Type));
+            case { Member: FieldInfo { IsPublic: false } }:
+                TranslateNonPublicFieldAccess(member);
                 break;
 
             // TODO: private property
@@ -1623,13 +1504,89 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 Result = MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     member.Expression is null
-                        ? Translate(member.Member.DeclaringType!) // static
+                        ? Generate(member.Member.DeclaringType!) // static
                         : Translate<ExpressionSyntax>(member.Expression),
                     IdentifierName(member.Member.Name));
                 break;
         }
 
         return member;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void TranslateNonPublicFieldAccess(MemberExpression member)
+    {
+        if (member.Expression is null)
+        {
+            throw new NotImplementedException("Private static field access");
+        }
+
+        var translatedExpression = Translate<ExpressionSyntax>(member.Expression);
+        Result = ParenthesizedExpression(
+                    CastExpression(
+                        Generate(member.Type),
+                        InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                GenerateValue(member.Member),
+                                IdentifierName(nameof(FieldInfo.GetValue))),
+                            ArgumentList(
+                                SingletonSeparatedList(Argument(translatedExpression))))));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void TranslateNonPublicFieldAssignment(MemberExpression member, Expression value, SyntaxKind kind)
+    {
+        // LINQ expression trees can directly access private members, but C# code cannot, use SetValue instead.
+
+        if (member.Expression is null)
+        {
+            throw new NotImplementedException("Private static field assignment");
+        }
+
+        // If we have a simple assignment, use the RHS directly (fieldInfo.SetValue(lValue, rValue)).
+        // For compound assignment operators, apply the appropriate operator (fieldInfo.setValue(lValue, rValue + lValue)
+        var translatedRight = Translate<ExpressionSyntax>(value);
+
+        if (kind != SyntaxKind.SimpleAssignmentExpression)
+        {
+            var nonAssignmentOperator = kind switch
+            {
+                SyntaxKind.AddAssignmentExpression => SyntaxKind.AddExpression,
+                SyntaxKind.MultiplyAssignmentExpression => SyntaxKind.MultiplyExpression,
+                SyntaxKind.DivideAssignmentExpression => SyntaxKind.DivideExpression,
+                SyntaxKind.ModuloAssignmentExpression => SyntaxKind.ModuloExpression,
+                SyntaxKind.SubtractAssignmentExpression => SyntaxKind.SubtractExpression,
+                SyntaxKind.AndAssignmentExpression => SyntaxKind.BitwiseAndExpression,
+                SyntaxKind.OrAssignmentExpression => SyntaxKind.BitwiseOrExpression,
+                SyntaxKind.LeftShiftAssignmentExpression => SyntaxKind.LeftShiftExpression,
+                SyntaxKind.RightShiftAssignmentExpression => SyntaxKind.RightShiftExpression,
+                SyntaxKind.ExclusiveOrAssignmentExpression => SyntaxKind.ExclusiveOrExpression,
+
+                _ => throw new UnreachableException()
+            };
+
+            var translatedLeft = Translate<ExpressionSyntax>(member);
+            translatedRight = BinaryExpression(nonAssignmentOperator, translatedLeft, translatedRight);
+        }
+
+        Result = InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                GenerateValue(member.Member),
+                IdentifierName(nameof(FieldInfo.SetValue))),
+            ArgumentList(
+                SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(member.Expression)), Argument(translatedRight) })));
     }
 
     /// <inheritdoc />
@@ -1683,7 +1640,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 Identifier(call.Method.Name),
                 TypeArgumentList(
                     SeparatedList(
-                        call.Method.GetGenericArguments().Select(Translate))));
+                        call.Method.GetGenericArguments().Select(Generate))));
         }
 
         // Extension syntax
@@ -1714,7 +1671,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
                 ExpressionSyntax GetMemberAccessesForAllDeclaringTypes(Type type)
                     => type.DeclaringType is null
-                        ? Translate(type)
+                        ? Generate(type)
                         : MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             GetMemberAccessesForAllDeclaringTypes(type.DeclaringType),
@@ -1785,7 +1742,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        var elementType = Translate(newArray.Type.GetElementType()!);
+        var elementType = Generate(newArray.Type.GetElementType()!);
         var expressions = TranslateList(newArray.Expressions);
 
         if (newArray.NodeType == ExpressionType.NewArrayBounds)
@@ -1863,7 +1820,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         {
             // Normal case with plain old instantiation
             Result = ObjectCreationExpression(
-                Translate(node.Type),
+                Generate(node.Type),
                 ArgumentList(SeparatedList(arguments)),
                 initializer: null);
         }
@@ -2028,7 +1985,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     var name = UniquifyVariableName("liftedSwitch");
                     var parameter = E.Parameter(switchNode.Type, name);
                     assignmentVariable = IdentifierName(name);
-                    loweredAssignmentVariableType = Translate(parameter.Type);
+                    loweredAssignmentVariableType = Generate(parameter.Type);
                 }
                 else
                 {
@@ -2189,10 +2146,10 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         Result = node.NodeType switch
         {
             ExpressionType.TypeIs
-                => BinaryExpression(SyntaxKind.IsExpression, visitedExpression, Translate(node.TypeOperand)),
+                => BinaryExpression(SyntaxKind.IsExpression, visitedExpression, Generate(node.TypeOperand)),
 
             ExpressionType.TypeEqual
-                => BinaryExpression(SyntaxKind.EqualsExpression, visitedExpression, TypeOfExpression(Translate(node.TypeOperand))),
+                => BinaryExpression(SyntaxKind.EqualsExpression, visitedExpression, TypeOfExpression(Generate(node.TypeOperand))),
 
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -2228,12 +2185,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             ExpressionType.IsFalse => _g.LogicalNotExpression(operand),
             ExpressionType.IsTrue => operand,
             ExpressionType.ArrayLength => _g.MemberAccessExpression(operand, "Length"),
-            ExpressionType.Convert => ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Translate(unary.Type), operand)),
+            ExpressionType.Convert => ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Generate(unary.Type), operand)),
             ExpressionType.ConvertChecked =>
-                ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Translate(unary.Type), operand)),
+                ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Generate(unary.Type), operand)),
             ExpressionType.Throw when unary.Type == typeof(void) => _g.ThrowStatement(operand),
             ExpressionType.Throw => _g.ThrowExpression(operand),
-            ExpressionType.TypeAs => BinaryExpression(SyntaxKind.AsExpression, operand, Translate(unary.Type)),
+            ExpressionType.TypeAs => BinaryExpression(SyntaxKind.AsExpression, operand, Generate(unary.Type)),
             ExpressionType.Quote => operand,
             ExpressionType.UnaryPlus => PrefixUnaryExpression(SyntaxKind.UnaryPlusExpression, operand),
             ExpressionType.Unbox => operand,
@@ -2556,7 +2513,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     private readonly struct ContextChanger : IDisposable
     {
         private readonly LinqToCSharpSyntaxTranslator _translator;
-        private readonly ExpressionContext? _oldContext;
+        private readonly ExpressionContext _oldContext;
 
         public ContextChanger(LinqToCSharpSyntaxTranslator translator, ExpressionContext newContext)
         {
