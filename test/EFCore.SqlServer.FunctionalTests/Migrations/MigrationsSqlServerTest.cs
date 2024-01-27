@@ -1735,6 +1735,25 @@ ALTER TABLE [People] ALTER COLUMN [IdentityColumn] bigint NOT NULL;
     }
 
     [ConditionalFact]
+    public virtual async Task Alter_column_change_identity_seed()
+    {
+        await Test(
+            builder => builder.Entity("People", e => e.Property<int>("Id").UseIdentityColumn(seed: 10)),
+            builder => builder.Entity("People", e => e.Property<int>("Id").UseIdentityColumn(seed: 100)),
+            model =>
+            {
+                // DBCC CHECKIDENT RESEED doesn't actually change the table definition, it only resets the current identity value.
+                // For example, if the table is truncated, the identity is reset back to its original value (with the RESEED lost).
+                // Therefore we cannot check the value via scaffolding.
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[People]', RESEED, 100);
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task Alter_column_change_default()
     {
         await Test(
