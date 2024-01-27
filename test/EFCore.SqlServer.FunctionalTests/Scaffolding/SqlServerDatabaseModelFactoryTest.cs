@@ -113,7 +113,7 @@ CREATE SEQUENCE db2.CacheSequence
     CACHE 20;",
         Enumerable.Empty<string>(),
         Enumerable.Empty<string>(),
-        dbModel =>
+        (dbModel, scaffoldingFactory) =>
         {
             var defaultCacheSequence = dbModel.Sequences.First(ds => ds.Name == "DefaultCacheSequence");
             Assert.Equal("db2", defaultCacheSequence.Schema);

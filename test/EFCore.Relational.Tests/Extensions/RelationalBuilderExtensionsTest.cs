@@ -1165,7 +1165,8 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20));
+            .HasSequence<int>(
+                "Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20));
 
         var sequence = modelBuilder.Model.FindSequence("Snook", "Tasty");
 
@@ -1178,7 +1179,9 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .HasSequence(typeof(int), "Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20));
+            .HasSequence(
+                typeof(int), "Snook", "Tasty",
+                b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20));
 
         var sequence = modelBuilder.Model.FindSequence("Snook", "Tasty");
 

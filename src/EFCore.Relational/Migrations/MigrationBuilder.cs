@@ -518,12 +518,12 @@ public class MigrationBuilder
     /// <param name="minValue">The minimum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="maxValue">The maximum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="cyclic">Indicates whether or not the sequence will re-start when the maximum value is reached.</param>
-    /// <param name="cached">Indicates whether the sequence use preallocated values.</param>
-    /// <param name="cacheSize">The amount of preallocated values.</param>
     /// <param name="oldIncrementBy">The previous amount to increment by when generating the next value in the sequence, defaulting to 1.</param>
     /// <param name="oldMinValue">The previous minimum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="oldMaxValue">The previous maximum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="oldCyclic">Indicates whether or not the sequence would previously re-start when the maximum value is reached.</param>
+    /// <param name="cached">Indicates whether the sequence use preallocated values.</param>
+    /// <param name="cacheSize">The amount of preallocated values.</param>
     /// <param name="oldCached">Indicates whether the sequence previously used preallocated values</param>
     /// <param name="oldCacheSize">The previous amount of preallocated values.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -534,12 +534,12 @@ public class MigrationBuilder
         long? minValue = null,
         long? maxValue = null,
         bool cyclic = false,
-        bool cached = true,
-        int? cacheSize = null,
         int oldIncrementBy = 1,
         long? oldMinValue = null,
         long? oldMaxValue = null,
         bool oldCyclic = false,
+        bool cached = true,
+        int? cacheSize = null,
         bool oldCached = true,
         int? oldCacheSize = null)
     {

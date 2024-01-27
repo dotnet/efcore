@@ -1184,7 +1184,8 @@ public partial class TestDbContext : DbContext
             .IncrementsBy(2)
             .HasMin(2L)
             .HasMax(100L)
-            .IsCyclic();
+            .IsCyclic()
+            .UseCache(20);
 """,
                     code.ContextFile.Code),
                 model =>

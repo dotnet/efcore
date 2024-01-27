@@ -1040,7 +1040,7 @@ ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
 
         AssertSql(
             """
-CREATE SEQUENCE [PeopleSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [PeopleSequence] START WITH 1 INCREMENT BY 1 NO CYCLE;
 """,
             //
             """
@@ -1062,7 +1062,7 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [
 
         AssertSql(
             """
-CREATE SEQUENCE [EntityFrameworkHiLoSequence] START WITH 1 INCREMENT BY 10 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [EntityFrameworkHiLoSequence] START WITH 1 INCREMENT BY 10 NO CYCLE;
 """,
             //
             """
@@ -2955,7 +2955,7 @@ ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -2972,7 +2972,7 @@ CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO
             });
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -2990,7 +2990,7 @@ CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALU
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3000,7 +3000,7 @@ CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALU
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3010,7 +3010,7 @@ CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVAL
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3036,8 +3036,8 @@ CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAX
         await base.Create_sequence_nocache();
 
         AssertSql(
-"""
-CREATE SEQUENCE [Alpha] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
+            """
+CREATE SEQUENCE [Alpha] START WITH 1 INCREMENT BY 1 NO CYCLE NO CACHE;
 """);
     }
 
@@ -3046,8 +3046,8 @@ CREATE SEQUENCE [Alpha] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO C
         await base.Create_sequence_cache();
 
         AssertSql(
-"""
-CREATE SEQUENCE [Beta] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
+            """
+CREATE SEQUENCE [Beta] START WITH 1 INCREMENT BY 1 NO CYCLE CACHE 20;
 """);
     }
 
@@ -3056,8 +3056,8 @@ CREATE SEQUENCE [Beta] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CY
         await base.Create_sequence_default_cache();
 
         AssertSql(
-"""
-CREATE SEQUENCE [Gamma] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+            """
+CREATE SEQUENCE [Gamma] START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3090,7 +3090,7 @@ ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
         await base.Alter_sequence_default_cache_to_cache();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [Delta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
 """);
     }
@@ -3100,7 +3100,7 @@ ALTER SEQUENCE [Delta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
         await base.Alter_sequence_default_cache_to_nocache();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [Epsilon] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
 """);
     }
@@ -3110,7 +3110,7 @@ ALTER SEQUENCE [Epsilon] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACH
         await base.Alter_sequence_cache_to_nocache();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [Zeta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
 """);
     }
@@ -3120,7 +3120,7 @@ ALTER SEQUENCE [Zeta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
         await base.Alter_sequence_cache_to_default_cache();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [Eta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
 """);
     }
@@ -3130,7 +3130,7 @@ ALTER SEQUENCE [Eta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
         await base.Alter_sequence_nocache_to_cache();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [Theta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
 """);
     }
@@ -3226,7 +3226,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestSequenceSchema].[Tes
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO CYCLE;
 """,
             //
             """

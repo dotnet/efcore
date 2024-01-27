@@ -1202,7 +1202,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             operation.Name,
             operation,
             model,
-            builder);
+            builder,
+            forAlter: true);
 
     /// <summary>
     ///     Generates a SQL fragment configuring a sequence in a <see cref="CreateSequenceOperation" />.
@@ -1235,6 +1236,24 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         SequenceOperation operation,
         IModel? model,
         MigrationCommandListBuilder builder)
+        => SequenceOptions(schema, name, operation, model, builder, forAlter: false);
+
+    /// <summary>
+    ///     Generates a SQL fragment configuring a sequence with the given options.
+    /// </summary>
+    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
+    /// <param name="name">The sequence name.</param>
+    /// <param name="operation">The sequence options.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    /// <param name="forAlter">If <see langword="true"/>, then all options are included, even if default.</param>
+    protected virtual void SequenceOptions(
+        string? schema,
+        string name,
+        SequenceOperation operation,
+        IModel? model,
+        MigrationCommandListBuilder builder,
+        bool forAlter)
     {
         var intTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(int));
         var longTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
@@ -1249,9 +1268,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                 .Append(" MINVALUE ")
                 .Append(longTypeMapping.GenerateSqlLiteral(operation.MinValue));
         }
-        else
+        else if (forAlter)
         {
-            builder.Append(" NO MINVALUE");
+            builder
+                .Append(" NO MINVALUE");
         }
 
         if (operation.MaxValue != null)
@@ -1260,9 +1280,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                 .Append(" MAXVALUE ")
                 .Append(longTypeMapping.GenerateSqlLiteral(operation.MaxValue));
         }
-        else
+        else if (forAlter)
         {
-            builder.Append(" NO MAXVALUE");
+            builder
+                .Append(" NO MAXVALUE");
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
@@ -1278,10 +1299,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                 .Append(" CACHE ")
                 .Append(intTypeMapping.GenerateSqlLiteral(operation.CacheSize.Value));
         }
-        else
+        else if (forAlter)
         {
             builder
-                .Append(" CACHE ");
+                .Append(" CACHE");
         }
     }
 

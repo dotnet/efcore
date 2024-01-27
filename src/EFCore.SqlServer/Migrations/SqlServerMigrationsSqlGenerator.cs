@@ -1489,20 +1489,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     protected override void Generate(UpdateDataOperation operation, IModel? model, MigrationCommandListBuilder builder)
         => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
 
-    /// <summary>
-    ///     Generates a SQL fragment configuring a sequence with the given options.
-    /// </summary>
-    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
-    /// <param name="name">The sequence name.</param>
-    /// <param name="operation">The sequence options.</param>
-    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    /// <inheritdoc />
     protected override void SequenceOptions(
         string? schema,
         string name,
         SequenceOperation operation,
         IModel? model,
-        MigrationCommandListBuilder builder)
+        MigrationCommandListBuilder builder,
+        bool forAlter)
     {
         builder
             .Append(" INCREMENT BY ")
@@ -1514,7 +1508,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(" MINVALUE ")
                 .Append(IntegerConstant(operation.MinValue.Value));
         }
-        else
+        else if (forAlter)
         {
             builder.Append(" NO MINVALUE");
         }
@@ -1525,7 +1519,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(" MAXVALUE ")
                 .Append(IntegerConstant(operation.MaxValue.Value));
         }
-        else
+        else if (forAlter)
         {
             builder.Append(" NO MAXVALUE");
         }
@@ -1542,7 +1536,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Append(" CACHE ")
                 .Append(IntegerConstant(operation.CacheSize.Value));
         }
-        else
+        else if (forAlter)
         {
             builder
                 .Append(" CACHE");

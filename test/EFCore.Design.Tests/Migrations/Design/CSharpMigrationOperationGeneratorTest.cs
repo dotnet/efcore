@@ -832,10 +832,14 @@ mb.AlterSequence(
     minValue: 2L,
     maxValue: 4L,
     cyclic: true,
+    cached: true,
+    cacheSize: 20,
     oldIncrementBy: 4,
     oldMinValue: 3L,
     oldMaxValue: 5L,
-    oldCyclic: true);
+    oldCyclic: true,
+    oldCached: true,
+    oldCacheSize: 2);
 """,
             o =>
             {
@@ -1036,11 +1040,9 @@ mb.CreateSequence(
     incrementBy: 5,
     minValue: 2L,
     maxValue: 4L,
-    cyclic: true,"
-            + _eol
-            + "    cached: true,"
-            + _eol
-            + "    cacheSize: 20);
+    cyclic: true,
+    cached: true,
+    cacheSize: 20);
 """,
             o =>
             {
@@ -1067,15 +1069,13 @@ mb.CreateSequence(
             IsCached = true,
             CacheSize = 20
         },
-        "mb.CreateSequence("
-        + _eol
-        + "    name: \"EntityFrameworkHiLoSequence\","
-        + _eol
-        + "    schema: \"dbo\","
-        + _eol
-        + "    cached: true,"
-        + _eol
-        + "    cacheSize: 20);",
+        """
+mb.CreateSequence(
+    name: "EntityFrameworkHiLoSequence",
+    schema: "dbo",
+    cached: true,
+    cacheSize: 20);
+""",
         o =>
         {
             Assert.True(o.IsCached);
@@ -1092,13 +1092,12 @@ mb.CreateSequence(
             ClrType = typeof(long),
             IsCached = false,
         },
-        "mb.CreateSequence("
-        + _eol
-        + "    name: \"EntityFrameworkHiLoSequence\","
-        + _eol
-        + "    schema: \"dbo\","
-        + _eol
-        + "    cached: false);",
+        """
+mb.CreateSequence(
+    name: "EntityFrameworkHiLoSequence",
+    schema: "dbo",
+    cached: false);
+""",
         o =>
         {
             Assert.False(o.IsCached);
@@ -1115,11 +1114,11 @@ mb.CreateSequence(
             ClrType = typeof(long),
             IsCached = true
         },
-        "mb.CreateSequence("
-        + _eol
-        + "    name: \"EntityFrameworkHiLoSequence\","
-        + _eol
-        + "    schema: \"dbo\");",
+        """
+mb.CreateSequence(
+    name: "EntityFrameworkHiLoSequence",
+    schema: "dbo");
+""",
         o =>
         {
             Assert.True(o.IsCached);
@@ -1151,11 +1150,9 @@ mb.CreateSequence<int>(
     incrementBy: 5,
     minValue: 2L,
     maxValue: 4L,
-    cyclic: true,"
-            + _eol
-            + "    cached: true,"
-            + _eol
-            + "    cacheSize: 20);
+    cyclic: true,
+    cached: true,
+    cacheSize: 20);
 """,
             o =>
             {
