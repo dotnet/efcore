@@ -8,7 +8,7 @@
     <IsUnitTestProject Condition=" '$(IsUnitTestProject)' == '' AND
         '$(IsSpecificationTestProject)' != 'true' AND
         ( $(MSBuildProjectName.EndsWith('.Tests')) OR
-          $(MSBuildProjectName.EndsWith('.FunctionalTests'))) ">true</IsUnitTestProject>
+          $(MSBuildProjectName.Contains('.FunctionalTests'))) ">true</IsUnitTestProject>
     <IsUnitTestProject Condition=" '$(IsUnitTestProject)' == '' ">false</IsUnitTestProject>
   </PropertyGroup>
 
