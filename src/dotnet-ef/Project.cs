@@ -64,8 +64,21 @@ internal class Project
         var efTargetsPath = Path.Combine(
             buildExtensionsDir,
             Path.GetFileName(file) + ".EntityFrameworkCore.targets");
+
+        bool FileMatches()
+        {
+            try
+            {
+                return !File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         // Avoid touching the targets file, if it matches what we need, to enable incremental builds
-        if (!File.Exists(efTargetsPath) || !File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets))
+        if (!File.Exists(efTargetsPath) || !FileMatches())
         {
             Reporter.WriteVerbose(Resources.WritingFile(efTargetsPath));
             File.WriteAllBytes(efTargetsPath, efTargets);
