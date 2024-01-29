@@ -69,7 +69,7 @@ internal class Project
         {
             try
             {
-                return !File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets);
+                return File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets);
             }
             catch
             {
