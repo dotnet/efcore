@@ -322,7 +322,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         // Handle change of identity seed value
-        if (IsIdentity(operation))
+        if (IsIdentity(operation) && oldColumnSupported)
         {
             Check.DebugAssert(IsIdentity(operation.OldColumn), "Unsupported column change to identity");
 
