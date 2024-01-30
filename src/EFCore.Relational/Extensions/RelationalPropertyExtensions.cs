@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalPropertyExtensions
 {
+    private static readonly bool UseOldBehavior32763 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32763", out var enabled32763) && enabled32763;
+
     private static readonly MethodInfo GetFieldValueMethod =
         typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
@@ -184,7 +187,8 @@ public static class RelationalPropertyExtensions
             var principalEntityType = foreignKey.PrincipalEntityType;
             if (principalEntityType is { HasSharedClrType: false, ClrType.IsConstructedGenericType: true }
                 && foreignKey.DependentToPrincipal == null
-                && (principalEntityType.GetTableName() != foreignKey.DeclaringEntityType.GetTableName()
+                && (UseOldBehavior32763
+                    || principalEntityType.GetTableName() != foreignKey.DeclaringEntityType.GetTableName()
                     || principalEntityType.GetSchema() != foreignKey.DeclaringEntityType.GetSchema()))
             {
                 var principalProperty = property.FindFirstPrincipal()!;

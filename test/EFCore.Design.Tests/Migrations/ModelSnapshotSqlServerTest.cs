@@ -4696,7 +4696,7 @@ namespace RootNamespace
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Beak>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4712,9 +4712,9 @@ namespace RootNamespace
                     b.ToTable("Parrot<Beak>", "DefaultSchema");
                 });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Beak>", b =>
                 {
-                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Beak", "Child", b1 =>
                         {
                             b1.Property<int>("ParrotId")
                                 .HasColumnType("int");
@@ -4735,7 +4735,7 @@ namespace RootNamespace
 """),
             model =>
             {
-                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>");
+                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Beak>");
                 Assert.NotNull(parentType);
                 Assert.NotNull(parentType.FindNavigation("Child")!.TargetEntityType);
 
@@ -4755,7 +4755,7 @@ namespace RootNamespace
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Parrot", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -4771,9 +4771,9 @@ namespace RootNamespace
                     b.ToTable("Parrot", "DefaultSchema");
                 });
 
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Parrot", b =>
                 {
-                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Beak", "Child", b1 =>
                         {
                             b1.Property<int>("ParrotId")
                                 .HasColumnType("int");
@@ -4794,7 +4794,7 @@ namespace RootNamespace
 """),
             model =>
             {
-                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot");
+                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Parrot");
                 Assert.NotNull(parentType);
                 Assert.NotNull(parentType.FindNavigation("Child")!.TargetEntityType);
 
