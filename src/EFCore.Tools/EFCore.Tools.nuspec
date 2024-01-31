@@ -9,9 +9,11 @@
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>
+    <readme>docs\PACKAGE.md</readme>
   </metadata>
   <files>
     $CommonFileElements$
+    <file src="PACKAGE.md" target="docs\" />
     <file src="lib\**\*" target="lib/" />
     <file src="tools\**\*" target="tools/" />
     <file src="$intermediateOutputPath$*.psd1" target="tools/" />
