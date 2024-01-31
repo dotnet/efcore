@@ -390,7 +390,10 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                Debug.Assert(rowIdForOrdinal!=null);
+                //Debug.Assert(rowIdForOrdinal!=null);
+                //debug assertion no more needed:
+                //rowIdForOrdinal == null => matching rowid not found, MemoryStream returned
+                //rowIdForOrdinal != null => matching rowid found, SqliteBlob returned
             }
 
             if (rowIdForOrdinal == null)
