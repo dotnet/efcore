@@ -75,7 +75,6 @@ public abstract class TwoDatabasesTestBase
 
     [ConditionalTheory]
     [InlineData(true, false)]
-    [InlineData(true, false)]
     [InlineData(true, true)]
     public virtual void Can_set_connection_string_in_interceptor(bool withConnectionString, bool withNullConnectionString)
     {
