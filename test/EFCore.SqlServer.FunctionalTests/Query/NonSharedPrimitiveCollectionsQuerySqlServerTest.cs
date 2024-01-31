@@ -872,6 +872,42 @@ WHERE EXISTS (
     #endregion Type mapping inference
 
     [ConditionalFact]
+    public virtual async Task Ordered_collection_with_split_query()
+    {
+        var contextFactory = await InitializeAsync<Context32976>(
+            onModelCreating: mb => mb.Entity<Context32976.Principal>(),
+            seed: context =>
+            {
+                context.Add(new Context32976.Principal { Ints = [2, 3, 4]});
+                context.SaveChanges();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        _ = await context.Set<Context32976.Principal>()
+            .Where(p => p.Ints.Skip(1).Contains(3))
+            .Include(p => p.Dependents)
+            .AsSplitQuery()
+            .SingleAsync();
+    }
+
+    public class Context32976(DbContextOptions options) : DbContext(options)
+    {
+        public class Principal
+        {
+            public int Id { get; set; }
+            public List<int> Ints { get; set; }
+            public List<Dependent> Dependents { get; set; }
+        }
+
+        public class Dependent
+        {
+            public int Id { get; set; }
+            public Principal Principal { get; set; }
+        }
+    }
+
+    [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
