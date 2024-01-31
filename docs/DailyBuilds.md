@@ -79,11 +79,11 @@ Using wildcards will cause NuGet to pull the latest daily build whenever package
 
 You can use your IDE to choose the latest version. For example, in Visual Studio:
 
-![image](![image](https://github.com/dotnet/efcore/assets/1430078/9a54546b-f969-4409-868b-0fa675b162c6))
+![Pick the daily build to use inside your IDE.](usedaily.png)
 
 Alternately, your IDE might provide auto-completion directly in the .csproj file:
 
-![image](https://user-images.githubusercontent.com/1430078/92645046-1d142900-f299-11ea-9e40-c2b1fe1f61c1.png)
+![Use auto-completion in the csproj file, if supported by your IDE.](https://user-images.githubusercontent.com/1430078/92645046-1d142900-f299-11ea-9e40-c2b1fe1f61c1.png)
 
 ## What about Visual Studio and the SDK?
 
