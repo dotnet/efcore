@@ -5,10 +5,12 @@
     <packageTypes>
       <packageType name="$packageType$" />
     </packageTypes>
+    <readme>docs\PACKAGE.md</readme>
   </metadata>
 
   <files>
     $CommonFileElements$
+    <file src="PACKAGE.md" target="docs\" />
     <file src="$SettingsFile$" target="tools\$targetFramework$\any" />
     <file src="$Output$" target="tools\$targetFramework$\any" />
     <file src="$OutputBinary$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />
