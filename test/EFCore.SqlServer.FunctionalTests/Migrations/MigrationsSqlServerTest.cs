@@ -3479,7 +3479,7 @@ SELECT @@ROWCOUNT');
             {
                 var table = Assert.Single(model.Tables);
                 Assert.Equal("Customer", table.Name);
-                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.True(true, table[SqlServerAnnotationNames.IsTemporal]);
                 Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                 Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
                 Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);

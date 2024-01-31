@@ -1491,7 +1491,7 @@ public class PropertyEntryTest
         Assert.Equal(11, cultureEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", cultureEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", cultureEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, cultureEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(cultureEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.Culture.Manufacturer, cultureManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", cultureManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, cultureManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1532,7 +1532,7 @@ public class PropertyEntryTest
         Assert.Equal(11, milkEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", milkEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", milkEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, milkEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(milkEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.Milk.Manufacturer, milkManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", milkManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, milkManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1573,7 +1573,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldCultureEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", fieldCultureEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", fieldCultureEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, fieldCultureEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(fieldCultureEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.FieldCulture.Manufacturer, fieldCultureManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", fieldCultureManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, fieldCultureManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1614,7 +1614,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldMilkEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", fieldMilkEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", fieldMilkEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, fieldMilkEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(fieldMilkEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.FieldMilk.Manufacturer, fieldMilkManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", fieldMilkManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, fieldMilkManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1636,7 +1636,7 @@ public class PropertyEntryTest
         Assert.Equal(11, cultureEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", cultureEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", cultureEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, cultureEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(cultureEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.Culture.Manufacturer, cultureManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", cultureManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, cultureManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1656,7 +1656,7 @@ public class PropertyEntryTest
         Assert.Equal(11, milkEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", milkEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", milkEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, milkEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(milkEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.Milk.Manufacturer, milkManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", milkManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, milkManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1676,7 +1676,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldCultureEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", fieldCultureEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", fieldCultureEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, fieldCultureEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(fieldCultureEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.FieldCulture.Manufacturer, fieldCultureManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", fieldCultureManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, fieldCultureManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -1696,7 +1696,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldMilkEntry.Property(e => e.Rating).CurrentValue);
         Assert.Equal("XY", fieldMilkEntry.Property(e => e.Species).CurrentValue);
         Assert.Equal("Z", fieldMilkEntry.Property(e => e.Subspecies).CurrentValue);
-        Assert.Equal(true, fieldMilkEntry.Property(e => e.Validation).CurrentValue);
+        Assert.True(fieldMilkEntry.Property(e => e.Validation).CurrentValue);
         Assert.Equal(yogurt.FieldMilk.Manufacturer, fieldMilkManufacturerEntry.CurrentValue);
         Assert.Equal("Nom", fieldMilkManufacturerEntry.Property(e => e.Name).CurrentValue);
         Assert.Equal(9, fieldMilkManufacturerEntry.Property(e => e.Rating).CurrentValue);
@@ -2681,7 +2681,7 @@ public class PropertyEntryTest
         Assert.Equal(11, cultureEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", cultureEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", cultureEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, cultureEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(cultureEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", cultureManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, cultureManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", cultureManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2741,7 +2741,7 @@ public class PropertyEntryTest
         Assert.Equal(11, milkEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", milkEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", milkEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, milkEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(milkEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", milkManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, milkManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", milkManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2801,7 +2801,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldCultureEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", fieldCultureEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", fieldCultureEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, fieldCultureEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(fieldCultureEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", fieldCultureManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, fieldCultureManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", fieldCultureManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2861,7 +2861,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldMilkEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", fieldMilkEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", fieldMilkEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, fieldMilkEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(fieldMilkEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", fieldMilkManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, fieldMilkManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", fieldMilkManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2889,7 +2889,7 @@ public class PropertyEntryTest
         Assert.Equal(11, cultureEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", cultureEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", cultureEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, cultureEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(cultureEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", cultureManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, cultureManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", cultureManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2915,7 +2915,7 @@ public class PropertyEntryTest
         Assert.Equal(11, milkEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", milkEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", milkEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, milkEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(milkEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", milkManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, milkManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", milkManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2941,7 +2941,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldCultureEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", fieldCultureEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", fieldCultureEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, fieldCultureEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(fieldCultureEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", fieldCultureManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, fieldCultureManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", fieldCultureManTogEntry.Property(e => e.Text).OriginalValue);
@@ -2967,7 +2967,7 @@ public class PropertyEntryTest
         Assert.Equal(11, fieldMilkEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("XY", fieldMilkEntry.Property(e => e.Species).OriginalValue);
         Assert.Equal("Z", fieldMilkEntry.Property(e => e.Subspecies).OriginalValue);
-        Assert.Equal(true, fieldMilkEntry.Property(e => e.Validation).OriginalValue);
+        Assert.True(fieldMilkEntry.Property(e => e.Validation).OriginalValue);
         Assert.Equal("Nom", fieldMilkManufacturerEntry.Property(e => e.Name).OriginalValue);
         Assert.Equal(9, fieldMilkManufacturerEntry.Property(e => e.Rating).OriginalValue);
         Assert.Equal("Tog1", fieldMilkManTogEntry.Property(e => e.Text).OriginalValue);
