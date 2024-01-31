@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -361,7 +361,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         // The index expression isn't inferred and is always just an int. Apply the default type mapping to it.
         var indexWithTypeMapping = ApplyDefaultTypeMapping(index);
-        var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : new[] { new PathSegment(indexWithTypeMapping) };
+        var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : [new PathSegment(indexWithTypeMapping)];
 
         // If a type mapping is being applied from the outside, it applies to the element resulting from the array indexing operation;
         // we can infer the array's type mapping from it. Otherwise there's nothing to do but apply the default type mapping to the array.
@@ -371,7 +371,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 ApplyDefaultTypeMapping(array),
                 newPath,
                 jsonScalarExpression.Type,
-                _typeMappingSource.FindMapping(jsonScalarExpression.Type),
+                _typeMappingSource.FindMapping(jsonScalarExpression.Type, Dependencies.Model),
                 jsonScalarExpression.IsNullable);
         }
 
@@ -494,7 +494,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedArguments,
             nullable: true,
             // COALESCE is handled separately since it's only nullable if *all* arguments are null
-            argumentsPropagateNullability: new[] { false, false },
+            argumentsPropagateNullability: [false, false],
             resultType,
             inferredTypeMapping);
     }
@@ -701,28 +701,6 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => new(Expression.Constant(value, type), typeMapping);
 
     /// <inheritdoc />
-    public virtual SelectExpression Select(SqlExpression? projection)
-        => new(projection);
-
-    /// <inheritdoc />
-    public virtual SelectExpression Select(IEntityType entityType)
-    {
-        var selectExpression = new SelectExpression(entityType, this);
-        AddConditions(selectExpression, entityType);
-
-        return selectExpression;
-    }
-
-    /// <inheritdoc />
-    public virtual SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase)
-    {
-        var selectExpression = new SelectExpression(entityType, tableExpressionBase);
-        AddConditions(selectExpression, entityType);
-
-        return selectExpression;
-    }
-
-    /// <inheritdoc />
     public virtual bool TryCreateLeast(
         IReadOnlyList<SqlExpression> expressions,
         Type resultType,
@@ -782,93 +760,4 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         return flattenedExpressions ?? expressions;
     }
-
-    /***
-     * We need to add additional conditions on basic SelectExpression for certain cases
-     * - If we are selecting from TPH then we need to add condition for discriminator if mapping is incomplete
-     * - When we are selecting optional dependent sharing table, we need to add condition to figure out existence
-     *  ** Optional Dependent **
-     *  - Only root type can be the dependent
-     *  - Dependents will have a non-principal-non-PK-shared required property
-     *  - Principal can be any type in TPH/TPT or leaf type in TPC
-     *  - Dependent side can be TPH or TPT but not TPC
-     ***/
-    private void AddConditions(SelectExpression selectExpression, IEntityType entityType)
-    {
-        // First add condition for discriminator mapping
-        var discriminatorProperty = entityType.FindDiscriminatorProperty();
-        if (discriminatorProperty != null
-            && (!entityType.GetRootType().GetIsDiscriminatorMappingComplete()
-                || !entityType.GetAllBaseTypesInclusiveAscending()
-                    .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e))))
-        {
-            var discriminatorColumn = GetMappedProjection(selectExpression).BindProperty(discriminatorProperty);
-            var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-            var predicate = concreteEntityTypes.Count == 1
-                ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                : In(discriminatorColumn, concreteEntityTypes.Select(et => Constant(et.GetDiscriminatorValue())).ToArray());
-
-            selectExpression.ApplyPredicate(predicate);
-
-            // If discriminator predicate is added then it will also serve as condition for existence of dependents in table sharing
-            return;
-        }
-
-        // Keyless entities cannot be table sharing
-        if (entityType.FindPrimaryKey() == null)
-        {
-            return;
-        }
-
-        // Add conditions if this is optional dependent with table sharing
-        if (entityType.GetRootType() != entityType // Non-root cannot be dependent
-            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy) // Dependent cannot be TPC
-        {
-            return;
-        }
-
-        var table = (selectExpression.Tables[0] as ITableBasedExpression)?.Table;
-        Check.DebugAssert(table is not null, "SelectExpression with unexpected missing table");
-
-        if (table.IsOptional(entityType))
-        {
-            SqlExpression? predicate = null;
-            var projection = GetMappedProjection(selectExpression);
-            var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-            if (requiredNonPkProperties.Count > 0)
-            {
-                predicate = requiredNonPkProperties.Select(e => IsNotNull(e, projection))
-                    .Aggregate(AndAlso);
-            }
-
-            var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
-            // We don't need condition for nullable property if there exist at least one required property which is non shared.
-            if (allNonSharedNonPkProperties.Count != 0
-                && allNonSharedNonPkProperties.All(p => p.IsNullable))
-            {
-                var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
-                    .Select(e => IsNotNull(e, projection))
-                    .Aggregate(OrElse);
-
-                predicate = predicate == null
-                    ? atLeastOneNonNullValueInNullablePropertyCondition
-                    : AndAlso(predicate, atLeastOneNonNullValueInNullablePropertyCondition);
-            }
-
-            if (predicate != null)
-            {
-                selectExpression.ApplyPredicate(predicate);
-            }
-        }
-
-        bool HasSiblings(IEntityType entityType)
-            => entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
-    }
-
-    private static StructuralTypeProjectionExpression GetMappedProjection(SelectExpression selectExpression)
-        => (StructuralTypeProjectionExpression)selectExpression.GetProjection(
-            new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
-
-    private SqlExpression IsNotNull(IProperty property, StructuralTypeProjectionExpression projection)
-        => IsNotNull(projection.BindProperty(property));
 }

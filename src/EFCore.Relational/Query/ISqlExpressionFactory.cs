@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -458,31 +460,6 @@ public interface ISqlExpressionFactory
     /// <param name="sql">A string token to print in SQL tree.</param>
     /// <returns>An expression representing a SQL token.</returns>
     SqlFragmentExpression Fragment(string sql);
-
-    /// <summary>
-    ///     Creates a new <see cref="SelectExpression" /> which represents a SELECT in a SQL tree projecting a <see cref="SqlExpression" />
-    ///     or 1 from no table and without any composition.
-    /// </summary>
-    /// <param name="projection">A <see cref="SqlExpression" /> to project.</param>
-    /// <returns>An expression representing a SELECT in a SQL tree.</returns>
-    SelectExpression Select(SqlExpression? projection);
-
-    /// <summary>
-    ///     Creates a new <see cref="SelectExpression" /> which represents a SELECT in a SQL tree projecting an entity type from
-    ///     a table source created using default mapping in the model.
-    /// </summary>
-    /// <param name="entityType">An entity type to project.</param>
-    /// <returns>An expression representing a SELECT in a SQL tree.</returns>
-    SelectExpression Select(IEntityType entityType);
-
-    /// <summary>
-    ///     Creates a new <see cref="SelectExpression" /> which represents a SELECT in a SQL tree projecting an entity type from
-    ///     a table source.
-    /// </summary>
-    /// <param name="entityType">An entity type to project.</param>
-    /// <param name="tableExpressionBase">A table source to project from.</param>
-    /// <returns>An expression representing a SELECT in a SQL tree.</returns>
-    SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase);
 
     /// <summary>
     ///     Attempts to creates a new expression that returns the smallest value from a list of expressions, e.g. an invocation of the

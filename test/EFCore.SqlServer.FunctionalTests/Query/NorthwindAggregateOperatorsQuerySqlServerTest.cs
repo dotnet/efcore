@@ -155,7 +155,7 @@ WHERE [o].[OrderID] = 10248
 
         AssertSql(
             """
-SELECT AVG(CAST(COALESCE([t].[OrderID], 0) AS float))
+SELECT AVG(CAST(COALESCE([o0].[OrderID], 0) AS float))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -163,7 +163,7 @@ LEFT JOIN (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10243
-) AS [t] ON 1 = 1
+) AS [o0] ON 1 = 1
 """);
     }
 
@@ -173,7 +173,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MAX(COALESCE([t].[OrderID], 0))
+SELECT MAX(COALESCE([o0].[OrderID], 0))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -181,7 +181,7 @@ LEFT JOIN (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10243
-) AS [t] ON 1 = 1
+) AS [o0] ON 1 = 1
 """);
     }
 
@@ -191,7 +191,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MIN(COALESCE([t].[OrderID], 0))
+SELECT MIN(COALESCE([o0].[OrderID], 0))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -199,7 +199,7 @@ LEFT JOIN (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] = 10243
-) AS [t] ON 1 = 1
+) AS [o0] ON 1 = 1
 """);
     }
 
@@ -902,12 +902,12 @@ SELECT AVG(CAST((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
+    WHERE [c0].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -929,12 +929,12 @@ SELECT AVG(CAST((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]) AS float))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
+    WHERE [c0].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1050,12 +1050,12 @@ SELECT MIN((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+    WHERE [c0].[CustomerID] = [o].[CustomerID]))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1077,12 +1077,12 @@ SELECT MIN((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+    WHERE [c0].[CustomerID] = [o].[CustomerID]))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1156,12 +1156,12 @@ SELECT MAX((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+    WHERE [c0].[CustomerID] = [o].[CustomerID]))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1183,12 +1183,12 @@ SELECT MAX((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]))
+    WHERE [c0].[CustomerID] = [o].[CustomerID]))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1292,12 +1292,12 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT [t].[Country]
+SELECT [c0].[Country]
 FROM (
     SELECT DISTINCT [c].[Country]
     FROM [Customers] AS [c]
-) AS [t]
-ORDER BY [t].[Country]
+) AS [c0]
+ORDER BY [c0].[Country]
 """);
     }
 
@@ -1307,12 +1307,12 @@ ORDER BY [t].[Country]
 
         AssertSql(
             """
-SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 """);
     }
 
@@ -1322,12 +1322,12 @@ ORDER BY [t].[CustomerID]
 
         AssertSql(
             """
-SELECT [t].[CustomerID]
+SELECT [c0].[CustomerID]
 FROM (
     SELECT DISTINCT [c].[CustomerID]
     FROM [Customers] AS [c]
-) AS [t]
-ORDER BY [t].[CustomerID]
+) AS [c0]
+ORDER BY [c0].[CustomerID]
 """);
     }
 
@@ -1341,7 +1341,7 @@ SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1355,7 +1355,7 @@ SELECT COUNT(*)
 FROM (
     SELECT DISTINCT [c].[City]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [c0]
 """);
     }
 
@@ -1392,7 +1392,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND (
 
         AssertSql(
             """
-SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
+SELECT [o2].[OrderID], [o2].[ProductID], [o2].[Discount], [o2].[Quantity], [o2].[UnitPrice]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
@@ -1407,7 +1407,7 @@ OUTER APPLY (
         WHERE [c].[CustomerID] = [o1].[CustomerID]
         ORDER BY [o1].[OrderID]) = [o].[OrderID]
     ORDER BY [o].[ProductID]
-) AS [t]
+) AS [o2]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]
 """);
@@ -2265,13 +2265,13 @@ WHERE [o].[CustomerID] LIKE N'A%'
             """
 @__p_0='20'
 
-SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
-ORDER BY [t].[CustomerID] DESC
+) AS [c0]
+ORDER BY [c0].[CustomerID] DESC
 """);
     }
 
@@ -2283,14 +2283,14 @@ ORDER BY [t].[CustomerID] DESC
             """
 @__p_0='20'
 
-SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+SELECT TOP(1) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
     OFFSET @__p_0 ROWS
-) AS [t]
-ORDER BY [t].[CustomerID] DESC
+) AS [c0]
+ORDER BY [c0].[CustomerID] DESC
 """);
     }
 
@@ -2877,7 +2877,7 @@ SELECT COUNT(*)
 FROM (
     SELECT TOP(@__p_0) 1 AS empty
     FROM [Orders] AS [o]
-) AS [t]
+) AS [o0]
 """);
     }
 

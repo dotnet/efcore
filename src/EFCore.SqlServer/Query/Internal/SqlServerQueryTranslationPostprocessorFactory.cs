@@ -46,5 +46,6 @@ public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
-        => new SqlServerQueryTranslationPostprocessor(Dependencies, RelationalDependencies, queryCompilationContext, _typeMappingSource);
+        => new SqlServerQueryTranslationPostprocessor(
+            Dependencies, RelationalDependencies, (SqlServerQueryCompilationContext)queryCompilationContext, _typeMappingSource);
 }

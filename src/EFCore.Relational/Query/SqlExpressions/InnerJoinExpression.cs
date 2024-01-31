@@ -29,7 +29,7 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
         TableExpressionBase table,
         SqlExpression joinPredicate,
         bool prunable,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(table, joinPredicate, prunable, annotations)
     {
     }
@@ -43,7 +43,7 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override InnerJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new InnerJoinExpression(table, joinPredicate, IsPrunable, GetAnnotations())
+            ? new InnerJoinExpression(table, joinPredicate, IsPrunable, Annotations)
             : this;
 
     /// <summary>
@@ -54,12 +54,12 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override InnerJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new InnerJoinExpression(table, JoinPredicate, IsPrunable, GetAnnotations())
+            ? new InnerJoinExpression(table, JoinPredicate, IsPrunable, Annotations)
             : this;
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new InnerJoinExpression(Table, JoinPredicate, IsPrunable, annotations);
+    protected override InnerJoinExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Table, JoinPredicate, IsPrunable, annotations);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

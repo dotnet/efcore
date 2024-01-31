@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -39,6 +40,24 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
 
     internal static readonly MethodInfo ObjectGetHashCodeMethod
         = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes)!;
+
+    private static readonly ConcurrentDictionary<Type, MethodInfo> _genericSnapshotMethodMap = new();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static MethodInfo GetGenericSnapshotMethod(Type type)
+        => _genericSnapshotMethodMap.GetOrAdd(type, t =>
+            typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
+                nameof(ValueComparer<object>.Snapshot),
+                genericParameterCount: 0,
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+                (a, b) => new[] { a[0] },
+                @override: false)!);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

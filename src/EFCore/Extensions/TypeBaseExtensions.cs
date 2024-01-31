@@ -1,9 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,9 +12,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class TableReferenceExpression : Expression
+public static class TypeBaseExtensions
 {
-    private SelectExpression _selectExpression;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static string DisplayName(this TypeBase entityType)
+        => ((IReadOnlyTypeBase)entityType).DisplayName();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,10 +29,49 @@ public sealed class TableReferenceExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TableReferenceExpression(SelectExpression selectExpression, string alias)
+    public static string ShortName(this TypeBase entityType)
+        => ((IReadOnlyTypeBase)entityType).ShortName();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public static string GetOwnedName(this IReadOnlyTypeBase type, string simpleName, string ownershipNavigation)
+        => type.Name + "." + ownershipNavigation + "#" + simpleName;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties(this IReadOnlyTypeBase type)
+        => ((TypeBase)type).GetRuntimeProperties();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields(this IReadOnlyTypeBase type)
+        => ((TypeBase)type).GetRuntimeFields();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IComplexProperty GetComplexProperty(this ITypeBase type, string name)
     {
-        _selectExpression = selectExpression;
-        Alias = alias;
+        Check.NotEmpty(name, nameof(name));
+
+        return type.FindComplexProperty(name)
+            ?? throw new InvalidOperationException(CoreStrings.ComplexPropertyNotFound(type.DisplayName(), name));
     }
 
     /// <summary>
@@ -33,21 +80,14 @@ public sealed class TableReferenceExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TableExpressionBase Table
-    {
-        get
+    public static IEnumerable<IProperty> GetAllPropertiesInHierarchy(this ITypeBase structuralType)
+        => structuralType switch
         {
-            var table = _selectExpression.Tables.SingleOrDefault(
-                e => string.Equals((e as JoinExpressionBase)?.Table.Alias ?? e.Alias, Alias, StringComparison.OrdinalIgnoreCase));
-            Check.DebugAssert(
-                table is not null,
-                $"Mismatched {nameof(TableReferenceExpression)}: couldn't find table alias '{Alias}' in referenced select expression's tables: "
-                + Environment.NewLine
-                + Environment.NewLine
-                + ExpressionPrinter.Print(_selectExpression));
-            return table;
-        }
-    }
+            IEntityType entityType => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                .SelectMany(t => t.GetDeclaredProperties()),
+            IComplexType complexType => complexType.GetDeclaredProperties(),
+            _ => throw new UnreachableException()
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,72 +95,22 @@ public sealed class TableReferenceExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public string Alias { get; internal set; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override Type Type
-        => typeof(object);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override ExpressionType NodeType
-        => ExpressionType.Extension;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => this;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
-    {
-        if (ReferenceEquals(oldSelect, _selectExpression))
+    public static IEnumerable<IProperty> GetAllFlattenedPropertiesInHierarchy(this ITypeBase structuralType)
+        => structuralType switch
         {
-            _selectExpression = newSelect;
-        }
-    }
+            IEntityType entityType => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                .SelectMany(t => t.GetFlattenedDeclaredProperties()),
+            IComplexType complexType => complexType.GetFlattenedDeclaredProperties(),
+            _ => throw new UnreachableException()
+        };
 
-    internal void Verify(SelectExpression selectExpression)
-    {
-        if (!ReferenceEquals(selectExpression, _selectExpression))
-        {
-            throw new InvalidOperationException("Dangling TableReferenceExpression.");
-        }
-    }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-        => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is TableReferenceExpression tableReferenceExpression
-                && Equals(tableReferenceExpression));
-
-    // Since table reference is owned by SelectExpression, the select expression should be the same reference if they are matching.
-    // That means we also don't need to compute the hashcode for it.
-    // This allows us to break the cycle in computation when traversing this graph.
-    private bool Equals(TableReferenceExpression tableReferenceExpression)
-        => string.Equals(Alias, tableReferenceExpression.Alias, StringComparison.OrdinalIgnoreCase)
-            && ReferenceEquals(_selectExpression, tableReferenceExpression._selectExpression);
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-        => 0;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static IEnumerable<INavigation> GetAllNavigationsInHierarchy(this IEntityType entityType)
+        => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+            .SelectMany(t => t.GetDeclaredNavigations());
 }

@@ -151,7 +151,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? scale)
     {
         // Note: Empty string is allowed for store type name because SQLite
-        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale, false);
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
         IsFixedLength = null;
@@ -225,6 +225,7 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="dbType">The suggested <see cref="DbType" />, or <see langword="null" /> for default.</param>
+    /// <param name="key">If <see langword="true" />, then a special mapping for a key may be returned.</param>
     public RelationalTypeMappingInfo(
         Type? type = null,
         RelationalTypeMapping? elementTypeMapping = null,
@@ -237,9 +238,10 @@ public readonly record struct RelationalTypeMappingInfo
         bool? fixedLength = null,
         int? precision = null,
         int? scale = null,
-        DbType? dbType = null)
+        DbType? dbType = null,
+        bool key = false)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(type, elementTypeMapping, keyOrIndex, unicode, size, rowVersion, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(type, elementTypeMapping, keyOrIndex, unicode, size, rowVersion, precision, scale, key);
 
         IsFixedLength = fixedLength;
         StoreTypeName = storeTypeName;
@@ -278,7 +280,8 @@ public readonly record struct RelationalTypeMappingInfo
             size ?? typeMappingConfiguration.GetMaxLength(),
             rowVersion: false,
             precision ?? typeMappingConfiguration.GetPrecision(),
-            scale ?? typeMappingConfiguration.GetScale());
+            scale ?? typeMappingConfiguration.GetScale(),
+            key: false);
 
         IsFixedLength = (bool?)typeMappingConfiguration[RelationalAnnotationNames.IsFixedLength];
         StoreTypeName = storeTypeName;
@@ -339,7 +342,16 @@ public readonly record struct RelationalTypeMappingInfo
     public DbType? DbType { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping is part of a key or index.
+    ///     Indicates whether or not the mapping is part of a key or foreign key.
+    /// </summary>
+    public bool IsKey
+    {
+        get => _coreTypeMappingInfo.IsKey;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsKey = value };
+    }
+
+    /// <summary>
+    ///     Indicates whether or not the mapping is part of a key, foreign key, or index.
     /// </summary>
     public bool IsKeyOrIndex
     {

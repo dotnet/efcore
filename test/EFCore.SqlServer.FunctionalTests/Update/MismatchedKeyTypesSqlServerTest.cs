@@ -3,8 +3,6 @@
 
 #nullable enable
 
-using System.Transactions;
-
 namespace Microsoft.EntityFrameworkCore.Update;
 
 public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture fixture) : IClassFixture<MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture>
@@ -14,8 +12,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     [ConditionalFact] // Issue #28392
     public virtual void Can_update_and_delete_with_bigint_FK_and_int_PK()
     {
-        using var _ = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         using var context = new MismatchedKeyTypesContext(Fixture);
+        context.Database.BeginTransaction();
 
         var principalEmpty = LoadAndValidateEmpty();
         var principalPopulated = LoadAndValidatePopulated(2);
@@ -87,8 +85,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     [ConditionalFact] // Issue #28392
     public virtual void Can_update_and_delete_with_tinyint_FK_and_smallint_PK()
     {
-        using var _ = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         using var context = new MismatchedKeyTypesContext(Fixture);
+        context.Database.BeginTransaction();
 
         var principalEmpty = LoadAndValidateEmpty();
         var principalPopulated = LoadAndValidatePopulated(2);
@@ -160,8 +158,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     [ConditionalFact] // Issue #28392
     public virtual void Can_update_and_delete_with_string_FK_and_GUID_PK()
     {
-        using var _ = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         using var context = new MismatchedKeyTypesContext(Fixture);
+        context.Database.BeginTransaction();
 
         var principalEmpty = LoadAndValidateEmpty();
         var principalPopulated = LoadAndValidatePopulated(2);
@@ -233,8 +231,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     [ConditionalFact] // Issue #28392
     public virtual void Can_update_and_delete_composite_keys_mismatched_in_store()
     {
-        using var _ = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         using var context = new MismatchedKeyTypesContext(Fixture);
+        context.Database.BeginTransaction();
 
         var principalEmpty = LoadAndValidateEmpty();
         var principalPopulated = LoadAndValidatePopulated(2);
@@ -306,8 +304,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     [ConditionalFact]
     public virtual void Queries_work_but_SaveChanges_fails_when_composite_keys_incompatible_in_store()
     {
-        using var _ = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         using var context = new MismatchedKeyTypesContext(Fixture);
+        context.Database.BeginTransaction();
 
         context.Database.ExecuteSqlRaw(
             @"INSERT INTO PrincipalBadComposite (Id1, Id2, Id3)
@@ -334,8 +332,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
     [ConditionalFact]
     public virtual void Queries_work_but_SaveChanges_fails_when_keys_incompatible_in_store()
     {
-        using var _ = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
         using var context = new MismatchedKeyTypesContext(Fixture);
+        context.Database.BeginTransaction();
 
         context.Database.ExecuteSqlRaw(
             @"INSERT INTO PrincipalBad (Id)

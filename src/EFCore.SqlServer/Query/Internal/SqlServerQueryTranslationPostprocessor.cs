@@ -29,7 +29,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     public SqlServerQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext,
+        SqlServerQueryCompilationContext queryCompilationContext,
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
@@ -44,12 +44,12 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     /// </summary>
     public override Expression Process(Expression query)
     {
-        query = base.Process(query);
+        var query1 = base.Process(query);
 
-        query = _jsonPostprocessor.Process(query);
-        _skipWithoutOrderByInSplitQueryVerifier.Visit(query);
+        var query2 = _jsonPostprocessor.Process(query1);
+        _skipWithoutOrderByInSplitQueryVerifier.Visit(query2);
 
-        return query;
+        return query2;
     }
 
     /// <summary>

@@ -52,7 +52,8 @@ public class ComplexTypeData : ISetSource
         {
             AddressLine1 = "804 S. Lakeshore Road",
             ZipCode = 38654,
-            Country = new Country { FullName = "United States", Code = "US" }
+            Country = new Country { FullName = "United States", Code = "US" },
+            Tags = new List<string> { "foo", "bar" }
         };
 
         var customer1 = new Customer
@@ -71,13 +72,15 @@ public class ComplexTypeData : ISetSource
             {
                 AddressLine1 = "72 Hickory Rd.",
                 ZipCode = 07728,
-                Country = new Country { FullName = "Germany", Code = "DE" }
+                Country = new Country { FullName = "Germany", Code = "DE" },
+                Tags = new List<string> { "baz" }
             },
             BillingAddress = new Address
             {
                 AddressLine1 = "79 Main St.",
                 ZipCode = 29293,
-                Country = new Country { FullName = "Germany", Code = "DE" }
+                Country = new Country { FullName = "Germany", Code = "DE" },
+                Tags = new List<string> { "a1", "a2", "a3" }
             }
         };
 
@@ -85,7 +88,8 @@ public class ComplexTypeData : ISetSource
         {
             AddressLine1 = "79 Main St.",
             ZipCode = 29293,
-            Country = new Country { FullName = "Germany", Code = "DE" }
+            Country = new Country { FullName = "Germany", Code = "DE" },
+            Tags = new List<string> { "foo", "moo" }
         };
 
         var customer3 = new Customer

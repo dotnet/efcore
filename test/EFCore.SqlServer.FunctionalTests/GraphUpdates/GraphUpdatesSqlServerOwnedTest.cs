@@ -588,6 +588,17 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
                     b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
                     b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
                 });
+
+            modelBuilder.Entity<StringKeyAndIndexParent>(
+                b =>
+                {
+                    b.HasAlternateKey(e => e.AlternateId);
+                    b.OwnsOne(
+                        x => x.Child, b =>
+                        {
+                            b.WithOwner(e => e.Parent).HasForeignKey(e => e.ParentId);
+                        });
+                });
         }
     }
 }

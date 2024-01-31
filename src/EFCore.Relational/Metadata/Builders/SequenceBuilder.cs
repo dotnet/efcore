@@ -115,6 +115,35 @@ public class SequenceBuilder : IInfrastructure<IConventionSequenceBuilder>
     }
 
     /// <summary>
+    ///     Sets that sequence does not use preallocated values.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information and examples.
+    /// </remarks>
+    /// <returns>The same builder so that multiple calls can be chained.</returns>
+    public virtual SequenceBuilder UseNoCache()
+    {
+        Builder.UseNoCache(ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Sets the amount of preallocated values for the <see cref="ISequence" />.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information and examples.
+    /// </remarks>
+    /// <param name="cacheSize">The amount of preallocated values.</param>
+    /// <returns>The same builder so that multiple calls can be chained.</returns>
+    public virtual SequenceBuilder UseCache(int? cacheSize = default)
+    {
+        Builder.UseCache(cacheSize, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
     ///     Adds or updates an annotation on the sequence. If an annotation with the key specified in <paramref name="annotation" />
     ///     already exists, its value will be updated.
     /// </summary>

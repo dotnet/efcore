@@ -23,6 +23,25 @@ FROM [Owner] AS [o]
 """);
     }
 
+    public override async Task Delete_with_owned_collection_and_non_natively_translatable_query(bool async)
+    {
+        await base.Delete_with_owned_collection_and_non_natively_translatable_query(async);
+
+        AssertSql(
+            """
+@__p_0='1'
+
+DELETE FROM [o]
+FROM [Owner] AS [o]
+WHERE [o].[Id] IN (
+    SELECT [o0].[Id]
+    FROM [Owner] AS [o0]
+    ORDER BY [o0].[Title]
+    OFFSET @__p_0 ROWS
+)
+""");
+    }
+
     public override async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
     {
         await base.Delete_aggregate_root_when_table_sharing_with_owned(async);
@@ -62,6 +81,19 @@ FROM [Owner] AS [o]
 UPDATE [o]
 SET [o].[Title] = COALESCE([o].[Title], N'') + N'_Suffix'
 FROM [Owner] AS [o]
+""");
+    }
+
+    public override async Task Update_non_owned_property_on_entity_with_owned_in_join(bool async)
+    {
+        await base.Update_non_owned_property_on_entity_with_owned_in_join(async);
+
+        AssertSql(
+            """
+UPDATE [o]
+SET [o].[Title] = N'NewValue'
+FROM [Owner] AS [o]
+INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
 """);
     }
 

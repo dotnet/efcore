@@ -30,6 +30,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         IndentedStringBuilder methodBuilder,
         ISet<string> namespaces,
         ISet<string> scopeVariables,
+        Dictionary<ITypeBase, string> configurationClassNames,
         bool nullable)
     {
         TargetName = targetName;
@@ -38,6 +39,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         MethodBuilder = methodBuilder;
         Namespaces = namespaces;
         ScopeVariables = scopeVariables;
+        ConfigurationClassNames = configurationClassNames;
         UseNullableReferenceTypes = nullable;
     }
 
@@ -75,6 +77,11 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     ///     A collection of variable names in the current scope.
     /// </summary>
     public ISet<string> ScopeVariables { get; init; }
+
+    /// <summary>
+    ///     The configuration class names corresponding to the structural types.
+    /// </summary>
+    public IReadOnlyDictionary<ITypeBase, string> ConfigurationClassNames { get; init; }
 
     /// <summary>
     ///     Indicates whether the given annotations are runtime annotations.

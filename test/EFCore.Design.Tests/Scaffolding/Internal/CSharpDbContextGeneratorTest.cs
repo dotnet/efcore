@@ -1174,7 +1174,8 @@ public partial class TestDbContext : DbContext
                     .IncrementsBy(2)
                     .HasMin(2)
                     .HasMax(100)
-                    .IsCyclic(),
+                    .IsCyclic()
+                    .UseCache(20),
                 new ModelCodeGenerationOptions(),
                 code => AssertContains(
                     """
@@ -1183,7 +1184,8 @@ public partial class TestDbContext : DbContext
             .IncrementsBy(2)
             .HasMin(2L)
             .HasMax(100L)
-            .IsCyclic();
+            .IsCyclic()
+            .UseCache(20);
 """,
                     code.ContextFile.Code),
                 model =>
@@ -1197,6 +1199,8 @@ public partial class TestDbContext : DbContext
                     Assert.Equal(2, sequence.MinValue);
                     Assert.Equal(100, sequence.MaxValue);
                     Assert.True(sequence.IsCyclic);
+                    Assert.True(sequence.IsCached);
+                    Assert.Equal(20, sequence.CacheSize);
                 });
 
         [ConditionalFact]

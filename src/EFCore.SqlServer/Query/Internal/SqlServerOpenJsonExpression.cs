@@ -155,10 +155,10 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var newJsonExpression = (SqlExpression)cloningExpressionVisitor.Visit(JsonExpression);
-        var clone = new SqlServerOpenJsonExpression(Alias, newJsonExpression, Path, ColumnInfos);
+        var clone = new SqlServerOpenJsonExpression(alias!, newJsonExpression, Path, ColumnInfos);
 
         foreach (var annotation in GetAnnotations())
         {
@@ -167,6 +167,10 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 
         return clone;
     }
+
+    /// <inheritdoc />
+    public override SqlServerOpenJsonExpression WithAlias(string newAlias)
+        => new(newAlias, JsonExpression, Path, ColumnInfos);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

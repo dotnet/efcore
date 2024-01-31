@@ -49,14 +49,9 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     /// </param>
     /// <returns>The <see cref="MemberInfo" /> to use.</returns>
     MemberInfo GetMemberInfo(bool forMaterialization, bool forSet)
-    {
-        if (this.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
-        {
-            return memberInfo!;
-        }
-
-        throw new InvalidOperationException(errorMessage);
-    }
+        => this.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage)
+            ? memberInfo!
+            : throw new InvalidOperationException(errorMessage);
 
     /// <summary>
     ///     Gets the property index for this property.

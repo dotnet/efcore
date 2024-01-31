@@ -5419,6 +5419,26 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 .Select(e => e.Orders.OrderBy(o => o.OrderID).Skip(0).Take(0).Any()),
             assertOrder: true);
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Skip_1_Take_0_works_when_constant(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .OrderBy(c => c.CustomerID)
+                .Select(e => e.Orders.OrderBy(o => o.OrderID).Skip(1).Take(0).Any()),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_0_works_when_constant(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                .OrderBy(c => c.CustomerID)
+                .Select(e => e.Orders.OrderBy(o => o.OrderID).Take(0).Any()),
+            assertOrder: true);
+
     [ConditionalFact]
     public virtual async Task ToListAsync_can_be_canceled()
     {

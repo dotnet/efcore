@@ -25,11 +25,14 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     {
                         Id = 1,
                         AlternateId = new Guid(),
-                        Dependent = new DependentBase<byte?>(1),
+                        Dependent = new DependentDerived<byte?>(1, "one"),
                         Owned = new OwnedType(c)
                     });
 
                 c.SaveChanges();
+
+                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
+                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
@@ -87,7 +90,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         }
                         else
                         {
-                            ob.ToTable("ManyOwned", t => t.ExcludeFromMigrations());
+                            ob.ToTable("ManyOwned");
                         }
                     });
 
@@ -95,8 +98,13 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     .UsingEntity(
                         jb =>
                         {
-                            jb.ToTable(tb => tb.HasComment("Join table"));
+                            jb.ToTable(tb =>
+                            {
+                                tb.HasComment("Join table");
+                                tb.ExcludeFromMigrations();
+                            });
                             jb.Property<byte[]>("rowid")
+                                .IsRowVersion()
                                 .HasComment("RowVersion")
                                 .HasColumnOrder(1);
                         });
@@ -206,12 +214,6 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
 
         var referenceOwnership = referenceOwnedNavigation.ForeignKey;
         var ownedCollectionNavigation = principalDerived.GetDeclaredNavigations().Last();
-        var collectionOwnedType = ownedCollectionNavigation.TargetEntityType;
-        Assert.Null(collectionOwnedType[RelationalAnnotationNames.IsTableExcludedFromMigrations]);
-        Assert.Equal(
-            CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => collectionOwnedType.IsTableExcludedFromMigrations()).Message);
-
         var collectionOwnership = ownedCollectionNavigation.ForeignKey;
 
         var tptForeignKey = principalDerived.GetForeignKeys().SingleOrDefault();
@@ -243,15 +245,19 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Null(joinType[RelationalAnnotationNames.Comment]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => joinType.GetComment()).Message);
+            Assert.Throws<InvalidOperationException>(joinType.GetComment).Message);
         Assert.Null(joinType.GetQueryFilter());
+        Assert.Null(joinType[RelationalAnnotationNames.IsTableExcludedFromMigrations]);
+        Assert.Equal(
+            CoreStrings.RuntimeModelMissingData,
+            Assert.Throws<InvalidOperationException>(() => joinType.IsTableExcludedFromMigrations()).Message);
 
         var rowid = joinType.GetProperties().Single(p => !p.IsForeignKey());
         Assert.Equal("rowid", rowid.GetColumnName());
         Assert.Null(rowid[RelationalAnnotationNames.Comment]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => rowid.GetComment()).Message);
+            Assert.Throws<InvalidOperationException>(rowid.GetComment).Message);
         Assert.Null(rowid[RelationalAnnotationNames.ColumnOrder]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
@@ -264,6 +270,12 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.True(dependentData.IsFixedLength());
 
         var dependentBaseForeignKey = dependentBase.GetForeignKeys().Single(fk => fk != dependentForeignKey);
+
+        var joinTable = joinType.GetTableMappings().Single().Table;
+        Assert.Null(joinTable[RelationalAnnotationNames.Comment]);
+        Assert.Equal(
+            CoreStrings.RuntimeModelMissingData,
+            Assert.Throws<InvalidOperationException>(() => joinTable.Comment).Message);
 
         var dependentMoney = dependentDerived.GetDeclaredProperties().Last();
         Assert.Equal("Money", dependentMoney.GetColumnName());
@@ -1175,6 +1187,104 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 .HasTranslation(args => new SqlFragmentExpression("NULL"));
         }
     }
+
+    [ConditionalFact]
+    public virtual void Dynamic_schema()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Data>(
+                eb =>
+                {
+                    eb.Property<int>("Id");
+                    eb.HasKey("Id");
+                }),
+            model =>
+            {
+                Assert.Equal("custom", model.GetDefaultSchema());
+
+                var dataEntity = model.GetEntityTypes().Single();
+                Assert.Equal("custom", dataEntity.GetSchema());
+            },
+            additionalSourceFiles:
+            [
+                new()
+                {
+                    Path = "DbContextModelCustomizer.cs",
+                    Code = """
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace;
+
+public partial class DbContextModel
+{
+    private string DefaultSchema { get; init; } = "custom";
+
+    partial void Customize()
+    {
+        RemoveAnnotation("Relational:DefaultSchema");
+        AddAnnotation("Relational:DefaultSchema", DefaultSchema);
+        RemoveRuntimeAnnotation("Relational:RelationalModel");
+
+        foreach (RuntimeEntityType entityType in ((IModel)this).GetEntityTypes())
+        {
+            Customize(entityType);
+
+            foreach (var key in entityType.GetDeclaredKeys())
+            {
+                key.RemoveRuntimeAnnotation(RelationalAnnotationNames.UniqueConstraintMappings);
+            }
+
+            foreach (var index in entityType.GetDeclaredIndexes())
+            {
+                index.RemoveRuntimeAnnotation(RelationalAnnotationNames.TableIndexMappings);
+            }
+
+            foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+            {
+                foreignKey.RemoveRuntimeAnnotation(RelationalAnnotationNames.ForeignKeyMappings);
+            }
+
+            var tableName = entityType.FindAnnotation("Relational:TableName")?.Value as string;
+            if (string.IsNullOrEmpty(tableName))
+                continue;
+
+            entityType.SetAnnotation("Relational:Schema", DefaultSchema);
+        }
+    }
+
+    private static void Customize(RuntimeTypeBase entityType)
+    {
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.TableMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.ViewMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.SqlQueryMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.InsertStoredProcedureMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.DeleteStoredProcedureMappings);
+        entityType.RemoveRuntimeAnnotation(RelationalAnnotationNames.UpdateStoredProcedureMappings);
+
+        foreach (var property in entityType.GetDeclaredProperties())
+        {
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.ViewColumnMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.SqlQueryColumnMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.FunctionColumnMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.InsertStoredProcedureParameterMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.DeleteStoredProcedureParameterMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.UpdateStoredProcedureParameterMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings);
+            property.RemoveRuntimeAnnotation(RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings);
+        }
+
+        foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+        {
+            Customize(complexProperty.ComplexType);
+        }
+    }
+}
+"""
+                }
+            ]);
 
     public class SpatialTypes : AbstractBase;
 

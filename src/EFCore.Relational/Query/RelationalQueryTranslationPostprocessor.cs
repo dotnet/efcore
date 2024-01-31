@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class RelationalQueryTranslationPostprocessor : QueryTranslationPostprocessor
 {
     private readonly SqlTreePruner _pruner = new();
+    private readonly SqlAliasManager _sqlAliasManager;
     private readonly bool _useRelationalNulls;
 
     /// <summary>
@@ -22,10 +23,11 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
     public RelationalQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext)
+        RelationalQueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
     {
         RelationalDependencies = relationalDependencies;
+        _sqlAliasManager = queryCompilationContext.SqlAliasManager;
         _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
     }
 
@@ -37,24 +39,24 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
     /// <inheritdoc />
     public override Expression Process(Expression query)
     {
-        query = base.Process(query);
-        query = new SelectExpressionProjectionApplyingExpressionVisitor(
-            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query);
-        query = Prune(query);
+        var query1 = base.Process(query);
+        var query2 = new SelectExpressionProjectionApplyingExpressionVisitor(
+            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query1);
+        var query3 = Prune(query2);
+
+        // TODO: This - and all the verifications below - should happen after all visitors have run, including provider-specific ones.
+        var query4 = _sqlAliasManager.PostprocessAliases(query3);
 
 #if DEBUG
         // Verifies that all SelectExpression are marked as immutable after this point.
-        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query);
-        // Verifies that all table aliases are uniquely assigned without skipping over
-        // Which points to possible mutation of a SelectExpression being used in multiple places.
-        new TableAliasVerifyingExpressionVisitor().Visit(query);
+        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query4);
 #endif
 
-        query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
-            .Visit(query);
-        query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
+        var query5 = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
+            .Visit(query4);
+        var query6 = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query5);
 
-        return query;
+        return query6;
     }
 
     /// <summary>
@@ -82,100 +84,6 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
 
                 default:
                     return base.Visit(expression);
-            }
-        }
-    }
-
-    private sealed class TableAliasVerifyingExpressionVisitor : ExpressionVisitor
-    {
-        private readonly ScopedVisitor _scopedVisitor = new();
-
-        // Validates that all aliases are unique inside SelectExpression
-        // And all aliases are used in without any generated alias being missing
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            switch (expression)
-            {
-                case ShapedQueryExpression shapedQueryExpression:
-                    VerifyUniqueAliasInExpression(shapedQueryExpression.QueryExpression);
-                    Visit(shapedQueryExpression.QueryExpression);
-                    return shapedQueryExpression;
-
-                case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
-                    VerifyUniqueAliasInExpression(relationalSplitCollectionShaperExpression.SelectExpression);
-                    Visit(relationalSplitCollectionShaperExpression.InnerShaper);
-                    return relationalSplitCollectionShaperExpression;
-
-                case NonQueryExpression nonQueryExpression:
-                    VerifyUniqueAliasInExpression(nonQueryExpression.Expression);
-                    return nonQueryExpression;
-
-                default:
-                    return base.Visit(expression);
-            }
-        }
-
-        private void VerifyUniqueAliasInExpression(Expression expression)
-            => _scopedVisitor.EntryPoint(expression);
-
-        private sealed class ScopedVisitor : ExpressionVisitor
-        {
-            private readonly HashSet<string> _usedAliases = new(StringComparer.OrdinalIgnoreCase);
-            private readonly HashSet<TableExpressionBase> _visitedTableExpressionBases = new(ReferenceEqualityComparer.Instance);
-
-            public Expression EntryPoint(Expression expression)
-            {
-                _usedAliases.Clear();
-                _visitedTableExpressionBases.Clear();
-
-                if (expression is SelectExpression selectExpression)
-                {
-                    Check.DebugAssert(selectExpression.RemovedAliases is not null, "RemovedAliases not set");
-                    foreach (var alias in selectExpression.RemovedAliases)
-                    {
-                        _usedAliases.Add(alias);
-                    }
-                }
-
-                var result = Visit(expression);
-
-                foreach (var group in _usedAliases.GroupBy(e => e[..1]))
-                {
-                    if (group.Count() == 1)
-                    {
-                        continue;
-                    }
-
-                    var numbers = group.OrderBy(e => e).Skip(1).Select(e => int.Parse(e[1..])).OrderBy(e => e).ToList();
-                    if (numbers.Count - 1 != numbers[^1])
-                    {
-                        throw new InvalidOperationException($"Missing alias in the list: {string.Join(",", group.Select(e => e))}");
-                    }
-                }
-
-                return result;
-            }
-
-            [return: NotNullIfNotNull("expression")]
-            public override Expression? Visit(Expression? expression)
-            {
-                var visitedExpression = base.Visit(expression);
-                if (visitedExpression is TableExpressionBase tableExpressionBase
-                    && !_visitedTableExpressionBases.Contains(tableExpressionBase)
-                    && tableExpressionBase.Alias != null)
-                {
-                    if (_usedAliases.Contains(tableExpressionBase.Alias))
-                    {
-                        throw new InvalidOperationException($"Duplicate alias: {tableExpressionBase.Alias}");
-                    }
-
-                    _usedAliases.Add(tableExpressionBase.Alias);
-
-                    _visitedTableExpressionBases.Add(tableExpressionBase);
-                }
-
-                return visitedExpression;
             }
         }
     }

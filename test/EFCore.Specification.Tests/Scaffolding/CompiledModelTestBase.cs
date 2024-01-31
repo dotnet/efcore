@@ -114,8 +114,6 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
                             jb.Property<byte[]>("rowid")
                                 .IsRowVersion();
                         });
-
-                eb.Navigation(e => e.Principals).AutoInclude().EnableLazyLoading(false);
             });
 
         modelBuilder.Entity<DependentBase<byte?>>(
@@ -417,8 +415,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         Assert.Equal("<Principals>k__BackingField", derivedSkipNavigation.FieldInfo!.Name);
         Assert.Equal(typeof(ICollection<PrincipalBase>), derivedSkipNavigation.ClrType);
         Assert.True(derivedSkipNavigation.IsCollection);
-        Assert.True(derivedSkipNavigation.IsEagerLoaded);
-        Assert.False(derivedSkipNavigation.LazyLoadingEnabled);
+        Assert.False(derivedSkipNavigation.IsEagerLoaded);
+        Assert.True(derivedSkipNavigation.LazyLoadingEnabled);
         Assert.False(derivedSkipNavigation.IsOnDependent);
         Assert.Equal(principalDerived, derivedSkipNavigation.DeclaringEntityType);
         Assert.Equal("Deriveds", derivedSkipNavigation.Inverse.Name);
@@ -1067,9 +1065,16 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         public PrincipalDerived<DependentBase<TKey>>? Principal { get; set; }
     }
 
-    public class DependentDerived<TKey>(TKey id) : DependentBase<TKey>(id)
+    public class DependentDerived<TKey> : DependentBase<TKey>
     {
+        public DependentDerived(TKey id, string data)
+            : base(id)
+        {
+            Data = data;
+        }
+
         private string? Data { get; set; }
+        public string? GetData() => Data;
     }
 
     public class OwnedType : INotifyPropertyChanged, INotifyPropertyChanging
@@ -1233,6 +1238,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         CompiledModelCodeGenerationOptions? options = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
+        IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         string? expectedExceptionMessage = null,
         [CallerMemberName] string testName = "")
         => Test<DbContext>(
@@ -1243,6 +1249,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             options,
             addServices,
             addDesignTimeServices,
+            additionalSourceFiles,
             expectedExceptionMessage,
             testName);
 
@@ -1254,6 +1261,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         CompiledModelCodeGenerationOptions? options = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
+        IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         string? expectedExceptionMessage = null,
         [CallerMemberName] string testName = "")
         where TContext : DbContext
@@ -1300,10 +1308,18 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             model,
             options);
 
+        if (additionalSourceFiles != null)
+        {
+            scaffoldedFiles = scaffoldedFiles.Concat(additionalSourceFiles).ToArray();
+        }
+
         var compiledModel = CompileModel(scaffoldedFiles, options, context);
         assertModel?.Invoke(compiledModel);
 
-        TestHelpers.ModelAsserter.AssertEqual(context.Model, compiledModel);
+        if (additionalSourceFiles == null)
+        {
+            TestHelpers.ModelAsserter.AssertEqual(context.Model, compiledModel);
+        }
 
         if (useContext != null)
         {

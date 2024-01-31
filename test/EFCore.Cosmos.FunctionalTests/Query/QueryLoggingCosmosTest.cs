@@ -9,7 +9,7 @@ public class QueryLoggingCosmosTest(QueryLoggingCosmosTest.NorthwindQueryCosmosF
     IClassFixture<QueryLoggingCosmosTest.NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer>>
 {
     public class NorthwindQueryCosmosFixtureInsensitive<TModelCustomizer> : NorthwindQueryCosmosFixture<TModelCustomizer>
-        where TModelCustomizer : IModelCustomizer, new()
+        where TModelCustomizer : ITestModelCustomizer, new()
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).EnableSensitiveDataLogging(false);

@@ -182,7 +182,8 @@ public readonly record struct TypeMappingInfo
         var property = principals[0];
 
         ElementTypeMapping = property.GetElementType()?.FindTypeMapping();
-        IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
+        IsKey = property.IsKey() || property.IsForeignKey();
+        IsKeyOrIndex = IsKey || property.IsIndex();
         Size = fallbackSize ?? mappingHints?.Size;
         IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
         IsRowVersion = property is { IsConcurrencyToken: true, ValueGenerated: ValueGenerated.OnAddOrUpdate };
@@ -246,6 +247,7 @@ public readonly record struct TypeMappingInfo
     /// <param name="rowVersion">Specifies a row-version, or <see langword="null" /> for default.</param>
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="key">If <see langword="true" />, then a special mapping for a key may be returned.</param>
     public TypeMappingInfo(
         Type? type = null,
         CoreTypeMapping? elementTypeMapping = null,
@@ -254,11 +256,13 @@ public readonly record struct TypeMappingInfo
         int? size = null,
         bool? rowVersion = null,
         int? precision = null,
-        int? scale = null)
+        int? scale = null,
+        bool key = false)
     {
         ClrType = type?.UnwrapNullableType();
         ElementTypeMapping = elementTypeMapping;
 
+        IsKey = key;
         IsKeyOrIndex = keyOrIndex;
         Size = size;
         IsUnicode = unicode;
@@ -285,6 +289,7 @@ public readonly record struct TypeMappingInfo
         int? scale = null)
     {
         IsRowVersion = source.IsRowVersion;
+        IsKey = source.IsKey;
         IsKeyOrIndex = source.IsKeyOrIndex;
 
         var mappingHints = converter.MappingHints;
@@ -314,7 +319,12 @@ public readonly record struct TypeMappingInfo
         => new(this, converterInfo);
 
     /// <summary>
-    ///     Indicates whether or not the mapping is part of a key or index.
+    ///     Indicates whether or not the mapping is part of a key or foreign key.
+    /// </summary>
+    public bool IsKey { get; init; }
+
+    /// <summary>
+    ///     Indicates whether or not the mapping is part of a key, foreign key, or index.
     /// </summary>
     public bool IsKeyOrIndex { get; init; }
 

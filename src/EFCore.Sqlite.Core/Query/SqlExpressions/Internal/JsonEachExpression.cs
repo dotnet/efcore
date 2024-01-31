@@ -129,10 +129,10 @@ public class JsonEachExpression : TableValuedFunctionExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var newJsonExpression = (SqlExpression)cloningExpressionVisitor.Visit(JsonExpression);
-        var clone = new JsonEachExpression(Alias, newJsonExpression, Path);
+        var clone = new JsonEachExpression(alias!, newJsonExpression, Path);
 
         foreach (var annotation in GetAnnotations())
         {
@@ -141,6 +141,10 @@ public class JsonEachExpression : TableValuedFunctionExpression
 
         return clone;
     }
+
+    /// <inheritdoc />
+    public override JsonEachExpression WithAlias(string newAlias)
+        => new(newAlias, JsonExpression, Path);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

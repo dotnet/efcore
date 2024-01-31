@@ -24,7 +24,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private object? _sentinel;
     private ValueGenerated? _valueGenerated;
     private CoreTypeMapping? _typeMapping;
-    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
@@ -32,6 +31,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
     private ConfigurationSource? _valueGeneratedConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
+
+    // Warning: Never access these fields directly as access needs to be thread-safe
+    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1093,13 +1095,22 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IComparer<IUpdateEntry> CurrentValueComparer
+    public virtual IComparer<IUpdateEntry> GetCurrentValueComparer()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _currentValueComparer, this, static property =>
             {
                 property.EnsureReadOnly();
-                return new CurrentValueComparerFactory().Create(property);
+                return CurrentValueComparerFactory.Instance.Create(property);
             });
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SetCurrentValueComparer(IComparer<IUpdateEntry> comparer)
+        => _currentValueComparer = comparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2035,16 +2046,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         => SetProviderClrType(
             providerClrType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IComparer<IUpdateEntry> IProperty.GetCurrentValueComparer()
-        => CurrentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

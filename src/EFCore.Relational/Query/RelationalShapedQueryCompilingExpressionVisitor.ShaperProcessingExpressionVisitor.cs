@@ -2034,10 +2034,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             private sealed class ValueBufferTryReadValueMethodsReplacer : ExpressionVisitor
             {
-                private static readonly MethodInfo PopulateListMethod
-                    = typeof(ValueBufferTryReadValueMethodsReplacer).GetMethod(
-                        nameof(PopulateList), BindingFlags.NonPublic | BindingFlags.Static)!;
-
                 private readonly Expression _instance;
                 private readonly Dictionary<IProperty, ParameterExpression> _propertyAssignmentMap;
 
@@ -2057,7 +2053,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         if (property!.IsPrimitiveCollection
                             && !property.ClrType.IsArray)
                         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                            var genericMethod = EntityMaterializerSource.PopulateListMethod.MakeGenericMethod(
+                                property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                             var currentVariable = Variable(parameter!.Type);
+                            var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                                ? (Expression)currentVariable
+                                : Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
                             return Block(
                                 new[] { currentVariable },
                                 MakeMemberAccess(_instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
@@ -2070,9 +2073,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                         ? leftMemberExpression.Assign(parameter)
                                         : MakeBinary(node.NodeType, node.Left, parameter),
                                     Call(
-                                        PopulateListMethod.MakeGenericMethod(property.ClrType.TryGetElementType(typeof(IEnumerable<>))!),
+                                        genericMethod,
                                         parameter,
-                                        currentVariable)
+                                        convertedVariable)
                                 ));
                         }
 
@@ -2110,17 +2113,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     property = null;
                     parameter = null;
                     return false;
-                }
-
-                private static IList<T> PopulateList<T>(IList<T> buffer, IList<T> target)
-                {
-                    target.Clear();
-                    foreach (var value in buffer)
-                    {
-                        target.Add(value);
-                    }
-
-                    return target;
                 }
             }
         }

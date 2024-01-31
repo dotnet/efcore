@@ -191,14 +191,17 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         var selectExpression = deleteExpression.SelectExpression;
 
-        if (selectExpression.Offset == null
-            && selectExpression.Limit == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] == deleteExpression.Table
-            && selectExpression.Projection.Count == 0)
+        if (selectExpression is
+            {
+                Tables: [var table],
+                GroupBy: [],
+                Having: null,
+                Projection: [],
+                Orderings: [],
+                Offset: null,
+                Limit: null
+            }
+            && table.Equals(deleteExpression.Table))
         {
             _relationalCommandBuilder.Append("DELETE FROM ");
             Visit(deleteExpression.Table);
@@ -1349,12 +1352,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         var selectExpression = updateExpression.SelectExpression;
 
-        if (selectExpression.Offset == null
-            && selectExpression.Limit == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0
+        if (selectExpression is
+            {
+                Offset: null,
+                Limit: null,
+                Having: null,
+                Orderings: [],
+                GroupBy: [],
+                Projection: [],
+            }
             && (selectExpression.Tables.Count == 1
                 || !ReferenceEquals(selectExpression.Tables[0], updateExpression.Table)
                 || selectExpression.Tables[1] is InnerJoinExpression

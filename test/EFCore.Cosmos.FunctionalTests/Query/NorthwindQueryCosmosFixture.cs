@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
-    where TModelCustomizer : IModelCustomizer, new()
+    where TModelCustomizer : ITestModelCustomizer, new()
 {
     protected override ITestStoreFactory TestStoreFactory
         => CosmosNorthwindTestStoreFactory.Instance;

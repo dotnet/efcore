@@ -63,11 +63,14 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         var selectExpression = deleteExpression.SelectExpression;
 
-        if (selectExpression.Offset == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+        if (selectExpression is
+            {
+                GroupBy: [],
+                Having: null,
+                Projection: [],
+                Orderings: [],
+                Offset: null
+            })
         {
             Sql.Append("DELETE ");
             GenerateTop(selectExpression);
@@ -122,11 +125,14 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         var selectExpression = updateExpression.SelectExpression;
 
-        if (selectExpression.Offset == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Projection.Count == 0)
+        if (selectExpression is
+            {
+                GroupBy: [],
+                Having: null,
+                Projection: [],
+                Orderings: [],
+                Offset: null
+            })
         {
             Sql.Append("UPDATE ");
             GenerateTop(selectExpression);

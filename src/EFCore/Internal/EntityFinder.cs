@@ -855,15 +855,32 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var entityParameter = Expression.Parameter(typeof(object), "e");
 
         var projections = new List<Expression>();
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
+            var path = new List<IPropertyBase> { property };
+            while (path[^1].DeclaringType is IComplexType complexType)
+            {
+                path.Add(complexType.ComplexProperty);
+            }
+
+            Expression instanceExpression = entityParameter;
+            for (var i = path.Count - 1; i >= 0; i--)
+            {
+                instanceExpression = Expression.Call(
+                    EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
+                    instanceExpression,
+                    Expression.Constant(path[i].Name, typeof(string)));
+
+                if (i != 0 && instanceExpression.Type.IsValueType)
+                {
+                    instanceExpression = Expression.Convert(instanceExpression, typeof(object));
+                }
+            }
+
             projections.Add(
                 Expression.Convert(
                     Expression.Convert(
-                        Expression.Call(
-                            EF.PropertyMethod.MakeGenericMethod(property.ClrType),
-                            entityParameter,
-                            Expression.Constant(property.Name, typeof(string))),
+                        instanceExpression,
                         property.ClrType),
                     typeof(object)));
         }

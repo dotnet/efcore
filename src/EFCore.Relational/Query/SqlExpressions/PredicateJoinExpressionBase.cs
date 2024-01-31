@@ -25,7 +25,7 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
         TableExpressionBase table,
         SqlExpression joinPredicate,
         bool prunable,
-        IEnumerable<IAnnotation>? annotations = null)
+        IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(table, prunable, annotations)
     {
         JoinPredicate = joinPredicate;

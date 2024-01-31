@@ -62,6 +62,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             { typeof(IRawSqlCommandBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(ISqlAliasManagerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IRelationalSqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -150,6 +151,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>();
         TryAdd<IRawSqlCommandBuilder, RawSqlCommandBuilder>();
         TryAdd<ICommandBatchPreparer, CommandBatchPreparer>();
+        TryAdd<IResettableService, ICommandBatchPreparer>(p => p.GetRequiredService<ICommandBatchPreparer>());
         TryAdd<IModificationCommandFactory, ModificationCommandFactory>();
         TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
         TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
@@ -185,6 +187,8 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
         TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
         TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
+        TryAdd<IAdHocMapper, RelationalAdHocMapper>();
+        TryAdd<ISqlAliasManagerFactory, SqlAliasManagerFactory>();
 
         ServiceCollectionMap.GetInfrastructure()
             .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -220,7 +224,8 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             .AddDependencyScoped<RelationalConnectionDependencies>()
             .AddDependencyScoped<RelationalDatabaseDependencies>()
             .AddDependencyScoped<RelationalQueryContextDependencies>()
-            .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
+            .AddDependencyScoped<RelationalQueryCompilationContextDependencies>()
+            .AddDependencyScoped<RelationalAdHocMapperDependencies>();
 
         return base.TryAddCoreServices();
     }

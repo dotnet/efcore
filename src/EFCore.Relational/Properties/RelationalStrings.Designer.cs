@@ -68,6 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
+        ///     Join expressions have no aliases; set the alias on the enclosed table expression.
+        /// </summary>
+        public static string CannotSetAliasOnJoin
+            => GetString("CannotSetAliasOnJoin");
+
+        /// <summary>
         ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
         /// </summary>
         public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
@@ -1340,6 +1346,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoActiveTransaction");
 
         /// <summary>
+        ///     No alias is defined on table: '{table}'
+        /// </summary>
+        public static string NoAliasOnTable(object? table)
+            => string.Format(
+                GetString("NoAliasOnTable", nameof(table)),
+                table);
+
+        /// <summary>
         ///     Cannot create a DbCommand for a non-relational query.
         /// </summary>
         public static string NoDbCommand
@@ -1536,6 +1550,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SelectExpressionNonTphWithCustomTable", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     SelectExpression.Update() is not supported while the expression is in mutable state.
+        /// </summary>
+        public static string SelectExpressionUpdateNotSupportedWhileMutable
+            => GetString("SelectExpressionUpdateNotSupportedWhileMutable");
 
         /// <summary>
         ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
@@ -2046,7 +2066,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

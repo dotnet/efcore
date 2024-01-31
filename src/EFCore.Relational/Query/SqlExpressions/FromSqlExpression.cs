@@ -19,11 +19,12 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
     /// </summary>
+    /// <param name="alias">An alias to use for this table source.</param>
     /// <param name="defaultTableBase">A default table base associated with this table source.</param>
     /// <param name="sql">A user-provided custom SQL for the table source.</param>
     /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
-    public FromSqlExpression(ITableBase defaultTableBase, string sql, Expression arguments)
-        : this(defaultTableBase.Name[..1].ToLowerInvariant(), defaultTableBase, sql, arguments, annotations: null)
+    public FromSqlExpression(string alias, ITableBase defaultTableBase, string sql, Expression arguments)
+        : this(alias, defaultTableBase, sql, arguments, annotations: null)
     {
     }
 
@@ -53,7 +54,7 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
         ITableBase? tableBase,
         string sql,
         Expression arguments,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, annotations)
     {
         Table = tableBase;
@@ -64,12 +65,8 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     The user-provided custom SQL for the table source.
@@ -94,20 +91,24 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual FromSqlExpression Update(Expression arguments)
         => arguments != Arguments
-            ? new FromSqlExpression(Alias, Table, Sql, arguments, GetAnnotations())
+            ? new FromSqlExpression(Alias, Table, Sql, arguments, Annotations)
             : this;
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new FromSqlExpression(Alias, Table, Sql, Arguments, annotations);
+    protected override FromSqlExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Alias, Table, Sql, Arguments, annotations);
+
+    /// <inheritdoc />
+    public override FromSqlExpression WithAlias(string newAlias)
+        => new(newAlias, Table, Sql, Arguments, Annotations);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => this;
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningVisitor)
-        => new FromSqlExpression(Alias, Table, Sql, Arguments, GetAnnotations());
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningVisitor)
+        => new FromSqlExpression(alias!, Table, Sql, Arguments, Annotations);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

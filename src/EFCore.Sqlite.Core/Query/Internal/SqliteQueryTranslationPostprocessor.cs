@@ -25,7 +25,7 @@ public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPos
     public SqliteQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext)
+        RelationalQueryCompilationContext queryCompilationContext)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
     }

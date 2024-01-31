@@ -63,6 +63,11 @@ public abstract class JsonValueReaderWriter
     /// <returns>The read value.</returns>
     public object FromJsonString(string json, object? existingObject = null)
     {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            throw new InvalidOperationException(CoreStrings.EmptyJsonString);
+        }
+
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
         readerManager.MoveNext();
         return FromJson(ref readerManager, existingObject);

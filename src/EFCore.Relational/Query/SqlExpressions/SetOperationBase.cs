@@ -45,7 +45,7 @@ public abstract class SetOperationBase : TableExpressionBase
         SelectExpression source1,
         SelectExpression source2,
         bool distinct,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, annotations)
     {
         IsDistinct = distinct;
@@ -56,12 +56,8 @@ public abstract class SetOperationBase : TableExpressionBase
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     The bool value indicating whether result will remove duplicate rows.
@@ -86,12 +82,6 @@ public abstract class SetOperationBase : TableExpressionBase
     /// <param name="source2">The <see cref="Source2" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public abstract SetOperationBase Update(SelectExpression source1, SelectExpression source2);
-
-    /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
-        // Set operations necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a
-        // new copy of this SetOperationBase by calling Update.
-        => (TableExpressionBase)VisitChildren(cloningExpressionVisitor);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

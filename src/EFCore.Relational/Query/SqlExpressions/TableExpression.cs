@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </remarks>
 public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
 {
-    internal TableExpression(ITableBase table)
-        : this(table, annotations: null)
+    internal TableExpression(string alias, ITableBase table)
+        : this(alias, table, annotations: null)
     {
     }
 
-    private TableExpression(ITableBase table, IEnumerable<IAnnotation>? annotations)
-        : base(alias: table.Name[..1].ToLowerInvariant(), annotations)
+    private TableExpression(string alias, ITableBase table, IReadOnlyDictionary<string, IAnnotation>? annotations)
+        : base(alias, annotations)
     {
         Name = table.Name;
         Schema = table.Schema;
@@ -31,12 +31,8 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     The name of the table or view.
@@ -52,10 +48,6 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     ///     The <see cref="ITableBase" /> associated with this table or view.
     /// </summary>
     public ITableBase Table { get; }
-
-    /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new TableExpression(Table, annotations) { Alias = Alias };
 
     /// <inheritdoc />
     ITableBase ITableBasedExpression.Table
@@ -76,13 +68,27 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     }
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
-        => CreateWithAnnotations(GetAnnotations());
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
+        => new TableExpression(alias!, Table, Annotations);
+
+    /// <inheritdoc />
+    protected override TableExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Alias, Table, annotations);
+
+    /// <inheritdoc />
+    public override TableExpression WithAlias(string newAlias)
+        => new(newAlias, Table, Annotations);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
-        // This should be reference equal only.
-        => obj != null && ReferenceEquals(this, obj);
+        => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is TableExpression fromSqlExpression
+                && Equals(fromSqlExpression));
+
+    private bool Equals(TableExpression fromSqlExpression)
+        => base.Equals(fromSqlExpression)
+            && Table == fromSqlExpression.Table;
 
     /// <inheritdoc />
     public override int GetHashCode()

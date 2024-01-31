@@ -303,13 +303,13 @@ public static class EntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IProperty CheckPropertyBelongsToType(
+    public static IProperty CheckContains(
         this IEntityType entityType,
         IProperty property)
     {
         Check.NotNull(property, nameof(property));
 
-        if ((property.DeclaringType as IEntityType)?.IsAssignableFrom(entityType) != true)
+        if (!property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
         {
             throw new InvalidOperationException(
                 CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));

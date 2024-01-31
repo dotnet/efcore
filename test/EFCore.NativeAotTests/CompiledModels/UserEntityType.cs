@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 providerValueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: true),
                 sentinel: 0);
             id.SetSetter((User e, int v) => e.Id = v);
-            id.SetAccessors(new PropertyAccessors(
+            id.SetAccessors(
                 (InternalEntityEntry e) =>
                     ((User)e.Entity).Id == 0
                         ? e.FlaggedAsStoreGenerated(0)
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                         : ((User)e.Entity).Id,
                 (InternalEntityEntry e) => e.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<int>(id, 0),
-                valueBuffer => valueBuffer[0]!));
+                valueBuffer => valueBuffer[0]!);
             id.TypeMapping = IntTypeMapping.Default;
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -62,12 +62,12 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 valueComparer: ValueComparer.CreateDefault<string>(favorStructuralComparisons: false),
                 providerValueComparer: ValueComparer.CreateDefault<string>(favorStructuralComparisons: true));
             name.SetSetter((User e, string v) => e.Name = v);
-            name.SetAccessors(new PropertyAccessors(
+            name.SetAccessors(
                 (InternalEntityEntry e) => ((User)e.Entity).Name,
                 (InternalEntityEntry e) => ((User)e.Entity).Name,
                 (InternalEntityEntry e) => e.ReadOriginalValue<string>(name, 1),
                 (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<string>(name, 1),
-                valueBuffer => valueBuffer[1]!));
+                valueBuffer => valueBuffer[1]!);
             name.TypeMapping = SqlServerStringTypeMapping.Default;
             name.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 

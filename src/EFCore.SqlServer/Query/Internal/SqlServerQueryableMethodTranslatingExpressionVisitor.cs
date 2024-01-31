@@ -81,7 +81,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     {
         if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
         {
-            var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(queryRootExpression.EntityType);
+            var selectExpression = CreateSelect(queryRootExpression.EntityType);
             Func<TableExpression, TableExpressionBase> annotationApplyingFunc = queryRootExpression switch
             {
                 TemporalAllQueryRootExpression => te => te
@@ -266,16 +266,18 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // collection).
         var isElementNullable = property?.GetElementType()!.IsNullable;
 
+        var keyColumnTypeMapping = _typeMappingSource.FindMapping("nvarchar(4000)")!;
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
-            openJsonExpression,
-            columnName: "value",
-            columnType: elementClrType,
-            columnTypeMapping: elementTypeMapping,
-            isElementNullable,
-            identifierColumnName: "key",
-            identifierColumnType: typeof(string),
-            identifierColumnTypeMapping: _typeMappingSource.FindMapping("nvarchar(4000)"));
+            [openJsonExpression],
+            new ColumnExpression(
+                "value",
+                tableAlias,
+                elementClrType.UnwrapNullableType(),
+                elementTypeMapping,
+                isElementNullable ?? elementClrType.IsNullableType()),
+            identifier: [(new ColumnExpression("key", tableAlias, typeof(string), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            _queryCompilationContext.SqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         // OPENJSON doesn't guarantee the ordering of the elements coming out; when using OPENJSON without WITH, a [key] column is returned
@@ -325,14 +327,16 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // Calculate the table alias for the OPENJSON expression based on the last named path segment
         // (or the JSON column name if there are none)
         var lastNamedPathSegment = jsonQueryExpression.Path.LastOrDefault(ps => ps.PropertyName is not null);
-        var tableAlias = char.ToLowerInvariant((lastNamedPathSegment.PropertyName ?? jsonQueryExpression.JsonColumn.Name)[0]).ToString();
+        var tableAlias =
+            _queryCompilationContext.SqlAliasManager.GenerateTableAlias(
+                lastNamedPathSegment.PropertyName ?? jsonQueryExpression.JsonColumn.Name);
 
         // We now add all of projected entity's the properties and navigations into the OPENJSON's WITH clause. Note that navigations
         // get AS JSON, which projects out the JSON sub-document for them as text, which can be further navigated into.
         var columnInfos = new List<SqlServerOpenJsonExpression.ColumnInfo>();
 
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
-        foreach (var property in GetAllPropertiesInHierarchy(jsonQueryExpression.EntityType))
+        foreach (var property in jsonQueryExpression.EntityType.GetAllPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
@@ -347,7 +351,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
-        foreach (var navigation in GetAllNavigationsInHierarchy(jsonQueryExpression.EntityType)
+        foreach (var navigation in jsonQueryExpression.EntityType.GetAllNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()
@@ -370,7 +374,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path, columnInfos);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        var selectExpression = new SelectExpression(
+        var selectExpression = CreateSelect(
             jsonQueryExpression,
             openJsonExpression,
             "key",
@@ -401,15 +405,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
                 false));
-
-        // TODO: Move these to IEntityType?
-        static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetDeclaredProperties());
-
-        static IEnumerable<INavigation> GetAllNavigationsInHierarchy(IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetDeclaredNavigations());
     }
 
     /// <summary>
@@ -441,13 +436,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     Limit: null,
                     Offset: null,
                     Orderings: [],
-                    Projection: [{ Expression: ColumnExpression { Name: "value", Table: var projectionColumnTable } }]
+                    Projection: [{ Expression: ColumnExpression { Name: "value", TableAlias: var projectionTableAlias } }]
                 }
             }
-            && projectionColumnTable == openJsonExpression)
+            && projectionTableAlias == openJsonExpression.Alias)
         {
             var newInExpression = _sqlExpressionFactory.In(translatedItem, parameter);
-            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(newInExpression));
+#pragma warning disable EF1001
+            return source.UpdateQueryExpression(new SelectExpression(newInExpression, _queryCompilationContext.SqlAliasManager));
+#pragma warning restore EF1001
         }
 
         return translatedSource;
@@ -483,13 +480,13 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         Expression: SqlUnaryExpression
                         {
                             OperatorType: ExpressionType.Convert,
-                            Operand: ColumnExpression { Name: "key", Table: var orderingTable }
+                            Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
                         }
                     }
                 ]
             } selectExpression
             && TranslateExpression(index) is { } translatedIndex
-            && orderingTable == openJsonExpression)
+            && orderingTableAlias == openJsonExpression.Alias)
         {
             // Index on JSON array
 
@@ -530,7 +527,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         projection.TypeMapping,
                         projectionColumn.IsNullable);
 
-                    return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation));
+#pragma warning disable EF1001
+                    return source.UpdateQueryExpression(
+                        new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
+#pragma warning restore EF1001
                 }
             }
         }
@@ -554,13 +554,13 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         Expression: SqlUnaryExpression
                         {
                             OperatorType: ExpressionType.Convert,
-                            Operand: ColumnExpression { Name: "key", Table: var orderingTable }
+                            Operand: ColumnExpression { Name: "key", TableAlias: var orderingTableAlias }
                         },
                         IsAscending: true
                     }
                 ]
             }
-            && orderingTable == openJsonExpression;
+            && orderingTableAlias == openJsonExpression.Alias;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -588,11 +588,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
                 var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
                 var column = projection.BindProperty(shaper.StructuralType.GetProperties().First());
-                table = column.Table;
-                if (table is JoinExpressionBase joinExpressionBase)
-                {
-                    table = joinExpressionBase.Table;
-                }
+                table = selectExpression.GetTable(column).UnwrapJoin();
             }
 
             if (table is TableExpression te)
@@ -689,7 +685,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override Expression ApplyInferredTypeMappings(
         Expression expression,
-        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
+        IReadOnlyDictionary<(string, string), RelationalTypeMapping?> inferredTypeMappings)
         => new SqlServerInferredTypeMappingApplier(
             RelationalDependencies.Model, _typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
@@ -713,7 +709,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             IModel model,
             IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
+            IReadOnlyDictionary<(string, string), RelationalTypeMapping?> inferredTypeMappings)
             : base(model, sqlExpressionFactory, inferredTypeMappings)
         {
             _typeMappingSource = typeMappingSource;
@@ -729,7 +725,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             => expression switch
             {
                 SqlServerOpenJsonExpression openJsonExpression
-                    when TryGetInferredTypeMapping(openJsonExpression, "value", out var typeMapping)
+                    when TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var typeMapping)
                     => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression, new[] { typeMapping }),
 
                 _ => base.VisitExtension(expression)

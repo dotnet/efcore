@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class RuntimeAnnotatableBase : IAnnotatable
 {
-    private readonly Dictionary<string, Annotation> _annotations = new(StringComparer.Ordinal);
+    private Dictionary<string, Annotation>? _annotations;
     private ConcurrentDictionary<string, Annotation>? _runtimeAnnotations;
 
     /// <summary>
@@ -104,6 +103,7 @@ public class RuntimeAnnotatableBase : IAnnotatable
         string name,
         Annotation annotation)
     {
+        _annotations ??= new(StringComparer.Ordinal);
         _annotations[name] = annotation;
 
         return annotation;
@@ -120,7 +120,7 @@ public class RuntimeAnnotatableBase : IAnnotatable
     {
         Check.NotEmpty(name, nameof(name));
 
-        return _annotations.TryGetValue(name, out var annotation)
+        return _annotations != null && _annotations.TryGetValue(name, out var annotation)
                 ? annotation
                 : null;
     }
@@ -144,6 +144,26 @@ public class RuntimeAnnotatableBase : IAnnotatable
     }
 
     /// <summary>
+    ///     Removes the given annotation from this object.
+    /// </summary>
+    /// <param name="name">The annotation to remove.</param>
+    /// <returns>The annotation that was removed.</returns>
+    public virtual Annotation? RemoveAnnotation(string name)
+    {
+        Check.NotNull(name, nameof(name));
+
+        var annotation = FindAnnotation(name);
+        if (annotation == null)
+        {
+            return null;
+        }
+
+        _annotations!.Remove(name);
+
+        return annotation;
+    }
+
+    /// <summary>
     ///     Gets the value annotation with the given name, returning <see langword="null" /> if it does not exist.
     /// </summary>
     /// <param name="name">The key of the annotation to find.</param>
@@ -151,7 +171,24 @@ public class RuntimeAnnotatableBase : IAnnotatable
     ///     The value of the existing annotation if an annotation with the specified name already exists.
     ///     Otherwise, <see langword="null" />.
     /// </returns>
-    public virtual object? this[string name] => FindAnnotation(name)?.Value;
+    public virtual object? this[string name]
+    {
+        get => FindAnnotation(name)?.Value;
+
+        set
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            if (value == null)
+            {
+                RemoveAnnotation(name);
+            }
+            else
+            {
+                SetAnnotation(name, value);
+            }
+        }
+    }
 
     /// <summary>
     ///     Creates a new annotation.
@@ -330,7 +367,7 @@ public class RuntimeAnnotatableBase : IAnnotatable
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IAnnotation> IReadOnlyAnnotatable.GetAnnotations()
-        => _annotations.Values.OrderBy(a => a.Name, StringComparer.Ordinal);
+        => _annotations?.Values.OrderBy(a => a.Name, StringComparer.Ordinal) ?? Enumerable.Empty<Annotation>();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

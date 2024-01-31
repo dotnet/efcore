@@ -48,15 +48,26 @@ public class ValuesExpression : TableExpressionBase
         ColumnNames = columnNames;
     }
 
+    private ValuesExpression(
+        string? alias,
+        IReadOnlyList<RowValueExpression> rowValues,
+        IReadOnlyList<string> columnNames,
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
+        : base(alias, annotations)
+    {
+        Check.DebugAssert(
+            rowValues.All(rv => rv.Values.Count == columnNames.Count),
+            "All row values must have a value count matching the number of column names");
+
+        RowValues = rowValues;
+        ColumnNames = columnNames;
+    }
+
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -75,11 +86,15 @@ public class ValuesExpression : TableExpressionBase
             : new ValuesExpression(Alias, rowValues, ColumnNames);
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new ValuesExpression(Alias, RowValues, ColumnNames, annotations);
+    protected override ValuesExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Alias, RowValues, ColumnNames, annotations);
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    public override ValuesExpression WithAlias(string newAlias)
+        => new(newAlias, RowValues, ColumnNames, Annotations);
+
+    /// <inheritdoc />
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var newRowValues = new RowValueExpression[RowValues.Count];
 
@@ -88,7 +103,7 @@ public class ValuesExpression : TableExpressionBase
             newRowValues[i] = (RowValueExpression)cloningExpressionVisitor.Visit(RowValues[i]);
         }
 
-        return new ValuesExpression(Alias, newRowValues, ColumnNames, GetAnnotations());
+        return new ValuesExpression(alias, newRowValues, ColumnNames, Annotations);
     }
 
     /// <inheritdoc />

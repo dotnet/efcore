@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
                     && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
                     && mi.GetGenericArguments().Length == 1);
 
-    public static IServiceCollection AddDbContextPool(
+    public static IServiceCollection AddPooledDbContextFactory(
         this IServiceCollection serviceCollection,
         Type contextType,
         Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)

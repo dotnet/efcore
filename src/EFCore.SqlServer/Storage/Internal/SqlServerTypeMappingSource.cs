@@ -338,7 +338,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                     size: size,
                     fixedLength: isFixedLength,
                     storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
-                    useKeyComparison: mappingInfo.IsKeyOrIndex);
+                    useKeyComparison: mappingInfo.IsKey);
             }
 
             if (clrType == typeof(byte[]))

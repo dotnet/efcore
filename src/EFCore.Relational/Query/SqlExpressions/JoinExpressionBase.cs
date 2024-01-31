@@ -20,7 +20,7 @@ public abstract class JoinExpressionBase : TableExpressionBase
     /// <param name="table">A table source to join with.</param>
     /// <param name="prunable">Whether this join expression may be pruned if nothing references a column on it.</param>
     /// <param name="annotations">A collection of annotations associated with this expression.</param>
-    protected JoinExpressionBase(TableExpressionBase table, bool prunable, IEnumerable<IAnnotation>? annotations = null)
+    protected JoinExpressionBase(TableExpressionBase table, bool prunable, IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(alias: null, annotations)
     {
         Table = table;
@@ -46,11 +46,27 @@ public abstract class JoinExpressionBase : TableExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public abstract JoinExpressionBase Update(TableExpressionBase table);
 
+    // Joins necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a new
+    // copy of this JoinExpressionBase by calling Update.
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
-        // Joins necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a new
-        // copy of this JoinExpressionBase by calling Update.
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
         => (TableExpressionBase)VisitChildren(cloningExpressionVisitor);
+
+    /// <summary>
+    ///     The implementation of <see cref="WithAlias" /> for join expressions always throws, since the alias on joins is always
+    ///     <see langword="null" />. Set the alias on the enclosed table expression instead.
+    /// </summary>
+    public override TableExpressionBase WithAlias(string newAlias)
+        => throw new InvalidOperationException(RelationalStrings.CannotSetAliasOnJoin);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override string GetRequiredAlias()
+        => Table.GetRequiredAlias();
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

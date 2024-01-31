@@ -94,12 +94,12 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             _serviceProperties = new(servicePropertyCount, StringComparer.Ordinal);
         }
         _unnamedIndexes = new(unnamedIndexCount, PropertyListComparer.Instance);
-        if(namedIndexCount > 0)
+        if (namedIndexCount > 0)
         {
             _namedIndexes = new(namedIndexCount, StringComparer.Ordinal);
         }
         _keys = new(keyCount, PropertyListComparer.Instance);
-        if(triggerPropertyCount > 0)
+        if (triggerPropertyCount > 0)
         {
             _triggers = new(triggerPropertyCount, StringComparer.Ordinal);
         }
@@ -168,10 +168,23 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             ? key
             : BaseType?.FindKey(properties);
 
-    private IEnumerable<RuntimeKey> GetDeclaredKeys()
+    /// <summary>
+    ///     Gets all keys declared on this entity type.
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return keys declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same key more than once.
+    ///     Use <see cref="GetKeys" /> to also return keys declared on base types.
+    /// </remarks>
+    /// <returns>Declared keys.</returns>
+    public virtual IEnumerable<RuntimeKey> GetDeclaredKeys()
         => _keys.Values;
 
-    private IEnumerable<RuntimeKey> GetKeys()
+    /// <summary>
+    ///     Gets the primary and alternate keys for this entity type.
+    /// </summary>
+    /// <returns>The primary and alternate keys.</returns>
+    public virtual IEnumerable<RuntimeKey> GetKeys()
         => BaseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
 
     /// <summary>
@@ -268,12 +281,27 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => FindDeclaredForeignKey(properties, principalKey, principalEntityType)
             ?? BaseType?.FindForeignKey(properties, principalKey, principalEntityType);
 
+    /// <summary>
+    ///     Gets all foreign keys declared on this entity type..
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return foreign keys declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+    ///     Use <see cref="GetForeignKeys" /> to also return foreign keys declared on base types.
+    /// </remarks>
+    /// <returns>Declared foreign keys.</returns>
+    public virtual List<RuntimeForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
+
     private IEnumerable<RuntimeForeignKey> GetDerivedForeignKeys()
         => !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeForeignKey>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et._foreignKeys);
 
-    private IEnumerable<RuntimeForeignKey> GetForeignKeys()
+    /// <summary>
+    ///     Gets the foreign keys defined on this entity type.
+    /// </summary>
+    /// <returns>The foreign keys defined on this entity type.</returns>
+    public virtual IEnumerable<RuntimeForeignKey> GetForeignKeys()
         => BaseType != null
             ? _foreignKeys.Count == 0
                 ? BaseType.GetForeignKeys()
@@ -560,7 +588,16 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             ? index
             : BaseType?.FindIndex(name);
 
-    private IEnumerable<RuntimeIndex> GetDeclaredIndexes()
+    /// <summary>
+    ///     Gets all indexes declared on this entity type.
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return indexes declared on base types.
+    ///     It is useful when iterating over all entity types to avoid processing the same index more than once.
+    ///     Use <see cref="GetForeignKeys" /> to also return indexes declared on base types.
+    /// </remarks>
+    /// <returns>Declared indexes.</returns>
+    public virtual IEnumerable<RuntimeIndex> GetDeclaredIndexes()
         => _namedIndexes == null
             ? _unnamedIndexes.Values
             : _unnamedIndexes.Values.Concat(_namedIndexes.Values);
@@ -570,7 +607,11 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             ? Enumerable.Empty<RuntimeIndex>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredIndexes());
 
-    private IEnumerable<RuntimeIndex> GetIndexes()
+    /// <summary>
+    ///     Gets the indexes defined on this entity type.
+    /// </summary>
+    /// <returns>The indexes defined on this entity type.</returns>
+    public virtual IEnumerable<RuntimeIndex> GetIndexes()
         => BaseType != null
             ? _namedIndexes == null
                 ? BaseType.GetIndexes()
@@ -808,8 +849,15 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [EntityFrameworkInternal]
     public virtual PropertyCounts Counts
-        => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static entityType => entityType.CalculateCounts());
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static entityType =>
+            entityType.CalculateCounts());
+
+        [DebuggerStepThrough]
+        set => _counts = value;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1057,12 +1105,12 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetDeclaredForeignKeys()
-        => _foreignKeys;
+        => GetDeclaredForeignKeys();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IForeignKey> IEntityType.GetDeclaredForeignKeys()
-        => _foreignKeys;
+        => GetDeclaredForeignKeys();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -1376,6 +1424,16 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     [EntityFrameworkInternal]
     public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
         => _emptyShadowValuesFactory = factory;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
+        => _shadowValuesFactory = factory;
 
     /// <inheritdoc />
     Func<InternalEntityEntry, ISnapshot> IRuntimeEntityType.OriginalValuesFactory

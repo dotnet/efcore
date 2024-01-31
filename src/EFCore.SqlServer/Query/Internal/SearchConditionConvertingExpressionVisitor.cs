@@ -167,7 +167,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitDelete(DeleteExpression deleteExpression)
-        => deleteExpression.Update((SelectExpression)Visit(deleteExpression.SelectExpression));
+        => deleteExpression.Update(deleteExpression.Table, (SelectExpression)Visit(deleteExpression.SelectExpression));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -281,64 +281,25 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     protected override Expression VisitSelect(SelectExpression selectExpression)
     {
-        var changed = false;
         var parentSearchCondition = _isSearchCondition;
 
-        var projections = new List<ProjectionExpression>();
         _isSearchCondition = false;
-        foreach (var item in selectExpression.Projection)
-        {
-            var updatedProjection = (ProjectionExpression)Visit(item);
-            projections.Add(updatedProjection);
-            changed |= updatedProjection != item;
-        }
 
-        var tables = new List<TableExpressionBase>();
-        foreach (var table in selectExpression.Tables)
-        {
-            var newTable = (TableExpressionBase)Visit(table);
-            changed |= newTable != table;
-            tables.Add(newTable);
-        }
-
-        _isSearchCondition = true;
-        var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
-        changed |= predicate != selectExpression.Predicate;
-
-        var groupBy = new List<SqlExpression>();
-        _isSearchCondition = false;
-        foreach (var groupingKey in selectExpression.GroupBy)
-        {
-            var newGroupingKey = (SqlExpression)Visit(groupingKey);
-            changed |= newGroupingKey != groupingKey;
-            groupBy.Add(newGroupingKey);
-        }
-
-        _isSearchCondition = true;
-        var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
-        changed |= havingExpression != selectExpression.Having;
-
-        var orderings = new List<OrderingExpression>();
-        _isSearchCondition = false;
-        foreach (var ordering in selectExpression.Orderings)
-        {
-            var orderingExpression = (SqlExpression)Visit(ordering.Expression);
-            changed |= orderingExpression != ordering.Expression;
-            orderings.Add(ordering.Update(orderingExpression));
-        }
-
+        var projections = this.VisitAndConvert(selectExpression.Projection);
+        var tables = this.VisitAndConvert(selectExpression.Tables);
+        var groupBy = this.VisitAndConvert(selectExpression.GroupBy);
+        var orderings = this.VisitAndConvert(selectExpression.Orderings);
         var offset = (SqlExpression?)Visit(selectExpression.Offset);
-        changed |= offset != selectExpression.Offset;
-
         var limit = (SqlExpression?)Visit(selectExpression.Limit);
-        changed |= limit != selectExpression.Limit;
+
+        _isSearchCondition = true;
+
+        var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
+        var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
 
         _isSearchCondition = parentSearchCondition;
 
-        return changed
-            ? selectExpression.Update(
-                projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset)
-            : selectExpression;
+        return selectExpression.Update(projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset);
     }
 
     /// <summary>

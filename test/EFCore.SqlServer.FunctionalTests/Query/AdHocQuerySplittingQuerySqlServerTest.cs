@@ -45,27 +45,27 @@ public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTes
         await base.Can_configure_SingleQuery_at_context_level();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id], [c].[Id], [c].[ParentId], [a].[Id], [a].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -79,40 +79,40 @@ ORDER BY [p].[Id], [c].[Id]
         await base.Can_configure_SplitQuery_at_context_level();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild] AS [a] ON [p].[Id] = [a].[ParentId]
@@ -125,20 +125,20 @@ ORDER BY [p].[Id]
         await base.Unconfigured_query_splitting_behavior_throws_a_warning();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild] AS [a] ON [p].[Id] = [a].[ParentId]
@@ -165,100 +165,100 @@ ORDER BY [p].[Id], [c].[Id]
         await base.SplitQuery_disposes_inner_data_readers();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild] AS [a] ON [p].[Id] = [a].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild] AS [a] ON [p].[Id] = [a].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(2) [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
-SELECT [c].[Id], [c].[ParentId], [t].[Id]
+            //
+            """
+SELECT [c].[Id], [c].[ParentId], [p0].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-INNER JOIN [Child] AS [c] ON [t].[Id] = [c].[ParentId]
-ORDER BY [t].[Id]
+) AS [p0]
+INNER JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
 """,
-                //
-                """
-SELECT [a].[Id], [a].[ParentId], [t].[Id]
+            //
+            """
+SELECT [a].[Id], [a].[ParentId], [p1].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-INNER JOIN [AnotherChild] AS [a] ON [t].[Id] = [a].[ParentId]
-ORDER BY [t].[Id]
+) AS [p1]
+INNER JOIN [AnotherChild] AS [a] ON [p1].[Id] = [a].[ParentId]
+ORDER BY [p1].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT TOP(2) [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
-SELECT [c].[Id], [c].[ParentId], [t].[Id]
+            //
+            """
+SELECT [c].[Id], [c].[ParentId], [p0].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-INNER JOIN [Child] AS [c] ON [t].[Id] = [c].[ParentId]
-ORDER BY [t].[Id]
+) AS [p0]
+INNER JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
 """,
-                //
-                """
-SELECT [a].[Id], [a].[ParentId], [t].[Id]
+            //
+            """
+SELECT [a].[Id], [a].[ParentId], [p1].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-INNER JOIN [AnotherChild] AS [a] ON [t].[Id] = [a].[ParentId]
-ORDER BY [t].[Id]
+) AS [p1]
+INNER JOIN [AnotherChild] AS [a] ON [p1].[Id] = [a].[ParentId]
+ORDER BY [p1].[Id]
 """);
     }
 
@@ -273,20 +273,20 @@ ORDER BY [t].[Id]
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild] AS [a] ON [p].[Id] = [a].[ParentId]
