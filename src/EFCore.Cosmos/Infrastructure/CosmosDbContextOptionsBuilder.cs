@@ -93,7 +93,7 @@ public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfra
     /// <remarks>
     ///     <para>
     ///         Use
-    ///         <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions">
+    ///         <see href="https://docs.microsoft.com/dotnet/csharp/language-reference/operators/lambda-expressions">
     ///             static lambda expressions
     ///         </see>
     ///         to avoid creating multiple instances.
