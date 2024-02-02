@@ -635,6 +635,20 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     b.HasKey(e => new { e.TargetId, e.SourceId, e.PrimaryGroup });
                     b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
                 });
+
+            modelBuilder.Entity<BoolOnlyKey<bool>>(
+                b =>
+                {
+                    b.HasKey(e => e.PrimaryGroup);
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<BoolOnlyKey<bool?>>(
+                b =>
+                {
+                    b.HasKey(e => e.PrimaryGroup);
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
         }
 
         private class StableGuidGenerator : ValueGenerator<Guid>
@@ -4519,6 +4533,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             get => _sourceId;
             set => SetWithNotify(value, ref _sourceId);
         }
+
+        public T PrimaryGroup
+        {
+            get => _primaryGroup;
+            set => SetWithNotify(value, ref _primaryGroup);
+        }
+    }
+
+    protected class BoolOnlyKey<T> : NotifyingEntity
+        where T : new()
+    {
+        private T _primaryGroup;
 
         public T PrimaryGroup
         {

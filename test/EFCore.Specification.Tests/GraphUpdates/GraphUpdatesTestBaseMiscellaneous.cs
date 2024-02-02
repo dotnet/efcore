@@ -163,6 +163,41 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
     }
 
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Throws_for_single_property_bool_key_with_default_value_generation(bool async, bool initialValue)
+        => Throws_for_single_property_key_with_default_value_generation(async, initialValue);
+
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Throws_for_single_property_nullable_bool_key_with_default_value_generation(bool async, bool? initialValue)
+        => Throws_for_single_property_key_with_default_value_generation(async, initialValue);
+
+    protected async Task Throws_for_single_property_key_with_default_value_generation<T>(bool async, T initialValue)
+        where T : new()
+    {
+        var inserted = new BoolOnlyKey<T>()
+        {
+            PrimaryGroup = initialValue
+        };
+
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                Assert.Equal(
+                    CoreStrings.NoValueGenerator("PrimaryGroup", typeof(BoolOnlyKey<T>).ShortDisplayName(), typeof(T).ShortDisplayName()),
+                    (async
+                        ? (await Assert.ThrowsAsync<NotSupportedException>(async () => await context.AddAsync(inserted)))
+                        : Assert.Throws<NotSupportedException>(() => context.Add(inserted))).Message);
+            });
+    }
+
     [ConditionalTheory] // Issue #23043
     [InlineData(false)]
     [InlineData(true)]
