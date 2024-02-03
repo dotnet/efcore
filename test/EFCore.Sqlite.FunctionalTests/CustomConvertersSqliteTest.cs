@@ -137,7 +137,7 @@ WHERE "b"."IndexerVisible" = 'Nay'
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class CustomConvertersSqliteFixture : CustomConvertersFixtureBase
+    public class CustomConvertersSqliteFixture : CustomConvertersFixtureBase, ITestSqlLoggerFactory
     {
         public override bool StrictEquality
             => false;

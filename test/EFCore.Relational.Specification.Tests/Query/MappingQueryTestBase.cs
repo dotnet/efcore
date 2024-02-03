@@ -86,7 +86,7 @@ public abstract class MappingQueryTestBase<TFixture> : IClassFixture<TFixture>
         Three
     }
 
-    public abstract class MappingQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
+    public abstract class MappingQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, ITestSqlLoggerFactory
     {
         protected abstract string DatabaseSchema { get; }
 

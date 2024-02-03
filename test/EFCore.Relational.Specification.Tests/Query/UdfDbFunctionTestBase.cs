@@ -366,7 +366,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         }
     }
 
-    public abstract class UdfFixtureBase : SharedStoreFixtureBase<DbContext>
+    public abstract class UdfFixtureBase : SharedStoreFixtureBase<DbContext>, ITestSqlLoggerFactory
     {
         protected override Type ContextType { get; } = typeof(UDFSqlContext);
 

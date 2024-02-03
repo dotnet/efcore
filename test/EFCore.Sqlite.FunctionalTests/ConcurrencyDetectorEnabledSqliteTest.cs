@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore;
 public class ConcurrencyDetectorEnabledSqliteTest(ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture fixture) : ConcurrencyDetectorEnabledRelationalTestBase<
     ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture>(fixture)
 {
-    public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase
+    public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase, ITestSqlLoggerFactory
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
