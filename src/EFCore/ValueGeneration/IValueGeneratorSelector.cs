@@ -48,21 +48,5 @@ public interface IValueGeneratorSelector
     /// </param>
     /// <param name="valueGenerator">The value generator, or <see langword="null"/> if none is available.</param>
     /// <returns><see langword="true"/> if a value generator was selected; <see langword="false"/> if none was available.</returns>
-    bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
-    {
-        try
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            valueGenerator = Select(property, typeBase);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        }
-        catch (Exception)
-        {
-            valueGenerator = null;
-            return false;
-        }
-
-        return true;
-    }
+    bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator);
 }
