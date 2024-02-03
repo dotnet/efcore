@@ -85,8 +85,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 : query.Single();
 
             Assert.Equal(3, result.Id);
-            Assert.Equal(null, result.Reference.NullableScalar);
-            Assert.Equal(null, result.Collection[0].NullableScalar);
+            Assert.Null(result.Reference.NullableScalar);
+            Assert.Null(result.Collection[0].NullableScalar);
         }
     }
 
@@ -107,8 +107,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
             Assert.Equal(3, result.Count);
             Assert.Equal(11, result[0]);
-            Assert.Equal(null, result[1]);
-            Assert.Equal(null, result[2]);
+            Assert.Null(result[1]);
+            Assert.Null(result[2]);
         }
     }
 
