@@ -62,7 +62,7 @@ LEFT JOIN [Address2] AS [a] ON [p].[Id] = [a].[PersonId]
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
+    public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase, ITestSqlLoggerFactory
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

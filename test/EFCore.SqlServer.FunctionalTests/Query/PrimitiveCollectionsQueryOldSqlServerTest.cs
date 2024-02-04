@@ -833,7 +833,7 @@ END IN (N'one', N'two', N'three')
     private PrimitiveCollectionsContext CreateContext()
         => Fixture.CreateContext();
 
-    public class PrimitiveCollectionsQueryOldSqlServerFixture : PrimitiveCollectionsQueryFixtureBase
+    public class PrimitiveCollectionsQueryOldSqlServerFixture : PrimitiveCollectionsQueryFixtureBase, ITestSqlLoggerFactory
     {
         // Use a different store name to prevent concurrency issues with the non-old PrimitiveCollectionsQuerySqlServerTest
         protected override string StoreName
