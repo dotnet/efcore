@@ -35,12 +35,17 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ValueGenerator Select(IProperty property, ITypeBase typeBase)
-        => property.GetValueGeneratorFactory() == null
-            && property.ClrType.IsInteger()
-            && property.ClrType.UnwrapNullableType() != typeof(char)
-                ? GetOrCreate(property)
-                : base.Select(property, typeBase);
+    [Obsolete("Use TrySelect and throw if needed when the generator is not found.")]
+    public override ValueGenerator? Select(IProperty property, ITypeBase typeBase)
+    {
+        if (TrySelect(property, typeBase, out var valueGenerator))
+        {
+            return valueGenerator;
+        }
+
+        throw new NotSupportedException(
+            CoreStrings.NoValueGenerator(property.Name, property.DeclaringType.DisplayName(), property.ClrType.ShortDisplayName()));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,18 +53,12 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    private ValueGenerator GetOrCreate(IProperty property)
-    {
-        var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-        if (FindGenerator(property, type, out var valueGenerator))
-        {
-            return valueGenerator!;
-        }
-
-        throw new ArgumentException(
-            CoreStrings.InvalidValueGeneratorFactoryProperty(
-                "InMemoryIntegerValueGeneratorFactory", property.Name, property.DeclaringType.DisplayName()));
-    }
+    public override bool TrySelect(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
+        => property.GetValueGeneratorFactory() == null
+            && property.ClrType.IsInteger()
+            && property.ClrType.UnwrapNullableType() != typeof(char)
+                ? FindGenerator(property, property.ClrType.UnwrapNullableType().UnwrapEnumType(), out valueGenerator)
+                : base.TrySelect(property, typeBase, out valueGenerator);
 
     private bool FindGenerator(IProperty property, Type type, out ValueGenerator? valueGenerator)
     {
