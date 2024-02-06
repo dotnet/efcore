@@ -22,4 +22,4 @@ EF1000  | Security | Disabled | RawSqlStringInjectionDiagnosticAnalyzer, [Docume
 ### New Rules
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-EF1002  | Security | Warning  | InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer, [Documentation](https://learn.microsoft.com/en-us/ef/core/querying/sql-queries#passing-parameters)
+EF1002  | Security | Warning  | InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer, [Documentation](https://learn.microsoft.com/ef/core/querying/sql-queries#passing-parameters)

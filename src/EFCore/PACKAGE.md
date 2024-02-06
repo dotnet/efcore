@@ -64,10 +64,10 @@ public class Customer
 
 ## Additional documentation
 
-- [Getting Started with Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli).
-- Follow the [ASP.NET Core Tutorial](https://learn.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio) to use EF Core in a web app.
-- [Releases and planning(roadmap)](https://learn.microsoft.com/en-us/ef/core/what-is-new/)
-- [How to write an EF Core provider](https://learn.microsoft.com/en-us/ef/core/providers/writing-a-provider)
+- [Getting Started with Entity Framework Core](https://learn.microsoft.com/ef/core/get-started/overview/first-app).
+- Follow the [ASP.NET Core Tutorial](https://learn.microsoft.com/aspnet/core/data/ef-rp/intro?view=aspnetcore-7.0&tabs=visual-studio) to use EF Core in a web app.
+- [Releases and planning(roadmap)](https://learn.microsoft.com/ef/core/what-is-new/)
+- [How to write an EF Core provider](https://learn.microsoft.com/ef/core/providers/writing-a-provider)
 
 ## Feedback
 

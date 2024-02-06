@@ -117,7 +117,7 @@ public class IdValueGenerator : ValueGenerator
         return builder.Append(stringValue)
             // We need this to avoid collisions with the value separator
             .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
-            // These are invalid characters, see https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.documents.resource.id
+            // These are invalid characters, see https://docs.microsoft.com/dotnet/api/microsoft.azure.documents.resource.id
             .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
             .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
             .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
