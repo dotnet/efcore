@@ -151,7 +151,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? scale)
     {
         // Note: Empty string is allowed for store type name because SQLite
-        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale, false);
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
         IsFixedLength = null;
@@ -225,6 +225,42 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="dbType">The suggested <see cref="DbType" />, or <see langword="null" /> for default.</param>
+    [Obsolete("Use overload that takes 'key' parameter.")]
+    public RelationalTypeMappingInfo(
+        Type? type,
+        RelationalTypeMapping? elementTypeMapping,
+        string? storeTypeName,
+        string? storeTypeNameBase,
+        bool keyOrIndex,
+        bool? unicode,
+        int? size,
+        bool? rowVersion,
+        bool? fixedLength,
+        int? precision,
+        int? scale,
+        DbType? dbType)
+        : this(
+            type, elementTypeMapping, storeTypeName, storeTypeNameBase, keyOrIndex, unicode, size, rowVersion, fixedLength,
+            precision, scale, dbType, keyOrIndex)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+    /// </summary>
+    /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
+    /// <param name="storeTypeName">The database type name.</param>
+    /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
+    /// <param name="keyOrIndex">If <see langword="true" />, then a special mapping for a key or index may be returned.</param>
+    /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
+    /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="rowVersion">Specifies a row-version, or <see langword="null" /> for default.</param>
+    /// <param name="fixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
+    /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="dbType">The suggested <see cref="DbType" />, or <see langword="null" /> for default.</param>
+    /// <param name="key">If <see langword="true" />, then a special mapping for a key may be returned.</param>
     public RelationalTypeMappingInfo(
         Type? type = null,
         RelationalTypeMapping? elementTypeMapping = null,
@@ -237,9 +273,10 @@ public readonly record struct RelationalTypeMappingInfo
         bool? fixedLength = null,
         int? precision = null,
         int? scale = null,
-        DbType? dbType = null)
+        DbType? dbType = null,
+        bool key = false)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(type, elementTypeMapping, keyOrIndex, unicode, size, rowVersion, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(type, elementTypeMapping, keyOrIndex, unicode, size, rowVersion, precision, scale, key);
 
         IsFixedLength = fixedLength;
         StoreTypeName = storeTypeName;
@@ -301,7 +338,16 @@ public readonly record struct RelationalTypeMappingInfo
     public DbType? DbType { get; init; }
 
     /// <summary>
-    ///     Indicates whether or not the mapping is part of a key or index.
+    ///     Indicates whether or not the mapping is part of a key or foreign key.
+    /// </summary>
+    public bool IsKey
+    {
+        get => _coreTypeMappingInfo.IsKey;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsKey = value };
+    }
+
+    /// <summary>
+    ///     Indicates whether or not the mapping is part of a key, foreign key, or index.
     /// </summary>
     public bool IsKeyOrIndex
     {
