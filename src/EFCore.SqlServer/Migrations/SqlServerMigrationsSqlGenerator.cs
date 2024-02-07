@@ -32,6 +32,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private static readonly bool UseOldBehavior32457 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32457", out var enabled32457) && enabled32457;
 
+    private static readonly bool UseOldBehavior32730 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32730", out var enabled32730) && enabled32730;
+
     private IReadOnlyList<MigrationOperation> _operations = null!;
     private int _variableCounter;
 
@@ -1415,17 +1418,18 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                continue;
-            }
-
             var trimmed = line.TrimStart();
             if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (UseOldBehavior32457
                     || trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
             {
+                if (UseOldBehavior32730
+                    && string.IsNullOrWhiteSpace(line))
+                {
+                    continue;
+                }
+
                 var batch = batchBuilder.ToString();
                 batchBuilder.Clear();
 

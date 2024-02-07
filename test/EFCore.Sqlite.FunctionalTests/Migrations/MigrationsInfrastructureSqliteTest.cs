@@ -64,7 +64,8 @@ BEGIN TRANSACTION;
 
 CREATE TABLE "Table1" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Table1" PRIMARY KEY,
-    "Foo" INTEGER NOT NULL
+    "Foo" INTEGER NOT NULL,
+    "Description" TEXT NOT NULL
 );
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
@@ -92,6 +93,44 @@ BEGIN TRANSACTION;
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', 'Value With
+
+Empty Lines')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000005_Migration5', '7.0.0-test');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+Value With
+
+Empty Lines')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000006_Migration6', '7.0.0-test');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+Value With
+
+GO
+
+Empty Lines
+GO')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000007_Migration7', '7.0.0-test');
 
 COMMIT;
 
@@ -114,7 +153,8 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
 
 CREATE TABLE "Table1" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Table1" PRIMARY KEY,
-    "Foo" INTEGER NOT NULL
+    "Foo" INTEGER NOT NULL,
+    "Description" TEXT NOT NULL
 );
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
@@ -130,6 +170,32 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', 'Value With
+
+Empty Lines')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000005_Migration5', '7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+Value With
+
+Empty Lines')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000006_Migration6', '7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+Value With
+
+GO
+
+Empty Lines
+GO')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000007_Migration7', '7.0.0-test');
 
 
 """,

@@ -18,6 +18,9 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
     ISkipNavigationForeignKeyChangedConvention,
     IEntityTypeAnnotationChangedConvention
 {
+    private static readonly bool UseOldBehavior32732 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32732", out var enabled32732) && enabled32732;
+
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerOnDeleteConvention" />.
     /// </summary>
@@ -68,7 +71,8 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
                 s => s.Inverse != null
                     && IsMappedToSameTable(s.DeclaringEntityType, s.TargetEntityType));
 
-        if (skipNavigation != null)
+        if (skipNavigation != null
+            && (UseOldBehavior32732 || skipNavigation.ForeignKey != null))
         {
             var isFirstSkipNavigation = IsFirstSkipNavigation(skipNavigation);
             if (!isFirstSkipNavigation)
