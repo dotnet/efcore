@@ -3201,9 +3201,18 @@ public sealed partial class SelectExpression : TableExpressionBase
         var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
 
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
+        // See Issue #32853 and Issue #31248
         var complexTypeTable = complexProperty.ComplexType.GetViewOrTableMappings().Single().Table;
-        var tableReferenceExpression = containerProjection.TableMap[complexTypeTable];
-
+        TableReferenceExpression? tableReferenceExpression;
+        if (RelationalModel.UseOldBehavior32699)
+        {
+            tableReferenceExpression = containerProjection.TableMap[complexTypeTable];
+        }
+        else if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out tableReferenceExpression))
+        {
+            complexTypeTable = complexProperty.ComplexType.GetDefaultMappings().Single().Table;
+            tableReferenceExpression = containerProjection.TableMap[complexTypeTable];
+        }
         var isComplexTypeNullable = containerProjection.IsNullable || complexProperty.IsNullable;
 
         // If the complex property is declared on a type that's derived relative to the type being projected, the projected column is

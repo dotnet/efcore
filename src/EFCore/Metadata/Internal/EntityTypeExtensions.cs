@@ -4,6 +4,8 @@
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -309,7 +311,9 @@ public static class EntityTypeExtensions
     {
         Check.NotNull(property, nameof(property));
 
-        if ((property.DeclaringType as IEntityType)?.IsAssignableFrom(entityType) != true)
+        if ((EntityMaterializerSource.UseOldBehavior32701
+                && (property.DeclaringType as IEntityType)?.IsAssignableFrom(entityType) != true)
+            || !property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
         {
             throw new InvalidOperationException(
                 CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));
