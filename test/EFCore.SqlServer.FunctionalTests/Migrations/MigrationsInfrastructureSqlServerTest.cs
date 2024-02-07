@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public override Task Can_apply_all_migrations_async() // Issue #32826
             => Assert.ThrowsAsync<SqlException>(() => base.Can_apply_all_migrations_async());
 
+        public override void Can_apply_all_migrations() // Issue #32826
+            => Assert.Throws<SqlException>(() => base.Can_apply_all_migrations());
+
+        public override Task Can_apply_all_migrations_async() // Issue #32826
+            => Assert.ThrowsAsync<SqlException>(() => base.Can_apply_all_migrations_async());
+
         public override void Can_generate_migration_from_initial_database_to_initial()
         {
             base.Can_generate_migration_from_initial_database_to_initial();

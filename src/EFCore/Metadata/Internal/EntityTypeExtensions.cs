@@ -4,6 +4,8 @@
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>

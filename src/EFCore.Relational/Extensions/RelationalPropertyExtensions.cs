@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalPropertyExtensions
 {
+    private static readonly bool UseOldBehavior32763 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32763", out var enabled32763) && enabled32763;
+
     private static readonly MethodInfo GetFieldValueMethod =
         typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), [typeof(int)])!;
 

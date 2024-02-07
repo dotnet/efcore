@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 /// </summary>
 public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 {
+    private static readonly bool UseOldBehavior32898 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32898", out var enabled32898) && enabled32898;
+
     private static readonly SqlServerFloatTypeMapping RealAlias
         = new("placeholder", storeTypePostfix: StoreTypePostfix.None);
 

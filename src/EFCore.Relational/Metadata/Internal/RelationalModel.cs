@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class RelationalModel : Annotatable, IRelationalModel
 {
+    internal static readonly bool UseOldBehavior32699 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32699", out var enabled32699) && enabled32699;
+
     private bool _isReadOnly;
 
     /// <summary>
@@ -384,6 +387,83 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             var complexType = complexProperty.ComplexType;
             tableMapping = new TableMappingBase<ColumnMappingBase>(complexType, defaultTable, includesDerivedTypes: null);
+
+            CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc);
+
+            var tableMappings = (List<TableMappingBase<ColumnMappingBase>>?)complexType
+                .FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings);
+            if (tableMappings == null)
+            {
+                tableMappings = new List<TableMappingBase<ColumnMappingBase>>();
+                complexType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
+            }
+            tableMappings.Add(tableMapping);
+
+            defaultTable.ComplexTypeMappings.Add(tableMapping);
+        }
+
+        static string GetColumnName(IProperty property)
+        {
+            var complexType = property.DeclaringType as IComplexType;
+            if (complexType != null)
+            {
+                var builder = new StringBuilder();
+                builder.Append(property.Name);
+                while (complexType != null)
+                {
+                    builder.Insert(0, "_");
+                    builder.Insert(0, complexType.ComplexProperty.Name);
+
+                    complexType = complexType.ComplexProperty.DeclaringType as IComplexType;
+                }
+
+                return builder.ToString();
+            }
+
+            return property.GetColumnName();
+        }
+    }
+
+    private static void CreateDefaultColumnMapping(
+        ITypeBase typeBase,
+        ITypeBase mappedType,
+        TableBase defaultTable,
+        TableMappingBase<ColumnMappingBase> tableMapping,
+        bool isTph,
+        bool isTpc)
+    {
+        foreach (var property in typeBase.GetProperties())
+        {
+            var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringType == mappedType
+                ? GetColumnName(property)
+                : null;
+
+            if (columnName == null)
+            {
+                continue;
+            }
+
+            var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
+            if (column == null)
+            {
+                column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                {
+                    IsNullable = property.IsColumnNullable()
+                };
+                defaultTable.Columns.Add(columnName, column);
+            }
+            else if (!property.IsColumnNullable())
+            {
+                column.IsNullable = false;
+            }
+
+            CreateColumnMapping(column, property, tableMapping);
+        }
+
+        foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+        {
+            var complexType = complexProperty.ComplexType;
+            tableMapping = new TableMappingBase<ColumnMappingBase>(complexType, defaultTable, includesDerivedTypes: false);
 
             CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc);
 

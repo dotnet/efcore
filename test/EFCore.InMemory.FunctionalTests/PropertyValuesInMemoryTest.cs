@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture fixture) : PropertyValuesTestBase<PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>(fixture)
+public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture fixture)
+    : PropertyValuesTestBase<PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>(fixture)
 {
     public override Task Complex_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         => Assert.ThrowsAsync<NullReferenceException>( // In-memory database cannot query complex types
