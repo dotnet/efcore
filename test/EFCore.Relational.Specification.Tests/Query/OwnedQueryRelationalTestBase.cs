@@ -118,7 +118,7 @@ public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBas
         => new RelationalQueryAsserter(
             fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
-    public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase
+    public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase, ITestSqlLoggerFactory
     {
         public new RelationalTestStore TestStore
             => (RelationalTestStore)base.TestStore;

@@ -270,7 +270,7 @@ ORDER BY [e].[Id], [s].[OneSkipSharedId], [s].[TwoSkipSharedId], [s].[Id], [s1].
 
     private string Sql { get; set; }
 
-    public class ManyToManyFieldsLoadSqlServerFixture : ManyToManyFieldsLoadFixtureBase
+    public class ManyToManyFieldsLoadSqlServerFixture : ManyToManyFieldsLoadFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

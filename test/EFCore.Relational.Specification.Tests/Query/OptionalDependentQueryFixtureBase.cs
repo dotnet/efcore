@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>, IQueryFixtureBase
+public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>, IQueryFixtureBase, ITestSqlLoggerFactory
 {
     private OptionalDependentData _expectedData;
 

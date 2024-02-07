@@ -37,7 +37,7 @@ WHERE ("f"."FirstName" IS NOT NULL AND instr("f"."FirstName", @__s_0) > 0) OR "f
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class FunkyDataQuerySqliteFixture : FunkyDataQueryFixtureBase
+    public class FunkyDataQuerySqliteFixture : FunkyDataQueryFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

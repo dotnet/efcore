@@ -968,7 +968,7 @@ public partial class TestDbContext : DbContext
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
                 model =>
-                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
+                    Assert.True(model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
 
         [ConditionalFact]
         public Task Global_namespace_works()

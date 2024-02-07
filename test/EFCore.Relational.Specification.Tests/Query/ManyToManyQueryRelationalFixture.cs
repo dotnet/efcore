@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ManyToManyQueryRelationalFixture : ManyToManyQueryFixtureBase
+public abstract class ManyToManyQueryRelationalFixture : ManyToManyQueryFixtureBase, ITestSqlLoggerFactory
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

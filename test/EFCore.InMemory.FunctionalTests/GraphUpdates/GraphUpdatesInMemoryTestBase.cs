@@ -12,6 +12,26 @@ public abstract class GraphUpdatesInMemoryTestBase<TFixture> : GraphUpdatesTestB
     }
 
     // In-memory database does not have database default values
+    public override Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
+        => Task.CompletedTask;
+
+    // In-memory database does not have database default values
+    public override Task Can_insert_when_int_PK_in_composite_key_has_sentinel_value(bool async, int initialValue)
+        => Task.CompletedTask;
+
+    // In-memory database does not have database default values
+    public override Task Can_insert_when_nullable_bool_PK_in_composite_key_has_sentinel_value(bool async, bool? initialValue)
+        => Task.CompletedTask;
+
+    // In-memory database does not have database default values
+    public override Task Throws_for_single_property_bool_key_with_default_value_generation(bool async, bool initialValue)
+        => Task.CompletedTask;
+
+    // In-memory database does not have database default values
+    public override Task Throws_for_single_property_nullable_bool_key_with_default_value_generation(bool async, bool? initialValue)
+        => Task.CompletedTask;
+
+    // In-memory database does not have database default values
     public override Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
         => Task.CompletedTask;
 

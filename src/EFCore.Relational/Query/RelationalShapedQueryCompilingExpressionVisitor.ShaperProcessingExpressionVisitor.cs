@@ -1822,18 +1822,34 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Empty()));
                     }
 
+                    var switchCases = new List<SwitchCase>();
                     var testsCount = testExpressions.Count;
-                    var testExpression = IfThen(
-                        testExpressions[testsCount - 1],
-                        readExpressions[testsCount - 1]);
 
-                    for (var i = testsCount - 2; i >= 0; i--)
+                    // generate PropertyName switch-case code 
+                    if (testsCount > 0)
                     {
-                        testExpression = IfThenElse(
-                            testExpressions[i],
-                            readExpressions[i],
-                            testExpression);
+                        var testExpression = IfThen(
+                            testExpressions[testsCount - 1],
+                            readExpressions[testsCount - 1]);
+
+                        for (var i = testsCount - 2; i >= 0; i--)
+                        {
+                            testExpression = IfThenElse(
+                                testExpressions[i],
+                                readExpressions[i],
+                                testExpression);
+                        }
+
+                        switchCases.Add(
+                            SwitchCase(
+                                testExpression,
+                                Constant(JsonTokenType.PropertyName)));
                     }
+
+                    switchCases.Add(
+                        SwitchCase(
+                            Break(breakLabel),
+                            Constant(JsonTokenType.EndObject)));
 
                     var loopBody = Block(
                         Assign(tokenTypeVariable, Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod)),
@@ -1842,12 +1858,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             Block(
                                 Call(managerVariable, Utf8JsonReaderManagerSkipMethod),
                                 Default(typeof(void))),
-                            SwitchCase(
-                                testExpression,
-                                Constant(JsonTokenType.PropertyName)),
-                            SwitchCase(
-                                Break(breakLabel),
-                                Constant(JsonTokenType.EndObject))));
+                            switchCases.ToArray()));
 
                     return (Loop(loopBody, breakLabel), propertyAssignmentMap);
                 }
