@@ -3,7 +3,6 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 
@@ -856,13 +855,10 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var entityParameter = Expression.Parameter(typeof(object), "e");
 
         var projections = new List<Expression>();
-
-        if (EntityMaterializerSource.UseOldBehavior32701)
-        {
-            foreach (var property in entityType.GetFlattenedProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             var path = new List<IPropertyBase> { property };
-                while (path[^1].DeclaringType is IComplexType complexType)
+            while (path[^1].DeclaringType is IComplexType complexType)
             {
                 path.Add(complexType.ComplexProperty);
             }
@@ -885,41 +881,8 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 Expression.Convert(
                     Expression.Convert(
                         instanceExpression,
-                            property.ClrType),
-                        typeof(object)));
-            }
-        }
-        else
-        {
-            foreach (var property in entityType.GetFlattenedProperties())
-            {
-                var path = new List<IPropertyBase> { property };
-                while (path[^1].DeclaringType is IComplexType complexType)
-                {
-                    path.Add(complexType.ComplexProperty);
-                }
-
-                Expression instanceExpression = entityParameter;
-                for (var i = path.Count - 1; i >= 0; i--)
-                {
-                    instanceExpression = Expression.Call(
-                        EF.PropertyMethod.MakeGenericMethod(path[i].ClrType),
-                        instanceExpression,
-                        Expression.Constant(path[i].Name, typeof(string)));
-
-                    if (i != 0 && instanceExpression.Type.IsValueType)
-                    {
-                        instanceExpression = Expression.Convert(instanceExpression, typeof(object));
-                    }
-                }
-
-                projections.Add(
-                    Expression.Convert(
-                        Expression.Convert(
-                            instanceExpression,
-                            property.ClrType),
-                        typeof(object)));
-            }
+                        property.ClrType),
+                    typeof(object)));
         }
 
         return Expression.Lambda<Func<object, object[]>>(
