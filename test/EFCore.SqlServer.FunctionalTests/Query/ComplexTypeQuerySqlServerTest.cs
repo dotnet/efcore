@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class ComplexTypeQuerySqlServerTest : ComplexTypeQueryRelationalTestBase<
@@ -739,6 +741,122 @@ FROM [ValuedCustomer] AS [v0]
 
         AssertSql();
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Filter_on_property_inside_complex_type_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                """
+SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+FROM [Customer] AS [c]
+WHERE [c].[ShippingAddress_ZipCode] = 7728
+"""),
+            ss => ss.Set<Customer>().Where(c => c.ShippingAddress.ZipCode == 07728));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Filter_on_property_inside_complex_type_after_subquery_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSql(
+                $"""
+                SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
+                FROM (
+                    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                    FROM [Customer] AS [c]
+                    ORDER BY [c].[Id]
+                    OFFSET {1} ROWS
+                ) AS [t]
+                WHERE [t].[ShippingAddress_ZipCode] = 7728
+                """),
+            ss => ss.Set<Customer>()
+                .OrderBy(c => c.Id)
+                .Skip(1)
+                .Distinct()
+                .Where(c => c.ShippingAddress.ZipCode == 07728));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Load_complex_type_after_subquery_on_entity_type_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSql(
+                $"""
+                SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
+                FROM (
+                    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                    FROM [Customer] AS [c]
+                    ORDER BY [c].[Id]
+                    OFFSET {1} ROWS
+                ) AS [t]
+                """),
+            ss => ss.Set<Customer>()
+                .OrderBy(c => c.Id)
+                .Skip(1)
+                .Distinct());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_complex_type_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                """
+                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                FROM [Customer] AS [c]
+                """).Select(c => c.ShippingAddress),
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_nested_complex_type_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                """
+                SELECT [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                FROM [Customer] AS [c]
+                """).Select(c => c.ShippingAddress.Country),
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress.Country));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_single_property_on_nested_complex_type_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                """
+                SELECT [c].[ShippingAddress_Country_FullName]
+                FROM [Customer] AS [c]
+                """).Select(c => c.ShippingAddress.Country.FullName),
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress.Country.FullName));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_complex_type_Where_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                """
+                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                FROM [Customer] AS [c]
+                WHERE [c].[ShippingAddress_ZipCode] = 7728
+                """).Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728),
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_complex_type_Distinct_with_FromSql(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+                """
+                SELECT DISTINCT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                FROM [Customer] AS [c]
+                """).Select(c => c.ShippingAddress).Distinct(),
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Distinct());
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
