@@ -526,7 +526,7 @@ public class OperationExecutor : MarshalByRefObject
         }
     }
 
-    private void OptimizeContextImpl(string? outputDir, string? modelNamespace, string? contextType)
+    private IReadOnlyList<string> OptimizeContextImpl(string? outputDir, string? modelNamespace, string? contextType)
         => ContextOperations.Optimize(outputDir, modelNamespace, contextType);
 
     /// <summary>

@@ -10,6 +10,7 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
     <ImplicitUsings>true</ImplicitUsings>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <NoWarn>NU5128</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
