@@ -17,11 +17,21 @@ internal partial class DbContextOptimizeCommand
         }
 
         using var executor = CreateExecutor(args);
-        executor.OptimizeContext(
+        var result = executor.OptimizeContext(
             _outputDir!.Value(),
             _namespace!.Value(),
             Context!.Value());
 
+        ReportResults(result);
+
         return base.Execute(args);
+    }
+
+    private static void ReportResults(IEnumerable<string> generatedFiles)
+    {
+        foreach (var file in generatedFiles)
+        {
+            Reporter.WriteData(file);
+        }
     }
 }

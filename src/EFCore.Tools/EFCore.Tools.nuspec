@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
-  <metadata minClientVersion="3.6">
+  <metadata>
     $CommonMetadataElements$
-    <minClientVersion>3.6</minClientVersion>
     <dependencies>
       <group targetFramework=".NET8.0">
-        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$Version$" />
       </group>
     </dependencies>
     <readme>docs\PACKAGE.md</readme>
@@ -14,7 +13,6 @@
   <files>
     $CommonFileElements$
     <file src="PACKAGE.md" target="docs\" />
-    <file src="lib\**\*" target="lib/" />
     <file src="tools\**\*" target="tools/" />
     <file src="$intermediateOutputPath$*.psd1" target="tools/" />
     <file src="../../artifacts/bin/ef/$configuration$/net472/ef.exe" target="tools/net472/any/" />

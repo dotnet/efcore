@@ -177,7 +177,7 @@ internal partial class MigrationsBundleCommand
 
             publishArgs.Add("--disable-build-servers");
 
-            var exitCode = Exe.Run("dotnet", publishArgs, directory, interceptOutput: true);
+            var exitCode = Exe.Run("dotnet", publishArgs, directory, handleOutput: Reporter.WriteVerbose);
             if (exitCode != 0)
             {
                 throw new CommandException(Resources.BuildBundleFailed);

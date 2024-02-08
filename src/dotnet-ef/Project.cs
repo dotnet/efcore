@@ -185,7 +185,7 @@ internal class Project
         args.Add("/nologo");
         args.Add("/p:PublishAot=false"); // Avoid NativeAOT warnings
 
-        var exitCode = Exe.Run("dotnet", args, interceptOutput: true);
+        var exitCode = Exe.Run("dotnet", args, handleOutput: Reporter.WriteVerbose);
         if (exitCode != 0)
         {
             throw new CommandException(Resources.BuildFailed);

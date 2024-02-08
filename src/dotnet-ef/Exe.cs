@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -13,33 +12,53 @@ internal static class Exe
         string executable,
         IReadOnlyList<string> args,
         string? workingDirectory = null,
-        bool interceptOutput = false)
+        Action<string?>? handleOutput = null,
+        Action<string?>? handleError = null,
+        Action<string>? processCommandLine = null)
     {
         var arguments = ToArguments(args);
 
-        Reporter.WriteVerbose(executable + " " + arguments);
+        processCommandLine ??= Reporter.WriteVerbose;
+        processCommandLine(executable + " " + arguments);
 
         var startInfo = new ProcessStartInfo
         {
             FileName = executable,
             Arguments = arguments,
             UseShellExecute = false,
-            RedirectStandardOutput = interceptOutput
+            RedirectStandardOutput = handleOutput != null,
+            RedirectStandardError = handleError != null
         };
         if (workingDirectory != null)
         {
             startInfo.WorkingDirectory = workingDirectory;
         }
 
-        var process = Process.Start(startInfo)!;
-
-        if (interceptOutput)
+        var process = new Process
         {
-            string? line;
-            while ((line = process.StandardOutput.ReadLine()) != null)
-            {
-                Reporter.WriteVerbose(line);
-            }
+            StartInfo = startInfo
+        };
+
+        if (handleOutput != null)
+        {
+            process.OutputDataReceived += (sender, args) => handleOutput(args.Data);
+        }
+
+        if (handleError != null)
+        {
+            process.ErrorDataReceived += (sender, args) => handleError(args.Data);
+        }
+
+        process.Start();
+
+        if (handleOutput != null)
+        {
+            process.BeginOutputReadLine();
+        }
+
+        if (handleError != null)
+        {
+            process.BeginErrorReadLine();
         }
 
         process.WaitForExit();

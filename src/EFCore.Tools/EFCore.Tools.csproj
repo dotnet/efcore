@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
@@ -7,9 +7,12 @@
     <PackageId>Microsoft.EntityFrameworkCore.Tools</PackageId>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <NoPackageAnalysis>true</NoPackageAnalysis>
+    <DevelopmentDependency>true</DevelopmentDependency>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSource>false</IncludeSource>
+    <IncludeSymbols>true</IncludeSymbols>
     <Description>Entity Framework Core Tools for the NuGet Package Manager Console in Visual Studio.
 
 Enables these commonly used commands:
@@ -25,58 +28,25 @@ Script-Migration
 Update-Database
   </Description>
     <CheckEolTargetFramework>False</CheckEolTargetFramework>
-    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="System.Diagnostics" />
-    <Using Include="System.Linq.Expressions" />
-    <Using Include="System.Reflection" />
-    <Using Include="Microsoft.EntityFrameworkCore" />
-    <Using Include="Microsoft.EntityFrameworkCore.ChangeTracking" />
-    <Using Include="Microsoft.EntityFrameworkCore.Diagnostics" />
-    <Using Include="Microsoft.EntityFrameworkCore.Design" />
-    <Using Include="Microsoft.EntityFrameworkCore.Infrastructure" />
-    <Using Include="Microsoft.EntityFrameworkCore.Metadata" />
-    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
-    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Conventions" />
-    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure" />
-    <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
-    <Using Include="Microsoft.EntityFrameworkCore.Migrations.Design" />
-    <Using Include="Microsoft.EntityFrameworkCore.Migrations.Operations" />
-    <Using Include="Microsoft.EntityFrameworkCore.Query" />
-    <Using Include="Microsoft.EntityFrameworkCore.Scaffolding" />
-    <Using Include="Microsoft.EntityFrameworkCore.Storage" />
-    <Using Include="Microsoft.EntityFrameworkCore.Storage.ValueConversion" />
-    <Using Include="Microsoft.EntityFrameworkCore.Update" />
-    <Using Include="Microsoft.EntityFrameworkCore.ValueGeneration" />
-    <Using Include="Microsoft.EntityFrameworkCore.Utilities" />
-    <Using Include="Microsoft.Extensions.Logging" />
-    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ef\ef.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" AllowExplicitReference="true" PrivateAssets="All" IsImplicitlyDefined="true" />
+    <PackageReference Include="Microsoft.DotNet.Build.Tasks.Templating" Version="$(MicrosoftDotNetBuildTasksTemplatingVersion)" PrivateAssets="All" IsImplicitlyDefined="true" />
   </ItemGroup>
 
   <ItemGroup>
     <GeneratedContent Include="*.psd1.in" />
   </ItemGroup>
 
+  <!--
+    Workaround for insufficient support for tools packages by NuGet Pack: https://github.com/NuGet/Home/issues/6321.
+  -->
   <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
-    <PropertyGroup>
-      <DevelopmentDependency>true</DevelopmentDependency>
-
-      <!-- Make sure we create a symbols.nupkg -->
-      <IncludeSymbols>true</IncludeSymbols>
-    </PropertyGroup>
-
     <ItemGroup>
-      <NuspecProperty Include="version=$(PackageVersion)" />
       <NuspecProperty Include="configuration=$(Configuration)" />
       <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
     </ItemGroup>
