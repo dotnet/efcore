@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -453,6 +451,15 @@ public interface ISqlExpressionFactory
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a constant in a SQL tree.</returns>
     SqlConstantExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null);
+
+    /// <summary>
+    ///     Creates a new <see cref="SqlFragmentExpression" /> which represents a SQL token.
+    /// </summary>
+    /// <param name="sql">A string token to print in SQL tree.</param>
+    /// <param name="type">The <see cref="Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    /// <returns>An expression representing a SQL token.</returns>
+    SqlFragmentExpression Fragment(string sql, Type type, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlFragmentExpression" /> which represents a SQL token.

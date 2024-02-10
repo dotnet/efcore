@@ -19,7 +19,18 @@ public class SqlFragmentExpression : SqlExpression
     /// </summary>
     /// <param name="sql">A string token to print in SQL tree.</param>
     public SqlFragmentExpression(string sql)
-        : base(typeof(string), null)
+        : this(sql, typeof(string), typeMapping: null)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SqlFragmentExpression" /> class.
+    /// </summary>
+    /// <param name="sql">A string token to print in SQL tree.</param>
+    /// <param name="type">The <see cref="Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    public SqlFragmentExpression(string sql, Type type, RelationalTypeMapping? typeMapping = null)
+        : base(type, typeMapping)
     {
         Sql = sql;
     }
@@ -28,6 +39,14 @@ public class SqlFragmentExpression : SqlExpression
     ///     The string token to print in SQL tree.
     /// </summary>
     public virtual string Sql { get; }
+
+    /// <summary>
+    ///     Applies supplied type mapping to this expression.
+    /// </summary>
+    /// <param name="typeMapping">A relational type mapping to apply.</param>
+    /// <returns>A new expression which has supplied type mapping.</returns>
+    public virtual SqlFragmentExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
+        => new(Sql, Type, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

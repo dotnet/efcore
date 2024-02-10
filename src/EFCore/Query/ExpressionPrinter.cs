@@ -619,7 +619,7 @@ public class ExpressionPrinter : ExpressionVisitor
         _stringBuilder.Append("new " + memberInitExpression.Type.ShortDisplayName());
 
         var appendAction = memberInitExpression.Bindings.Count > 1 ? (Func<string, ExpressionVisitor>)AppendLine : Append;
-        appendAction("{ ");
+        appendAction(" { ");
         using (_stringBuilder.Indent())
         {
             for (var i = 0; i < memberInitExpression.Bindings.Count; i++)
@@ -790,7 +790,7 @@ public class ExpressionPrinter : ExpressionVisitor
         }
         else
         {
-            appendAction("{ ");
+            appendAction(" { ");
         }
 
         IDisposable? indent = null;
