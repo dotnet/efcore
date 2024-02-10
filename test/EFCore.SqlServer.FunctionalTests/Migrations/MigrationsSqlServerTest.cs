@@ -10770,6 +10770,337 @@ CREATE TABLE [HistoryTable] (
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Add_required_primitve_collection_to_existing_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers").IsRequired();
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers").IsRequired().HasDefaultValue(new List<int> { 1, 2, 3 });
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers").IsRequired().HasDefaultValueSql("N'[3, 2, 1]'");
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1]');
+""");
+    }
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public virtual async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers").HasConversion(new ValueConverter<List<int>, string>(
+                            convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
+                            convertFromProviderExpression: x => x == "nothing" ? new List<int> { } : new List<int> { 7, 8, 9 }))
+                        .IsRequired();
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers").HasConversion(new ValueConverter<List<int>, string>(
+                            convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
+                            convertFromProviderExpression: x => x == "nothing" ? new List<int> { } : new List<int> { 7, 8, 9 }))
+                        .HasDefaultValue(new List<int> { 42 })
+                        .IsRequired();
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numbers';
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_optional_primitive_collection_to_existing_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers");
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_required_primitive_collection()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers").IsRequired();
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+CREATE TABLE [Customers] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    [Numbers] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_Customers] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_optional_primitive_collection()
+    {
+        await Test(
+            builder => { },
+            builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.HasKey("Id");
+                        e.Property<string>("Name");
+                        e.Property<List<int>>("Numbers");
+                        e.ToTable("Customers");
+                    }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+CREATE TABLE [Customers] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    [Numbers] nvarchar(max) NULL,
+    CONSTRAINT [PK_Customers] PRIMARY KEY ([Id])
+);
+""");
+    }
+
     protected override string NonDefaultCollation
         => _nonDefaultCollation ??= GetDatabaseCollation() == "German_PhoneBook_CI_AS"
             ? "French_CI_AS"

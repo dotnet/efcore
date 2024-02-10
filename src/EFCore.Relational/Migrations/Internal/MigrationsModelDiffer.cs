@@ -1243,9 +1243,20 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (!column.TryGetDefaultValue(out var defaultValue))
         {
-            defaultValue = null;
+            // for non-nullable collections of primitives that are mapped to JSON we set a default value corresponding to empty JSON collection
+            defaultValue = !inline
+                && column is { IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: ValueConverter columnValueConverter } }
+                && columnValueConverter.GetType() is Type { IsGenericType: true } columnValueConverterType
+                && columnValueConverterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>)
+                ? "[]"
+                : null;
         }
 
+        columnOperation.DefaultValue = defaultValue
+            ?? (inline || isNullable
+                ? null
+                : GetDefaultValue(columnOperation.ClrType));
+        columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ColumnType = column.StoreType;
         columnOperation.MaxLength = column.MaxLength;
         columnOperation.Precision = column.Precision;
@@ -1254,11 +1265,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.IsFixedLength = column.IsFixedLength;
         columnOperation.IsRowVersion = column.IsRowVersion;
         columnOperation.IsNullable = isNullable;
-        columnOperation.DefaultValue = defaultValue
-            ?? (inline || isNullable
-                ? null
-                : GetDefaultValue(columnOperation.ClrType));
-        columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ComputedColumnSql = column.ComputedColumnSql;
         columnOperation.IsStored = column.IsStored;
         columnOperation.Comment = column.Comment;
