@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 /// </summary>
 public class MigrationsModelDiffer : IMigrationsModelDiffer
 {
+    private static readonly bool UseOldBehavior32972 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32972", out var enabled32972) && enabled32972;
+
     private static readonly Type[] DropOperationTypes =
     {
         typeof(DropIndexOperation),
@@ -1190,7 +1193,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (!column.TryGetDefaultValue(out var defaultValue))
         {
-            defaultValue = null;
+            // for non-nullable collections of primitives that are mapped to JSON we set a default value corresponding to empty JSON collection
+            defaultValue = !UseOldBehavior32972
+                && !inline
+                && column is { IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: ValueConverter columnValueConverter } }
+                && columnValueConverter.GetType() is Type { IsGenericType: true } columnValueConverterType
+                && columnValueConverterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>)
+                ? "[]"
+                : null;
         }
 
         columnOperation.ColumnType = column.StoreType;
