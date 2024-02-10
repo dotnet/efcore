@@ -2099,6 +2099,102 @@ CREATE TABLE "Contacts" (
 """);
     }
 
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
+""");
+    }
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_optional_primitive_collection_to_existing_table()
+    {
+        await base.Add_optional_primitive_collection_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NULL;
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Create_table_with_required_primitive_collection()
+    {
+        await base.Create_table_with_required_primitive_collection();
+
+        AssertSql(
+"""
+CREATE TABLE "Customers" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Customers" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "Numbers" TEXT NOT NULL
+);
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Create_table_with_optional_primitive_collection()
+    {
+        await base.Create_table_with_optional_primitive_collection();
+
+        AssertSql(
+"""
+CREATE TABLE "Customers" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Customers" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "Numbers" TEXT NULL
+);
+""");
+    }
+
     // SQLite does not support schemas
     protected override bool AssertSchemaNames
         => false;
