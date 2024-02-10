@@ -11101,6 +11101,26 @@ CREATE TABLE [Customers] (
 """);
     }
 
+    [ConditionalFact]
+    public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
+    {
+        await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
+
+        AssertSql(
+"""
+CREATE TABLE [Contacts] (
+    [Id] int NOT NULL IDENTITY,
+    [Discriminator] nvarchar(8) NOT NULL,
+    [Name] nvarchar(max) NULL,
+    [Number] int NULL,
+    [MyComplex_Prop] nvarchar(max) NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
+);
+""");
+    }
+
     protected override string NonDefaultCollation
         => _nonDefaultCollation ??= GetDatabaseCollation() == "German_PhoneBook_CI_AS"
             ? "French_CI_AS"
