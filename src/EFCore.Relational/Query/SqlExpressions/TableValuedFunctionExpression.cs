@@ -120,7 +120,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
-        => !arguments.SequenceEqual(Arguments)
+        => !arguments.SequenceEqual(Arguments, ReferenceEqualityComparer.Instance)
             ? new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, arguments, Annotations)
             : this;
 

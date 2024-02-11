@@ -8274,6 +8274,7 @@ SELECT [l6].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Result], [s].[Id2], [s].[
 FROM (
     SELECT TOP(@__p_0) [l].[Id]
     FROM [Level1] AS [l]
+    ORDER BY [l].[Id]
 ) AS [l6]
 LEFT JOIN (
     SELECT CASE
