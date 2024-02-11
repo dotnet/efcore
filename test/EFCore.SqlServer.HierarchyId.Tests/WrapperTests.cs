@@ -37,16 +37,28 @@ public class WrapperTests
         => Assert.False(HierarchyId.Parse("/1/").IsDescendantOf(null));
 
     [ConditionalFact]
-    public void Parse_Overloads_works()
-    {
-        var parent = HierarchyId.Parse("/1/");
+    public void Parse_overloads_works_when_parentId_is_simpleId()
+        => Assert.Equal(HierarchyId.Parse(_parent, parentId: [2]), HierarchyId.Parse("/1/2/"));
 
-        Assert.Equal(HierarchyId.Parse(parent, parentId: [2]), HierarchyId.Parse("/1/2/"));
-        Assert.Equal(HierarchyId.Parse(parent, parentId: [2,1]), HierarchyId.Parse("/1/2.1/"));
-        Assert.Equal(HierarchyId.Parse(parent, parentId: []), HierarchyId.Parse("/1/"));
-        Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(), parentId: [1]), HierarchyId.Parse("/1/"));
-        Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(), parentId: []), HierarchyId.Parse("/"));
-        Assert.Equal(HierarchyId.Parse(null, parentId: []), HierarchyId.Parse("/"));
-    }
+    [ConditionalFact]
+    public void Parse_overloads_works_when_parentId_is_dottedString()
+        => Assert.Equal(HierarchyId.Parse(_parent, parentId: [2,1]), HierarchyId.Parse("/1/2.1/"));
 
+    [ConditionalFact]
+    public void Parse_overloads_works_when_parentId_is_empty()
+        => Assert.Equal(HierarchyId.Parse(_parent, parentId: []), HierarchyId.Parse("/1/"));
+
+    [ConditionalFact]
+    public void Parse_overloads_works_when_parentHierarchy_is_root_and_parentId_is_simple()
+        => Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(), parentId: [1]), HierarchyId.Parse("/1/"));
+
+    [ConditionalFact]
+    public void Parse_overloads_works_when_parentHierarchy_is_root_and_parentId_is_empty()
+        => Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(), parentId: []), HierarchyId.Parse("/"));
+
+    [ConditionalFact]
+    public void Parse_overloads_works_when_parentHierarchy_is_null_and_parentId_is_empty()
+        => Assert.Equal(HierarchyId.Parse(null, parentId: []), HierarchyId.Parse("/"));
+
+    private readonly HierarchyId _parent = HierarchyId.Parse("/1/");
 }
