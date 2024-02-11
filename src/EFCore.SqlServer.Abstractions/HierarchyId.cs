@@ -82,22 +82,20 @@ public class HierarchyId : IComparable<HierarchyId>
     /// <returns>A <see cref="HierarchyId" /> value.</returns>
     [return: NotNullIfNotNull(nameof(parentHierarchyId))]
     [return: NotNullIfNotNull(nameof(parentId))]
-    public static HierarchyId? Parse(HierarchyId parentHierarchyId, IReadOnlyList<int> parentId)
-        => GenerateHierarchyIdBaseOnParent(parentHierarchyId, parentId);
+    public static HierarchyId? Parse(HierarchyId parentHierarchyId , IReadOnlyList<int> parentId)
+        => GenerateHierarchyIdBasedOnParent(parentHierarchyId, parentId);
 
     //This Method can move to "SqlHierarchyId in Microsoft.SqlServer.Types", if we don't want put it in this abstraction.
-    private static HierarchyId GenerateHierarchyIdBaseOnParent(HierarchyId parent, IReadOnlyList<int> parentId)
+    private static HierarchyId GenerateHierarchyIdBasedOnParent(HierarchyId parent, IReadOnlyList<int> parentId)
     {
+        if (parent is null)
+            return HierarchyId.GetRoot();
+
         if (parentId.Count < 1)
             return parent;
 
         var specificPath = new StringBuilder(parent.ToString());
-        for (var i = 0; i < parentId.Count; i++)
-        {
-            specificPath.Append(parentId[i]);
-            if (i != parentId.Count - 1)
-                specificPath.Append('.');
-        }
+        specificPath.Append(string.Join(".", parentId));
         specificPath.Append('/');
 
         return HierarchyId.Parse(specificPath.ToString());
