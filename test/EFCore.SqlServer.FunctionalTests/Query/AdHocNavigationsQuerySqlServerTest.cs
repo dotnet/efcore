@@ -8,6 +8,105 @@ public class AdHocNavigationsQuerySqlServerTest : AdHocNavigationsQueryRelationa
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    #region 10447
+
+    [ConditionalFact]
+    public virtual async Task Nested_include_queries_do_not_populate_navigation_twice()
+    {
+        var contextFactory = await InitializeAsync<Context10447>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+        var query = context.Blogs.Include(b => b.Posts);
+
+        foreach (var blog in query)
+        {
+            query.ToList();
+        }
+
+        Assert.Collection(
+            query,
+            b => Assert.Equal(3, b.Posts.Count),
+            b => Assert.Equal(2, b.Posts.Count),
+            b => Assert.Single(b.Posts));
+
+        AssertSql(
+"""
+SELECT [b].[Id], [p].[Id], [p].[BlogId]
+FROM [Blogs] AS [b]
+LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
+ORDER BY [b].[Id]
+""",
+                //
+                """
+SELECT [b].[Id], [p].[Id], [p].[BlogId]
+FROM [Blogs] AS [b]
+LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
+ORDER BY [b].[Id]
+""",
+                //
+                """
+SELECT [b].[Id], [p].[Id], [p].[BlogId]
+FROM [Blogs] AS [b]
+LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
+ORDER BY [b].[Id]
+""",
+                //
+                """
+SELECT [b].[Id], [p].[Id], [p].[BlogId]
+FROM [Blogs] AS [b]
+LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
+ORDER BY [b].[Id]
+""",
+                //
+                """
+SELECT [b].[Id], [p].[Id], [p].[BlogId]
+FROM [Blogs] AS [b]
+LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
+ORDER BY [b].[Id]
+""");
+    }
+
+    protected class Context10447(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Blog> Blogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
+
+        public void Seed()
+        {
+            AddRange(
+                new Blog
+                {
+                    Posts =
+                    [
+                        new(),
+                        new(),
+                        new()
+                    ]
+                },
+                new Blog { Posts = [new(), new()] },
+                new Blog { Posts = [new()] });
+
+            SaveChanges();
+        }
+
+        public class Blog
+        {
+            public int Id { get; set; }
+            public List<Post> Posts { get; set; }
+        }
+
+        public class Post
+        {
+            public int Id { get; set; }
+
+            public Blog Blog { get; set; }
+        }
+    }
+
+    #endregion
+
     public override async Task ThenInclude_with_interface_navigations()
     {
         await base.ThenInclude_with_interface_navigations();
@@ -124,47 +223,6 @@ LEFT JOIN (
 ) AS [p2] ON [p].[Id] = [p2].[TeacherId]
 WHERE [p].[Discriminator] = N'PersonTeacher9038'
 ORDER BY [p].[Id], [f].[Id], [p0].[Id]
-""");
-    }
-
-    public override async Task Nested_include_queries_do_not_populate_navigation_twice()
-    {
-        await base.Nested_include_queries_do_not_populate_navigation_twice();
-
-        AssertSql(
-"""
-SELECT [b].[Id], [p].[Id], [p].[BlogId]
-FROM [Blogs] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
-ORDER BY [b].[Id]
-""",
-                //
-                """
-SELECT [b].[Id], [p].[Id], [p].[BlogId]
-FROM [Blogs] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
-ORDER BY [b].[Id]
-""",
-                //
-                """
-SELECT [b].[Id], [p].[Id], [p].[BlogId]
-FROM [Blogs] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
-ORDER BY [b].[Id]
-""",
-                //
-                """
-SELECT [b].[Id], [p].[Id], [p].[BlogId]
-FROM [Blogs] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
-ORDER BY [b].[Id]
-""",
-                //
-                """
-SELECT [b].[Id], [p].[Id], [p].[BlogId]
-FROM [Blogs] AS [b]
-LEFT JOIN [Post] AS [p] ON [b].[Id] = [p].[BlogId]
-ORDER BY [b].[Id]
 """);
     }
 
