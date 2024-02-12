@@ -10771,39 +10771,9 @@ CREATE TABLE [HistoryTable] (
     }
 
     [ConditionalFact]
-    public virtual async Task Add_required_primitve_collection_to_existing_table()
+    public override async Task Add_required_primitve_collection_to_existing_table()
     {
-        await Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Customers");
-                }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired();
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Add_required_primitve_collection_to_existing_table();
 
         AssertSql(
 """
@@ -10812,39 +10782,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
     }
 
     [ConditionalFact]
-    public virtual async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
     {
-        await Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Customers");
-                }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired().HasDefaultValue(new List<int> { 1, 2, 3 });
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
 """
@@ -10853,39 +10793,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
     }
 
     [ConditionalFact]
-    public virtual async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
+    public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
     {
-        await Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Customers");
-                }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired().HasDefaultValueSql("N'[3, 2, 1]'");
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
 
         AssertSql(
 """
@@ -10894,42 +10804,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
     }
 
     [ConditionalFact(Skip = "issue #33038")]
-    public virtual async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
     {
-        await Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Customers");
-                }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").HasConversion(new ValueConverter<List<int>, string>(
-                            convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
-                            convertFromProviderExpression: x => x == "nothing" ? new List<int> { } : new List<int> { 7, 8, 9 }))
-                        .IsRequired();
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
 """
@@ -10938,43 +10815,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
     }
 
     [ConditionalFact]
-    public virtual async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
-        await Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Customers");
-                }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").HasConversion(new ValueConverter<List<int>, string>(
-                            convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
-                            convertFromProviderExpression: x => x == "nothing" ? new List<int> { } : new List<int> { 7, 8, 9 }))
-                        .HasDefaultValue(new List<int> { 42 })
-                        .IsRequired();
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
 """
@@ -10983,39 +10826,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numb
     }
 
     [ConditionalFact]
-    public virtual async Task Add_optional_primitive_collection_to_existing_table()
+    public override async Task Add_optional_primitive_collection_to_existing_table()
     {
-        await Test(
-            builder => builder.Entity(
-                "Customer", e =>
-                {
-                    e.Property<int>("Id").ValueGeneratedOnAdd();
-                    e.HasKey("Id");
-                    e.Property<string>("Name");
-                    e.ToTable("Customers");
-                }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers");
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Add_optional_primitive_collection_to_existing_table();
 
         AssertSql(
 """
@@ -11024,32 +10837,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
     }
 
     [ConditionalFact]
-    public virtual async Task Create_table_with_required_primitive_collection()
+    public override async Task Create_table_with_required_primitive_collection()
     {
-        await Test(
-            builder => { },
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired();
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Create_table_with_required_primitive_collection();
 
         AssertSql(
 """
@@ -11063,32 +10853,9 @@ CREATE TABLE [Customers] (
     }
 
     [ConditionalFact]
-    public virtual async Task Create_table_with_optional_primitive_collection()
+    public override async Task Create_table_with_optional_primitive_collection()
     {
-        await Test(
-            builder => { },
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers");
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
+        await base.Create_table_with_optional_primitive_collection();
 
         AssertSql(
 """
