@@ -2077,20 +2077,21 @@ public sealed partial class SelectExpression : TableExpressionBase
                         projection1.StructuralType.DisplayName(), projection2.StructuralType.DisplayName()));
             }
 
-            var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+            var resultProjection = ProcessStructuralType(projection1, projection2);
+            _projectionMapping[projectionMember] = resultProjection;
 
-            ProcessStructuralType(projection1, projection2);
-
-            void ProcessStructuralType(
-                StructuralTypeProjectionExpression nestedProjection1,
-                StructuralTypeProjectionExpression nestedProjection2)
+            StructuralTypeProjectionExpression ProcessStructuralType(
+                StructuralTypeProjectionExpression structuralProjection1,
+                StructuralTypeProjectionExpression structuralProjection2)
             {
-                var type = nestedProjection1.StructuralType;
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
+                var type = structuralProjection1.StructuralType;
 
                 foreach (var property in type.GetAllPropertiesInHierarchy())
                 {
-                    var column1 = nestedProjection1.BindProperty(property);
-                    var column2 = nestedProjection2.BindProperty(property);
+                    var column1 = structuralProjection1.BindProperty(property);
+                    var column2 = structuralProjection2.BindProperty(property);
                     var alias = GenerateUniqueColumnAlias(column1.Name);
                     var innerProjection = new ProjectionExpression(column1, alias);
                     select1._projection.Add(innerProjection);
@@ -2127,7 +2128,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
                         // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
                         // the same as with a non-structural type projection.
-                        else if (projection1.StructuralType is IComplexType)
+                        else if (type is IComplexType)
                         {
                             var outerTypeMapping = column1.TypeMapping ?? column1.TypeMapping;
                             if (outerTypeMapping == null)
@@ -2141,52 +2142,62 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
                 }
 
-                foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(nestedProjection1.StructuralType))
+                foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(type))
                 {
-                    ProcessStructuralType(
-                        (StructuralTypeProjectionExpression)nestedProjection1.BindComplexProperty(complexProperty).ValueBufferExpression,
-                        (StructuralTypeProjectionExpression)nestedProjection2.BindComplexProperty(complexProperty).ValueBufferExpression);
+                    var complexPropertyShaper1 = structuralProjection1.BindComplexProperty(complexProperty);
+                    var complexPropertyShaper2 = structuralProjection2.BindComplexProperty(complexProperty);
+
+                    var resultComplexProjection = ProcessStructuralType(
+                        (StructuralTypeProjectionExpression)complexPropertyShaper1.ValueBufferExpression,
+                        (StructuralTypeProjectionExpression)complexPropertyShaper2.ValueBufferExpression);
+
+                    var resultComplexShaper = new RelationalStructuralTypeShaperExpression(
+                        complexProperty.ComplexType,
+                        resultComplexProjection,
+                        resultComplexProjection.IsNullable);
+
+                    complexPropertyCache[complexProperty] = resultComplexShaper;
                 }
-            }
 
-            Check.DebugAssert(
-                projection1.TableMap.Count == projection2.TableMap.Count,
-                "Set operation over entity projections with different table map counts");
-            Check.DebugAssert(
-                projection1.TableMap.Keys.All(t => projection2.TableMap.ContainsKey(t)),
-                "Set operation over entity projections with table map discrepancy");
+                Check.DebugAssert(
+                    structuralProjection1.TableMap.Count == structuralProjection2.TableMap.Count,
+                    "Set operation over entity projections with different table map counts");
+                Check.DebugAssert(
+                    structuralProjection1.TableMap.Keys.All(t => structuralProjection2.TableMap.ContainsKey(t)),
+                    "Set operation over entity projections with table map discrepancy");
 
-            var tableMap = projection1.TableMap.ToDictionary(kvp => kvp.Key, _ => setOperationAlias);
+                var tableMap = projection1.TableMap.ToDictionary(kvp => kvp.Key, _ => setOperationAlias);
 
-            var discriminatorExpression = projection1.DiscriminatorExpression;
-            if (projection1.DiscriminatorExpression != null
-                && projection2.DiscriminatorExpression != null)
-            {
-                var alias = GenerateUniqueColumnAlias(DiscriminatorColumnAlias);
-                var innerProjection = new ProjectionExpression(projection1.DiscriminatorExpression, alias);
-                select1._projection.Add(innerProjection);
-                select2._projection.Add(new ProjectionExpression(projection2.DiscriminatorExpression, alias));
-                discriminatorExpression = CreateColumnExpression(innerProjection, setOperationAlias);
-            }
-
-            var outerProjection = new StructuralTypeProjectionExpression(
-                projection1.StructuralType, propertyExpressions, tableMap, nullable: false, discriminatorExpression);
-
-            if (outerIdentifiers.Length > 0 && outerProjection is { StructuralType: IEntityType entityType })
-            {
-                var primaryKey = entityType.FindPrimaryKey();
-
-                // We know that there are existing identifiers (see condition above); we know we must have a key since a keyless
-                // entity type would have wiped the identifiers when generating the join.
-                Check.DebugAssert(primaryKey != null, "primary key is null.");
-                foreach (var property in primaryKey.Properties)
+                var discriminatorExpression = structuralProjection1.DiscriminatorExpression;
+                if (structuralProjection1.DiscriminatorExpression != null
+                    && structuralProjection2.DiscriminatorExpression != null)
                 {
-                    entityProjectionIdentifiers.Add(outerProjection.BindProperty(property));
-                    entityProjectionValueComparers.Add(property.GetKeyValueComparer());
+                    var alias = GenerateUniqueColumnAlias(DiscriminatorColumnAlias);
+                    var innerProjection = new ProjectionExpression(structuralProjection1.DiscriminatorExpression, alias);
+                    select1._projection.Add(innerProjection);
+                    select2._projection.Add(new ProjectionExpression(structuralProjection2.DiscriminatorExpression, alias));
+                    discriminatorExpression = CreateColumnExpression(innerProjection, setOperationAlias);
                 }
-            }
 
-            _projectionMapping[projectionMember] = outerProjection;
+                var outerProjection = new StructuralTypeProjectionExpression(
+                    type, propertyExpressions, complexPropertyCache, tableMap, nullable: false, discriminatorExpression);
+
+                if (outerIdentifiers.Length > 0 && outerProjection is { StructuralType: IEntityType entityType })
+                {
+                    var primaryKey = entityType.FindPrimaryKey();
+
+                    // We know that there are existing identifiers (see condition above); we know we must have a key since a keyless
+                    // entity type would have wiped the identifiers when generating the join.
+                    Check.DebugAssert(primaryKey != null, "primary key is null.");
+                    foreach (var property in primaryKey.Properties)
+                    {
+                        entityProjectionIdentifiers.Add(outerProjection.BindProperty(property));
+                        entityProjectionValueComparers.Add(property.GetKeyValueComparer());
+                    }
+                }
+
+                return outerProjection;
+            }
         }
 
         string GenerateUniqueColumnAlias(string baseAlias)
@@ -2560,10 +2571,10 @@ public sealed partial class SelectExpression : TableExpressionBase
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
         // See Issue #32853 and Issue #31248
         var complexTypeTable = complexProperty.ComplexType.GetViewOrTableMappings().Single().Table;
-        if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableReferenceExpression))
+        if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableAlias))
         {
             complexTypeTable = complexProperty.ComplexType.GetDefaultMappings().Single().Table;
-            tableReferenceExpression = containerProjection.TableMap[complexTypeTable];
+            tableAlias = containerProjection.TableMap[complexTypeTable];
         }
         var isComplexTypeNullable = containerProjection.IsNullable || complexProperty.IsNullable;
 
@@ -2581,14 +2592,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             // TODO: Reimplement EntityProjectionExpression via TableMap, and then use that here
             var column = complexTypeTable.FindColumn(property)!;
             propertyExpressionMap[property] = CreateColumnExpression(
-                property, column, tableReferenceExpression, isComplexTypeNullable || column.IsNullable);
+                property, column, tableAlias, isComplexTypeNullable || column.IsNullable);
         }
 
         // The table map of the target complex type should only ever contains a single table (no table splitting).
         // If the source is itself a complex type (nested complex type), its table map is already suitable and we can just pass it on.
         var newTableMap = containerProjection.TableMap.Count == 1
             ? containerProjection.TableMap
-            : new Dictionary<ITableBase, string> { [complexTypeTable] = tableReferenceExpression };
+            : new Dictionary<ITableBase, string> { [complexTypeTable] = tableAlias };
 
         Check.DebugAssert(newTableMap.Single().Key == complexTypeTable, "Bad new table map");
 
@@ -3530,33 +3541,35 @@ public sealed partial class SelectExpression : TableExpressionBase
             string subqueryAlias)
         {
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+            var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
 
-            HandleTypeProjection(projection);
-
-            void HandleTypeProjection(StructuralTypeProjectionExpression typeProjection)
+            foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
             {
-                foreach (var property in typeProjection.StructuralType.GetAllPropertiesInHierarchy())
+                // json entity projection (i.e. JSON entity that was transformed into query root) may have synthesized keys
+                // but they don't correspond to any columns - we need to skip those
+                if (projection is { StructuralType: IEntityType entityType }
+                    && entityType.IsMappedToJson()
+                    && property.IsOrdinalKeyProperty())
                 {
-                    // json entity projection (i.e. JSON entity that was transformed into query root) may have synthesized keys
-                    // but they don't correspond to any columns - we need to skip those
-                    if (typeProjection is { StructuralType: IEntityType entityType }
-                        && entityType.IsMappedToJson()
-                        && property.IsOrdinalKeyProperty())
-                    {
-                        continue;
-                    }
-
-                    var innerColumn = typeProjection.BindProperty(property);
-                    var outerColumn = subquery.GenerateOuterColumn(subqueryAlias, innerColumn);
-                    projectionMap[innerColumn] = outerColumn;
-                    propertyExpressions[property] = outerColumn;
+                    continue;
                 }
 
-                foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(typeProjection.StructuralType))
-                {
-                    HandleTypeProjection(
-                        (StructuralTypeProjectionExpression)typeProjection.BindComplexProperty(complexProperty).ValueBufferExpression);
-                }
+                var innerColumn = projection.BindProperty(property);
+                var outerColumn = subquery.GenerateOuterColumn(subqueryAlias, innerColumn);
+
+                projectionMap[innerColumn] = outerColumn;
+                propertyExpressions[property] = outerColumn;
+            }
+
+            foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(projection.StructuralType))
+            {
+                var complexPropertyShaper = projection.BindComplexProperty(complexProperty);
+
+                var complexTypeProjectionExpression = LiftEntityProjectionFromSubquery(
+                    (StructuralTypeProjectionExpression)complexPropertyShaper.ValueBufferExpression,
+                    subqueryAlias);
+
+                complexPropertyCache[complexProperty] = complexPropertyShaper.Update(complexTypeProjectionExpression);
             }
 
             ColumnExpression? discriminatorExpression = null;
@@ -3570,7 +3583,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             var tableMap = projection.TableMap.ToDictionary(kvp => kvp.Key, _ => subqueryAlias);
 
             var newEntityProjection = new StructuralTypeProjectionExpression(
-                projection.StructuralType, propertyExpressions, tableMap, nullable: false, discriminatorExpression);
+                projection.StructuralType, propertyExpressions, complexPropertyCache, tableMap, nullable: false, discriminatorExpression);
 
             if (projection.StructuralType is IEntityType entityType2)
             {
