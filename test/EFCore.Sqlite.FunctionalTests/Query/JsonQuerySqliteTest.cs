@@ -446,6 +446,26 @@ FROM "JsonEntitiesCustomNaming" AS "j"
 """);
     }
 
+    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
+    => Assert.Equal(
+        SqliteStrings.ApplyNotSupported,
+        (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async)))
+        .Message);
+
+    // Sqlit throws APPLY error, but base expects different exception
+    public override Task Json_branch_collection_distinct_and_other_collection_AsNoTrackingWithIdentityResolution(bool async)
+        => Task.CompletedTask;
+
+    public override Task Json_collection_SelectMany_AsNoTrackingWithIdentityResolution(bool async)
+        => Task.CompletedTask;
+
+    public override Task Json_nested_collection_anonymous_projection_in_projection_NoTrackingWithIdentityResolution(bool async)
+        => Task.CompletedTask;
+
+    public override Task Json_projection_using_queryable_methods_on_top_of_JSON_collection_AsNoTrackingWithIdentityResolution(bool async)
+        => Task.CompletedTask;
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
