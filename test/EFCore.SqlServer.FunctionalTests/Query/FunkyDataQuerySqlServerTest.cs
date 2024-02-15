@@ -602,7 +602,7 @@ WHERE [f].[FirstName] LIKE @__s_0_contains ESCAPE N'\' OR [f].[LastName] LIKE @_
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class FunkyDataQuerySqlServerFixture : FunkyDataQueryFixtureBase
+    public class FunkyDataQuerySqlServerFixture : FunkyDataQueryFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

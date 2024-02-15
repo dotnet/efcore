@@ -8,8 +8,11 @@ namespace Microsoft.EntityFrameworkCore;
 public class ManyToManyFieldsLoadSqliteTest(ManyToManyFieldsLoadSqliteTest.ManyToManyFieldsLoadSqliteFixture fixture)
     : ManyToManyFieldsLoadTestBase<ManyToManyFieldsLoadSqliteTest.ManyToManyFieldsLoadSqliteFixture>(fixture)
 {
-    public class ManyToManyFieldsLoadSqliteFixture : ManyToManyFieldsLoadFixtureBase
+    public class ManyToManyFieldsLoadSqliteFixture : ManyToManyFieldsLoadFixtureBase, ITestSqlLoggerFactory
     {
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
+
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 

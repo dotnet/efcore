@@ -1,11 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.IO;
 using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-#if NET461
+#if NET472
 using System;
 using System.Configuration;
 #endif
@@ -68,7 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             try
             {
-#if NET461
+                var reportHandler = new OperationReportHandler(
+                        Reporter.WriteError,
+                        Reporter.WriteWarning,
+                        Reporter.WriteInformation,
+                        Reporter.WriteVerbose);
+#if NET472
                 try
                 {
                     return new AppDomainOperationExecutor(
@@ -79,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         _rootNamespace!.Value(),
                         _language!.Value(),
                         _nullable!.HasValue(),
-                        remainingArguments);
+                        remainingArguments,
+                        reportHandler);
                 }
                 catch (MissingMethodException) // NB: Thrown with EF Core 3.1
                 {
@@ -116,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _rootNamespace!.Value(),
                     _language!.Value(),
                     _nullable!.HasValue(),
-                    remainingArguments);
+                    remainingArguments,
+                    reportHandler);
             }
             catch (FileNotFoundException ex)
                 when (ex.FileName != null

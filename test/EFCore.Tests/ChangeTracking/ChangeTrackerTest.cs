@@ -941,7 +941,7 @@ public class ChangeTrackerTest
         var generator = (ResettableValueGenerator)cache.GetOrAdd(
             property,
             property.DeclaringType,
-            (p, e) => new ResettableValueGenerator());
+            (p, e) => new ResettableValueGenerator())!;
 
         generator.Reset(generateTemporaryValues);
     }

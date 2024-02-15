@@ -233,4 +233,55 @@ FROM (
 WHERE [u].[Species] LIKE N'F%'
 """);
     }
+
+    public override async Task Two_similar_complex_properties_projected_with_split_query1()
+    {
+        await base.Two_similar_complex_properties_projected_with_split_query1();
+
+        AssertSql(
+"""
+SELECT [o].[Id]
+FROM [Offers] AS [o]
+ORDER BY [o].[Id]
+""",
+                //
+                """
+SELECT [s].[Id], [s].[NestedId], [s].[OfferId], [s].[payment_brutto], [s].[payment_netto], [s].[Id0], [s].[payment_brutto0], [s].[payment_netto0], [o].[Id]
+FROM [Offers] AS [o]
+INNER JOIN (
+    SELECT [v].[Id], [v].[NestedId], [v].[OfferId], [v].[payment_brutto], [v].[payment_netto], [n].[Id] AS [Id0], [n].[payment_brutto] AS [payment_brutto0], [n].[payment_netto] AS [payment_netto0]
+    FROM [Variation] AS [v]
+    LEFT JOIN [NestedEntity] AS [n] ON [v].[NestedId] = [n].[Id]
+) AS [s] ON [o].[Id] = [s].[OfferId]
+ORDER BY [o].[Id]
+""");
+    }
+
+    public override async Task Two_similar_complex_properties_projected_with_split_query2()
+    {
+        await base.Two_similar_complex_properties_projected_with_split_query2();
+
+        AssertSql(
+"""
+SELECT TOP(2) [o].[Id]
+FROM [Offers] AS [o]
+WHERE [o].[Id] = 1
+ORDER BY [o].[Id]
+""",
+                //
+                """
+SELECT [s].[Id], [s].[NestedId], [s].[OfferId], [s].[payment_brutto], [s].[payment_netto], [s].[Id0], [s].[payment_brutto0], [s].[payment_netto0], [o0].[Id]
+FROM (
+    SELECT TOP(1) [o].[Id]
+    FROM [Offers] AS [o]
+    WHERE [o].[Id] = 1
+) AS [o0]
+INNER JOIN (
+    SELECT [v].[Id], [v].[NestedId], [v].[OfferId], [v].[payment_brutto], [v].[payment_netto], [n].[Id] AS [Id0], [n].[payment_brutto] AS [payment_brutto0], [n].[payment_netto] AS [payment_netto0]
+    FROM [Variation] AS [v]
+    LEFT JOIN [NestedEntity] AS [n] ON [v].[NestedId] = [n].[Id]
+) AS [s] ON [o0].[Id] = [s].[OfferId]
+ORDER BY [o0].[Id]
+""");
+    }
 }

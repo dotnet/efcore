@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public abstract class TPHInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesFixtureBase
+public abstract class TPHInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName
         => "TPHInheritanceBulkUpdatesTest";

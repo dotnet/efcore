@@ -1188,7 +1188,7 @@ public static class RelationalPropertyExtensions
         }
 
         return property.IsNullable
-            || (property.DeclaringType is IReadOnlyEntityType entityType
+            || (property.DeclaringType.ContainingEntityType is IReadOnlyEntityType entityType
                 && ((entityType.BaseType != null
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
                     || IsOptionalSharingDependent(entityType, storeObject, 0)));

@@ -13,7 +13,7 @@ public class ConvertToProviderTypesSqliteTest : ConvertToProviderTypesTestBase<
         fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public class ConvertToProviderTypesSqliteFixture : ConvertToProviderTypesFixtureBase
+    public class ConvertToProviderTypesSqliteFixture : ConvertToProviderTypesFixtureBase, ITestSqlLoggerFactory
     {
         public override bool StrictEquality
             => false;

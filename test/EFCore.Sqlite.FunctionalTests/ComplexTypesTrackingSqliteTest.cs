@@ -15,7 +15,7 @@ public class ComplexTypesTrackingSqliteTest : ComplexTypesTrackingTestBase<Compl
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
-    public class SqliteFixture : FixtureBase
+    public class SqliteFixture : FixtureBase, ITestSqlLoggerFactory
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

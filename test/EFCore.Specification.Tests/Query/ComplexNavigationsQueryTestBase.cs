@@ -1253,7 +1253,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
             ss => (from l2 in ss.Set<Level2>()
                    join l1 in ss.Set<Level1>() on l2.Level1_Required_Id equals l1.Id
                    join l3 in ss.Set<Level3>() on l1.Id equals l3.Level2_Required_Id
-                   //where l1.Name == "L1 03" 
+                   //where l1.Name == "L1 03"
                    //where l3.Name == "L3 08"
                    select l1).OrderBy(l1 => l1.Id).Take(3).Select(l1 => l1.Name));
 
@@ -4028,7 +4028,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                 x.Id,
                 Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Any()
                     ? x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2.Select(xx => xx.OneToOne_Required_FK3.Id)
-                    : new List<int>() 
+                    : new List<int>()
             }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -4042,7 +4042,7 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Max_in_multi_level_nested_subquery(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Level1>().Take(2).Select(x => new
+            ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Take(2).Select(x => new
             {
                 x.Id,
                 LevelTwos = x.OneToMany_Optional1.AsQueryable().Select(xx => new

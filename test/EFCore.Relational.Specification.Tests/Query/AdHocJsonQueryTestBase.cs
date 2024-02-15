@@ -85,8 +85,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 : query.Single();
 
             Assert.Equal(3, result.Id);
-            Assert.Equal(null, result.Reference.NullableScalar);
-            Assert.Equal(null, result.Collection[0].NullableScalar);
+            Assert.Null(result.Reference.NullableScalar);
+            Assert.Null(result.Collection[0].NullableScalar);
         }
     }
 
@@ -107,8 +107,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
             Assert.Equal(3, result.Count);
             Assert.Equal(11, result[0]);
-            Assert.Equal(null, result[1]);
-            Assert.Equal(null, result[2]);
+            Assert.Null(result[1]);
+            Assert.Null(result[2]);
         }
     }
 
@@ -261,6 +261,59 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             Assert.NotNull(result[3].NestedOptional);
             Assert.Null(result[3].NestedRequired);
             Assert.NotNull(result[3].Collection);
+        }
+    }
+
+    #endregion
+
+    #region 32939
+
+    [ConditionalFact]
+    public virtual async Task Project_json_with_no_properties()
+    {
+        var contextFactory = await InitializeAsync<Context32939>(seed: Seed30028);
+        using var context = contextFactory.CreateContext();
+        context.Entities.ToList();
+    }
+
+    protected void Seed30028(Context32939 ctx)
+    {
+        var entity = new Context32939.Entity32939
+        {
+            Empty = new Context32939.JsonEmpty32939(),
+            FieldOnly = new Context32939.JsonFieldOnly32939()
+        };
+
+        ctx.Entities.Add(entity);
+        ctx.SaveChanges();
+    }
+
+    protected class Context32939(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Entity32939> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Entity32939>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Entity32939>().OwnsOne(x => x.Empty, b => b.ToJson());
+            modelBuilder.Entity<Entity32939>().OwnsOne(x => x.FieldOnly, b => b.ToJson());
+        }
+
+        public class Entity32939
+        {
+            public int Id { get; set; }
+            public JsonEmpty32939 Empty { get; set; }
+            public JsonFieldOnly32939 FieldOnly { get; set; }
+
+        }
+
+        public class JsonEmpty32939
+        {
+        }
+
+        public class JsonFieldOnly32939
+        {
+            public int Field;
         }
     }
 

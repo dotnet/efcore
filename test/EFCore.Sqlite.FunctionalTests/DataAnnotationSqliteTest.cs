@@ -173,7 +173,7 @@ RETURNING "Unique_No";
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class DataAnnotationSqliteFixture : DataAnnotationRelationalFixtureBase
+    public class DataAnnotationSqliteFixture : DataAnnotationRelationalFixtureBase, ITestSqlLoggerFactory
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

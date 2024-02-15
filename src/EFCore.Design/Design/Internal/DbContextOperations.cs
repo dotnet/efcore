@@ -117,7 +117,7 @@ public class DbContextOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Optimize(string? outputDir, string? modelNamespace, string? contextTypeName)
+    public virtual IReadOnlyList<string> Optimize(string? outputDir, string? modelNamespace, string? contextTypeName)
     {
         using var context = CreateContext(contextTypeName);
         var contextType = context.GetType();
@@ -141,7 +141,7 @@ public class DbContextOperations
 
         var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
-        scaffolder.ScaffoldModel(
+        var scaffoldedFiles = scaffolder.ScaffoldModel(
             context.GetService<IDesignTimeModel>().Model,
             outputDir,
             new CompiledModelCodeGenerationOptions
@@ -165,6 +165,8 @@ public class DbContextOperations
         {
             _reporter.WriteWarning(DesignStrings.CompiledModelCustomCacheKeyFactory(cacheKeyFactory.GetType().ShortDisplayName()));
         }
+
+        return scaffoldedFiles;
     }
 
     private string? GetNamespaceFromOutputPath(string directoryPath)

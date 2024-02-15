@@ -196,6 +196,24 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
                         .HasForeignKey<StringKeyAndIndexChild>(e => e.ParentId)
                         .HasPrincipalKey<StringKeyAndIndexParent>(e => e.AlternateId);
                 });
+
+            modelBuilder.Entity<CompositeKeyWith<int>>(
+                b =>
+                {
+                    b.Property(e => e.PrimaryGroup).HasDefaultValue(1).HasSentinel(1);
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool>>(
+                b =>
+                {
+                    b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(
+                b =>
+                {
+                    b.Property(e => e.PrimaryGroup).HasDefaultValue(true);
+                });
         }
     }
 }
