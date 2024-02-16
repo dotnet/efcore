@@ -89,10 +89,14 @@ public class HierarchyId : IComparable<HierarchyId>
     private static HierarchyId GenerateHierarchyIdBasedOnParent(HierarchyId parent, IReadOnlyList<int> parentId)
     {
         if (parent is null)
+        {
             return HierarchyId.GetRoot();
+        }
 
         if (parentId.Count < 1)
+        {
             return parent;
+        }
 
         var specificPath = new StringBuilder(parent.ToString());
         specificPath.Append(string.Join(".", parentId));
