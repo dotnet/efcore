@@ -35,16 +35,6 @@ public class HierarchyId : IComparable<HierarchyId>
     }
 
     /// <summary>
-    ///     Initializes a new instance of the<see cref="HierarchyId" /> class. Equivalent to <see cref="Parse(HierarchyId, IReadOnlyList{int})" />.
-    /// </summary>
-    /// <param name="parentHierarchyId">The parent HierarchyId of node.</param>
-    /// <param name="parentId">The parent Id of current node. It can be more than one element if want have path like: "/1/2/3.1/", otherwise one element for have path like: "/1/2/3/".</param>
-    public HierarchyId(HierarchyId parentHierarchyId, IReadOnlyList<int> parentId)
-        : this(Parse(parentHierarchyId,parentId))
-    {
-    }
-
-    /// <summary>
     ///     Initializes a new instance of the<see cref="HierarchyId" /> class.
     /// </summary>
     /// <param name="value">The <see cref="SqlHierarchyId" /> representation of the node.</param>
@@ -80,18 +70,18 @@ public class HierarchyId : IComparable<HierarchyId>
     /// <param name="parentHierarchyId">The parent HierarchyId of node.</param>
     /// <param name="parentId">The parent Id of current node. It can be more than one element if want have path like: "/1/2/3.1/", otherwise one element for have path like: "/1/2/3/".</param>
     /// <returns>A <see cref="HierarchyId" /> value.</returns>
-    public static HierarchyId? Parse(HierarchyId parentHierarchyId , IReadOnlyList<int> parentId)
+    public static HierarchyId? Parse(HierarchyId parentHierarchyId , params int[] parentId)
         => GenerateHierarchyIdBasedOnParent(parentHierarchyId, parentId);
 
     //This Method can move to "SqlHierarchyId in Microsoft.SqlServer.Types", if we don't want put it in this abstraction.
-    private static HierarchyId GenerateHierarchyIdBasedOnParent(HierarchyId parent, IReadOnlyList<int> parentId)
+    private static HierarchyId GenerateHierarchyIdBasedOnParent(HierarchyId parent, params int[] parentId)
     {
         if (parent is null)
         {
             return HierarchyId.GetRoot();
         }
 
-        if (parentId.Count < 1)
+        if (parentId.Length < 1)
         {
             return parent;
         }

@@ -38,27 +38,27 @@ public class WrapperTests
 
     [ConditionalFact]
     public void Parse_overloads_works_when_parentId_is_simpleId()
-        => Assert.Equal(HierarchyId.Parse(_parent, parentId: [2]), HierarchyId.Parse("/1/2/"));
+        => Assert.Equal(HierarchyId.Parse(_parent, 2), HierarchyId.Parse("/1/2/"));
 
     [ConditionalFact]
     public void Parse_overloads_works_when_parentId_is_dottedString()
-        => Assert.Equal(HierarchyId.Parse(_parent, parentId: [2,1]), HierarchyId.Parse("/1/2.1/"));
+        => Assert.Equal(HierarchyId.Parse(_parent, 2,1), HierarchyId.Parse("/1/2.1/"));
 
     [ConditionalFact]
     public void Parse_overloads_works_when_parentId_is_empty()
-        => Assert.Equal(HierarchyId.Parse(_parent, parentId: []), HierarchyId.Parse("/1/"));
+        => Assert.Equal(HierarchyId.Parse(_parent), HierarchyId.Parse("/1/"));
 
     [ConditionalFact]
     public void Parse_overloads_works_when_parentHierarchy_is_root_and_parentId_is_simple()
-        => Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(), parentId: [1]), HierarchyId.Parse("/1/"));
+        => Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(),1), HierarchyId.Parse("/1/"));
 
     [ConditionalFact]
     public void Parse_overloads_works_when_parentHierarchy_is_root_and_parentId_is_empty()
-        => Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot(), parentId: []), HierarchyId.Parse("/"));
+        => Assert.Equal(HierarchyId.Parse(HierarchyId.GetRoot()), HierarchyId.Parse("/"));
 
     [ConditionalFact]
     public void Parse_overloads_works_when_parentHierarchy_is_null_and_parentId_is_empty()
-        => Assert.Equal(HierarchyId.Parse(null, parentId: []), HierarchyId.Parse("/"));
+        => Assert.Equal(HierarchyId.Parse(null,[]), HierarchyId.Parse("/"));
 
     private readonly HierarchyId _parent = HierarchyId.Parse("/1/");
 }
