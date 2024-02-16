@@ -146,6 +146,44 @@ public class SqliteDataReaderTest
     }
 
     [Fact]
+    public void GetBytes_works_streaming_join()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            connection.ExecuteNonQuery("CREATE TABLE A (ID INTEGER PRIMARY KEY,VALUE BLOB); INSERT INTO A (ID, VALUE) VALUES (1,x'01020304');");
+            connection.ExecuteNonQuery("CREATE TABLE B (ID INTEGER PRIMARY KEY,FATHER_ID INTEGER NOT NULL,VALUE BLOB); INSERT INTO B (ID,FATHER_ID, VALUE) VALUES (1000,1,x'05060708');");
+
+            using (var reader = connection.ExecuteReader(@"SELECT 
+                                                A.ID as AID,
+                                                A.VALUE as AVALUE,
+                                                B.ID as BID,
+                                                B.VALUE as BVALUE
+                                            FROM 
+                                                A JOIN B
+                                                ON B.FATHER_ID=A.ID "))
+            {
+                var hasData = reader.Read();
+                Assert.True(hasData);
+
+                //reading fields that does not involve blobs should be ok
+                Console.WriteLine($"A.ID={reader.GetInt32(0)} B.ID={reader.GetInt32(2)}");
+
+                //get len of abuff
+                var abuff = new byte[2];
+                reader.GetBytes(1, 1, abuff, 0, abuff.Length);
+                Assert.Equal([0x02, 0x03], abuff);
+
+                var bbuff = new byte[2];
+                reader.GetBytes(3, 1, bbuff, 0, bbuff.Length);  //this was failing. now should be fixed
+                Assert.Equal([0x06, 0x07], bbuff);
+
+            }
+        }
+    }
+
+    [Fact]
     public void GetBytes_NullBuffer()
     {
         using (var connection = new SqliteConnection("Data Source=:memory:"))

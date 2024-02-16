@@ -14,8 +14,21 @@ using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
 {
+    
     internal class SqliteDataRecord : SqliteValueReader, IDisposable
     {
+        internal class RowIdInfo
+        {
+            public int Ordinal { get; set; }
+            public string TableName { get; set; }
+
+            public RowIdInfo(int ordinal, string tableName)
+            {
+                Ordinal = ordinal;
+                TableName = tableName;
+            }
+        }
+
         private readonly SqliteConnection _connection;
         private readonly Action<int> _addChanges;
         private byte[][]? _blobCache;
@@ -23,7 +36,8 @@ namespace Microsoft.Data.Sqlite
         private Dictionary<string, int>? _columnNameOrdinalCache;
         private string[]? _columnNameCache;
         private bool _stepped;
-        private int? _rowidOrdinal;
+        readonly Dictionary<string, RowIdInfo> RowIds = new Dictionary<string, RowIdInfo>();
+
         private bool _alreadyThrown;
         private bool _alreadyAddedChanges;
 
@@ -310,11 +324,11 @@ namespace Microsoft.Data.Sqlite
             var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
             var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
-            if (!_rowidOrdinal.HasValue)
+            RowIdInfo? rowIdForOrdinal = null;
+            string rowidkey = $"{blobDatabaseName}_{blobTableName}";
+            if (!RowIds.TryGetValue(rowidkey, out rowIdForOrdinal))
             {
-                _rowidOrdinal = -1;
                 var pkColumns = -1L;
-
                 for (var i = 0; i < FieldCount; i++)
                 {
                     if (i == ordinal)
@@ -337,7 +351,8 @@ namespace Microsoft.Data.Sqlite
                     var columnName = sqlite3_column_origin_name(Handle, i).utf8_to_string();
                     if (columnName == "rowid")
                     {
-                        _rowidOrdinal = i;
+                        rowIdForOrdinal = new RowIdInfo(i, tableName);
+                        RowIds.Add(rowidkey, rowIdForOrdinal);
                         break;
                     }
 
@@ -368,22 +383,26 @@ namespace Microsoft.Data.Sqlite
 
                         if (pkColumns == 1L)
                         {
-                            _rowidOrdinal = i;
+                            rowIdForOrdinal = new RowIdInfo(i, tableName);
+                            RowIds.Add(rowidkey, rowIdForOrdinal);
                             break;
                         }
                     }
                 }
 
-                Debug.Assert(_rowidOrdinal.HasValue);
+                //Debug.Assert(rowIdForOrdinal!=null);
+                //debug assertion no more needed:
+                //rowIdForOrdinal == null => matching rowid not found, MemoryStream returned
+                //rowIdForOrdinal != null => matching rowid found, SqliteBlob returned
             }
 
-            if (_rowidOrdinal.Value < 0)
+            if (rowIdForOrdinal == null)
             {
                 return new MemoryStream(GetCachedBlob(ordinal), false);
             }
 
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
-            var rowid = GetInt64(_rowidOrdinal.Value);
+            var rowid = GetInt64(rowIdForOrdinal.Ordinal);
 
             return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }
