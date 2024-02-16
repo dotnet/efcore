@@ -4828,6 +4828,33 @@ CREATE TABLE PrimaryKeyName (
             },
             "DROP TABLE PrimaryKeyName;");
 
+    [ConditionalFact]
+    public void Primary_key_fill_factor()
+        => Test(
+            @"
+CREATE TABLE PrimaryKeyFillFactor
+(
+    Id INT IDENTITY NOT NULL,
+    Name NVARCHAR(100),
+ CONSTRAINT [PK_Id] PRIMARY KEY NONCLUSTERED
+(
+        [Id] ASC
+) WITH (FILLFACTOR = 80) ON [PRIMARY]
+) ON [PRIMARY];",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                var pk = dbModel.Tables.Single().PrimaryKey;
+                Assert.NotNull(pk);
+                Assert.Equal(["Id"], pk!.Columns.Select(kc => kc.Name).ToList());
+                Assert.Equal(80, pk[SqlServerAnnotationNames.FillFactor]);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
+            },
+            "DROP TABLE PrimaryKeyFillFactor;");
+
     #endregion
 
     #region UniqueConstraintFacets
@@ -4909,6 +4936,34 @@ CREATE TABLE UniqueConstraintName (
                 Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE UniqueConstraintName;");
+
+    [ConditionalFact]
+    public void Unique_constraint_fill_factor()
+        => Test(
+            @"
+CREATE TABLE UniqueConstraintFillFactor
+(
+    Something NVARCHAR(100) NOT NULL,
+    SomethingElse NVARCHAR(100) NOT NULL,
+ CONSTRAINT [UC_Something_SomethingElse] UNIQUE NONCLUSTERED
+(
+    [Something] ASC,
+    [SomethingElse] ASC
+) WITH (FILLFACTOR = 80) ON [PRIMARY]
+) ON [PRIMARY];",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
+                Assert.NotNull(uniqueConstraint);
+                Assert.Equal(["Something", "SomethingElse"], uniqueConstraint!.Columns.Select(kc => kc.Name).ToList());
+                Assert.Equal(80, uniqueConstraint[SqlServerAnnotationNames.FillFactor]);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
+            },
+            "DROP TABLE UniqueConstraintFillFactor;");
 
     #endregion
 

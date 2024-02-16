@@ -158,6 +158,11 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         {
             yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
         }
+
+        if (key.GetFillFactor() is int fillFactor)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
+        }
     }
 
     /// <summary>

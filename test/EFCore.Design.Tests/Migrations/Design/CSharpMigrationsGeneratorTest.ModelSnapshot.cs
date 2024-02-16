@@ -6072,6 +6072,72 @@ namespace RootNamespace
                 Assert.Equal("IndexName", key["Relational:Name"]);
             });
 
+    [ConditionalFact]
+    public virtual void Key_fill_factor_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>().HasKey(t => t.Id).HasFillFactor(90);
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("Id"), 90);
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+"""),
+            o => Assert.Equal(90, o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).GetFillFactor()));
+
+    [ConditionalFact]
+    public virtual void Unique_constraint_fill_factor_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId).HasName("KeyName").HasFillFactor(90);
+                builder.Ignore<EntityWithOneProperty>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlternateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("AlternateId")
+                        .HasName("KeyName");
+
+                    SqlServerKeyBuilderExtensions.HasFillFactor(b.HasAlternateKey("AlternateId"), 90);
+
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
+                });
+"""),
+            model =>
+            {
+                var key = model.GetEntityTypes().First().GetKeys().First();
+                Assert.Equal(90, key.GetFillFactor());
+            });
+
     #endregion
 
     #region Index

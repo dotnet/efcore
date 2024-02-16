@@ -1087,7 +1087,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 .GroupBy(
                     ddr =>
                         (Name: ddr.GetFieldValue<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             Check.DebugAssert(primaryKeyGroups.Length is 0 or 1, "Multiple primary keys found");
@@ -1106,7 +1107,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 .GroupBy(
                     ddr =>
                         (Name: ddr.GetValueOrDefault<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
@@ -1142,7 +1144,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
             }
 
             bool TryGetPrimaryKey(
-                IGrouping<(string Name, string? TypeDesc), DbDataRecord> primaryKeyGroup,
+                IGrouping<(string Name, string? TypeDesc, byte FillFactor), DbDataRecord> primaryKeyGroup,
                 [NotNullWhen(true)] out DatabasePrimaryKey? primaryKey)
             {
                 primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
@@ -1150,6 +1152,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                 {
                     primaryKey[SqlServerAnnotationNames.Clustered] = false;
+                }
+
+                if (primaryKeyGroup.Key.FillFactor is > 0 and <= 100)
+                {
+                    primaryKey[SqlServerAnnotationNames.FillFactor] = (int)primaryKeyGroup.Key.FillFactor;
                 }
 
                 foreach (var dataRecord in primaryKeyGroup)
@@ -1171,7 +1178,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
             }
 
             bool TryGetUniqueConstraint(
-                IGrouping<(string? Name, string? TypeDesc), DbDataRecord> uniqueConstraintGroup,
+                IGrouping<(string? Name, string? TypeDesc, byte FillFactor), DbDataRecord> uniqueConstraintGroup,
                 [NotNullWhen(true)] out DatabaseUniqueConstraint? uniqueConstraint)
             {
                 uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
@@ -1179,6 +1186,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                 {
                     uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
+                }
+
+                if (uniqueConstraintGroup.Key.FillFactor is > 0 and <= 100)
+                {
+                    uniqueConstraint[SqlServerAnnotationNames.FillFactor] = (int)uniqueConstraintGroup.Key.FillFactor;
                 }
 
                 foreach (var dataRecord in uniqueConstraintGroup)
