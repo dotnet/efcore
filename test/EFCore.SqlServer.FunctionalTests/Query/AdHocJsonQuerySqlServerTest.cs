@@ -72,6 +72,11 @@ VALUES(
 N'{{""RootName"":""e4"",""Collection"":[{{""BranchName"":""e4 c1"",""Nested"":{{""LeafName"":""e4 c1 l""}}}},{{""BranchName"":""e4 c2"",""Nested"":{{""LeafName"":""e4 c2 l""}}}}],""OptionalReference"":{{""BranchName"":""e4 or"",""Nested"":{{""LeafName"":""e4 or l""}}}}}}')");
     }
 
+    protected override void Seed33046(Context33046 ctx)
+        => ctx.Database.ExecuteSqlRaw(
+            @"INSERT INTO [Reviews] ([Rounds], [Id])
+VALUES(N'[{{""RoundNumber"":11,""SubRounds"":[{{""SubRoundNumber"":111}},{{""SubRoundNumber"":112}}]}}]', 1)");
+
     protected override void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx)
     {
         var entity1 = new MyEntityArrayOfPrimitives
