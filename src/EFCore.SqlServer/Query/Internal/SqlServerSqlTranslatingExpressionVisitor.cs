@@ -227,7 +227,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                     // simple LIKE
                     translation = patternConstant.Value switch
                     {
-                        null => _sqlExpressionFactory.Like(translatedInstance, _sqlExpressionFactory.Constant(null, stringTypeMapping)),
+                        null => _sqlExpressionFactory.Like(
+                            translatedInstance,
+                            _sqlExpressionFactory.Constant(null, typeof(string), stringTypeMapping)),
 
                         // In .NET, all strings start with/end with/contain the empty string, but SQL LIKE return false for empty patterns.
                         // Return % which always matches instead.

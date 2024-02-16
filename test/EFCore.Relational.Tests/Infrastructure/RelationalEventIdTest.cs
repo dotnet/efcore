@@ -126,6 +126,9 @@ public class RelationalEventIdTest : EventIdTestBase
         {
         }
 
+        public override Expression Quote()
+            => throw new NotSupportedException();
+
         protected override void Print(ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append("FakeSqlExpression");
     }

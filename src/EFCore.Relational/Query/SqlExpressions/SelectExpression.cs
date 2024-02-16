@@ -50,7 +50,16 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Pushdown should null it out as if GroupBy was present was pushed down.
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
-    private SelectExpression(
+    private static ConstructorInfo? _quotingConstructor;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public SelectExpression(
         string? alias,
         List<TableExpressionBase> tables,
         List<SqlExpression> groupBy,
@@ -677,7 +686,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         if (selectExpression.Limit is SqlConstantExpression { Value: 2 } limitConstantExpression)
                         {
-                            selectExpression.Limit = new SqlConstantExpression(Constant(1), limitConstantExpression.TypeMapping);
+                            selectExpression.Limit = new SqlConstantExpression(1, limitConstantExpression.TypeMapping);
                         }
                     }
                 }
@@ -2228,7 +2237,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
     {
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
-            new SqlConstantExpression(Constant(null, typeof(string)), null));
+            new SqlConstantExpression(null, typeof(string), null));
 
         var dummySelectExpression = CreateImmutable(
             _sqlAliasManager.GenerateTableAlias("empty"),
@@ -2822,7 +2831,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     limit = offset is SqlConstantExpression offsetConstant
                                         && limit is SqlConstantExpression limitConstant
                                             ? new SqlConstantExpression(
-                                                Constant((int)offsetConstant.Value! + (int)limitConstant.Value!),
+                                                (int)offsetConstant.Value! + (int)limitConstant.Value!,
                                                 limit.TypeMapping)
                                             : new SqlBinaryExpression(ExpressionType.Add, offset, limit, limit.Type, limit.TypeMapping);
                                 }
@@ -4199,6 +4208,39 @@ public sealed partial class SelectExpression : TableExpressionBase
             IsMutable = false
         };
     }
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SelectExpression).GetConstructor(
+            [
+                typeof(string), // alias
+                typeof(IReadOnlyList<TableExpressionBase>), // tables
+                typeof(SqlExpression), // predicate
+                typeof(IReadOnlyList<SqlExpression>), // groupby
+                typeof(SqlExpression), // having
+                typeof(IReadOnlyList<ProjectionExpression>), // projections
+                typeof(bool), // distinct
+                typeof(IReadOnlyList<OrderingExpression>), // orderings
+                typeof(SqlExpression), // limit
+                typeof(SqlExpression), // offset
+                typeof(IReadOnlySet<string>), // tags
+                typeof(IReadOnlyDictionary<string, IAnnotation>) // annotations
+            ])!,
+            Constant(Alias, typeof(string)),
+            NewArrayInit(
+                typeof(TableExpressionBase),
+                initializers: Tables.Select(t => t.Quote())),
+            RelationalExpressionQuotingUtilities.VisitOrNull(Predicate),
+            NewArrayInit(typeof(SqlExpression), initializers: GroupBy.Select(g => g.Quote())),
+            RelationalExpressionQuotingUtilities.VisitOrNull(Having),
+            NewArrayInit(typeof(ProjectionExpression), initializers: Projection.Select(p => p.Quote())),
+            Constant(IsDistinct),
+            NewArrayInit(typeof(OrderingExpression), initializers: Orderings.Select(o => o.Quote())),
+            RelationalExpressionQuotingUtilities.VisitOrNull(Limit),
+            RelationalExpressionQuotingUtilities.VisitOrNull(Offset),
+            RelationalExpressionQuotingUtilities.QuoteTags(Tags),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

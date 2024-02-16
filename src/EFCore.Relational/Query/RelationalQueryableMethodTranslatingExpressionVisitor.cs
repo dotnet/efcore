@@ -2482,7 +2482,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 newRowValues[i] = new RowValueExpression(newValues);
             }
 
-            return new ValuesExpression(valuesExpression.Alias, newRowValues, newColumnNames, valuesExpression.GetAnnotations());
+            return new ValuesExpression(valuesExpression.Alias, newRowValues, newColumnNames);
         }
     }
 }

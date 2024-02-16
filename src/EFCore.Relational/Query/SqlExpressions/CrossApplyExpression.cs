@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class CrossApplyExpression : JoinExpressionBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="CrossApplyExpression" /> class.
     /// </summary>
@@ -46,6 +48,15 @@ public class CrossApplyExpression : JoinExpressionBase
     /// <inheritdoc />
     protected override CrossApplyExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
         => new(Table, annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??=
+                typeof(CrossApplyExpression).GetConstructor(
+                    [typeof(TableExpressionBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Table.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

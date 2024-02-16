@@ -15,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 [DebuggerDisplay("{TableAlias}.{Name}")]
 public class ColumnExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="ColumnExpression" /> class.
     /// </summary>
@@ -69,6 +71,17 @@ public class ColumnExpression : SqlExpression
     /// <returns>A new expression which has supplied type mapping.</returns>
     public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
         => new ColumnExpression(Name, TableAlias, Type, typeMapping, IsNullable);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(ColumnExpression).GetConstructor(
+                [typeof(string), typeof(string), typeof(Type), typeof(RelationalTypeMapping), typeof(bool)])!,
+            Constant(Name),
+            Constant(TableAlias),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping),
+            Constant(IsNullable));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

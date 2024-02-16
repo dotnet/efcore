@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExpression
 {
+    private static ConstructorInfo? _quotingConstructor1, _quotingConstructor2;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
     /// </summary>
@@ -152,6 +154,22 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <inheritdoc />
     public override TableValuedFunctionExpression WithAlias(string newAlias)
         => new(newAlias, Name, Schema, IsBuiltIn, Arguments, Annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => StoreFunction is null
+            ? New(
+                _quotingConstructor1 ??= typeof(TableValuedFunctionExpression).GetConstructor(
+                    [typeof(string), typeof(string), typeof(IReadOnlyList<SqlExpression>)])!,
+                Constant(Alias, typeof(string)),
+                Constant(Name, typeof(string)),
+                NewArrayInit(typeof(SqlExpression), Arguments.Select(v => v.Quote())))
+            : New(
+                _quotingConstructor2 ??= typeof(TableValuedFunctionExpression).GetConstructor(
+                    [typeof(string), typeof(IStoreFunction), typeof(IReadOnlyList<SqlExpression>)])!,
+                Constant(Alias, typeof(string)),
+                RelationalExpressionQuotingUtilities.QuoteTableBase(StoreFunction),
+                NewArrayInit(typeof(SqlExpression), Arguments.Select(v => v.Quote())));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

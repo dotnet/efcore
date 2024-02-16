@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </remarks>
 public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 {
+    private static ConstructorInfo? _quotingConstructor, _columnInfoQuotingConstructor;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -171,6 +173,40 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     /// <inheritdoc />
     public override SqlServerOpenJsonExpression WithAlias(string newAlias)
         => new(newAlias, JsonExpression, Path, ColumnInfos);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlServerOpenJsonExpression).GetConstructor(
+            [
+                typeof(string),
+                typeof(SqlExpression),
+                typeof(IReadOnlyList<PathSegment>),
+                typeof(IReadOnlyList<ColumnInfo>)
+            ])!,
+            Constant(Alias, typeof(string)),
+            JsonExpression.Quote(),
+            Path is null
+                ? Constant(null, typeof(IReadOnlyList<PathSegment>))
+                : NewArrayInit(typeof(PathSegment), Path.Select(s => s.Quote())),
+            ColumnInfos is null
+                ? Constant(null, typeof(IReadOnlyList<ColumnInfo>))
+                : NewArrayInit(
+                    typeof(ColumnInfo), ColumnInfos.Select(
+                        ci => New(
+                            _columnInfoQuotingConstructor ??= typeof(ColumnInfo).GetConstructor(
+                            [
+                                typeof(string),
+                                typeof(RelationalTypeMapping),
+                                typeof(IReadOnlyList<PathSegment>),
+                                typeof(bool)
+                            ])!,
+                            Constant(ci.Name),
+                            RelationalExpressionQuotingUtilities.QuoteTypeMapping(ci.TypeMapping),
+                            ci.Path is null
+                                ? Constant(null, typeof(IReadOnlyList<PathSegment>))
+                                : NewArrayInit(typeof(PathSegment), ci.Path.Select(s => s.Quote())),
+                            Constant(ci.AsJson)))));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

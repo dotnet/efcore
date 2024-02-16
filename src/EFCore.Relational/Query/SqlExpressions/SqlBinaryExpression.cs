@@ -38,6 +38,8 @@ public class SqlBinaryExpression : SqlExpression
         //ExpressionType.LeftShift,
     };
 
+    private static ConstructorInfo? _quotingConstructor;
+
     internal static bool IsValidOperator(ExpressionType operatorType)
         => AllowedOperators.Contains(operatorType);
 
@@ -104,6 +106,17 @@ public class SqlBinaryExpression : SqlExpression
         => left != Left || right != Right
             ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlBinaryExpression).GetConstructor(
+                [typeof(ExpressionType), typeof(SqlExpression), typeof(SqlExpression), typeof(Type), typeof(RelationalTypeMapping)])!,
+            Constant(OperatorType),
+            Left.Quote(),
+            Right.Quote(),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

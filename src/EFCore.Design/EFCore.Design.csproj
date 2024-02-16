@@ -8,6 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DevelopmentDependency>true</DevelopmentDependency>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>EF1003</NoWarn> <!-- Precompiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

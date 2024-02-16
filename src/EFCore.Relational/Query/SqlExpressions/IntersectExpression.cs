@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class IntersectExpression : SetOperationBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="IntersectExpression" /> class.
     /// </summary>
@@ -76,6 +78,17 @@ public class IntersectExpression : SetOperationBase
     /// <inheritdoc />
     public override IntersectExpression WithAlias(string newAlias)
         => new(newAlias, Source1, Source2, IsDistinct);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(IntersectExpression).GetConstructor(
+                [typeof(string), typeof(SelectExpression), typeof(SelectExpression), typeof(bool), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Constant(Alias, typeof(string)),
+            Source1.Quote(),
+            Source2.Quote(),
+            Constant(IsDistinct),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
