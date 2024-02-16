@@ -80,8 +80,6 @@ public class HierarchyId : IComparable<HierarchyId>
     /// <param name="parentHierarchyId">The parent HierarchyId of node.</param>
     /// <param name="parentId">The parent Id of current node. It can be more than one element if want have path like: "/1/2/3.1/", otherwise one element for have path like: "/1/2/3/".</param>
     /// <returns>A <see cref="HierarchyId" /> value.</returns>
-    [return: NotNullIfNotNull(nameof(parentHierarchyId))]
-    [return: NotNullIfNotNull(nameof(parentId))]
     public static HierarchyId? Parse(HierarchyId parentHierarchyId , IReadOnlyList<int> parentId)
         => GenerateHierarchyIdBasedOnParent(parentHierarchyId, parentId);
 
