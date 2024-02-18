@@ -1312,7 +1312,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (ownedNavigation.IsCollection)
                 {
                     var shaperEntityParameter = Parameter(ownedNavigation.DeclaringEntityType.ClrType);
-                    var shaperCollectionParameter = Parameter(ownedNavigation.ClrType);
+                    var ownedNavigationType = ownedNavigation.GetMemberInfo(forMaterialization: true, forSet: true).GetMemberType();
+                    var shaperCollectionParameter = Parameter(ownedNavigationType);
                     var expressions = new List<Expression>();
                     var expressionsForTracking = new List<Expression>();
 
@@ -1484,11 +1485,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (navigation is { IsCollection: true })
             {
+                var collectionClrType = navigation.GetMemberInfo(forMaterialization: true, forSet: true).GetMemberType();
                 var materializeJsonEntityCollectionMethodCall =
                     Call(
                         MaterializeJsonEntityCollectionMethodInfo.MakeGenericMethod(
                             navigation.TargetEntityType.ClrType,
-                            navigation.ClrType),
+                            collectionClrType),
                         QueryCompilationContext.QueryContextParameter,
                         keyValuesParameter,
                         jsonReaderDataParameter,

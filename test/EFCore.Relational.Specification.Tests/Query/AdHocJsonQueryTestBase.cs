@@ -319,6 +319,61 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region 33046
+
+    protected abstract void Seed33046(Context33046 ctx);
+
+    [ConditionalFact]
+    public virtual async Task Query_with_nested_json_collection_mapped_to_private_field_via_IReadOnlyList()
+    {
+        var contextFactory = await InitializeAsync<Context33046>(seed: Seed33046);
+        using var context = contextFactory.CreateContext();
+        var query = context.Reviews.ToList();
+        Assert.Equal(1, query.Count);
+    }
+
+    protected class Context33046(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<Review> Reviews { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Review>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Review>().OwnsMany(x => x.Rounds, ownedBuilder =>
+            {
+                ownedBuilder.ToJson();
+                ownedBuilder.OwnsMany(r => r.SubRounds);
+            });
+        }
+
+        public class Review
+        {
+            public int Id { get; set; }
+
+#pragma warning disable IDE0044 // Add readonly modifier
+            private List<ReviewRound> _rounds = [];
+#pragma warning restore IDE0044 // Add readonly modifier
+            public IReadOnlyList<ReviewRound> Rounds => _rounds.AsReadOnly();
+        }
+
+        public class ReviewRound
+        {
+            public int RoundNumber { get; set; }
+
+#pragma warning disable IDE0044 // Add readonly modifier
+            private List<SubRound> _subRounds = [];
+#pragma warning restore IDE0044 // Add readonly modifier
+            public IReadOnlyList<SubRound> SubRounds => _subRounds.AsReadOnly();
+        }
+
+        public class SubRound
+        {
+            public int SubRoundNumber { get; set; }
+        }
+    }
+
+    #endregion
+
     #region ArrayOfPrimitives
 
     [ConditionalTheory]
