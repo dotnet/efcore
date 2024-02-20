@@ -176,6 +176,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         Reset();
         _calculatingPath = true;
+        _parameterize = true;
 
         // In precompilation mode we don't actually extract parameter values; but we do need to generate the parameter names, using the
         // same logic (and via the same code) used in parameter extraction, and that logic requires _parameterValues.
@@ -365,7 +366,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                 _state = children is null
                     ? State.NoEvaluatability
-                    : State.CreateContainsEvaluatable(typeof(ConditionalExpression), children);
+                    : State.CreateContainsEvaluatable(typeof(BinaryExpression), children);
                 break;
         }
 
@@ -585,7 +586,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 arguments = EvaluateList(
                     ((IReadOnlyList<E>?)arguments) ?? invocation.Arguments,
                     argumentStates,
-                    children,
+                    ref children,
                     static i => e =>
                         E.Call(
                             E.Property(e, nameof(InvocationExpression.Arguments)),
@@ -640,7 +641,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 arguments = EvaluateList(
                     ((IReadOnlyList<E>?)arguments) ?? index.Arguments,
                     argumentStates,
-                    children,
+                    ref children,
                     static i => e =>
                         E.Call(
                             E.Property(e, nameof(IndexExpression.Arguments)),
@@ -883,7 +884,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 arguments = EvaluateList(
                     ((IReadOnlyList<E>?)arguments) ?? methodCall.Arguments,
                     argumentStates,
-                    children,
+                    ref children,
                     static i => e =>
                         E.Call(
                             E.Property(e, nameof(MethodCallExpression.Arguments)),
@@ -945,7 +946,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             expressions = EvaluateList(
                 ((IReadOnlyList<E>?)expressions) ?? newArray.Expressions,
                 expressionStates,
-                children,
+                ref children,
                 i => e => E.Call(
                     E.Property(e, nameof(NewArrayExpression.Expressions)),
                     ReadOnlyCollectionIndexerGetter,
@@ -1003,7 +1004,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             arguments = EvaluateList(
                 ((IReadOnlyList<E>?)arguments) ?? @new.Arguments,
                 argumentStates,
-                children,
+                ref children,
                 i => e => E.Call(
                     E.Property(e, nameof(NewExpression.Arguments)),
                     ReadOnlyCollectionIndexerGetter,
@@ -1247,7 +1248,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                             ? initializer.Arguments
                             : visitedInitializersArguments[i],
                         initializerArgumentStates[i],
-                        children,
+                        ref children,
                         static i => e =>
                             E.Call(
                                 E.Property(e, nameof(MethodCallExpression.Arguments)),
@@ -1568,7 +1569,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private E[]? EvaluateList(
         IReadOnlyList<E> expressions,
         State[] expressionStates,
-        List<PathNode>? children,
+        ref List<PathNode>? children,
         Func<int, Func<E, E>> pathFromParentGenerator)
     {
         // This allows us to make in-place changes in the expression array when the previous visitation pass made modifications (and so
