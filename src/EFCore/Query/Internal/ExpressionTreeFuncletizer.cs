@@ -5,7 +5,7 @@ using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using E = System.Linq.Expressions.Expression;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -69,7 +69,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     A cache of tree fragments that have already been parameterized, along with their parameter. This allows us to reuse the same
     ///     query parameter twice when the same captured variable is referenced in the query.
     /// </summary>
-    private readonly Dictionary<E, ParameterExpression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
+    private readonly Dictionary<Expression, ParameterExpression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
 
     /// <summary>
     ///     Used only when evaluating arbitrary QueryRootExpressions (specifically SqlQueryRootExpression), to force any evaluatable nested
@@ -91,7 +91,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private readonly ContextParameterReplacer _contextParameterReplacer;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
-    private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<E>).GetProperties()
+    private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
     private static readonly MethodInfo ReadOnlyMemberBindingCollectionIndexerGetter = typeof(ReadOnlyCollection<MemberBinding>)
@@ -137,8 +137,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public virtual E ExtractParameters(
-        E expression,
+    public virtual Expression ExtractParameters(
+        Expression expression,
         IParameterValues parameterValues,
         bool parameterize,
         bool clearParameterizedValues)
@@ -172,7 +172,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public virtual PathNode? CalculatePathsToEvaluatableRoots(E expression)
+    public virtual PathNode? CalculatePathsToEvaluatableRoots(Expression expression)
     {
         Reset();
         _calculatingPath = true;
@@ -201,7 +201,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     }
 
     [return: NotNullIfNotNull("expression")]
-    private E? Visit(E? expression, out State state)
+    private Expression? Visit(Expression? expression, out State state)
     {
         _state = default;
         var result = base.Visit(expression);
@@ -216,7 +216,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [return: NotNullIfNotNull("expression")]
-    public override E? Visit(E? expression)
+    public override Expression? Visit(Expression? expression)
     {
         _state = default;
 
@@ -248,7 +248,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitBinary(BinaryExpression binary)
+    protected override Expression VisitBinary(BinaryExpression binary)
     {
         var left = Visit(binary.Left, out var leftState);
 
@@ -267,14 +267,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                             return Visit(binary.Right, out _state);
                         case bool b:
                             _state = leftState with { StateType = StateType.EvaluatableWithoutCapturedVariable };
-                            return E.Constant(b);
+                            return Constant(b);
                         default:
                             return left;
                     }
 
                 case ExpressionType.OrElse or ExpressionType.AndAlso when Evaluate(left) is bool leftBoolValue:
                 {
-                    left = E.Constant(leftBoolValue);
+                    left = Constant(leftBoolValue);
                     leftState = leftState with { StateType = StateType.EvaluatableWithoutCapturedVariable };
 
                     if (leftBoolValue && binary.NodeType is ExpressionType.OrElse
@@ -315,7 +315,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         return left;
                     case (ExpressionType.OrElse, true) or (ExpressionType.AndAlso, false):
                         _state = rightState with { StateType = StateType.EvaluatableWithoutCapturedVariable };
-                        return E.Constant(rightBoolValue);
+                        return Constant(rightBoolValue);
                 }
             }
         }
@@ -353,14 +353,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     {
                         children =
                         [
-                            leftState.Path! with { PathFromParent = static e => E.Property(e, nameof(BinaryExpression.Left)) }
+                            leftState.Path! with { PathFromParent = static e => Property(e, nameof(BinaryExpression.Left)) }
                         ];
                     }
 
                     if (rightState.ContainsEvaluatable)
                     {
                         children ??= new();
-                        children.Add(rightState.Path! with { PathFromParent = static e => E.Property(e, nameof(BinaryExpression.Right)) });
+                        children.Add(rightState.Path! with { PathFromParent = static e => Property(e, nameof(BinaryExpression.Right)) });
                     }
                 }
 
@@ -379,7 +379,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitConditional(ConditionalExpression conditional)
+    protected override Expression VisitConditional(ConditionalExpression conditional)
     {
         var test = Visit(conditional.Test, out var testState);
 
@@ -440,21 +440,21 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     {
                         children ??= new();
                         children.Add(
-                            testState.Path! with { PathFromParent = static e => E.Property(e, nameof(ConditionalExpression.Test)) });
+                            testState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.Test)) });
                     }
 
                     if (ifTrueState.ContainsEvaluatable)
                     {
                         children ??= new();
                         children.Add(
-                            ifTrueState.Path! with { PathFromParent = static e => E.Property(e, nameof(ConditionalExpression.IfTrue)) });
+                            ifTrueState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.IfTrue)) });
                     }
 
                     if (ifFalseState.ContainsEvaluatable)
                     {
                         children ??= new();
                         children.Add(
-                            ifFalseState.Path! with { PathFromParent = static e => E.Property(e, nameof(ConditionalExpression.IfFalse)) });
+                            ifFalseState.Path! with { PathFromParent = static e => Property(e, nameof(ConditionalExpression.IfFalse)) });
                     }
                 }
 
@@ -473,7 +473,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitConstant(ConstantExpression constant)
+    protected override Expression VisitConstant(ConstantExpression constant)
     {
         // Whether this constant represents a captured variable determines whether we'll evaluate it as a parameter (if yes) or as a
         // constant (if no).
@@ -497,7 +497,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitDefault(DefaultExpression node)
+    protected override Expression VisitDefault(DefaultExpression node)
     {
         _state = State.CreateEvaluatable(typeof(DefaultExpression), containsCapturedVariable: false);
         return node;
@@ -509,7 +509,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitExtension(E extension)
+    protected override Expression VisitExtension(Expression extension)
     {
         if (extension is QueryRootExpression queryRoot)
         {
@@ -550,7 +550,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitInvocation(InvocationExpression invocation)
+    protected override Expression VisitInvocation(InvocationExpression invocation)
     {
         var expression = Visit(invocation.Expression, out var expressionState);
         var state = expressionState.StateType;
@@ -579,19 +579,19 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     children =
                     [
-                        expressionState.Path! with { PathFromParent = static e => E.Property(e, nameof(InvocationExpression.Expression)) }
+                        expressionState.Path! with { PathFromParent = static e => Property(e, nameof(InvocationExpression.Expression)) }
                     ];
                 }
 
                 arguments = EvaluateList(
-                    ((IReadOnlyList<E>?)arguments) ?? invocation.Arguments,
+                    ((IReadOnlyList<Expression>?)arguments) ?? invocation.Arguments,
                     argumentStates,
                     ref children,
                     static i => e =>
-                        E.Call(
-                            E.Property(e, nameof(InvocationExpression.Arguments)),
+                        Call(
+                            Property(e, nameof(InvocationExpression.Arguments)),
                             ReadOnlyCollectionIndexerGetter,
-                            arguments: [E.Constant(i)]));
+                            arguments: [Constant(i)]));
 
                 _state = children is null
                     ? State.NoEvaluatability
@@ -600,7 +600,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
 
         StateArrayPool.Return(argumentStates);
-        return invocation.Update(expression, ((IReadOnlyList<E>?)arguments) ?? invocation.Arguments);
+        return invocation.Update(expression, ((IReadOnlyList<Expression>?)arguments) ?? invocation.Arguments);
     }
 
     /// <summary>
@@ -609,7 +609,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitIndex(IndexExpression index)
+    protected override Expression VisitIndex(IndexExpression index)
     {
         var @object = Visit(index.Object, out var objectState);
         var state = objectState.StateType;
@@ -635,18 +635,18 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                 if (objectState.ContainsEvaluatable && _calculatingPath)
                 {
-                    children = [objectState.Path! with { PathFromParent = static e => E.Property(e, nameof(IndexExpression.Object)) }];
+                    children = [objectState.Path! with { PathFromParent = static e => Property(e, nameof(IndexExpression.Object)) }];
                 }
 
                 arguments = EvaluateList(
-                    ((IReadOnlyList<E>?)arguments) ?? index.Arguments,
+                    ((IReadOnlyList<Expression>?)arguments) ?? index.Arguments,
                     argumentStates,
                     ref children,
                     static i => e =>
-                        E.Call(
-                            E.Property(e, nameof(IndexExpression.Arguments)),
+                        Call(
+                            Property(e, nameof(IndexExpression.Arguments)),
                             ReadOnlyCollectionIndexerGetter,
-                            arguments: [E.Constant(i)]));
+                            arguments: [Constant(i)]));
 
                 _state = children is null
                     ? State.NoEvaluatability
@@ -657,7 +657,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         StateArrayPool.Return(argumentStates);
 
         // TODO: https://github.com/dotnet/runtime/issues/96626
-        return index.Update(@object!, ((IReadOnlyList<E>?)arguments) ?? index.Arguments);
+        return index.Update(@object!, ((IReadOnlyList<Expression>?)arguments) ?? index.Arguments);
     }
 
     /// <summary>
@@ -666,7 +666,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitLambda<T>(Expression<T> lambda)
+    protected override Expression VisitLambda<T>(Expression<T> lambda)
     {
         var oldInLambda = _inLambda;
         _inLambda = true;
@@ -692,7 +692,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _state = State.CreateContainsEvaluatable(
                 typeof(LambdaExpression),
-                [_state.Path! with { PathFromParent = static e => E.Property(e, nameof(Expression<T>.Body)) }]);
+                [_state.Path! with { PathFromParent = static e => Property(e, nameof(Expression<T>.Body)) }]);
         }
 
         _inLambda = oldInLambda;
@@ -706,7 +706,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitMember(MemberExpression member)
+    protected override Expression VisitMember(MemberExpression member)
     {
         // Static member access - notably required for EF.Functions, but also for various translations (DateTime.Now).
         if (member.Expression is null)
@@ -748,7 +748,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _state = State.CreateContainsEvaluatable(
                 typeof(MemberExpression),
-                [_state.Path! with { PathFromParent = static e => E.Property(e, nameof(MemberExpression.Expression)) }]);
+                [_state.Path! with { PathFromParent = static e => Property(e, nameof(MemberExpression.Expression)) }]);
         }
 
         return member.Update(expression);
@@ -760,7 +760,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitMethodCall(MethodCallExpression methodCall)
+    protected override Expression VisitMethodCall(MethodCallExpression methodCall)
     {
         var method = methodCall.Method;
 
@@ -815,8 +815,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // Regular/arbitrary method handling from here on
 
         // First, visit the object and all arguments, saving states as well
-        var @object = Visit(methodCall.Object, out var singleState);
-        var state = singleState.StateType;
+        var @object = Visit(methodCall.Object, out var objectState);
+        var state = objectState.StateType;
         var arguments = Visit(methodCall.Arguments, ref state, out var argumentStates);
 
         // The following identifies Select(), and its lambda parameters in a special list which allows us to evaluate them.
@@ -831,7 +831,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             }
 
             // Revisit with the updated _evaluatableParameters.
-            state = singleState.StateType;
+            state = objectState.StateType;
             arguments = Visit(methodCall.Arguments, ref state, out argumentStates);
         }
 
@@ -850,14 +850,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             default:
                 List<PathNode>? children = null;
 
-                if (singleState.IsEvaluatable)
+                if (objectState.IsEvaluatable)
                 {
-                    @object = ProcessEvaluatableRoot(@object, ref singleState);
+                    @object = ProcessEvaluatableRoot(@object, ref objectState);
                 }
 
-                if (singleState.ContainsEvaluatable && _calculatingPath)
+                if (objectState.ContainsEvaluatable && _calculatingPath)
                 {
-                    children = [singleState.Path! with { PathFromParent = static e => E.Property(e, nameof(MethodCallExpression.Object)) }];
+                    children = [objectState.Path! with { PathFromParent = static e => Property(e, nameof(MethodCallExpression.Object)) }];
                 }
 
                 // To support [NotParameterized] and indexer method arguments - which force evaluation as constant - go over the parameters
@@ -882,14 +882,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 }
 
                 arguments = EvaluateList(
-                    ((IReadOnlyList<E>?)arguments) ?? methodCall.Arguments,
+                    ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments,
                     argumentStates,
                     ref children,
                     static i => e =>
-                        E.Call(
-                            E.Property(e, nameof(MethodCallExpression.Arguments)),
+                        Call(
+                            Property(e, nameof(MethodCallExpression.Arguments)),
                             ReadOnlyCollectionIndexerGetter,
-                            arguments: [E.Constant(i)]));
+                            arguments: [Constant(i)]));
 
                 _state = children is null
                     ? State.NoEvaluatability
@@ -897,7 +897,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 break;
         }
 
-        return methodCall.Update(@object, ((IReadOnlyList<E>?)arguments) ?? methodCall.Arguments);
+        return methodCall.Update(@object, ((IReadOnlyList<Expression>?)arguments) ?? methodCall.Arguments);
     }
 
     /// <summary>
@@ -906,7 +906,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitNewArray(NewArrayExpression newArray)
+    protected override Expression VisitNewArray(NewArrayExpression newArray)
     {
         StateType state = default;
         var expressions = Visit(newArray.Expressions, ref state, out var expressionStates, poolExpressionStates: false);
@@ -931,7 +931,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 return EvaluateChildren(newArray, expressions, expressionStates);
         }
 
-        return newArray.Update(((IReadOnlyList<E>?)expressions) ?? newArray.Expressions);
+        return newArray.Update(((IReadOnlyList<Expression>?)expressions) ?? newArray.Expressions);
 
         // We don't parameterize NewArrayExpression when its an evaluatable root, since we want to allow translating new[] { x, y } to
         // e.g. IN (x, y) rather than parameterizing the whole thing. But bubble up the evaluatable state so it may get evaluated at a
@@ -939,24 +939,24 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         // To support that, when the NewArrayExpression is evaluatable, we include a nonEvaluatableAsRootHandler lambda in the returned
         // state, which gets invoked up the stack, calling this method. This evaluates the NewArrayExpression's children, but not the
         // NewArrayExpression.
-        NewArrayExpression EvaluateChildren(NewArrayExpression newArray, E[]? expressions, State[] expressionStates)
+        NewArrayExpression EvaluateChildren(NewArrayExpression newArray, Expression[]? expressions, State[] expressionStates)
         {
             List<PathNode>? children = null;
 
             expressions = EvaluateList(
-                ((IReadOnlyList<E>?)expressions) ?? newArray.Expressions,
+                ((IReadOnlyList<Expression>?)expressions) ?? newArray.Expressions,
                 expressionStates,
                 ref children,
-                i => e => E.Call(
-                    E.Property(e, nameof(NewArrayExpression.Expressions)),
+                i => e => Call(
+                    Property(e, nameof(NewArrayExpression.Expressions)),
                     ReadOnlyCollectionIndexerGetter,
-                    arguments: [E.Constant(i)]));
+                    arguments: [Constant(i)]));
 
             _state = children is null
                 ? State.NoEvaluatability
                 : State.CreateContainsEvaluatable(typeof(NewArrayExpression), children);
 
-            return newArray.Update(((IReadOnlyList<E>?)expressions) ?? newArray.Expressions);
+            return newArray.Update(((IReadOnlyList<Expression>?)expressions) ?? newArray.Expressions);
         }
     }
 
@@ -966,7 +966,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitNew(NewExpression @new)
+    protected override Expression VisitNew(NewExpression @new)
     {
         StateType state = default;
         var arguments = Visit(@new.Arguments, ref state, out var argumentStates, poolExpressionStates: false);
@@ -991,30 +991,30 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 return EvaluateChildren(@new, arguments, argumentStates);
         }
 
-        return @new.Update(((IReadOnlyList<E>?)arguments) ?? @new.Arguments);
+        return @new.Update(((IReadOnlyList<Expression>?)arguments) ?? @new.Arguments);
 
         // Although we allow NewExpression to be evaluated within larger tree fragments, we don't constantize them when they're the
         // evaluatable root, since that would embed arbitrary user type instances in our shaper.
         // To support that, when the NewExpression is evaluatable, we include a nonEvaluatableAsRootHandler lambda in the returned state,
         // which gets invoked up the stack, calling this method. This evaluates the NewExpression's children, but not the NewExpression.
-        NewExpression EvaluateChildren(NewExpression @new, E[]? arguments, State[] argumentStates)
+        NewExpression EvaluateChildren(NewExpression @new, Expression[]? arguments, State[] argumentStates)
         {
             List<PathNode>? children = null;
 
             arguments = EvaluateList(
-                ((IReadOnlyList<E>?)arguments) ?? @new.Arguments,
+                ((IReadOnlyList<Expression>?)arguments) ?? @new.Arguments,
                 argumentStates,
                 ref children,
-                i => e => E.Call(
-                    E.Property(e, nameof(NewExpression.Arguments)),
+                i => e => Call(
+                    Property(e, nameof(NewExpression.Arguments)),
                     ReadOnlyCollectionIndexerGetter,
-                    arguments: [E.Constant(i)]));
+                    arguments: [Constant(i)]));
 
             _state = children is null
                 ? State.NoEvaluatability
                 : State.CreateContainsEvaluatable(typeof(NewExpression), children);
 
-            return @new.Update(((IReadOnlyList<E>?)arguments) ?? @new.Arguments);
+            return @new.Update(((IReadOnlyList<Expression>?)arguments) ?? @new.Arguments);
         }
     }
 
@@ -1024,7 +1024,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitParameter(ParameterExpression parameterExpression)
+    protected override Expression VisitParameter(ParameterExpression parameterExpression)
     {
         // ParameterExpressions are lambda parameters, which we cannot evaluate.
         // However, _allowedParameters is a mechanism to allow evaluating Select(), see VisitMethodCall.
@@ -1041,7 +1041,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitTypeBinary(TypeBinaryExpression typeBinary)
+    protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinary)
     {
         var expression = Visit(typeBinary.Expression, out _state);
 
@@ -1060,7 +1060,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             _state = State.CreateContainsEvaluatable(
                 typeof(TypeBinaryExpression),
-                [_state.Path! with { PathFromParent = static e => E.Property(e, nameof(TypeBinaryExpression.Expression)) }]);
+                [_state.Path! with { PathFromParent = static e => Property(e, nameof(TypeBinaryExpression.Expression)) }]);
         }
 
         return typeBinary.Update(expression);
@@ -1072,7 +1072,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitMemberInit(MemberInitExpression memberInit)
+    protected override Expression VisitMemberInit(MemberInitExpression memberInit)
     {
         var @new = (NewExpression)Visit(memberInit.NewExpression, out var newState);
         var state = newState.StateType;
@@ -1124,7 +1124,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             {
                 children =
                 [
-                    newState.Path! with { PathFromParent = static e => E.Property(e, nameof(MemberInitExpression.NewExpression)) }
+                    newState.Path! with { PathFromParent = static e => Property(e, nameof(MemberInitExpression.NewExpression)) }
                 ];
             }
 
@@ -1148,12 +1148,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         bindingState.Path! with
                         {
                             PathFromParent = e =>
-                                E.Property(
-                                    E.Convert(
-                                        E.Call(
-                                            E.Property(e, nameof(MemberInitExpression.Bindings)),
+                                Property(
+                                    Convert(
+                                        Call(
+                                            Property(e, nameof(MemberInitExpression.Bindings)),
                                             ReadOnlyMemberBindingCollectionIndexerGetter,
-                                            arguments: [E.Constant(index)]), typeof(MemberAssignment)),
+                                            arguments: [Constant(index)]), typeof(MemberAssignment)),
                                     MemberAssignmentExpressionProperty)
                         });
                 }
@@ -1173,7 +1173,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitListInit(ListInitExpression listInit)
+    protected override Expression VisitListInit(ListInitExpression listInit)
     {
         // First, visit the NewExpression and all initializers, saving states as well
         var @new = (NewExpression)Visit(listInit.NewExpression, out var newState);
@@ -1181,7 +1181,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         var initializers = listInit.Initializers;
         var initializerArgumentStates = new State[listInit.Initializers.Count][];
 
-        IReadOnlyList<E>[]? visitedInitializersArguments = null;
+        IReadOnlyList<Expression>[]? visitedInitializersArguments = null;
 
         for (var i = 0; i < initializers.Count; i++)
         {
@@ -1192,7 +1192,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             {
                 if (visitedInitializersArguments is null)
                 {
-                    visitedInitializersArguments = new IReadOnlyList<E>[initializers.Count];
+                    visitedInitializersArguments = new IReadOnlyList<Expression>[initializers.Count];
                     for (var j = 0; j < i; j++)
                     {
                         visitedInitializersArguments[j] = initializers[j].Arguments;
@@ -1202,7 +1202,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             if (visitedInitializersArguments is not null)
             {
-                visitedInitializersArguments[i] = (IReadOnlyList<E>?)visitedArguments ?? initializer.Arguments;
+                visitedInitializersArguments[i] = (IReadOnlyList<Expression>?)visitedArguments ?? initializer.Arguments;
             }
 
             initializerArgumentStates[i] = argumentStates;
@@ -1235,7 +1235,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     children =
                     [
-                        newState.Path! with { PathFromParent = static e => E.Property(e, nameof(MethodCallExpression.Object)) }
+                        newState.Path! with { PathFromParent = static e => Property(e, nameof(MethodCallExpression.Object)) }
                     ];
                 }
 
@@ -1250,14 +1250,14 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         initializerArgumentStates[i],
                         ref children,
                         static i => e =>
-                            E.Call(
-                                E.Property(e, nameof(MethodCallExpression.Arguments)),
+                            Call(
+                                Property(e, nameof(MethodCallExpression.Arguments)),
                                 ReadOnlyCollectionIndexerGetter,
-                                arguments: [E.Constant(i)]));
+                                arguments: [Constant(i)]));
 
                     if (visitedArguments is not null && visitedInitializersArguments is null)
                     {
-                        visitedInitializersArguments = new IReadOnlyList<E>[initializers.Count];
+                        visitedInitializersArguments = new IReadOnlyList<Expression>[initializers.Count];
                         for (var j = 0; j < i; j++)
                         {
                             visitedInitializersArguments[j] = initializers[j].Arguments;
@@ -1266,7 +1266,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                     if (visitedInitializersArguments is not null)
                     {
-                        visitedInitializersArguments[i] = (IReadOnlyList<E>?)visitedArguments ?? initializer.Arguments;
+                        visitedInitializersArguments[i] = (IReadOnlyList<Expression>?)visitedArguments ?? initializer.Arguments;
                     }
                 }
 
@@ -1301,7 +1301,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitUnary(UnaryExpression unary)
+    protected override Expression VisitUnary(UnaryExpression unary)
     {
         var operand = Visit(unary.Operand, out var operandState);
 
@@ -1343,7 +1343,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 _state = _calculatingPath
                     ? State.CreateContainsEvaluatable(
                         typeof(UnaryExpression),
-                        [_state.Path! with { PathFromParent = static e => E.Property(e, nameof(UnaryExpression.Operand)) }])
+                        [_state.Path! with { PathFromParent = static e => Property(e, nameof(UnaryExpression.Operand)) }])
                     : State.NoEvaluatability;
             }
 
@@ -1388,7 +1388,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitBlock(BlockExpression node)
+    protected override Expression VisitBlock(BlockExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1406,7 +1406,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitDebugInfo(DebugInfoExpression node)
+    protected override Expression VisitDebugInfo(DebugInfoExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1415,7 +1415,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitDynamic(DynamicExpression node)
+    protected override Expression VisitDynamic(DynamicExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1424,7 +1424,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitGoto(GotoExpression node)
+    protected override Expression VisitGoto(GotoExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1442,7 +1442,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitLabel(LabelExpression node)
+    protected override Expression VisitLabel(LabelExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1451,7 +1451,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitLoop(LoopExpression node)
+    protected override Expression VisitLoop(LoopExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1460,7 +1460,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitRuntimeVariables(RuntimeVariablesExpression node)
+    protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1469,7 +1469,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitSwitch(SwitchExpression node)
+    protected override Expression VisitSwitch(SwitchExpression node)
         => throw new NotSupportedException();
 
     /// <summary>
@@ -1487,7 +1487,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override E VisitTry(TryExpression node)
+    protected override Expression VisitTry(TryExpression node)
         => throw new NotSupportedException();
 
     #endregion Unsupported node types
@@ -1513,8 +1513,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             _ => StateType.ContainsEvaluatable
         };
 
-    private E[]? Visit(
-        ReadOnlyCollection<E> expressions,
+    private Expression[]? Visit(
+        ReadOnlyCollection<Expression> expressions,
         ref StateType aggregateStateType,
         out State[] expressionStates,
         bool poolExpressionStates = true)
@@ -1566,15 +1566,15 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         return newExpressions;
     }
 
-    private E[]? EvaluateList(
-        IReadOnlyList<E> expressions,
+    private Expression[]? EvaluateList(
+        IReadOnlyList<Expression> expressions,
         State[] expressionStates,
         ref List<PathNode>? children,
-        Func<int, Func<E, E>> pathFromParentGenerator)
+        Func<int, Func<Expression, Expression>> pathFromParentGenerator)
     {
         // This allows us to make in-place changes in the expression array when the previous visitation pass made modifications (and so
         // returned a mutable array). This removes an additional copy that would be needed.
-        var visitedExpressions = expressions as E[];
+        var visitedExpressions = expressions as Expression[];
 
         for (var i = 0; i < expressions.Count; i++)
         {
@@ -1583,7 +1583,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             {
                 if (visitedExpressions is null)
                 {
-                    visitedExpressions = new E[expressions.Count];
+                    visitedExpressions = new Expression[expressions.Count];
                     for (var j = 0; j < i; j++)
                     {
                         visitedExpressions[j] = expressions[j];
@@ -1609,7 +1609,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     }
 
     [return: NotNullIfNotNull(nameof(evaluatableRoot))]
-    private E? ProcessEvaluatableRoot(E? evaluatableRoot, ref State state)
+    private Expression? ProcessEvaluatableRoot(Expression? evaluatableRoot, ref State state)
     {
         if (evaluatableRoot is null)
         {
@@ -1693,7 +1693,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             _parameterValues.AddParameter(parameterName, value);
 
-            return _parameterizedValues[evaluatableRoot] = E.Parameter(evaluatableRoot.Type, parameterName);
+            return _parameterizedValues[evaluatableRoot] = Parameter(evaluatableRoot.Type, parameterName);
         }
 
         // Evaluate as constant
@@ -1708,13 +1708,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
 
         var returnType = evaluatableRoot.Type;
-        var constantExpression = E.Constant(value, value?.GetType() ?? returnType);
+        var constantExpression = Constant(value, value?.GetType() ?? returnType);
 
         return constantExpression.Type != returnType
-            ? E.Convert(constantExpression, returnType)
+            ? Convert(constantExpression, returnType)
             : constantExpression;
 
-        bool TryHandleNonEvaluatableAsRoot(E root, State state, bool asParameter, [NotNullWhen(true)] out Expression? result)
+        bool TryHandleNonEvaluatableAsRoot(Expression root, State state, bool asParameter, [NotNullWhen(true)] out Expression? result)
         {
             switch (root)
             {
@@ -1736,7 +1736,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     return false;
             }
 
-            bool PreserveConvertNode(E expression)
+            bool PreserveConvertNode(Expression expression)
             {
                 if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression)
                 {
@@ -1766,10 +1766,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
     }
 
-    private object? Evaluate(E? expression)
+    private object? Evaluate(Expression? expression)
         => Evaluate(expression, out _, out _);
 
-    private object? Evaluate(E? expression, out string parameterName, out bool isContextAccessor)
+    private object? Evaluate(Expression? expression, out string parameterName, out bool isContextAccessor)
     {
         var value = EvaluateCore(expression, out var tempParameterName, out isContextAccessor);
         parameterName = tempParameterName ?? "p";
@@ -1784,7 +1784,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         return value;
 
-        object? EvaluateCore(E? expression, out string? parameterName, out bool isContextAccessor)
+        object? EvaluateCore(Expression? expression, out string? parameterName, out bool isContextAccessor)
         {
             parameterName = null;
             isContextAccessor = false;
@@ -1804,10 +1804,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         + (RemoveConvert(expression) is MemberExpression { Member.Name: var memberName } ? ("__" + memberName) : "__p");
                     isContextAccessor = true;
 
-                    return E.Lambda(visited, _contextParameterReplacer.ContextParameterExpression);
+                    return Lambda(visited, _contextParameterReplacer.ContextParameterExpression);
                 }
 
-                static E RemoveConvert(E expression)
+                static Expression RemoveConvert(Expression expression)
                     => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
                         ? RemoveConvert(unaryExpression.Operand)
                         : expression;
@@ -1851,8 +1851,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             try
             {
-                return E.Lambda<Func<object>>(
-                        E.Convert(expression, typeof(object)))
+                return Lambda<Func<object>>(
+                        Convert(expression, typeof(object)))
                     .Compile(preferInterpretation: true)
                     .Invoke();
             }
@@ -1867,7 +1867,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
     }
 
-    private bool IsGenerallyEvaluatable(E expression)
+    private bool IsGenerallyEvaluatable(Expression expression)
         => _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)
             && (_parameterize
                 // Don't evaluate QueryableMethods if in compiled query
@@ -1908,7 +1908,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         public static State CreateEvaluatable(
             Type expressionType,
             bool containsCapturedVariable,
-            Func<E>? notEvaluatableAsRootHandler = null)
+            Func<Expression>? notEvaluatableAsRootHandler = null)
             => new()
             {
                 StateType = containsCapturedVariable
@@ -1942,7 +1942,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
         public bool ForceConstantization { get; init; }
 
-        public Func<E>? NotEvaluatableAsRootHandler { get; init; }
+        public Func<Expression>? NotEvaluatableAsRootHandler { get; init; }
 
         public bool IsEvaluatable
             => StateType is StateType.EvaluatableWithoutCapturedVariable or StateType.EvaluatableWithCapturedVariable;
@@ -1988,7 +1988,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         ///     A function that accepts the parent node, and returns an expression representing the path to this node from that parent
         ///     node. The returned expression can then be used to generate C# code that traverses the expression tree.
         /// </summary>
-        public Func<E, E>? PathFromParent { get; init; }
+        public Func<Expression, Expression>? PathFromParent { get; init; }
 
         /// <summary>
         ///     For nodes representing parameterizable roots, contains the preferred parameter name, generated based on the expression
@@ -1999,10 +1999,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
     private sealed class ContextParameterReplacer(Type contextType) : ExpressionVisitor
     {
-        public ParameterExpression ContextParameterExpression { get; } = E.Parameter(contextType, "context");
+        public ParameterExpression ContextParameterExpression { get; } = Parameter(contextType, "context");
 
         [return: NotNullIfNotNull("expression")]
-        public override E? Visit(E? expression)
+        public override Expression? Visit(Expression? expression)
             => expression?.Type != typeof(object)
                 && expression?.Type.IsAssignableFrom(contextType) == true
                     ? ContextParameterExpression
