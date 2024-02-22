@@ -916,12 +916,16 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             case StateType.EvaluatableWithCapturedVariable or StateType.EvaluatableWithoutCapturedVariable
                 or StateType.Unknown // Zero expressions
                 when IsGenerallyEvaluatable(newArray):
+            {
+                // Avoid allocating for the notEvaluatableAsRootHandler closure below unless we actually end up in the evaluatable case
+                var (newArray2, expressions2, expressionStates2) = (newArray, expressions, expressionStates);
                 _state = State.CreateEvaluatable(
                     typeof(NewExpression),
                     state is StateType.EvaluatableWithCapturedVariable,
                     // See note below on EvaluateChildren
-                    notEvaluatableAsRootHandler: () => EvaluateChildren(newArray, expressions, expressionStates));
+                    notEvaluatableAsRootHandler: () => EvaluateChildren(newArray2, expressions2, expressionStates2));
                 break;
+            }
 
             case StateType.NoEvaluatability:
                 _state = State.NoEvaluatability;
@@ -976,12 +980,16 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             case StateType.EvaluatableWithCapturedVariable or StateType.EvaluatableWithoutCapturedVariable
                 or StateType.Unknown // Zero expressions
                 when IsGenerallyEvaluatable(@new):
+            {
+                // Avoid allocating for the notEvaluatableAsRootHandler closure below unless we actually end up in the evaluatable case
+                var (new2, arguments2, argumentStates2) = (@new, arguments, argumentStates);
                 _state = State.CreateEvaluatable(
                     typeof(NewExpression),
                     state is StateType.EvaluatableWithCapturedVariable,
                     // See note below on EvaluateChildren
-                    notEvaluatableAsRootHandler: () => EvaluateChildren(@new, arguments, argumentStates));
+                    notEvaluatableAsRootHandler: () => EvaluateChildren(new2, arguments2, argumentStates2));
                 break;
+            }
 
             case StateType.NoEvaluatability:
                 _state = State.NoEvaluatability;
@@ -1082,11 +1090,15 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             case StateType.EvaluatableWithCapturedVariable or StateType.EvaluatableWithoutCapturedVariable
                 when IsGenerallyEvaluatable(memberInit):
+            {
+                // Avoid allocating for the notEvaluatableAsRootHandler closure below unless we actually end up in the evaluatable case
+                var (memberInit2, new2, newState2, bindings2, bindingStates2) = (memberInit, @new, newState, bindings, bindingStates);
                 _state = State.CreateEvaluatable(
                     typeof(InvocationExpression),
                     state is StateType.EvaluatableWithCapturedVariable,
-                    notEvaluatableAsRootHandler: () => EvaluateChildren(memberInit, @new, newState, bindings, bindingStates));
+                    notEvaluatableAsRootHandler: () => EvaluateChildren(memberInit2, new2, newState2, bindings2, bindingStates2));
                 break;
+            }
 
             case StateType.NoEvaluatability:
                 _state = State.NoEvaluatability;
@@ -1310,12 +1322,16 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             case StateType.EvaluatableWithCapturedVariable or StateType.EvaluatableWithoutCapturedVariable
                 or StateType.Unknown // Null operand
                 when IsGenerallyEvaluatable(unary):
+            {
+                // Avoid allocating for the notEvaluatableAsRootHandler closure below unless we actually end up in the evaluatable case
+                var (unary2, operand2, operandState2) = (unary, operand, operandState);
                 _state = State.CreateEvaluatable(
                     typeof(UnaryExpression),
                     _state.ContainsCapturedVariable,
                     // See note below on EvaluateChildren
-                    notEvaluatableAsRootHandler: () => EvaluateOperand(unary, operand, operandState));
+                    notEvaluatableAsRootHandler: () => EvaluateOperand(unary2, operand2, operandState2));
                 break;
+            }
 
             case StateType.NoEvaluatability:
                 _state = State.NoEvaluatability;
