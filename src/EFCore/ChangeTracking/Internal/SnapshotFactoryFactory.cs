@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -141,7 +141,7 @@ public abstract class SnapshotFactoryFactory
             }
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
-            var memberAccess = PropertyBase.CreateMemberAccess(propertyBase, entityVariable!, memberInfo, fromContainingType: false);
+            var memberAccess = PropertyAccessorsFactory.CreateMemberAccess(propertyBase, entityVariable!, memberInfo, fromContainingType: false);
 
             if (memberAccess.Type != propertyBase.ClrType)
             {
@@ -200,10 +200,16 @@ public abstract class SnapshotFactoryFactory
             expression = Expression.Convert(expression, comparer.Type);
         }
 
-        var snapshotExpression = ReplacingExpressionVisitor.Replace(
-            comparer.SnapshotExpression.Parameters.Single(),
-            expression,
-            comparer.SnapshotExpression.Body);
+        var comparerExpression = Expression.Convert(
+            Expression.Call(
+                Expression.Constant(property),
+                GetValueComparerMethod()!),
+            typeof(ValueComparer<>).MakeGenericType(comparer.Type));
+
+        Expression snapshotExpression = Expression.Call(
+            comparerExpression,
+            ValueComparer.GetGenericSnapshotMethod(comparer.Type),
+            expression);
 
         if (snapshotExpression.Type != propertyBase.ClrType)
         {
@@ -227,6 +233,14 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected abstract ValueComparer? GetValueComparer(IProperty property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract MethodInfo? GetValueComparerMethod();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -284,8 +298,13 @@ public abstract class SnapshotFactoryFactory
     private static readonly MethodInfo SnapshotCollectionMethod
         = typeof(SnapshotFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(SnapshotCollection))!;
 
-    [UsedImplicitly]
-    private static HashSet<object>? SnapshotCollection(IEnumerable<object>? collection)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static HashSet<object>? SnapshotCollection(IEnumerable<object>? collection)
         => collection == null
             ? null
             : new HashSet<object>(collection, ReferenceEqualityComparer.Instance);

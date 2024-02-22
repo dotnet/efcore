@@ -1415,7 +1415,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 => modelBuilder
                     .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
                     .HasAnnotation("ProductVersion", "1.1.6")
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
+                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True', 'True', '20'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
@@ -1428,7 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
                     .HasAnnotation("ProductVersion", "2.2.2-servicing-10034")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
+                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True', 'True', '20'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618
             }
@@ -1442,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 modelBuilder
                     .HasAnnotation("ProductVersion", "3.1.1")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
+                    .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True', 'True', '20'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618
             }
@@ -1459,7 +1459,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .HasMin(1)
                     .HasMax(3)
                     .IncrementsBy(2)
-                    .IsCyclic();
+                    .IsCyclic()
+                    .UseCache(20);
         }
     }
 }

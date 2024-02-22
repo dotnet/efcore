@@ -1835,7 +1835,7 @@ ORDER BY "b"."Id", "b0"."Id"
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
+    public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase, ITestSqlLoggerFactory
     {
         public override bool StrictEquality
             => false;

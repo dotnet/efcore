@@ -167,7 +167,20 @@ public class KeyPropagator : IKeyPropagator
     }
 
     private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty, ITypeBase? typeBase)
-        => generationProperty != null
-            ? _valueGeneratorSelector.Select(generationProperty, typeBase!)
-            : null;
+    {
+        if (generationProperty == null)
+        {
+            return null;
+        }
+
+        if (!_valueGeneratorSelector.TrySelect(generationProperty, typeBase!, out var valueGenerator))
+        {
+            throw new NotSupportedException(
+                CoreStrings.NoValueGenerator(
+                    generationProperty.Name, generationProperty.DeclaringType.DisplayName(),
+                    generationProperty.ClrType.ShortDisplayName()));
+        }
+
+        return valueGenerator!;
+    }
 }

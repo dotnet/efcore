@@ -360,7 +360,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
             static navigation =>
             {
                 navigation.EnsureReadOnly();
-                return new ClrCollectionAccessorFactory().Create(navigation);
+                return ClrCollectionAccessorFactory.Instance.Create(navigation);
             });
 
     /// <summary>
@@ -374,7 +374,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
             ref _manyToManyLoader, this, static navigation =>
             {
                 navigation.EnsureReadOnly();
-                return new ManyToManyLoaderFactory().Create(navigation);
+                return ManyToManyLoaderFactory.Instance.Create(navigation);
             });
 
     /// <summary>

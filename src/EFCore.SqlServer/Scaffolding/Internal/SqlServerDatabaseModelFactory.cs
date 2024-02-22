@@ -427,7 +427,9 @@ SELECT
         WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
         WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
         ELSE [s].[maximum_value]
-        END AS bigint) AS maximum_value
+        END AS bigint) AS maximum_value,
+    [s].[is_cached],
+    [s].[cache_size]
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]
 """;
@@ -455,6 +457,8 @@ WHERE "
             var startValue = reader.GetValueOrDefault<long>("start_value");
             var minValue = reader.GetValueOrDefault<long>("minimum_value");
             var maxValue = reader.GetValueOrDefault<long>("maximum_value");
+            var cached = reader.GetValueOrDefault<bool>("is_cached");
+            var cacheSize = reader.GetValueOrDefault<int?>("cache_size");
 
             // Swap store type if type alias is used
             if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
@@ -464,7 +468,7 @@ WHERE "
 
             storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
 
-            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue);
+            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue, cached, cacheSize);
 
             var sequence = new DatabaseSequence
             {
@@ -476,7 +480,9 @@ WHERE "
                 IncrementBy = incrementBy,
                 StartValue = startValue,
                 MinValue = minValue,
-                MaxValue = maxValue
+                MaxValue = maxValue,
+                IsCached = cached,
+                CacheSize = cacheSize
             };
 
             if (DefaultSequenceMinMax.TryGetValue(storeType, out var defaultMinMax))
@@ -1081,7 +1087,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 .GroupBy(
                     ddr =>
                         (Name: ddr.GetFieldValue<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             Check.DebugAssert(primaryKeyGroups.Length is 0 or 1, "Multiple primary keys found");
@@ -1100,7 +1107,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 .GroupBy(
                     ddr =>
                         (Name: ddr.GetValueOrDefault<string>("index_name"),
-                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
+                            TypeDesc: ddr.GetValueOrDefault<string>("type_desc"),
+                            FillFactor: ddr.GetValueOrDefault<byte>("fill_factor")))
                 .ToArray();
 
             foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
@@ -1136,7 +1144,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
             }
 
             bool TryGetPrimaryKey(
-                IGrouping<(string Name, string? TypeDesc), DbDataRecord> primaryKeyGroup,
+                IGrouping<(string Name, string? TypeDesc, byte FillFactor), DbDataRecord> primaryKeyGroup,
                 [NotNullWhen(true)] out DatabasePrimaryKey? primaryKey)
             {
                 primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
@@ -1144,6 +1152,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                 {
                     primaryKey[SqlServerAnnotationNames.Clustered] = false;
+                }
+
+                if (primaryKeyGroup.Key.FillFactor is > 0 and <= 100)
+                {
+                    primaryKey[SqlServerAnnotationNames.FillFactor] = (int)primaryKeyGroup.Key.FillFactor;
                 }
 
                 foreach (var dataRecord in primaryKeyGroup)
@@ -1165,7 +1178,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
             }
 
             bool TryGetUniqueConstraint(
-                IGrouping<(string? Name, string? TypeDesc), DbDataRecord> uniqueConstraintGroup,
+                IGrouping<(string? Name, string? TypeDesc, byte FillFactor), DbDataRecord> uniqueConstraintGroup,
                 [NotNullWhen(true)] out DatabaseUniqueConstraint? uniqueConstraint)
             {
                 uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
@@ -1173,6 +1186,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                 if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                 {
                     uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
+                }
+
+                if (uniqueConstraintGroup.Key.FillFactor is > 0 and <= 100)
+                {
+                    uniqueConstraint[SqlServerAnnotationNames.FillFactor] = (int)uniqueConstraintGroup.Key.FillFactor;
                 }
 
                 foreach (var dataRecord in uniqueConstraintGroup)

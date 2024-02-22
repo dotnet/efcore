@@ -67,6 +67,16 @@ public interface IReadOnlySequence : IReadOnlyAnnotatable
     bool IsCyclic { get; }
 
     /// <summary>
+    ///     Gets the value indicating whether the sequence use preallocated values.
+    /// </summary>
+    bool IsCached { get; }
+
+    /// <summary>
+    ///     Gets the amount of preallocated values, or <see langword="null" /> if none has been set.
+    /// </summary>
+    int? CacheSize { get; }
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
@@ -123,6 +133,20 @@ public interface IReadOnlySequence : IReadOnlyAnnotatable
         {
             builder.Append(" Max: ")
                 .Append(MaxValue);
+        }
+
+        if (!IsCached)
+        {
+            builder.Append(" No Cache");
+        }
+        else if (CacheSize != null)
+        {
+            builder.Append(" Cache: ")
+                .Append(CacheSize);
+        }
+        else
+        {
+            builder.Append(" Cache");
         }
 
         if ((options & MetadataDebugStringOptions.SingleLine) == 0)

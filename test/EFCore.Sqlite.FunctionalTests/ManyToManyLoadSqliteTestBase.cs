@@ -13,8 +13,11 @@ public abstract class ManyToManyLoadSqliteTestBase<TFixture> : ManyToManyLoadTes
     {
     }
 
-    public class ManyToManyLoadSqliteFixtureBase : ManyToManyLoadFixtureBase
+    public class ManyToManyLoadSqliteFixtureBase : ManyToManyLoadFixtureBase, ITestSqlLoggerFactory
     {
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
+
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 

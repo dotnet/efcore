@@ -4789,6 +4789,7 @@ SELECT [l4].[Id], [s].[Id], [s].[Id0], [s].[Id1], [s].[Result]
 FROM (
     SELECT TOP(@__p_0) [l].[Id]
     FROM [LevelOne] AS [l]
+    ORDER BY [l].[Id]
 ) AS [l4]
 LEFT JOIN (
     SELECT [l0].[Id], [l1].[Id] AS [Id0], [l2].[Id] AS [Id1], CASE

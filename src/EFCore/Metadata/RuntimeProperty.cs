@@ -28,10 +28,10 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly ValueConverter? _valueConverter;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
+    private IComparer<IUpdateEntry>? _currentValueComparer;
     private ValueComparer? _providerValueComparer;
     private readonly JsonValueReaderWriter? _jsonValueReaderWriter;
     private CoreTypeMapping? _typeMapping;
-    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -239,20 +239,29 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         set => _typeMapping = value;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual void SetCurrentValueComparer(IComparer<IUpdateEntry> comparer)
+        => _currentValueComparer = comparer;
+
     /// <inheritdoc />
     [DebuggerStepThrough]
     IComparer<IUpdateEntry> IProperty.GetCurrentValueComparer()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _currentValueComparer, this, static property =>
-                new CurrentValueComparerFactory().Create(property));
+                CurrentValueComparerFactory.Instance.Create(property));
 
-    private ValueComparer GetValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping.Comparer)
-            .ToNullableComparer(ClrType)!;
-
-    private ValueComparer GetKeyValueComparer()
-        => (GetKeyValueComparer(null) ?? TypeMapping.KeyComparer)
-            .ToNullableComparer(ClrType)!;
+    /// <inheritdoc />
+    public virtual ValueComparer GetValueComparer()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _valueComparer, this,
+            static property => (property.GetValueComparer(null) ?? property.TypeMapping.Comparer)
+                .ToNullableComparer(property.ClrType)!);
 
     private ValueComparer? GetValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
@@ -279,6 +288,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         checkedProperties.Add(this);
         return principal.GetValueComparer(checkedProperties);
     }
+
+    /// <inheritdoc />
+    public virtual ValueComparer GetKeyValueComparer()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _keyValueComparer, this,
+            static property => (property.GetKeyValueComparer(null) ?? property.TypeMapping.KeyComparer)
+                .ToNullableComparer(property.ClrType)!);
 
     private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
@@ -430,30 +446,12 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetValueComparer()
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _valueComparer, this,
-            static property => property.GetValueComparer());
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    ValueComparer IProperty.GetValueComparer()
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _valueComparer, this,
-            static property => property.GetValueComparer());
+        => GetValueComparer();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetKeyValueComparer()
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _keyValueComparer, this,
-            static property => property.GetKeyValueComparer());
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    ValueComparer IProperty.GetKeyValueComparer()
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _keyValueComparer, this,
-            static property => property.GetKeyValueComparer());
+        => GetKeyValueComparer();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

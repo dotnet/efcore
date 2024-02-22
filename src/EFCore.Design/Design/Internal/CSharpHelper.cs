@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections;
 using System.Globalization;
 using System.Numerics;
@@ -9,6 +8,8 @@ using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
@@ -27,7 +28,7 @@ public class CSharpHelper : ICSharpHelper
 {
     private readonly ITypeMappingSource _typeMappingSource;
     private readonly Project _project;
-    private readonly LinqToCSharpSyntaxTranslator _translator;
+    private readonly RuntimeModelLinqToCSharpSyntaxTranslator _translator;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,11 +46,11 @@ public class CSharpHelper : ICSharpHelper
         var projectInfo = ProjectInfo.Create(projectId, versionStamp, "Proj", "Proj", LanguageNames.CSharp);
         _project = workspace.AddProject(projectInfo);
         var syntaxGenerator = SyntaxGenerator.GetGenerator(workspace, LanguageNames.CSharp);
-        _translator = new LinqToCSharpSyntaxTranslator(syntaxGenerator);
+        _translator = new RuntimeModelLinqToCSharpSyntaxTranslator(syntaxGenerator);
     }
 
-    private static readonly IReadOnlyCollection<string> Keywords = new[]
-    {
+    private static readonly IReadOnlyCollection<string> Keywords =
+    [
         "__arglist",
         "__makeref",
         "__reftype",
@@ -131,7 +132,7 @@ public class CSharpHelper : ICSharpHelper
         "void",
         "volatile",
         "while"
-    };
+    ];
 
     private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> LiteralFuncs =
         new Dictionary<Type, Func<CSharpHelper, object, string>>
@@ -1435,13 +1436,13 @@ public class CSharpHelper : ICSharpHelper
         }
 
         builder
-            .Append("[")
+            .Append('[')
             .Append(attributeName);
 
         if (fragment.Arguments.Count != 0
             || fragment.NamedArguments.Count != 0)
         {
-            builder.Append("(");
+            builder.Append('(');
 
             var first = true;
             foreach (var value in fragment.Arguments)
@@ -1475,10 +1476,10 @@ public class CSharpHelper : ICSharpHelper
                     .Append(UnknownLiteral(item.Value));
             }
 
-            builder.Append(")");
+            builder.Append(')');
         }
 
-        builder.Append("]");
+        builder.Append(']');
 
         return builder.ToString();
     }
@@ -1552,8 +1553,40 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Statement(Expression node, ISet<string> collectedNamespaces)
-        => ToSourceCode(_translator.TranslateStatement(node, collectedNamespaces));
+    public virtual string Statement(
+        Expression node,
+        Dictionary<object, string>? constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
+        ISet<string> collectedNamespaces)
+    {
+        Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
+        if (constantReplacements != null)
+        {
+            constantReplacementExpressions = [];
+
+            foreach (var instancePair in constantReplacements)
+            {
+                constantReplacementExpressions[instancePair.Key] = SyntaxFactory.IdentifierName(instancePair.Value);
+            }
+        }
+
+        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacementExpressions = null;
+        if (memberAccessReplacements != null)
+        {
+            memberAccessReplacementExpressions = [];
+
+            foreach (var methodPair in memberAccessReplacements)
+            {
+                memberAccessReplacementExpressions[methodPair.Key] = SyntaxFactory.IdentifierName(methodPair.Value);
+            }
+        }
+
+        return ToSourceCode(_translator.TranslateStatement(
+            node,
+            constantReplacementExpressions,
+            memberAccessReplacementExpressions,
+            collectedNamespaces));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1561,8 +1594,40 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Expression(Expression node, ISet<string> collectedNamespaces)
-        => ToSourceCode(_translator.TranslateExpression(node, collectedNamespaces));
+    public virtual string Expression(
+        Expression node,
+        Dictionary<object, string>? constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
+        ISet<string> collectedNamespaces)
+    {
+        Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
+        if (constantReplacements != null)
+        {
+            constantReplacementExpressions = [];
+
+            foreach (var instancePair in constantReplacements)
+            {
+                constantReplacementExpressions[instancePair.Key] = SyntaxFactory.IdentifierName(instancePair.Value);
+            }
+        }
+
+        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacementExpressions = null;
+        if (memberAccessReplacements != null)
+        {
+            memberAccessReplacementExpressions = [];
+
+            foreach (var methodPair in memberAccessReplacements)
+            {
+                memberAccessReplacementExpressions[methodPair.Key] = SyntaxFactory.IdentifierName(methodPair.Value);
+            }
+        }
+
+        return ToSourceCode(_translator.TranslateExpression(
+            node,
+            constantReplacementExpressions,
+            memberAccessReplacementExpressions,
+            collectedNamespaces));
+    }
 
     private static bool IsIdentifierStartCharacter(char ch)
     {

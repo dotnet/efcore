@@ -372,6 +372,27 @@ internal static class SharedTypeExtensions
         string name)
         => type.GetMembersInHierarchy().Where(m => m.Name == name);
 
+    public static MethodInfo GetGenericMethod(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.NonPublicMethods)]
+        this Type type,
+        string name,
+        int genericParameterCount,
+        BindingFlags bindingFlags,
+        Func<Type[], Type[], Type[]> parameterGenerator,
+        bool? @override = null)
+        => type.GetMethods(bindingFlags)
+            .Single(
+                mi => mi.Name == name
+                    && ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                        || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                    && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                        parameterGenerator(
+                            type.IsGenericType ? type.GetGenericArguments() : Array.Empty<Type>(),
+                            mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>()))
+                    && (!@override.HasValue || (@override.Value == (mi.GetBaseDefinition().DeclaringType != mi.DeclaringType))));
+
     private static readonly Dictionary<Type, object> CommonTypeDictionary = new()
     {
 #pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)

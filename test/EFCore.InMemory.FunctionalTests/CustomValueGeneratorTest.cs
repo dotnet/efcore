@@ -198,8 +198,11 @@ public class CustomValueGeneratorTest
     {
         private readonly ValueGeneratorFactory _factory = new CustomValueGeneratorFactory();
 
-        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
-            => _factory.Create(property, typeBase);
+        public override bool TryCreate(IProperty property, ITypeBase typeBase, out ValueGenerator valueGenerator)
+        {
+            valueGenerator = _factory.Create(property, typeBase);
+            return true;
+        }
     }
 
     private class CustomGuidValueGenerator : ValueGenerator<Guid>

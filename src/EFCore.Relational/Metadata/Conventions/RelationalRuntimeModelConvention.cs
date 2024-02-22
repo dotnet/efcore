@@ -331,6 +331,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             sequence.IsCyclic,
             sequence.MinValue,
             sequence.MaxValue,
+            sequence.IsCached,
+            sequence.CacheSize,
             sequence.ModelSchema is null);
 
     /// <summary>

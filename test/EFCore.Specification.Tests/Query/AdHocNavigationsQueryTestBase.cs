@@ -474,69 +474,6 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
-    #region 10447
-
-    [ConditionalFact]
-    public virtual async Task Nested_include_queries_do_not_populate_navigation_twice()
-    {
-        var contextFactory = await InitializeAsync<Context10447>(seed: c => c.Seed());
-        using var context = contextFactory.CreateContext();
-        var query = context.Blogs.Include(b => b.Posts);
-
-        foreach (var blog in query)
-        {
-            query.ToList();
-        }
-
-        Assert.Collection(
-            query,
-            b => Assert.Equal(3, b.Posts.Count),
-            b => Assert.Equal(2, b.Posts.Count),
-            b => Assert.Single(b.Posts));
-    }
-
-    protected class Context10447(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<Blog> Blogs { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
-
-        public void Seed()
-        {
-            AddRange(
-                new Blog
-                {
-                    Posts =
-                    [
-                        new(),
-                        new(),
-                        new()
-                    ]
-                },
-                new Blog { Posts = [new(), new()] },
-                new Blog { Posts = [new()] });
-
-            SaveChanges();
-        }
-
-        public class Blog
-        {
-            public int Id { get; set; }
-            public List<Post> Posts { get; set; }
-        }
-
-        public class Post
-        {
-            public int Id { get; set; }
-
-            public Blog Blog { get; set; }
-        }
-    }
-
-    #endregion
-
     #region 10635
 
     [ConditionalFact]

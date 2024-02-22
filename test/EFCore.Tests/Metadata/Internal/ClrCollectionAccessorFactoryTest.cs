@@ -127,7 +127,7 @@ public class ClrCollectionAccessorFactoryTest
         Func<MyEntity, IEnumerable<MyOtherEntity>> reader,
         bool initializeCollections = true)
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation(navigationName));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation(navigationName));
 
         var entity = new MyEntity(initializeCollections);
 
@@ -165,7 +165,7 @@ public class ClrCollectionAccessorFactoryTest
 
         RunConvention(navigation);
 
-        var accessor = new ClrCollectionAccessorFactory().Create((INavigation)navigation);
+        var accessor = ClrCollectionAccessorFactory.Instance.Create((INavigation)navigation);
 
         var entity = new MyEntity(initialize: false);
         var value = new MyEntityWithCustomComparer { Id = 1 };
@@ -188,7 +188,7 @@ public class ClrCollectionAccessorFactoryTest
 
         Assert.Equal(
             CoreStrings.NoFieldOrGetter("WriteOnlyPropNoField", typeof(MyEntity).Name),
-            Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
+            Assert.Throws<InvalidOperationException>(() => ClrCollectionAccessorFactory.Instance.Create(navigation)).Message);
     }
 
     [ConditionalFact]
@@ -209,7 +209,7 @@ public class ClrCollectionAccessorFactoryTest
 
     private void Enumerable_backed_by_non_collection_throws(Action<IClrCollectionAccessor, MyEntity, MyOtherEntity> test)
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsIEnumerableNotCollection"));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsIEnumerableNotCollection"));
 
         var entity = new MyEntity(initialize: true);
         var value = new MyOtherEntity();
@@ -227,13 +227,13 @@ public class ClrCollectionAccessorFactoryTest
 
         Assert.Equal(
             CoreStrings.NavigationArray("AsArray", typeof(MyEntity).Name, typeof(MyOtherEntity[]).Name),
-            Assert.Throws<InvalidOperationException>(() => new ClrCollectionAccessorFactory().Create(navigation)).Message);
+            Assert.Throws<InvalidOperationException>(() => ClrCollectionAccessorFactory.Instance.Create(navigation)).Message);
     }
 
     [ConditionalFact]
     public void Initialization_for_navigation_without_backing_field_throws()
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("NoBackingFound"));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("NoBackingFound"));
 
         Assert.Equal(
             CoreStrings.NavigationNoSetter("NoBackingFound", typeof(MyEntity).Name),
@@ -244,7 +244,7 @@ public class ClrCollectionAccessorFactoryTest
     [ConditionalFact]
     public void Initialization_for_read_only_navigation_without_backing_field_throws()
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("ReadOnlyPropNoField"));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("ReadOnlyPropNoField"));
 
         Assert.Equal(
             CoreStrings.NavigationNoSetter("ReadOnlyPropNoField", typeof(MyEntity).Name),
@@ -263,7 +263,7 @@ public class ClrCollectionAccessorFactoryTest
     [ConditionalFact]
     public void Initialization_for_navigation_with_private_constructor_throws()
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyPrivateCollection"));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsMyPrivateCollection"));
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType("AsMyPrivateCollection", typeof(MyEntity).Name, typeof(MyPrivateCollection).Name),
@@ -274,7 +274,7 @@ public class ClrCollectionAccessorFactoryTest
     [ConditionalFact]
     public void Initialization_for_navigation_with_internal_constructor_throws()
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyInternalCollection"));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsMyInternalCollection"));
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType("AsMyInternalCollection", typeof(MyEntity).Name, typeof(MyInternalCollection).Name),
@@ -285,7 +285,7 @@ public class ClrCollectionAccessorFactoryTest
     [ConditionalFact]
     public void Initialization_for_navigation_without_parameterless_constructor_throws()
     {
-        var accessor = new ClrCollectionAccessorFactory().Create(CreateNavigation("AsMyUnavailableCollection"));
+        var accessor = ClrCollectionAccessorFactory.Instance.Create(CreateNavigation("AsMyUnavailableCollection"));
 
         Assert.Equal(
             CoreStrings.NavigationCannotCreateType(

@@ -47,7 +47,7 @@ public class Ef6GroupBySqliteTest : Ef6GroupByTestBase<Ef6GroupBySqliteTest.Ef6G
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Group_Join_from_LINQ_101(async))).Message);
 
-    public class Ef6GroupBySqliteFixture : Ef6GroupByFixtureBase
+    public class Ef6GroupBySqliteFixture : Ef6GroupByFixtureBase, ITestSqlLoggerFactory
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

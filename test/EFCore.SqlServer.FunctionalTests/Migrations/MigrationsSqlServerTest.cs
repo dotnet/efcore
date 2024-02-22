@@ -1040,7 +1040,7 @@ ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
 
         AssertSql(
             """
-CREATE SEQUENCE [PeopleSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [PeopleSequence] START WITH 1 INCREMENT BY 1 NO CYCLE;
 """,
             //
             """
@@ -1062,7 +1062,7 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [
 
         AssertSql(
             """
-CREATE SEQUENCE [EntityFrameworkHiLoSequence] START WITH 1 INCREMENT BY 10 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [EntityFrameworkHiLoSequence] START WITH 1 INCREMENT BY 10 NO CYCLE;
 """,
             //
             """
@@ -1731,6 +1731,25 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'IdentityColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [IdentityColumn] bigint NOT NULL;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Alter_column_change_identity_seed()
+    {
+        await Test(
+            builder => builder.Entity("People", e => e.Property<int>("Id").UseIdentityColumn(seed: 10)),
+            builder => builder.Entity("People", e => e.Property<int>("Id").UseIdentityColumn(seed: 100)),
+            model =>
+            {
+                // DBCC CHECKIDENT RESEED doesn't actually change the table definition, it only resets the current identity value.
+                // For example, if the table is truncated, the identity is reset back to its original value (with the RESEED lost).
+                // Therefore we cannot check the value via scaffolding.
+            });
+
+        AssertSql(
+            """
+DBCC CHECKIDENT(N'[People]', RESEED, 100);
 """);
     }
 
@@ -2787,6 +2806,51 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeF
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Add_primary_key_with_fill_factor()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<string>("SomeField").IsRequired().HasMaxLength(450),
+            builder => { },
+            builder => builder.Entity("People").HasKey("SomeField").HasFillFactor(80),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var primaryKey = table.PrimaryKey;
+                Assert.NotNull(primaryKey);
+                Assert.Equal(80, primaryKey[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]) WITH (FILLFACTOR = 80);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_alternate_key_with_fill_factor()
+    {
+        await Test(
+            builder => {
+                builder.Entity("People").Property<string>("SomeField").IsRequired().HasMaxLength(450);
+                builder.Entity("People").Property<string>("SomeOtherField").IsRequired().HasMaxLength(450);
+                },
+            builder => { },
+            builder => builder.Entity("People").HasAlternateKey(["SomeField", "SomeOtherField"]).HasFillFactor(80),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var uniqueConstraint = table.UniqueConstraints.FirstOrDefault();
+                Assert.NotNull(uniqueConstraint);
+                Assert.Equal(80, uniqueConstraint[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] ADD CONSTRAINT [AK_People_SomeField_SomeOtherField] UNIQUE ([SomeField], [SomeOtherField]) WITH (FILLFACTOR = 80);
+""");
+    }
+
     public override async Task Drop_primary_key_int()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Drop_primary_key_int());
@@ -2955,7 +3019,7 @@ ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -2972,7 +3036,7 @@ CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO
             });
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -2990,7 +3054,7 @@ CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALU
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3000,7 +3064,7 @@ CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALU
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3010,7 +3074,7 @@ CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVAL
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3022,9 +3086,42 @@ CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVAL
             """
 IF SCHEMA_ID(N'dbo2') IS NULL EXEC(N'CREATE SCHEMA [dbo2];');
 """,
-            //
+//
             """
-CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAXVALUE 916 CYCLE;
+CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAXVALUE 916 CYCLE CACHE 20;
+""");
+    }
+
+
+
+
+    public override async Task Create_sequence_nocache()
+    {
+        await base.Create_sequence_nocache();
+
+        AssertSql(
+            """
+CREATE SEQUENCE [Alpha] START WITH 1 INCREMENT BY 1 NO CYCLE NO CACHE;
+""");
+    }
+
+    public override async Task Create_sequence_cache()
+    {
+        await base.Create_sequence_cache();
+
+        AssertSql(
+            """
+CREATE SEQUENCE [Beta] START WITH 1 INCREMENT BY 1 NO CYCLE CACHE 20;
+""");
+    }
+
+    public override async Task Create_sequence_default_cache()
+    {
+        await base.Create_sequence_default_cache();
+
+        AssertSql(
+            """
+CREATE SEQUENCE [Gamma] START WITH 1 INCREMENT BY 1 NO CYCLE;
 """);
     }
 
@@ -3034,7 +3131,7 @@ CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAX
 
         AssertSql(
             """
-ALTER SEQUENCE [foo] INCREMENT BY 2 MINVALUE -5 MAXVALUE 10 CYCLE;
+ALTER SEQUENCE [foo] INCREMENT BY 2 MINVALUE -5 MAXVALUE 10 CYCLE CACHE 20;
 """,
             //
             """
@@ -3048,7 +3145,67 @@ ALTER SEQUENCE [foo] RESTART WITH -3;
 
         AssertSql(
             """
-ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE;
+ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+""");
+    }
+
+    public override async Task Alter_sequence_default_cache_to_cache()
+    {
+        await base.Alter_sequence_default_cache_to_cache();
+
+        AssertSql(
+            """
+ALTER SEQUENCE [Delta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
+""");
+    }
+
+    public override async Task Alter_sequence_default_cache_to_nocache()
+    {
+        await base.Alter_sequence_default_cache_to_nocache();
+
+        AssertSql(
+            """
+ALTER SEQUENCE [Epsilon] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
+""");
+    }
+
+    public override async Task Alter_sequence_cache_to_nocache()
+    {
+        await base.Alter_sequence_cache_to_nocache();
+
+        AssertSql(
+            """
+ALTER SEQUENCE [Zeta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE NO CACHE;
+""");
+    }
+
+    public override async Task Alter_sequence_cache_to_default_cache()
+    {
+        await base.Alter_sequence_cache_to_default_cache();
+
+        AssertSql(
+            """
+ALTER SEQUENCE [Eta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
+""");
+    }
+
+    public override async Task Alter_sequence_nocache_to_cache()
+    {
+        await base.Alter_sequence_nocache_to_cache();
+
+        AssertSql(
+            """
+ALTER SEQUENCE [Theta] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE 20;
+""");
+    }
+
+    public override async Task Alter_sequence_nocache_to_default_cache()
+    {
+        await base.Alter_sequence_nocache_to_default_cache();
+
+        AssertSql(
+"""
+ALTER SEQUENCE [Iota] INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE CACHE;
 """);
     }
 
@@ -3133,7 +3290,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestSequenceSchema].[Tes
 
         AssertSql(
             """
-CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO CYCLE;
 """,
             //
             """
@@ -10654,6 +10811,124 @@ CREATE TABLE [HistoryTable] (
     [Name] nvarchar(max) NULL,
     [Number] int NOT NULL,
     CONSTRAINT [PK_HistoryTable] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1]');
+""");
+    }
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numbers';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_optional_primitive_collection_to_existing_table()
+    {
+        await base.Add_optional_primitive_collection_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NULL;
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Create_table_with_required_primitive_collection()
+    {
+        await base.Create_table_with_required_primitive_collection();
+
+        AssertSql(
+"""
+CREATE TABLE [Customers] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    [Numbers] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_Customers] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Create_table_with_optional_primitive_collection()
+    {
+        await base.Create_table_with_optional_primitive_collection();
+
+        AssertSql(
+"""
+CREATE TABLE [Customers] (
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    [Numbers] nvarchar(max) NULL,
+    CONSTRAINT [PK_Customers] PRIMARY KEY ([Id])
+);
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
+    {
+        await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
+
+        AssertSql(
+"""
+CREATE TABLE [Contacts] (
+    [Id] int NOT NULL IDENTITY,
+    [Discriminator] nvarchar(8) NOT NULL,
+    [Name] nvarchar(max) NULL,
+    [Number] int NULL,
+    [MyComplex_Prop] nvarchar(max) NULL,
+    [MyComplex_MyNestedComplex_Bar] datetime2 NULL,
+    [MyComplex_MyNestedComplex_Foo] int NULL,
+    CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
 );
 """);
     }

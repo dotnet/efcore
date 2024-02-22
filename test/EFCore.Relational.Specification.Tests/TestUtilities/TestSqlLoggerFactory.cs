@@ -41,6 +41,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
     public string Sql
         => string.Join(_eol + _eol, SqlStatements);
 
+    public void OutputSql()
+    {
+        Logger.TestOutputHelper?.WriteLine("SQL sent to the database:");
+        Logger.TestOutputHelper?.WriteLine(Sql);
+    }
+
     public void AssertBaseline(string[] expected, bool assertOrder = true, bool forUpdate = false)
     {
         if (_proceduralQueryGeneration)

@@ -66,9 +66,9 @@ namespace Microsoft.Data.Sqlite
                     storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
                         ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
                 }
-                catch (FileLoadException)
+                catch (Exception)
                 {
-                    // Ignore "Could not load assembly."
+                    // Ignore "Could not load assembly." or any type initialization error.
                 }
 
                 object? currentAppData = null;

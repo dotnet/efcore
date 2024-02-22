@@ -608,6 +608,25 @@ namespace MyNamespace
         public T Bar { get; set; }
     }
 
+    public class Parrot<TChild>
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public TChild Child { get; set; }
+    }
+
+    public class Parrot
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Beak Child { get; set; }
+    }
+
+    public class Beak
+    {
+        public string Name { get; set; }
+    }
+
     #region Model
 
     [ConditionalFact]
@@ -1760,6 +1779,7 @@ namespace RootNamespace
                     .HasMax(3)
                     .IncrementsBy(2)
                     .IsCyclic()
+                    .UseCache(20)
                     .HasAnnotation("foo", "bar");
             },
             AddBoilerPlate(
@@ -1771,6 +1791,7 @@ namespace RootNamespace
                 .HasMin(1L)
                 .HasMax(3L)
                 .IsCyclic()
+                .UseCache(20)
                 .HasAnnotation("foo", "bar");
 """),
             model =>
@@ -1783,6 +1804,8 @@ namespace RootNamespace
                 Assert.Equal(3, sequence.MaxValue);
                 Assert.Equal(2, sequence.IncrementBy);
                 Assert.True(sequence.IsCyclic);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
                 Assert.Equal("bar", sequence["foo"]);
             });
 
@@ -4885,6 +4908,139 @@ namespace RootNamespace
                 var property = entityType.FindProperty("FooExtensionId");
                 Assert.NotNull(property);
                 Assert.Equal("FooExtension<BarA>Id", property.GetColumnName());
+
+                Assert.Collection(
+                    model.GetRelationalModel().Tables,
+                    t =>
+                    {
+
+                        Assert.Equal("BarBase", t.Name);
+                        Assert.Equal(["Id", "Discriminator", "FooExtension<BarA>Id"], t.Columns.Select(t => t.Name));
+                    },
+                    t =>
+                    {
+
+                        Assert.Equal("FooExtension<BarA>", t.Name);
+                        Assert.Equal(["Id"], t.Columns.Select(t => t.Name));
+                    });
+            });
+
+    [ConditionalFact]
+    public virtual void Generic_entity_type_with_owned_entities()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Parrot<Beak>>().OwnsOne(e => e.Child),
+            AddBoilerPlate(
+            """
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Parrot<Beak>", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>", b =>
+                {
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
+                        {
+                            b1.Property<int>("ParrotId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Name")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("ParrotId");
+
+                            b1.ToTable("Parrot<Beak>", "DefaultSchema");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ParrotId");
+                        });
+
+                    b.Navigation("Child");
+                });
+"""),
+            model =>
+            {
+                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot<Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak>");
+                Assert.NotNull(parentType);
+                Assert.NotNull(parentType.FindNavigation("Child")!.TargetEntityType);
+
+                var table = model.GetRelationalModel().Tables.Single();
+                Assert.Equal(["Id", "Child_Name", "Name"], table.Columns.Select(t => t.Name));
+            });
+
+    [ConditionalFact]
+    public virtual void Non_generic_entity_type_with_owned_entities()
+        => Test(
+            modelBuilder => modelBuilder.Entity<Parrot>().OwnsOne(e => e.Child),
+            AddBoilerPlate(
+            """
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Parrot", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot", b =>
+                {
+                    b.OwnsOne("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Beak", "Child", b1 =>
+                        {
+                            b1.Property<int>("ParrotId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Name")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("ParrotId");
+
+                            b1.ToTable("Parrot", "DefaultSchema");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ParrotId");
+                        });
+
+                    b.Navigation("Child");
+                });
+"""),
+            model =>
+            {
+                var parentType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+Parrot");
+                Assert.NotNull(parentType);
+                Assert.NotNull(parentType.FindNavigation("Child")!.TargetEntityType);
+
+                var table = model.GetRelationalModel().Tables.Single();
+                Assert.Equal(["Id", "Child_Name", "Name"], table.Columns.Select(t => t.Name));
             });
 
     [ConditionalFact]
@@ -5914,6 +6070,72 @@ namespace RootNamespace
                 Assert.Equal(2, key.GetAnnotations().Count());
                 Assert.Equal("AnnotationValue", key["AnnotationName"]);
                 Assert.Equal("IndexName", key["Relational:Name"]);
+            });
+
+    [ConditionalFact]
+    public virtual void Key_fill_factor_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>().HasKey(t => t.Id).HasFillFactor(90);
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithOneProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.HasFillFactor(b.HasKey("Id"), 90);
+
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
+                });
+"""),
+            o => Assert.Equal(90, o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).GetFillFactor()));
+
+    [ConditionalFact]
+    public virtual void Unique_constraint_fill_factor_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId).HasName("KeyName").HasFillFactor(90);
+                builder.Ignore<EntityWithOneProperty>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + """
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithTwoProperties", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlternateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasAlternateKey("AlternateId")
+                        .HasName("KeyName");
+
+                    SqlServerKeyBuilderExtensions.HasFillFactor(b.HasAlternateKey("AlternateId"), 90);
+
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
+                });
+"""),
+            model =>
+            {
+                var key = model.GetEntityTypes().First().GetKeys().First();
+                Assert.Equal(90, key.GetFillFactor());
             });
 
     #endregion

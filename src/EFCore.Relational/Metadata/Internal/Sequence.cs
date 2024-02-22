@@ -21,6 +21,8 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     private long? _maxValue;
     private Type? _type;
     private bool? _isCyclic;
+    private bool? _isCached;
+    private int? _cacheSize;
     private InternalSequenceBuilder? _builder;
 
     private ConfigurationSource _configurationSource;
@@ -30,6 +32,8 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     private ConfigurationSource? _maxValueConfigurationSource;
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isCyclicConfigurationSource;
+    private ConfigurationSource? _isCachedConfigurationSource;
+    private ConfigurationSource? _cacheSizeConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,6 +89,22 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static readonly bool DefaultIsCached = true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly int? DefaultCacheSize = default;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public Sequence(
         string name,
         string? schema,
@@ -120,6 +140,8 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
         _maxValue = data.MaxValue;
         _type = data.ClrType;
         _isCyclic = data.IsCyclic;
+        _isCached = data.IsCached;
+        _cacheSize = data.CacheSize;
         _builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
     }
 
@@ -577,6 +599,86 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool IsCached
+    {
+        get => _isCached ?? DefaultIsCached;
+        set => SetIsCached(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? SetIsCached(bool? cached, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        _isCached = cached;
+
+        _isCachedConfigurationSource = cached == null
+            ? null
+            : configurationSource.Max(_isCachedConfigurationSource);
+
+        return cached;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetIsCachedConfigurationSource()
+        => _isCachedConfigurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? CacheSize
+    {
+        get => _cacheSize;
+        set => SetCacheSize(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? SetCacheSize(int? cacheSize, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        _cacheSize = cacheSize;
+
+        _cacheSizeConfigurationSource = cacheSize == null
+            ? null
+            : configurationSource.Max(_cacheSizeConfigurationSource);
+
+        return cacheSize;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetCacheSizeConfigurationSource()
+        => _cacheSizeConfigurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override string ToString()
         => ((ISequence)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
@@ -688,6 +790,26 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     bool? IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
         => SetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    int? IConventionSequence.SetCacheSize(int? cacheSize, bool fromDataAnnotation)
+        => SetCacheSize(cacheSize, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool? IConventionSequence.SetIsCached(bool? cached, bool fromDataAnnotation)
+        => SetIsCached(cached, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
     [Obsolete("Don't use this in any new code")] // DO NOT REMOVE
     // Used in model snapshot processor code path. See issue#18557
     private sealed class SequenceData
@@ -708,6 +830,10 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
 
         public bool IsCyclic { get; set; }
 
+        public bool IsCached { get; set; }
+
+        public int? CacheSize { get; set; }
+
         public static SequenceData Deserialize(string value)
         {
             try
@@ -724,6 +850,8 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
                 data.MaxValue = AsLong(ExtractValue(value, ref position));
                 data.ClrType = AsType(ExtractValue(value, ref position)!);
                 data.IsCyclic = AsBool(ExtractValue(value, ref position));
+                data.IsCached = AsBool(ExtractValue(value, ref position));
+                data.CacheSize = AsInt(ExtractValue(value, ref position));
                 // ReSharper restore PossibleInvalidOperationException
 
                 return data;
@@ -754,6 +882,9 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
 
         private static long? AsLong(string? value)
             => value == null ? null : long.Parse(value, CultureInfo.InvariantCulture);
+
+        private static int? AsInt(string? value)
+            => value == null ? null : int.Parse(value, CultureInfo.InvariantCulture);
 
         private static Type AsType(string value)
             => value == nameof(Int64)

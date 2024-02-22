@@ -545,53 +545,6 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
-    #region 8864
-
-    [ConditionalFact]
-    public virtual async Task Select_nested_projection()
-    {
-        var contextFactory = await InitializeAsync<Context8864>(seed: c => c.Seed());
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var customers = context.Customers
-                .Select(c => new { Customer = c, CustomerAgain = Context8864.Get(context, c.Id) })
-                .ToList();
-
-            Assert.Equal(2, customers.Count);
-
-            foreach (var customer in customers)
-            {
-                Assert.Same(customer.Customer, customer.CustomerAgain);
-            }
-        }
-    }
-
-    private class Context8864(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<Customer> Customers { get; set; }
-
-        public void Seed()
-        {
-            AddRange(
-                new Customer { Name = "Alan" },
-                new Customer { Name = "Elon" });
-
-            SaveChanges();
-        }
-
-        public static Customer Get(Context8864 context, int id)
-            => context.Customers.Single(c => c.Id == id);
-
-        public class Customer
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
-    }
-
-    #endregion
-
     #region 8909
 
     [ConditionalFact]
@@ -1089,64 +1042,6 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             public int Id { get; set; }
             public Auto Auto { get; set; }
             public Auto AnotherAuto { get; set; }
-        }
-    }
-
-    #endregion
-
-    #region 15518
-
-    [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual async Task Nested_queries_does_not_cause_concurrency_exception_sync(bool tracking)
-    {
-        var contextFactory = await InitializeAsync<Context15518>(seed: c => c.Seed());
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var query = context.Repos.OrderBy(r => r.Id).Where(r => r.Id > 0);
-            query = tracking ? query.AsTracking() : query.AsNoTracking();
-
-            foreach (var a in query)
-            {
-                foreach (var b in query)
-                {
-                }
-            }
-        }
-
-        using (var context = contextFactory.CreateContext())
-        {
-            var query = context.Repos.OrderBy(r => r.Id).Where(r => r.Id > 0);
-            query = tracking ? query.AsTracking() : query.AsNoTracking();
-
-            await foreach (var a in query.AsAsyncEnumerable())
-            {
-                await foreach (var b in query.AsAsyncEnumerable())
-                {
-                }
-            }
-        }
-    }
-
-    private class Context15518(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<Repo> Repos { get; set; }
-
-        public void Seed()
-        {
-            AddRange(
-                new Repo { Name = "London" },
-                new Repo { Name = "New York" });
-
-            SaveChanges();
-        }
-
-        public class Repo
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
         }
     }
 

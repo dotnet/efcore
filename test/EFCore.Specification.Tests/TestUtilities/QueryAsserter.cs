@@ -44,7 +44,7 @@ public class QueryAsserter(
     protected ISetSource GetExpectedData(DbContext context, bool filteredQuery)
         => filteredQuery ? ((IFilteredQueryFixtureBase)QueryFixture).GetFilteredExpectedData(context) : _expectedData;
 
-    public async Task AssertSingleResult<TResult>(
+    public virtual async Task AssertSingleResult<TResult>(
         Expression<Func<ISetSource, TResult>> actualSyncQuery,
         Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
         Expression<Func<ISetSource, TResult>> expectedQuery,
@@ -64,7 +64,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertQuery<TResult>(
+    public virtual async Task AssertQuery<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Func<TResult, object> elementSorter,
@@ -155,7 +155,7 @@ public class QueryAsserter(
         }
     }
 
-    public async Task AssertQueryScalar<TResult>(
+    public virtual async Task AssertQueryScalar<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter,
@@ -196,7 +196,7 @@ public class QueryAsserter(
         AssertResultCount(actual.Count, assertEmpty);
     }
 
-    public async Task AssertQueryScalar<TResult>(
+    public virtual async Task AssertQueryScalar<TResult>(
         Func<ISetSource, IQueryable<TResult?>> actualQuery,
         Func<ISetSource, IQueryable<TResult?>> expectedQuery,
         Action<TResult?, TResult?> asserter,
@@ -239,7 +239,7 @@ public class QueryAsserter(
 
     #region Assert termination operation methods
 
-    public async Task AssertAny<TResult>(
+    public virtual async Task AssertAny<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         bool async = false,
@@ -256,7 +256,7 @@ public class QueryAsserter(
         Assert.Equal(expected, actual);
     }
 
-    public async Task AssertAny<TResult>(
+    public virtual async Task AssertAny<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -277,7 +277,7 @@ public class QueryAsserter(
         Assert.Equal(expected, actual);
     }
 
-    public async Task AssertAll<TResult>(
+    public virtual async Task AssertAll<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -298,7 +298,7 @@ public class QueryAsserter(
         Assert.Equal(expected, actual);
     }
 
-    public async Task AssertElementAt<TResult>(
+    public virtual async Task AssertElementAt<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Func<int> actualIndex,
@@ -318,7 +318,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertElementAtOrDefault<TResult>(
+    public virtual async Task AssertElementAtOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Func<int> actualIndex,
@@ -338,7 +338,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertFirst<TResult>(
+    public virtual async Task AssertFirst<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -356,7 +356,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertFirst<TResult>(
+    public virtual async Task AssertFirst<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -378,7 +378,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertFirstOrDefault<TResult>(
+    public virtual async Task AssertFirstOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -396,7 +396,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertFirstOrDefault<TResult>(
+    public virtual async Task AssertFirstOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -418,7 +418,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertSingle<TResult>(
+    public virtual async Task AssertSingle<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -436,7 +436,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertSingle<TResult>(
+    public virtual async Task AssertSingle<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -458,7 +458,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertSingleOrDefault<TResult>(
+    public virtual async Task AssertSingleOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -476,7 +476,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertSingleOrDefault<TResult>(
+    public virtual async Task AssertSingleOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -498,7 +498,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertLast<TResult>(
+    public virtual async Task AssertLast<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -516,7 +516,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertLast<TResult>(
+    public virtual async Task AssertLast<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -538,7 +538,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertLastOrDefault<TResult>(
+    public virtual async Task AssertLastOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -556,7 +556,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertLastOrDefault<TResult>(
+    public virtual async Task AssertLastOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -578,7 +578,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertCount<TResult>(
+    public virtual async Task AssertCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         bool async = false,
@@ -596,7 +596,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertCount<TResult>(
+    public virtual async Task AssertCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -618,7 +618,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertLongCount<TResult>(
+    public virtual async Task AssertLongCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         bool async = false,
@@ -636,7 +636,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertLongCount<TResult>(
+    public virtual async Task AssertLongCount<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
@@ -658,7 +658,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertMin<TResult>(
+    public virtual async Task AssertMin<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -676,7 +676,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertMin<TResult, TSelector>(
+    public virtual async Task AssertMin<TResult, TSelector>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, TSelector>> actualSelector,
@@ -699,7 +699,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertMax<TResult>(
+    public virtual async Task AssertMax<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
@@ -717,7 +717,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertMax<TResult, TSelector>(
+    public virtual async Task AssertMax<TResult, TSelector>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, TSelector>> actualSelector,
@@ -740,7 +740,7 @@ public class QueryAsserter(
         AssertEqual(expected, actual, asserter);
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<int>> actualQuery,
         Func<ISetSource, IQueryable<int>> expectedQuery,
         Action<int, int> asserter = null,
@@ -759,7 +759,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<int?>> actualQuery,
         Func<ISetSource, IQueryable<int?>> expectedQuery,
         Action<int?, int?> asserter = null,
@@ -778,7 +778,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<long>> actualQuery,
         Func<ISetSource, IQueryable<long>> expectedQuery,
         Action<long, long> asserter = null,
@@ -797,7 +797,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<long?>> actualQuery,
         Func<ISetSource, IQueryable<long?>> expectedQuery,
         Action<long?, long?> asserter = null,
@@ -816,7 +816,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<decimal>> actualQuery,
         Func<ISetSource, IQueryable<decimal>> expectedQuery,
         Action<decimal, decimal> asserter = null,
@@ -835,7 +835,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<decimal?>> actualQuery,
         Func<ISetSource, IQueryable<decimal?>> expectedQuery,
         Action<decimal?, decimal?> asserter = null,
@@ -854,7 +854,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<float>> actualQuery,
         Func<ISetSource, IQueryable<float>> expectedQuery,
         Action<float, float> asserter = null,
@@ -873,7 +873,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<float?>> actualQuery,
         Func<ISetSource, IQueryable<float?>> expectedQuery,
         Action<float?, float?> asserter = null,
@@ -892,7 +892,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<double>> actualQuery,
         Func<ISetSource, IQueryable<double>> expectedQuery,
         Action<double, double> asserter = null,
@@ -911,7 +911,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum(
+    public virtual async Task AssertSum(
         Func<ISetSource, IQueryable<double?>> actualQuery,
         Func<ISetSource, IQueryable<double?>> expectedQuery,
         Action<double?, double?> asserter = null,
@@ -930,7 +930,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, int>> actualSelector,
@@ -953,7 +953,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, int?>> actualSelector,
@@ -976,7 +976,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, long>> actualSelector,
@@ -999,7 +999,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, long?>> actualSelector,
@@ -1022,7 +1022,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, decimal>> actualSelector,
@@ -1045,7 +1045,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, decimal?>> actualSelector,
@@ -1069,7 +1069,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, float>> actualSelector,
@@ -1092,7 +1092,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, float?>> actualSelector,
@@ -1115,7 +1115,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, double>> actualSelector,
@@ -1138,7 +1138,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertSum<TResult>(
+    public virtual async Task AssertSum<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, double?>> actualSelector,
@@ -1161,7 +1161,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<int>> actualQuery,
         Func<ISetSource, IQueryable<int>> expectedQuery,
         Action<double, double> asserter = null,
@@ -1180,7 +1180,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<int?>> actualQuery,
         Func<ISetSource, IQueryable<int?>> expectedQuery,
         Action<double?, double?> asserter = null,
@@ -1199,7 +1199,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<long>> actualQuery,
         Func<ISetSource, IQueryable<long>> expectedQuery,
         Action<double, double> asserter = null,
@@ -1218,7 +1218,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<long?>> actualQuery,
         Func<ISetSource, IQueryable<long?>> expectedQuery,
         Action<double?, double?> asserter = null,
@@ -1237,7 +1237,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<decimal>> actualQuery,
         Func<ISetSource, IQueryable<decimal>> expectedQuery,
         Action<decimal, decimal> asserter = null,
@@ -1256,7 +1256,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<decimal?>> actualQuery,
         Func<ISetSource, IQueryable<decimal?>> expectedQuery,
         Action<decimal?, decimal?> asserter = null,
@@ -1275,7 +1275,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<float>> actualQuery,
         Func<ISetSource, IQueryable<float>> expectedQuery,
         Action<float, float> asserter = null,
@@ -1294,7 +1294,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<float?>> actualQuery,
         Func<ISetSource, IQueryable<float?>> expectedQuery,
         Action<float?, float?> asserter = null,
@@ -1313,7 +1313,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<double>> actualQuery,
         Func<ISetSource, IQueryable<double>> expectedQuery,
         Action<double, double> asserter = null,
@@ -1332,7 +1332,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage(
+    public virtual async Task AssertAverage(
         Func<ISetSource, IQueryable<double?>> actualQuery,
         Func<ISetSource, IQueryable<double?>> expectedQuery,
         Action<double?, double?> asserter = null,
@@ -1351,7 +1351,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, int>> actualSelector,
@@ -1374,7 +1374,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, int?>> actualSelector,
@@ -1397,7 +1397,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, long>> actualSelector,
@@ -1420,7 +1420,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, long?>> actualSelector,
@@ -1443,7 +1443,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, decimal>> actualSelector,
@@ -1466,7 +1466,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, decimal?>> actualSelector,
@@ -1490,7 +1490,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, float>> actualSelector,
@@ -1513,7 +1513,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, float?>> actualSelector,
@@ -1536,7 +1536,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, double>> actualSelector,
@@ -1559,7 +1559,7 @@ public class QueryAsserter(
         Assert.Empty(context.ChangeTracker.Entries());
     }
 
-    public async Task AssertAverage<TResult>(
+    public virtual async Task AssertAverage<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, double?>> actualSelector,

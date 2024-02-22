@@ -25,11 +25,14 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     {
                         Id = 1,
                         AlternateId = new Guid(),
-                        Dependent = new DependentBase<byte?>(1),
+                        Dependent = new DependentDerived<byte?>(1, "one"),
                         Owned = new OwnedType(c)
                     });
 
                 c.SaveChanges();
+
+                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
+                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
@@ -87,7 +90,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         }
                         else
                         {
-                            ob.ToTable("ManyOwned", t => t.ExcludeFromMigrations());
+                            ob.ToTable("ManyOwned");
                         }
                     });
 
@@ -95,8 +98,13 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     .UsingEntity(
                         jb =>
                         {
-                            jb.ToTable(tb => tb.HasComment("Join table"));
+                            jb.ToTable(tb =>
+                            {
+                                tb.HasComment("Join table");
+                                tb.ExcludeFromMigrations();
+                            });
                             jb.Property<byte[]>("rowid")
+                                .IsRowVersion()
                                 .HasComment("RowVersion")
                                 .HasColumnOrder(1);
                         });
@@ -206,12 +214,6 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
 
         var referenceOwnership = referenceOwnedNavigation.ForeignKey;
         var ownedCollectionNavigation = principalDerived.GetDeclaredNavigations().Last();
-        var collectionOwnedType = ownedCollectionNavigation.TargetEntityType;
-        Assert.Null(collectionOwnedType[RelationalAnnotationNames.IsTableExcludedFromMigrations]);
-        Assert.Equal(
-            CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => collectionOwnedType.IsTableExcludedFromMigrations()).Message);
-
         var collectionOwnership = ownedCollectionNavigation.ForeignKey;
 
         var tptForeignKey = principalDerived.GetForeignKeys().SingleOrDefault();
@@ -243,15 +245,19 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Null(joinType[RelationalAnnotationNames.Comment]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => joinType.GetComment()).Message);
+            Assert.Throws<InvalidOperationException>(joinType.GetComment).Message);
         Assert.Null(joinType.GetQueryFilter());
+        Assert.Null(joinType[RelationalAnnotationNames.IsTableExcludedFromMigrations]);
+        Assert.Equal(
+            CoreStrings.RuntimeModelMissingData,
+            Assert.Throws<InvalidOperationException>(() => joinType.IsTableExcludedFromMigrations()).Message);
 
         var rowid = joinType.GetProperties().Single(p => !p.IsForeignKey());
         Assert.Equal("rowid", rowid.GetColumnName());
         Assert.Null(rowid[RelationalAnnotationNames.Comment]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
-            Assert.Throws<InvalidOperationException>(() => rowid.GetComment()).Message);
+            Assert.Throws<InvalidOperationException>(rowid.GetComment).Message);
         Assert.Null(rowid[RelationalAnnotationNames.ColumnOrder]);
         Assert.Equal(
             CoreStrings.RuntimeModelMissingData,
@@ -264,6 +270,12 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.True(dependentData.IsFixedLength());
 
         var dependentBaseForeignKey = dependentBase.GetForeignKeys().Single(fk => fk != dependentForeignKey);
+
+        var joinTable = joinType.GetTableMappings().Single().Table;
+        Assert.Null(joinTable[RelationalAnnotationNames.Comment]);
+        Assert.Equal(
+            CoreStrings.RuntimeModelMissingData,
+            Assert.Throws<InvalidOperationException>(() => joinTable.Comment).Message);
 
         var dependentMoney = dependentDerived.GetDeclaredProperties().Last();
         Assert.Equal("Money", dependentMoney.GetColumnName());

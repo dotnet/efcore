@@ -58,11 +58,17 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override MethodInfo? GetValueComparerMethod()
+        => null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool UseEntityVariable
         => false;
-
-    internal static readonly MethodInfo ContainsKeyMethod =
-        typeof(IDictionary<string, object?>).GetMethod(nameof(IDictionary<string, object?>.ContainsKey), [typeof(string)])!;
 
     private static readonly PropertyInfo DictionaryIndexer
         = typeof(IDictionary<string, object?>).GetRuntimeProperties().Single(p => p.GetIndexParameters().Length > 0);
@@ -93,7 +99,7 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
                     property.ClrType);
         }
 
-        return Expression.Condition(Expression.Call(parameter, ContainsKeyMethod, Expression.Constant(property.Name)),
+        return Expression.Condition(Expression.Call(parameter, PropertyAccessorsFactory.ContainsKeyMethod, Expression.Constant(property.Name)),
             Expression.Convert(Expression.MakeIndex(
                 parameter,
                 DictionaryIndexer,

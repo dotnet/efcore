@@ -55,8 +55,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 var methods = methodBuilder.ToString();
                 if (!string.IsNullOrEmpty(methods))
                 {
-                    parameters.MethodBuilder.AppendLine()
-                        .AppendLines(methods);
+                    parameters.MethodBuilder.AppendLines(methods);
                 }
             }
         }
@@ -1687,6 +1686,24 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             mainBuilder.AppendLine(",")
                 .Append("maxValue: ").Append(code.Literal(sequence.MaxValue));
+        }
+
+        if (sequence.IsCached && sequence.CacheSize.HasValue)
+        {
+            mainBuilder
+                .AppendLine(",")
+                .Append("cached: ")
+                .Append(code.Literal(sequence.IsCached))
+                .AppendLine(",")
+                .Append("cacheSize: ")
+                .Append(code.Literal(sequence.CacheSize));
+        }
+        else if (!sequence.IsCached)
+        {
+            mainBuilder
+                .AppendLine(",")
+                .Append("cached: ")
+                .Append(code.Literal(sequence.IsCached));
         }
 
         if (sequence.ModelSchema is null && sequence.Schema is not null)

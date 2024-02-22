@@ -321,6 +321,30 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             DropIndexes(indexesToRebuild, builder);
         }
 
+        // Handle change of identity seed value
+        if (IsIdentity(operation) && oldColumnSupported)
+        {
+            Check.DebugAssert(IsIdentity(operation.OldColumn), "Unsupported column change to identity");
+
+            var oldSeed = 1;
+            if (TryParseIdentitySeedIncrement(operation, out var newSeed, out _)
+                && (operation.OldColumn[SqlServerAnnotationNames.Identity] is null
+                    || TryParseIdentitySeedIncrement(operation.OldColumn, out oldSeed, out _))
+                && newSeed != oldSeed)
+            {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var table = stringTypeMapping.GenerateSqlLiteral(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+
+                builder
+                    .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed})")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+        }
+
+        var newAnnotations = operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
+        var oldAnnotations = operation.OldColumn.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
+
         var alterStatementNeeded = narrowed
             || !oldColumnSupported
             || operation.ClrType != operation.OldColumn.ClrType
@@ -333,7 +357,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || operation.IsRowVersion != operation.OldColumn.IsRowVersion
             || operation.IsNullable != operation.OldColumn.IsNullable
             || operation.Collation != operation.OldColumn.Collation
-            || HasDifferences(operation.GetAnnotations(), operation.OldColumn.GetAnnotations());
+            || HasDifferences(newAnnotations, oldAnnotations);
 
         var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
 
@@ -1489,20 +1513,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     protected override void Generate(UpdateDataOperation operation, IModel? model, MigrationCommandListBuilder builder)
         => GenerateExecWhenIdempotent(builder, b => base.Generate(operation, model, b));
 
-    /// <summary>
-    ///     Generates a SQL fragment configuring a sequence with the given options.
-    /// </summary>
-    /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
-    /// <param name="name">The sequence name.</param>
-    /// <param name="operation">The sequence options.</param>
-    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    /// <inheritdoc />
     protected override void SequenceOptions(
         string? schema,
         string name,
         SequenceOperation operation,
         IModel? model,
-        MigrationCommandListBuilder builder)
+        MigrationCommandListBuilder builder,
+        bool forAlter)
     {
         builder
             .Append(" INCREMENT BY ")
@@ -1514,7 +1532,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(" MINVALUE ")
                 .Append(IntegerConstant(operation.MinValue.Value));
         }
-        else
+        else if (forAlter)
         {
             builder.Append(" NO MINVALUE");
         }
@@ -1525,12 +1543,28 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(" MAXVALUE ")
                 .Append(IntegerConstant(operation.MaxValue.Value));
         }
-        else
+        else if (forAlter)
         {
             builder.Append(" NO MAXVALUE");
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
+
+        if (!operation.IsCached)
+        {
+            builder.Append(" NO CACHE");
+        }
+        else if (operation.CacheSize.HasValue)
+        {
+            builder
+            .Append(" CACHE ")
+                .Append(IntegerConstant(operation.CacheSize.Value));
+        }
+        else if (forAlter)
+        {
+            builder
+                .Append(" CACHE");
+        }
     }
 
     /// <summary>
@@ -1738,6 +1772,30 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(" TRANSFER ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+        }
+    }
+
+    /// <summary>
+    ///     Generates a SQL fragment for extra with options of a key from a
+    ///     <see cref="AddPrimaryKeyOperation" />, or <see cref="AddUniqueConstraintOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    protected override void KeyWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
+    {
+        var options = new List<string>();
+
+        if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
+        {
+            options.Add("FILLFACTOR = " + fillFactor);
+        }
+
+        if (options.Count > 0)
+        {
+            builder
+                .Append(" WITH (")
+                .Append(string.Join(", ", options))
+                .Append(")");
         }
     }
 
@@ -2261,6 +2319,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private static string IntegerConstant(long value)
         => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
+    private static string IntegerConstant(int value)
+        => string.Format(CultureInfo.InvariantCulture, "{0}", value);
+
     private static bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
         => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
             ?? model?.GetRelationalModel().FindTable(tableName, schema)?[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
@@ -2272,6 +2333,21 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         => operation[SqlServerAnnotationNames.Identity] != null
             || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
             == SqlServerValueGenerationStrategy.IdentityColumn;
+
+    private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out int seed, out int increment)
+    {
+        if (operation[SqlServerAnnotationNames.Identity] is string seedIncrement
+            && seedIncrement.Split(",") is [var seedString, var incrementString]
+            && int.TryParse(seedString, out var seedParsed)
+            && int.TryParse(incrementString, out var incrementParsed))
+        {
+            (seed, increment) = (seedParsed, incrementParsed);
+            return true;
+        }
+
+        (seed, increment) = (0, 0);
+        return false;
+    }
 
     private void GenerateExecWhenIdempotent(
         MigrationCommandListBuilder builder,

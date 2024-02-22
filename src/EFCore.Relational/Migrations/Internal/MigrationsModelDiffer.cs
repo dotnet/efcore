@@ -1243,9 +1243,20 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (!column.TryGetDefaultValue(out var defaultValue))
         {
-            defaultValue = null;
+            // for non-nullable collections of primitives that are mapped to JSON we set a default value corresponding to empty JSON collection
+            defaultValue = !inline
+                && column is { IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: ValueConverter columnValueConverter } }
+                && columnValueConverter.GetType() is Type { IsGenericType: true } columnValueConverterType
+                && columnValueConverterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>)
+                ? "[]"
+                : null;
         }
 
+        columnOperation.DefaultValue = defaultValue
+            ?? (inline || isNullable
+                ? null
+                : GetDefaultValue(columnOperation.ClrType));
+        columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ColumnType = column.StoreType;
         columnOperation.MaxLength = column.MaxLength;
         columnOperation.Precision = column.Precision;
@@ -1254,11 +1265,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.IsFixedLength = column.IsFixedLength;
         columnOperation.IsRowVersion = column.IsRowVersion;
         columnOperation.IsNullable = isNullable;
-        columnOperation.DefaultValue = defaultValue
-            ?? (inline || isNullable
-                ? null
-                : GetDefaultValue(columnOperation.ClrType));
-        columnOperation.DefaultValueSql = column.DefaultValueSql;
         columnOperation.ComputedColumnSql = column.ComputedColumnSql;
         columnOperation.IsStored = column.IsStored;
         columnOperation.Comment = column.Comment;
@@ -1721,6 +1727,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             || source.MaxValue != target.MaxValue
             || source.MinValue != target.MinValue
             || source.IsCyclic != target.IsCyclic
+            || source.IsCached != target.IsCached
+            || source.CacheSize != target.CacheSize
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
         {
             var alterSequenceOperation = new AlterSequenceOperation { Schema = target.Schema, Name = target.Name };
@@ -1774,6 +1782,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         sequenceOperation.MinValue = sequence.MinValue;
         sequenceOperation.MaxValue = sequence.MaxValue;
         sequenceOperation.IsCyclic = sequence.IsCyclic;
+        sequenceOperation.IsCached = sequence.IsCached;
+        sequenceOperation.CacheSize = sequence.CacheSize;
         sequenceOperation.AddAnnotations(migrationsAnnotations);
 
         return sequenceOperation;

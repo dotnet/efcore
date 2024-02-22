@@ -1620,6 +1620,8 @@ public class RelationalScaffoldingModelFactoryTest
                 Assert.Null(first.MaxValue);
                 Assert.Null(first.MinValue);
                 Assert.False(first.IsCyclic);
+                Assert.True(first.IsCached);
+                Assert.Null(first.CacheSize);
             });
     }
 

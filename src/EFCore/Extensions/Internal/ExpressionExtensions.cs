@@ -38,9 +38,9 @@ public static class ExpressionExtensions
                     Expression.Constant(null, currentValueExpression.Type))
                 : isNullableValueType
                     ? Expression.Not(
-                        Expression.Call(
+                        Expression.MakeMemberAccess(
                             currentValueExpression,
-                            currentValueExpression.Type.GetMethod("get_HasValue")!))
+                            currentValueExpression.Type.GetProperty("HasValue")!))
                     : Expression.Constant(false);
         }
 
@@ -62,9 +62,9 @@ public static class ExpressionExtensions
                         Expression.ReferenceEqual(
                             currentValueExpression,
                             Expression.Constant(null, currentValueExpression.Type)))
-                    : Expression.Call(
+                    : Expression.MakeMemberAccess(
                         currentValueExpression,
-                        currentValueExpression.Type.GetMethod("get_HasValue")!),
+                        currentValueExpression.Type.GetProperty("HasValue")!),
                 equalsExpression);
         }
 
@@ -238,20 +238,20 @@ public static class ExpressionExtensions
                             EF.MakePropertyMethod(typeof(object)),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
-                        Expression.Call(
+                        Expression.MakeIndex(
                             keyValuesConstantExpression,
-                            ValueBuffer.GetValueMethod,
-                            Expression.Constant(i)))
+                            ValueBuffer.Indexer,
+                            new[] { Expression.Constant(i) }))
                     : Expression.Equal(
                         Expression.Call(
                             EF.MakePropertyMethod(property.ClrType),
                             entityParameterExpression,
                             Expression.Constant(property.Name, typeof(string))),
                         Expression.Convert(
-                            Expression.Call(
+                            Expression.MakeIndex(
                                 keyValuesConstantExpression,
-                                ValueBuffer.GetValueMethod,
-                                Expression.Constant(i)),
+                                ValueBuffer.Indexer,
+                                new[] { Expression.Constant(i) }),
                             property.ClrType));
     }
 }
