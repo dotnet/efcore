@@ -1205,11 +1205,11 @@ public class SqliteConnectionTest
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("Unknown")]
-    public void GetSchema_throws_when_unknown_collection(string collectionName)
+    public void GetSchema_throws_when_unknown_collection(string? collectionName)
     {
         using var connection = new SqliteConnection("Data Source=:memory:");
 
-        var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(collectionName));
+        var ex = Assert.Throws<ArgumentException>(() => connection.GetSchema(collectionName!));
 
         Assert.Equal(Resources.UnknownCollection(collectionName), ex.Message);
     }
