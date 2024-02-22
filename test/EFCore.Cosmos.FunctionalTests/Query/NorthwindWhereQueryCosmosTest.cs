@@ -1685,7 +1685,19 @@ WHERE ((c["Discriminator"] = "Customer") AND false)
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = "ALFKI") AND true))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+""",
+            //
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+""",
+            //
+            """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
 """);
     }
 

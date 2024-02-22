@@ -505,6 +505,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 """);
     }
 
+    public override Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async) =>
+        AssertTranslationFailed(() => base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

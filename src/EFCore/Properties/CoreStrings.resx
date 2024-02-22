@@ -480,11 +480,14 @@
   <data name="EFConstantInvoked" xml:space="preserve">
     <value>The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
   </data>
-  <data name="EFConstantWithNonEvaluableArgument" xml:space="preserve">
+  <data name="EFConstantWithNonEvaluatableArgument" xml:space="preserve">
     <value>The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
   </data>
   <data name="EFParameterInvoked" xml:space="preserve">
     <value>The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
+  </data>
+  <data name="EFParameterWithNonEvaluatableArgument" xml:space="preserve">
+    <value>The EF.Parameter&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
   </data>
   <data name="EmptyComplexType" xml:space="preserve">
     <value>Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.</value>
@@ -1107,6 +1110,12 @@
   </data>
   <data name="ManyToManyOneNav" xml:space="preserve">
     <value>The navigation '{entityType}.{navigation}' cannot be used for both sides of a many-to-many relationship. Many-to-many relationships must use two distinct navigation properties.</value>
+  </data>
+  <data name="MemberListBindingNotSupported" xml:space="preserve">
+    <value>EF Core does not support MemberListBinding: 'new Blog { Posts = { new Post(), new Post() } }'.</value>
+  </data>
+  <data name="MemberMemberBindingNotSupported" xml:space="preserve">
+    <value>EF Core does not support MemberMemberBinding: 'new Blog { Data = { Name = "hello world" } }'.</value>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.</value>
