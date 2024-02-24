@@ -14,17 +14,9 @@ using NetTopologySuite;
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 #nullable disable
-
+[SpatialiteRequired]
 public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
 {
-    [SpatialiteRequired]
-    public override void BigModel()
-        => base.BigModel();
-
-    [SpatialiteRequired]
-    public override void BigModel_with_JSON_columns()
-        => base.BigModel_with_JSON_columns();
-
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
@@ -103,7 +95,7 @@ public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
     }
 
     //Sprocs not supported
-    public override void Tpc()
+    public override void Tpc_Sprocs()
     {
     }
 

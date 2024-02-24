@@ -22,6 +22,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private readonly ICSharpRuntimeAnnotationCodeGenerator _annotationCodeGenerator;
 
     private const string FileExtension = ".cs";
+    private const string AssemblyAttributesSuffix = "AssemblyAttributes";
     private const string ModelSuffix = "Model";
     private const string ModelBuilderSuffix = "ModelBuilder";
     private const string EntityTypeSuffix = "EntityType";
@@ -62,6 +63,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         // Translated expressions don't have nullability annotations
         var nullable = false;
         var scaffoldedFiles = new List<ScaffoldedFile>();
+
+        var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
+        var assemblyInfoFileName = options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix + FileExtension;
+        scaffoldedFiles.Add(new ScaffoldedFile { Path = assemblyInfoFileName, Code = assemblyAttributesCode });
+
         var modelCode = CreateModel(options.ModelNamespace, options.ContextType, nullable);
         var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
@@ -118,6 +124,29 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         return builder.ToString();
     }
 
+    private string CreateAssemblyAttributes(
+        string @namespace,
+        Type contextType,
+        bool nullable)
+    {
+        var mainBuilder = new IndentedStringBuilder();
+        var namespaces = new SortedSet<string>(new NamespaceComparer())
+        {
+            typeof(DbContextModelAttribute).Namespace!,
+            @namespace
+        };
+
+        AddNamespace(contextType, namespaces);
+
+        mainBuilder
+            .Append("[assembly: DbContextModel(typeof(").Append(_code.Reference(contextType))
+            .Append("), typeof(").Append(GetModelClassName(contextType)).AppendLine("))]");
+
+        return GenerateHeader(namespaces, currentNamespace: "", nullable) + mainBuilder;
+    }
+
+    private string GetModelClassName(Type contextType) => _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
+
     private string CreateModel(
         string @namespace,
         Type contextType,
@@ -139,7 +168,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.Indent();
         }
 
-        var className = _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
+        var className = GetModelClassName(contextType);
         mainBuilder
             .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
             .Append("public partial class ").Append(className).AppendLine(" : " + nameof(RuntimeModel))
@@ -222,7 +251,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.Indent();
         }
 
-        var className = _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
+        var className = GetModelClassName(contextType);
         mainBuilder
             .Append("public partial class ").AppendLine(className)
             .AppendLine("{");

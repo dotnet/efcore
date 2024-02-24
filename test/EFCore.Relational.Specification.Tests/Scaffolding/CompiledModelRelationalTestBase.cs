@@ -16,22 +16,23 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
             model => AssertBigModel(model, jsonColumns: true),
-            c =>
-            {
-                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                    new PrincipalDerived<DependentBase<byte?>>
-                    {
-                        Id = 1,
-                        AlternateId = new Guid(),
-                        Dependent = new DependentDerived<byte?>(1, "one"),
-                        Owned = new OwnedType(c)
-                    });
+            // Blocked by dotnet/runtime/issues/89439
+            //c =>
+            //{
+            //    c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+            //        new PrincipalDerived<DependentBase<byte?>>
+            //        {
+            //            Id = 1,
+            //            AlternateId = new Guid(),
+            //            Dependent = new DependentDerived<byte?>(1, "one"),
+            //            Owned = new OwnedType(c)
+            //        });
 
-                c.SaveChanges();
+            //    c.SaveChanges();
 
-                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
-                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
-            },
+            //    var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
+            //    Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
+            //},
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -372,9 +373,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         .HasParameter("RefTypeEnumerable")
                         .HasOriginalValueParameter(p => p.Id));
                 eb.DeleteUsingStoredProcedure(
-                    s => s
-                        .HasRowsAffectedReturnValue()
-                        .HasOriginalValueParameter(p => p.Id));
+                    s => s.HasRowsAffectedParameter()
+                          .HasOriginalValueParameter(p => p.Id));
             });
 
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
@@ -426,7 +426,6 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal("Deets", detailsProperty.GetColumnName(principalTable));
 
         var dbFunction = model.FindDbFunction("PrincipalBaseTvf")!;
-        Assert.Equal("dbo", dbFunction.Schema);
         Assert.False(dbFunction.IsNullable);
         Assert.False(dbFunction.IsScalar);
         Assert.False(dbFunction.IsBuiltIn);
@@ -450,13 +449,13 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Tpc()
+    public virtual void Tpc_Sprocs()
         => Test(
-            BuildTpcModel,
-            AssertTpc,
+            BuildTpcSprocsModel,
+            AssertTpcSprocs,
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
-    protected virtual void BuildTpcModel(ModelBuilder modelBuilder)
+    protected virtual void BuildTpcSprocsModel(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("TPC");
 
@@ -508,9 +507,18 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         .HasParameter("RefTypeEnumerable")
                         .HasOriginalValueParameter(p => p.Id));
                 eb.DeleteUsingStoredProcedure(
-                    s => s
-                        .HasRowsAffectedReturnValue()
-                        .HasOriginalValueParameter(p => p.Id));
+                    s =>
+                    {
+                        s.HasOriginalValueParameter(p => p.Id);
+                        if (UseSprocReturnValue)
+                        {
+                            s.HasRowsAffectedReturnValue();
+                        }
+                        else
+                        {
+                            s.HasRowsAffectedParameter(p => p.HasName("RowsAffected"));
+                        }
+                    });
 
                 eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
                     .IsUnique()
@@ -578,7 +586,9 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
     }
 
-    protected virtual void AssertTpc(IModel model)
+    protected virtual bool UseSprocReturnValue => false;
+
+    protected virtual void AssertTpcSprocs(IModel model)
     {
         Assert.Equal("TPC", model.GetDefaultSchema());
 
@@ -679,11 +689,17 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         var deleteSproc = principalBase.GetDeleteStoredProcedure()!;
         Assert.Equal("PrincipalBase_Delete", deleteSproc.Name);
         Assert.Equal("TPC", deleteSproc.Schema);
-        Assert.Equal(new[] { "Id_Original" }, deleteSproc.Parameters.Select(p => p.Name));
+        if (UseSprocReturnValue)
+        {
+            Assert.Equal(["Id_Original"], deleteSproc.Parameters.Select(p => p.Name));
+        }
+        else
+        {
+            Assert.Equal(["Id_Original", "RowsAffected"], deleteSproc.Parameters.Select(p => p.Name));
+        }
         Assert.Empty(deleteSproc.ResultColumns);
-        Assert.True(deleteSproc.IsRowsAffectedReturned);
+        Assert.Equal(UseSprocReturnValue, deleteSproc.IsRowsAffectedReturned);
         Assert.Same(principalBase, deleteSproc.EntityType);
-        Assert.Equal("Id_Original", deleteSproc.Parameters.Last().Name);
         Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.DeleteStoredProcedure)!.Value));
 
         Assert.Equal("PrincipalBase", principalBase.GetDiscriminatorValue());

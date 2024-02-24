@@ -706,8 +706,9 @@ namespace TestNamespace
             var deleteSprocMappings = new List<StoredProcedureMapping>();
             principalBase.SetRuntimeAnnotation("Relational:DeleteStoredProcedureMappings", deleteSprocMappings);
             var principalBase_DeleteStoreSproc = new StoreStoredProcedure("PrincipalBase_Delete", null, relationalModel);
-            principalBase_DeleteStoreSproc.ReturnValue = new StoreStoredProcedureReturnValue("", "int", principalBase_DeleteStoreSproc);
-            var id_OriginalParameter = new StoreStoredProcedureParameter("Id_Original", "bigint", 0, principalBase_DeleteStoreSproc, System.Data.ParameterDirection.Input);
+            var rowsAffectedParameter = new StoreStoredProcedureParameter("RowsAffected", "int", 0, principalBase_DeleteStoreSproc, System.Data.ParameterDirection.Output);
+            principalBase_DeleteStoreSproc.AddParameter(rowsAffectedParameter);
+            var id_OriginalParameter = new StoreStoredProcedureParameter("Id_Original", "bigint", 1, principalBase_DeleteStoreSproc, System.Data.ParameterDirection.Input);
             principalBase_DeleteStoreSproc.AddParameter(id_OriginalParameter);
             principalBase_DeleteStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Delete", null), principalBase_DeleteStoreSproc);

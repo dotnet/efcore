@@ -3139,8 +3139,10 @@ namespace TestNamespace
                 runtimeEntityType,
                 "PrincipalBase_Delete",
                 null,
-                true);
+                false);
 
+            var rowsAffected = deleteSproc.AddParameter(
+                "RowsAffected", System.Data.ParameterDirection.Output, true, null, null);
             var id2 = deleteSproc.AddParameter(
                 "Id_Original", System.Data.ParameterDirection.Input, false, "Id", true);
             runtimeEntityType.AddAnnotation("Relational:DeleteStoredProcedure", deleteSproc);
