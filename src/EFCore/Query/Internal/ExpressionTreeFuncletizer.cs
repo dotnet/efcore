@@ -40,8 +40,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private bool _calculatingPath;
 
     /// <summary>
-    ///     Indicates whether we should parameterize. Is false in in compiled query mode, as well as when we're handling query filters
-    ///     from NavigationExpandingExpressionVisitor.
+    ///     Indicates whether we should parameterize. Is false in compiled query mode, as well as when we're handling query filters from
+    ///     NavigationExpandingExpressionVisitor.
     /// </summary>
     private bool _parameterize;
 
@@ -1870,6 +1870,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         if (compilerPrefixIndex != -1)
         {
             parameterName = parameterName[(compilerPrefixIndex + 1)..];
+        }
+
+        // The VB compiler prefixes closure member names with $VB$Local_, remove that (#33150)
+        if (parameterName.StartsWith("$VB$Local_", StringComparison.Ordinal))
+        {
+            parameterName = parameterName.Substring("$VB$Local_".Length);
         }
 
         parameterName = $"{QueryCompilationContext.QueryParameterPrefix}{parameterName}_{_parameterValues.ParameterValues.Count}";
