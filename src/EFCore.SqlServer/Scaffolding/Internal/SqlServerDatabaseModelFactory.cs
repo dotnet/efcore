@@ -103,6 +103,84 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
         return Create(connection, options);
     }
 
+    private (bool isATable, string? fullName) IsViewReallyATable(string viewDefinition)
+    {
+        // we're looking for syntax like "CREATE VIEW dbo.[EVENT] as  SELECT * from CVENT_EVENT.dbo.[EVENT]"
+        // but whitespace is not consistent
+        // we could potentially cheat by running an update on the view and seeing if it succeeds
+        // for initial testing, split on whitespace and fail anything with "join" or "where"
+        // the check that make sure that "dbo.[Blah] and {SomeDatabase}.dbo.[Blah]" are the same
+
+        var words = viewDefinition.Split(new char[] {' ', '\n', '\r', '\t'}, StringSplitOptions.RemoveEmptyEntries);
+        var viewName = words.FirstOrDefault(word => word.StartsWith("dbo.", StringComparison.InvariantCultureIgnoreCase));
+        if (viewName is null)
+        {
+            return (false, null);
+        }
+
+        var realTableName = words.FirstOrDefault(word =>
+            word.EndsWith(viewName, StringComparison.InvariantCultureIgnoreCase)
+            && word.Length > viewName.Length
+            && word.IndexOf('.') < word.LastIndexOf('.'));
+        return (realTableName != null, realTableName?.ToUpperInvariant());
+    }
+
+    /// <summary>
+    /// Foreach view in the list, determines if the view is just a pass through to a real table in another Database
+    /// If it is, then add it to the returned dictionary
+    /// That way we can override the view with the real table
+    /// </summary>
+    /// <param name="views">Views found in CVENT_PROD</param>
+    /// <param name="connection">Connection to CVENT_PROD</param>
+    /// <returns>The databases that hold the real tables, plus the tables in that database</returns>
+    private Dictionary<string, List<DatabaseView>> ProcessViews(List<DatabaseView> views, DbConnection connection)
+    {
+        var viewsByDatabase = new Dictionary<string, List<DatabaseView>>();
+        /*
+         * The SQL we want to run will look like:
+         * select v.name, s.definition
+           from sys.sql_modules s
+           inner join sys.views v
+        if (realTableName is null)
+        {
+            return
+        }
+           on s.object_id = v.object_id
+           where v.name in ('PENDING_PAYMENT_PARAMETER', 'EVENT', 'USER', 'vw_ACCOUNT_USER_REPORT_FIELD')
+
+         */
+        var commandText = """
+                          select v.name, s.definition
+                          from sys.sql_modules s
+                          inner join sys.views v
+                          on s.object_id = v.object_id
+                          where v.name in (VIEWS)
+
+                          """;
+        var viewString = views.Select(v => $"'{v.Name}'").Aggregate((a, b) => $"{a}, {b}");
+        var command = connection.CreateCommand();
+        command.CommandText = commandText.Replace("VIEWS", viewString);
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var viewName = reader.GetString("name");
+            var definition = reader.GetString("definition");
+            var (isATable, realTableName) = IsViewReallyATable(definition);
+            if (isATable)
+            {
+                var databaseName = realTableName!.Split('.')[0].Trim('[', ']');
+                if (!viewsByDatabase.ContainsKey(databaseName))
+                {
+                    viewsByDatabase[databaseName] = new();
+                }
+                // DAVEY - TODO use not a list
+                viewsByDatabase[databaseName].Add(views.First(v => v.Name == viewName));
+            }
+        }
+
+        return viewsByDatabase;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -148,7 +226,24 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
                 GetSequences(connection, databaseModel, schemaFilter, typeAliases);
             }
 
+            // this will get us the main model, but all the tables outside of CVENT_PROD will look like views
             GetTables(connection, databaseModel, tableFilter, typeAliases, databaseCollation);
+            // DAVEY - TODO here
+            // pull the definitions for all the views in databaseModel.Tables
+            // for each view, if it's really a table, then add the real database name to otherDatabases
+
+            var views = databaseModel.Tables.OfType<DatabaseView>().ToList();
+
+            var tablesByDatabase = ProcessViews(views, connection);
+
+            foreach (var db in tablesByDatabase.Keys)
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = $"using {db}";
+                command.ExecuteNonQuery();
+                // DAVEY - TODO: tableFilter should only return the tables in this database, but it should be harmless
+                GetTables(connection, databaseModel, tableFilter, typeAliases, databaseCollation);
+            }
 
             foreach (var schema in schemaList
                          .Except(
@@ -500,6 +595,11 @@ WHERE "
         }
     }
 
+    // DAVEY - this looks like it's where the magic happens!
+    // The "simplest" approach is probably
+    // 1. Create a pre-processor that gets all the relevant databases
+    // 2. Call this per database
+    // 3. The Views as Tables need to only get in once
     private void GetTables(
         DbConnection connection,
         DatabaseModel databaseModel,
@@ -513,7 +613,8 @@ WHERE "
         var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable();
         var supportsTemporalTable = SupportsTemporalTable();
 
-        var builder = new StringBuilder(
+        var builder = new StringBuilder();
+        builder.Append(
             """
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema],
@@ -700,8 +801,15 @@ AND [v].[is_date_correlation_view] = 0
             GetTriggers(connection, tables, tableFilterSql);
         }
 
+        // DAVEY - for every table we're adding, if there is a view with the same name then we need to remove it
         foreach (var table in tables)
         {
+            // TODO: this is basically maximally inefficient
+            var existingTable = databaseModel.Tables.FirstOrDefault(t => t.Name == table.Name);
+            if (existingTable is not null)
+            {
+                databaseModel.Tables.Remove(existingTable);
+            }
             databaseModel.Tables.Add(table);
         }
     }

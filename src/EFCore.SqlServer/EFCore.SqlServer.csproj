@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Microsoft SQL Server database provider for Entity Framework Core.</Description>
+    <Description>Cvent's fork of Microsoft's Microsoft SQL Server database provider for Entity Framework Core.</Description>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
-    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
+    <AssemblyName>Cvent.EntityFrameworkCore.SqlServer</AssemblyName>
+    <RootNamespace>Cvent.EntityFrameworkCore.SqlServer</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>

@@ -1,3 +1,5 @@
+This is a fork to see if we can get things to play nicely with how we use SQL Server. It is not currently in use. The originl README is below
+
 # Repository
 
 [![build status](https://img.shields.io/azure-devops/build/dnceng-public/public/17/main)](https://dev.azure.com/dnceng-public/public/_build?definitionId=17) [![test results](https://img.shields.io/azure-devops/tests/dnceng-public/public/17/main)](https://dev.azure.com/dnceng-public/public/_build?definitionId=17)
