@@ -232,8 +232,12 @@ function Build {
     bl="/bl:\"$log_dir/Build.binlog\""
   fi
 
+  # disable terminal logger for now: https://github.com/dotnet/runtime/issues/97211
+  local tl="/tl:false"
+
   MSBuild $_InitializeToolset \
     $bl \
+    $tl \
     /p:Configuration=$configuration \
     /p:RepoRoot="$repo_root" \
     /p:Restore=$restore \
