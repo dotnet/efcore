@@ -36,7 +36,8 @@ public class RelationalModelAsserter : ModelAsserter
                     Assert.Equal(expected.GetCollation(), actual.GetCollation());
                 }
             },
-            () => Assert.Equal(expected.GetDbFunctions(), actual.GetDbFunctions(),
+            () => Assert.Equal(expected.GetDbFunctions().Select(x => x),
+                actual.GetDbFunctions(),
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -44,7 +45,8 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.GetSequences(), actual.GetSequences(),
+            () => Assert.Equal(expected.GetSequences().Select(x => x),
+                actual.GetSequences(),
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -88,7 +90,8 @@ public class RelationalModelAsserter : ModelAsserter
             () => Assert.Equal(expected.MethodInfo, actual.MethodInfo),
             () => Assert.Equal(expected.Translation, actual.Translation),
             () => Assert.Equal(expected.TypeMapping?.StoreType, actual.TypeMapping?.StoreType),
-            () => Assert.Equal(expected.Parameters, actual.Parameters,
+            () => Assert.Equal(expected.Parameters.Select(x => x),
+                actual.Parameters,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -215,7 +218,8 @@ public class RelationalModelAsserter : ModelAsserter
                 actual.GetDeleteStoredProcedure(),
                 compareBackreferences: false,
                 compareMemberAnnotations),
-            () => Assert.Equal(expected.GetMappingFragments(), actual.GetMappingFragments(),
+            () => Assert.Equal(expected.GetMappingFragments().Select(x => x),
+                actual.GetMappingFragments(),
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -227,7 +231,8 @@ public class RelationalModelAsserter : ModelAsserter
             {
                 if (designTime)
                 {
-                    Assert.Equal(expected.GetCheckConstraints(), actual.GetCheckConstraints(),
+                    Assert.Equal(expected.GetCheckConstraints().Select(x => x),
+                        actual.GetCheckConstraints(),
                         (expected, actual) =>
                             AssertEqual(
                                 expected,
@@ -237,49 +242,57 @@ public class RelationalModelAsserter : ModelAsserter
                                 compareBackreferences: false));
                 }
             },
-            () => Assert.Equal(expectedStructuralType.GetDefaultMappings(), actualStructuralType.GetDefaultMappings(),
+            () => Assert.Equal(expectedStructuralType.GetDefaultMappings().Select(x => x),
+                actualStructuralType.GetDefaultMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetTableMappings(), actualStructuralType.GetTableMappings(),
+            () => Assert.Equal(expectedStructuralType.GetTableMappings().Select(x => x),
+                actualStructuralType.GetTableMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetViewMappings(), actualStructuralType.GetViewMappings(),
+            () => Assert.Equal(expectedStructuralType.GetViewMappings().Select(x => x),
+                actualStructuralType.GetViewMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetSqlQueryMappings(), actualStructuralType.GetSqlQueryMappings(),
+            () => Assert.Equal(expectedStructuralType.GetSqlQueryMappings().Select(x => x),
+                actualStructuralType.GetSqlQueryMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetFunctionMappings(), actualStructuralType.GetFunctionMappings(),
+            () => Assert.Equal(expectedStructuralType.GetFunctionMappings().Select(x => x),
+                actualStructuralType.GetFunctionMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings(), actualStructuralType.GetInsertStoredProcedureMappings(),
+            () => Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings().Select(x => x),
+                actualStructuralType.GetInsertStoredProcedureMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings(), actualStructuralType.GetUpdateStoredProcedureMappings(),
+            () => Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings().Select(x => x),
+                actualStructuralType.GetUpdateStoredProcedureMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings(), actualStructuralType.GetDeleteStoredProcedureMappings(),
+            () => Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings().Select(x => x),
+                actualStructuralType.GetDeleteStoredProcedureMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
@@ -340,7 +353,7 @@ public class RelationalModelAsserter : ModelAsserter
                     Assert.Equal(expected.EntityType, actual.EntityType, EntityTypeFullNameComparer.Instance);
                 }
             },
-            () => Assert.Equal(expected.Parameters, actual.Parameters,
+            () => Assert.Equal(expected.Parameters.Select(x => x), actual.Parameters,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -349,7 +362,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareBackreferences: false,
                         compareAnnotations)),
-            () => Assert.Equal(expected.ResultColumns, actual.ResultColumns,
+            () => Assert.Equal(expected.ResultColumns.Select(x => x), actual.ResultColumns,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -489,7 +502,8 @@ public class RelationalModelAsserter : ModelAsserter
                 actualStructuralType.GetDeleteStoredProcedure(),
                 compareBackreferences: false,
                 compareMemberAnnotations),
-            () => Assert.Equal(expectedStructuralType.GetMappingFragments(), actualStructuralType.GetMappingFragments(),
+            () => Assert.Equal(expectedStructuralType.GetMappingFragments().Select(x => x),
+                actualStructuralType.GetMappingFragments(),
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -497,49 +511,57 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareBackreferences: false)),
-            () => Assert.Equal(expectedStructuralType.GetDefaultMappings(), actualStructuralType.GetDefaultMappings(),
+            () => Assert.Equal(expectedStructuralType.GetDefaultMappings().Select(x => x),
+                actualStructuralType.GetDefaultMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetTableMappings(), actualStructuralType.GetTableMappings(),
+            () => Assert.Equal(expectedStructuralType.GetTableMappings().Select(x => x),
+                actualStructuralType.GetTableMappings().Select(x => x),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetViewMappings(), actualStructuralType.GetViewMappings(),
+            () => Assert.Equal(expectedStructuralType.GetViewMappings().Select(x => x),
+                actualStructuralType.GetViewMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetSqlQueryMappings(), actualStructuralType.GetSqlQueryMappings(),
+            () => Assert.Equal(expectedStructuralType.GetSqlQueryMappings().Select(x => x),
+                actualStructuralType.GetSqlQueryMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetFunctionMappings(), actualStructuralType.GetFunctionMappings(),
+            () => Assert.Equal(expectedStructuralType.GetFunctionMappings().Select(x => x),
+                actualStructuralType.GetFunctionMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings(), actualStructuralType.GetInsertStoredProcedureMappings(),
+            () => Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings().Select(x => x),
+                actualStructuralType.GetInsertStoredProcedureMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings(), actualStructuralType.GetUpdateStoredProcedureMappings(),
+            () => Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings().Select(x => x),
+                actualStructuralType.GetUpdateStoredProcedureMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings(), actualStructuralType.GetDeleteStoredProcedureMappings(),
+            () => Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings().Select(x => x),
+                actualStructuralType.GetDeleteStoredProcedureMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
@@ -607,68 +629,78 @@ public class RelationalModelAsserter : ModelAsserter
                     Assert.Equal(expected.GetCollation(), actual.GetCollation());
                 }
             },
-            () => Assert.Equal(expected.GetOverrides(), actual.GetOverrides(),
+            () => Assert.Equal(expected.GetOverrides().Select(x => x), actual.GetOverrides().Select(x => x),
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expectedProperty.GetDefaultColumnMappings().ToList(), actualProperty.GetDefaultColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetDefaultColumnMappings().Select(x => x),
+                actualProperty.GetDefaultColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetTableColumnMappings().ToList(), actualProperty.GetTableColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetTableColumnMappings().Select(x => x),
+                actualProperty.GetTableColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetViewColumnMappings().ToList(), actualProperty.GetViewColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetViewColumnMappings().Select(x => x),
+                actualProperty.GetViewColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetSqlQueryColumnMappings().ToList(), actualProperty.GetSqlQueryColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetSqlQueryColumnMappings().Select(x => x),
+                actualProperty.GetSqlQueryColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetFunctionColumnMappings().ToList(), actualProperty.GetFunctionColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetFunctionColumnMappings().Select(x => x),
+                actualProperty.GetFunctionColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetInsertStoredProcedureParameterMappings().ToList(), actualProperty.GetInsertStoredProcedureParameterMappings(),
+            () => Assert.Equal(expectedProperty.GetInsertStoredProcedureParameterMappings().Select(x => x),
+                actualProperty.GetInsertStoredProcedureParameterMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetInsertStoredProcedureResultColumnMappings().ToList(), actualProperty.GetInsertStoredProcedureResultColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetInsertStoredProcedureResultColumnMappings().Select(x => x),
+                actualProperty.GetInsertStoredProcedureResultColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetUpdateStoredProcedureParameterMappings().ToList(), actualProperty.GetUpdateStoredProcedureParameterMappings(),
+            () => Assert.Equal(expectedProperty.GetUpdateStoredProcedureParameterMappings().Select(x => x),
+                actualProperty.GetUpdateStoredProcedureParameterMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetUpdateStoredProcedureResultColumnMappings().ToList(), actualProperty.GetUpdateStoredProcedureResultColumnMappings(),
+            () => Assert.Equal(expectedProperty.GetUpdateStoredProcedureResultColumnMappings().Select(x => x),
+                actualProperty.GetUpdateStoredProcedureResultColumnMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
                     return true;
                 }),
-            () => Assert.Equal(expectedProperty.GetDeleteStoredProcedureParameterMappings().ToList(), actualProperty.GetDeleteStoredProcedureParameterMappings(),
+            () => Assert.Equal(expectedProperty.GetDeleteStoredProcedureParameterMappings().Select(x => x),
+                actualProperty.GetDeleteStoredProcedureParameterMappings(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
@@ -719,7 +751,8 @@ public class RelationalModelAsserter : ModelAsserter
 
         Assert.Multiple(
             () => Assert.Equal(expected.GetConstraintName(), actual.GetConstraintName()),
-            () => Assert.Equal(expectedForeignKey.GetMappedConstraints().ToList(), actualForeignKey.GetMappedConstraints(),
+            () => Assert.Equal(expectedForeignKey.GetMappedConstraints().Select(x => x),
+                actualForeignKey.GetMappedConstraints(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
@@ -753,7 +786,8 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => Assert.Equal(expected.GetDatabaseName(), actual.GetDatabaseName()),
             () => Assert.Equal(expected.GetFilter(), actual.GetFilter()),
-            () => Assert.Equal(expectedIndex.GetMappedTableIndexes().ToList(), actualIndex.GetMappedTableIndexes(),
+            () => Assert.Equal(expectedIndex.GetMappedTableIndexes().Select(x => x),
+                actualIndex.GetMappedTableIndexes(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
@@ -786,7 +820,8 @@ public class RelationalModelAsserter : ModelAsserter
 
         Assert.Multiple(
             () => Assert.Equal(expected.GetName(), actual.GetName()),
-            () => Assert.Equal(expectedKey.GetMappedConstraints().ToList(), actualKey.GetMappedConstraints(),
+            () => Assert.Equal(expectedKey.GetMappedConstraints().Select(x => x),
+                actualKey.GetMappedConstraints(),
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
@@ -831,7 +866,7 @@ public class RelationalModelAsserter : ModelAsserter
                     Assert.Equal(expected.Collation, actual.Collation);
                 }
             },
-            () => Assert.Equal(expectedModel.DefaultTables.Values, actualModel.DefaultTables.Values,
+            () => Assert.Equal(expectedModel.DefaultTables.Values.Select(x => x), actualModel.DefaultTables.Values,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -839,7 +874,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Tables, actual.Tables,
+            () => Assert.Equal(expected.Tables.Select(x => x), actual.Tables,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -847,7 +882,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Views, actual.Views,
+            () => Assert.Equal(expected.Views.Select(x => x), actual.Views,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -855,7 +890,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Queries, actual.Queries,
+            () => Assert.Equal(expected.Queries.Select(x => x), actual.Queries,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -863,7 +898,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Functions, actual.Functions,
+            () => Assert.Equal(expected.Functions.Select(x => x), actual.Functions,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -871,7 +906,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.StoredProcedures, actual.StoredProcedures,
+            () => Assert.Equal(expected.StoredProcedures.Select(x => x), actual.StoredProcedures,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -879,7 +914,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Sequences, actual.Sequences,
+            () => Assert.Equal(expected.Sequences.Select(x => x), actual.Sequences,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -938,7 +973,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.EntityTypeMappings.ToList(), actual.EntityTypeMappings,
+            () => Assert.Equal(expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -946,7 +981,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ComplexTypeMappings.ToList(), actual.ComplexTypeMappings,
+            () => Assert.Equal(expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -968,7 +1003,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations, compareMemberAnnotations),
             () => Assert.Same(actual, actual.Model.FindTable(actual.Name, actual.Schema)),
-            () => Assert.Equal(expected.Columns, actual.Columns,
+            () => Assert.Equal(expected.Columns.Select(x => x), actual.Columns,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -976,42 +1011,42 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Indexes, actual.Indexes,
+            () => Assert.Equal(expected.Indexes.Select(x => x), actual.Indexes,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expected.ForeignKeyConstraints.ToList(), actual.ForeignKeyConstraints,
+            () => Assert.Equal(expected.ForeignKeyConstraints.Select(x => x), actual.ForeignKeyConstraints,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expected.ReferencingForeignKeyConstraints.ToList(), actual.ReferencingForeignKeyConstraints,
+            () => Assert.Equal(expected.ReferencingForeignKeyConstraints.Select(x => x), actual.ReferencingForeignKeyConstraints,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expected.UniqueConstraints, actual.UniqueConstraints,
+            () => Assert.Equal(expected.UniqueConstraints.Select(x => x), actual.UniqueConstraints,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expected.Triggers, actual.Triggers,
+            () => Assert.Equal(expected.Triggers.Select(x => x), actual.Triggers,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expected.EntityTypeMappings.ToList(), actual.EntityTypeMappings,
+            () => Assert.Equal(expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1019,7 +1054,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ComplexTypeMappings.ToList(), actual.ComplexTypeMappings,
+            () => Assert.Equal(expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1041,7 +1076,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations, compareMemberAnnotations),
             () => Assert.Same(actual, actual.Model.FindView(actual.Name, actual.Schema)),
-            () => Assert.Equal(expected.Columns, actual.Columns,
+            () => Assert.Equal(expected.Columns.Select(x => x), actual.Columns,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1049,7 +1084,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.EntityTypeMappings.ToList(), actual.EntityTypeMappings,
+            () => Assert.Equal(expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1057,7 +1092,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ComplexTypeMappings.ToList(), actual.ComplexTypeMappings,
+            () => Assert.Equal(expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1080,7 +1115,7 @@ public class RelationalModelAsserter : ModelAsserter
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations, compareMemberAnnotations),
             () => Assert.Equal(expected.Sql, actual.Sql),
             () => Assert.Same(actual, actual.Model.FindQuery(actual.Name)),
-            () => Assert.Equal(expected.Columns, actual.Columns,
+            () => Assert.Equal(expected.Columns.Select(x => x), actual.Columns,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1088,7 +1123,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.EntityTypeMappings.ToList(), actual.EntityTypeMappings,
+            () => Assert.Equal(expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1096,7 +1131,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ComplexTypeMappings.ToList(), actual.ComplexTypeMappings,
+            () => Assert.Equal(expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1124,7 +1159,7 @@ public class RelationalModelAsserter : ModelAsserter
             () => Assert.Equal(
                 actual.DbFunctions.Select(p => p.ModelName),
                 expected.DbFunctions.Select(p => p.ModelName)),
-            () => Assert.Equal(expected.Parameters, actual.Parameters,
+            () => Assert.Equal(expected.Parameters.Select(x => x), actual.Parameters,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1132,7 +1167,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.Columns, actual.Columns,
+            () => Assert.Equal(expected.Columns.Select(x => x), actual.Columns,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1140,7 +1175,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.EntityTypeMappings.ToList(), actual.EntityTypeMappings,
+            () => Assert.Equal(expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1148,7 +1183,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ComplexTypeMappings.ToList(), actual.ComplexTypeMappings,
+            () => Assert.Equal(expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1183,7 +1218,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>());
                     Assert.Same(actual, actual.ReturnValue.StoredProcedure);
-                    Assert.Equal(expected.ReturnValue.PropertyMappings, actual.ReturnValue.PropertyMappings,
+                    Assert.Equal(expected.ReturnValue.PropertyMappings.Select(x => x), actual.ReturnValue.PropertyMappings,
                         (expected, actual) =>
                             AssertEqual(
                                 expected,
@@ -1196,7 +1231,7 @@ public class RelationalModelAsserter : ModelAsserter
                     Assert.Null(actual.ReturnValue);
                 }
             },
-            () => Assert.Equal(expected.Parameters, actual.Parameters,
+            () => Assert.Equal(expected.Parameters.Select(x => x), actual.Parameters,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1204,7 +1239,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ResultColumns, actual.ResultColumns,
+            () => Assert.Equal(expected.ResultColumns.Select(x => x), actual.ResultColumns,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1212,7 +1247,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.EntityTypeMappings.ToList(), actual.EntityTypeMappings,
+            () => Assert.Equal(expected.EntityTypeMappings.Select(x => x), actual.EntityTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1220,7 +1255,7 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations)),
-            () => Assert.Equal(expected.ComplexTypeMappings.ToList(), actual.ComplexTypeMappings,
+            () => Assert.Equal(expected.ComplexTypeMappings.Select(x => x), actual.ComplexTypeMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1258,7 +1293,7 @@ public class RelationalModelAsserter : ModelAsserter
     {
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
-            () => Assert.Equal(expected.ColumnMappings, actual.ColumnMappings,
+            () => Assert.Equal(expected.ColumnMappings.Select(x => x), actual.ColumnMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1281,7 +1316,7 @@ public class RelationalModelAsserter : ModelAsserter
             () => AssertEqual(expected.DeleteStoredProcedureMapping, actual.DeleteStoredProcedureMapping, compareMemberAnnotations),
             () => AssertEqual(expected.InsertStoredProcedureMapping, actual.InsertStoredProcedureMapping, compareMemberAnnotations),
             () => AssertEqual(expected.UpdateStoredProcedureMapping, actual.UpdateStoredProcedureMapping, compareMemberAnnotations),
-            () => Assert.Equal(expected.ColumnMappings, actual.ColumnMappings,
+            () => Assert.Equal(expected.ColumnMappings.Select(x => x), actual.ColumnMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1301,7 +1336,7 @@ public class RelationalModelAsserter : ModelAsserter
     {
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
-            () => Assert.Equal(expected.ColumnMappings, actual.ColumnMappings,
+            () => Assert.Equal(expected.ColumnMappings.Select(x => x), actual.ColumnMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1322,7 +1357,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Equal(expected.IsDefaultSqlQueryMapping, actual.IsDefaultSqlQueryMapping),
-            () => Assert.Equal(expected.ColumnMappings, actual.ColumnMappings,
+            () => Assert.Equal(expected.ColumnMappings.Select(x => x), actual.ColumnMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1343,7 +1378,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Equal(expected.IsDefaultFunctionMapping, actual.IsDefaultFunctionMapping),
-            () => Assert.Equal(expected.ColumnMappings, actual.ColumnMappings,
+            () => Assert.Equal(expected.ColumnMappings.Select(x => x), actual.ColumnMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1384,14 +1419,14 @@ public class RelationalModelAsserter : ModelAsserter
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Equal(expected.StoredProcedure.GetSchemaQualifiedName(), actual.StoredProcedure.GetSchemaQualifiedName()),
             () => Assert.Contains(expected.TableMapping?.Table.SchemaQualifiedName, actual.TableMapping?.Table.SchemaQualifiedName),
-            () => Assert.Equal(expected.ResultColumnMappings, actual.ResultColumnMappings,
+            () => Assert.Equal(expected.ResultColumnMappings.Select(x => x), actual.ResultColumnMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expected.ParameterMappings, actual.ParameterMappings,
+            () => Assert.Equal(expected.ParameterMappings.Select(x => x), actual.ParameterMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1429,7 +1464,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Same(actual, actual.Table.FindColumn(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1450,7 +1485,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Same(actual, actual.Table.FindColumn(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1471,7 +1506,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Same(actual, actual.View.FindColumn(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1492,7 +1527,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Same(actual, actual.SqlQuery.FindColumn(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1513,7 +1548,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Same(actual, actual.Function.FindColumn(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1535,7 +1570,7 @@ public class RelationalModelAsserter : ModelAsserter
             () => Assert.Equal(expected.Name, actual.Name),
             () => Assert.Equal(expected.StoreType, actual.StoreType),
             () => Assert.Contains(actual, actual.Function.Parameters),
-            () => Assert.Equal(expected.DbFunctionParameters, actual.DbFunctionParameters,
+            () => Assert.Equal(expected.DbFunctionParameters.Select(x => x), actual.DbFunctionParameters,
                 (expected, actual) =>
                 {
                     Assert.Equal(expected.Name, actual.Name);
@@ -1557,7 +1592,7 @@ public class RelationalModelAsserter : ModelAsserter
             () => AssertEqualBase(expected, actual, expectedAnnotations, actualAnnotations),
             () => Assert.Equal(expected.Position, actual.Position),
             () => Assert.Same(actual, actual.StoredProcedure.FindResultColumn(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
@@ -1580,7 +1615,7 @@ public class RelationalModelAsserter : ModelAsserter
             () => Assert.Equal(expected.Position, actual.Position),
             () => Assert.Equal(expected.Direction, actual.Direction),
             () => Assert.Same(actual, actual.StoredProcedure.FindParameter(actual.Name)),
-            () => Assert.Equal(expected.PropertyMappings, actual.PropertyMappings,
+            () => Assert.Equal(expected.PropertyMappings.Select(x => x), actual.PropertyMappings,
                 (expected, actual) =>
                     AssertEqual(
                         expected,
