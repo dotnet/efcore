@@ -15,13 +15,9 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixt
         Assert.Equal(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot, exception.Message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
         => AssertTranslationFailed(() => base.Column_collection_Concat_parameter_collection_equality_inline_collection(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override Task Column_collection_equality_inline_collection_with_parameters(bool async)
         => AssertTranslationFailed(() => base.Column_collection_equality_inline_collection_with_parameters(async));
 

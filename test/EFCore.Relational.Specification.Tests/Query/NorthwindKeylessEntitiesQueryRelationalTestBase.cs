@@ -50,8 +50,6 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -60,8 +58,6 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
