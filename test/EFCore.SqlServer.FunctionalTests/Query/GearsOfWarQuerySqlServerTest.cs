@@ -10374,40 +10374,40 @@ LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
 
         AssertSql(
             """
-@__ranks_1='[1]' (Size = 4000)
-@__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
-@__keys_0='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
+@__ranks_0='[1]' (Size = 4000)
+@__key_1='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@__keys_2='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[Rank] IN (
         SELECT [r].[value]
-        FROM OPENJSON(@__ranks_1) WITH ([value] int '$') AS [r]
-    ) THEN @__key_2
-    ELSE @__key_2
+        FROM OPENJSON(@__ranks_0) WITH ([value] int '$') AS [r]
+    ) THEN @__key_1
+    ELSE @__key_1
 END IN (
     SELECT [k].[value]
-    FROM OPENJSON(@__keys_0) WITH ([value] uniqueidentifier '$') AS [k]
+    FROM OPENJSON(@__keys_2) WITH ([value] uniqueidentifier '$') AS [k]
 )
 """,
             //
             """
-@__ammoTypes_1='[1]' (Size = 4000)
-@__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
-@__keys_0='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
+@__ammoTypes_0='[1]' (Size = 4000)
+@__key_1='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@__keys_2='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 WHERE CASE
     WHEN [w].[AmmunitionType] IN (
         SELECT [a].[value]
-        FROM OPENJSON(@__ammoTypes_1) WITH ([value] int '$') AS [a]
-    ) THEN @__key_2
-    ELSE @__key_2
+        FROM OPENJSON(@__ammoTypes_0) WITH ([value] int '$') AS [a]
+    ) THEN @__key_1
+    ELSE @__key_1
 END IN (
     SELECT [k].[value]
-    FROM OPENJSON(@__keys_0) WITH ([value] uniqueidentifier '$') AS [k]
+    FROM OPENJSON(@__keys_2) WITH ([value] uniqueidentifier '$') AS [k]
 )
 """);
     }

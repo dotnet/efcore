@@ -206,12 +206,12 @@ WHERE [c].[Id] = @__customerId_0
 
         AssertSql(
             """
-@__starCount_0='3'
-@__customerId_1='1'
+@__starCount_1='3'
+@__customerId_0='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_0, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1
+WHERE [c].[Id] = @__customerId_0
 """);
     }
 
@@ -546,12 +546,12 @@ WHERE [c].[Id] = @__customerId_1
 
         AssertSql(
             """
-@__starCount_1='3'
-@__customerId_2='1'
+@__starCount_2='3'
+@__customerId_1='1'
 
-SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_2)) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_2
+WHERE [c].[Id] = @__customerId_1
 """);
     }
 

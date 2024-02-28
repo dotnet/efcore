@@ -9735,40 +9735,40 @@ LEFT JOIN "LocustHighCommands" AS "l0" ON "l"."HighCommandId" = "l0"."Id"
 
         AssertSql(
             """
-@__ranks_1='[1]' (Size = 3)
-@__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
-@__keys_0='["0A47BCB7-A1CB-4345-8944-C58F82D6AAC7","5F221FB9-66F4-442A-92C9-D97ED5989CC7"]' (Size = 79)
+@__ranks_0='[1]' (Size = 3)
+@__key_1='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@__keys_2='["0A47BCB7-A1CB-4345-8944-C58F82D6AAC7","5F221FB9-66F4-442A-92C9-D97ED5989CC7"]' (Size = 79)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."Rank" IN (
         SELECT "r"."value"
-        FROM json_each(@__ranks_1) AS "r"
-    ) THEN @__key_2
-    ELSE @__key_2
+        FROM json_each(@__ranks_0) AS "r"
+    ) THEN @__key_1
+    ELSE @__key_1
 END IN (
     SELECT "k"."value"
-    FROM json_each(@__keys_0) AS "k"
+    FROM json_each(@__keys_2) AS "k"
 )
 """,
             //
             """
-@__ammoTypes_1='[1]' (Size = 3)
-@__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
-@__keys_0='["0A47BCB7-A1CB-4345-8944-C58F82D6AAC7","5F221FB9-66F4-442A-92C9-D97ED5989CC7"]' (Size = 79)
+@__ammoTypes_0='[1]' (Size = 3)
+@__key_1='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@__keys_2='["0A47BCB7-A1CB-4345-8944-C58F82D6AAC7","5F221FB9-66F4-442A-92C9-D97ED5989CC7"]' (Size = 79)
 
 SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Weapons" AS "w"
 WHERE CASE
     WHEN "w"."AmmunitionType" IN (
         SELECT "a"."value"
-        FROM json_each(@__ammoTypes_1) AS "a"
-    ) THEN @__key_2
-    ELSE @__key_2
+        FROM json_each(@__ammoTypes_0) AS "a"
+    ) THEN @__key_1
+    ELSE @__key_1
 END IN (
     SELECT "k"."value"
-    FROM json_each(@__keys_0) AS "k"
+    FROM json_each(@__keys_2) AS "k"
 )
 """);
     }

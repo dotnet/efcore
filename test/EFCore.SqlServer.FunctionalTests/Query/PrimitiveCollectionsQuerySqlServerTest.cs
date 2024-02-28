@@ -1478,20 +1478,20 @@ ORDER BY [p].[Id]
 
         AssertSql(
             """
-@__ints_1='[1,2,3]' (Size = 4000)
-@__strings_0='["one","two","three"]' (Size = 4000)
+@__ints_0='[1,2,3]' (Size = 4000)
+@__strings_1='["one","two","three"]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CASE
     WHEN [p].[Int] IN (
         SELECT [i].[value]
-        FROM OPENJSON(@__ints_1) WITH ([value] int '$') AS [i]
+        FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
     ) THEN N'one'
     ELSE N'two'
 END IN (
     SELECT [s].[value]
-    FROM OPENJSON(@__strings_0) WITH ([value] nvarchar(max) '$') AS [s]
+    FROM OPENJSON(@__strings_1) WITH ([value] nvarchar(max) '$') AS [s]
 )
 """);
     }
@@ -1502,20 +1502,20 @@ END IN (
 
         AssertSql(
             """
-@__ints_1='[1,2,3]' (Size = 4000)
-@__strings_0='["one","two","three"]' (Size = 4000)
+@__ints_0='[1,2,3]' (Size = 4000)
+@__strings_1='["one","two","three"]' (Size = 4000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE CASE
     WHEN [p].[Int] IN (
         SELECT [i].[value]
-        FROM OPENJSON(@__ints_1) WITH ([value] int '$') AS [i]
+        FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
     ) THEN N'one'
     ELSE N'two'
 END IN (
     SELECT [s].[value]
-    FROM OPENJSON(@__strings_0) WITH ([value] nvarchar(max) '$') AS [s]
+    FROM OPENJSON(@__strings_1) WITH ([value] nvarchar(max) '$') AS [s]
 )
 """);
     }

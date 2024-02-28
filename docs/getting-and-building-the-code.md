@@ -80,7 +80,7 @@ Place the "Nuget.Config" file in your solution or project directory.
 The build script installs a preview .NET Core SDK. In order to make sure Visual studio (or any other IDE) is using same SDK, certain environment variables need to be set. To configure your local environment and open solution file in Visual Studio, run following command:
 
 ```console
-startvs.cmd EFCore.slnf
+startvs.cmd EFCore.sln
 ```
 
 You can inspect the script and use similar configuration for other IDEs.

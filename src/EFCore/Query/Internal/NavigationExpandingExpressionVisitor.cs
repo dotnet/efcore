@@ -49,7 +49,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
     private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
     private readonly HashSet<string> _parameterNames = [];
-    private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
+    private readonly ExpressionTreeFuncletizer _funcletizer;
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
@@ -80,14 +80,12 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         _entityReferenceOptionalMarkingExpressionVisitor = new EntityReferenceOptionalMarkingExpressionVisitor();
         _removeRedundantNavigationComparisonExpressionVisitor = new RemoveRedundantNavigationComparisonExpressionVisitor(
             queryCompilationContext.Logger);
-        _parameterExtractingExpressionVisitor = new ParameterExtractingExpressionVisitor(
-            evaluatableExpressionFilter,
-            _parameters,
-            _queryCompilationContext.ContextType,
+        _funcletizer = new ExpressionTreeFuncletizer(
             _queryCompilationContext.Model,
-            _queryCompilationContext.Logger,
-            parameterize: false,
-            generateContextAccessors: true);
+            evaluatableExpressionFilter,
+            _queryCompilationContext.ContextType,
+            generateContextAccessors: true,
+            _queryCompilationContext.Logger);
 
         _nonCyclicAutoIncludeEntityTypes = !_queryCompilationContext.IgnoreAutoIncludes ? [] : null!;
     }
@@ -210,8 +208,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // Apply defining query only when it is not custom query root
                     && entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
-                    var processedDefiningQueryBody =
-                        _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body, clearEvaluatedValues: false);
+                    var processedDefiningQueryBody = _funcletizer.ExtractParameters(
+                        definingQuery.Body, _parameters, parameterize: false, clearParameterizedValues: false);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                     processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                     processedDefiningQueryBody =
@@ -1754,8 +1752,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
                 {
                     filterPredicate = queryFilter;
-                    filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(
-                        filterPredicate, clearEvaluatedValues: false);
+                    filterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
+                        filterPredicate, _parameters, parameterize: false, clearParameterizedValues: false);
                     filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
                     // We need to do entity equality, but that requires a full method call on a query root to properly flow the

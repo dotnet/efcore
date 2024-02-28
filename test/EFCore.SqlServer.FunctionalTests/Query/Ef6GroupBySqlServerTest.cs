@@ -159,12 +159,10 @@ GROUP BY [a].[FirstName]
 
         AssertSql(
             """
-@__p_0='False'
-
 SELECT CASE
     WHEN [a].[FirstName] IS NULL THEN N'is null'
     ELSE N'not null'
-END AS [keyIsNull], @__p_0 AS [logicExpression]
+END AS [keyIsNull], CAST(0 AS bit) AS [logicExpression]
 FROM [ArubaOwner] AS [a]
 GROUP BY [a].[FirstName]
 """);
@@ -180,10 +178,10 @@ GROUP BY [a].[FirstName]
         // )  AS [Distinct1]";
     }
 
-    public override async Task GroupBy_is_optimized_when_filerting_and_projecting_anonymous_type_with_group_key_and_function_aggregate(
+    public override async Task GroupBy_is_optimized_when_filtering_and_projecting_anonymous_type_with_group_key_and_function_aggregate(
         bool async)
     {
-        await base.GroupBy_is_optimized_when_filerting_and_projecting_anonymous_type_with_group_key_and_function_aggregate(async);
+        await base.GroupBy_is_optimized_when_filtering_and_projecting_anonymous_type_with_group_key_and_function_aggregate(async);
 
         AssertSql(
             """

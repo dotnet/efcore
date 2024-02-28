@@ -3713,11 +3713,11 @@ WHERE (c["Discriminator"] = "OrderDetail")
 
         AssertSql(
             """
-@__entity_equality_p_0_CustomerID='ALFKI'
+@__entity_equality_a_0_CustomerID='ALFKI'
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__entity_equality_p_0_CustomerID))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__entity_equality_a_0_CustomerID))
 """);
     }
 
@@ -4148,9 +4148,7 @@ WHERE (c["Discriminator"] = "Employee")
 
         AssertSql(
             """
-@__p_0='none'
-
-SELECT VALUE {"CustomerID" : c["CustomerID"], "Data1" : @__p_0}
+SELECT VALUE {"CustomerID" : c["CustomerID"], "Data1" : "none"}
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -4527,6 +4525,9 @@ WHERE (c["Discriminator"] = "Customer")
         AssertSql();
     }
 
+    public override Task IQueryable_captured_variable()
+        => AssertTranslationFailed(() => base.IQueryable_captured_variable());
+
     public override async Task Multiple_context_instances(bool async)
     {
         await base.Multiple_context_instances(async);
@@ -4676,11 +4677,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] || "SomeConstant")
 
         AssertSql(
             """
-@__someVariable_1='SomeVariable'
+@__someVariable_0='SomeVariable'
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] || @__someVariable_1) IN ("ALFKISomeVariable", "ANATRSomeVariable", "ALFKIX"))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] || @__someVariable_0) IN ("ALFKISomeVariable", "ANATRSomeVariable", "ALFKIX"))
 """);
     }
 

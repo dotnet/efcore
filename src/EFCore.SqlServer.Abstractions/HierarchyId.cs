@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.SqlServer.Types;
@@ -25,7 +26,7 @@ public class HierarchyId : IComparable<HierarchyId>
     }
 
     /// <summary>
-    ///     Initializes a new instance of the<see cref="HierarchyId" /> class. Equivalent to <see cref="Parse" />.
+    ///     Initializes a new instance of the<see cref="HierarchyId" /> class. Equivalent to <see cref="Parse(string?)" />.
     /// </summary>
     /// <param name="value">The string representation of the node.</param>
     public HierarchyId(string value)
@@ -62,6 +63,35 @@ public class HierarchyId : IComparable<HierarchyId>
     [return: NotNullIfNotNull(nameof(input))]
     public static HierarchyId? Parse(string? input)
         => (HierarchyId?)SqlHierarchyId.Parse(input);
+
+    /// <summary>
+    /// Converts the <paramref name= "parentHierarchyId" /> and <paramref name= "parentId" /> of a node to a <see cref="HierarchyId" /> value.
+    /// </summary>
+    /// <param name="parentHierarchyId">The parent HierarchyId of node.</param>
+    /// <param name="parentId">The parent Id of current node. It can be more than one element if want have path like: "/1/2/3.1/", otherwise one element for have path like: "/1/2/3/".</param>
+    /// <returns>A <see cref="HierarchyId" /> value.</returns>
+    public static HierarchyId Parse(HierarchyId parentHierarchyId , params int[] parentId)
+        => GenerateHierarchyIdBasedOnParent(parentHierarchyId, parentId);
+
+    //This Method can move to "SqlHierarchyId in Microsoft.SqlServer.Types", if we don't want put it in this abstraction.
+    private static HierarchyId GenerateHierarchyIdBasedOnParent(HierarchyId parent, params int[] parentId)
+    {
+        if (parent is null)
+        {
+            return HierarchyId.GetRoot();
+        }
+
+        if (parentId.Length < 1)
+        {
+            return parent;
+        }
+
+        var specificPath = new StringBuilder(parent.ToString());
+        specificPath.Append(string.Join(".", parentId));
+        specificPath.Append('/');
+
+        return HierarchyId.Parse(specificPath.ToString());
+    }
 
     /// <inheritdoc />
     public virtual int CompareTo(HierarchyId? other)

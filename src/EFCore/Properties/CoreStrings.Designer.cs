@@ -982,14 +982,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
         /// </summary>
-        public static string EFConstantWithNonEvaluableArgument
-            => GetString("EFConstantWithNonEvaluableArgument");
+        public static string EFConstantWithNonEvaluatableArgument
+            => GetString("EFConstantWithNonEvaluatableArgument");
 
         /// <summary>
         ///     The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.
         /// </summary>
         public static string EFParameterInvoked
             => GetString("EFParameterInvoked");
+
+        /// <summary>
+        ///     The EF.Parameter&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
+        /// </summary>
+        public static string EFParameterWithNonEvaluatableArgument
+            => GetString("EFParameterWithNonEvaluatableArgument");
 
         /// <summary>
         ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
@@ -1765,6 +1771,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ManyToManyOneNav", nameof(entityType), nameof(navigation)),
                 entityType, navigation);
+
+        /// <summary>
+        ///     EF Core does not support MemberListBinding: 'new Blog { Posts = { new Post(), new Post() } }'.
+        /// </summary>
+        public static string MemberListBindingNotSupported
+            => GetString("MemberListBindingNotSupported");
+
+        /// <summary>
+        ///     EF Core does not support MemberMemberBinding: 'new Blog { Data = { Name = "hello world" } }'.
+        /// </summary>
+        public static string MemberMemberBindingNotSupported
+            => GetString("MemberMemberBindingNotSupported");
 
         /// <summary>
         ///     The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.

@@ -1211,11 +1211,19 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && boolean),
             assertEmpty: true);
 
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || boolean));
+
         boolean = true;
 
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && boolean));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || boolean));
     }
 
     [ConditionalTheory]
@@ -2391,7 +2399,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(c.CustomerID))));
 
-        Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
+        Assert.Equal(CoreStrings.EFConstantWithNonEvaluatableArgument, exception.Message);
     }
 
     [ConditionalTheory]
@@ -2438,7 +2446,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(c.CustomerID))));
 
-        Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
+        Assert.Equal(CoreStrings.EFParameterWithNonEvaluatableArgument, exception.Message);
     }
 
     private class EntityWithImplicitCast(int value)
