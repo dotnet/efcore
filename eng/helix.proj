@@ -69,7 +69,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <XUnitPublishTargetFramework>net8.0</XUnitPublishTargetFramework>
+    <XUnitPublishTargetFramework>net9.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.2</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>

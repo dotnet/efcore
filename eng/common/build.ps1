@@ -19,6 +19,8 @@ Param(
   [switch] $pack,
   [switch] $publish,
   [switch] $clean,
+  [switch] $verticalBuild,
+  [switch][Alias('pb')]$productBuild,
   [switch][Alias('bl')]$binaryLog,
   [switch][Alias('nobl')]$excludeCIBinarylog,
   [switch] $ci,
@@ -58,6 +60,8 @@ function Print-Usage() {
   Write-Host "  -sign                   Sign build outputs"
   Write-Host "  -publish                Publish artifacts (e.g. symbols)"
   Write-Host "  -clean                  Clean the solution"
+  Write-Host "  -verticalBuild          Run in 'vertical build' infra mode."
+  Write-Host "  -productBuild           Build the solution in the way it will be built in the full .NET product (VMR) build (short: -pb)"
   Write-Host ""
 
   Write-Host "Advanced settings:"
@@ -95,6 +99,8 @@ function Build {
 
   $bl = if ($binaryLog) { '/bl:' + (Join-Path $LogDir 'Build.binlog') } else { '' }
   $platformArg = if ($platform) { "/p:Platform=$platform" } else { '' }
+  # disable terminal logger for now: https://github.com/dotnet/runtime/issues/97211
+  $tl = '/tl:false'
 
   if ($projects) {
     # Re-assign properties to a new variable because PowerShell doesn't let us append properties directly for unclear reasons.
@@ -111,6 +117,7 @@ function Build {
   MSBuild $toolsetBuildProj `
     $bl `
     $platformArg `
+    $tl `
     /p:Configuration=$configuration `
     /p:RepoRoot=$RepoRoot `
     /p:Restore=$restore `
@@ -120,6 +127,8 @@ function Build {
     /p:Deploy=$deploy `
     /p:Test=$test `
     /p:Pack=$pack `
+    /p:DotNetBuildRepo=$($productBuild -or $verticalBuild) `
+    /p:ArcadeBuildVertical=$verticalBuild `
     /p:IntegrationTest=$integrationTest `
     /p:PerformanceTest=$performanceTest `
     /p:Sign=$sign `

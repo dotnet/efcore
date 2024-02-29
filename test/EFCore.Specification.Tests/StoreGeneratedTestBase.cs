@@ -83,7 +83,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(nameof(Anais.OnUpdateThrowBeforeUseAfter), "Rabbit")]
     [InlineData(nameof(Anais.OnUpdateThrowBeforeIgnoreAfter), "Rabbit")]
     [InlineData(nameof(Anais.OnUpdateThrowBeforeThrowAfter), "Rabbit")]
-    public virtual void Before_save_throw_ignores_value_if_not_set(string propertyName, string expectedValue)
+    public virtual void Before_save_throw_ignores_value_if_not_set(string propertyName, string? expectedValue)
     {
         var id = 0;
         ExecuteWithStrategyInTransaction(
@@ -179,7 +179,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(nameof(Anais.OnUpdateIgnoreBeforeUseAfter), "Rabbit")]
     [InlineData(nameof(Anais.OnUpdateIgnoreBeforeIgnoreAfter), "Rabbit")]
     [InlineData(nameof(Anais.OnUpdateIgnoreBeforeThrowAfter), "Rabbit")]
-    public virtual void Before_save_ignore_ignores_value_if_not_set(string propertyName, string expectedValue)
+    public virtual void Before_save_ignore_ignores_value_if_not_set(string propertyName, string? expectedValue)
     {
         var id = 0;
         ExecuteWithStrategyInTransaction(
@@ -208,7 +208,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(nameof(Anais.OnUpdateIgnoreBeforeUseAfter), "Rabbit")]
     [InlineData(nameof(Anais.OnUpdateIgnoreBeforeIgnoreAfter), "Rabbit")]
     [InlineData(nameof(Anais.OnUpdateIgnoreBeforeThrowAfter), "Rabbit")]
-    public virtual void Before_save_ignore_ignores_value_even_if_set(string propertyName, string expectedValue)
+    public virtual void Before_save_ignore_ignores_value_even_if_set(string propertyName, string? expectedValue)
     {
         var id = 0;
         ExecuteWithStrategyInTransaction(
