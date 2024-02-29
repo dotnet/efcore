@@ -8,6 +8,12 @@ namespace Microsoft.EntityFrameworkCore.Tools;
 
 internal static class Reporter
 {
+    public const string ErrorPrefix = "error:   ";
+    public const string WarningPrefix = "warn:    ";
+    public const string InfoPrefix = "info:    ";
+    public const string DataPrefix = "data:    ";
+    public const string VerbosePrefix = "verbose: ";
+
     public static bool IsVerbose { get; set; }
     public static bool NoColor { get; set; }
     public static bool PrefixOutput { get; set; }
@@ -17,22 +23,22 @@ internal static class Reporter
         => NoColor ? value : colorizeFunc(value);
 
     public static void WriteError(string? message)
-        => WriteLine(Prefix("error:   ", Colorize(message, x => Bold + Red + x + Reset)));
+        => WriteLine(Prefix(ErrorPrefix, Colorize(message, x => Bold + Red + x + Reset)));
 
     public static void WriteWarning(string? message)
-        => WriteLine(Prefix("warn:    ", Colorize(message, x => Bold + Yellow + x + Reset)));
+        => WriteLine(Prefix(WarningPrefix, Colorize(message, x => Bold + Yellow + x + Reset)));
 
     public static void WriteInformation(string? message)
-        => WriteLine(Prefix("info:    ", message));
+        => WriteLine(Prefix(InfoPrefix, message));
 
     public static void WriteData(string? message)
-        => WriteLine(Prefix("data:    ", Colorize(message, x => Bold + Gray + x + Reset)));
+        => WriteLine(Prefix(DataPrefix, Colorize(message, x => Bold + Gray + x + Reset)));
 
     public static void WriteVerbose(string? message)
     {
         if (IsVerbose)
         {
-            WriteLine(Prefix("verbose: ", Colorize(message, x => Bold + Black + x + Reset)));
+            WriteLine(Prefix(VerbosePrefix, Colorize(message, x => Bold + Black + x + Reset)));
         }
     }
 

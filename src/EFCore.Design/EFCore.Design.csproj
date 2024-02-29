@@ -47,10 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\**\*">
-      <Pack>True</Pack>
-      <PackagePath>build</PackagePath>
-    </None>
+    <None Include="build\**\*" PackagePath="build\" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>

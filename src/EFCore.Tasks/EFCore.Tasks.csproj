@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MSBuild tasks for Entity Framework Core projects.</Description>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework);net472</TargetFrameworks>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Tasks</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <IncludeSymbols>false</IncludeSymbols>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>NU5100;NU5128</NoWarn>
+    <ImplicitUsings>true</ImplicitUsings>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\dotnet-ef\Exe.cs" Link="Tools\Exe.cs" />
+    <Compile Include="..\ef\AnsiConsole.cs" Link="Tools\AnsiConsole.cs"/>
+    <Compile Include="..\ef\AnsiConstants.cs" Link="Tools\AnsiConstants.cs"/>
+    <Compile Include="..\ef\AnsiTextWriter.cs" Link="Tools\AnsiTextWriter.cs"/>
+    <Compile Include="..\ef\Reporter.cs" Link="Tools\Reporter.cs"/>
+    <Compile Include="..\ef\NotNullIfNotNullAttribute.cs" Link="Tools\NotNullIfNotNullAttribute.cs"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Resources.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Tools.Properties</CustomToolNamespace>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.Designer.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.Build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ef\ef.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' != 'net472'">
+    <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkVersion)" PrivateAssets="all" ExcludeAssets="Runtime" IsImplicitlyDefined="true" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildTasksCoreVersion)" PrivateAssets="all" ExcludeAssets="Runtime" IsImplicitlyDefined="true" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCoreVersion)" PrivateAssets="all" ExcludeAssets="Runtime" IsImplicitlyDefined="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" PrivateAssets="All" />
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Tasks.v4.0" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
+
+  <!--
+    Workaround for insufficient support for task packages by NuGet Pack: https://github.com/NuGet/Home/issues/6321
+    and bugs with ProjectReference: https://github.com/NuGet/Home/issues/10907, https://github.com/NuGet/Home/issues/10312
+  -->
+  <PropertyGroup>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+  </PropertyGroup>
+
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
+    <ItemGroup>
+      <NuspecProperty Include="AssemblyName=$(AssemblyName)" />
+      <NuspecProperty Include="OutputPath=$(OutputPath)" />
+      <NuspecProperty Include="DefaultNetCoreTargetFramework=$(DefaultNetCoreTargetFramework)" />
+      <NuspecProperty Include="Configuration=$(Configuration)" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+</Project>

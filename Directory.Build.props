@@ -10,6 +10,7 @@
         ( $(MSBuildProjectName.EndsWith('.Tests')) OR
           $(MSBuildProjectName.EndsWith('.FunctionalTests'))) ">true</IsUnitTestProject>
     <IsUnitTestProject Condition=" '$(IsUnitTestProject)' == '' ">false</IsUnitTestProject>
+    <SolutionRoot>$(MSBuildThisFileDirectory)</SolutionRoot>
   </PropertyGroup>
 
   <PropertyGroup>
