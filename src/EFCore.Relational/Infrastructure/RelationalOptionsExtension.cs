@@ -162,7 +162,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// <returns>A new instance with the option changed.</returns>
     public virtual RelationalOptionsExtension WithCommandTimeout(int? commandTimeout)
     {
-        if (commandTimeout is <= 0)
+        if (commandTimeout is < 0)
         {
             throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout(commandTimeout));
         }
