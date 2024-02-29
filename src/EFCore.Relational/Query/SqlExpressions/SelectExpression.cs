@@ -2166,7 +2166,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     structuralProjection1.TableMap.Keys.All(t => structuralProjection2.TableMap.ContainsKey(t)),
                     "Set operation over entity projections with table map discrepancy");
 
-                var tableMap = projection1.TableMap.ToDictionary(kvp => kvp.Key, _ => setOperationAlias);
+                var tableMap = structuralProjection1.TableMap.ToDictionary(kvp => kvp.Key, _ => setOperationAlias);
 
                 var discriminatorExpression = structuralProjection1.DiscriminatorExpression;
                 if (structuralProjection1.DiscriminatorExpression != null
