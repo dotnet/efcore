@@ -582,7 +582,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         {
             switch (expression)
             {
-                case TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true } jsonEachExpression
+                case JsonEachExpression jsonEachExpression
                     when TryGetInferredTypeMapping(jsonEachExpression.Alias, "value", out var typeMapping):
                     return ApplyTypeMappingsOnJsonEachExpression(jsonEachExpression, typeMapping);
 
@@ -638,8 +638,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual TableValuedFunctionExpression ApplyTypeMappingsOnJsonEachExpression(
-            TableValuedFunctionExpression jsonEachExpression,
+        protected virtual JsonEachExpression ApplyTypeMappingsOnJsonEachExpression(
+            JsonEachExpression jsonEachExpression,
             RelationalTypeMapping inferredTypeMapping)
         {
             // Constant queryables are translated to VALUES, no need for JSON.
@@ -657,7 +657,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
             Check.DebugAssert(parameterTypeMapping.ElementTypeMapping != null, "Collection type mapping missing element mapping.");
 
-            return jsonEachExpression.Update(new[] { parameterExpression.ApplyTypeMapping(parameterTypeMapping) });
+            return jsonEachExpression.Update(
+                parameterExpression.ApplyTypeMapping(parameterTypeMapping),
+                jsonEachExpression.Path);
         }
     }
 
