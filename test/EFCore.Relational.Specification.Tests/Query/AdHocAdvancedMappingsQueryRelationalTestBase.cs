@@ -55,6 +55,26 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase : AdHocAdvanc
         }
     }
 
+    [ConditionalFact]
+    public virtual async Task Projecting_one_of_two_similar_complex_types_picks_the_correct_one()
+    {
+        var contextFactory = await InitializeAsync<Context32911_2>(seed: c => c.Seed());
+
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Cs
+            .Where(x => x.B.AId.Value == 1)
+            .OrderBy(x => x.Id)
+            .Take(10)
+            .Select(x => new
+            {
+                x.B.A.Id,
+                x.B.Info.Created,
+            }).ToList();
+
+        Assert.Equal(new DateTime(2000, 1, 1), query[0].Created);
+    }
+
     protected class Context32911(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Offer> Offers { get; set; }
@@ -141,6 +161,69 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase : AdHocAdvanc
         }
 
         public record Payment(decimal Netto, decimal Brutto);
+    }
+
+    protected class Context32911_2(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<A> As { get; set; }
+        public DbSet<B> Bs { get; set; }
+        public DbSet<C> Cs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<A>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<B>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<C>().Property(x => x.Id).ValueGeneratedNever();
+
+            modelBuilder.Entity<B>(x => x.ComplexProperty(b => b.Info).IsRequired());
+            modelBuilder.Entity<C>(x => x.ComplexProperty(c => c.Info).IsRequired());
+        }
+
+        public void Seed()
+        {
+            var c = new C
+            {
+                Id = 100,
+                Info = new Metadata { Created = new DateTime(2020, 10, 10) },
+                B = new B
+                {
+                    Id = 10,
+                    Info = new Metadata { Created = new DateTime(2000, 1, 1) },
+                    A = new A { Id = 1 }
+                }
+            };
+
+            Cs.Add(c);
+            SaveChanges();
+        }
+
+        public class Metadata
+        {
+            public DateTime Created { get; set; }
+        }
+
+        public class A
+        {
+            public int Id { get; set; }
+        }
+
+        public class B
+        {
+            public int Id { get; set; }
+            public Metadata Info { get; set; }
+            public int? AId { get; set; }
+
+            public A A { get; set; }
+        }
+
+        public class C
+        {
+            public int Id { get; set; }
+            public Metadata Info { get; set; }
+            public int BId { get; set; }
+
+            public B B { get; set; }
+        }
     }
 
     #endregion

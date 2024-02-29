@@ -284,4 +284,25 @@ INNER JOIN (
 ORDER BY [o0].[Id]
 """);
     }
+
+    public override async Task Projecting_one_of_two_similar_complex_types_picks_the_correct_one()
+    {
+        await base.Projecting_one_of_two_similar_complex_types_picks_the_correct_one();
+
+        AssertSql(
+"""
+@__p_0='10'
+
+SELECT [a].[Id], [s].[Info_Created0] AS [Created]
+FROM (
+    SELECT TOP(@__p_0) [c].[Id], [b].[AId], [b].[Info_Created] AS [Info_Created0]
+    FROM [Cs] AS [c]
+    INNER JOIN [Bs] AS [b] ON [c].[BId] = [b].[Id]
+    WHERE [b].[AId] = 1
+    ORDER BY [c].[Id]
+) AS [s]
+LEFT JOIN [As] AS [a] ON [s].[AId] = [a].[Id]
+ORDER BY [s].[Id]
+""");
+    }
 }
