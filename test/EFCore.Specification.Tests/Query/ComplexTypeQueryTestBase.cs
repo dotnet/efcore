@@ -814,6 +814,13 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.Complex?.Two, a.Complex?.Two);
             });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_with_complex_type_with_group_by_and_first(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(x => x.Id).Select(x => x.First()));
+
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 }

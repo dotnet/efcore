@@ -298,11 +298,11 @@ public class StructuralTypeProjectionExpression : Expression
             case RelationalAnnotationNames.TpcMappingStrategy:
             case RelationalAnnotationNames.TptMappingStrategy:
                 newTableMap = new Dictionary<ITableBase, string>();
-                foreach (var (table, tableReferenceExpression) in TableMap)
+                foreach (var (table, tableAlias) in TableMap)
                 {
                     if (table.EntityTypeMappings.Any(m => m.TypeBase == derivedType))
                     {
-                        newTableMap.Add(table, tableReferenceExpression);
+                        newTableMap.Add(table, tableAlias);
                     }
                 }
 
@@ -330,6 +330,17 @@ public class StructuralTypeProjectionExpression : Expression
         return new StructuralTypeProjectionExpression(
             derivedType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, newTableMap ?? TableMap, IsNullable, discriminatorExpression);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual StructuralTypeProjectionExpression UpdateTableMap(IReadOnlyDictionary<ITableBase, string> newTableMap)
+        => new StructuralTypeProjectionExpression(
+            StructuralType, _propertyExpressionMap, _ownedNavigationMap, _complexPropertyCache, newTableMap, IsNullable, DiscriminatorExpression);
 
     /// <summary>
     ///     Binds a property with this structural type projection to get the SQL representation.
