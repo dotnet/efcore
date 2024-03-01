@@ -27,7 +27,8 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Data),
                 baseEntityType,
                 propertyCount: 2,
-                keyCount: 1);
+                keyCount: 1,
+                triggerCount: 2);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",

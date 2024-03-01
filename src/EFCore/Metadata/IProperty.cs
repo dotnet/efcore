@@ -83,12 +83,6 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     new IEnumerable<IKey> GetContainingKeys();
 
     /// <summary>
-    ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
-    /// </summary>
-    /// <returns>The comparer.</returns>
-    IComparer<IUpdateEntry> GetCurrentValueComparer();
-
-    /// <summary>
     ///     Gets the <see cref="ValueComparer" /> for this property.
     /// </summary>
     /// <returns>The comparer.</returns>

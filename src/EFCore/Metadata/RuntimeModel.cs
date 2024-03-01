@@ -117,7 +117,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// <param name="unnamedIndexCount">The expected number of declared unnamed indexes for this entity type.</param>
     /// <param name="namedIndexCount">The expected number of declared named indexes for this entity type.</param>
     /// <param name="keyCount">The expected number of declared keys for this entity type.</param>
-    /// <param name="triggerPropertyCount">The expected number of declared triggers for this entity type.</param>
+    /// <param name="triggerCount">The expected number of declared triggers for this entity type.</param>
     /// <returns>The new entity type.</returns>
     public virtual RuntimeEntityType AddEntityType(
         string name,
@@ -139,7 +139,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
         int unnamedIndexCount = 0,
         int namedIndexCount = 0,
         int keyCount = 0,
-        int triggerPropertyCount = 0)
+        int triggerCount = 0)
     {
         var entityType = new RuntimeEntityType(
             name,
@@ -157,12 +157,12 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
             complexPropertyCount: complexPropertyCount,
             foreignKeyCount: foreignKeyCount,
             navigationCount: navigationCount,
-            skipNavigationPropertyCount: skipNavigationCount,
+            skipNavigationCount: skipNavigationCount,
             servicePropertyCount: servicePropertyCount,
             unnamedIndexCount: unnamedIndexCount,
             namedIndexCount: namedIndexCount,
             keyCount: keyCount,
-            triggerPropertyCount: triggerPropertyCount);
+            triggerCount: triggerCount);
 
         if (sharedClrType)
         {

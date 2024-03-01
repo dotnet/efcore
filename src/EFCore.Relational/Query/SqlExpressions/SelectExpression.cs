@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -381,7 +382,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             void ProcessTypeProjection(StructuralTypeProjectionExpression projection)
             {
-                foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+                foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
                 {
                     AddToProjection(projection.BindProperty(property), alias: null);
                 }
@@ -1282,7 +1283,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             void ProcessType(StructuralTypeProjectionExpression typeProjection)
             {
-                foreach (var property in typeProjection.StructuralType.GetAllPropertiesInHierarchy())
+                foreach (var property in typeProjection.StructuralType.GetPropertiesInHierarchy())
                 {
                     if (typeProjection is { StructuralType: IEntityType entityType }
                         && entityType.IsMappedToJson()
@@ -1738,7 +1739,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 break;
 
             case StructuralTypeShaperExpression { ValueBufferExpression: StructuralTypeProjectionExpression projection }:
-                foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+                foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
                 {
                     PopulateGroupByTerms(projection.BindProperty(property), groupByTerms, groupByAliases, name: null);
                 }
@@ -2088,7 +2089,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
                 var type = structuralProjection1.StructuralType;
 
-                foreach (var property in type.GetAllPropertiesInHierarchy())
+                foreach (var property in type.GetPropertiesInHierarchy())
                 {
                     var column1 = structuralProjection1.BindProperty(property);
                     var column2 = structuralProjection2.BindProperty(property);
@@ -3190,7 +3191,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     if (expression is StructuralTypeProjectionExpression projection)
                     {
-                        foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+                        foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
                         {
                             result.Add(projection.BindProperty(property));
                         }
@@ -3543,7 +3544,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
             var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
 
-            foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+            foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
             {
                 // json entity projection (i.e. JSON entity that was transformed into query root) may have synthesized keys
                 // but they don't correspond to any columns - we need to skip those

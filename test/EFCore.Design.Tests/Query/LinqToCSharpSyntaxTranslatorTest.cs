@@ -1911,8 +1911,8 @@ catch
         var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();
         var actual = isStatement
-            ? translator.Statement(expression, constantReplacements, memberAccessReplacements, namespaces)
-            : translator.Expression(expression, constantReplacements, memberAccessReplacements, namespaces);
+            ? translator.Statement(expression, namespaces, constantReplacements, memberAccessReplacements)
+            : translator.Expression(expression, namespaces, constantReplacements, memberAccessReplacements);
 
         if (_outputExpressionTrees)
         {
