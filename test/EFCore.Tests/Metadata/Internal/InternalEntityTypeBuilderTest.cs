@@ -3,6 +3,7 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming

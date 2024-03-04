@@ -207,6 +207,13 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     IEnumerable<IPropertyBase> GetSnapshottableMembers();
 
     /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> GetPropertiesInHierarchy()
+        => throw new NotSupportedException();
+
+    /// <summary>
     ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
@@ -223,4 +230,11 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> GetFlattenedDeclaredProperties();
+
+    /// <summary>
+    ///     Gets all properties declared on the base types and types derived from this entity type, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> GetFlattenedPropertiesInHierarchy()
+        => throw new NotSupportedException();
 }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
@@ -351,7 +352,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // (SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each(c."JsonColumn", '$.Something.SomeCollection')
 
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
-        foreach (var property in entityType.GetAllPropertiesInHierarchy())
+        foreach (var property in entityType.GetPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
@@ -369,7 +370,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             }
         }
 
-        foreach (var navigation in jsonQueryExpression.EntityType.GetAllNavigationsInHierarchy()
+        foreach (var navigation in jsonQueryExpression.EntityType.GetNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()

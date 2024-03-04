@@ -68,12 +68,12 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         int complexPropertyCount,
         int foreignKeyCount,
         int navigationCount,
-        int skipNavigationPropertyCount,
+        int skipNavigationCount,
         int servicePropertyCount,
         int unnamedIndexCount,
         int namedIndexCount,
         int keyCount,
-        int triggerPropertyCount)
+        int triggerCount)
         : base(name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,
@@ -85,9 +85,9 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         _discriminatorValue = discriminatorValue;
         _foreignKeys = new(foreignKeyCount);
         _navigations = new(navigationCount, StringComparer.Ordinal);
-        if (skipNavigationPropertyCount > 0)
+        if (skipNavigationCount > 0)
         {
-            _skipNavigations = new(skipNavigationPropertyCount, StringComparer.Ordinal);
+            _skipNavigations = new(skipNavigationCount, StringComparer.Ordinal);
         }
         if (servicePropertyCount > 0)
         {
@@ -99,9 +99,9 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             _namedIndexes = new(namedIndexCount, StringComparer.Ordinal);
         }
         _keys = new(keyCount, PropertyListComparer.Instance);
-        if (triggerPropertyCount > 0)
+        if (triggerCount > 0)
         {
-            _triggers = new(triggerPropertyCount, StringComparer.Ordinal);
+            _triggers = new(triggerCount, StringComparer.Ordinal);
         }
     }
 

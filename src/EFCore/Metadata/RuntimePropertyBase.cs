@@ -27,6 +27,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     private IClrPropertySetter? _materializationSetter;
     private PropertyAccessors? _accessors;
     private PropertyIndexes? _indexes;
+    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -152,6 +153,23 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
         where TEntity : class
         => _getter = new ClrPropertyGetter<TEntity, TStructuralType, TValue>(
             getter, hasDefaultValue, structuralTypeGetter, hasStructuralTypeSentinelValue);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual void SetCurrentValueComparer(IComparer<IUpdateEntry> comparer)
+        => _currentValueComparer = comparer;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IComparer<IUpdateEntry> IPropertyBase.GetCurrentValueComparer()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _currentValueComparer, this, static property =>
+                CurrentValueComparerFactory.Instance.Create(property));
 
     /// <inheritdoc />
     IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType

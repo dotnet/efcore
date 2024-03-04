@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -121,7 +122,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         var tableMap = new Dictionary<ITableBase, string> { [table] = alias };
 
                         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                        foreach (var property in entityType.GetAllPropertiesInHierarchy())
+                        foreach (var property in entityType.GetPropertiesInHierarchy())
                         {
                             propertyExpressions[property] = CreateColumnExpression(property, table, alias, nullable: false);
                         }
@@ -145,7 +146,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     else
                     {
                         var tables = entityTypes.Select(e => e.GetViewOrTableMappings().Single().Table).ToArray();
-                        var properties = entityType.GetAllFlattenedPropertiesInHierarchy().ToArray();
+                        var properties = entityType.GetFlattenedPropertiesInHierarchy().ToArray();
                         var propertyNamesMap = new Dictionary<IProperty, string>();
                         for (var i = 0; i < entityTypes.Length; i++)
                         {
@@ -332,7 +333,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                 var alias = tableExpression.Alias!;
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in entityType.GetAllPropertiesInHierarchy())
+                foreach (var property in entityType.GetPropertiesInHierarchy())
                 {
                     propertyExpressions[property] = CreateColumnExpression(property, table, alias, nullable: false);
                 }
@@ -382,7 +383,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 
         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
 
-        foreach (var property in entityType.GetAllPropertiesInHierarchy())
+        foreach (var property in entityType.GetPropertiesInHierarchy())
         {
             propertyExpressions[property] = CreateColumnExpression(property, table, alias, nullable: false);
         }
@@ -505,7 +506,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         Dictionary<IProperty, ColumnExpression> propertyExpressions,
         string tableAlias)
     {
-        foreach (var ownedJsonNavigation in entityType.GetAllNavigationsInHierarchy()
+        foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()
@@ -585,7 +586,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         // Create a dictionary mapping all properties to their ColumnExpressions, for the SelectExpression's projection.
         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
 
-        foreach (var property in entityType.GetAllPropertiesInHierarchy())
+        foreach (var property in entityType.GetPropertiesInHierarchy())
         {
             // also adding column(s) representing key of the parent (non-JSON) entity, on top of all the projections from OPENJSON/json_each/etc.
             if (jsonQueryExpression.KeyPropertyMap.TryGetValue(property, out var ownerKeyColumn))
@@ -618,7 +619,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         var containerColumnName = entityType.GetContainerColumnName()!;
         var containerColumn = table.FindColumn(containerColumnName)!;
         var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
-        foreach (var ownedJsonNavigation in entityType.GetAllNavigationsInHierarchy()
+        foreach (var ownedJsonNavigation in entityType.GetNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()

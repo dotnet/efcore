@@ -1555,9 +1555,9 @@ public class CSharpHelper : ICSharpHelper
     /// </summary>
     public virtual string Statement(
         Expression node,
-        Dictionary<object, string>? constantReplacements,
-        Dictionary<MemberAccess, string>? memberAccessReplacements,
-        ISet<string> collectedNamespaces)
+        ISet<string> collectedNamespaces,
+        IReadOnlyDictionary<object, string>? constantReplacements,
+        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements)
     {
         Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
         if (constantReplacements != null)
@@ -1596,9 +1596,9 @@ public class CSharpHelper : ICSharpHelper
     /// </summary>
     public virtual string Expression(
         Expression node,
-        Dictionary<object, string>? constantReplacements,
-        Dictionary<MemberAccess, string>? memberAccessReplacements,
-        ISet<string> collectedNamespaces)
+        ISet<string> collectedNamespaces,
+        IReadOnlyDictionary<object, string>? constantReplacements,
+        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements)
     {
         Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
         if (constantReplacements != null)

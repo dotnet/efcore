@@ -261,7 +261,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             foreignKeyCount: entityType.GetDeclaredForeignKeys().Count(),
             unnamedIndexCount: entityType.GetDeclaredIndexes().Count(i => i.Name == null),
             namedIndexCount: entityType.GetDeclaredProperties().Count(i => i.Name != null),
-            keyCount: entityType.GetDeclaredKeys().Count());
+            keyCount: entityType.GetDeclaredKeys().Count(),
+            triggerCount: entityType.GetDeclaredTriggers().Count());
 
     private static ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
         => parameterBinding.With(
