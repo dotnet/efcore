@@ -2548,42 +2548,42 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Alter_sequence_cache_to_default_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Eta").UseCache(20),
-        builder => { },
-        builder => builder.HasSequence<int>("Eta").UseCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Eta").UseCache(20),
+            builder => { },
+            builder => builder.HasSequence<int>("Eta").UseCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_nocache_to_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Theta").UseNoCache(),
-        builder => { },
-        builder => builder.HasSequence<int>("Theta").UseCache(20),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Equal(20, sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Theta").UseNoCache(),
+            builder => { },
+            builder => builder.HasSequence<int>("Theta").UseCache(20),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_nocache_to_default_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Iota").UseNoCache(),
-        builder => { },
-        builder => builder.HasSequence<int>("Iota").UseCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Iota").UseNoCache(),
+            builder => { },
+            builder => builder.HasSequence<int>("Iota").UseCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_restart_with()
@@ -2859,7 +2859,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual Task Add_required_primitve_collection_to_existing_table()
+    public virtual Task Add_required_primitive_collection_to_existing_table()
           => Test(
               builder => builder.Entity(
                   "Customer", e =>
@@ -2892,7 +2892,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
               });
 
     [ConditionalFact]
-    public virtual Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    public virtual Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
         => Test(
             builder => builder.Entity(
                 "Customer", e =>
@@ -2925,9 +2925,9 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public abstract Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table();
+    public abstract Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table();
 
-    protected virtual Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core(string defaultValueSql)
+    protected virtual Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core(string defaultValueSql)
         => Test(
             builder => builder.Entity(
                 "Customer", e =>
@@ -2960,7 +2960,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact(Skip = "issue #33038")]
-    public virtual Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    public virtual Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
         => Test(
             builder => builder.Entity(
                 "Customer", e =>
@@ -2996,7 +2996,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public virtual Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    public virtual Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
         => Test(
             builder => builder.Entity(
                 "Customer", e =>
