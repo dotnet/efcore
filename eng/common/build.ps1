@@ -99,8 +99,6 @@ function Build {
 
   $bl = if ($binaryLog) { '/bl:' + (Join-Path $LogDir 'Build.binlog') } else { '' }
   $platformArg = if ($platform) { "/p:Platform=$platform" } else { '' }
-  # disable terminal logger for now: https://github.com/dotnet/runtime/issues/97211
-  $tl = '/tl:false'
 
   if ($projects) {
     # Re-assign properties to a new variable because PowerShell doesn't let us append properties directly for unclear reasons.
@@ -117,7 +115,6 @@ function Build {
   MSBuild $toolsetBuildProj `
     $bl `
     $platformArg `
-    $tl `
     /p:Configuration=$configuration `
     /p:RepoRoot=$RepoRoot `
     /p:Restore=$restore `
