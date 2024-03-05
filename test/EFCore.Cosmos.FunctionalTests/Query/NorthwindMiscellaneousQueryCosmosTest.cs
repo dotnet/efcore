@@ -4714,6 +4714,20 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__customerId_0
 """);
     }
 
+    public override async Task Static_member_access_gets_parameterized_within_larger_evaluatable(bool async)
+    {
+        await base.Static_member_access_gets_parameterized_within_larger_evaluatable(async);
+
+        AssertSql(
+            """
+@__p_0='ALFKI'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
