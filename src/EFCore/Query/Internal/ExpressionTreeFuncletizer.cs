@@ -738,10 +738,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression member)
     {
         // Static member access - notably required for EF.Functions, but also for various translations (DateTime.Now).
+        // Note that this is treated as a captured variable (so will be parameterized), unless the captured variable is init-only.
         if (member.Expression is null)
         {
             _state = IsGenerallyEvaluatable(member)
-                ? State.CreateEvaluatable(typeof(MemberExpression), containsCapturedVariable: false)
+                ? State.CreateEvaluatable(
+                    typeof(MemberExpression),
+                    containsCapturedVariable: member.Member is not FieldInfo { IsInitOnly: true })
                 : State.NoEvaluatability;
             return member;
         }
@@ -766,7 +769,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             if (IsGenerallyEvaluatable(member))
             {
-                _state = State.CreateEvaluatable(typeof(MemberExpression), _state.ContainsCapturedVariable);
+                // Note that any evaluatable MemberExpression is treated as a captured variable.
+                _state = State.CreateEvaluatable(typeof(MemberExpression), containsCapturedVariable: true);
                 return member.Update(expression);
             }
 
@@ -1718,9 +1722,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 // We don't evaluate as constant if we're not inside a lambda, i.e. in a top-level operator. This is to make sure that
                 // non-lambda arguments to e.g. Skip/Take are parameterized rather than evaluated as constant, since that would produce
                 // different SQLs for each value.
-                || !_inLambda
-                || (evaluatableRoot is MemberExpression member
-                    && (member.Expression is not null || member.Member is not FieldInfo { IsInitOnly: true })));
+                || !_inLambda);
 
         // We have some cases where a node is evaluatable, but only as part of a larger subtree, and should not be evaluated as a tree root.
         // For these cases, the node's state has a notEvaluatableAsRootHandler lambda, which we can invoke to make evaluate the node's

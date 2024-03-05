@@ -5776,4 +5776,14 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         public string CustomerId { get; set; }
         public string City { get; set; }
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Static_member_access_gets_parameterized_within_larger_evaluatable(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == StaticProperty + "KI"));
+
+    private static string StaticProperty
+        => "ALF";
 }

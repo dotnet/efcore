@@ -7449,6 +7449,20 @@ WHERE @__Contains_0 = CAST(1 AS bit)
         //AssertSql("");
     }
 
+    public override async Task Static_member_access_gets_parameterized_within_larger_evaluatable(bool async)
+    {
+        await base.Static_member_access_gets_parameterized_within_larger_evaluatable(async);
+
+        AssertSql(
+            """
+@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__p_0
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
