@@ -11,6 +11,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
+    [ConditionalFact]
+    public virtual void Passes_on_TPT_with_nested_owned_types()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<BaseEntity>().UseTptMappingStrategy();
+        modelBuilder.Entity<ChildA>();
+        modelBuilder.Entity<ChildB>();
+        modelBuilder.Entity<ChildC>();
+        modelBuilder.Entity<ChildD>();
+
+        Validate(modelBuilder);
+    }
+
     public override void Detects_duplicate_columns_in_derived_types_with_different_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
