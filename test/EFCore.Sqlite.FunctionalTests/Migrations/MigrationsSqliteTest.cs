@@ -1702,6 +1702,24 @@ CREATE TABLE "Person" (
 """);
     }
 
+    public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
+    {
+        await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
+
+        AssertSql(
+"""
+CREATE TABLE "Contacts" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Contacts" PRIMARY KEY AUTOINCREMENT,
+    "Discriminator" TEXT NOT NULL,
+    "Name" TEXT NULL,
+    "Number" INTEGER NULL,
+    "MyComplex_Prop" TEXT NULL,
+    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
+    "MyComplex_MyNestedComplex_Foo" INTEGER NULL
+);
+""");
+    }
+
     public override Task Create_sequence()
         => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
 

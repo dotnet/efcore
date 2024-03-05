@@ -20,6 +20,9 @@ public static class RelationalPropertyExtensions
     private static readonly bool UseOldBehavior32763 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32763", out var enabled32763) && enabled32763;
 
+    private static readonly bool UseOldBehavior33004 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33004", out var enabled33004) && enabled33004;
+
     private static readonly MethodInfo GetFieldValueMethod =
         typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
@@ -1191,8 +1194,12 @@ public static class RelationalPropertyExtensions
             return sharedTableRootProperty.IsColumnNullable(storeObject);
         }
 
+        var declaringEntityType = UseOldBehavior33004
+            ? property.DeclaringType
+            : property.DeclaringType.ContainingEntityType;
+
         return property.IsNullable
-            || (property.DeclaringType is IReadOnlyEntityType entityType
+            || (declaringEntityType is IReadOnlyEntityType entityType
                 && ((entityType.BaseType != null
                         && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
                     || IsOptionalSharingDependent(entityType, storeObject, 0)));
