@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     </para>
 /// </summary>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
-public abstract class TableExpressionBase : Expression, IPrintableExpression
+public abstract class TableExpressionBase : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
     /// <summary>
     ///     An indexed collection of annotations associated with this table expression.
@@ -84,6 +84,9 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
     /// </summary>
     /// <param name="newAlias">The alias to apply to the returned <see cref="TableExpressionBase" />.</param>
     public abstract TableExpressionBase WithAlias(string newAlias);
+
+    /// <inheritdoc />
+    public abstract Expression Quote();
 
     /// <summary>
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.

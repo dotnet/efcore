@@ -45,7 +45,7 @@ public class GetValueOrDefaultTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.Coalesce(
                 instance,
                 arguments.Count == 0
-                    ? new SqlConstantExpression(method.ReturnType.GetDefaultValueConstant(), null)
+                    ? new SqlConstantExpression(method.ReturnType.GetDefaultValue(), method.ReturnType, typeMapping: null)
                     : arguments[0],
                 instance.TypeMapping);
         }

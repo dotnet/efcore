@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class ExistsExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="ExistsExpression" /> class.
     /// </summary>
@@ -48,6 +50,14 @@ public class ExistsExpression : SqlExpression
         => subquery != Subquery
             ? new ExistsExpression(subquery, TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??=
+                typeof(ExistsExpression).GetConstructor([typeof(SelectExpression), typeof(bool), typeof(RelationalTypeMapping)])!,
+            Subquery.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

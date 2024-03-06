@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 /// </summary>
 public class RegexpExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -75,6 +77,15 @@ public class RegexpExpression : SqlExpression
         => match != Match || pattern != Pattern
             ? new RegexpExpression(match, pattern, TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(RegexpExpression).GetConstructor(
+                [typeof(SqlExpression), typeof(SqlExpression), typeof(RelationalTypeMapping)])!,
+            Match.Quote(),
+            Pattern.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

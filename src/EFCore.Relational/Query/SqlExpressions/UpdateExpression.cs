@@ -12,8 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public sealed class UpdateExpression : Expression, IPrintableExpression
+public sealed class UpdateExpression : Expression, IRelationalQuotableExpression, IPrintableExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+    private static ConstructorInfo? _columnValueSetterQuotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="UpdateExpression" /> class.
     /// </summary>
@@ -118,6 +121,26 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
         => selectExpression != SelectExpression || !ColumnValueSetters.SequenceEqual(columnValueSetters)
             ? new UpdateExpression(Table, selectExpression, columnValueSetters, Tags)
             : this;
+
+    /// <inheritdoc />
+    public Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(UpdateExpression).GetConstructor(
+            [
+                typeof(TableExpression), typeof(SelectExpression), typeof(IReadOnlyList<ColumnValueSetter>), typeof(ISet<string>)
+            ])!,
+            Table.Quote(),
+            SelectExpression.Quote(),
+            NewArrayInit(
+                typeof(ColumnValueSetter),
+                ColumnValueSetters
+                    .Select(
+                        s => New(
+                            _columnValueSetterQuotingConstructor ??=
+                                typeof(ColumnValueSetter).GetConstructor([typeof(ColumnExpression), typeof(SqlExpression)])!,
+                            s.Column.Quote(),
+                            s.Value.Quote()))),
+            RelationalExpressionQuotingUtilities.QuoteTags(Tags));
 
     /// <inheritdoc />
     public void Print(ExpressionPrinter expressionPrinter)

@@ -15,12 +15,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </remarks>
 public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
 {
-    internal TableExpression(string alias, ITableBase table)
+    private static ConstructorInfo? _quotingConstructor;
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="TableExpression" /> class.
+    /// </summary>
+    public TableExpression(string alias, ITableBase table)
         : this(alias, table, annotations: null)
     {
     }
 
-    private TableExpression(string alias, ITableBase table, IReadOnlyDictionary<string, IAnnotation>? annotations)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public TableExpression(string alias, ITableBase table, IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, annotations)
     {
         Name = table.Name;
@@ -52,6 +64,15 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     /// <inheritdoc />
     ITableBase ITableBasedExpression.Table
         => Table;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(TableExpression)
+                .GetConstructor([typeof(string), typeof(ITableBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Constant(Alias, typeof(string)),
+            RelationalExpressionQuotingUtilities.QuoteTableBase(Table),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

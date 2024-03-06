@@ -180,7 +180,9 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
             }
 
             return _sqlExpressionFactory.Constant(
-                existingConstantValue, _typeMappingSource.GetMappingForValue(existingConstantValue));
+                existingConstantValue,
+                existingConstantValue?.GetType() ?? typeof(object),
+                _typeMappingSource.GetMappingForValue(existingConstantValue));
         }
     }
 }

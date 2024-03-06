@@ -443,7 +443,7 @@ public interface ISqlExpressionFactory
     /// <param name="value">A value.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a constant in a SQL tree.</returns>
-    SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null);
+    SqlConstantExpression Constant(object value, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlConstantExpression" /> which represents a constant in a SQL tree.

@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 /// </remarks>
 public class JsonEachExpression : TableValuedFunctionExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -145,6 +147,21 @@ public class JsonEachExpression : TableValuedFunctionExpression
     /// <inheritdoc />
     public override JsonEachExpression WithAlias(string newAlias)
         => new(newAlias, JsonExpression, Path);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(JsonEachExpression).GetConstructor(
+            [
+                typeof(string),
+                typeof(SqlExpression),
+                typeof(IReadOnlyList<PathSegment>)
+            ])!,
+            Constant(Alias, typeof(string)),
+            JsonExpression.Quote(),
+            Path is null
+                ? Constant(null, typeof(IReadOnlyList<PathSegment>))
+                : NewArrayInit(typeof(PathSegment), Path.Select(s => s.Quote())));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

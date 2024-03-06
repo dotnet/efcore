@@ -693,12 +693,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => new(sql);
 
     /// <inheritdoc />
-    public virtual SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null)
-        => new(Expression.Constant(value), typeMapping);
+    public virtual SqlConstantExpression Constant(object value, RelationalTypeMapping? typeMapping = null)
+        => new(value, typeMapping);
 
     /// <inheritdoc />
     public virtual SqlConstantExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
-        => new(Expression.Constant(value, type), typeMapping);
+        => new(value, type, typeMapping);
 
     /// <inheritdoc />
     public virtual bool TryCreateLeast(

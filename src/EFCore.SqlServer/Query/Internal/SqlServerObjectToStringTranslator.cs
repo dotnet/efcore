@@ -88,7 +88,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(true)),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     },
-                    _sqlExpressionFactory.Constant(null));
+                    _sqlExpressionFactory.Constant(null, typeof(string)));
             }
 
             return _sqlExpressionFactory.Case(

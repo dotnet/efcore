@@ -139,6 +139,10 @@ public sealed class TpcTablesExpression : TableExpressionBase
         => new(newAlias, EntityType, SelectExpressions, DiscriminatorColumn, DiscriminatorValues, Annotations);
 
     /// <inheritdoc />
+    public override Expression Quote()
+        => throw new UnreachableException("TpcTablesExpression is a temporary tree representation and should never be quoted");
+
+    /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var subSelectExpressions = SelectExpressions.Select(cloningExpressionVisitor.Visit).ToList<SelectExpression>();

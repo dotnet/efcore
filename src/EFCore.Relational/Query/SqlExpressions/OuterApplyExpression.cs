@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class OuterApplyExpression : JoinExpressionBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="OuterApplyExpression" /> class.
     /// </summary>
@@ -46,6 +48,13 @@ public class OuterApplyExpression : JoinExpressionBase
     /// <inheritdoc />
     protected override OuterApplyExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
         => new(Table, annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(OuterApplyExpression).GetConstructor([typeof(TableExpressionBase), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Table.Quote(),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

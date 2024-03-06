@@ -556,10 +556,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return match
                     ? _sqlExpressionFactory.Equal(
                         discriminatorColumn,
-                        _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()))
+                        _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()!))
                     : _sqlExpressionFactory.NotEqual(
                         discriminatorColumn,
-                        _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()));
+                        _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()!));
             }
 
             return QueryCompilationContext.NotTranslatedExpression;
@@ -623,7 +623,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitConstant(ConstantExpression constantExpression)
-        => new SqlConstantExpression(constantExpression, null);
+        => new SqlConstantExpression(constantExpression.Value, constantExpression.Type, typeMapping: null);
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
@@ -1150,10 +1150,12 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return concreteEntityTypes.Count == 1
                     ? _sqlExpressionFactory.Equal(
                         discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
                     : _sqlExpressionFactory.In(
                         discriminatorColumn,
-                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
+                        concreteEntityTypes
+                            .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                            .ToArray());
             }
 
             return _sqlExpressionFactory.Constant(true);
@@ -1326,7 +1328,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 if (allRequiredNonPkProperties.Count > 0)
                 {
                     condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
-                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
                 }
 
@@ -1336,7 +1338,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     // If all non principal shared properties are nullable then we need additional condition
                     var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
                         .Select(p => projection.BindProperty(p))
-                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null, c.Type)))
                         .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
 
                     condition = condition == null
@@ -1668,12 +1670,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         if (CanEvaluate(expression))
         {
             sqlConstantExpression = new SqlConstantExpression(
-                Expression.Constant(
-                    Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                        .Compile(preferInterpretation: true)
-                        .Invoke(),
-                    expression.Type),
-                null);
+                Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
+                    .Compile(preferInterpretation: true)
+                    .Invoke(),
+                expression.Type,
+                typeMapping: null);
             return true;
         }
 

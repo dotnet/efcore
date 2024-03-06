@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class InnerJoinExpression : PredicateJoinExpressionBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="InnerJoinExpression" /> class.
     /// </summary>
@@ -60,6 +62,16 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <inheritdoc />
     protected override InnerJoinExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
         => new(Table, JoinPredicate, IsPrunable, annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(InnerJoinExpression).GetConstructor(
+                [typeof(TableExpressionBase), typeof(SqlExpression), typeof(bool), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Table.Quote(),
+            JoinPredicate.Quote(),
+            Constant(IsPrunable),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

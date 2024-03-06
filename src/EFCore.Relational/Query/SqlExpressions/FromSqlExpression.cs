@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+    private static MethodInfo? _constantExpressionFactoryMethod, _parameterExpressionFactoryMethod;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
     /// </summary>
@@ -49,7 +52,14 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     {
     }
 
-    private FromSqlExpression(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public FromSqlExpression(
         string alias,
         ITableBase? tableBase,
         string sql,
@@ -101,6 +111,38 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     /// <inheritdoc />
     public override FromSqlExpression WithAlias(string newAlias)
         => new(newAlias, Table, Sql, Arguments, Annotations);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+    {
+        _constantExpressionFactoryMethod ??= typeof(Expression).GetMethod(nameof(Constant), [typeof(object)])!;
+
+        return New(
+            _quotingConstructor ??= typeof(FromSqlExpression).GetConstructor(
+            [
+                typeof(string), typeof(ITableBase), typeof(string), typeof(Expression), typeof(IReadOnlyDictionary<string, IAnnotation>)
+            ])!,
+            Constant(Alias, typeof(string)),
+            Table is null ? Constant(null, typeof(ITableBase)) : RelationalExpressionQuotingUtilities.QuoteTableBase(Table),
+            Constant(Sql),
+            Arguments switch
+            {
+                ConstantExpression { Value: object[] arguments }
+                    => NewArrayInit(
+                        typeof(object),
+                        arguments.Select(a => (Expression)Call(_constantExpressionFactoryMethod, Constant(a))).ToArray()),
+
+                ParameterExpression parameter
+                    when parameter.Type == typeof(object[])
+                    => Call(
+                        _parameterExpressionFactoryMethod ??= typeof(Expression).GetMethod(nameof(Parameter), [typeof(Type), typeof(string)])!,
+                        Constant(typeof(object[])),
+                        Constant(parameter.Name, typeof(string))),
+
+                _ => throw new UnreachableException() // TODO: Confirm
+            },
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
+    }
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
