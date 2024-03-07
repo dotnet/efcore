@@ -16,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 /// </summary>
 public class MigrationsModelDiffer : IMigrationsModelDiffer
 {
-    private static readonly bool UseOldBehavior32972 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32972", out var enabled32972) && enabled32972;
-
     private static readonly Type[] DropOperationTypes =
     [
         typeof(DropIndexOperation),

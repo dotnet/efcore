@@ -843,8 +843,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
             var (property, cycleBreakingProperty, cyclePosition, maxCycleLength) = currentNode ?? queue!.Dequeue();
             currentNode = null;
             if (cyclePosition >= ForeignKey.LongestFkChainAllowedLength
-                || (!UseOldBehavior33176
-                    && queue is not null
+                || (queue is not null
                     && queue.Count >= ForeignKey.LongestFkChainAllowedLength))
             {
                 throw new InvalidOperationException(
@@ -886,8 +885,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                             visitedProperties = new() { property };
                         }
 
-                        if (!UseOldBehavior33176
-                            && visitedProperties?.Contains(principalProperty) == true)
+                        if (visitedProperties?.Contains(principalProperty) == true)
                         {
                             break;
                         }

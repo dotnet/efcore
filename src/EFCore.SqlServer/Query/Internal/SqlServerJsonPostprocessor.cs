@@ -31,9 +31,6 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
 
-    private static readonly bool UseOldBehavior32976 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32976", out var enabled32976) && enabled32976;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -76,12 +73,7 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
                     .UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression))
                     .UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression));
 
-                if (!UseOldBehavior32976)
-                {
-                    shapedQueryExpression = shapedQueryExpression.UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression));
-                }
-
-                return shapedQueryExpression;
+                return shapedQueryExpression.UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression));
 
             case SelectExpression selectExpression:
             {
