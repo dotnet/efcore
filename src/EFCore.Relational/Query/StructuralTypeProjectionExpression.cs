@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class StructuralTypeProjectionExpression : Expression
 {
+    private static readonly bool UseOldBehavior32911 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32911", out var enabled32911) && enabled32911;
+
     private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
     private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _ownedNavigationMap;
     private Dictionary<IComplexProperty, StructuralTypeShaperExpression>? _complexPropertyCache;
@@ -38,6 +41,32 @@ public class StructuralTypeProjectionExpression : Expression
             type,
             propertyExpressionMap,
             new Dictionary<INavigation, StructuralTypeShaperExpression>(),
+            null,
+            tableMap,
+            nullable,
+            discriminatorExpression)
+    {
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public StructuralTypeProjectionExpression(
+        ITypeBase type,
+        IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+        Dictionary<IComplexProperty, StructuralTypeShaperExpression> complexPropertyCache,
+        IReadOnlyDictionary<ITableBase, TableReferenceExpression> tableMap,
+        bool nullable = false,
+        SqlExpression? discriminatorExpression = null)
+        : this(
+            type,
+            propertyExpressionMap,
+            new Dictionary<INavigation, StructuralTypeShaperExpression>(),
+            complexPropertyCache,
             tableMap,
             nullable,
             discriminatorExpression)
@@ -48,6 +77,7 @@ public class StructuralTypeProjectionExpression : Expression
         ITypeBase type,
         IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
         Dictionary<INavigation, StructuralTypeShaperExpression> ownedNavigationMap,
+        Dictionary<IComplexProperty, StructuralTypeShaperExpression>? complexPropertyCache,
         IReadOnlyDictionary<ITableBase, TableReferenceExpression> tableMap,
         bool nullable,
         SqlExpression? discriminatorExpression = null)
@@ -55,6 +85,7 @@ public class StructuralTypeProjectionExpression : Expression
         StructuralType = type;
         _propertyExpressionMap = propertyExpressionMap;
         _ownedNavigationMap = ownedNavigationMap;
+        _complexPropertyCache = complexPropertyCache;
         TableMap = tableMap;
         IsNullable = nullable;
         DiscriminatorExpression = discriminatorExpression;
@@ -115,6 +146,21 @@ public class StructuralTypeProjectionExpression : Expression
             propertyExpressionMap[property] = newExpression;
         }
 
+        var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
+        if (!UseOldBehavior32911)
+        {
+            if (_complexPropertyCache != null)
+            {
+                complexPropertyCache = new();
+                foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
+                {
+                    var newComplexShaper = (StructuralTypeShaperExpression)visitor.Visit(complexShaper);
+                    changed |= complexShaper != newComplexShaper;
+                    complexPropertyCache[complexProperty] = newComplexShaper;
+                }
+            }
+        }
+
         // We only need to visit the table map since TableReferenceUpdatingExpressionVisitor may need to modify it; it mutates
         // TableReferenceExpression (a new TableReferenceExpression is never returned), so we never need a new table map.
         foreach (var (_, tableExpression) in TableMap)
@@ -136,7 +182,7 @@ public class StructuralTypeProjectionExpression : Expression
 
         return changed
             ? new StructuralTypeProjectionExpression(
-                StructuralType, propertyExpressionMap, ownedNavigationMap, TableMap, IsNullable, discriminatorExpression)
+                StructuralType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, TableMap, IsNullable, discriminatorExpression)
             : this;
     }
 
@@ -159,6 +205,19 @@ public class StructuralTypeProjectionExpression : Expression
             discriminatorExpression = ce.MakeNullable();
         }
 
+        var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
+        if (!UseOldBehavior32911)
+        {
+            if (_complexPropertyCache != null)
+            {
+                complexPropertyCache = new();
+                foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
+                {
+                    complexPropertyCache[complexProperty] = complexShaper.MakeNullable();
+                }
+            }
+        }
+
         var ownedNavigationMap = new Dictionary<INavigation, StructuralTypeShaperExpression>();
         foreach (var (navigation, shaper) in _ownedNavigationMap)
         {
@@ -178,6 +237,7 @@ public class StructuralTypeProjectionExpression : Expression
             StructuralType,
             propertyExpressionMap,
             ownedNavigationMap,
+            complexPropertyCache,
             TableMap,
             nullable: true,
             discriminatorExpression);
@@ -209,6 +269,23 @@ public class StructuralTypeProjectionExpression : Expression
                 || property.DeclaringType.IsAssignableFrom(derivedType))
             {
                 propertyExpressionMap[property] = columnExpression;
+            }
+        }
+
+        var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
+        if (!UseOldBehavior32911)
+        {
+            if (_complexPropertyCache != null)
+            {
+                complexPropertyCache = new();
+                foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
+                {
+                    if (derivedType.IsAssignableFrom(complexProperty.DeclaringType)
+                        || complexProperty.DeclaringType.IsAssignableFrom(derivedType))
+                    {
+                        complexPropertyCache[complexProperty] = complexShaper;
+                    }
+                }
             }
         }
 
@@ -263,7 +340,7 @@ public class StructuralTypeProjectionExpression : Expression
         }
 
         return new StructuralTypeProjectionExpression(
-            derivedType, propertyExpressionMap, ownedNavigationMap, newTableMap ?? TableMap, IsNullable, discriminatorExpression);
+            derivedType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, newTableMap ?? TableMap, IsNullable, discriminatorExpression);
     }
 
     /// <summary>
