@@ -90,7 +90,7 @@ jobs:
           /p:OfficialBuildId=$(Build.BuildNumber)
       condition: ${{ parameters.condition }}
       continueOnError: ${{ parameters.continueOnError }}
-
+    
     - task: powershell@2
       displayName: Create ReleaseConfigs Artifact
       inputs:
@@ -99,7 +99,7 @@ jobs:
           Add-Content -Path "$(Build.StagingDirectory)/ReleaseConfigs.txt" -Value $(BARBuildId)
           Add-Content -Path "$(Build.StagingDirectory)/ReleaseConfigs.txt" -Value "$(DefaultChannels)"
           Add-Content -Path "$(Build.StagingDirectory)/ReleaseConfigs.txt" -Value $(IsStableBuild)
-
+    
     - task: PublishBuildArtifacts@1
       displayName: Publish ReleaseConfigs Artifact
       inputs:
@@ -125,7 +125,7 @@ jobs:
 
     - task: PublishBuildArtifacts@1
       displayName: Publish SymbolPublishingExclusionsFile Artifact
-      condition: eq(variables['SymbolExclusionFile'], 'true')
+      condition: eq(variables['SymbolExclusionFile'], 'true') 
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)/eng/SymbolPublishingExclusionsFile.txt'
         PublishLocation: Container
@@ -152,4 +152,4 @@ jobs:
     - ${{ if eq(parameters.enablePublishBuildArtifacts, 'true') }}:
       - template: /eng/common/templates/steps/publish-logs.yml
         parameters:
-          JobLabel: 'Publish_Artifacts_Logs'
+          JobLabel: 'Publish_Artifacts_Logs'     

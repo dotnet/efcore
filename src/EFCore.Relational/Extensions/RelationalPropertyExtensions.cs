@@ -1187,6 +1187,10 @@ public static class RelationalPropertyExtensions
             return sharedTableRootProperty.IsColumnNullable(storeObject);
         }
 
+        var declaringEntityType = UseOldBehavior33004
+            ? property.DeclaringType
+            : property.DeclaringType.ContainingEntityType;
+
         return property.IsNullable
             || (property.DeclaringType.ContainingEntityType is IReadOnlyEntityType entityType
                 && ((entityType.BaseType != null

@@ -830,9 +830,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         bool throwOnValueConverterConflict = true,
         bool throwOnProviderClrTypeConflict = true)
     {
-        Queue<(Property CurrentProperty, Property CycleBreakingPropert, int CyclePosition, int MaxCycleLength)>? queue = null;
-        (Property CurrentProperty, Property CycleBreakingPropert, int CyclePosition, int MaxCycleLength)? currentNode =
+        Queue<(Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)>? queue = null;
+        (Property CurrentProperty, Property CycleBreakingProperty, int CyclePosition, int MaxCycleLength)? currentNode =
             (this, this, 0, 2);
+        HashSet<Property>? visitedProperties = null;
 
         ValueConverter? valueConverter = null;
         Type? valueConverterType = null;
@@ -841,11 +842,16 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         {
             var (property, cycleBreakingProperty, cyclePosition, maxCycleLength) = currentNode ?? queue!.Dequeue();
             currentNode = null;
-            if (cyclePosition >= ForeignKey.LongestFkChainAllowedLength)
+            if (cyclePosition >= ForeignKey.LongestFkChainAllowedLength
+                || (!UseOldBehavior33176
+                    && queue is not null
+                    && queue.Count >= ForeignKey.LongestFkChainAllowedLength))
             {
                 throw new InvalidOperationException(
                     CoreStrings.RelationshipCycle(DeclaringType.DisplayName(), Name, "ValueConverter"));
             }
+
+            visitedProperties?.Add(property);
 
             foreach (var foreignKey in property.GetContainingForeignKeys())
             {
@@ -877,6 +883,13 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                             useQueue = true;
                             queue = new();
                             queue.Enqueue(currentNode.Value);
+                            visitedProperties = new() { property };
+                        }
+
+                        if (!UseOldBehavior33176
+                            && visitedProperties?.Contains(principalProperty) == true)
+                        {
+                            break;
                         }
 
                         if (cyclePosition == maxCycleLength - 1)
