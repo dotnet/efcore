@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -670,6 +671,16 @@ public static class SqlServerTransientExceptionDetector
                     // allowed connections) on the server. (provider: TCP Provider, error: 0 - An existing connection was forcibly closed by
                     // the remote host.)
                     case 233:
+                        return true;
+                    // SQL Error Code: 203
+                    // A connection was successfully established with the server, but then an error occurred during the pre-login handshake.
+                    // (provider: TCP Provider, error: 0 - 20) ---> System.ComponentModel.Win32Exception (203): Unknown error: 203
+                    case 203:
+                        if (ex.InnerException is Win32Exception)
+                        {
+                            return true;
+                        }
+                        continue;
                     // SQL Error Code: 121
                     // The semaphore timeout period has expired
                     case 121:
