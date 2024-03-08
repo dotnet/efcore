@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -322,7 +323,8 @@ SELECT 1 ELSE SELECT 0");
         //   Microsoft.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
         // And (Number 18456)
         //   Microsoft.Data.SqlClient.SqlException: Login failed for user 'xxxxxxx'.
-        if (exception.Number is 233 or -2 or 4060 or 1832 or 5120 or 18456)
+        if ((exception.Number is 203 && exception.InnerException is Win32Exception)
+            || (exception.Number is 233 or -2 or 4060 or 1832 or 5120 or 18456))
         {
             ClearPool();
             return true;
