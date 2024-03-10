@@ -14,6 +14,9 @@ public class ManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTestBase<Ma
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    protected override bool CanExecuteQueryString
+        => true;
+
     public override async Task Skip_navigation_all(bool async)
     {
         await base.Skip_navigation_all(async);

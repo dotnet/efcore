@@ -13,6 +13,9 @@ public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySq
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    protected override bool CanExecuteQueryString
+        => true;
+
     public override async Task Query_with_owned_entity_equality_operator(bool async)
     {
         await base.Query_with_owned_entity_equality_operator(async);

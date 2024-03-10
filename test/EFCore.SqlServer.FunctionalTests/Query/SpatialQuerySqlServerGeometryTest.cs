@@ -18,6 +18,9 @@ public class SpatialQuerySqlServerGeometryTest : SpatialQueryRelationalTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    protected override bool CanExecuteQueryString
+        => true;
+
     public override async Task SimpleSelect(bool async)
     {
         await base.SimpleSelect(async);

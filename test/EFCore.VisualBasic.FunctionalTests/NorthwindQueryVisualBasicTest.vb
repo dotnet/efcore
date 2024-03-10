@@ -98,7 +98,7 @@ WHERE [p].[UnitsInStock] = @__units_0")
 
     Protected Overrides Function CreateQueryAsserter(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter
         Return New RelationalQueryAsserter(
-            fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression)
+            fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression, canExecuteQueryString:=True)
     End Function
 
     Private Sub AssertSql(ParamArray expected As String())

@@ -22,6 +22,9 @@ public class NorthwindMiscellaneousQuerySqlServerTest : NorthwindMiscellaneousQu
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    protected override bool CanExecuteQueryString
+        => true;
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
@@ -6196,6 +6199,24 @@ END
 SELECT @__Any_0
 FROM [Employees] AS [e]
 CROSS JOIN [Employees] AS [e0]
+""",
+            //
+            """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Employees] AS [e]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+""",
+            //
+            """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Employees] AS [e]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
 """);
     }
 
@@ -6686,6 +6707,30 @@ END
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE @__Any_0 = CAST(1 AS bit)
+""",
+            //
+            """
+@__firstOrder_OrderID_0='10248'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [o].[OrderID] = @__firstOrder_OrderID_0) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+""",
+            //
+            """
+@__firstOrder_OrderID_0='10248'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [o].[OrderID] = @__firstOrder_OrderID_0) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
 """);
     }
 

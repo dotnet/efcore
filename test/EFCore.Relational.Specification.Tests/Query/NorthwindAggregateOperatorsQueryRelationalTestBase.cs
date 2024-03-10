@@ -51,9 +51,13 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Average_no_data_subquery(async))).Message);
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
             fixture,
             RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression);
+            RewriteServerQueryExpression,
+            canExecuteQueryString: CanExecuteQueryString);
 }

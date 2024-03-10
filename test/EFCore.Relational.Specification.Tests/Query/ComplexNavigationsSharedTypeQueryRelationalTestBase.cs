@@ -17,7 +17,10 @@ public abstract class
     public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
         => AssertTranslationFailed(() => base.Complex_query_with_optional_navigations_and_client_side_evaluation(async));
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 }

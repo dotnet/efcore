@@ -15,6 +15,9 @@ public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : Ma
     {
     }
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_skip_navigation_split(bool async)
@@ -263,5 +266,6 @@ public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : Ma
             fixture,
             RewriteExpectedQueryExpression,
             RewriteServerQueryExpression,
-            ignoreEntryCount: IgnoreEntryCount);
+            ignoreEntryCount: IgnoreEntryCount,
+            canExecuteQueryString: CanExecuteQueryString);
 }

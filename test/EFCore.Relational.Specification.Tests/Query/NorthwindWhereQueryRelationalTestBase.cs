@@ -19,7 +19,10 @@ public abstract class NorthwindWhereQueryRelationalTestBase<TFixture> : Northwin
     public override Task Where_equals_method_string_with_ignore_case(bool async)
         => AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 }

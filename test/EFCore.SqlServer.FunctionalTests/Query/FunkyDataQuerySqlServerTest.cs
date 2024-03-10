@@ -14,9 +14,12 @@ public class FunkyDataQuerySqlServerTest : FunkyDataQueryTestBase<FunkyDataQuery
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    protected virtual bool CanExecuteQueryString
+        => true;
+
     protected override QueryAsserter CreateQueryAsserter(FunkyDataQuerySqlServerFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 
     public override async Task String_contains_on_argument_with_wildcard_constant(bool async)
     {

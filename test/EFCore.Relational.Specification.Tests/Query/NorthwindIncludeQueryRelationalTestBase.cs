@@ -19,7 +19,10 @@ public abstract class NorthwindIncludeQueryRelationalTestBase<TFixture> : Northw
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Include_collection_with_last_no_orderby(async))).Message);
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 }

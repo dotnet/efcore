@@ -16,7 +16,10 @@ public abstract class NorthwindNavigationsQueryRelationalTestBase<TFixture> : No
     public override Task Where_subquery_on_navigation_client_eval(bool async)
         => AssertTranslationFailed(() => base.Where_subquery_on_navigation_client_eval(async));
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 }

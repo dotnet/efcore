@@ -66,7 +66,10 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : 
     public override Task Random_next_is_not_funcletized_6(bool async)
         => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
 
+    protected virtual bool CanExecuteQueryString
+        => false;
+
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 }

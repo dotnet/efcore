@@ -17,6 +17,9 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    protected override bool CanExecuteQueryString
+        => true;
+
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
