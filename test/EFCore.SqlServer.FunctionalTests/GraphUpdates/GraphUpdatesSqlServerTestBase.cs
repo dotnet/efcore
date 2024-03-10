@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesSqlServerTestBase<TFixture>.GraphUpdatesSqlServerFixtureBase, new()
 {

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> temporalEntityTypes) : ExpressionVisitor
 {
     private static readonly MethodInfo _setMethodInfo
@@ -35,7 +37,7 @@ public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> t
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         // TODO: issue #25236 - also match named sets
-        // in case we want to reuse this on queries that are not using AssertQuery infra 
+        // in case we want to reuse this on queries that are not using AssertQuery infra
         if (methodCallExpression.Method.IsGenericMethod
             && methodCallExpression.Method.GetGenericMethodDefinition() == _setMethodInfo)
         {

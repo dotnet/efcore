@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class CompositeKeysQueryRelationalTestBase<TFixture>(TFixture fixture) : CompositeKeysQueryTestBase<TFixture>(fixture)
     where TFixture : CompositeKeysQueryFixtureBase, new()
 {

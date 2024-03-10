@@ -7,6 +7,8 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqliteDatabaseCreatorTest
 {
     [ConditionalTheory]

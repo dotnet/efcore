@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
+#nullable disable
+
 public class ComplexNavigationsContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Level1> LevelOne { get; set; }

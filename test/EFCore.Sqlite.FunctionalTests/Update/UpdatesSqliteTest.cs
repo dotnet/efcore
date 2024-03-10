@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class UpdatesSqliteTest(UpdatesSqliteTest.UpdatesSqliteFixture fixture) : UpdatesRelationalTestBase<UpdatesSqliteTest.UpdatesSqliteFixture>(fixture)
 {
     public override void Save_with_shared_foreign_key()

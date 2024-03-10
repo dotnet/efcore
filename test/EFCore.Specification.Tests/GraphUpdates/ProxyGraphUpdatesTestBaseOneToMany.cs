@@ -7,6 +7,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {

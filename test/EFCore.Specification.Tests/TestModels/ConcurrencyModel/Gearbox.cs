@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class Gearbox
 {
     public class GearboxProxy(

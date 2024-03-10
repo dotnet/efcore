@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPTGearsOfWarQuerySqlServerTest : TPTGearsOfWarQueryRelationalTestBase<TPTGearsOfWarQuerySqlServerFixture>
 {
     public TPTGearsOfWarQuerySqlServerTest(TPTGearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

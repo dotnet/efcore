@@ -5,6 +5,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqlServerFixture>
 {
     public ComplexNavigationsQuerySqlServerTest(

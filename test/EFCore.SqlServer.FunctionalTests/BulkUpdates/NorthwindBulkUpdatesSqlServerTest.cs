@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class NorthwindBulkUpdatesSqlServerTest(
     NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer> fixture,
     ITestOutputHelper testOutputHelper) : NorthwindBulkUpdatesTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)

@@ -13,7 +13,7 @@ public class GeometryComparer : IEqualityComparer<Geometry>
     {
     }
 
-    public bool Equals(Geometry x, Geometry y)
+    public bool Equals(Geometry? x, Geometry? y)
         => (x == null && y == null)
             || (x != null
                 && y != null

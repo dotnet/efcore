@@ -5,6 +5,8 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OperatorsProceduralSqlServerTest : OperatorsProceduralQueryTestBase
 {
     private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)

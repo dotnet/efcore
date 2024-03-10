@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public partial class NorthwindData : ISetSource
 {
     public static readonly NorthwindData Instance = new();

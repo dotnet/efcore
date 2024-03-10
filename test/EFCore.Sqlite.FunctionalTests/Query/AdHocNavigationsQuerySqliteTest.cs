@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocNavigationsQuerySqliteTest : AdHocNavigationsQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

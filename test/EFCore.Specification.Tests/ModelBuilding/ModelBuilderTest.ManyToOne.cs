@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
+#nullable disable
+
 public abstract partial class ModelBuilderTest
 {
     public abstract class ManyToOneTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)

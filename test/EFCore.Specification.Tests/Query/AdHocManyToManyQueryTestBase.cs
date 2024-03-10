@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

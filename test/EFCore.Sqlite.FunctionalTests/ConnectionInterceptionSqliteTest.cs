@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class ConnectionInterceptionSqliteTestBase : ConnectionInterceptionTestBase
 {
     protected ConnectionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)

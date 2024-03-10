@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPCManyToManyNoTrackingQuerySqlServerTest : TPCManyToManyNoTrackingQueryRelationalTestBase<TPCManyToManyQuerySqlServerFixture>
 {
     public TPCManyToManyNoTrackingQuerySqlServerTest(TPCManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

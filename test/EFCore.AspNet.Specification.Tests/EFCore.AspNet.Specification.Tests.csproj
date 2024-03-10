@@ -5,6 +5,7 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.AspNet.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
     <IncludeSymbols>true</IncludeSymbols>

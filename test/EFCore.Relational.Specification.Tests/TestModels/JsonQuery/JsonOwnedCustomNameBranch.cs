@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
+#nullable disable
+
 public class JsonOwnedCustomNameBranch
 {
     [JsonPropertyName("CustomDate")]

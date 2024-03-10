@@ -15,11 +15,11 @@ public class WktComparer : IEqualityComparer<string>
     {
     }
 
-    public bool Equals(string x, string y)
+    public bool Equals(string? x, string? y)
         => x == y
             || Normalize(x) == Normalize(y);
 
-    public static string Normalize(string text)
+    public static string? Normalize(string? text)
         => text != null
             ? _reader.Read(text).AsText()
             : null;

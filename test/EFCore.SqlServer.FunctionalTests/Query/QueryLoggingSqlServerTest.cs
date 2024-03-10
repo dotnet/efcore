@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)

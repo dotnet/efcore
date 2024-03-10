@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(PartitionKeyTest);

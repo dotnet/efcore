@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class FromSqlQueryCosmosTest : QueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {
     private static readonly string _eol = Environment.NewLine;

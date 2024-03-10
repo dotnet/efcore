@@ -9,6 +9,8 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class SerializationTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : F1FixtureBase<byte[]>, new()
 {

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
 {
     protected QueryExpressionInterceptionTestBase(InterceptionFixtureBase fixture)

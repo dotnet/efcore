@@ -6,6 +6,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationFixture>
 {
     public CommandConfigurationTest(CommandConfigurationFixture fixture)

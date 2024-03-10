@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ComplexTypesTrackingSqlServerTest(
         ComplexTypesTrackingSqlServerTest.SqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)

@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 // Tests are split into classes to enable parallel execution
 // Some combinations are skipped to reduce run time
 [SqlServerCondition(SqlServerCondition.IsNotCI)]

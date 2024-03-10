@@ -9,6 +9,8 @@
 // ReSharper disable MethodHasAsyncOverload
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {

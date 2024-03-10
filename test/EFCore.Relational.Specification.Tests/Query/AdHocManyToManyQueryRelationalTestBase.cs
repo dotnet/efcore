@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocManyToManyQueryRelationalTestBase : AdHocManyToManyQueryTestBase
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
     TemporalOwnedQuerySqlServerTest.TemporalOwnedQuerySqlServerFixture>

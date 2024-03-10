@@ -5,6 +5,8 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SqlQuerySqliteTest : SqlQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public SqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)

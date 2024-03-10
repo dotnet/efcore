@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqlServerFixture>
 {
     public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

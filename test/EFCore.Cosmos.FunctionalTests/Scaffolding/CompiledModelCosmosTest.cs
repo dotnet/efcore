@@ -12,6 +12,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
+#nullable disable
+
 public class CompiledModelCosmosTest : CompiledModelTestBase
 {
     [ConditionalFact]

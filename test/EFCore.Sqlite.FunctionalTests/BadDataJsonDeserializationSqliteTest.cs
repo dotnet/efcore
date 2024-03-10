@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class BadDataJsonDeserializationSqliteTest : BadDataJsonDeserializationTestBase
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

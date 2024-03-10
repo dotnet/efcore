@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class FilteredQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : class, IQueryFixtureBase, new()
 {

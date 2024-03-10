@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class TestServiceFactory
 {
     public static readonly TestServiceFactory Instance = new();

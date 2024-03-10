@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class EntitySplittingQuerySqliteTest : EntitySplittingQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

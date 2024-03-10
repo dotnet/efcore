@@ -6,6 +6,8 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
 public class SqlAzureDatabaseCreationTest
 {

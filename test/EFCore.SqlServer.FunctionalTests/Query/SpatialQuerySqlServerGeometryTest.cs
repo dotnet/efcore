@@ -6,6 +6,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
 public class SpatialQuerySqlServerGeometryTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeometryFixture>
 {

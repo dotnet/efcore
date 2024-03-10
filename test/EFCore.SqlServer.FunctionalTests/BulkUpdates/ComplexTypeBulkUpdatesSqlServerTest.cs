@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class ComplexTypeBulkUpdatesSqlServerTest(ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesTestBase<
     ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)
 {

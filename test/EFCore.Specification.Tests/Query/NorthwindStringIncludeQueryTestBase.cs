@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {

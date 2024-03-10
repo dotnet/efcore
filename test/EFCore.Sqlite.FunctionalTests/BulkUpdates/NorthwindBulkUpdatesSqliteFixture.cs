@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class NorthwindBulkUpdatesSqliteFixture<TModelCustomizer> : NorthwindBulkUpdatesFixture<TModelCustomizer>
     where TModelCustomizer : ITestModelCustomizer, new()
 {

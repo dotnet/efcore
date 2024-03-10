@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class StoredProcedureUpdateSqlServerTest : StoredProcedureUpdateTestBase
 {
     public override async Task Insert_with_output_parameter(bool async)

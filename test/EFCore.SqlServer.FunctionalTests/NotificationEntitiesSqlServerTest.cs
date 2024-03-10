@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class NotificationEntitiesSqlServerTest(NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture fixture)
     : NotificationEntitiesTestBase<NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>(fixture)
 {

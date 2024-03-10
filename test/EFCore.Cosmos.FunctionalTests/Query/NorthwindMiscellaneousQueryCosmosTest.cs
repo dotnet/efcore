@@ -10,6 +10,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQueryTestBase<
     NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {

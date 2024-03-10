@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindIncludeQuerySqlServerTest : NorthwindIncludeQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {

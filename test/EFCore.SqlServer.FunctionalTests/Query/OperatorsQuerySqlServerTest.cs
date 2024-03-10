@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

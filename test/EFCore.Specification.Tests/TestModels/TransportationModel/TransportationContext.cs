@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
+#nullable disable
+
 public class TransportationContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Vehicle> Vehicles { get; set; }

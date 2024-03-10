@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ManyToManyLoadTestBase<TFixture>
 {
     [ConditionalTheory]

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class ServiceProviderFixtureBase : FixtureBase
 {
     public IServiceProvider ServiceProvider { get; }

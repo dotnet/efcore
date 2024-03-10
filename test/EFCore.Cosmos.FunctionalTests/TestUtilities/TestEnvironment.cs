@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public static class TestEnvironment
 {
     public static IConfiguration Config { get; } = new ConfigurationBuilder()

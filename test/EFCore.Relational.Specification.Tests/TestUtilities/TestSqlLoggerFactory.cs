@@ -312,9 +312,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         protected override void UnsafeLog<TState>(
             LogLevel logLevel,
             EventId eventId,
-            string message,
+            string? message,
             TState state,
-            Exception exception)
+            Exception? exception)
         {
             if ((eventId.Id == RelationalEventId.CommandExecuted.Id
                     || eventId.Id == RelationalEventId.CommandError.Id
@@ -329,7 +329,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     && message != null
                     && eventId.Id != RelationalEventId.CommandExecuting.Id)
                 {
-                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    var structure = (IReadOnlyList<KeyValuePair<string, object>>)state!;
 
                     var parameters = structure.Where(i => i.Key == "parameters").Select(i => (string)i.Value).First();
                     var commandText = structure.Where(i => i.Key == "commandText").Select(i => (string)i.Value).First();

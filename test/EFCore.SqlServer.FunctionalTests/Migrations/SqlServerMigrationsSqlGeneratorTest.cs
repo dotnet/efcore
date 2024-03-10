@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
 {
     [ConditionalFact]

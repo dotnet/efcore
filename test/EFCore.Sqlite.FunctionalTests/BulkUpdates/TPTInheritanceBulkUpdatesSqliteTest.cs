@@ -5,6 +5,8 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class TPTInheritanceBulkUpdatesSqliteTest(
     TPTInheritanceBulkUpdatesSqliteFixture fixture,
     ITestOutputHelper testOutputHelper)

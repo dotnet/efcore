@@ -22,10 +22,10 @@ public abstract class RelationalDatabaseCleaner
     protected virtual bool AcceptSequence(DatabaseSequence sequence)
         => true;
 
-    protected virtual string BuildCustomSql(DatabaseModel databaseModel)
+    protected virtual string? BuildCustomSql(DatabaseModel databaseModel)
         => null;
 
-    protected virtual string BuildCustomEndingSql(DatabaseModel databaseModel)
+    protected virtual string? BuildCustomEndingSql(DatabaseModel databaseModel)
         => null;
 
     protected virtual void OpenConnection(IRelationalConnection connection)
@@ -140,7 +140,7 @@ public abstract class RelationalDatabaseCleaner
     protected virtual MigrationOperation Drop(DatabaseForeignKey foreignKey)
         => new DropForeignKeyOperation
         {
-            Name = foreignKey.Name,
+            Name = foreignKey.Name!,
             Table = foreignKey.Table.Name,
             Schema = foreignKey.Table.Schema
         };
@@ -148,8 +148,8 @@ public abstract class RelationalDatabaseCleaner
     protected virtual MigrationOperation Drop(DatabaseIndex index)
         => new DropIndexOperation
         {
-            Name = index.Name,
-            Table = index.Table.Name,
+            Name = index.Name!,
+            Table = index.Table!.Name,
             Schema = index.Table.Schema
         };
 }

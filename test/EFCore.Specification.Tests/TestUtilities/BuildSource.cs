@@ -21,7 +21,7 @@ public class BuildSource
         BuildReference.ByName("System.Text.RegularExpressions")
     };
 
-    public string TargetDir { get; set; }
+    public string? TargetDir { get; set; }
     public Dictionary<string, string> Sources { get; set; } = new();
     public bool NullableReferenceTypes { get; set; }
     public bool EmitDocumentationDiagnostics { get; set; }
@@ -40,7 +40,9 @@ public class BuildSource
                     throw new InvalidOperationException("Could not find path for reference " + reference);
                 }
 
-                File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)), overwrite: true);
+                File.Copy(
+                    reference.Path, Path.Combine(TargetDir ?? throw new NullReferenceException(), Path.GetFileName(reference.Path)),
+                    overwrite: true);
             }
 
             references.AddRange(reference.References);

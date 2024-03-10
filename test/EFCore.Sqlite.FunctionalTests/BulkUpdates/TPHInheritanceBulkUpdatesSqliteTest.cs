@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class TPHInheritanceBulkUpdatesSqliteTest : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqliteFixture>
 {
     public TPHInheritanceBulkUpdatesSqliteTest(

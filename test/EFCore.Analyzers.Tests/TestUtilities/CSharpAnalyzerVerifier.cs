@@ -47,7 +47,7 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
             CancellationToken cancellationToken)
         {
             var metadataReferences
-                = DependencyContext.Load(GetType().Assembly)
+                = DependencyContext.Load(GetType().Assembly)!
                     .CompileLibraries
                     .SelectMany(c => c.ResolveReferencePaths())
                     .Select(path => MetadataReference.CreateFromFile(path))

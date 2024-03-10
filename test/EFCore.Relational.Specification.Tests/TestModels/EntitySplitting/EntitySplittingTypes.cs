@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
+#nullable disable
+
 public class EntityOne
 {
     public int Id { get; set; }

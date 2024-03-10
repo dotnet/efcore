@@ -5,6 +5,8 @@ using Identity30.Data;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 using ModelSnapshot22;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class MigrationsInfrastructureSqliteTest(MigrationsInfrastructureSqliteTest.MigrationsInfrastructureSqliteFixture fixture)

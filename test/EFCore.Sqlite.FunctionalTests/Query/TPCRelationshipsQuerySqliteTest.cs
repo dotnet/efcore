@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 internal class TPCRelationshipsQuerySqliteTest(TPCRelationshipsQuerySqliteTest.TPCRelationshipsQuerySqliteFixture fixture) :
     TPCRelationshipsQueryTestBase<TPCRelationshipsQuerySqliteTest.TPCRelationshipsQuerySqliteFixture>(fixture)
 {

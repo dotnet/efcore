@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
+#nullable disable
+
 public class OperatorsData : ISetSource
 {
     public static readonly OperatorsData Instance = new();

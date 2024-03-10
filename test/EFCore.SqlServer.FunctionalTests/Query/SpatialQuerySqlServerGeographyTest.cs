@@ -7,6 +7,8 @@ using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
 public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
 {

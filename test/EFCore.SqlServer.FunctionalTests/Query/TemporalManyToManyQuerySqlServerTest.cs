@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalManyToManyQuerySqlServerTest : ManyToManyQueryRelationalTestBase<TemporalManyToManyQuerySqlServerFixture>
 {

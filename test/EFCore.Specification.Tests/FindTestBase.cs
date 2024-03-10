@@ -3,6 +3,8 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {

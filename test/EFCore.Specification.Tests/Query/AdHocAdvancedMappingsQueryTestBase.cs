@@ -7,6 +7,8 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

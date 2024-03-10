@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalTableSqlServerTest : NonSharedModelTestBase
 {

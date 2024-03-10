@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
 public class SpatialSqlServerTest(SpatialSqlServerFixture fixture) : SpatialTestBase<SpatialSqlServerFixture>(fixture)
 {

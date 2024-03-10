@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
+#nullable disable
 
 public abstract class StoreValueGenerationFixtureBase : SharedStoreFixtureBase<StoreValueGenerationContext>
 {

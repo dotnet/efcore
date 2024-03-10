@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class KeysWithConvertersCosmosTest(KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture fixture) : KeysWithConvertersTestBase<KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture>(fixture)
 {
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]

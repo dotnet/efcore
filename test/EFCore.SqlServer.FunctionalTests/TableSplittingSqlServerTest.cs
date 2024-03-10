@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
 {
     protected override ITestStoreFactory TestStoreFactory

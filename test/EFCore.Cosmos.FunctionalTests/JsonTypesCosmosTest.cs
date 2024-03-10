@@ -7,6 +7,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class JsonTypesCosmosTest : JsonTypesTestBase
 {
     // #25765 - the Cosmos type mapping source doesn't support primitive collections, so we end up with a Property

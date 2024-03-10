@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class DefaultValuesTest : IDisposable
 {
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()

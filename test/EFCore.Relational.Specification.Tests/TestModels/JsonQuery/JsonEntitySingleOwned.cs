@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
+#nullable disable
+
 public class JsonEntitySingleOwned
 {
     public int Id { get; set; }

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture fixture) : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>(fixture)
 {
     public override void Fields_used_correctly_for_store_generated_values()

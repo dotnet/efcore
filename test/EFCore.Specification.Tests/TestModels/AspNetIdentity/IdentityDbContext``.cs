@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
+#nullable disable
+
 public abstract class
     IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> : IdentityUserContext<TUser, TKey,
         TUserClaim, TUserLogin, TUserToken>

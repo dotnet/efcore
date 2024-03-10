@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class F1Context(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Team> Teams { get; set; }

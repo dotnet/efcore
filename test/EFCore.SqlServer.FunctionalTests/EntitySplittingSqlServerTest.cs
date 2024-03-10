@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class EntitySplittingSqlServerTest(ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(testOutputHelper)
 {
     [ConditionalFact]

@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class QueryFilterFuncletizationContext(DbContextOptions options) : DbContext(options)
 {
     public static int AdminId = 1;

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

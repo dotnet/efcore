@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

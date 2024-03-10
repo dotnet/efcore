@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
-#nullable enable
-
 public class ComplexTypeData : ISetSource
 {
     private readonly IReadOnlyList<Customer> _customers;

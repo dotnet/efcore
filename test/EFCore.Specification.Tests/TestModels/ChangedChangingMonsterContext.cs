@@ -11,6 +11,8 @@ using System.Runtime.CompilerServices;
 // ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
+#nullable disable
+
 public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterContext<
     ChangedChangingMonsterContext.Customer, ChangedChangingMonsterContext.Barcode, ChangedChangingMonsterContext.IncorrectScan,
     ChangedChangingMonsterContext.BarcodeDetail, ChangedChangingMonsterContext.Complaint, ChangedChangingMonsterContext.Resolution,

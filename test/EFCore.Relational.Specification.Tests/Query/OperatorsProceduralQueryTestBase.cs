@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 {
     private static readonly MethodInfo LikeMethodInfo

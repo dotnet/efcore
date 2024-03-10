@@ -6,6 +6,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQueryTestBase<TFixture>
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {

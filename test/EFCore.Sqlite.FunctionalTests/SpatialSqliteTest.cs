@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SpatialiteRequired]
 public class SpatialSqliteTest(SpatialSqliteFixture fixture) : SpatialTestBase<SpatialSqliteFixture>(fixture)
 {

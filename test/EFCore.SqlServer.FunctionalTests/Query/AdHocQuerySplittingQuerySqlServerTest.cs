@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

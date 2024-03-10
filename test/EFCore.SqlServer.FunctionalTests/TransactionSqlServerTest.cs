@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlServerFixture fixture) : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>(fixture)
 {
     // Test relies on savepoints, which are disabled when MARS is enabled

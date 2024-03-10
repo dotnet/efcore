@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
 {

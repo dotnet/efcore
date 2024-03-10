@@ -1,11 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class InjectJoinWithSelfExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    private ExpressionFinder _expressionFinder;
+    private ExpressionFinder _expressionFinder = null!;
 
     public override bool IsValid(Expression expression)
     {
@@ -44,13 +46,11 @@ public class InjectJoinWithSelfExpressionMutator(DbContext context) : Expression
     {
         private readonly bool _insideThenBy = false;
 
-        private readonly InjectJoinWithSelfExpressionMutator _mutator = mutator;
-
         public List<Expression> FoundExpressions { get; } = [];
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node?.Method.Name is nameof(Queryable.ThenBy)
+            if (node.Method.Name is nameof(Queryable.ThenBy)
                 or nameof(Queryable.ThenByDescending)
                 or nameof(EntityFrameworkQueryableExtensions.ThenInclude))
             {
@@ -60,12 +60,13 @@ public class InjectJoinWithSelfExpressionMutator(DbContext context) : Expression
             return base.VisitMethodCall(node);
         }
 
-        public override Expression Visit(Expression node)
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
             if (node != null
                 && !_insideThenBy
                 && IsQueryableResult(node)
-                && _mutator.IsEntityType(node.Type.GetGenericArguments()[0]))
+                && mutator.IsEntityType(node.Type.GetGenericArguments()[0]))
             {
                 FoundExpressions.Add(node);
             }

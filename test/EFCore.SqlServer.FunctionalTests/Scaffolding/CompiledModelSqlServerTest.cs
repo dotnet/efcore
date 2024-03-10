@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-#nullable enable
-
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;

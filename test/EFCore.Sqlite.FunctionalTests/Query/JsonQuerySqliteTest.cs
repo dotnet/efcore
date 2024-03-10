@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class JsonQuerySqliteTest : JsonQueryTestBase<JsonQuerySqliteFixture>
 {
     public JsonQuerySqliteTest(JsonQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)

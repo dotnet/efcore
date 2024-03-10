@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class TPHInheritanceQueryFixture : InheritanceQueryFixtureBase, ITestSqlLoggerFactory
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory

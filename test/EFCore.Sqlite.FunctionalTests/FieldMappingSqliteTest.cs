@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class FieldMappingSqliteTest
 {
     public abstract class FieldMappingSqliteTestBase<TFixture> : FieldMappingTestBase<TFixture>

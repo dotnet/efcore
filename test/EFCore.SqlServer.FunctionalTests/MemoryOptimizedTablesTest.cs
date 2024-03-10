@@ -8,6 +8,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
 public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture fixture) : IClassFixture<MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture>
 {

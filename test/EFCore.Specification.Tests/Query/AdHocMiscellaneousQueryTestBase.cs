@@ -7,6 +7,8 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

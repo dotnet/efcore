@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsOfWarContext>, IQueryFixtureBase
 {
     protected override string StoreName

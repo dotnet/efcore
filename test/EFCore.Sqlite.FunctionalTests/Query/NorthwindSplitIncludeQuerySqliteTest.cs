@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindSplitIncludeQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
     : NorthwindSplitIncludeQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>(fixture)
 {

@@ -14,10 +14,16 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
     {
     }
 
-    public int Compare(IAnnotation x, IAnnotation y)
-        => StringComparer.Ordinal.Compare(x.Name, y.Name);
+    public int Compare(IAnnotation? x, IAnnotation? y)
+        => (x, y) switch
+        {
+            (null, null) => 0,
+            (not null, null) => 1,
+            (null, not null) => -1,
+            (not null, not null) => StringComparer.Ordinal.Compare(x.Name, y.Name)
+        };
 
-    public bool Equals(IAnnotation x, IAnnotation y)
+    public bool Equals(IAnnotation? x, IAnnotation? y)
     {
         if (x == null)
         {

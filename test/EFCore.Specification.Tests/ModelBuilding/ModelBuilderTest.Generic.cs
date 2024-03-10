@@ -4,8 +4,6 @@
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-#nullable enable
-
 public abstract partial class ModelBuilderTest
 {
     public class GenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)

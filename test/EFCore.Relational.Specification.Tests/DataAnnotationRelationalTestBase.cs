@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class DataAnnotationRelationalTestBase<TFixture> : DataAnnotationTestBase<TFixture>
     where TFixture : DataAnnotationRelationalTestBase<TFixture>.DataAnnotationRelationalFixtureBase, new()
 {

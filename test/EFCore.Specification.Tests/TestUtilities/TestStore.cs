@@ -5,25 +5,19 @@ using System.Transactions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public abstract class TestStore : IDisposable
+public abstract class TestStore(string name, bool shared) : IDisposable
 {
-    private static readonly TestStoreIndex _globalTestStoreIndex = new();
-    public IServiceProvider ServiceProvider { get; protected set; }
+    private static readonly TestStoreIndex GlobalTestStoreIndex = new();
+    public IServiceProvider? ServiceProvider { get; protected set; }
 
-    protected TestStore(string name, bool shared)
-    {
-        Name = name;
-        Shared = shared;
-    }
-
-    public string Name { get; protected set; }
-    public bool Shared { get; }
+    public string Name { get; protected set; } = name;
+    public bool Shared { get; } = shared;
 
     public virtual TestStore Initialize(
-        IServiceProvider serviceProvider,
-        Func<DbContext> createContext,
-        Action<DbContext> seed = null,
-        Action<DbContext> clean = null)
+        IServiceProvider? serviceProvider,
+        Func<DbContext>? createContext,
+        Action<DbContext>? seed = null,
+        Action<DbContext>? clean = null)
     {
         ServiceProvider = serviceProvider;
         if (createContext == null)
@@ -46,24 +40,24 @@ public abstract class TestStore : IDisposable
     public virtual TestStore Initialize(
         IServiceProvider serviceProvider,
         Func<TestStore, DbContext> createContext,
-        Action<DbContext> seed = null,
-        Action<DbContext> clean = null)
+        Action<DbContext>? seed = null,
+        Action<DbContext>? clean = null)
         => Initialize(serviceProvider, () => createContext(this), seed, clean);
 
     public virtual TestStore Initialize<TContext>(
         IServiceProvider serviceProvider,
         Func<TestStore, TContext> createContext,
-        Action<TContext> seed = null,
-        Action<TContext> clean = null)
+        Action<TContext>? seed = null,
+        Action<TContext>? clean = null)
         where TContext : DbContext
         => Initialize(
             serviceProvider,
             createContext,
             // ReSharper disable twice RedundantCast
-            seed == null ? (Action<DbContext>)null : c => seed((TContext)c),
-            clean == null ? (Action<DbContext>)null : c => clean((TContext)c));
+            seed == null ? (Action<DbContext>?)null : c => seed((TContext)c),
+            clean == null ? (Action<DbContext>?)null : c => clean((TContext)c));
 
-    protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
+    protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext>? seed, Action<DbContext>? clean)
     {
         using var context = createContext();
         clean?.Invoke(context);
@@ -85,8 +79,8 @@ public abstract class TestStore : IDisposable
     protected virtual DbContext CreateDefaultContext()
         => new(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
-    protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
-        => _globalTestStoreIndex;
+    protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider? serviceProvider)
+        => GlobalTestStoreIndex;
 
     public virtual void Dispose()
     {
@@ -125,7 +119,7 @@ public abstract class TestStore : IDisposable
             TransactionManager.DistributedTransactionStarted += DistributedTransactionStarted;
         }
 
-        private void DistributedTransactionStarted(object sender, TransactionEventArgs e)
+        private void DistributedTransactionStarted(object? sender, TransactionEventArgs e)
             => Assert.Fail("Distributed transaction started");
 
         public void Dispose()

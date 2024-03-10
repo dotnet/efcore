@@ -9,7 +9,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
 {
     protected virtual Type ContextType { get; } = typeof(TContext);
 
-    private IServiceProvider _serviceProvider;
+    private IServiceProvider? _serviceProvider;
 
     public IServiceProvider ServiceProvider
         => _serviceProvider
@@ -19,7 +19,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
 
-    private TestStore _testStore;
+    private TestStore? _testStore;
 
     public TestStore TestStore
         => _testStore
@@ -29,18 +29,18 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected virtual bool UsePooling
         => true;
 
-    private object _contextFactory;
+    private object? _contextFactory;
 
     private object ContextFactory
         => _contextFactory ??= ServiceProvider
             .GetRequiredService(typeof(IDbContextFactory<>).MakeGenericType(ContextType));
 
-    private ListLoggerFactory _listLoggerFactory;
+    private ListLoggerFactory? _listLoggerFactory;
 
     public ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-    private MethodInfo _createDbContext;
+    private MethodInfo? _createDbContext;
 
     public virtual Task InitializeAsync()
     {
@@ -74,7 +74,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
 
     public virtual TContext CreateContext()
         => UsePooling
-            ? (TContext)_createDbContext.Invoke(ContextFactory, null)
+            ? (TContext)_createDbContext!.Invoke(ContextFactory, null)!
             : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
     public DbContextOptions CreateOptions()

@@ -1,11 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class InjectThenByPropertyExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    private ExpressionFinder _expressionFinder;
+    private ExpressionFinder _expressionFinder = null!;
 
     public override bool IsValid(Expression expression)
     {
@@ -60,15 +62,15 @@ public class InjectThenByPropertyExpressionMutator(DbContext context) : Expressi
     private class ExpressionFinder(InjectThenByPropertyExpressionMutator mutator) : ExpressionVisitor
     {
         private List<PropertyInfo> GetValidPropertiesForOrderBy(Expression expression)
-            => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod.IsStatic)
+            => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod!.IsStatic)
                 .Where(p => IsOrderedableType(p.PropertyType)).ToList();
 
         private bool _insideThenInclude;
-        private readonly InjectThenByPropertyExpressionMutator _mutator = mutator;
 
         public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new();
 
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
         {
             // can't inject OrderBy inside of include - would have to rewrite the ThenInclude method to one that accepts ordered input
             var insideThenInclude = default(bool?);
@@ -84,7 +86,7 @@ public class InjectThenByPropertyExpressionMutator(DbContext context) : Expressi
                 && !FoundExpressions.ContainsKey(expression))
             {
                 var validProperties = GetValidPropertiesForOrderBy(expression);
-                validProperties = _mutator.FilterPropertyInfos(expression.Type.GetGenericArguments()[0], validProperties);
+                validProperties = mutator.FilterPropertyInfos(expression.Type.GetGenericArguments()[0], validProperties);
 
                 if (validProperties.Any())
                 {

@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 public class AppendOrderByPropertyExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private bool HasValidPropertyToOrderBy(Expression expression)
-        => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod.IsStatic)
+        => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod!.IsStatic)
             .Any(p => IsOrderedableType(p.PropertyType));
 
     public override bool IsValid(Expression expression)
@@ -16,7 +16,7 @@ public class AppendOrderByPropertyExpressionMutator(DbContext context) : Express
     public override Expression Apply(Expression expression, Random random)
     {
         var typeArgument = expression.Type.GetGenericArguments()[0];
-        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod.IsStatic && IsOrderedableType(p.PropertyType)).ToList();
+        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod!.IsStatic && IsOrderedableType(p.PropertyType)).ToList();
         properties = FilterPropertyInfos(typeArgument, properties);
 
         var i = random.Next(properties.Count);

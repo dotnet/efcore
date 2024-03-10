@@ -13,6 +13,8 @@ using Microsoft.Data.SqlClient;
 // ReSharper disable PossibleInvalidOperationException
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.SupportsUtf8)]
 public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
 {

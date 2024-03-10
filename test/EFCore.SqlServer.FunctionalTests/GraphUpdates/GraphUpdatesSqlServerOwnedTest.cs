@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlServerFixture fixture) : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>(fixture)
 {
     // No owned types

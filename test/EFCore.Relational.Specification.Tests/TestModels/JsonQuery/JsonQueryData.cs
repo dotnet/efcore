@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
+#nullable disable
+
 public class JsonQueryData : ISetSource
 {
     public JsonQueryData()

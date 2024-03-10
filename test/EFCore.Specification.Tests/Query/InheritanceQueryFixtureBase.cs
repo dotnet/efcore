@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<InheritanceContext>, IFilteredQueryFixtureBase
 {
     private readonly Dictionary<bool, ISetSource> _expectedDataCache = new();

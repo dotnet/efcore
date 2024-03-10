@@ -3,4 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SerializationSqliteTest(F1SqliteFixture fixture) : SerializationTestBase<F1SqliteFixture>(fixture);

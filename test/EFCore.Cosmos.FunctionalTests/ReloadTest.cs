@@ -5,6 +5,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ReloadTest
 {
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };

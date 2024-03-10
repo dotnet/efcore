@@ -14,18 +14,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class CosmosTestStore : TestStore
 {
     private readonly TestStoreContext _storeContext;
-    private readonly string _dataFilePath;
+    private readonly string? _dataFilePath;
     private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
     private bool _initialized;
 
     private static readonly Guid _runId = Guid.NewGuid();
     private static bool? _connectionAvailable;
 
-    public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+    public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
 
-    public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-        => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
+    public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
+        => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>?)null);
 
     public static CosmosTestStore GetOrCreate(string name)
         => new(name);
@@ -36,8 +36,8 @@ public class CosmosTestStore : TestStore
     private CosmosTestStore(
         string name,
         bool shared = true,
-        string dataFilePath = null,
-        Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+        string? dataFilePath = null,
+        Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         : base(CreateName(name), shared)
     {
         ConnectionUri = TestEnvironment.DefaultConnection;
@@ -57,7 +57,7 @@ public class CosmosTestStore : TestStore
         if (dataFilePath != null)
         {
             _dataFilePath = Path.Combine(
-                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location),
+                Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location)!,
                 dataFilePath);
         }
     }
@@ -94,7 +94,7 @@ public class CosmosTestStore : TestStore
 
     private static async Task<bool> TryConnectAsync()
     {
-        CosmosTestStore testStore = null;
+        CosmosTestStore? testStore = null;
         try
         {
             testStore = CreateInitialized("NonExistent");
@@ -138,7 +138,7 @@ public class CosmosTestStore : TestStore
                 StringComparison.Ordinal),
         };
 
-    protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
+    protected override void Initialize(Func<DbContext> createContext, Action<DbContext>? seed, Action<DbContext>? clean)
     {
         _initialized = true;
 
@@ -164,7 +164,7 @@ public class CosmosTestStore : TestStore
         {
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
-            using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
+            using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
             using var sr = new StreamReader(fs);
             using var reader = new JsonTextReader(sr);
             while (reader.Read())
@@ -176,7 +176,7 @@ public class CosmosTestStore : TestStore
                     {
                         if (reader.TokenType == JsonToken.StartObject)
                         {
-                            string entityName = null;
+                            string? entityName = null;
                             while (reader.Read())
                             {
                                 if (reader.TokenType == JsonToken.PropertyName)
@@ -192,7 +192,7 @@ public class CosmosTestStore : TestStore
                                             {
                                                 if (reader.TokenType == JsonToken.StartObject)
                                                 {
-                                                    var document = serializer.Deserialize<JObject>(reader);
+                                                    var document = serializer.Deserialize<JObject>(reader)!;
 
                                                     document["id"] = $"{entityName}|{document["id"]}";
                                                     document["Discriminator"] = entityName;
@@ -245,7 +245,7 @@ public class CosmosTestStore : TestStore
                         {
                             foreach (var item in await itemIterator.ReadNextAsync())
                             {
-                                items.Add((item["id"].ToString(), item[partitionKey]?.ToString()));
+                                items.Add((item["id"]!.ToString(), item[partitionKey]?.ToString()!));
                             }
                         }
 
@@ -356,13 +356,13 @@ public class CosmosTestStore : TestStore
         public DbContext Context
             => throw new NotImplementedException();
 
-        public void SetOriginalValue(IProperty property, object value)
+        public void SetOriginalValue(IProperty property, object? value)
             => throw new NotImplementedException();
 
         public void SetPropertyModified(IProperty property)
             => throw new NotImplementedException();
 
-        public void SetStoreGeneratedValue(IProperty property, object value, bool setModified = true)
+        public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
             => throw new NotImplementedException();
 
         public EntityEntry ToEntityEntry()
@@ -461,7 +461,7 @@ public class CosmosTestStore : TestStore
         public IReadOnlyList<IReadOnlyProperty> FindProperties(IReadOnlyList<string> propertyNames)
             => throw new NotImplementedException();
 
-        public IProperty FindProperty(string name)
+        public IProperty? FindProperty(string name)
             => null;
 
         public IServiceProperty FindServiceProperty(string name)
@@ -557,7 +557,7 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IForeignKey> GetReferencingForeignKeys()
             => throw new NotImplementedException();
 
-        public IEnumerable<IDictionary<string, object>> GetSeedData(bool providerValues = false)
+        public IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false)
             => throw new NotImplementedException();
 
         public IEnumerable<IServiceProperty> GetServiceProperties()

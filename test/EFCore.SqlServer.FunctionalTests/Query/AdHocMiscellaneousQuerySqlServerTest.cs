@@ -12,6 +12,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocMiscellaneousQuerySqlServerTest : AdHocMiscellaneousQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

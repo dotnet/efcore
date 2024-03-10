@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocJsonQuerySqliteTest : AdHocJsonQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

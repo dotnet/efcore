@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<FromSqlQuerySqlServerTest.FromSqlQuerySqlServerTestFixture>
 {
     public FromSqlQuerySqlServerTest(FromSqlQuerySqlServerTestFixture fixture, ITestOutputHelper testOutputHelper)

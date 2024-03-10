@@ -5,6 +5,8 @@ using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
 {
     public override bool GeneratesTemporaryValues

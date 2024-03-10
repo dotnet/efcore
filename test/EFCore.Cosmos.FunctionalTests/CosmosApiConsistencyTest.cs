@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsistencyFixture fixture) : ApiConsistencyTestBase<CosmosApiConsistencyTest.CosmosApiConsistencyFixture>(fixture)
 {
     protected override void AddServices(ServiceCollection serviceCollection)

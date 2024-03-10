@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : KeysWithConvertersTestBase<TFixture>.KeysWithConvertersFixtureBase, new()
 {

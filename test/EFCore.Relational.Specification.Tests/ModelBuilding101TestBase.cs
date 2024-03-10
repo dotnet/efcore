@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class ModelBuilding101RelationalTestBase : ModelBuilding101TestBase
 {
     protected override ModelMetadata GetModelMetadata(Context101 context)

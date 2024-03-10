@@ -5,6 +5,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 

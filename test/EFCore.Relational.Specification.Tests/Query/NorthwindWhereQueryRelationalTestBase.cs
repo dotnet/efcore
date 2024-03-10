@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindWhereQueryRelationalTestBase<TFixture> : NorthwindWhereQueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MigrationsTestBase<TFixture>.MigrationsFixtureBase, new()
 {

@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
 public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
