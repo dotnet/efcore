@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
@@ -95,8 +97,6 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         public int Number { get; set; }
         public string Title { get; set; }
     }
-
-#nullable enable
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -245,9 +245,9 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     public class Context30572_Principal
     {
         public int Id { get; set; }
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
-        public Context30572_Dependent? Dependent { get; set; }
+        public Context30572_Dependent Dependent { get; set; }
     }
 
     public class Context30572_Dependent
@@ -343,7 +343,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     public class Blog
     {
         public int Id { get; set; }
-        public string? Title { get; set; }
+        public string Title { get; set; }
         public int Rating { get; set; }
         public DateTime CreationTimestamp { get; set; }
 
@@ -353,7 +353,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     public class Post
     {
         public int Id { get; set; }
-        public virtual Blog? Blog { get; set; }
+        public virtual Blog Blog { get; set; }
     }
 
 #nullable disable

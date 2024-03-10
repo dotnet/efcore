@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
+#nullable disable
+
 public class SnapshotMonsterContext(DbContextOptions options) : MonsterContext<
     SnapshotMonsterContext.Customer, SnapshotMonsterContext.Barcode, SnapshotMonsterContext.IncorrectScan,
     SnapshotMonsterContext.BarcodeDetail, SnapshotMonsterContext.Complaint, SnapshotMonsterContext.Resolution,

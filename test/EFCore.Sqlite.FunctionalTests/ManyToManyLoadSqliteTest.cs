@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ManyToManyLoadSqliteTest(ManyToManyLoadSqliteTest.ManyToManyLoadSqliteFixture fixture)
     : ManyToManyLoadSqliteTestBase<ManyToManyLoadSqliteTest.ManyToManyLoadSqliteFixture>(fixture)
 {

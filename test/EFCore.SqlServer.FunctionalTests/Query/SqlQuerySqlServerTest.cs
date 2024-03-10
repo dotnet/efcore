@@ -5,6 +5,8 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SqlQuerySqlServerTest : SqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public SqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)

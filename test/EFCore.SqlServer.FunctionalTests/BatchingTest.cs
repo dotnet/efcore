@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 {
     public BatchingTest(BatchingTestFixture fixture)

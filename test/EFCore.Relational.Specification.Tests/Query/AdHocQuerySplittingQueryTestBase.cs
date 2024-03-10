@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

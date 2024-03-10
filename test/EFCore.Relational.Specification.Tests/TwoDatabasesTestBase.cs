@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class TwoDatabasesTestBase
 {
     protected FixtureBase Fixture { get; }

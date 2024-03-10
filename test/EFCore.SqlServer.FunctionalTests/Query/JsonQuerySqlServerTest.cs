@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class JsonQuerySqlServerTest : JsonQueryTestBase<JsonQuerySqlServerFixture>
 {
     public JsonQuerySqlServerTest(JsonQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class ExpectedFilteredInclude<TEntity, TIncluded>(
     Expression<Func<TEntity, IEnumerable<TIncluded>>> include,
     string navigationPath = "",

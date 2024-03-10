@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
+#nullable disable
+
 public class InheritanceContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Animal> Animals { get; set; }

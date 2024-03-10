@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class TPCInheritanceQuerySqlServerTestBase<TFixture> : TPCInheritanceQueryTestBase<TFixture>
     where TFixture : TPCInheritanceQuerySqlServerFixtureBase, new()
 {

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocQueryFiltersQuerySqliteTest : AdHocQueryFiltersQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

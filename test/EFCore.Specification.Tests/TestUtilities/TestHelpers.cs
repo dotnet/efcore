@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public abstract class TestHelpers
 {
-    public DbContextOptions CreateOptions(IModel model, IServiceProvider serviceProvider = null)
+    public DbContextOptions CreateOptions(IModel model, IServiceProvider? serviceProvider = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseInternalServiceProvider(serviceProvider);
@@ -21,7 +21,7 @@ public abstract class TestHelpers
         return optionsBuilder.Options;
     }
 
-    public DbContextOptions CreateOptions(IServiceProvider serviceProvider = null)
+    public DbContextOptions CreateOptions(IServiceProvider? serviceProvider = null)
     {
         var optionsBuilder = new DbContextOptionsBuilder()
             .UseInternalServiceProvider(serviceProvider);
@@ -31,11 +31,11 @@ public abstract class TestHelpers
         return optionsBuilder.Options;
     }
 
-    public IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
+    public IServiceProvider CreateServiceProvider(IServiceCollection? customServices = null)
         => CreateServiceProvider(customServices, AddProviderServices);
 
     protected static IServiceProvider CreateServiceProvider(
-        IServiceCollection customServices,
+        IServiceCollection? customServices,
         Func<IServiceCollection, IServiceCollection> addProviderServices)
     {
         var services = new ServiceCollection();
@@ -53,10 +53,10 @@ public abstract class TestHelpers
     }
 
     public IServiceProvider CreateDesignServiceProvider(
-        IServiceCollection customServices = null,
-        Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
-        Action<IServiceCollection> addDesignTimeServices = null,
-        IOperationReporter reporter = null)
+        IServiceCollection? customServices = null,
+        Action<EntityFrameworkDesignServicesBuilder>? replaceServices = null,
+        Action<IServiceCollection>? addDesignTimeServices = null,
+        IOperationReporter? reporter = null)
         => CreateDesignServiceProvider(
             CreateContext().GetService<IDatabaseProvider>().Name,
             customServices,
@@ -66,10 +66,10 @@ public abstract class TestHelpers
 
     public IServiceProvider CreateDesignServiceProvider(
         string provider,
-        IServiceCollection customServices = null,
-        Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
-        Action<IServiceCollection> addDesignTimeServices = null,
-        IOperationReporter reporter = null)
+        IServiceCollection? customServices = null,
+        Action<EntityFrameworkDesignServicesBuilder>? replaceServices = null,
+        Action<IServiceCollection>? addDesignTimeServices = null,
+        IOperationReporter? reporter = null)
         => CreateServiceProvider(
             customServices, services =>
             {
@@ -185,11 +185,11 @@ public abstract class TestHelpers
         => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
     public TestModelBuilder CreateConventionBuilder(
-        IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger = null,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null,
-        Action<TestModelConfigurationBuilder> configureConventions = null,
-        Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureContext = null,
-        Func<IServiceCollection, IServiceCollection> addServices = null)
+        IDiagnosticsLogger<DbLoggerCategory.Model>? modelLogger = null,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null,
+        Action<TestModelConfigurationBuilder>? configureConventions = null,
+        Func<DbContextOptionsBuilder, DbContextOptionsBuilder>? configureContext = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null)
     {
         var customServices = new ServiceCollection();
         addServices?.Invoke(customServices);
@@ -214,8 +214,8 @@ public abstract class TestHelpers
 
     public TestModelBuilder CreateConventionBuilder(
         IServiceProvider contextServices,
-        Action<TestModelConfigurationBuilder> configureConventions = null,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
+        Action<TestModelConfigurationBuilder>? configureConventions = null,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null)
     {
         var modelCreationDependencies = contextServices.GetRequiredService<ModelCreationDependencies>();
 
@@ -236,7 +236,7 @@ public abstract class TestHelpers
     public InternalEntityEntry CreateInternalEntry<TEntity>(
         IModel model,
         EntityState entityState = EntityState.Detached,
-        TEntity entity = null)
+        TEntity? entity = null)
         where TEntity : class, new()
     {
         var entry = CreateContextServices(model)
@@ -267,8 +267,8 @@ public abstract class TestHelpers
     public static int AssertResults<T>(
         IList<T> expected,
         IList<T> actual,
-        Func<T, object> elementSorter,
-        Action<T, T> elementAsserter,
+        Func<T, object?>? elementSorter,
+        Action<T, T>? elementAsserter,
         bool verifyOrdered)
     {
         Assert.Equal(expected.Count, actual.Count);
@@ -353,9 +353,9 @@ public abstract class TestHelpers
         Func<TContext> createContext,
         Action<DatabaseFacade, IDbContextTransaction> useTransaction,
         Action<TContext> testOperation,
-        Action<TContext> nestedTestOperation1 = null,
-        Action<TContext> nestedTestOperation2 = null,
-        Action<TContext> nestedTestOperation3 = null)
+        Action<TContext>? nestedTestOperation1 = null,
+        Action<TContext>? nestedTestOperation2 = null,
+        Action<TContext>? nestedTestOperation3 = null)
         where TContext : DbContext
     {
         using var c = createContext();
@@ -406,9 +406,9 @@ public abstract class TestHelpers
         Func<TContext> createContext,
         Action<DatabaseFacade, IDbContextTransaction> useTransaction,
         Func<TContext, Task> testOperation,
-        Func<TContext, Task> nestedTestOperation1 = null,
-        Func<TContext, Task> nestedTestOperation2 = null,
-        Func<TContext, Task> nestedTestOperation3 = null)
+        Func<TContext, Task>? nestedTestOperation1 = null,
+        Func<TContext, Task>? nestedTestOperation2 = null,
+        Func<TContext, Task>? nestedTestOperation3 = null)
         where TContext : DbContext
     {
         using var c = createContext();
@@ -458,7 +458,7 @@ public abstract class TestHelpers
     public class TestModelBuilder(
         ConventionSet conventions,
         ModelDependencies modelDependencies,
-        ModelConfiguration modelConfiguration,
+        ModelConfiguration? modelConfiguration,
         IModelRuntimeInitializer modelRuntimeInitializer,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger) : ModelBuilder(conventions, modelDependencies, modelConfiguration)
     {

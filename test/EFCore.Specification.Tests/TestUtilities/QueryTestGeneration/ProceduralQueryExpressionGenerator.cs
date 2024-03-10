@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
+#nullable disable
+
 public class ProceduralQueryExpressionGenerator
 {
     private readonly List<ExpressionMutator> _mutators;

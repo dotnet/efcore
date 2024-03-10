@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class AppendIncludeToExistingExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    private ExpressionFinder _expressionFinder;
+    private ExpressionFinder _expressionFinder = null!;
 
     public override bool IsValid(Expression expression)
     {
@@ -83,10 +83,9 @@ public class AppendIncludeToExistingExpressionMutator(DbContext context) : Expre
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             // can't handle string overloads = need type information to construct Expression calls.
-            if (node != null
-                && (node.Method.MethodIsClosedFormOf(IncludeMethodInfo)
-                    || node.Method.MethodIsClosedFormOf(ThenIncludeReferenceMethodInfo)
-                    || node.Method.MethodIsClosedFormOf(ThenIncludeCollectionMethodInfo)))
+            if (node.Method.MethodIsClosedFormOf(IncludeMethodInfo)
+                || node.Method.MethodIsClosedFormOf(ThenIncludeReferenceMethodInfo)
+                || node.Method.MethodIsClosedFormOf(ThenIncludeCollectionMethodInfo))
             {
                 FoundExpressions.Add(node);
 

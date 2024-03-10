@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPTManyToManyQuerySqlServerTest : TPTManyToManyQueryRelationalTestBase<TPTManyToManyQuerySqlServerFixture>
 {
     public TPTManyToManyQuerySqlServerTest(TPTManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

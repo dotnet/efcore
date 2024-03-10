@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class FindSqlServerTest : FindTestBase<FindSqlServerTest.FindSqlServerFixture>
 {
     protected FindSqlServerTest(FindSqlServerFixture fixture)

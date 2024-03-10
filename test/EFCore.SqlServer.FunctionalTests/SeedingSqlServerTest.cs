@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SeedingSqlServerTest : SeedingTestBase
 {
     protected override TestStore TestStore

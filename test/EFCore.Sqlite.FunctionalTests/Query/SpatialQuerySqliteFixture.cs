@@ -8,6 +8,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class SpatialQuerySqliteFixture : SpatialQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory

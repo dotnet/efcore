@@ -9,6 +9,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class SqlServerValueGenerationScenariosTestBase
 {
     protected static readonly GeometryFactory GeometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);

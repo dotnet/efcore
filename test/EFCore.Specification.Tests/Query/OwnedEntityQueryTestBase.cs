@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

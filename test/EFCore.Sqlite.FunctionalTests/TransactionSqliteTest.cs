@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class TransactionSqliteTest(TransactionSqliteTest.TransactionSqliteFixture fixture) : TransactionTestBase<TransactionSqliteTest.TransactionSqliteFixture>(fixture)
 {
     protected override bool SnapshotSupported

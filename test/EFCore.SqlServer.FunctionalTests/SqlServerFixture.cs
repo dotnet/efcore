@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerFixture : ServiceProviderFixtureBase
 {
     public static IServiceProvider DefaultServiceProvider { get; }

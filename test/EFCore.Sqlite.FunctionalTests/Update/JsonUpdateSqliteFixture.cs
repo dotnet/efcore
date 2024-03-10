@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public class JsonUpdateSqliteFixture : JsonUpdateFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory

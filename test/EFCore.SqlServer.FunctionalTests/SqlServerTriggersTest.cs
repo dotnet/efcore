@@ -6,6 +6,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixture fixture) : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;

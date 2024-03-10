@@ -376,6 +376,6 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 
     protected enum SByteEnum : sbyte;
 
-    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
+    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configureConventions = null)
         => SqliteTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);
 }

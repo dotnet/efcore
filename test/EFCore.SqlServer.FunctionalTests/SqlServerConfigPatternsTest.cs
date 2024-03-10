@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerConfigPatternsTest
 {
     public class ImplicitServicesAndConfig

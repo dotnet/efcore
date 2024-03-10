@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ConvertToProviderTypesSqliteTest : ConvertToProviderTypesTestBase<
     ConvertToProviderTypesSqliteTest.ConvertToProviderTypesSqliteFixture>
 {

@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public class NorthwindContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public virtual DbSet<Customer> Customers { get; set; }

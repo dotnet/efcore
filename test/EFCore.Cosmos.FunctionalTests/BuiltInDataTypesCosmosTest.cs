@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture fixture) : BuiltInDataTypesTestBase<BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture>(fixture)
 {
     [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]

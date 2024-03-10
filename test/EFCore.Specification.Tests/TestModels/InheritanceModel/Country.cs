@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
+#nullable disable
+
 public class Country
 {
     public Country()

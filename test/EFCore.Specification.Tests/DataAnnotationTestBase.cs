@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : DataAnnotationTestBase<TFixture>.DataAnnotationFixtureBase, new()
 {

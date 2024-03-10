@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class SharedTypeQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

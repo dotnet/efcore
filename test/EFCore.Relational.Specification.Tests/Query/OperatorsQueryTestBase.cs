@@ -312,7 +312,6 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-#nullable enable
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_and_json_scalar(bool async)

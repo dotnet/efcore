@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class LoadSqliteTest(LoadSqliteTest.LoadSqliteFixture fixture) : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>(fixture)
 {
     public class LoadSqliteFixture : LoadFixtureBase

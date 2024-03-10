@@ -10,6 +10,8 @@ using IsolationLevel = System.Data.IsolationLevel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : TransactionTestBase<TFixture>.TransactionFixtureBase, new()
 {

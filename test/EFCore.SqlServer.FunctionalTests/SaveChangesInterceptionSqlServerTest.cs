@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInterceptionTestBase
 {
     protected SaveChangesInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)

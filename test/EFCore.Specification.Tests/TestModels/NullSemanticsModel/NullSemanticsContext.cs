@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
+#nullable disable
+
 public class NullSemanticsContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<NullSemanticsEntity1> Entities1 { get; set; }

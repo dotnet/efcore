@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
 {

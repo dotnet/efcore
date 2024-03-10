@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class OverzealousInitializationSqlServerTest(OverzealousInitializationSqlServerTest.OverzealousInitializationSqlServerFixture fixture)
     : OverzealousInitializationTestBase<OverzealousInitializationSqlServerTest.OverzealousInitializationSqlServerFixture>(fixture)
 {

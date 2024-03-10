@@ -3,4 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class GearsOfWarFromSqlQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture) : GearsOfWarFromSqlQueryTestBase<GearsOfWarQuerySqliteFixture>(fixture);

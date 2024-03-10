@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
+#nullable disable
 
 public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : StoreValueGenerationFixtureBase
@@ -162,7 +162,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
             };
 
         StoreValueGenerationData first;
-        StoreValueGenerationData? second;
+        StoreValueGenerationData second;
 
         switch (firstOperationType)
         {

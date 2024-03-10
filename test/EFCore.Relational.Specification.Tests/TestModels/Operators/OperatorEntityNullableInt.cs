@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
+#nullable disable
+
 public class OperatorEntityNullableInt : OperatorEntityBase
 {
     public int? Value { get; set; }

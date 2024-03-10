@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-#nullable enable
-
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
@@ -1221,8 +1219,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Abstractions"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Proxies"));
         build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Specification.Tests"));
-        build.References.Add(BuildReference.ByName(typeof(CompiledModelTestBase).Assembly.GetName().Name));
-        build.References.Add(BuildReference.ByName(GetType().Assembly.GetName().Name));
+        build.References.Add(BuildReference.ByName(typeof(CompiledModelTestBase).Assembly.GetName().Name!));
+        build.References.Add(BuildReference.ByName(GetType().Assembly.GetName().Name!));
         return build;
     }
 
@@ -1282,6 +1280,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         options ??= new CompiledModelCodeGenerationOptions();
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
+        // options.UseNullableReferenceTypes = false;
 
         var generator = TestHelpers.CreateDesignServiceProvider(
                 context.GetService<IDatabaseProvider>().Name,

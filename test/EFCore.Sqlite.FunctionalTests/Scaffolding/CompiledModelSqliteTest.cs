@@ -13,6 +13,8 @@ using NetTopologySuite;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
+#nullable disable
+
 public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
 {
     [SpatialiteRequired]

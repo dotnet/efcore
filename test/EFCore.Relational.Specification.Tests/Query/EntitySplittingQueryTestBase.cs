@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 {
     protected EntitySplittingQueryTestBase()

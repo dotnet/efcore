@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class QueryExpressionInterceptionSqliteTestBase : QueryExpressionInterceptionTestBase
 {
     protected QueryExpressionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)

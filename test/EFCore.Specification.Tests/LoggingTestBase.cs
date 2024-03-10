@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class LoggingTestBase
 {
     [ConditionalFact]

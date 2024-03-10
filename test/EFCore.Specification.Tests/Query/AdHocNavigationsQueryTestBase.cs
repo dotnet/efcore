@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName

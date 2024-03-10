@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
+#nullable disable
+
 public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
 {
     public abstract class SqliteNonRelationship(SqliteModelBuilderFixture fixture) : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;

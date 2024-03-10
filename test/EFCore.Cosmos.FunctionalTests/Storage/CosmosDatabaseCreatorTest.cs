@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
+#nullable disable
+
 public class CosmosDatabaseCreatorTest
 {
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };

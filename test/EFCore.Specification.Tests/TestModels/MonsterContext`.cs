@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
+#nullable disable
+
 public class MonsterContext<
     TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,
     TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,

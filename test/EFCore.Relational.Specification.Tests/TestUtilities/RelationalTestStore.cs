@@ -5,9 +5,9 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public abstract class RelationalTestStore : TestStore
+public abstract class RelationalTestStore(string name, bool shared, DbConnection connection) : TestStore(name, shared)
 {
-    public virtual string ConnectionString { get; protected set; }
+    public virtual string ConnectionString { get; } = connection.ConnectionString;
 
     public ConnectionState ConnectionState
         => Connection.State;
@@ -24,18 +24,13 @@ public abstract class RelationalTestStore : TestStore
     public DbTransaction BeginTransaction()
         => Connection.BeginTransaction();
 
-    protected virtual DbConnection Connection { get; set; }
-
-    protected RelationalTestStore(string name, bool shared)
-        : base(name, shared)
-    {
-    }
+    protected virtual DbConnection Connection { get; } = connection;
 
     public override TestStore Initialize(
-        IServiceProvider serviceProvider,
-        Func<DbContext> createContext,
-        Action<DbContext> seed = null,
-        Action<DbContext> clean = null)
+        IServiceProvider? serviceProvider,
+        Func<DbContext>? createContext,
+        Action<DbContext>? seed = null,
+        Action<DbContext>? clean = null)
     {
         base.Initialize(serviceProvider, createContext, seed, clean);
 

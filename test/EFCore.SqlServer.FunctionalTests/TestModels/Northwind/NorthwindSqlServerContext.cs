@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+#nullable disable
+
 public class NorthwindSqlServerContext(DbContextOptions options) : NorthwindRelationalContext(options)
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)

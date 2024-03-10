@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class TPTTableSplittingSqlServerTest(ITestOutputHelper testOutputHelper) : TPTTableSplittingTestBase(testOutputHelper)
 {
     protected override ITestStoreFactory TestStoreFactory

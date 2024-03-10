@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class TestSqlLoggerFactory : ListLoggerFactory
 {
     private const string FileNewLine = @"

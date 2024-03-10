@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTestBase
 {
     protected CommandInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)

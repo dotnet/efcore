@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory

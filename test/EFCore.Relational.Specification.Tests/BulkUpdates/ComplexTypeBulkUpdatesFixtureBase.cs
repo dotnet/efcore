@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public abstract class ComplexTypeBulkUpdatesFixtureBase : ComplexTypeQueryRelationalFixtureBase, IBulkUpdatesFixtureBase
 {
     protected override string StoreName

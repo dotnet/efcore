@@ -7,6 +7,8 @@ using System.Data;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class CommandInterceptionTestBase : InterceptionTestBase
 {
     protected CommandInterceptionTestBase(InterceptionFixtureBase fixture)

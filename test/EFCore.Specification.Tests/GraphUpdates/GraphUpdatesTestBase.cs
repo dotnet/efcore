@@ -12,6 +12,8 @@ using System.Runtime.CompilerServices;
 // ReSharper disable NonReadonlyMemberInGetHashCode
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {

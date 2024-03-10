@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
+#nullable disable
+
 public class InheritanceRelationshipsContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public static readonly string StoreName = "InheritanceRelationships";

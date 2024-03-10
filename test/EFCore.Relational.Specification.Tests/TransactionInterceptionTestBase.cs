@@ -5,6 +5,8 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class TransactionInterceptionTestBase : InterceptionTestBase
 {
     protected TransactionInterceptionTestBase(InterceptionFixtureBase fixture)

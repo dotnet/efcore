@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocQueryFiltersQueryRelationalTestBase : AdHocQueryFiltersQueryTestBase
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory

@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class MaterializationInterceptionSqliteTest :
     MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>
 {

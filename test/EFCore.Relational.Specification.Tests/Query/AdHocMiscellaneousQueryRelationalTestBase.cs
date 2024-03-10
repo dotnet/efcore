@@ -4,6 +4,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using NameSpace1;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class AdHocMiscellaneousQueryRelationalTestBase : AdHocMiscellaneousQueryTestBase

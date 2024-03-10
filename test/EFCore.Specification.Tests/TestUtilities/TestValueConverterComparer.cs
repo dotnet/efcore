@@ -12,7 +12,7 @@ public class TestValueConverterComparer : IEqualityComparer<ValueConverter>
     {
     }
 
-    public bool Equals(ValueConverter x, ValueConverter y)
+    public bool Equals(ValueConverter? x, ValueConverter? y)
         => x == null
             ? y == null
             : y == null

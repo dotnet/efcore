@@ -55,8 +55,7 @@ public class BulkUpdatesAsserter(IBulkUpdatesFixtureBase queryFixture, Func<Expr
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter)
         where TResult : class
     {
-        _entitySorters.TryGetValue(typeof(TEntity), out var sorter);
-        var elementSorter = (Func<TEntity, object>)sorter;
+        var elementSorter = (Func<TEntity, object>)_entitySorters[typeof(TEntity)];
         if (async)
         {
             await TestHelpers.ExecuteWithStrategyInTransactionAsync(

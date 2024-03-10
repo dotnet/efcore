@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class RawSqlServerTest : NonSharedModelTestBase
 {
     // Issue #13346, #24623

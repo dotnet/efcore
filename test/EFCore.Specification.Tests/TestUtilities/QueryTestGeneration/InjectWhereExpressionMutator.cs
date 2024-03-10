@@ -1,11 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    private ExpressionFinder _expressionFinder;
+    private ExpressionFinder _expressionFinder = null!;
 
     public override bool IsValid(Expression expression)
     {
@@ -30,7 +32,7 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
             candidateExpressions.Add(prm);
         }
 
-        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod.IsStatic).ToList();
+        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod!.IsStatic).ToList();
         properties = FilterPropertyInfos(typeArgument, properties);
 
         var boolProperties = properties.Where(p => p.PropertyType == typeof(bool)).ToList();
@@ -64,7 +66,7 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
 
         if (IsEntityType(typeArgument))
         {
-            var entityType = Context.Model.FindEntityType(typeArgument);
+            var entityType = Context.Model.FindEntityType(typeArgument)!;
             var navigations = entityType.GetNavigations().ToList();
             var collectionNavigations = navigations.Where(n => n.IsCollection).ToList();
 
@@ -78,7 +80,7 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
                 candidateExpressions.Add(
                     Expression.Call(
                         any,
-                        Expression.Property(prm, collectionNavigation.PropertyInfo)));
+                        Expression.Property(prm, collectionNavigation.PropertyInfo!)));
             }
         }
 
@@ -103,7 +105,8 @@ public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator
 
         public List<Expression> FoundExpressions { get; } = [];
 
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull(nameof(expression))]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" or "Skip" or "Take" })
             {

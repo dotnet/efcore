@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class FieldsOnlyLoadTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : FieldsOnlyLoadTestBase<TFixture>.FieldsOnlyLoadFixtureBase
 {

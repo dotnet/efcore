@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>

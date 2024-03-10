@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Proxies.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public class ManyToManyContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<EntityOne> EntityOnes { get; set; }

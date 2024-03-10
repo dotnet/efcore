@@ -120,7 +120,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
             onModelCreating: mb => mb.Entity<TestEntity>()
                 .Property(m => m.Ints)
                 .HasConversion(
-                    i => string.Join(",", i),
+                    i => string.Join(",", i!),
                     s => s.Split(",", StringSplitOptions.None).Select(int.Parse).ToArray(),
                     new ValueComparer<int[]>(favorStructuralComparisons: true)),
             seed: context =>
@@ -138,7 +138,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         Assert.Equal(1, result.Id);
 
         // Custom converters allow reading/writing, but not querying, as we have no idea about the internal representation
-        await AssertTranslationFailed(() => context.Set<TestEntity>().SingleAsync(m => m.Ints.Length == 2));
+        await AssertTranslationFailed(() => context.Set<TestEntity>().SingleAsync(m => m.Ints!.Length == 2));
     }
 
     [ConditionalFact(
@@ -224,7 +224,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     protected async Task TestArray<TElement>(
         TElement value1,
         TElement value2,
-        Action<ModelBuilder> onModelCreating = null)
+        Action<ModelBuilder>? onModelCreating = null)
     {
         var arrayClrType = typeof(TElement).MakeArrayType();
 
@@ -283,7 +283,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     protected class TestEntity
     {
         public int Id { get; set; }
-        public int[] Ints { get; set; }
+        public int[]? Ints { get; set; }
     }
 
     protected override string StoreName

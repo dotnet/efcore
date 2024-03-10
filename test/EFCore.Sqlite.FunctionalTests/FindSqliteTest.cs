@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class FindSqliteTest : FindTestBase<FindSqliteTest.FindSqliteFixture>
 {
     protected FindSqliteTest(FindSqliteFixture fixture)

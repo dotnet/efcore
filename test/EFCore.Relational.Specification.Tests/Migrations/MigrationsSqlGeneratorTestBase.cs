@@ -6,6 +6,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 public abstract class MigrationsSqlGeneratorTestBase
 {
     protected static string EOL

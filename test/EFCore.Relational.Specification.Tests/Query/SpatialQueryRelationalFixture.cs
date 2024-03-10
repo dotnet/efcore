@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class SpatialQueryRelationalFixture : SpatialQueryFixtureBase, ITestSqlLoggerFactory
 {
     public new RelationalTestStore TestStore

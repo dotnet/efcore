@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class RelationalModelAsserter : ModelAsserter
 {
     public new static RelationalModelAsserter Instance { get; } = new();

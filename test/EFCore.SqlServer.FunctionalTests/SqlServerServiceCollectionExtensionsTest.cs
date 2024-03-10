@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTestBase
 {
     public SqlServerServiceCollectionExtensionsTest()

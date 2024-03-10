@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public static class DataGenerator
 {
     private static readonly ConcurrentDictionary<Type, object[]> Values = new();

@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) : IClassFixture<BadDataSqliteTest.BadDataSqliteFixture>
 {
     public BadDataSqliteFixture Fixture { get; } = fixture;

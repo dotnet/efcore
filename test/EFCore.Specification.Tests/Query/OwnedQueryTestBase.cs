@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : OwnedQueryTestBase<TFixture>.OwnedQueryFixtureBase, new()
 {

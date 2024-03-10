@@ -401,7 +401,7 @@ public static class TestEnvironment
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();
 
-    public static string ElasticPoolName { get; } = Config["ElasticPoolName"];
+    public static string? ElasticPoolName { get; } = Config["ElasticPoolName"];
 
     public static bool? GetFlag(string key)
         => bool.TryParse(Config[key], out var flag) ? flag : null;
