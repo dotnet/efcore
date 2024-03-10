@@ -15,9 +15,6 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
     {
     }
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Projecting_collection_correlated_with_keyless_entity_throws(bool async)
@@ -70,5 +67,5 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
 
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

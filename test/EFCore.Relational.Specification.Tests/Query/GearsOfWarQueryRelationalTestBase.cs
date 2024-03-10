@@ -167,10 +167,7 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async))).Message);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

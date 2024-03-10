@@ -113,12 +113,9 @@ public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBas
     protected FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
         => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 
     public abstract class RelationalOwnedQueryFixture : OwnedQueryFixtureBase, ITestSqlLoggerFactory
     {
