@@ -19,9 +19,6 @@ public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    protected override bool CanExecuteQueryString
-        => true;
-
     // TODO: Remove after NetTopologySuite/NetTopologySuite#233
     protected override bool AssertDistances
         => false;
