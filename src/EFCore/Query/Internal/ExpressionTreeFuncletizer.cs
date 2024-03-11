@@ -421,18 +421,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 goto case StateType.ContainsEvaluatable;
 
             case StateType.ContainsEvaluatable:
-                if (testState.IsEvaluatable)
-                {
-                    // Early optimization - if the test is evaluatable, simply reduce the conditional to the relevant clause
-                    if (Evaluate(test) is bool testConstant)
-                    {
-                        _state = testConstant ? ifTrueState : ifFalseState;
-                        return testConstant ? ifTrue : ifFalse;
-                    }
-
-                    test = ProcessEvaluatableRoot(test, ref testState);
-                }
-
+                // The case where the test is evaluatable has been handled above
                 if (ifTrueState.IsEvaluatable)
                 {
                     ifTrue = ProcessEvaluatableRoot(ifTrue, ref ifTrueState);
