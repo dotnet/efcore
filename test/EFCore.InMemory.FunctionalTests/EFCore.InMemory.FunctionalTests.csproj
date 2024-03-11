@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\src\Shared\MemberInfoExtensions.cs" Link="MemberInfoExtensions.cs" />
+    <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
   </ItemGroup>
 
   <ItemGroup>
