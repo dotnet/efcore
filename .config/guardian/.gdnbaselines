@@ -1,0 +1,43 @@
+{
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines"
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "default": {
+      "name": "default",
+      "createdDate": "2024-03-11 23:15:38Z",
+      "lastUpdatedDate": "2024-03-11 23:15:38Z"
+    }
+  },
+  "results": {
+    "3ab8ecce707fd366db801cd25496a3bf4e5984c2e97b34c2a2e4ae5403167192": {
+      "signature": "3ab8ecce707fd366db801cd25496a3bf4e5984c2e97b34c2a2e4ae5403167192",
+      "alternativeSignatures": [],
+      "target": "azure-pipelines-public.yml",
+      "line": 214,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-GENERAL0060",
+      "createdDate": "2024-03-11 23:15:38Z",
+      "expirationDate": "2024-08-29 00:39:44Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-03-12 00:39:44Z"
+    },
+    "07b47302c50eb284f09501218f012eb0ea54edf3d8ae1a3737f1bd5083da699a": {
+      "signature": "07b47302c50eb284f09501218f012eb0ea54edf3d8ae1a3737f1bd5083da699a",
+      "alternativeSignatures": [],
+      "target": "azure-pipelines.yml",
+      "line": 237,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-GENERAL0060",
+      "createdDate": "2024-03-11 23:15:38Z",
+      "expirationDate": "2024-08-29 00:39:44Z",
+      "justification": "This error is baselined with an expiration date of 180 days from 2024-03-12 00:39:44Z"
+    }
+  }
+}
