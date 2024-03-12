@@ -18,6 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="System.Data.Common" />
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
