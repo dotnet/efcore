@@ -31,7 +31,7 @@ internal partial class DbContextScaffoldCommand : ProjectCommandBase
         _connection = command.Argument("<CONNECTION>", Resources.ConnectionDescription);
         _provider = command.Argument("<PROVIDER>", Resources.ProviderDescription);
 
-        _dataAnnotations = command.Option("-m|--data-annotations", Resources.DataAnnotationsDescription);
+        _dataAnnotations = command.Option("-d|--data-annotations", Resources.DataAnnotationsDescription);
         _context = command.Option("-c|--context <NAME>", Resources.ContextNameDescription);
         _contextDir = command.Option("--context-dir <PATH>", Resources.ContextDirDescription);
         _force = command.Option("-f|--force", Resources.DbContextScaffoldForceDescription);
