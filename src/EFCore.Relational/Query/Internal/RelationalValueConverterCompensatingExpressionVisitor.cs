@@ -85,7 +85,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
         var orderings = this.VisitAndConvert(selectExpression.Orderings);
         var offset = (SqlExpression?)Visit(selectExpression.Offset);
         var limit = (SqlExpression?)Visit(selectExpression.Limit);
-        return selectExpression.Update(projections, tables, predicate, groupBy, having, orderings, limit, offset);
+        return selectExpression.Update(tables, predicate, groupBy, having, projections, orderings, offset, limit);
     }
 
     private Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)

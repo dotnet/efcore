@@ -980,6 +980,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantInvoked");
 
         /// <summary>
+        ///     The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.
+        /// </summary>
+        public static string EFConstantNotSupportedInPrecompiledQueries
+            => GetString("EFConstantNotSupportedInPrecompiledQueries");
+
+        /// <summary>
         ///     The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
         /// </summary>
         public static string EFConstantWithNonEvaluatableArgument
@@ -2211,6 +2217,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NotCollection", nameof(entityType), nameof(property)),
                 entityType, property);
+
+        /// <summary>
+        ///     When precompiling queries, the '{parameter}' parameter of method '{method}' cannot be parameterized.
+        /// </summary>
+        public static string NotParameterizedAttributeWithNonConstantNotSupportedInPrecompiledQueries(object? parameter, object? method)
+            => string.Format(
+                GetString("NotParameterizedAttributeWithNonConstantNotSupportedInPrecompiledQueries", nameof(parameter), nameof(method)),
+                parameter, method);
 
         /// <summary>
         ///     The given 'IQueryable' does not support generation of query strings.

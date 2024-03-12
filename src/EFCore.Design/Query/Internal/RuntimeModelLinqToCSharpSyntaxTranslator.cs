@@ -43,10 +43,11 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         Expression node,
         Dictionary<object, ExpressionSyntax>? constantReplacements,
         Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacements,
-        ISet<string> collectedNamespaces)
+        ISet<string> collectedNamespaces,
+        ISet<MethodDeclarationSyntax> unsafeAccessors)
     {
         _memberAccessReplacements = memberAccessReplacements;
-        var result = TranslateStatement(node, constantReplacements, collectedNamespaces);
+        var result = TranslateStatement(node, constantReplacements, collectedNamespaces, unsafeAccessors);
         _memberAccessReplacements = null;
         return result;
     }
@@ -61,10 +62,11 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         Expression node,
         Dictionary<object, ExpressionSyntax>? constantReplacements,
         Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacements,
-        ISet<string> collectedNamespaces)
+        ISet<string> collectedNamespaces,
+        ISet<MethodDeclarationSyntax> unsafeAccessors)
     {
         _memberAccessReplacements = memberAccessReplacements;
-        var result = TranslateExpression(node, constantReplacements, collectedNamespaces);
+        var result = TranslateExpression(node, constantReplacements, collectedNamespaces, unsafeAccessors);
         _memberAccessReplacements = null;
         return result;
     }
@@ -94,7 +96,7 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void TranslateNonPublicFieldAccess(MemberExpression member)
+    protected override void TranslateNonPublicMemberAccess(MemberExpression member)
     {
         if (_memberAccessReplacements?.TryGetValue(new MemberAccess(member.Member, assignment: false), out var methodName) == true)
         {
@@ -104,7 +106,7 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         }
         else
         {
-            base.TranslateNonPublicFieldAccess(member);
+            base.TranslateNonPublicMemberAccess(member);
         }
     }
 
@@ -114,10 +116,15 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void TranslateNonPublicFieldAssignment(MemberExpression member, Expression value)
+    protected override void TranslateNonPublicMemberAssignment(MemberExpression member, Expression value, SyntaxKind assignmentKind)
     {
         if (_memberAccessReplacements?.TryGetValue(new MemberAccess(member.Member, assignment: true), out var methodName) == true)
         {
+            if (assignmentKind is not SyntaxKind.SimpleAssignmentExpression)
+            {
+                throw new NotSupportedException("Compound assignment not supported");
+            }
+
             Result = InvocationExpression(
                 methodName,
                 ArgumentList(SeparatedList(new[]
@@ -128,7 +135,7 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         }
         else
         {
-            base.TranslateNonPublicFieldAssignment(member, value);
+            base.TranslateNonPublicMemberAssignment(member, value, assignmentKind);
         }
     }
 }

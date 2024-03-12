@@ -91,10 +91,11 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         _testStore = createTestStore?.Invoke() ?? CreateTestStore();
 
         shouldLogCategory ??= _ => false;
-        var services = (useServiceProvider
-            ? TestStoreFactory.AddProviderServices(new ServiceCollection())
-            : new ServiceCollection())
-                .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory));
+        var services = AddServices(
+            (useServiceProvider
+                ? TestStoreFactory.AddProviderServices(new ServiceCollection())
+                : new ServiceCollection())
+            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory)));
 
         if (onModelCreating != null)
         {
@@ -134,6 +135,9 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         onConfiguring?.Invoke(optionsBuilder);
         return optionsBuilder;
     }
+
+    protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
+        => serviceCollection;
 
     protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => builder
@@ -196,5 +200,8 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
             => UsePooling
                 ? PooledContextFactory!.CreateDbContext()
                 : (TContext)ServiceProvider.GetRequiredService(typeof(TContext));
+
+        public virtual DbContextOptions GetOptions()
+            => ServiceProvider.GetRequiredService<DbContextOptions>();
     }
 }

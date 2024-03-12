@@ -1053,16 +1053,19 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 out var structuralGetterExpression,
                 out var hasStructuralSentinelExpression);
 
+            // TODO
+            var unsafeAccessors = new HashSet<string>();
+
             mainBuilder
                 .Append(variableName).AppendLine(".SetGetter(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(getterExpression, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(getterExpression, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(hasSentinelExpression, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(hasSentinelExpression, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(structuralGetterExpression, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(structuralGetterExpression, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(hasStructuralSentinelExpression, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(hasStructuralSentinelExpression, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1071,7 +1074,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetSetter(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(setterExpression, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(setterExpression, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1080,7 +1083,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetMaterializationSetter(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(materializationSetterExpression, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(materializationSetterExpression, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -1094,19 +1097,19 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(variableName).AppendLine(".SetAccessors(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(currentValueGetter, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(currentValueGetter, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(preStoreGeneratedCurrentValueGetter, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(preStoreGeneratedCurrentValueGetter, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(originalValueGetter == null
                     ? "null"
-                    : _code.Expression(originalValueGetter, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                    : _code.Expression(originalValueGetter, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(_code.Expression(relationshipSnapshotGetter, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(relationshipSnapshotGetter, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(",")
                 .AppendLines(valueBufferGetter == null
                     ? "null"
-                    : _code.Expression(valueBufferGetter, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                    : _code.Expression(valueBufferGetter, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
         }
@@ -1824,6 +1827,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             out var createAndSetCollection,
             out var createCollection);
 
+        // TODO
+        var unsafeAccessors = new HashSet<string>();
+
         AddNamespace(propertyType, parameters.Namespaces);
         mainBuilder
             .Append(parameters.TargetName)
@@ -1831,23 +1837,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .IncrementIndent()
             .AppendLines(getCollection == null
                 ? "null"
-                : _code.Expression(getCollection, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                : _code.Expression(getCollection, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(setCollection == null
                 ? "null"
-                : _code.Expression(setCollection, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                : _code.Expression(setCollection, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(setCollectionForMaterialization == null
                 ? "null"
-                : _code.Expression(setCollectionForMaterialization, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                : _code.Expression(setCollectionForMaterialization, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(createAndSetCollection == null
                 ? "null"
-                : _code.Expression(createAndSetCollection, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                : _code.Expression(createAndSetCollection, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
             .AppendLine(",")
             .AppendLines(createCollection == null
                 ? "null"
-                : _code.Expression(createCollection, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                : _code.Expression(createCollection, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
             .AppendLine(");")
             .DecrementIndent();
     }
@@ -2057,11 +2063,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
             var runtimeType = (IRuntimeEntityType)entityType;
 
+            // TODO
+            var unsafeAccessors = new HashSet<string>();
+
             var originalValuesFactory = OriginalValuesFactoryFactory.Instance.CreateExpression(runtimeType);
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetOriginalValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(originalValuesFactory, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(originalValuesFactory, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2069,7 +2078,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetStoreGeneratedValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(storeGeneratedValuesFactory, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(storeGeneratedValuesFactory, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2077,7 +2086,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetTemporaryValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(temporaryValuesFactory, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(temporaryValuesFactory, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2085,7 +2094,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetShadowValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(shadowValuesFactory, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(shadowValuesFactory, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2093,7 +2102,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetEmptyShadowValuesFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(emptyShadowValuesFactory, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(emptyShadowValuesFactory, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 
@@ -2101,7 +2110,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append(parameters.TargetName).AppendLine(".SetRelationshipSnapshotFactory(")
                 .IncrementIndent()
-                .AppendLines(_code.Expression(relationshipSnapshotFactory, parameters.Namespaces, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
+                .AppendLines(_code.Expression(relationshipSnapshotFactory, parameters.Namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements), skipFinalNewline: true)
                 .AppendLine(");")
                 .DecrementIndent();
 

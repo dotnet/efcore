@@ -359,6 +359,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="ProviderReturnedNullModel" xml:space="preserve">
     <value>Metadata model returned should not be null. Provider: {providerTypeName}.</value>
   </data>
+  <data name="QueryComprehensionSyntaxNotSupportedInPrecompiledQueries" xml:space="preserve">
+    <value>LINQ query comprehension syntax is currently unsupported in precompiled queries.</value>
+  </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>

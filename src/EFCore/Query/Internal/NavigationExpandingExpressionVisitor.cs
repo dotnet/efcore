@@ -209,7 +209,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     && entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
                     var processedDefiningQueryBody = _funcletizer.ExtractParameters(
-                        definingQuery.Body, _parameters, parameterize: false, clearParameterizedValues: false);
+                        definingQuery.Body, _parameters, _queryCompilationContext.IsPrecompiling, parameterize: false,
+                        clearParameterizedValues: false);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                     processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                     processedDefiningQueryBody =
@@ -1753,7 +1754,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 {
                     filterPredicate = queryFilter;
                     filterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
-                        filterPredicate, _parameters, parameterize: false, clearParameterizedValues: false);
+                        filterPredicate, _parameters, _queryCompilationContext.IsPrecompiling, parameterize: false,
+                        clearParameterizedValues: false);
                     filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
                     // We need to do entity equality, but that requires a full method call on a query root to properly flow the

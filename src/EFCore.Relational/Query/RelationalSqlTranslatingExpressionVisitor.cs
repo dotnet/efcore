@@ -2107,7 +2107,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             _ => throw new UnreachableException()
         };
 
-    private static T? ParameterValueExtractor<T>(
+    [EntityFrameworkInternal] // Can be called from precompiled shapers
+    public static T? ParameterValueExtractor<T>(
         QueryContext context,
         string baseParameterName,
         List<IComplexProperty>? complexPropertyChain,
@@ -2131,7 +2132,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseValue);
     }
 
-    private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
+    [EntityFrameworkInternal] // Can be called from precompiled shapers
+    public static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
         QueryContext context,
         string baseParameterName,
         IProperty property)

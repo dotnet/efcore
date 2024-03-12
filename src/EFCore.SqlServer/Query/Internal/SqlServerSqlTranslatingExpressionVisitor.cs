@@ -390,7 +390,8 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>    [EntityFrameworkInternal] // Can be referenced in shaper code
+    /// </summary>
+    [EntityFrameworkInternal] // Can be called from precompiled shapers
     public enum StartsEndsWithContains
     {
         /// <summary>

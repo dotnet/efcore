@@ -138,14 +138,14 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
 
                 var newSelectExpression = newTables is not null
                     ? selectExpression.Update(
-                        selectExpression.Projection,
                         newTables,
                         selectExpression.Predicate,
                         selectExpression.GroupBy,
                         selectExpression.Having,
+                        selectExpression.Projection,
                         selectExpression.Orderings,
-                        selectExpression.Limit,
-                        selectExpression.Offset)
+                        selectExpression.Offset,
+                        selectExpression.Limit)
                     : selectExpression;
 
                 // when we mark columns for rewrite we don't yet have the updated SelectExpression, so we store the info in temporary dictionary

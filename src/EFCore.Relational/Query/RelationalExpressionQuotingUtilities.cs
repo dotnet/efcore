@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <summary>
 ///     Utilities used for implementing <see cref="IRelationalQuotableExpression" />.
 /// </summary>
-[Experimental("EF1003")]
+[Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
 public static class RelationalExpressionQuotingUtilities
 {
     private static readonly ParameterExpression RelationalModelParameter

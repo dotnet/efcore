@@ -179,7 +179,7 @@ public class BufferedDataReaderTest
 
         var columns = new[]
         {
-            ReaderColumn.Create(columnType, true, null, null, (Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
+            ReaderColumn.Create(columnType, true, null, null, (Expression<Func<DbDataReader, int[], T>>)((r, _) => r.GetFieldValue<T>(0)))
         };
 
         var bufferedReader = new BufferedDataReader(reader, false);

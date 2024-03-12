@@ -71,14 +71,17 @@ public class QueryCompilationContext
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
+    /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
     public QueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
-        bool async)
+        bool async,
+        bool precompiling)
     {
         Dependencies = dependencies;
         IsAsync = async;
         QueryTrackingBehavior = dependencies.QueryTrackingBehavior;
         IsBuffering = ExecutionStrategy.Current?.RetriesOnFailure ?? dependencies.IsRetryingExecutionStrategy;
+        IsPrecompiling = precompiling;
         Model = dependencies.Model;
         ContextOptions = dependencies.ContextOptions;
         ContextType = dependencies.ContextType;
@@ -119,6 +122,11 @@ public class QueryCompilationContext
     ///     A value indicating whether the underlying server query needs to pre-buffer all data.
     /// </summary>
     public virtual bool IsBuffering { get; }
+
+    /// <summary>
+    ///     Indicates whether the query is being precompiled.
+    /// </summary>
+    public virtual bool IsPrecompiling { get; }
 
     /// <summary>
     ///     A value indicating whether query filters are ignored in this query.
