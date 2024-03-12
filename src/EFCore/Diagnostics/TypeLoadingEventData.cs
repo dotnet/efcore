@@ -9,27 +9,27 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
 /// </remarks>
-public class TypeLoadingEventData : AssemblyEventData
+public class TypeLoadingEventData : AssemblyEventData, IErrorEventData
 {
     /// <summary>
-    ///     Constructs the event payload.
+    ///     Initializes a new instance of the <see cref="TypeLoadingEventData"/> class.
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
     /// <param name="assembly">The assembly from which types are being loaded.</param>
-    /// <param name="exceptionMessage">The exception message.</param>
+    /// <param name="exception">The exception message.</param>
     public TypeLoadingEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
         Assembly assembly,
-        string exceptionMessage)
+        Exception exception)
         : base(eventDefinition, messageGenerator, assembly)
     {
-        ExceptionMessage = exceptionMessage;
+        Exception = exception;
     }
 
     /// <summary>
-    ///     The exception message.
+    ///     Gets the type-loading exception.
     /// </summary>
-    public virtual string ExceptionMessage { get; }
+    public virtual Exception Exception { get; }
 }
