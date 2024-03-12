@@ -208,6 +208,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 migrationName);
 
         /// <summary>
+        ///     Dynamic LINQ queries are not supported when precompiling queries.
+        /// </summary>
+        public static string DynamicQueryNotSupported
+            => GetString("DynamicQueryNotSupported");
+
+        /// <summary>
         ///     The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.
         /// </summary>
         public static string EncodingIgnored(object? encoding)
@@ -608,6 +614,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
                 providerTypeName);
+
+        /// <summary>
+        ///     LINQ query comprehension syntax is currently not supported in precompiled queries.
+        /// </summary>
+        public static string QueryComprehensionSyntaxNotSupportedInPrecompiledQueries
+            => GetString("QueryComprehensionSyntaxNotSupportedInPrecompiledQueries");
 
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.

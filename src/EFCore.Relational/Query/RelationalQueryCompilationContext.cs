@@ -22,11 +22,13 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
+    /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
     public RelationalQueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
-        bool async)
-        : base(dependencies, async)
+        bool async,
+        bool precompiling)
+        : base(dependencies, async, precompiling)
     {
         RelationalDependencies = relationalDependencies;
         QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;

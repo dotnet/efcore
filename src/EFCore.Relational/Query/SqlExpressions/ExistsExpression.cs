@@ -55,7 +55,7 @@ public class ExistsExpression : SqlExpression
     public override Expression Quote()
         => New(
             _quotingConstructor ??=
-                typeof(ExistsExpression).GetConstructor([typeof(SelectExpression), typeof(bool), typeof(RelationalTypeMapping)])!,
+                typeof(ExistsExpression).GetConstructor([typeof(SelectExpression), typeof(RelationalTypeMapping)])!,
             Subquery.Quote(),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 

@@ -595,14 +595,14 @@ public sealed partial class SelectExpression
 
             return base.VisitExtension(
                 selectExpression.Update(
-                    selectExpression.Projection,
                     visitedTables ?? selectExpression.Tables,
                     selectExpression.Predicate,
                     selectExpression.GroupBy,
                     selectExpression.Having,
+                    selectExpression.Projection,
                     selectExpression.Orderings,
-                    selectExpression.Limit,
-                    selectExpression.Offset));
+                    selectExpression.Offset,
+                    selectExpression.Limit));
         }
 
         private void RemapProjections(int[]? map, SelectExpression selectExpression)
