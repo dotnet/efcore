@@ -39,6 +39,8 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
             { typeof(byte[]), $"varchar({DefaultLength})" }
         };
 
+    private static readonly bool[] FalseTrue = [false, true];
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -106,7 +108,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                 "CONVERT",
                 new[] { _sqlExpressionFactory.Fragment(storeType), instance },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: FalseTrue,
                 typeof(string))
             : null;
     }
