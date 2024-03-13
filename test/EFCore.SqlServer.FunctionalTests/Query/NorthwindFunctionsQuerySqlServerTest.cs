@@ -2723,6 +2723,31 @@ WHERE [o].[OrderDate] IS NOT NULL AND CAST([o].[OrderDate] AS date) = '1996-09-1
     public override Task Datetime_subtraction_TotalDays(bool async)
         => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
 
+    public override async Task Select_ToString_IndexOf(bool async)
+    {
+        await base.Select_ToString_IndexOf(async);
+
+        AssertSql(
+            """
+SELECT CAST(CHARINDEX(N'123', CONVERT(varchar(11), [o].[OrderID])) AS int) - 1
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Select_IndexOf_ToString(bool async)
+    {
+        await base.Select_IndexOf_ToString(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN CONVERT(varchar(11), [o].[OrderID]) = N'' THEN 0
+    ELSE CAST(CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), N'123') AS int) - 1
+END
+FROM [Orders] AS [o]
+""");
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task StandardDeviation(bool async)

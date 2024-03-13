@@ -102,12 +102,13 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
         }
 
         return TypeMapping.TryGetValue(instance.Type, out var storeType)
-            ? _sqlExpressionFactory.Function(
-                "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(storeType), instance },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
-                typeof(string))
+            ? _sqlExpressionFactory.ApplyDefaultTypeMapping(
+                _sqlExpressionFactory.Function(
+                    "CONVERT",
+                    new[] { _sqlExpressionFactory.Fragment(storeType), instance },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false, true },
+                    typeof(string)))
             : null;
     }
 }

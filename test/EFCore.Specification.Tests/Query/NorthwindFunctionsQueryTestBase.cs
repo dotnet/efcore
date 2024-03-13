@@ -1852,4 +1852,18 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>()
                 .Where(o => o.OrderDate.HasValue && DateOnly.FromDateTime(o.OrderDate.Value) == new DateOnly(1996, 9, 16))
                 .AsTracking());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_ToString_IndexOf(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => x.OrderID.ToString().IndexOf("123")));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_IndexOf_ToString(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => "123".IndexOf(x.OrderID.ToString())));
 }
