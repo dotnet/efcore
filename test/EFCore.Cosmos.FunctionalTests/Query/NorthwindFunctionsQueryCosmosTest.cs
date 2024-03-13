@@ -1711,6 +1711,30 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
 """);
     }
 
+    public override async Task Select_ToString_IndexOf(bool async)
+    {
+        await base.Select_ToString_IndexOf(async);
+
+        AssertSql(
+            """
+SELECT c["OrderID"]
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+    }
+
+    public override async Task Select_IndexOf_ToString(bool async)
+    {
+        await base.Select_IndexOf_ToString(async);
+
+        AssertSql(
+            """
+SELECT c["OrderID"]
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+    }
+
     public override Task String_Join_over_non_nullable_column(bool async)
         => AssertTranslationFailed(() => base.String_Join_over_non_nullable_column(async));
 
