@@ -722,17 +722,17 @@ public static class CoreLoggerExtensions
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="assembly">The assembly that types are being loaded from.</param>
-    /// <param name="exceptionMessage">The exception message from the loading error.</param>
+    /// <param name="exception">The exception from the loading error.</param>
     public static void TypeLoadingErrorWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
         Assembly assembly,
-        string exceptionMessage)
+        Exception exception)
     {
         var definition = CoreResources.LogTypeLoadingErrorWarning(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, assembly.ToString(), exceptionMessage);
+            definition.Log(diagnostics, assembly.ToString(), exception.Message);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -741,7 +741,7 @@ public static class CoreLoggerExtensions
                 definition,
                 TypeLoadingErrorWarning,
                 assembly,
-                exceptionMessage);
+                exception);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -751,7 +751,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (TypeLoadingEventData)payload;
-        return d.GenerateMessage(p.Assembly.ToString(), p.ExceptionMessage);
+        return d.GenerateMessage(p.Assembly.ToString(), p.Exception.Message);
     }
 
     /// <summary>

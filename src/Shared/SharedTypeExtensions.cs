@@ -449,7 +449,7 @@ internal static class SharedTypeExtensions
         }
         catch (ReflectionTypeLoadException ex)
         {
-            logger?.TypeLoadingErrorWarning(assembly, ex.Message);
+            logger?.TypeLoadingErrorWarning(assembly, ex);
 
             return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo!);
         }
