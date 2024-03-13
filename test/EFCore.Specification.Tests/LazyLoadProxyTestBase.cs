@@ -58,7 +58,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(children, parent.Children);
                 Assert.Equal(singlePkToPk, parent.SinglePkToPk);
                 Assert.Equal(single, parent.Single);
-                Assert.Equal(childrenAk, parent.ChildrenAk);
+                Assert.Equal(childrenAk, parent.ChildrenAk!);
                 Assert.Equal(singleAk, parent.SingleAk);
                 Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk);
                 Assert.Equal(singleShadowFk, parent.SingleShadowFk);

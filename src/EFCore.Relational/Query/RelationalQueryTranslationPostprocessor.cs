@@ -27,6 +27,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         : base(dependencies, queryCompilationContext)
     {
         RelationalDependencies = relationalDependencies;
+        RelationalQueryCompilationContext = queryCompilationContext;
         _sqlAliasManager = queryCompilationContext.SqlAliasManager;
         _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
     }
@@ -36,31 +37,45 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
     /// </summary>
     protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
 
+    /// <summary>
+    ///     The query compilation context object for current compilation.
+    /// </summary>
+    protected virtual RelationalQueryCompilationContext RelationalQueryCompilationContext { get; }
+
     /// <inheritdoc />
     public override Expression Process(Expression query)
     {
         var query1 = base.Process(query);
-        var query2 = new SelectExpressionProjectionApplyingExpressionVisitor(
-            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query1);
-        var query3 = Prune(query2);
+        var query2 = ProcessTypeMappings(query1);
+        var query3 = new SelectExpressionProjectionApplyingExpressionVisitor(
+            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query2);
+        var query4 = Prune(query3);
 
         // TODO: This - and all the verifications below - should happen after all visitors have run, including provider-specific ones.
-        var query4 = _sqlAliasManager.PostprocessAliases(query3);
+        var query5 = _sqlAliasManager.PostprocessAliases(query4);
 
 #if DEBUG
         // Verifies that all SelectExpression are marked as immutable after this point.
-        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query4);
+        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query5);
 #endif
 
-        var query5 = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
-            .Visit(query4);
-        var query6 = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query5);
+        var query6 = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
+            .Visit(query5);
+        var query7 = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query6);
 
-        return query6;
+        return query7;
     }
 
     /// <summary>
-    /// Prunes unnecessarily objects from the SQL tree, e.g. tables which aren't referenced by any column.
+    ///     Performs various postprocessing related to type mappings, e.g. applies inferred type mappings for queryable constants/parameters
+    ///     and verifies that all <see cref="SqlExpression" /> have a type mapping.
+    /// </summary>
+    /// <param name="expression">The query expression to process.</param>
+    protected virtual Expression ProcessTypeMappings(Expression expression)
+        => new RelationalTypeMappingPostprocessor(Dependencies, RelationalDependencies, RelationalQueryCompilationContext).Process(expression);
+
+    /// <summary>
+    /// Prunes unnecessary objects from the SQL tree, e.g. tables which aren't referenced by any column.
     /// Can be overridden by providers for provider-specific pruning.
     /// </summary>
     protected virtual Expression Prune(Expression query)
