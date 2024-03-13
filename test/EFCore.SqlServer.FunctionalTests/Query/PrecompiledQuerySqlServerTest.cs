@@ -5,8 +5,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable enable
-
 public class PrecompiledQuerySqlServerTest(
     PrecompiledQuerySqlServerTest.PrecompiledQuerySqlServerFixture fixture,
     ITestOutputHelper testOutputHelper)

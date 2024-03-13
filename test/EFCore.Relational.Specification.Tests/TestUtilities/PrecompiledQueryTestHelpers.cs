@@ -90,13 +90,13 @@ public static class TestContainer
                 var syntaxGenerator = SyntaxGenerator.GetGenerator(workspace, LanguageNames.CSharp);
 
                 // TODO: Look up as regular dependencies
-                var precompiledQueryCodeGenerator = new PrecompiledQueryCodeGenerator(new QueryLocator());
+                var precompiledQueryCodeGenerator = new PrecompiledQueryCodeGenerator();
 
                 await using var dbContext = (DbContext)Activator.CreateInstance(dbContextType, args: [dbContextOptions])!;
 
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
-                generatedSyntaxTrees = await precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
+                generatedSyntaxTrees = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
                     compilation, syntaxGenerator, dbContext, precompilationErrors, additionalAssembly: assembly);
 
                 if (errorAsserter is null)

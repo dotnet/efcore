@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 {
-    private readonly IQueryLocator _queryLocator;
+    private readonly QueryLocator _queryLocator;
     private readonly CSharpToLinqTranslator _csharpToLinqTranslator;
 
     private SyntaxGenerator _g = null!;
@@ -50,9 +50,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public PrecompiledQueryCodeGenerator(IQueryLocator queryLocator)
+    public PrecompiledQueryCodeGenerator()
     {
-        _queryLocator = queryLocator;
+        _queryLocator = new QueryLocator();
         _csharpToLinqTranslator = new CSharpToLinqTranslator();
     }
 
@@ -103,9 +103,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
         var syntaxGenerator = SyntaxGenerator.GetGenerator(project);
 
-        var generatedSyntaxTrees = await GeneratePrecompiledQueries(
-                compilation, syntaxGenerator, dbContext, precompilationErrors, additionalAssembly: null, cancellationToken)
-            .ConfigureAwait(false);
+        var generatedSyntaxTrees = GeneratePrecompiledQueries(
+            compilation, syntaxGenerator, dbContext, precompilationErrors, additionalAssembly: null, cancellationToken);
 
         foreach (var generatedSyntaxTree in generatedSyntaxTrees)
         {
@@ -163,7 +162,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public async Task<IReadOnlyList<SyntaxTree>> GeneratePrecompiledQueries(
+    public IReadOnlyList<SyntaxTree> GeneratePrecompiledQueries(
         Compilation compilation,
         SyntaxGenerator syntaxGenerator,
         DbContext dbContext,
@@ -185,34 +184,22 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             generateContextAccessors: false,
             dbContext.GetService<IDiagnosticsLogger<DbLoggerCategory.Query>>());
 
-        // TODO: Ignore our auto-generated code! Also compiled model, generated code (comment, filename...?).
-        var syntaxTreesWithQueries = new List<SyntaxTree>();
-        foreach (var syntaxTree in compilation.SyntaxTrees
-                     .Where(t => t.FilePath.Split(Path.DirectorySeparatorChar)[^1] != OutputFileName))
-        {
-            var annotatedSyntaxTree = _queryLocator.LocateQueries(syntaxTree);
-
-            if (ReferenceEquals(annotatedSyntaxTree, syntaxTree))
-            {
-                // If the tree hasn't changed, that means no queries were located in it (the locator adds annotations to terminating
-                // operator nodes, which changes the tree).
-                continue;
-            }
-
-            syntaxTreesWithQueries.Add(annotatedSyntaxTree);
-            compilation = compilation.ReplaceSyntaxTree(syntaxTree, annotatedSyntaxTree);
-        }
-
         // This must be done after we complete generating the final compilation above
         _csharpToLinqTranslator.Load(compilation, dbContext, additionalAssembly);
 
+        // TODO: Ignore our auto-generated code! Also compiled model, generated code (comment, filename...?).
         var generatedSyntaxTrees = new List<SyntaxTree>();
-
-        foreach (var syntaxTree in syntaxTreesWithQueries)
+        foreach (var syntaxTree in compilation.SyntaxTrees
+                     .Where(t => t.FilePath.Split(Path.DirectorySeparatorChar)[^1] != OutputFileName))
         {
+            if (_queryLocator.LocateQueries(syntaxTree) is not { Count: > 0 } locatedQueries)
+            {
+                continue;
+            }
+
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
-            var generatedSyntaxTree = await ProcessSyntaxTreeAsync(syntaxTree, semanticModel, precompilationErrors, cancellationToken)
-                .ConfigureAwait(false);
+            var generatedSyntaxTree = ProcessSyntaxTreeAsync(
+                syntaxTree, semanticModel, locatedQueries, precompilationErrors, cancellationToken);
             if (generatedSyntaxTree is not null)
             {
                 generatedSyntaxTrees.Add(generatedSyntaxTree);
@@ -228,22 +215,20 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual async Task<SyntaxTree?> ProcessSyntaxTreeAsync(
+    protected virtual SyntaxTree? ProcessSyntaxTreeAsync(
         SyntaxTree syntaxTree,
         SemanticModel semanticModel,
+        IReadOnlyList<InvocationExpressionSyntax> locatedQueries,
         List<QueryPrecompilationError> precompilationErrors,
         CancellationToken cancellationToken)
     {
-        var annotatedQueries = (await syntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false))
-            .GetAnnotatedNodes(IQueryLocator.EfQueryCandidateAnnotationKind).ToList();
-
         var queriesPrecompiledInFile = 0;
         _namespaces.Clear();
         var classMembers = new List<SyntaxNode>();
 
-        for (var queryNum = 0; queryNum < annotatedQueries.Count; queryNum++)
+        for (var queryNum = 0; queryNum < locatedQueries.Count; queryNum++)
         {
-            var querySyntax = annotatedQueries[queryNum];
+            var querySyntax = locatedQueries[queryNum];
 
             try
             {

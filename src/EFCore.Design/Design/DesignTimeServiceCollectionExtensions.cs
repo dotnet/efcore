@@ -61,11 +61,7 @@ public static class DesignTimeServiceCollectionExtensions
                     .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                     .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
                     .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
-
-                    // Query precompilation
                     .TryAddSingleton<IPrecompiledQueryCodeGenerator, PrecompiledQueryCodeGenerator>()
-                    .TryAddSingleton<IQueryLocator, QueryLocator>()
-
                     .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                     .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                     .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()

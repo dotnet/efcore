@@ -8,12 +8,20 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
+///     Statically analyzes user code and locates EF LINQ queries within it, by identifying well-known terminating operators
+///     (e.g. <c>ToList</c>, <c>Single</c>).
+/// </summary>
+/// <remarks>
+///     After a <see cref="Compilation" /> is loaded via <see cref="LoadCompilation" />, <see cref="LocateQueries" /> is called repeatedly
+///     for all syntax trees in the compilation.
+/// </remarks>
+/// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </summary>
-public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
+/// </remarks>
+public class QueryLocator : CSharpSyntaxRewriter
 {
     private Compilation? _compilation;
 
@@ -23,14 +31,18 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
 #pragma warning restore CS8618
 
     private SemanticModel? _currentSemanticModel;
-    private int _queryCounter;
+    private List<InvocationExpressionSyntax> _locatedQueries = null!;
 
     /// <summary>
+    ///     Loads a new <see cref="Compilation" />, representing a user project in which to locate queries.
+    /// </summary>
+    /// <param name="compilation">A <see cref="Compilation" /> representing a user project.</param>
+    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// </remarks>
     public virtual void LoadCompilation(Compilation compilation)
     {
         _compilation = compilation;
@@ -50,12 +62,23 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Locates EF LINQ queries within the given <see cref="SyntaxTree" />, which represents user code.
     /// </summary>
-    public virtual SyntaxTree LocateQueries(SyntaxTree syntaxTree)
+    /// <remarks>
+    ///     <para>
+    ///         In some cases, the provided <see cref="SyntaxTree" /> must be rewritten (since async invocations such as <c>SingleAsync</c>
+    ///         inject a sync <c>Single</c> node). As a result, this method returns a possibly-rewritten <see cref="SyntaxTree" />.
+    ///     </para>
+    ///     <para>
+    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///         any release. You should only use it directly in your code with extreme caution and knowing that
+    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     </para>
+    /// </remarks>
+    /// <param name="syntaxTree">A <see cref="SyntaxTree" /> in which to locate EF LINQ queries.</param>
+    /// <returns>A possibly rewritten <see cref="SyntaxTree" />.</returns>
+    public virtual IReadOnlyList<InvocationExpressionSyntax> LocateQueries(SyntaxTree syntaxTree)
     {
         if (_compilation is null)
         {
@@ -64,20 +87,9 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
 
         Check.DebugAssert(_compilation.SyntaxTrees.Contains(syntaxTree), "Given syntax tree isn't part of the compilation.");
 
-        _queryCounter = 0;
-
-        var oldRoot = syntaxTree.GetRoot();
-        var newRoot = Visit(oldRoot);
-
-        // Note that we rewrite the syntax tree for async methods, since SingleAsync inserts a sync Single node into
-        // the tree, not SingleAsync.
-        if (!ReferenceEquals(newRoot, oldRoot))
-        {
-            Debug.Assert(_queryCounter > 0);
-            syntaxTree = syntaxTree.WithRootAndOptions(newRoot, syntaxTree.Options);
-        }
-
-        return syntaxTree;
+        _locatedQueries = new();
+        _ = Visit(syntaxTree.GetRoot());
+        return _locatedQueries;
     }
 
     /// <summary>
@@ -218,22 +230,17 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
         // TODO: Support DbSet() method call directly inside foreach/await foreach
         if (forEach.Expression is InvocationExpressionSyntax invocation && IsQueryable(invocation))
         {
-            return forEach.WithExpression(CheckAndAddQuery(forEach.Expression));
+            return forEach.WithExpression(CheckAndAddQuery(invocation));
         }
 
         return visited;
     }
 
-    private ExpressionSyntax CheckAndAddQuery(ExpressionSyntax query)
+    private ExpressionSyntax CheckAndAddQuery(InvocationExpressionSyntax query)
     {
         // TODO: Drill down and see that there's a DbSet at the bottom (other LINQ providers may exist)
-
-        Console.WriteLine("Located EF query candidate: " + query);
-
-        _queryCounter++;
-
-        // We annotate the expression as an EF query candidate, we'll search for nodes with these annotations later.
-        return query.WithAdditionalAnnotations(new SyntaxAnnotation(IQueryLocator.EfQueryCandidateAnnotationKind, data: null));
+        _locatedQueries.Add(query);
+        return query;
     }
 
     private bool IsQueryable(ExpressionSyntax expression)
