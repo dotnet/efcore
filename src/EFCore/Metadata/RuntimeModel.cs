@@ -189,6 +189,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     public virtual RuntimeEntityType GetOrAddAdHocEntityType(RuntimeEntityType entityType)
     {
         entityType.Reparent(this);
+        entityType.AddRuntimeAnnotation(CoreAnnotationNames.AdHocModel, true);
         return _adHocEntityTypes.GetOrAdd(((IReadOnlyTypeBase)entityType).ClrType, entityType);
     }
 
