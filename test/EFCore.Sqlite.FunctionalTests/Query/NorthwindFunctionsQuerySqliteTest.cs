@@ -1480,6 +1480,28 @@ WHERE "o"."OrderDate" IS NOT NULL AND date("o"."OrderDate") = '1996-09-16'
 """);
     }
 
+    public override async Task Select_ToString_IndexOf(bool async)
+    {
+        await base.Select_ToString_IndexOf(async);
+
+        AssertSql(
+            """
+SELECT instr(CAST("o"."OrderID" AS TEXT), '123') - 1
+FROM "Orders" AS "o"
+""");
+    }
+
+    public override async Task Select_IndexOf_ToString(bool async)
+    {
+        await base.Select_IndexOf_ToString(async);
+
+        AssertSql(
+            """
+SELECT instr('123', CAST("o"."OrderID" AS TEXT)) - 1
+FROM "Orders" AS "o"
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
