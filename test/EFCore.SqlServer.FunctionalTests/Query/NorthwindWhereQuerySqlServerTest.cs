@@ -2103,7 +2103,7 @@ WHERE (
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE N'%20%'
+WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE '%20%'
 """);
     }
 

@@ -2729,8 +2729,9 @@ WHERE [o].[OrderDate] IS NOT NULL AND CAST([o].[OrderDate] AS date) = '1996-09-1
 
         AssertSql(
             """
-SELECT CAST(CHARINDEX(N'123', CONVERT(varchar(11), [o].[OrderID])) AS int) - 1
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE CHARINDEX('123', CONVERT(varchar(11), [o].[OrderID])) - 1 = -1
 """);
     }
 
@@ -2740,11 +2741,12 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN CONVERT(varchar(11), [o].[OrderID]) = N'' THEN 0
-    ELSE CAST(CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), N'123') AS int) - 1
-END
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
+WHERE CASE
+    WHEN CONVERT(varchar(11), [o].[OrderID]) = '' THEN 0
+    ELSE CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), '123') - 1
+END = -1
 """);
     }
 

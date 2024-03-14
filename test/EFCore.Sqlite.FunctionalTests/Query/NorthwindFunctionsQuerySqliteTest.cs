@@ -1486,8 +1486,9 @@ WHERE "o"."OrderDate" IS NOT NULL AND date("o"."OrderDate") = '1996-09-16'
 
         AssertSql(
             """
-SELECT instr(CAST("o"."OrderID" AS TEXT), '123') - 1
+SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
+WHERE instr(CAST("o"."OrderID" AS TEXT), '123') - 1 = -1
 """);
     }
 
@@ -1497,8 +1498,9 @@ FROM "Orders" AS "o"
 
         AssertSql(
             """
-SELECT instr('123', CAST("o"."OrderID" AS TEXT)) - 1
+SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
+WHERE instr('123', CAST("o"."OrderID" AS TEXT)) - 1 = -1
 """);
     }
 
