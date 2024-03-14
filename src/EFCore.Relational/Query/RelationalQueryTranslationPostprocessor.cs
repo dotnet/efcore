@@ -45,25 +45,29 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
     /// <inheritdoc />
     public override Expression Process(Expression query)
     {
-        var query1 = base.Process(query);
-        var query2 = ProcessTypeMappings(query1);
-        var query3 = new SelectExpressionProjectionApplyingExpressionVisitor(
-            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query2);
-        var query4 = Prune(query3);
+        var afterBase = base.Process(query);
+        var afterTypeMappings = ProcessTypeMappings(afterBase);
+        var afterProjectionApplication = new SelectExpressionProjectionApplyingExpressionVisitor(
+            ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior)
+            .Visit(afterTypeMappings);
+        var afterPruning = Prune(afterProjectionApplication);
 
         // TODO: This - and all the verifications below - should happen after all visitors have run, including provider-specific ones.
-        var query5 = _sqlAliasManager.PostprocessAliases(query4);
+        var afterAliases = _sqlAliasManager.PostprocessAliases(afterPruning);
 
 #if DEBUG
         // Verifies that all SelectExpression are marked as immutable after this point.
-        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query5);
+        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(afterAliases);
 #endif
 
-        var query6 = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
-            .Visit(query5);
-        var query7 = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query6);
+        var afterSimplification = new SqlExpressionSimplifyingExpressionVisitor(
+                RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
+            .Visit(afterAliases);
+        var afterValueConverterCompensation =
+            new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory)
+                .Visit(afterSimplification);
 
-        return query7;
+        return afterValueConverterCompensation;
     }
 
     /// <summary>

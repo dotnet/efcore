@@ -1315,21 +1315,6 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
 
     /// <summary>
-    ///     Invoked at the end of top-level translation, applies inferred type mappings for queryable constants/parameters and verifies that
-    ///     all <see cref="SqlExpression" /> have a type mapping.
-    /// </summary>
-    /// <param name="expression">The query expression to process.</param>
-    /// <param name="inferredTypeMappings">
-    ///     Inferred type mappings for queryable constants/parameters collected during translation. These will be applied to the appropriate
-    ///     nodes in the tree.
-    /// </param>
-    [Obsolete("Override RelationalQueryTranslationPostprocessor.ProcessTypeMappings() instead.", error: true)]
-    protected virtual Expression ApplyInferredTypeMappings(
-        Expression expression,
-        IReadOnlyDictionary<(string, string), RelationalTypeMapping?> inferredTypeMappings)
-        => throw new UnreachableException();
-
-    /// <summary>
     ///     Determines whether the given <see cref="SelectExpression" /> is ordered, typically because orderings have been added to it.
     /// </summary>
     /// <param name="selectExpression">The <see cref="SelectExpression" /> to check for ordering.</param>
@@ -2097,8 +2082,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     }
 
     /// <summary>
-    ///     This visitor has been obsoleted; extend RelationalTypeMappingPostprocessor instead.
+    ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
+    ///     <see cref="RelationalQueryTranslationPostprocessor.ProcessTypeMappings" />.
     /// </summary>
-    [Obsolete("Extend RelationalTypeMappingPostprocessor instead")]
+    [Obsolete("Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
     protected class RelationalInferredTypeMappingApplier;
 }

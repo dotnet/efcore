@@ -29,6 +29,24 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [EntityFrameworkInternal] // https://www.sqlite.org/json1.html#jeach
+    public const string JsonEachKeyColumnName = "key";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal] // https://www.sqlite.org/json1.html#jeach
+    public const string JsonEachValueColumnName = "value";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public SqliteQueryableMethodTranslatingExpressionVisitor(
         QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
         RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
@@ -239,12 +257,12 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var selectExpression = new SelectExpression(
             [jsonEachExpression],
             new ColumnExpression(
-                "value",
+                JsonEachValueColumnName,
                 tableAlias,
                 elementClrType.UnwrapNullableType(),
                 elementTypeMapping,
                 isElementNullable ?? elementClrType.IsNullableType()),
-            identifier: [(new ColumnExpression("key", tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            identifier: [(new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
             _sqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -263,7 +281,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             new OrderingExpression(
                 selectExpression.CreateColumnExpression(
                     jsonEachExpression,
-                    "key",
+                    JsonEachKeyColumnName,
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
                     columnNullable: false),
@@ -325,7 +343,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var selectExpression = CreateSelect(
             jsonQueryExpression,
             jsonEachExpression,
-            "key",
+            JsonEachKeyColumnName,
             typeof(int),
             _typeMappingSource.FindMapping(typeof(int))!);
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -334,7 +352,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             new OrderingExpression(
                 selectExpression.CreateColumnExpression(
                     jsonEachExpression,
-                    "key",
+                    JsonEachKeyColumnName,
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
                     columnNullable: false),
@@ -343,7 +361,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var propertyJsonScalarExpression = new Dictionary<ProjectionMember, Expression>();
 
         var jsonColumn = selectExpression.CreateColumnExpression(
-            jsonEachExpression, "value", typeof(string), _typeMappingSource.FindMapping(typeof(string))); // TODO: nullable?
+            jsonEachExpression, JsonEachValueColumnName, typeof(string), _typeMappingSource.FindMapping(typeof(string))); // TODO: nullable?
 
         var containerColumnName = entityType.GetContainerColumnName();
         Check.DebugAssert(containerColumnName is not null, "JsonQueryExpression to entity type without a container column name");
@@ -403,7 +421,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var newOuterSelectExpression = CreateSelect(
             jsonQueryExpression,
             subquery,
-            "key",
+            JsonEachKeyColumnName,
             typeof(int),
             _typeMappingSource.FindMapping(typeof(int))!);
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -412,7 +430,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             new OrderingExpression(
                 selectExpression.CreateColumnExpression(
                     subquery,
-                    "key",
+                    JsonEachKeyColumnName,
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
                     columnNullable: false),
@@ -453,7 +471,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,
-                Orderings: [{ Expression: ColumnExpression { Name: "key" } orderingColumn, IsAscending: true }],
+                Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
                 Limit: null,
                 Offset: null
             } selectExpression
@@ -512,7 +530,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 Orderings:
                 [
                     {
-                        Expression: ColumnExpression { Name: "key" } orderingColumn,
+                        Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
                         IsAscending: true
                     }
                 ]
@@ -524,7 +542,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             => selectExpression.Tables.FirstOrDefault(t => t.Alias == orderingColumn.TableAlias)?.UnwrapJoin() is TableExpressionBase table
                 && (table is JsonEachExpression
                     || (table is SelectExpression subquery
-                        && subquery.Projection.FirstOrDefault(p => p.Alias == "key")?.Expression is ColumnExpression projectedColumn
+                        && subquery.Projection.FirstOrDefault(p => p.Alias == JsonEachKeyColumnName)?.Expression is ColumnExpression
+                            projectedColumn
                         && IsJsonEachKeyColumn(subquery, projectedColumn)));
     }
 

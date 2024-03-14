@@ -46,7 +46,10 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
         switch (expression)
         {
             case JsonEachExpression jsonEachExpression
-                when TryGetInferredTypeMapping(jsonEachExpression.Alias, "value", out var typeMapping):
+                when TryGetInferredTypeMapping(
+                    jsonEachExpression.Alias,
+                    SqliteQueryableMethodTranslatingExpressionVisitor.JsonEachValueColumnName,
+                    out var typeMapping):
                 return ApplyTypeMappingsOnJsonEachExpression(jsonEachExpression, typeMapping);
 
             // Above, we applied the type mapping to the parameter that json_each accepts as an argument.
@@ -60,7 +63,10 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
                 foreach (var table in selectExpression.Tables)
                 {
                     if (table is TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true } jsonEachExpression
-                        && TryGetInferredTypeMapping(jsonEachExpression.Alias, "value", out var inferredTypeMapping))
+                        && TryGetInferredTypeMapping(
+                            jsonEachExpression.Alias,
+                            SqliteQueryableMethodTranslatingExpressionVisitor.JsonEachValueColumnName,
+                            out var inferredTypeMapping))
                     {
                         if (previousSelectInferredTypeMappings is null)
                         {
@@ -82,7 +88,7 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
             // Note that we match also ColumnExpressions which already have a type mapping, i.e. coming out of column collections (as
             // opposed to parameter collections, where the type mapping needs to be inferred). This is in order to apply SQL conversion
             // logic later in the process, see note in TranslateCollection.
-            case ColumnExpression { Name: "value" } columnExpression
+            case ColumnExpression { Name: SqliteQueryableMethodTranslatingExpressionVisitor.JsonEachValueColumnName } columnExpression
                 when _currentSelectInferredTypeMappings?.TryGetValue(columnExpression.TableAlias, out var inferredTypeMapping) is true:
                 return SqliteQueryableMethodTranslatingExpressionVisitor.ApplyJsonSqlConversion(
                     columnExpression.ApplyTypeMapping(inferredTypeMapping),
