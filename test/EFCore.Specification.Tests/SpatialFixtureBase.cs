@@ -30,6 +30,6 @@ public abstract class SpatialFixtureBase : SharedStoreFixtureBase<SpatialContext
             });
     }
 
-    protected override void Seed(SpatialContext context)
-        => SpatialContext.Seed(context, _geometryFactory);
+    protected override Task SeedAsync(SpatialContext context)
+        => SpatialContext.SeedAsync(context, _geometryFactory);
 }

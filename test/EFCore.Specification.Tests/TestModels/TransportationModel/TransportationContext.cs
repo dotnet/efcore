@@ -73,10 +73,10 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
             });
     }
 
-    public void Seed()
+    public Task SeedAsync()
     {
         Vehicles.AddRange(CreateVehicles());
-        SaveChanges();
+        return SaveChangesAsync();
     }
 
     public void AssertSeeded()

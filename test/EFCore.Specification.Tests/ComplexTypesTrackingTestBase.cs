@@ -1000,14 +1000,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         => new(context.GetService<IStateManager>().StartTrackingFromQuery(
             context.Model.FindEntityType(typeof(TEntity))!, pub, Snapshot.Empty));
 
-    protected virtual void ExecuteWithStrategyInTransaction(
-        Action<DbContext> testOperation,
-        Action<DbContext>? nestedTestOperation1 = null,
-        Action<DbContext>? nestedTestOperation2 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
-            CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
-
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
         Func<DbContext, Task>? nestedTestOperation1 = null,

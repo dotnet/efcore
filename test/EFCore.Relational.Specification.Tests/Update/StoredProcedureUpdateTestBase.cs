@@ -1130,13 +1130,13 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     protected virtual void ClearLog()
         => TestSqlLoggerFactory.Clear();
 
-    protected virtual void CreateStoredProcedures(DbContext context, string createSprocSql)
+    protected virtual async Task CreateStoredProcedures(DbContext context, string createSprocSql)
     {
         foreach (var batch in
                  new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
                      .Split(createSprocSql).Where(b => !string.IsNullOrEmpty(b)))
         {
-            context.Database.ExecuteSqlRaw(batch);
+            await context.Database.ExecuteSqlRawAsync(batch);
         }
     }
 }

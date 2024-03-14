@@ -276,7 +276,7 @@ public class EntitySplittingData : ISetSource
         }
     }
 
-    public void Seed(EntitySplittingContext context)
+    public Task Seed(EntitySplittingContext context)
     {
         // Seed data cannot contain any store generated value,
         // or recreate instances when calling AddRange
@@ -285,6 +285,6 @@ public class EntitySplittingData : ISetSource
         context.AddRange(_entityThrees);
         context.AddRange(_baseEntities);
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }

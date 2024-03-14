@@ -276,9 +276,6 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         => new TModelCustomizer().Customize(modelBuilder, context);
 
-    protected override void Seed(NorthwindContext context)
-        => NorthwindData.Seed(context);
-
     protected override Task SeedAsync(NorthwindContext context)
         => NorthwindData.SeedAsync(context);
 

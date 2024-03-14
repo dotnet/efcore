@@ -2920,7 +2920,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 {
                     wc.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
                 }),
-            shouldLogCategory: _ => true, seed: c => Seed(c));
+            shouldLogCategory: _ => true, seed: c => SeedAsync(c));
 
     protected virtual EntitySplittingContext CreateContext()
         => ContextFactory.CreateContext();
@@ -2947,12 +2947,12 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         modelBuilder.Entity<LeafEntity>();
     }
 
-    protected virtual void Seed(EntitySplittingContext context)
+    protected virtual Task SeedAsync(EntitySplittingContext context)
         => EntitySplittingData.Instance.Seed(context);
 
-    public override void Dispose()
+    public override async Task DisposeAsync()
     {
-        base.Dispose();
+        await base.DisposeAsync();
 
         ContextFactory = null;
     }

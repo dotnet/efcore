@@ -26,17 +26,17 @@ public abstract class RelationalTestStore(string name, bool shared, DbConnection
 
     protected virtual DbConnection Connection { get; } = connection;
 
-    public override TestStore Initialize(
+    public override async Task<TestStore> InitializeAsync(
         IServiceProvider? serviceProvider,
         Func<DbContext>? createContext,
-        Action<DbContext>? seed = null,
-        Action<DbContext>? clean = null)
+        Func<DbContext, Task>? seed = null,
+        Func<DbContext, Task>? clean = null)
     {
-        base.Initialize(serviceProvider, createContext, seed, clean);
+        await base.InitializeAsync(serviceProvider, createContext, seed, clean);
 
         if (ConnectionState != ConnectionState.Open)
         {
-            OpenConnection();
+            await OpenConnectionAsync();
         }
 
         return this;

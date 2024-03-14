@@ -331,7 +331,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         Customer customer = null;
         using (var context = CreateContext())
         {
-            customer = context.Customers.Single(c => c.CustomerID == "AROUT");
+            customer = await context.Customers.SingleAsync(c => c.CustomerID == "AROUT");
         }
 
         ClearLog();
@@ -493,7 +493,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         Customer customer = null;
         using (var context = CreateContext())
         {
-            customer = context.Customers.Single(x => x.CustomerID == "AROUT");
+            customer = await context.Customers.SingleAsync(x => x.CustomerID == "AROUT");
         }
 
         ClearLog();

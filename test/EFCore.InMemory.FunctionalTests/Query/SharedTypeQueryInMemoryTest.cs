@@ -13,7 +13,7 @@ public class SharedTypeQueryInMemoryTest : SharedTypeQueryTestBase
     public virtual async Task Can_use_shared_type_entity_type_in_ToInMemoryQuery(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextInMemory24601>(
-            seed: c => c.Seed());
+            seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
 

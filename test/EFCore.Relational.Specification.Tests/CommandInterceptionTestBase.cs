@@ -23,7 +23,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_passively(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<PassiveReaderCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -63,7 +63,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_scalar_passively(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<PassiveScalarCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<PassiveScalarCommandInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT 1";
@@ -104,7 +104,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_non_query_passively(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<PassiveNonQueryCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<PassiveNonQueryCommandInterceptor>(inject);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -143,7 +143,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_suppress_execution(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<SuppressingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<SuppressingReaderCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -206,7 +206,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_query_to_suppress_command_creation(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<SuppressingCreateCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<SuppressingCreateCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -276,7 +276,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_suppress_execution(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<SuppressingScalarCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<SuppressingScalarCommandInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT 1";
@@ -340,7 +340,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_suppress_execution(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<SuppressingNonQueryCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<SuppressingNonQueryCommandInterceptor>(inject);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -412,7 +412,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected virtual async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
         where TInterceptor : CommandInterceptorBase, new()
     {
-        var (context, interceptor) = CreateContext<TInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<TInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -503,7 +503,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     protected async Task ScalarMutationTest<TInterceptor>(bool async, bool inject)
         where TInterceptor : CommandInterceptorBase, new()
     {
-        var (context, interceptor) = CreateContext<TInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<TInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT 1";
@@ -583,7 +583,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     public virtual async Task Intercept_non_query_to_mutate_command(bool async, bool inject)
     {
         var interceptor = new MutatingNonQueryCommandInterceptor(this);
-        var context = inject ? CreateContext(null, interceptor) : CreateContext(interceptor);
+        var context = inject ? await CreateContextAsync(null, interceptor) : await CreateContextAsync(interceptor);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -607,10 +607,11 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase) : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
+    protected class MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
+        : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
     {
         public readonly string MutatedSql =
-                testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
+            testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
         public override InterceptionResult<int> NonQueryExecuting(
             DbCommand command,
@@ -641,7 +642,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<QueryReplacingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<QueryReplacingReaderCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -713,7 +714,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_replace_execution(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<QueryReplacingScalarCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<QueryReplacingScalarCommandInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT 1";
@@ -786,7 +787,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     public virtual async Task Intercept_non_query_to_replace_execution(bool async, bool inject)
     {
         var interceptor = new QueryReplacingNonQueryCommandInterceptor(this);
-        var context = inject ? CreateContext(null, interceptor) : CreateContext(interceptor);
+        var context = inject ? await CreateContextAsync(null, interceptor) : await CreateContextAsync(interceptor);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -810,7 +811,8 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase) : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
+    protected class QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
+        : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
     {
         private readonly string commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
@@ -854,7 +856,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_replace_result(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<ResultReplacingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<ResultReplacingReaderCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -998,7 +1000,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_replace_result(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<ResultReplacingScalarCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<ResultReplacingScalarCommandInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT 1";
@@ -1062,7 +1064,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_replace_result(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<ResultReplacingNonQueryCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<ResultReplacingNonQueryCommandInterceptor>(inject);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -1124,7 +1126,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     {
         var badSql = NormalizeDelimitersInRawString("SELECT * FROM [TheVoid]");
 
-        var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<PassiveReaderCommandInterceptor>(inject);
         using (context)
         {
             try
@@ -1151,7 +1153,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_scalar_that_throws(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<PassiveScalarCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<PassiveScalarCommandInterceptor>(inject);
         using (context)
         {
             const string sql = "SELECT Won";
@@ -1188,7 +1190,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_non_query_that_throws(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<PassiveNonQueryCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<PassiveNonQueryCommandInterceptor>(inject);
         using (context)
         {
             var nonQuery = NormalizeDelimitersInRawString("DELETE FROM [TheVoid] WHERE [Id] = 555");
@@ -1219,7 +1221,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_query_to_throw(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<ThrowingReaderCommandInterceptor>(inject);
         using (context)
         {
             var exception = async
@@ -1237,7 +1239,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_scalar_to_throw(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<ThrowingReaderCommandInterceptor>(inject);
         using (context)
         {
             var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
@@ -1261,7 +1263,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task Intercept_non_query_to_throw(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<ThrowingReaderCommandInterceptor>(inject);
         using (context)
         {
             using (context.Database.BeginTransaction())
@@ -1327,7 +1329,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     {
         var appInterceptor = new ResultReplacingReaderCommandInterceptor();
         var injectedInterceptor = new MutatingReaderCommandInterceptor();
-        using var context = CreateContext(appInterceptor, injectedInterceptor);
+        using var context = await CreateContextAsync(appInterceptor, injectedInterceptor);
         await TestCompoisteQueryInterceptors(context, appInterceptor, injectedInterceptor, async);
     }
 
@@ -1352,7 +1354,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_scalar_with_one_app_and_one_injected_interceptor(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new ResultReplacingScalarCommandInterceptor(),
             new MutatingScalarCommandInterceptor());
         await TestCompositeScalarInterceptors(context, async);
@@ -1378,7 +1380,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_non_query_one_app_and_one_injected_interceptor(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new ResultReplacingNonQueryCommandInterceptor(),
             new MutatingNonQueryCommandInterceptor(this));
         await TestCompositeNonQueryInterceptors(context, async);
@@ -1407,7 +1409,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
         var injectedInterceptor2 = new ResultReplacingReaderCommandInterceptor();
 
-        using var context = CreateContext(null, injectedInterceptor1, injectedInterceptor2);
+        using var context = await CreateContextAsync(null, injectedInterceptor1, injectedInterceptor2);
         await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
     }
 
@@ -1416,7 +1418,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_scalar_with_two_injected_interceptors(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             null,
             new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor());
         await TestCompositeScalarInterceptors(context, async);
@@ -1427,7 +1429,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_non_query_with_two_injected_interceptors(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             null,
             new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor());
         await TestCompositeNonQueryInterceptors(context, async);
@@ -1438,7 +1440,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new IInterceptor[] { new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor() });
         var results = async
             ? await context.Set<Singularity>().ToListAsync()
@@ -1467,7 +1469,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new IInterceptor[] { new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor() });
         await TestCompositeScalarInterceptors(context, async);
     }
@@ -1477,7 +1479,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
     {
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new IInterceptor[] { new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor() });
         await TestCompositeNonQueryInterceptors(context, async);
     }
@@ -1489,7 +1491,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_call_DataReader_NextResult(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<NextResultCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<NextResultCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -1543,7 +1545,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_suppress_close_of_reader(bool async, bool inject)
     {
-        var (context, interceptor) = CreateContext<SuppressReaderCloseCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<SuppressReaderCloseCommandInterceptor>(inject);
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);

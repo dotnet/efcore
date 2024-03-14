@@ -14,14 +14,13 @@ public class CustomConvertersSqliteTest : CustomConvertersTestBase<CustomConvert
     }
 
     // Disabled: SQLite database is case-sensitive
-    public override void Can_insert_and_read_back_with_case_insensitive_string_key()
-    {
-    }
+    public override Task Can_insert_and_read_back_with_case_insensitive_string_key()
+        => Task.CompletedTask;
 
     [ConditionalFact]
-    public override void Value_conversion_is_appropriately_used_for_join_condition()
+    public override async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
-        base.Value_conversion_is_appropriately_used_for_join_condition();
+        await base.Value_conversion_is_appropriately_used_for_join_condition();
 
         AssertSql(
             """
@@ -35,9 +34,9 @@ WHERE "b"."IsVisible" = 'Y'
     }
 
     [ConditionalFact]
-    public override void Value_conversion_is_appropriately_used_for_left_join_condition()
+    public override async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
-        base.Value_conversion_is_appropriately_used_for_left_join_condition();
+        await base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
         AssertSql(
             """
@@ -51,9 +50,9 @@ WHERE "b"."IsVisible" = 'Y'
     }
 
     [ConditionalFact]
-    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
-        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+        await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
             """
@@ -64,9 +63,9 @@ WHERE "b"."IsVisible" = 'Y'
     }
 
     [ConditionalFact]
-    public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    public override async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
-        base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
+        await base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
             """
@@ -76,9 +75,9 @@ WHERE "b"."IsVisible" = 'N'
 """);
     }
 
-    public override void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
+    public override async Task Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
     {
-        base.Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice();
+        await base.Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice();
 
         AssertSql(
             """
@@ -94,9 +93,9 @@ WHERE "b"."IsVisible" <> 'Y'
 """);
     }
 
-    public override void Select_bool_with_value_conversion_is_used()
+    public override async Task Select_bool_with_value_conversion_is_used()
     {
-        base.Select_bool_with_value_conversion_is_used();
+        await base.Select_bool_with_value_conversion_is_used();
 
         AssertSql(
             """
@@ -106,9 +105,9 @@ FROM "Blog" AS "b"
     }
 
     [ConditionalFact]
-    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
-        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+        await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
         AssertSql(
             """
@@ -119,9 +118,9 @@ WHERE "b"."IsVisible" = 'Y'
     }
 
     [ConditionalFact]
-    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+    public override async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
-        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+        await base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
         AssertSql(
             """

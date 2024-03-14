@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class DefaultValuesTest : IDisposable
+public class DefaultValuesTest : IAsyncLifetime
 {
     private readonly IServiceProvider _serviceProvider = new ServiceCollection()
         .AddEntityFrameworkSqlServer()
@@ -48,6 +48,7 @@ public class DefaultValuesTest : IDisposable
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<KettleChips> Chips { get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Chipper> Chippers { get; set; }
 
@@ -85,13 +86,14 @@ public class DefaultValuesTest : IDisposable
         public string Id { get; set; }
     }
 
-    public DefaultValuesTest()
+    protected SqlServerTestStore TestStore { get; private set; }
+
+    public async Task InitializeAsync()
+        => TestStore = await SqlServerTestStore.CreateInitializedAsync("DefaultValuesTest");
+
+    public Task DisposeAsync()
     {
-        TestStore = SqlServerTestStore.CreateInitialized("DefaultValuesTest");
+        TestStore.Dispose();
+        return Task.CompletedTask;
     }
-
-    protected SqlServerTestStore TestStore { get; }
-
-    public virtual void Dispose()
-        => TestStore.Dispose();
 }

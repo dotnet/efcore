@@ -8,18 +8,6 @@ namespace Microsoft.EntityFrameworkCore;
 public class ManyToManyTrackingInMemoryTest(ManyToManyTrackingInMemoryTest.ManyToManyTrackingInMemoryFixture fixture)
     : ManyToManyTrackingTestBase<ManyToManyTrackingInMemoryTest.ManyToManyTrackingInMemoryFixture>(fixture)
 {
-    protected override void ExecuteWithStrategyInTransaction(
-        Action<ManyToManyContext> testOperation,
-        Action<ManyToManyContext> nestedTestOperation1 = null,
-        Action<ManyToManyContext> nestedTestOperation2 = null,
-        Action<ManyToManyContext> nestedTestOperation3 = null)
-    {
-        base.ExecuteWithStrategyInTransaction(
-            testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
-
-        Fixture.Reseed();
-    }
-
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<ManyToManyContext, Task> testOperation,
         Func<ManyToManyContext, Task> nestedTestOperation1 = null,

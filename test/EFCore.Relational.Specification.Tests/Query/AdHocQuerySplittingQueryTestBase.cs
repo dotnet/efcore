@@ -22,7 +22,9 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
-    protected abstract DbContextOptionsBuilder SetQuerySplittingBehavior(DbContextOptionsBuilder optionsBuilder, QuerySplittingBehavior splittingBehavior);
+    protected abstract DbContextOptionsBuilder SetQuerySplittingBehavior(
+        DbContextOptionsBuilder optionsBuilder,
+        QuerySplittingBehavior splittingBehavior);
 
     protected abstract DbContextOptionsBuilder ClearQuerySplittingBehavior(DbContextOptionsBuilder optionsBuilder);
 
@@ -32,7 +34,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     public virtual async Task Can_configure_SingleQuery_at_context_level()
     {
         var contextFactory = await InitializeAsync<Context21355>(
-            seed: c => c.Seed(),
+            seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SingleQuery));
 
         using (var context = contextFactory.CreateContext())
@@ -55,7 +57,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     public virtual async Task Can_configure_SplitQuery_at_context_level()
     {
         var contextFactory = await InitializeAsync<Context21355>(
-            seed: c => c.Seed(),
+            seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
 
         using (var context = contextFactory.CreateContext())
@@ -78,7 +80,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     public virtual async Task Unconfigured_query_splitting_behavior_throws_a_warning()
     {
         var contextFactory = await InitializeAsync<Context21355>(
-            seed: c => c.Seed(),
+            seed: c => c.SeedAsync(),
             onConfiguring: o => ClearQuerySplittingBehavior(o));
 
         using (var context = contextFactory.CreateContext())
@@ -99,7 +101,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Using_AsSingleQuery_without_context_configuration_does_not_throw_warning()
     {
-        var contextFactory = await InitializeAsync<Context21355>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context21355>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSingleQuery().ToList();
     }
@@ -107,7 +109,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task SplitQuery_disposes_inner_data_readers()
     {
-        var contextFactory = await InitializeAsync<Context21355>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context21355>(seed: c => c.SeedAsync());
 
         ((RelationalTestStore)contextFactory.TestStore).CloseConnection();
 
@@ -144,10 +146,10 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     {
         public DbSet<Parent> Parents { get; set; }
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             Add(new Parent { Id = "Parent1", Children1 = [new(), new()] });
-            SaveChanges();
+            await SaveChangesAsync();
         }
 
         public class Parent
@@ -225,14 +227,14 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         return (context1, context2);
     }
 
-    private Task<ContextFactory<Context25225>> CreateContext25225Async()
-        => InitializeAsync<Context25225>(
-            seed: c => c.Seed(),
+    private async Task<ContextFactory<Context25225>> CreateContext25225Async()
+        => await InitializeAsync<Context25225>(
+            seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery),
-            createTestStore: CreateTestStore25225);
+            createTestStore: () => CreateTestStore25225());
 
-    protected virtual TestStore CreateTestStore25225()
-        => base.CreateTestStore();
+    protected virtual Task<TestStore> CreateTestStore25225()
+        => Task.FromResult(base.CreateTestStore());
 
     private static IQueryable<Context25225.ParentViewModel> SelectParent25225(Context25225 context, Guid parentId)
         => context
@@ -247,8 +249,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
                         .Select(
                             c => new Context25225.CollectionViewModel
                             {
-                                Id = c.Id,
-                                ParentId = c.ParentId,
+                                Id = c.Id, ParentId = c.ParentId,
                             })
                         .ToArray()
                 });
@@ -270,12 +271,12 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         public static readonly Guid Collection2Id = new("d347bbd5-003a-441f-a148-df8ab8ac4a29");
         public DbSet<Parent> Parents { get; set; }
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             var parent1 = new Parent { Id = Parent1Id, Collection = new List<Collection> { new() { Id = Collection1Id, } } };
             var parent2 = new Parent { Id = Parent2Id, Collection = new List<Collection> { new() { Id = Collection2Id, } } };
             AddRange(parent1, parent2);
-            SaveChanges();
+            await SaveChangesAsync();
         }
 
         public class Parent
@@ -314,7 +315,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     public virtual async Task NoTracking_split_query_creates_only_required_instances(bool async)
     {
         var contextFactory = await InitializeAsync<Context25400>(
-            seed: c => c.Seed(),
+            seed: c => c.SeedAsync(),
             onConfiguring: o => SetQuerySplittingBehavior(o, QuerySplittingBehavior.SplitQuery));
 
         using var context = contextFactory.CreateContext();
@@ -335,11 +336,11 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Test>().HasKey(e => e.Id);
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             Tests.Add(new Test(15));
 
-            SaveChanges();
+            await SaveChangesAsync();
         }
 
         public class Test

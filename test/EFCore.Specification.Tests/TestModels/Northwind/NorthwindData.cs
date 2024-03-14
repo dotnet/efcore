@@ -213,13 +213,6 @@ public partial class NorthwindData : ISetSource
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
-    public static void Seed(NorthwindContext context)
-    {
-        AddEntities(context);
-
-        context.SaveChanges();
-    }
-
     public static Task SeedAsync(NorthwindContext context)
     {
         AddEntities(context);

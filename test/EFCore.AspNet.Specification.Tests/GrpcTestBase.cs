@@ -137,7 +137,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         protected override string StoreName
             => "GrpcTest";
 
-        protected override void Seed(GrpcContext context)
+        protected override Task SeedAsync(GrpcContext context)
         {
             var post = new Post
             {
@@ -153,7 +153,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
 
             context.Add(post);
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

@@ -15,45 +15,45 @@ namespace Microsoft.EntityFrameworkCore;
 public class ConnectionSpecificationTest
 {
     [ConditionalFact]
-    public void Can_specify_no_connection_string_in_OnConfiguring()
+    public async Task Can_specify_no_connection_string_in_OnConfiguring()
     {
         var serviceProvider
             = new ServiceCollection()
                 .AddDbContext<NoneInOnConfiguringContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NoneInOnConfiguringContext>();
 
             context.Database.SetConnectionString(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Can_specify_no_connection_string_in_OnConfiguring_with_default_service_provider()
+    public async Task Can_specify_no_connection_string_in_OnConfiguring_with_default_service_provider()
     {
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NoneInOnConfiguringContext();
 
             context.Database.SetConnectionString(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Throws_if_context_used_with_no_connection_or_connection_string()
+    public async Task Throws_if_context_used_with_no_connection_or_connection_string()
     {
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NoneInOnConfiguringContext();
 
-            Assert.Throws<InvalidOperationException>(() => context.Customers.Any());
+            await Assert.ThrowsAsync<InvalidOperationException>(() => context.Customers.AnyAsync());
         }
     }
 
@@ -66,28 +66,28 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Can_specify_connection_string_in_OnConfiguring()
+    public async Task Can_specify_connection_string_in_OnConfiguring()
     {
         var serviceProvider
             = new ServiceCollection()
                 .AddDbContext<StringInOnConfiguringContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<StringInOnConfiguringContext>();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
+    public async Task Can_specify_connection_string_in_OnConfiguring_with_default_service_provider()
     {
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new StringInOnConfiguringContext();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
@@ -102,7 +102,7 @@ public class ConnectionSpecificationTest
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
-    public void Can_specify_no_connection_in_OnConfiguring(bool contextOwnsConnection)
+    public async Task Can_specify_no_connection_in_OnConfiguring(bool contextOwnsConnection)
     {
         var serviceProvider
             = new ServiceCollection()
@@ -111,7 +111,7 @@ public class ConnectionSpecificationTest
 
         SqlConnection connection;
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NoneInOnConfiguringContext>();
@@ -119,36 +119,36 @@ public class ConnectionSpecificationTest
             connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             context.Database.SetDbConnection(connection, contextOwnsConnection);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
 
         if (contextOwnsConnection)
         {
-            Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
+            await Assert.ThrowsAsync<InvalidOperationException>(() => connection.OpenAsync()); // Disposed
         }
         else
         {
-            connection.Open();
-            connection.Close();
-            connection.Dispose();
+            await connection.OpenAsync();
+            await connection.CloseAsync();
+            await connection.DisposeAsync();
         }
     }
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
-    public void Can_specify_no_connection_in_OnConfiguring_with_default_service_provider(bool contextOwnsConnection)
+    public async Task Can_specify_no_connection_in_OnConfiguring_with_default_service_provider(bool contextOwnsConnection)
     {
         SqlConnection connection;
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NoneInOnConfiguringContext();
 
             connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             context.Database.SetDbConnection(connection, contextOwnsConnection);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
 
         if (contextOwnsConnection)
@@ -164,35 +164,35 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Can_specify_connection_in_OnConfiguring()
+    public async Task Can_specify_connection_in_OnConfiguring()
     {
         var serviceProvider
             = new ServiceCollection()
                 .AddScoped(p => new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
                 .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Can_specify_connection_in_OnConfiguring_with_default_service_provider()
+    public async Task Can_specify_connection_in_OnConfiguring_with_default_service_provider()
     {
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             using var context = new ConnectionInOnConfiguringContext(connection);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Can_specify_owned_connection_in_OnConfiguring()
+    public async Task Can_specify_owned_connection_in_OnConfiguring()
     {
         var serviceProvider
             = new ServiceCollection()
@@ -201,36 +201,36 @@ public class ConnectionSpecificationTest
 
         SqlConnection connection;
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             connection = serviceProvider.GetRequiredService<SqlConnection>();
 
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OwnedConnectionInOnConfiguringContext>();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
 
         Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
     }
 
     [ConditionalFact]
-    public void Can_specify_owned_connection_in_OnConfiguring_with_default_service_provider()
+    public async Task Can_specify_owned_connection_in_OnConfiguring_with_default_service_provider()
     {
         SqlConnection connection;
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             using var context = new OwnedConnectionInOnConfiguringContext(connection);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
 
         Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
     }
 
     [ConditionalFact]
-    public void Can_specify_then_change_connection()
+    public async Task Can_specify_then_change_connection()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -239,24 +239,24 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => connection)
                 .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
 
             Assert.Same(connection, context.Database.GetDbConnection());
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
 
             using var newConnection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             context.Database.SetDbConnection(newConnection);
 
             Assert.Same(newConnection, context.Database.GetDbConnection());
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Cannot_change_connection_when_open_and_owned()
+    public async Task Cannot_change_connection_when_open_and_owned()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -265,14 +265,14 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => connection)
                 .AddDbContext<OwnedConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OwnedConnectionInOnConfiguringContext>();
 
             context.Database.OpenConnection();
             Assert.Same(connection, context.Database.GetDbConnection());
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
 
             using var newConnection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -283,7 +283,7 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Can_change_connection_when_open_and_not_owned()
+    public async Task Can_change_connection_when_open_and_not_owned()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -292,20 +292,20 @@ public class ConnectionSpecificationTest
                 .AddScoped(p => connection)
                 .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
 
             context.Database.OpenConnection();
             Assert.Same(connection, context.Database.GetDbConnection());
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
 
             using var newConnection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
             context.Database.SetDbConnection(newConnection);
 
             Assert.Same(newConnection, context.Database.GetDbConnection());
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
@@ -336,7 +336,7 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Throws_if_no_connection_found_in_config_without_UseSqlServer()
+    public async Task Throws_if_no_connection_found_in_config_without_UseSqlServer()
     {
         var serviceProvider
             = new ServiceCollection()
@@ -346,11 +346,11 @@ public class ConnectionSpecificationTest
         var context = scope.ServiceProvider.GetRequiredService<NoUseSqlServerContext>();
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Customers.AnyAsync())).Message);
     }
 
     [ConditionalFact]
-    public void Throws_if_no_config_without_UseSqlServer()
+    public async Task Throws_if_no_config_without_UseSqlServer()
     {
         var serviceProvider
             = new ServiceCollection()
@@ -360,7 +360,7 @@ public class ConnectionSpecificationTest
         var context = scope.ServiceProvider.GetRequiredService<NoUseSqlServerContext>();
         Assert.Equal(
             CoreStrings.NoProviderConfigured,
-            Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Customers.AnyAsync())).Message);
     }
 
     private class NoUseSqlServerContext : NorthwindContextBase
@@ -370,7 +370,7 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Can_depend_on_DbContextOptions()
+    public async Task Can_depend_on_DbContextOptions()
     {
         var serviceProvider
             = new ServiceCollection()
@@ -378,18 +378,18 @@ public class ConnectionSpecificationTest
                 .AddDbContext<OptionsContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OptionsContext>();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Can_depend_on_DbContextOptions_with_default_service_provider()
+    public async Task Can_depend_on_DbContextOptions_with_default_service_provider()
     {
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -397,7 +397,7 @@ public class ConnectionSpecificationTest
                 new DbContextOptions<OptionsContext>(),
                 connection);
 
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
@@ -425,28 +425,28 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Can_depend_on_non_generic_options_when_only_one_context()
+    public async Task Can_depend_on_non_generic_options_when_only_one_context()
     {
         var serviceProvider
             = new ServiceCollection()
                 .AddDbContext<NonGenericOptionsContext>()
                 .BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NonGenericOptionsContext>();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
     [ConditionalFact]
-    public void Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
+    public async Task Can_depend_on_non_generic_options_when_only_one_context_with_default_service_provider()
     {
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>());
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
@@ -470,7 +470,7 @@ public class ConnectionSpecificationTest
     [InlineData("MyConnectionString", "name=MyConnectionString")]
     [InlineData("ConnectionStrings:DefaultConnection", "name=ConnectionStrings:DefaultConnection")]
     [InlineData("ConnectionStrings:DefaultConnection", " NamE   =   ConnectionStrings:DefaultConnection  ")]
-    public void Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
+    public async Task Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
     {
         var configBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -483,11 +483,11 @@ public class ConnectionSpecificationTest
                     b => b.UseSqlServer(connectionString).EnableServiceProviderCaching(false))
                 .BuildServiceProvider(validateScopes: true);
 
-        using (SqlServerTestStore.GetNorthwindStore())
+        using (await SqlServerTestStore.GetNorthwindStoreAsync())
         {
             using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
             using var context = serviceScope.ServiceProvider.GetRequiredService<UseConfigurationContext>();
-            Assert.True(context.Customers.Any());
+            Assert.True(await context.Customers.AnyAsync());
         }
     }
 
@@ -535,7 +535,7 @@ public class ConnectionSpecificationTest
             .AddEntityFrameworkSqlServer()
             .BuildServiceProvider(validateScopes: true);
 
-        using var store = SqlServerTestStore.GetNorthwindStore();
+        using var store = await SqlServerTestStore.GetNorthwindStoreAsync();
         store.CloseConnection();
 
         var openCount = 0;

@@ -12,8 +12,8 @@ public class SqliteTestStore : RelationalTestStore
     public static SqliteTestStore GetOrCreate(string name, bool sharedCache = false)
         => new(name, sharedCache: sharedCache);
 
-    public static SqliteTestStore GetOrCreateInitialized(string name)
-        => new SqliteTestStore(name).InitializeSqlite(
+    public static async Task<SqliteTestStore> GetOrCreateInitializedAsync(string name)
+        => await new SqliteTestStore(name).InitializeSqliteAsync(
             new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider(validateScopes: true),
             (Func<DbContext>?)null,
             null);
@@ -44,16 +44,19 @@ public class SqliteTestStore : RelationalTestStore
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => AddProviderOptions(builder, configureSqlite: null);
 
-    public SqliteTestStore InitializeSqlite(IServiceProvider? serviceProvider, Func<DbContext>? createContext, Action<DbContext>? seed)
-        => (SqliteTestStore)Initialize(serviceProvider, createContext, seed);
+    public async Task<SqliteTestStore> InitializeSqliteAsync(
+        IServiceProvider? serviceProvider,
+        Func<DbContext>? createContext,
+        Func<DbContext, Task>? seed)
+        => (SqliteTestStore)await InitializeAsync(serviceProvider, createContext, seed);
 
-    public SqliteTestStore InitializeSqlite(
+    public async Task<SqliteTestStore> InitializeSqliteAsync(
         IServiceProvider serviceProvider,
         Func<SqliteTestStore, DbContext> createContext,
-        Action<DbContext> seed)
-        => (SqliteTestStore)Initialize(serviceProvider, () => createContext(this), seed);
+        Func<DbContext, Task> seed)
+        => (SqliteTestStore)await InitializeAsync(serviceProvider, () => createContext(this), seed);
 
-    protected override void Initialize(Func<DbContext> createContext, Action<DbContext>? seed, Action<DbContext>? clean)
+    protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
         if (!_seed)
         {
@@ -61,17 +64,27 @@ public class SqliteTestStore : RelationalTestStore
         }
 
         using var context = createContext();
-        if (!context.Database.EnsureCreated())
+        if (!await context.Database.EnsureCreatedAsync())
         {
-            clean?.Invoke(context);
-            Clean(context);
+            if (clean != null)
+            {
+                await clean(context);
+            }
+
+            await CleanAsync(context);
         }
 
-        seed?.Invoke(context);
+        if (seed != null)
+        {
+            await seed(context);
+        }
     }
 
-    public override void Clean(DbContext context)
-        => context.Database.EnsureClean();
+    public override Task CleanAsync(DbContext context)
+    {
+        context.Database.EnsureClean();
+        return Task.CompletedTask;
+    }
 
     public int ExecuteNonQuery(string sql, params object[] parameters)
     {

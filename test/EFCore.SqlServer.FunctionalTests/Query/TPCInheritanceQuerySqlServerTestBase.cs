@@ -91,7 +91,7 @@ ORDER BY [e1].[Id]
 """);
     }
 
-    public override void Can_insert_update_delete()
+    public override Task Can_insert_update_delete()
         => base.Can_insert_update_delete();
 
     public override async Task Can_query_all_animals(bool async)
@@ -453,9 +453,9 @@ FROM [Roses] AS [r]
 """);
     }
 
-    public override void Member_access_on_intermediate_type_works()
+    public override async Task Member_access_on_intermediate_type_works()
     {
-        base.Member_access_on_intermediate_type_works();
+        await base.Member_access_on_intermediate_type_works();
 
         AssertSql(
             """
@@ -479,7 +479,7 @@ ORDER BY [k].[Name]
         AssertSql();
     }
 
-    public override void Setting_foreign_key_to_a_different_type_throws()
+    public override Task Setting_foreign_key_to_a_different_type_throws()
         => base.Setting_foreign_key_to_a_different_type_throws();
 
     public override async Task Subquery_OfType(bool async)

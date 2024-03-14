@@ -128,7 +128,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 context.AddRange(
                     new TestEntity { Id = 1, Ints = [1, 2, 3] },
                     new TestEntity { Id = 2, Ints = [1, 2, 4] });
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -157,7 +157,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 entry1.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(8);
                 var entry2 = context.Add(new TestEntity { Id = 2 });
                 entry2.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(9);
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -182,7 +182,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 entry1.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(8);
                 var entry2 = context.Add(new TestEntity { Id = 2 });
                 entry2.Property("PropertyWithValueConverter").CurrentValue = new IntWrapper(9);
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -208,7 +208,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 context.AddRange(
                     new TestEntity { Id = 1 },
                     new TestEntity { Id = 2 });
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -246,7 +246,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 array2.SetValue(value2, 1);
                 context.Entry(instance2).Property("SomeArray").CurrentValue = array2;
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SequentialGuidEndToEndTest : IDisposable
+public class SequentialGuidEndToEndTest : IAsyncLifetime
 {
     [ConditionalFact]
     public async Task Can_use_sequential_GUID_end_to_end_async()
@@ -101,13 +101,14 @@ public class SequentialGuidEndToEndTest : IDisposable
         public int Index { get; set; }
     }
 
-    public SequentialGuidEndToEndTest()
+    protected SqlServerTestStore TestStore { get; private set; }
+
+    public async Task InitializeAsync()
+        => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequentialGuidEndToEndTest");
+
+    public Task DisposeAsync()
     {
-        TestStore = SqlServerTestStore.CreateInitialized("SequentialGuidEndToEndTest");
+        TestStore.Dispose();
+        return Task.CompletedTask;
     }
-
-    protected SqlServerTestStore TestStore { get; }
-
-    public virtual void Dispose()
-        => TestStore.Dispose();
 }

@@ -43,151 +43,121 @@ public abstract class GraphUpdatesInMemoryTestBase<TFixture> : GraphUpdatesTestB
     public override Task Can_insert_when_FK_has_sentinel_value(bool async)
         => Task.CompletedTask;
 
-    public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_many_to_one_dependents_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Optional_many_to_one_dependents_are_orphaned_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Optional_many_to_one_dependents_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Optional_one_to_one_relationships_are_one_to_one(
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Optional_one_to_one_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_relationships_are_one_to_one(
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_one_to_one_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Save_required_one_to_one_changed_by_reference(
-        ChangeMechanism changeMechanism,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Save_required_one_to_one_changed_by_reference(
+            ChangeMechanism changeMechanism,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Sever_required_one_to_one(
-        ChangeMechanism changeMechanism,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Sever_required_one_to_one(
+            ChangeMechanism changeMechanism,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_are_cascade_deleted_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_one_to_one_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_non_PK_one_to_one_are_cascade_deleted_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_non_PK_one_to_one_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Optional_one_to_one_are_orphaned_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Optional_one_to_one_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_are_cascade_detached_when_Added(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Optional_one_to_one_with_AK_relationships_are_one_to_one(
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Optional_one_to_one_with_AK_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_AK_relationships_are_one_to_one(
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_one_to_one_with_AK_relationships_are_one_to_one(
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Optional_one_to_one_with_alternate_key_are_orphaned_in_store(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Optional_one_to_one_with_alternate_key_are_orphaned_in_store(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
-        CascadeTiming? cascadeDeleteTiming,
-        CascadeTiming? deleteOrphansTiming)
-    {
+    public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         // FK uniqueness not enforced in in-memory database
-    }
-
-    protected override void ExecuteWithStrategyInTransaction(
-        Action<DbContext> testOperation,
-        Action<DbContext> nestedTestOperation1 = null,
-        Action<DbContext> nestedTestOperation2 = null,
-        Action<DbContext> nestedTestOperation3 = null)
-    {
-        base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
-        Fixture.Reseed();
-    }
+        => Task.CompletedTask;
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,
@@ -198,7 +168,7 @@ public abstract class GraphUpdatesInMemoryTestBase<TFixture> : GraphUpdatesTestB
         await base.ExecuteWithStrategyInTransactionAsync(
             testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
-        Fixture.Reseed();
+        await Fixture.ReseedAsync();
     }
 
     public abstract class GraphUpdatesInMemoryFixtureBase : GraphUpdatesFixtureBase

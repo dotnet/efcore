@@ -932,8 +932,18 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
     {
-        var ints = new List<int> { 1, 2, 3 };
-        var strings = new List<string> { "one", "two", "three" };
+        var ints = new List<int>
+        {
+            1,
+            2,
+            3
+        };
+        var strings = new List<string>
+        {
+            "one",
+            "two",
+            "three"
+        };
 
         // Note that in this query, the outer Contains really has no type mapping, neither for its source (collection parameter), nor
         // for its item (the conditional expression returns constants). The default type mapping must be applied.
@@ -969,8 +979,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<PrimitiveCollectionsEntity>().Property(p => p.Id).ValueGeneratedNever();
 
-        protected override void Seed(PrimitiveCollectionsContext context)
-            => new PrimitiveArrayData(context);
+        protected override Task SeedAsync(PrimitiveCollectionsContext context)
+        {
+            context.AddRange(new PrimitiveArrayData().PrimitiveArrayEntities);
+            return context.SaveChangesAsync();
+        }
 
         public virtual ISetSource GetExpectedData()
             => _expectedData ??= new PrimitiveArrayData();
@@ -1036,12 +1049,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         public PrimitiveArrayData(PrimitiveCollectionsContext? context = null)
         {
             PrimitiveArrayEntities = CreatePrimitiveArrayEntities();
-
-            if (context != null)
-            {
-                context.AddRange(PrimitiveArrayEntities);
-                context.SaveChanges();
-            }
         }
 
         public IQueryable<TEntity> Set<TEntity>()
@@ -1094,8 +1101,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     DateTimes =
                     [
                         new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
+                        new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
                     ],
                     Bools = [false],
                     Enums = [MyEnum.Value2, MyEnum.Value3],
@@ -1117,10 +1124,10 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     DateTimes =
                     [
                         new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
+                        new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
                     ],
                     Bools = [true, false],
                     Enums = [MyEnum.Value1, MyEnum.Value2],
@@ -1142,13 +1149,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     DateTimes =
                     [
                         new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
+                        new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
+                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
                     ],
                     Bools = [false],
                     Enums = [MyEnum.Value2, MyEnum.Value3],

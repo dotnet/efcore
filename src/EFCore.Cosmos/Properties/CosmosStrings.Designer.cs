@@ -586,5 +586,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 
             return (EventDefinition<string, string?, string, string, string>)definition;
         }
+
+        /// <summary>
+        ///     Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.
+        /// </summary>
+        public static EventDefinition LogSyncNotSupported(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogSyncNotSupported;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogSyncNotSupported,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CosmosEventId.SyncNotSupported,
+                        LogLevel.Error,
+                        "CosmosEventId.SyncNotSupported",
+                        level => LoggerMessage.Define(
+                            level,
+                            CosmosEventId.SyncNotSupported,
+                            _resourceManager.GetString("LogSyncNotSupported")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
     }
 }

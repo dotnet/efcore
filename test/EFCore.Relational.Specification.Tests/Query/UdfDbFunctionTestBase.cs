@@ -259,6 +259,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             => FromExpression(() => GetCustomerData(customerId));
 
         #endregion
+
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -378,9 +379,9 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;
 
-        protected override void Seed(DbContext context)
+        protected override async Task SeedAsync(DbContext context)
         {
-            context.Database.EnsureCreatedResiliently();
+            await context.Database.EnsureCreatedResilientlyAsync();
 
             var product1 = new Product { Name = "Product1" };
             var product2 = new Product { Name = "Product2" };

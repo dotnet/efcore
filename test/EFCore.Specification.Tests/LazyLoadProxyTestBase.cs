@@ -5228,7 +5228,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             configurationBuilder.ComplexProperties<Tog>();
         }
 
-        protected override void Seed(DbContext context)
+        protected override Task SeedAsync(DbContext context)
         {
             context.Add(
                 new Quest
@@ -5579,7 +5579,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                     Milk = CreateMilk()
                 });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
 
         protected static Culture CreateCulture()

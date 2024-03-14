@@ -55,7 +55,7 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
     [InlineData(true, true)]
     public virtual async Task<string> Intercept_query_to_get_statistics(bool async, bool inject) // Issue #23535
     {
-        var (context, interceptor) = CreateContext<StatisticsCommandInterceptor>(inject);
+        var (context, interceptor) = await CreateContextAsync<StatisticsCommandInterceptor>(inject);
         using (context)
         {
             using (async
@@ -186,7 +186,8 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
         }
     }
 
-    public class CommandInterceptionWithDiagnosticsSqlServerTest(CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class CommandInterceptionWithDiagnosticsSqlServerTest(
+        CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
         : CommandInterceptionSqlServerTestBase(fixture),
             IClassFixture<CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {

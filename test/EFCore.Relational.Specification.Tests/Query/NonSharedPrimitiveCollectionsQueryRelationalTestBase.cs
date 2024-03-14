@@ -22,7 +22,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
                 context.AddRange(
                     new TestOwner { Owned = new TestOwned { Strings = ["foo", "bar"] } },
                     new TestOwner { Owned = new TestOwned { Strings = ["baz"] } });
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();

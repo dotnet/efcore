@@ -15,7 +15,7 @@ public abstract class SharedTypeQueryTestBase : NonSharedModelTestBase
     public virtual async Task Can_use_shared_type_entity_type_in_query_filter(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext24601>(
-            seed: c => c.Seed());
+            seed: c => c.SeedAsync());
 
         using var context = contextFactory.CreateContext();
         var query = context.Set<ViewQuery24601>();
@@ -28,11 +28,11 @@ public abstract class SharedTypeQueryTestBase : NonSharedModelTestBase
 
     protected class MyContext24601(DbContextOptions options) : DbContext(options)
     {
-        public void Seed()
+        public Task SeedAsync()
         {
             Set<Dictionary<string, object>>("STET").Add(new Dictionary<string, object> { ["Value"] = "Maumar" });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

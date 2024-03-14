@@ -7,13 +7,14 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture fixture) : StoreGeneratedFixupRelationalTestBase<
-    StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>(fixture)
+public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture fixture)
+    : StoreGeneratedFixupRelationalTestBase<
+        StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>(fixture)
 {
     [ConditionalFact]
-    public void Temp_values_are_replaced_on_save()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public Task Temp_values_are_replaced_on_save()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var entry = context.Add(new TestTemp());
 
@@ -22,7 +23,7 @@ public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.S
 
                 var tempValue = entry.Property(e => e.Id).CurrentValue;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 Assert.False(entry.Property(e => e.Id).IsTemporary);
                 Assert.NotEqual(tempValue, entry.Property(e => e.Id).CurrentValue);

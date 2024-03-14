@@ -30,25 +30,18 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         Assert.Equal(new DateOnly(2023, 1, 1), result.Visits.DaysVisited.Single());
     }
 
-    protected virtual void Seed32310(MyContext32310 context)
+    protected virtual async Task Seed32310(MyContext32310 context)
     {
-        var user = new Pub32310
-        {
-            Name = "FBI",
-            Visits = new Visits32310
-            {
-                LocationTag = "tag",
-                DaysVisited = [new(2023, 1, 1)]
-            }
-        };
+        var user = new Pub32310 { Name = "FBI", Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new(2023, 1, 1)] } };
 
         context.Add(user);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
     protected class MyContext32310(DbContextOptions options) : DbContext(options)
     {
-        public DbSet<Pub32310> Pubs => Set<Pub32310>();
+        public DbSet<Pub32310> Pubs
+            => Set<Pub32310>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Pub32310>(b => { b.OwnsOne(e => e.Visits).ToJson(); });
@@ -114,7 +107,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract void Seed29219(MyContext29219 ctx);
+    protected abstract Task Seed29219(MyContext29219 ctx);
 
     protected class MyContext29219(DbContextOptions options) : DbContext(options)
     {
@@ -145,7 +138,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #region 30028
 
-    protected abstract void Seed30028(MyContext30028 ctx);
+    protected abstract Task Seed30028(MyContext30028 ctx);
 
     protected class MyContext30028(DbContextOptions options) : DbContext(options)
     {
@@ -278,16 +271,15 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         context.Entities.ToList();
     }
 
-    protected void Seed30028(Context32939 ctx)
+    protected Task Seed30028(Context32939 ctx)
     {
         var entity = new Context32939.Entity32939
         {
-            Empty = new Context32939.JsonEmpty32939(),
-            FieldOnly = new Context32939.JsonFieldOnly32939()
+            Empty = new Context32939.JsonEmpty32939(), FieldOnly = new Context32939.JsonFieldOnly32939()
         };
 
         ctx.Entities.Add(entity);
-        ctx.SaveChanges();
+        return ctx.SaveChangesAsync();
     }
 
     protected class Context32939(DbContextOptions options) : DbContext(options)
@@ -323,7 +315,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #region 33046
 
-    protected abstract void Seed33046(Context33046 ctx);
+    protected abstract Task Seed33046(Context33046 ctx);
 
     [ConditionalFact]
     public virtual async Task Query_with_nested_json_collection_mapped_to_private_field_via_IReadOnlyList()
@@ -341,11 +333,12 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Review>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Review>().OwnsMany(x => x.Rounds, ownedBuilder =>
-            {
-                ownedBuilder.ToJson();
-                ownedBuilder.OwnsMany(r => r.SubRounds);
-            });
+            modelBuilder.Entity<Review>().OwnsMany(
+                x => x.Rounds, ownedBuilder =>
+                {
+                    ownedBuilder.ToJson();
+                    ownedBuilder.OwnsMany(r => r.SubRounds);
+                });
         }
 
         public class Review
@@ -355,7 +348,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 #pragma warning disable IDE0044 // Add readonly modifier
             private List<ReviewRound> _rounds = [];
 #pragma warning restore IDE0044 // Add readonly modifier
-            public IReadOnlyList<ReviewRound> Rounds => _rounds.AsReadOnly();
+            public IReadOnlyList<ReviewRound> Rounds
+                => _rounds.AsReadOnly();
         }
 
         public class ReviewRound
@@ -365,7 +359,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 #pragma warning disable IDE0044 // Add readonly modifier
             private List<SubRound> _subRounds = [];
 #pragma warning restore IDE0044 // Add readonly modifier
-            public IReadOnlyList<SubRound> SubRounds => _subRounds.AsReadOnly();
+            public IReadOnlyList<SubRound> SubRounds
+                => _subRounds.AsReadOnly();
         }
 
         public class SubRound
@@ -506,7 +501,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx);
+    protected abstract Task SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx);
 
     protected class MyContextArrayOfPrimitives(DbContextOptions options) : DbContext(options)
     {
@@ -590,7 +585,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract void SeedJunkInJson(MyContextJunkInJson ctx);
+    protected abstract Task SeedJunkInJson(MyContextJunkInJson ctx);
 
     protected class MyContextJunkInJson(DbContextOptions options) : DbContext(options)
     {
@@ -694,7 +689,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract void SeedTrickyBuffering(MyContextTrickyBuffering ctx);
+    protected abstract Task SeedTrickyBuffering(MyContextTrickyBuffering ctx);
 
     protected class MyContextTrickyBuffering(DbContextOptions options) : DbContext(options)
     {
@@ -824,7 +819,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract void SeedShadowProperties(MyContextShadowProperties ctx);
+    protected abstract Task SeedShadowProperties(MyContextShadowProperties ctx);
 
     protected class MyContextShadowProperties(DbContextOptions options) : DbContext(options)
     {
@@ -912,7 +907,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     protected IServiceCollection AddServicesLazyLoadingProxies(IServiceCollection addServices)
         => addServices.AddEntityFrameworkProxies();
 
-    private void SeedLazyLoadingProxies(MyContextLazyLoadingProxies ctx)
+    private Task SeedLazyLoadingProxies(MyContextLazyLoadingProxies ctx)
     {
         var r1 = new MyJsonEntityLazyLoadingProxiesWithCtor("r1", 1);
         var c11 = new MyJsonEntityLazyLoadingProxies { Name = "c11", Number = 11 };
@@ -945,7 +940,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         };
 
         ctx.Entities.AddRange(e1, e2);
-        ctx.SaveChanges();
+        return ctx.SaveChangesAsync();
     }
 
     protected class MyContextLazyLoadingProxies(DbContextOptions options) : DbContext(options)
@@ -1004,7 +999,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract void SeedNotICollection(MyContextNotICollection ctx);
+    protected abstract Task SeedNotICollection(MyContextNotICollection ctx);
 
     public class MyEntityNotICollection
     {
@@ -1017,7 +1012,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     {
         private readonly List<MyJsonNestedEntityNotICollection> _collection = [];
 
-        public IEnumerable<MyJsonNestedEntityNotICollection> Collection => _collection.AsReadOnly();
+        public IEnumerable<MyJsonNestedEntityNotICollection> Collection
+            => _collection.AsReadOnly();
     }
 
     public class MyJsonNestedEntityNotICollection
@@ -1033,11 +1029,12 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MyEntityNotICollection>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityNotICollection>().OwnsOne(cr => cr.Json, nb =>
-            {
-                nb.ToJson();
-                nb.OwnsMany(x => x.Collection);
-            });
+            modelBuilder.Entity<MyEntityNotICollection>().OwnsOne(
+                cr => cr.Json, nb =>
+                {
+                    nb.ToJson();
+                    nb.OwnsMany(x => x.Collection);
+                });
         }
     }
 

@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<ShadowKey>().Property(typeof(int), "Id").ValueGeneratedNever();
             }
 
-            protected override void Seed(PoolableDbContext context)
+            protected override Task SeedAsync(PoolableDbContext context)
             {
                 context.AddRange(
                     new IntKey { Id = 77, Foo = "Smokey" },
@@ -810,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore
                 entry.Property("Id").CurrentValue = 77;
                 entry.State = EntityState.Added;
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             }
         }
 

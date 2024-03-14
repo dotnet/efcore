@@ -563,8 +563,8 @@ public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixt
             .IsRequired(false);
     }
 
-    protected override void Seed(InheritanceRelationshipsContext context)
-        => InheritanceRelationshipsContext.Seed(context);
+    protected override Task SeedAsync(InheritanceRelationshipsContext context)
+        => InheritanceRelationshipsContext.SeedAsync(context);
 
     public override InheritanceRelationshipsContext CreateContext()
     {

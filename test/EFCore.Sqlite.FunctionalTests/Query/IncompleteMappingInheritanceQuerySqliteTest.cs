@@ -10,8 +10,7 @@ public class IncompleteMappingInheritanceQuerySqliteTest(
     ITestOutputHelper testOutputHelper)
     : TPHInheritanceQueryTestBase<IncompleteMappingInheritanceQuerySqliteFixture>(fixture, testOutputHelper)
 {
-    public override void Can_insert_update_delete()
-    {
+    public override Task Can_insert_update_delete()
         // Test from InheritanceSqliteTest causes transaction failure. We only need to test it once.
-    }
+        => Task.CompletedTask;
 }

@@ -248,7 +248,8 @@ public abstract class TestHelpers
         return entry;
     }
 
-    public virtual ModelAsserter ModelAsserter => ModelAsserter.Instance;
+    public virtual ModelAsserter ModelAsserter
+        => ModelAsserter.Instance;
 
     private static int AssertResults<T>(IList<T> expected, IList<T> actual)
     {
@@ -349,59 +350,6 @@ public abstract class TestHelpers
             "\r\n-- Missing test overrides --\r\n\r\n" + methodCalls);
     }
 
-    public static void ExecuteWithStrategyInTransaction<TContext>(
-        Func<TContext> createContext,
-        Action<DatabaseFacade, IDbContextTransaction> useTransaction,
-        Action<TContext> testOperation,
-        Action<TContext>? nestedTestOperation1 = null,
-        Action<TContext>? nestedTestOperation2 = null,
-        Action<TContext>? nestedTestOperation3 = null)
-        where TContext : DbContext
-    {
-        using var c = createContext();
-        c.Database.CreateExecutionStrategy().Execute(
-            c, context =>
-            {
-                using var transaction = context.Database.BeginTransaction();
-                using (var innerContext = createContext())
-                {
-                    useTransaction(innerContext.Database, transaction);
-                    testOperation(innerContext);
-                }
-
-                if (nestedTestOperation1 == null)
-                {
-                    return;
-                }
-
-                using (var innerContext1 = createContext())
-                {
-                    useTransaction(innerContext1.Database, transaction);
-                    nestedTestOperation1(innerContext1);
-                }
-
-                if (nestedTestOperation2 == null)
-                {
-                    return;
-                }
-
-                using (var innerContext2 = createContext())
-                {
-                    useTransaction(innerContext2.Database, transaction);
-                    nestedTestOperation2(innerContext2);
-                }
-
-                if (nestedTestOperation3 == null)
-                {
-                    return;
-                }
-
-                using var innerContext3 = createContext();
-                useTransaction(innerContext3.Database, transaction);
-                nestedTestOperation3(innerContext3);
-            });
-    }
-
     public static async Task ExecuteWithStrategyInTransactionAsync<TContext>(
         Func<TContext> createContext,
         Action<DatabaseFacade, IDbContextTransaction> useTransaction,
@@ -460,7 +408,8 @@ public abstract class TestHelpers
         ModelDependencies modelDependencies,
         ModelConfiguration? modelConfiguration,
         IModelRuntimeInitializer modelRuntimeInitializer,
-        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger) : ModelBuilder(conventions, modelDependencies, modelConfiguration)
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+        : ModelBuilder(conventions, modelDependencies, modelConfiguration)
     {
         private readonly IModelRuntimeInitializer _modelRuntimeInitializer = modelRuntimeInitializer;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model.Validation> _validationLogger = validationLogger;
@@ -472,7 +421,8 @@ public abstract class TestHelpers
             => _modelRuntimeInitializer.Initialize((IModel)Model, designTime, skipValidation ? null : _validationLogger);
     }
 
-    public class TestModelConfigurationBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider) : ModelConfigurationBuilder(conventionSet, serviceProvider)
+    public class TestModelConfigurationBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)
+        : ModelConfigurationBuilder(conventionSet, serviceProvider)
     {
         public ConventionSet ConventionSet { get; } = conventionSet;
 

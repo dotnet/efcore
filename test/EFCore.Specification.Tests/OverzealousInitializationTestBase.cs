@@ -97,7 +97,7 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         protected override string StoreName
             => "OverzealousInitialization";
 
-        protected override void Seed(AlbumViewerContext context)
+        protected override Task SeedAsync(AlbumViewerContext context)
         {
             for (var i = 1; i <= 10; i++)
             {
@@ -110,7 +110,7 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
                     });
             }
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

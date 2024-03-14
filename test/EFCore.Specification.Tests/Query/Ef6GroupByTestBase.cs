@@ -797,8 +797,20 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 });
         }
 
-        protected override void Seed(ArubaContext context)
-            => new ArubaData(context);
+        protected override Task SeedAsync(ArubaContext context)
+        {
+            var data = new ArubaData();
+            context.AddRange(data.ArubaOwners);
+            context.AddRange(data.NumbersForLinq);
+            context.AddRange(data.ProductsForLinq);
+            context.AddRange(data.CustomersForLinq);
+            context.AddRange(data.OrdersForLinq);
+            context.AddRange(data.People);
+            context.AddRange(data.Feet);
+            context.AddRange(data.Shoes);
+
+            return context.SaveChangesAsync();
+        }
 
         public virtual ISetSource GetExpectedData()
         {
@@ -986,7 +998,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         public IReadOnlyList<Feet> Feet { get; }
         public IReadOnlyList<Shoes> Shoes { get; }
 
-        public ArubaData(ArubaContext context = null)
+        public ArubaData()
         {
             ArubaOwners = CreateArubaOwners();
             NumbersForLinq = CreateNumbersForLinq();
@@ -996,19 +1008,6 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             People = CreatePeople();
             Feet = CreateFeet(People);
             Shoes = CreateShoes(People);
-
-            if (context != null)
-            {
-                context.AddRange(ArubaOwners);
-                context.AddRange(NumbersForLinq);
-                context.AddRange(ProductsForLinq);
-                context.AddRange(CustomersForLinq);
-                context.AddRange(OrdersForLinq);
-                context.AddRange(People);
-                context.AddRange(Feet);
-                context.AddRange(Shoes);
-                context.SaveChanges();
-            }
         }
 
         public IQueryable<TEntity> Set<TEntity>()

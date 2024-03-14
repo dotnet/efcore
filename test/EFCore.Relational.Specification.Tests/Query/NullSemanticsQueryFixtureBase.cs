@@ -103,8 +103,8 @@ public abstract class NullSemanticsQueryFixtureBase : SharedStoreFixtureBase<Nul
         return context;
     }
 
-    protected override void Seed(NullSemanticsContext context)
-        => NullSemanticsContext.Seed(context);
+    protected override Task SeedAsync(NullSemanticsContext context)
+        => NullSemanticsContext.SeedAsync(context);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

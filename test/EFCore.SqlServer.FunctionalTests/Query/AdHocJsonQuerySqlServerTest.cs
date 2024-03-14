@@ -14,7 +14,7 @@ public class AdHocJsonQuerySqlServerTest : AdHocJsonQueryTestBase
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    protected override void Seed29219(MyContext29219 ctx)
+    protected override async Task Seed29219(MyContext29219 ctx)
     {
         var entity1 = new MyEntity29219
         {
@@ -36,19 +36,19 @@ public class AdHocJsonQuerySqlServerTest : AdHocJsonQueryTestBase
         };
 
         ctx.Entities.AddRange(entity1, entity2);
-        ctx.SaveChanges();
+        await ctx.SaveChangesAsync();
 
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Id], [Reference], [Collection])
 VALUES(3, N'{ "NonNullableScalar" : 30 }', N'[{ "NonNullableScalar" : 10001 }]')
 """);
     }
 
-    protected override void Seed30028(MyContext30028 ctx)
+    protected override async Task Seed30028(MyContext30028 ctx)
     {
         // complete
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$$$"""
 INSERT INTO [Entities] ([Id], [Json])
 VALUES(
@@ -57,7 +57,7 @@ N'{"RootName":"e1","Collection":[{"BranchName":"e1 c1","Nested":{"LeafName":"e1 
 """);
 
         // missing collection
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$$$"""
 INSERT INTO [Entities] ([Id], [Json])
 VALUES(
@@ -66,7 +66,7 @@ N'{"RootName":"e2","OptionalReference":{"BranchName":"e2 or","Nested":{"LeafName
 """);
 
         // missing optional reference
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$$$"""
 INSERT INTO [Entities] ([Id], [Json])
 VALUES(
@@ -75,7 +75,7 @@ N'{"RootName":"e3","Collection":[{"BranchName":"e3 c1","Nested":{"LeafName":"e3 
 """);
 
         // missing required reference
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$$$"""
 INSERT INTO [Entities] ([Id], [Json])
 VALUES(
@@ -84,14 +84,14 @@ N'{"RootName":"e4","Collection":[{"BranchName":"e4 c1","Nested":{"LeafName":"e4 
 """);
     }
 
-    protected override void Seed33046(Context33046 ctx)
-        => ctx.Database.ExecuteSql(
+    protected override Task Seed33046(Context33046 ctx)
+        => ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Reviews] ([Rounds], [Id])
 VALUES(N'[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber":112}]}]', 1)
 """);
 
-    protected override void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx)
+    protected override Task SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx)
     {
         var entity1 = new MyEntityArrayOfPrimitives
         {
@@ -134,11 +134,11 @@ VALUES(N'[{"RoundNumber":11,"SubRounds":[{"SubRoundNumber":111},{"SubRoundNumber
         };
 
         ctx.Entities.AddRange(entity1, entity2);
-        ctx.SaveChanges();
+        return ctx.SaveChangesAsync();
     }
 
-    protected override void SeedJunkInJson(MyContextJunkInJson ctx)
-        => ctx.Database.ExecuteSql(
+    protected override Task SeedJunkInJson(MyContextJunkInJson ctx)
+        => ctx.Database.ExecuteSqlAsync(
             $$$$"""
 INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id])
 VALUES(
@@ -149,16 +149,16 @@ N'{"MyBool":true,"JunkCollection":[{"Foo":"junk value"}],"Name":"r1 ctor","JunkR
 1)
 """);
 
-    protected override void SeedTrickyBuffering(MyContextTrickyBuffering ctx)
-        => ctx.Database.ExecuteSql(
+    protected override Task SeedTrickyBuffering(MyContextTrickyBuffering ctx)
+        => ctx.Database.ExecuteSqlAsync(
             $$$"""
 INSERT INTO [Entities] ([Reference], [Id])
 VALUES(
 N'{"Name": "r1", "Number": 7, "JunkReference":{"Something": "SomeValue" }, "JunkCollection": [{"Foo": "junk value"}], "NestedReference": {"DoB": "2000-01-01T00:00:00"}, "NestedCollection": [{"DoB": "2000-02-01T00:00:00", "JunkReference": {"Something": "SomeValue"}}, {"DoB": "2000-02-02T00:00:00"}]}',1)
 """);
 
-    protected override void SeedShadowProperties(MyContextShadowProperties ctx)
-        => ctx.Database.ExecuteSql(
+    protected override Task SeedShadowProperties(MyContextShadowProperties ctx)
+        => ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id], [Name])
 VALUES(
@@ -170,9 +170,9 @@ N'{"ShadowInt":143,"Name":"e1_r ctor"}',
 N'e1')
 """);
 
-    protected override void SeedNotICollection(MyContextNotICollection ctx)
+    protected override async Task SeedNotICollection(MyContextNotICollection ctx)
     {
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Json], [Id])
 VALUES(
@@ -180,7 +180,7 @@ N'{"Collection":[{"Bar":11,"Foo":"c11"},{"Bar":12,"Foo":"c12"},{"Bar":13,"Foo":"
 1)
 """);
 
-        ctx.Database.ExecuteSql(
+        await ctx.Database.ExecuteSqlAsync(
             $$$"""
 INSERT INTO [Entities] ([Json], [Id])
 VALUES(
@@ -302,8 +302,8 @@ N'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
                 l => l.Message == CoreResources.LogStringEnumValueInJson(testLogger).GenerateMessage(nameof(ULongEnumLegacyValues))));
     }
 
-    private void SeedEnumLegacyValues(MyContextEnumLegacyValues ctx)
-        => ctx.Database.ExecuteSql(
+    private Task SeedEnumLegacyValues(MyContextEnumLegacyValues ctx)
+        => ctx.Database.ExecuteSqlAsync(
             $$"""
 INSERT INTO [Entities] ([Collection], [Reference], [Id], [Name])
 VALUES(

@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore;
 #nullable disable
 
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture fixture) : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>(fixture)
+public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture fixture)
+    : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>(fixture)
 {
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
@@ -172,30 +173,25 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
         Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
     }
 
-    public override void Can_read_back_mapped_enum_from_collection_first_or_default()
-    {
+    public override Task Can_read_back_mapped_enum_from_collection_first_or_default()
         // The query needs to generate TOP(1)
-    }
+        => Task.CompletedTask;
 
-    public override void Can_read_back_bool_mapped_as_int_through_navigation()
-    {
+    public override Task Can_read_back_bool_mapped_as_int_through_navigation()
         // Column is mapped as int rather than byte[]
-    }
+        => Task.CompletedTask;
 
-    public override void Object_to_string_conversion()
-    {
+    public override Task Object_to_string_conversion()
         // Return values are string which byte[] cannot read
-    }
+        => Task.CompletedTask;
 
-    public override void Can_compare_enum_to_constant()
-    {
+    public override Task Can_compare_enum_to_constant()
         // Column is mapped as int rather than byte[]
-    }
+        => Task.CompletedTask;
 
-    public override void Can_compare_enum_to_parameter()
-    {
+    public override Task Can_compare_enum_to_parameter()
         // Column is mapped as int rather than byte[]
-    }
+        => Task.CompletedTask;
 
     public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
     {

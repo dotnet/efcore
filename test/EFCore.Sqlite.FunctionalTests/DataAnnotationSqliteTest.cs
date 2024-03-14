@@ -89,9 +89,9 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
         return model;
     }
 
-    public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+    public override async Task ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
     {
-        base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
+        await base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
         AssertSql(
             """
@@ -131,9 +131,9 @@ RETURNING 1;
 """);
     }
 
-    public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
+    public override async Task DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
     {
-        base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
+        await base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
         AssertSql(
             """
@@ -152,24 +152,27 @@ RETURNING "Unique_No";
     }
 
     // Sqlite does not support length
-    public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public override Task MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
         using var context = CreateContext();
         Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
+        return Task.CompletedTask;
     }
 
     // Sqlite does not support length
-    public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    public override Task StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
     {
         using var context = CreateContext();
         Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
+        return Task.CompletedTask;
     }
 
     // Sqlite does not support rowversion. See issue #2195
-    public override void TimestampAttribute_throws_if_value_in_database_changed()
+    public override Task TimestampAttribute_throws_if_value_in_database_changed()
     {
         using var context = CreateContext();
         Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
+        return Task.CompletedTask;
     }
 
     private void AssertSql(params string[] expected)

@@ -25,7 +25,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase : AdHocNavigations
     [InlineData(false, false)]
     public virtual async Task Select_enumerable_navigation_backed_by_collection(bool async, bool split)
     {
-        var contextFactory = await InitializeAsync<Context21803>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context21803>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Set<Context21803.AppEntity>().Select(appEntity => appEntity.OtherEntities);
 
@@ -48,7 +48,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase : AdHocNavigations
     {
         public DbSet<AppEntity> Entities { get; set; }
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             var appEntity = new AppEntity();
             AddRange(
@@ -57,7 +57,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase : AdHocNavigations
                 new OtherEntity { AppEntity = appEntity },
                 new OtherEntity { AppEntity = appEntity });
 
-            SaveChanges();
+            await SaveChangesAsync();
         }
 
         public class AppEntity

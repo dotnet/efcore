@@ -101,7 +101,8 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
             => builder.HasQueryFilter(e => e.IsEnabled == Context.Field);
     }
 
-    public class PropertyConfiguration(QueryFilterFuncletizationContext context) : IEntityTypeConfiguration<EntityTypeConfigurationPropertyFilter>
+    public class PropertyConfiguration(QueryFilterFuncletizationContext context)
+        : IEntityTypeConfiguration<EntityTypeConfigurationPropertyFilter>
     {
         private readonly QueryFilterFuncletizationContext _context = context;
 
@@ -127,7 +128,7 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
 
     #endregion
 
-    public static void SeedData(QueryFilterFuncletizationContext context)
+    public static Task SeedDataAsync(QueryFilterFuncletizationContext context)
     {
         context.AddRange(
             new FieldFilter { IsEnabled = true },
@@ -195,7 +196,7 @@ public class QueryFilterFuncletizationContext(DbContextOptions options) : DbCont
             new DeDupeFilter1 { Tenant = 2 }
         );
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }
 

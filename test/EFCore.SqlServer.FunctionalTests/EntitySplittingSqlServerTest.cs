@@ -26,18 +26,15 @@ public class EntitySplittingSqlServerTest(ITestOutputHelper testOutputHelper) : 
                     });
             },
             sensitiveLogEnabled: false,
-            seed: c =>
-            {
-                c.Database.ExecuteSqlRaw(
-                    @"
+            seed: c => c.Database.ExecuteSqlRawAsync(
+                @"
 CREATE OR ALTER TRIGGER [MeterReadingsDetails_Trigger]
 ON [MeterReadingDetails]
 FOR INSERT, UPDATE, DELETE AS
 BEGIN
 	IF @@ROWCOUNT = 0
 		return
-END");
-            });
+END"));
 
         await using (var context = CreateContext())
         {

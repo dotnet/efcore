@@ -30,7 +30,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             context.Products.Add(new Context603.Product { Name = "Product 1" });
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         using (var context = contextFactory.CreateContext())
@@ -185,7 +185,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Shadow_property_with_inheritance()
     {
-        var contextFactory = await InitializeAsync<Context6986>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context6986>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -226,33 +226,31 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public DbSet<ServiceOperatorContact> ServiceOperatorContacts { get; set; }
         public DbSet<ServiceOperator> ServiceOperators { get; set; }
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             ServiceOperators.Add(new ServiceOperator());
             Employers.AddRange(
                 new Employer { Name = "UWE" },
                 new Employer { Name = "Hewlett Packard" });
 
-            SaveChanges();
+            await SaveChangesAsync();
 
             Contacts.AddRange(
                 new ServiceOperatorContact
                 {
-                    UserName = "service.operator@esoterix.co.uk",
-                    ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk", ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact
                 {
-                    UserName = "uwe@esoterix.co.uk",
-                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact
                 {
-                    UserName = "hp@esoterix.co.uk",
-                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact { UserName = "noroles@esoterix.co.uk" });
-            SaveChanges();
+
+            await SaveChangesAsync();
         }
 
         public class EmployerContact : Contact
@@ -330,7 +328,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Discriminator_type_is_handled_correctly()
     {
-        var contextFactory = await InitializeAsync<Context7359>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context7359>(seed: c => c.SeedAsync());
 
         using (var ctx = contextFactory.CreateContext())
         {
@@ -360,11 +358,11 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 .HasValue<SpecialProduct>(1);
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(new Product { Name = "Product1" });
             Add(new SpecialProduct { Name = "SpecialProduct" });
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Product
@@ -384,7 +382,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task New_instances_in_projection_are_not_shared_across_results()
     {
-        var contextFactory = await InitializeAsync<Context7983>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context7983>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var list = context.Posts.Select(p => new Context7983.PostDTO().From(p)).ToList();
 
@@ -397,7 +395,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(
                 new Blog
@@ -410,7 +408,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                     }
                 });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Blog
@@ -449,7 +447,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Enum_has_flag_applies_explicit_cast_for_constant()
     {
-        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -467,7 +465,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Enum_has_flag_does_not_apply_explicit_cast_for_non_constant()
     {
-        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context8538>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -486,7 +484,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     {
         public DbSet<Entity> Entities { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new Entity
@@ -509,7 +507,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 }
             );
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Entity
@@ -700,7 +698,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
     {
-        var contextFactory = await InitializeAsync<Context9468>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context9468>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Carts.Select(
             t => new { Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null }).ToList();
@@ -714,7 +712,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     {
         public DbSet<Cart> Carts { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new Cart(),
@@ -722,7 +720,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 new Cart { Configuration = new Configuration() }
             );
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Cart
@@ -746,7 +744,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
     {
-        var contextFactory = await InitializeAsync<Context11104>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11104>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Bases.ToList();
 
@@ -764,10 +762,10 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 .HasValue<Derived1>(false)
                 .HasValue<Derived2>(true);
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(new Derived1 { IsTwo = false });
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public abstract class Base
@@ -796,7 +794,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Average_with_cast()
     {
-        var contextFactory = await InitializeAsync<Context11885>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11885>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var prices = context.Prices.ToList();
 
@@ -826,7 +824,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                     b.Property(e => e.NullableDecimalColumn).HasPrecision(18, 2);
                 });
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new PriceEntity
@@ -868,7 +866,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 }
             );
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class PriceEntity
@@ -895,7 +893,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Parameterless_ctor_on_inner_DTO_gets_called_for_every_row()
     {
-        var contextFactory = await InitializeAsync<Context12274>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context12274>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var results = context.Entities.Select(
             x =>
@@ -915,7 +913,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     {
         public DbSet<MyEntity> Entities { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var e1 = new MyEntity { Name = "1" };
             var e2 = new MyEntity { Name = "2" };
@@ -923,7 +921,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             var e4 = new MyEntity { Name = "4" };
 
             Entities.AddRange(e1, e2, e3, e4);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class MyEntity
@@ -971,7 +969,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 new Context12549.Table2(),
                 new Context12549.Table1(),
                 new Context12549.Table2());
-            context.SaveChanges();
+
+            await context.SaveChangesAsync();
         }
     }
 
@@ -998,7 +997,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Repeated_parameters_in_generated_query_sql()
     {
-        var contextFactory = await InitializeAsync<Context15215>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context15215>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var k = 1;
         var a = context.Autos.Where(e => e.Id == k).First();
@@ -1017,20 +1016,20 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public DbSet<Auto> Autos { get; set; }
         public DbSet<EqualAuto> EqualAutos { get; set; }
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             for (var i = 0; i < 10; i++)
             {
                 Add(new Auto { Name = "Auto " + i });
             }
 
-            SaveChanges();
+            await SaveChangesAsync();
 
             AddRange(
-                new EqualAuto { Auto = Autos.Find(1), AnotherAuto = Autos.Find(2) },
-                new EqualAuto { Auto = Autos.Find(5), AnotherAuto = Autos.Find(4) });
+                new EqualAuto { Auto = await Autos.FindAsync(1), AnotherAuto = await Autos.FindAsync(2) },
+                new EqualAuto { Auto = await Autos.FindAsync(5), AnotherAuto = await Autos.FindAsync(4) });
 
-            SaveChanges();
+            await SaveChangesAsync();
         }
 
         public class Auto
@@ -1054,7 +1053,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Operators_combine_nullability_of_entity_shapers()
     {
-        var contextFactory = await InitializeAsync<Context19253>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context19253>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -1077,11 +1076,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B>
-                            {
-                                Left = y,
-                                Right = x.right
-                            })
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
 
@@ -1109,11 +1104,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B>
-                            {
-                                Left = y,
-                                Right = x.right
-                            })
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right })
                         .Where(z => z.Left.Equals(null)))
                 .ToList();
 
@@ -1141,11 +1132,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B>
-                            {
-                                Left = y,
-                                Right = x.right
-                            }))
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right }))
                 .ToList();
 
             Assert.Single(query);
@@ -1172,11 +1159,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                             (right, leftg) => new { leftg, right })
                         .SelectMany(
                             l => l.leftg.DefaultIfEmpty(),
-                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B>
-                            {
-                                Left = y,
-                                Right = x.right
-                            }))
+                            (x, y) => new Context19253.JoinResult<Context19253.A, Context19253.B> { Left = y, Right = x.right }))
                 .ToList();
 
             Assert.Single(query);
@@ -1188,7 +1171,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public DbSet<A> As { get; set; }
         public DbSet<B> Bs { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var tmp_a = new[]
             {
@@ -1222,7 +1205,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             };
             As.AddRange(tmp_a);
             Bs.AddRange(tmp_b);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class JoinResult<TLeft, TRight>
@@ -1454,7 +1437,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Bool_discriminator_column_works(bool async)
     {
-        var contextFactory = await InitializeAsync<Context24657>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context24657>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context.Authors.Include(e => e.Blog);
@@ -1476,12 +1459,12 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 .HasValue<DevBlog>(false)
                 .HasValue<PhotoBlog>(true);
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(new Author { Blog = new DevBlog { Title = "Dev Blog", } });
             Add(new Author { Blog = new PhotoBlog { Title = "Photo Blog", } });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Author
@@ -1524,7 +1507,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var currentUserId = 1;
@@ -1549,7 +1532,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var currentUserId = 1;
@@ -1574,7 +1557,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context26593>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var currentUserId = 1;
@@ -1601,14 +1584,14 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public DbSet<Group> Groups { get; set; }
         public DbSet<Membership> Memberships { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var user = new User();
             var group = new Group();
             var membership = new Membership { Group = group, User = user };
             AddRange(user, group, membership);
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class User
@@ -1747,7 +1730,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context
@@ -1773,7 +1756,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         Expression<Func<Context27083.Order, bool>> someFilterFromOutside = x => x.Number != "A1";
@@ -1786,7 +1769,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 x => new
                 {
                     x.Key.CustomerId,
-                    CustomerMinHourlyRate = context.Set<Context27083.Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
+                    CustomerMinHourlyRate =
+                        context.Set<Context27083.Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
                     HourlyRate = x.Min(f => f.HourlyRate),
                     Count = x.Count()
                 });
@@ -1818,7 +1802,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         public DbSet<TimeSheet> TimeSheets { get; set; }
         public DbSet<Customer> Customers { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var customerA = new Customer { Name = "Customer A" };
             var customerB = new Customer { Name = "Customer B" };
@@ -1852,7 +1836,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             AddRange(projectA, projectB);
             AddRange(orderA1, orderA2, orderB1);
             AddRange(timeSheetA, timeSheetB);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Customer
@@ -1965,7 +1949,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Subquery_first_member_compared_to_null(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context.Parents
@@ -1991,7 +1975,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task SelectMany_where_Select(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context.Parents
@@ -2014,16 +1998,13 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     {
         public DbSet<Parent> Parents { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(
-                new Parent
-                {
-                    Children = [new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }]
-                });
+                new Parent { Children = [new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }] });
 
             Add(new Parent { Children = [new() { SomeInteger = 1, }] });
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Parent
@@ -2050,7 +2031,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Flattened_GroupJoin_on_interface_generic(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27343>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context27343>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var entitySet = context.Parents.AsQueryable<Context27343.IDocumentType>();
         var query = from p in entitySet
@@ -2070,8 +2051,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     {
         public DbSet<Parent> Parents { get; set; }
 
-        public void Seed()
-            => SaveChanges();
+        public Task SeedAsync()
+            => SaveChangesAsync();
 
         public interface IDocumentType
         {
@@ -2168,24 +2149,26 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         using var context = contextFactory.CreateContext();
 
         var query = await context.Customers
-            .Select(m => new Context31961.CustomerDto()
-            {
-                Id = m.Id,
-                CompanyId = m.CompanyId,
-                Company = m.Company != null ? new Context31961.CompanyDto()
+            .Select(
+                m => new Context31961.CustomerDto()
                 {
-                    Id = m.Company.Id,
-                    CompanyName = m.Company.CompanyName,
-                    CountryId = m.Company.CountryId,
-                    Country = new Context31961.CountryDto()
-                    {
-                        Id = m.Company.Country.Id,
-                        CountryName = m.Company.Country.CountryName,
-                    },
-                } : null,
-            })
-        .Where(m => m.Company.Country.CountryName == "COUNTRY")
-        .ToListAsync();
+                    Id = m.Id,
+                    CompanyId = m.CompanyId,
+                    Company = m.Company != null
+                        ? new Context31961.CompanyDto()
+                        {
+                            Id = m.Company.Id,
+                            CompanyName = m.Company.CompanyName,
+                            CountryId = m.Company.CountryId,
+                            Country = new Context31961.CountryDto()
+                            {
+                                Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
+                            },
+                        }
+                        : null,
+                })
+            .Where(m => m.Company.Country.CountryName == "COUNTRY")
+            .ToListAsync();
     }
 
     private class Context31961(DbContextOptions options) : DbContext(options)

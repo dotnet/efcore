@@ -259,7 +259,7 @@ public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
                 .Property(e => e.Id).ValueGeneratedNever();
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Add(
                 new WithStringKey { Id = "Stereo" });
@@ -340,7 +340,7 @@ public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
             context.Add(
                 new WithAllNullableIntFk { Id = 6 });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

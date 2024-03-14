@@ -11,6 +11,9 @@ public class MaterializationInterceptionCosmosTest :
     public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Task.CompletedTask;
 
+    public override Task Intercept_query_materialization_with_owned_types(bool async, bool usePooling)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, a => base.Intercept_query_materialization_with_owned_types(a, usePooling));
+
     public class CosmosLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)

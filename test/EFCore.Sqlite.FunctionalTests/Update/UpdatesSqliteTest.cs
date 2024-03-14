@@ -7,12 +7,12 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public class UpdatesSqliteTest(UpdatesSqliteTest.UpdatesSqliteFixture fixture) : UpdatesRelationalTestBase<UpdatesSqliteTest.UpdatesSqliteFixture>(fixture)
+public class UpdatesSqliteTest(UpdatesSqliteTest.UpdatesSqliteFixture fixture)
+    : UpdatesRelationalTestBase<UpdatesSqliteTest.UpdatesSqliteFixture>(fixture)
 {
-    public override void Save_with_shared_foreign_key()
-    {
+    public override Task Save_with_shared_foreign_key()
         // Store-generated guids are not supported
-    }
+        => Task.CompletedTask;
 
     public override void Identifiers_are_generated_correctly()
     {

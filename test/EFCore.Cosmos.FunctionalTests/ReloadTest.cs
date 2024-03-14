@@ -11,11 +11,10 @@ public class ReloadTest
 {
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public async Task Entity_reference_can_be_reloaded(bool async)
+    [ConditionalFact]
+    public async Task Entity_reference_can_be_reloaded()
     {
-        await using var testDatabase = CosmosTestStore.CreateInitialized("ReloadTest");
+        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("ReloadTest");
 
         using var context = new ReloadTestContext(testDatabase);
         await context.Database.EnsureCreatedAsync();
@@ -27,14 +26,7 @@ public class ReloadTest
         var itemJson = entry.Property<JObject>("__jObject").CurrentValue;
         itemJson["unmapped"] = 2;
 
-        if (async)
-        {
-            await entry.ReloadAsync();
-        }
-        else
-        {
-            entry.Reload();
-        }
+        await entry.ReloadAsync();
 
         itemJson = entry.Property<JObject>("__jObject").CurrentValue;
         Assert.Null(itemJson["unmapped"]);
