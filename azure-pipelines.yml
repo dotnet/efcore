@@ -52,7 +52,7 @@ extends:
     sdl:
       sourceAnalysisPool:
         name: $(DncEngInternalBuildPool)
-        image: 1es-windows-2022-pt
+        image: 1es-windows-2022
         os: windows
     customBuildTags:
     - ES365AIMigrationTooling
@@ -75,7 +75,7 @@ extends:
           - job: Windows
             pool:
               name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-windows-2022-pt
+              demands: ImageOverride -equals 1es-windows-2022
               os: windows
             timeoutInMinutes: 180
             variables:
@@ -158,7 +158,7 @@ extends:
             timeoutInMinutes: 120
             pool:
               name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-ubuntu-2204-pt
+              demands: ImageOverride -equals 1es-ubuntu-2204
               os: linux
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
@@ -200,7 +200,7 @@ extends:
             timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
-              demands: ImageOverride -equals 1es-windows-2022-pt
+              demands: ImageOverride -equals 1es-windows-2022
               os: windows
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
