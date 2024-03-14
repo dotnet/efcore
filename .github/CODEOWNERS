@@ -2,6 +2,7 @@
 # See https://help.github.com/articles/about-code-owners/
 
 /azure-pipelines.yml                    @AndriySvyryd @maumar
+/azure-pipelines-public.yml             @AndriySvyryd @maumar
 /eng/                                   @AndriySvyryd @maumar
 /eng/common/                            @dotnet-maestro-bot @AndriySvyryd @maumar
 /eng/Versions.props                     @dotnet-maestro-bot @AndriySvyryd @maumar
