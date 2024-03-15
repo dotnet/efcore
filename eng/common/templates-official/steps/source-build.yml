@@ -23,7 +23,7 @@ steps:
     # In addition, add an msbuild argument to copy the WIP from the repo to the target build location.
     # This is because SetupNuGetSources.sh will alter the current NuGet.config file, and we need to preserve those
     # changes.
-    $internalRestoreArgs=
+    internalRestoreArgs=
     if [ '$(dn-bot-dnceng-artifact-feeds-rw)' != '$''(dn-bot-dnceng-artifact-feeds-rw)' ]; then
       # Temporarily work around https://github.com/dotnet/arcade/issues/7709
       chmod +x $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
@@ -68,9 +68,19 @@ steps:
       runtimeOsArgs='/p:RuntimeOS=${{ parameters.platform.runtimeOS }}'
     fi
 
+    baseOsArgs=
+    if [ '${{ parameters.platform.baseOS }}' != '' ]; then
+      baseOsArgs='/p:BaseOS=${{ parameters.platform.baseOS }}'
+    fi
+
     publishArgs=
     if [ '${{ parameters.platform.skipPublishValidation }}' != 'true' ]; then
       publishArgs='--publish'
+    fi
+
+    assetManifestFileName=SourceBuild_RidSpecific.xml
+    if [ '${{ parameters.platform.name }}' != '' ]; then
+      assetManifestFileName=SourceBuild_${{ parameters.platform.name }}.xml
     fi
 
     ${{ coalesce(parameters.platform.buildScript, './build.sh') }} --ci \
@@ -81,8 +91,10 @@ steps:
       $internalRestoreArgs \
       $targetRidArgs \
       $runtimeOsArgs \
+      $baseOsArgs \
       /p:SourceBuildNonPortable=${{ parameters.platform.nonPortable }} \
-      /p:ArcadeBuildFromSource=true
+      /p:ArcadeBuildFromSource=true \
+      /p:AssetManifestFileName=$assetManifestFileName
   displayName: Build
 
 # Upload build logs for diagnosis.
@@ -106,3 +118,12 @@ steps:
     artifactName: BuildLogs_SourceBuild_${{ parameters.platform.name }}_Attempt$(System.JobAttempt)
   continueOnError: true
   condition: succeededOrFailed()
+
+# Manually inject component detection so that we can ignore the source build upstream cache, which contains
+# a nupkg cache of input packages (a local feed).
+# This path must match the upstream cache path in property 'CurrentRepoSourceBuiltNupkgCacheDir'
+# in src\Microsoft.DotNet.Arcade.Sdk\tools\SourceBuild\SourceBuildArcade.targets
+- task: ComponentGovernanceComponentDetection@0
+  displayName: Component Detection (Exclude upstream cache)
+  inputs:
+    ignoreDirectories: '$(Build.SourcesDirectory)/artifacts/source-build/self/src/artifacts/obj/source-built-upstream-cache'
