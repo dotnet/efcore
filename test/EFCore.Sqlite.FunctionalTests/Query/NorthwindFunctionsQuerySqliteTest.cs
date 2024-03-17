@@ -275,7 +275,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln(CAST("o"."Discount" AS
             """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
-WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discount" AS REAL)) < 0.0
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discount" AS REAL)) < -1.0
 """);
     }
 
@@ -572,7 +572,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln("o"."Discount") < 0
             """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
-WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < 0
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < -1
 """);
     }
 

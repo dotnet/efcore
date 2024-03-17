@@ -1220,7 +1220,7 @@ WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o
             """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < 0.0E0
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < -1.0E0
 """);
     }
 
@@ -1598,7 +1598,7 @@ WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Di
             """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real)
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(-1 AS real)
 """);
     }
 
