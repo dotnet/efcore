@@ -36,4 +36,10 @@
   <data name="InterpolatedStringUsageInRawQueriesMessageFormat" xml:space="preserve">
     <value>Method '{0}' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using '{1}' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning.</value>
   </data>
+  <data name="DynamicQueryTitle" xml:space="preserve">
+    <value>Unsupported dynamic EF Core query.</value>
+  </data>
+  <data name="DynamicQueryMessageFormat" xml:space="preserve">
+    <value>This call to '{0}' represents a dynamic queryable LINQ query which cannot be precompiled by EF.</value>
+  </data>
 </root>

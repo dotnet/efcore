@@ -113,5 +113,23 @@ namespace Microsoft.EntityFrameworkCore {
                 return ResourceManager.GetString("UninitializedDbSetWarningSuppressionJustification", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Unsupported dynamic EF Core query.
+        /// </summary>
+        public static string DynamicQueryTitle {
+            get {
+                return ResourceManager.GetString("DynamicQueryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   This call to '{0}' represents a dynamic queryable LINQ query which cannot be precompiled by EF.
+        /// </summary>
+        public static string DynamicQueryMessageFormat {
+            get {
+                return ResourceManager.GetString("DynamicQueryMessageFormat", resourceCulture);
+            }
+        }
     }
 }

@@ -2713,6 +2713,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string RuntimeParameterMissingParameter
             => GetString("RuntimeParameterMissingParameter");
 
+
+        /// <summary>
+        ///     This LINQ query was not precompiled, likely because it is dynamic, and runtime query compilation has been disabled.
+        /// </summary>
+        public static string RuntimeQueryCompilationDisabled
+            => GetString("RuntimeQueryCompilationDisabled");
+
         /// <summary>
         ///     The same parameter instance with name '{parameterName}' was used in multiple lambdas in the query tree. Each lambda must have its own parameter instances.
         /// </summary>

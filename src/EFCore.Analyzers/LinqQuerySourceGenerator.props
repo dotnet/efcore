@@ -1,0 +1,5 @@
+<Project>
+    <ItemGroup>
+        <CompilerVisibleProperty Include="EFNukeDynamic" />
+    </ItemGroup>
+</Project>

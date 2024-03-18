@@ -34,6 +34,10 @@
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="LinqQuerySourceGenerator.props" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
   <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="Build">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg. -->

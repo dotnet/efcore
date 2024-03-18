@@ -38,8 +38,10 @@
  <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Analyzers\EFCore.Analyzers.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
     <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
   </ItemGroup>
 
