@@ -48,8 +48,7 @@ function AddPackageSource($sources, $SourceName, $SourceEndPoint, $creds, $Usern
     else {
         Write-Host "Package source $SourceName already present."
     }
-    
-    AddCredential -Creds $creds -Source $SourceName -Username $Username -Password $pwd
+    AddCredential -Creds $creds -Source $SourceName -Username $Username -pwd $pwd
 }
 
 # Add a credential node for the specified source
@@ -82,6 +81,7 @@ function AddCredential($creds, $source, $username, $pwd) {
         $passwordElement.SetAttribute("key", "ClearTextPassword")
         $sourceElement.AppendChild($passwordElement) | Out-Null
     }
+    
     $passwordElement.SetAttribute("value", $pwd)
 }
 
@@ -159,8 +159,8 @@ foreach ($dotnetVersion in $dotnetVersions) {
     $feedPrefix = "dotnet" + $dotnetVersion;
     $dotnetSource = $sources.SelectSingleNode("add[@key='$feedPrefix']")
     if ($dotnetSource -ne $null) {
-        AddPackageSource -Sources $sources -SourceName "$feedPrefix-internal" -SourceEndPoint "https://pkgs.dev.azure.com/dnceng/internal/_packaging/$feedPrefix-internal/nuget/v2" -Creds $creds -Username $userName -Password $Password
-        AddPackageSource -Sources $sources -SourceName "$feedPrefix-internal-transport" -SourceEndPoint "https://pkgs.dev.azure.com/dnceng/internal/_packaging/$feedPrefix-internal-transport/nuget/v2" -Creds $creds -Username $userName -Password $Password
+        AddPackageSource -Sources $sources -SourceName "$feedPrefix-internal" -SourceEndPoint "https://pkgs.dev.azure.com/dnceng/internal/_packaging/$feedPrefix-internal/nuget/v2" -Creds $creds -Username $userName -pwd $Password
+        AddPackageSource -Sources $sources -SourceName "$feedPrefix-internal-transport" -SourceEndPoint "https://pkgs.dev.azure.com/dnceng/internal/_packaging/$feedPrefix-internal-transport/nuget/v2" -Creds $creds -Username $userName -pwd $Password
     }
 }
 
