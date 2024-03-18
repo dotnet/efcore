@@ -955,7 +955,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Where_math_log_new_base(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount, 7) < 0));
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount, 7) < -1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1190,7 +1190,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Where_mathf_log_new_base(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log(od.Discount, 7) < 0));
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log(od.Discount, 7) < -1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

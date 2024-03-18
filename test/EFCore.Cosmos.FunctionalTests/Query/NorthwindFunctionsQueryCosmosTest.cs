@@ -763,7 +763,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c[
             """
 SELECT c
 FROM root c
-WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG(c["Discount"], 7.0) < 0.0))
+WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG(c["Discount"], 7.0) < -1.0))
 """);
     }
 
