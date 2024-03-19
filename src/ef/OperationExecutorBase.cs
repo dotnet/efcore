@@ -140,14 +140,15 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     public IEnumerable<IDictionary> GetContextTypes()
         => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
-    public IEnumerable<string> OptimizeContext(string? outputDir, string? modelNamespace, string? contextType)
+    public IEnumerable<string> OptimizeContext(string? outputDir, string? modelNamespace, string? contextType, string? suffix)
         => InvokeOperation<IEnumerable<string>>(
             "OptimizeContext",
             new Dictionary<string, object?>
             {
                 ["outputDir"] = outputDir,
                 ["modelNamespace"] = modelNamespace,
-                ["contextType"] = contextType
+                ["contextType"] = contextType,
+                ["suffix"] = suffix
             });
 
     public IDictionary ScaffoldContext(

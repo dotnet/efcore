@@ -76,6 +76,7 @@
     <ItemGroup>
       <NuspecProperty Include="AssemblyName=$(AssemblyName)" />
       <NuspecProperty Include="OutputPath=$(OutputPath)" />
+      <NuspecProperty Include="ArtifactsBinDir=$(ArtifactsBinDir)" />
       <NuspecProperty Include="DefaultNetCoreTargetFramework=$(DefaultNetCoreTargetFramework)" />
       <NuspecProperty Include="Configuration=$(Configuration)" />
     </ItemGroup>
