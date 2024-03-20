@@ -575,14 +575,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             _ => expression
         };
 
-    private sealed class FakeMemberInfo : MemberInfo
+    private sealed class FakeMemberInfo(string name) : MemberInfo
     {
-        public FakeMemberInfo(string name)
-        {
-            Name = name;
-        }
-
-        public override string Name { get; }
+        public override string Name { get; } = name;
 
         public override object[] GetCustomAttributes(bool inherit)
             => throw new NotSupportedException();

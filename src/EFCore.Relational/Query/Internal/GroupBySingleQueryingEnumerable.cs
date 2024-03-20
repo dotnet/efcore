@@ -22,7 +22,7 @@ public static class GroupBySingleQueryingEnumerable
     /// </summary>
     public static GroupBySingleQueryingEnumerable<TKey, TElement> Create<TKey, TElement>(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, TKey> keySelector,
         Func<QueryContext, DbDataReader, object[]> keyIdentifier,
@@ -34,7 +34,7 @@ public static class GroupBySingleQueryingEnumerable
         bool threadSafetyChecksEnabled)
         => new(
             relationalQueryContext,
-            relationalCommandCache,
+            relationalCommandResolver,
             readerColumns,
             keySelector,
             keyIdentifier,
@@ -56,7 +56,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     : IEnumerable<IGrouping<TKey, TElement>>, IAsyncEnumerable<IGrouping<TKey, TElement>>, IRelationalQueryingEnumerable
 {
     private readonly RelationalQueryContext _relationalQueryContext;
-    private readonly RelationalCommandCache _relationalCommandCache;
+    private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
     private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
@@ -76,7 +76,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     /// </summary>
     public GroupBySingleQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, TKey> keySelector,
         Func<QueryContext, DbDataReader, object[]> keyIdentifier,
@@ -88,7 +88,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         bool threadSafetyChecksEnabled)
     {
         _relationalQueryContext = relationalQueryContext;
-        _relationalCommandCache = relationalCommandCache;
+        _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
         _keySelector = keySelector;
         _keyIdentifier = keyIdentifier;
@@ -139,8 +139,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbCommand CreateDbCommand()
-        => _relationalCommandCache
-            .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
+        => _relationalCommandResolver(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
                 new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
@@ -196,7 +195,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     private sealed class Enumerator : IEnumerator<IGrouping<TKey, TElement>>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
         private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
@@ -217,7 +216,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         public Enumerator(GroupBySingleQueryingEnumerable<TKey, TElement> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _keySelector = queryingEnumerable._keySelector;
             _keyIdentifier = queryingEnumerable._keyIdentifier;
@@ -342,7 +341,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
             EntityFrameworkEventSource.Log.QueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
                 new RelationalCommandParameterObject(
@@ -380,7 +379,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     private sealed class AsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
         private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
@@ -402,7 +401,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         public AsyncEnumerator(GroupBySingleQueryingEnumerable<TKey, TElement> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _keySelector = queryingEnumerable._keySelector;
             _keyIdentifier = queryingEnumerable._keyIdentifier;
@@ -529,7 +528,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
             EntityFrameworkEventSource.Log.QueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(

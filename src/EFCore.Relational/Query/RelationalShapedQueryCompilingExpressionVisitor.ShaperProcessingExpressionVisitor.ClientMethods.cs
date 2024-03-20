@@ -412,7 +412,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
-            RelationalCommandCache relationalCommandCache,
+            RelationalCommandResolver relationalCommandResolver,
             IReadOnlyList<ReaderColumn?>? readerColumns,
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
@@ -431,18 +431,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 // Execute and fetch data reader
                 var dataReader = executionStrategy.Execute(
-                    (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
-                    ((RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup)
+                    (queryContext, relationalCommandResolver, readerColumns, detailedErrorsEnabled),
+                    ((RelationalQueryContext, RelationalCommandResolver, IReadOnlyList<ReaderColumn?>?, bool) tup)
                         => InitializeReader(tup.Item1, tup.Item2, tup.Item3, tup.Item4),
                     verifySucceeded: null);
 
                 static RelationalDataReader InitializeReader(
                     RelationalQueryContext queryContext,
-                    RelationalCommandCache relationalCommandCache,
+                    RelationalCommandResolver relationalCommandResolver,
                     IReadOnlyList<ReaderColumn?>? readerColumns,
                     bool detailedErrorsEnabled)
                 {
-                    var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
+                    var relationalCommand = relationalCommandResolver.RentAndPopulateRelationalCommand(queryContext);
 
                     return relationalCommand.ExecuteReader(
                         new RelationalCommandParameterObject(
@@ -503,7 +503,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
-            RelationalCommandCache relationalCommandCache,
+            RelationalCommandResolver relationalCommandResolver,
             IReadOnlyList<ReaderColumn?>? readerColumns,
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
@@ -522,9 +522,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 // Execute and fetch data reader
                 var dataReader = await executionStrategy.ExecuteAsync(
-                        (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
+                        (queryContext, relationalCommandResolver, readerColumns, detailedErrorsEnabled),
                         (
-                                (RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup,
+                                (RelationalQueryContext, RelationalCommandResolver, IReadOnlyList<ReaderColumn?>?, bool) tup,
                                 CancellationToken cancellationToken)
                             => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, tup.Item4, cancellationToken),
                         verifySucceeded: null,
@@ -533,12 +533,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 static async Task<RelationalDataReader> InitializeReaderAsync(
                     RelationalQueryContext queryContext,
-                    RelationalCommandCache relationalCommandCache,
+                    RelationalCommandResolver relationalCommandResolver,
                     IReadOnlyList<ReaderColumn?>? readerColumns,
                     bool detailedErrorsEnabled,
                     CancellationToken cancellationToken)
                 {
-                    var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
+                    var relationalCommand = relationalCommandResolver.RentAndPopulateRelationalCommand(queryContext);
 
                     return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
@@ -780,7 +780,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
-            RelationalCommandCache relationalCommandCache,
+            RelationalCommandResolver relationalCommandResolver,
             IReadOnlyList<ReaderColumn?>? readerColumns,
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
@@ -796,18 +796,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 // Execute and fetch data reader
                 var dataReader = executionStrategy.Execute(
-                    (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
-                    ((RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup)
+                    (queryContext, relationalCommandResolver, readerColumns, detailedErrorsEnabled),
+                    ((RelationalQueryContext, RelationalCommandResolver, IReadOnlyList<ReaderColumn?>?, bool) tup)
                         => InitializeReader(tup.Item1, tup.Item2, tup.Item3, tup.Item4),
                     verifySucceeded: null);
 
                 static RelationalDataReader InitializeReader(
                     RelationalQueryContext queryContext,
-                    RelationalCommandCache relationalCommandCache,
+                    RelationalCommandResolver relationalCommandResolver,
                     IReadOnlyList<ReaderColumn?>? readerColumns,
                     bool detailedErrorsEnabled)
                 {
-                    var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
+                    var relationalCommand = relationalCommandResolver.RentAndPopulateRelationalCommand(queryContext);
 
                     return relationalCommand.ExecuteReader(
                         new RelationalCommandParameterObject(
@@ -866,7 +866,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
-            RelationalCommandCache relationalCommandCache,
+            RelationalCommandResolver relationalCommandResolver,
             IReadOnlyList<ReaderColumn?>? readerColumns,
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
@@ -882,9 +882,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 // Execute and fetch data reader
                 var dataReader = await executionStrategy.ExecuteAsync(
-                        (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
+                        (queryContext, relationalCommandResolver, readerColumns, detailedErrorsEnabled),
                         (
-                                (RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup,
+                                (RelationalQueryContext, RelationalCommandResolver, IReadOnlyList<ReaderColumn?>?, bool) tup,
                                 CancellationToken cancellationToken)
                             => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, tup.Item4, cancellationToken),
                         verifySucceeded: null,
@@ -893,12 +893,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 static async Task<RelationalDataReader> InitializeReaderAsync(
                     RelationalQueryContext queryContext,
-                    RelationalCommandCache relationalCommandCache,
+                    RelationalCommandResolver relationalCommandResolver,
                     IReadOnlyList<ReaderColumn?>? readerColumns,
                     bool detailedErrorsEnabled,
                     CancellationToken cancellationToken)
                 {
-                    var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
+                    var relationalCommand = relationalCommandResolver.RentAndPopulateRelationalCommand(queryContext);
 
                     return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(

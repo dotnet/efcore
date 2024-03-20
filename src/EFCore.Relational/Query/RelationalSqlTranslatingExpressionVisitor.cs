@@ -1083,9 +1083,24 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
-        => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
-            ? new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, null)
-            : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+    {
+        if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+        {
+            // If we're precompiling a query, nullability information about reference type parameters has been extracted by the
+            // funcletizer and stored on the query compilation context; use that information when creating the SqlParameterExpression.
+            if (_queryCompilationContext.NonNullableReferenceTypeParameters.Contains(parameterExpression.Name))
+            {
+                Check.DebugAssert(
+                    _queryCompilationContext.IsPrecompiling,
+                    "Parameters can only be known to has non-nullable reference types in query precompilation.");
+                return new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, typeMapping: null, nullable: false);
+            }
+
+            return new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, typeMapping: null);
+        }
+
+        throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+    }
 
     /// <inheritdoc />
     protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)

@@ -74,7 +74,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     A cache of tree fragments that have already been parameterized, along with their parameter. This allows us to reuse the same
     ///     query parameter twice when the same captured variable is referenced in the query.
     /// </summary>
-    private readonly Dictionary<Expression, ParameterExpression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
+    private readonly Dictionary<Expression, Expression> _parameterizedValues = new(ExpressionEqualityComparer.Instance);
 
     /// <summary>
     ///     Used only when evaluating arbitrary QueryRootExpressions (specifically SqlQueryRootExpression), to force any evaluatable nested
@@ -91,10 +91,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private IQueryProvider? _currentQueryProvider;
     private State _state;
     private IParameterValues _parameterValues = null!;
+    private HashSet<string>? _nonNullableReferenceTypeParameters;
 
     private readonly IModel _model;
     private readonly ContextParameterReplacer _contextParameterReplacer;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+
+    private static readonly IReadOnlySet<string> EmptyStringSet = new HashSet<string>();
 
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
@@ -137,8 +140,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     }
 
     /// <summary>
-    /// Processes an expression tree, extracting parameters and evaluating evaluatable fragments as part of the pass.
-    /// Used for regular query execution (neither compiled nor pre-compiled).
+    ///     Processes an expression tree, extracting parameters and evaluating evaluatable fragments as part of the pass.
+    ///     Used for regular query execution (neither compiled nor pre-compiled).
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,15 +152,42 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     public virtual Expression ExtractParameters(
         Expression expression,
         IParameterValues parameterValues,
-        bool precompiledQuery,
         bool parameterize,
         bool clearParameterizedValues)
     {
+        var result = ExtractParameters(
+            expression, parameterValues, parameterize, clearParameterizedValues, precompiledQuery: false,
+            out var nonNullableReferenceTypeParameters);
+        Check.DebugAssert(
+            nonNullableReferenceTypeParameters.Count == 0,
+            "Non-nullable reference type parameters can only be detected when precompiling.");
+        return result;
+    }
+
+    /// <summary>
+    ///     Processes an expression tree, extracting parameters and evaluating evaluatable fragments as part of the pass.
+    ///     Used for regular query execution (neither compiled nor pre-compiled).
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual Expression ExtractParameters(
+        Expression expression,
+        IParameterValues parameterValues,
+        bool parameterize,
+        bool clearParameterizedValues,
+        bool precompiledQuery,
+        out IReadOnlySet<string> nonNullableReferenceTypeParameters)
+    {
         Reset(clearParameterizedValues);
         _parameterValues = parameterValues;
-        _precompiledQuery = precompiledQuery;
         _parameterize = parameterize;
         _calculatingPath = false;
+        _precompiledQuery = precompiledQuery;
 
         var root = Visit(expression, out var state);
 
@@ -168,6 +198,8 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         {
             root = ProcessEvaluatableRoot(root, ref state);
         }
+
+        nonNullableReferenceTypeParameters = _nonNullableReferenceTypeParameters ?? EmptyStringSet;
 
         return root;
     }
@@ -1874,6 +1906,18 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
             // Regular parameter extraction mode; client-evaluate the subtree and replace it with a query parameter.
             state = State.NoEvaluatability;
+
+            // TODO: #33508
+            // TODO: This currently only knows about the NRT status of a directly captured variable, but not the NRT status of any
+            // TODO: larger expression composed on top of a captured variable (e.g. Where(b => b.Name == foo + "Bla"))
+            // TODO: This would require bubbling nullability information up the tree via State.
+            if (_precompiledQuery
+                && !evaluatableRoot.Type.IsValueType
+                && evaluatableRoot is MemberExpression { Member: IParameterNullabilityInfo { IsNonNullableReferenceType: true } })
+            {
+                _nonNullableReferenceTypeParameters ??= [];
+                _nonNullableReferenceTypeParameters.Add(parameterName);
+            }
 
             _parameterValues.AddParameter(parameterName, value);
 

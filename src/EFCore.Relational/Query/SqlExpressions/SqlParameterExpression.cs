@@ -21,8 +21,15 @@ public sealed class SqlParameterExpression : SqlExpression
     {
     }
 
-    private SqlParameterExpression(string name, Type type, bool nullable, RelationalTypeMapping? typeMapping)
-        : base(type, typeMapping)
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SqlParameterExpression" /> class.
+    /// </summary>
+    /// <param name="name">The parameter name.</param>
+    /// <param name="type">The <see cref="Type" /> of the expression.</param>
+    /// <param name="nullable">Whether this parameter can have null values.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    public SqlParameterExpression(string name, Type type, bool nullable, RelationalTypeMapping? typeMapping)
+        : base(type.UnwrapNullableType(), typeMapping)
     {
         Name = name;
         IsNullable = nullable;

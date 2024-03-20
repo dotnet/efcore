@@ -574,8 +574,11 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_RelationalDependencies"),
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_RelationalDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_CommandBuilderDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_CommandBuilderDependencies"),
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
             typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalCommandBuilderDependencies).MakeByRefType()]),
 #pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         ];
 

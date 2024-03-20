@@ -105,7 +105,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly bool _isAsync;
         private readonly bool _splitQuery;
         private readonly bool _detailedErrorsEnabled;
-        private readonly bool _generateCommandCache;
+        private readonly bool _generateCommandResolver;
         private readonly ParameterExpression _resultCoordinatorParameter;
         private readonly ParameterExpression? _executionStrategyParameter;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -210,7 +210,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _readerColumns = new ReaderColumn?[_selectExpression.Projection.Count];
             }
 
-            _generateCommandCache = true;
+            _generateCommandResolver = true;
             _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
@@ -236,7 +236,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _dataReaderParameter = dataReaderParameter;
             _resultContextParameter = resultContextParameter;
             _readerColumns = readerColumns;
-            _generateCommandCache = false;
+            _generateCommandResolver = false;
             _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
@@ -265,7 +265,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _readerColumns = new ReaderColumn[_selectExpression.Projection.Count];
             }
 
-            _generateCommandCache = true;
+            _generateCommandResolver = true;
             _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
             _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
@@ -282,7 +282,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         /// </summary>
         public LambdaExpression ProcessRelationalGroupingResult(
             RelationalGroupByResultExpression relationalGroupByResultExpression,
-            out Expression relationalCommandCache,
+            out Expression relationalCommandResolver,
             out IReadOnlyList<ReaderColumn?>? readerColumns,
             out LambdaExpression keySelector,
             out LambdaExpression keyIdentifier,
@@ -304,7 +304,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             return ProcessShaper(
                 relationalGroupByResultExpression.ElementShaper,
-                out relationalCommandCache!,
+                out relationalCommandResolver!,
                 out readerColumns,
                 out relatedDataLoaders,
                 ref collectionId);
@@ -318,7 +318,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         /// </summary>
         public LambdaExpression ProcessShaper(
             Expression shaperExpression,
-            out Expression relationalCommandCache,
+            out Expression relationalCommandResolver,
             out IReadOnlyList<ReaderColumn?>? readerColumns,
             out LambdaExpression? relatedDataLoaders,
             ref int collectionId)
@@ -332,7 +332,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _expressions.Add(result);
                 result = Block(_variables, _expressions);
 
-                relationalCommandCache = _parentVisitor.CreateRelationalCommandCacheExpression(_selectExpression);
+                relationalCommandResolver = _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression);
                 readerColumns = _readerColumns;
 
                 return Lambda(
@@ -353,9 +353,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _expressions.Add(result);
                 result = Block(_variables, _expressions);
 
-                relationalCommandCache = _generateCommandCache
-                    ? _parentVisitor.CreateRelationalCommandCacheExpression(_selectExpression)
-                    : Constant(null, typeof(RelationalCommandCache));
+                relationalCommandResolver = _generateCommandResolver
+                    ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
+                    : Constant(null, typeof(RelationalCommandResolver));
                 readerColumns = _readerColumns;
 
                 return Lambda(
@@ -436,8 +436,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     result = Block(conditionalMaterializationExpressions);
                 }
 
-                relationalCommandCache = _generateCommandCache
-                    ? _parentVisitor.CreateRelationalCommandCacheExpression(_selectExpression)
+                relationalCommandResolver = _generateCommandResolver
+                    ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
                     : Constant(null, typeof(RelationalCommandCache));;
                 readerColumns = _readerColumns;
 
@@ -934,7 +934,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             _executionStrategyParameter!, relationalSplitCollectionShaperExpression.SelectExpression, _tags!);
                         var innerShaper = innerProcessor.ProcessShaper(
                             relationalSplitCollectionShaperExpression.InnerShaper,
-                            out var relationalCommandCache,
+                            out var relationalCommandResolver,
                             out var readerColumns,
                             out var relatedDataLoaders,
                             ref _collectionId);
@@ -1000,7 +1000,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 collectionIdConstant,
                                 Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                                 _executionStrategyParameter!,
-                                relationalCommandCache,
+                                relationalCommandResolver,
                                 CreateReaderColumnsExpression(readerColumns, _parentVisitor.Dependencies.LiftableConstantFactory),
                                 Constant(_detailedErrorsEnabled),
                                 _resultCoordinatorParameter,
@@ -1212,7 +1212,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             _executionStrategyParameter!, relationalSplitCollectionShaperExpression.SelectExpression, _tags!);
                         var innerShaper = innerProcessor.ProcessShaper(
                             relationalSplitCollectionShaperExpression.InnerShaper,
-                            out var relationalCommandCache,
+                            out var relationalCommandResolver,
                             out var readerColumns,
                             out var relatedDataLoaders,
                             ref _collectionId);
@@ -1274,7 +1274,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 collectionIdConstant,
                                 Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                                 _executionStrategyParameter!,
-                                relationalCommandCache,
+                                relationalCommandResolver,
                                 CreateReaderColumnsExpression(readerColumns, _parentVisitor.Dependencies.LiftableConstantFactory),
                                 Constant(_detailedErrorsEnabled),
                                 _resultCoordinatorParameter,

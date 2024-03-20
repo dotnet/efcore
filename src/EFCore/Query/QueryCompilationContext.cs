@@ -53,6 +53,8 @@ public class QueryCompilationContext
     /// </summary>
     public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
 
+    private static readonly IReadOnlySet<string> EmptySet = new HashSet<string>();
+
     private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
     private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
@@ -71,7 +73,7 @@ public class QueryCompilationContext
     public QueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         bool async)
-        : this(dependencies, async, precompiling: false)
+        : this(dependencies, async, precompiling: false, nonNullableReferenceTypeParameters: null)
     {
     }
 
@@ -81,11 +83,13 @@ public class QueryCompilationContext
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
     /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
+    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types.</param>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public QueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         bool async,
-        bool precompiling)
+        bool precompiling,
+        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
     {
         Dependencies = dependencies;
         IsAsync = async;
@@ -96,6 +100,7 @@ public class QueryCompilationContext
         ContextOptions = dependencies.ContextOptions;
         ContextType = dependencies.ContextType;
         Logger = dependencies.Logger;
+        NonNullableReferenceTypeParameters = nonNullableReferenceTypeParameters ?? EmptySet;
 
         _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
         _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
@@ -163,6 +168,12 @@ public class QueryCompilationContext
     ///     The CLR type of derived DbContext to use during query compilation.
     /// </summary>
     public virtual Type ContextType { get; }
+
+    /// <summary>
+    ///     Names of parameters which have non-nullable reference types.
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual IReadOnlySet<string> NonNullableReferenceTypeParameters { get; }
 
     /// <summary>
     ///     Adds a tag to <see cref="Tags" />.

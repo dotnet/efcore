@@ -66,13 +66,16 @@ public abstract class Database : IDatabase
     /// <inheritdoc />
     public virtual Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async)
         => Dependencies.QueryCompilationContextFactory
-            .Create(async, precompiling: false)
+            .Create(async)
             .CreateQueryExecutor<TResult>(query);
 
     /// <inheritdoc />
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async)
+    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(
+        Expression query,
+        bool async,
+        IReadOnlySet<string> nonNullableReferenceTypeParameters)
         => Dependencies.QueryCompilationContextFactory
-            .Create(async, precompiling: true)
+            .CreatePrecompiled(async, nonNullableReferenceTypeParameters)
             .CreateQueryExecutorExpression<TResult>(query);
 }

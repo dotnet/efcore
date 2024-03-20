@@ -34,7 +34,7 @@ public class NavigationExpandingExpressionVisitorTests
                         contextOptions: null,
                         logger: null,
                         new TestInterceptors()
-                    ), async: false, precompiling: false),
+                    ), async: false),
                 null,
                 null)
         {

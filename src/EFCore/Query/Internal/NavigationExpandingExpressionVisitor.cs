@@ -208,9 +208,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // Apply defining query only when it is not custom query root
                     && entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
+                    // TODO: #33509: merge NRT information (nonNullableReferenceTypeParameters) for parameters introduced by the query
+                    // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     var processedDefiningQueryBody = _funcletizer.ExtractParameters(
-                        definingQuery.Body, _parameters, _queryCompilationContext.IsPrecompiling, parameterize: false,
-                        clearParameterizedValues: false);
+                        definingQuery.Body, _parameters, parameterize: false, clearParameterizedValues: false,
+                        _queryCompilationContext.IsPrecompiling, out var nonNullableReferenceTypeParameters);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                     processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                     processedDefiningQueryBody =
@@ -1753,9 +1755,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
                 {
                     filterPredicate = queryFilter;
+                    // TODO: #33509: merge NRT information (nonNullableReferenceTypeParameters) for parameters introduced by the query
+                    // TODO: filter into the QueryCompilationContext.NonNullableReferenceTypeParameters
                     filterPredicate = (LambdaExpression)_funcletizer.ExtractParameters(
-                        filterPredicate, _parameters, _queryCompilationContext.IsPrecompiling, parameterize: false,
-                        clearParameterizedValues: false);
+                        filterPredicate, _parameters, parameterize: false, clearParameterizedValues: false,
+                        _queryCompilationContext.IsPrecompiling, out var nonNullableReferenceTypeParameters);
                     filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
                     // We need to do entity equality, but that requires a full method call on a query root to properly flow the
