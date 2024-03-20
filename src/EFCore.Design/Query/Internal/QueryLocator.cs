@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class QueryLocator : CSharpSyntaxRewriter
+public class QueryLocator : CSharpSyntaxWalker
 {
     private Compilation? _compilation;
 
@@ -88,7 +88,7 @@ public class QueryLocator : CSharpSyntaxRewriter
         Check.DebugAssert(_compilation.SyntaxTrees.Contains(syntaxTree), "Given syntax tree isn't part of the compilation.");
 
         _locatedQueries = new();
-        _ = Visit(syntaxTree.GetRoot());
+        Visit(syntaxTree.GetRoot());
         return _locatedQueries;
     }
 
@@ -98,104 +98,98 @@ public class QueryLocator : CSharpSyntaxRewriter
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax invocation)
+    public override void VisitInvocationExpression(InvocationExpressionSyntax invocation)
     {
         // TODO: Support non-extension invocation syntax: var blogs = ToList(ctx.Blogs);
-        if (invocation.Expression is not MemberAccessExpressionSyntax
+        if (invocation.Expression is MemberAccessExpressionSyntax
             {
                 Name: IdentifierNameSyntax { Identifier.Text: var identifier },
                 Expression: var innerExpression
             })
         {
-            return base.VisitInvocationExpression(invocation);
+            // First, pattern-match on the method name as a string; this avoids accessing the semantic model for each and
+            // every invocation (more efficient).
+            switch (identifier)
+            {
+                // These sync terminating operators exist exist over IEnumerable only, so verify the actual argument is an IQueryable (otherwise
+                // this is just LINQ to Objects)
+                case nameof(Enumerable.AsEnumerable) or nameof(Enumerable.ToArray) or nameof(Enumerable.ToDictionary)
+                    or nameof(Enumerable.ToHashSet) or nameof(Enumerable.ToLookup) or nameof(Enumerable.ToList)
+                    when IsOnEnumerable() && IsQueryable(innerExpression):
+
+                // The async terminating operators are defined by EF, and accept an IQueryable - no need to look at the argument.
+                case nameof(EntityFrameworkQueryableExtensions.AsAsyncEnumerable)
+                    or nameof(EntityFrameworkQueryableExtensions.ToArrayAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ToDictionaryAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ToHashSetAsync)
+                    // or nameof(EntityFrameworkQueryableExtensions.ToLookupAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ToListAsync)
+                    when IsOnEfQueryableExtensions():
+
+                case nameof(EntityFrameworkQueryableExtensions.AsAsyncEnumerable)
+                    when IsOnEfQueryableExtensions() || IsOnTypeSymbol(_dbSetSymbol):
+
+                case nameof(Queryable.All)
+                    or nameof(Queryable.Any)
+                    or nameof(Queryable.Average)
+                    or nameof(Queryable.Contains)
+                    or nameof(Queryable.Count)
+                    or nameof(Queryable.DefaultIfEmpty)
+                    or nameof(Queryable.ElementAt)
+                    or nameof(Queryable.ElementAtOrDefault)
+                    or nameof(Queryable.First)
+                    or nameof(Queryable.FirstOrDefault)
+                    or nameof(Queryable.Last)
+                    or nameof(Queryable.LastOrDefault)
+                    or nameof(Queryable.LongCount)
+                    or nameof(Queryable.Max)
+                    or nameof(Queryable.MaxBy)
+                    or nameof(Queryable.Min)
+                    or nameof(Queryable.MinBy)
+                    or nameof(Queryable.Single)
+                    or nameof(Queryable.SingleOrDefault)
+                    or nameof(Queryable.Sum)
+                    when IsOnQueryable():
+
+                case nameof(EntityFrameworkQueryableExtensions.AllAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.AnyAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.AverageAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ContainsAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.CountAsync)
+                    // or nameof(EntityFrameworkQueryableExtensions.DefaultIfEmptyAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ElementAtAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ElementAtOrDefaultAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.FirstAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.FirstOrDefaultAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.LastAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.LastOrDefaultAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.LongCountAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.MaxAsync)
+                    // or nameof(EntityFrameworkQueryableExtensions.MaxByAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.MinAsync)
+                    // or nameof(EntityFrameworkQueryableExtensions.MinByAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.SingleAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.SingleOrDefaultAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.SumAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ForEachAsync)
+                    when IsOnEfQueryableExtensions():
+
+                case nameof(RelationalQueryableExtensions.ExecuteDelete)
+                    or nameof(RelationalQueryableExtensions.ExecuteUpdate)
+                    when IsOnEfRelationalQueryableExtensions():
+
+                case nameof(RelationalQueryableExtensions.ExecuteDeleteAsync) or nameof(RelationalQueryableExtensions.ExecuteUpdateAsync)
+                    when IsOnEfRelationalQueryableExtensions():
+                    if (TryProcessQuery(invocation))
+                    {
+                        return;
+                    }
+
+                    break;
+            }
         }
 
-        // First, pattern-match on the method name as a string; this avoids accessing the semantic model for each and
-        // every invocation (more efficient).
-        return identifier switch
-        {
-            // These sync terminating operators exist exist over IEnumerable only, so verify the actual argument is an IQueryable (otherwise
-            // this is just LINQ to Objects)
-            nameof(Enumerable.AsEnumerable)
-                or nameof(Enumerable.ToArray)
-                or nameof(Enumerable.ToDictionary)
-                or nameof(Enumerable.ToHashSet)
-                or nameof(Enumerable.ToLookup)
-                or nameof(Enumerable.ToList)
-                when IsOnEnumerable() && IsQueryable(innerExpression)
-                => CheckAndAddQuery(invocation),
-
-            // The async terminating operators are defined by EF, and accept an IQueryable - no need to look at the argument.
-            nameof(EntityFrameworkQueryableExtensions.AsAsyncEnumerable)
-                or nameof(EntityFrameworkQueryableExtensions.ToArrayAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ToDictionaryAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ToHashSetAsync)
-                // or nameof(EntityFrameworkQueryableExtensions.ToLookupAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ToListAsync)
-                when IsOnEfQueryableExtensions()
-                => CheckAndAddQuery(invocation),
-
-            nameof(EntityFrameworkQueryableExtensions.AsAsyncEnumerable)
-                when IsOnEfQueryableExtensions() || IsOnTypeSymbol(_dbSetSymbol)
-                => CheckAndAddQuery(invocation),
-
-            nameof(Queryable.All)
-                or nameof(Queryable.Any)
-                or nameof(Queryable.Average)
-                or nameof(Queryable.Contains)
-                or nameof(Queryable.Count)
-                or nameof(Queryable.DefaultIfEmpty)
-                or nameof(Queryable.ElementAt)
-                or nameof(Queryable.ElementAtOrDefault)
-                or nameof(Queryable.First)
-                or nameof(Queryable.FirstOrDefault)
-                or nameof(Queryable.Last)
-                or nameof(Queryable.LastOrDefault)
-                or nameof(Queryable.LongCount)
-                or nameof(Queryable.Max)
-                or nameof(Queryable.MaxBy)
-                or nameof(Queryable.Min)
-                or nameof(Queryable.MinBy)
-                or nameof(Queryable.Single)
-                or nameof(Queryable.SingleOrDefault)
-                or nameof(Queryable.Sum)
-                when IsOnQueryable()
-                => CheckAndAddQuery(invocation),
-
-            nameof(EntityFrameworkQueryableExtensions.AllAsync)
-                or nameof(EntityFrameworkQueryableExtensions.AnyAsync)
-                or nameof(EntityFrameworkQueryableExtensions.AverageAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ContainsAsync)
-                or nameof(EntityFrameworkQueryableExtensions.CountAsync)
-                // or nameof(EntityFrameworkQueryableExtensions.DefaultIfEmptyAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ElementAtAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ElementAtOrDefaultAsync)
-                or nameof(EntityFrameworkQueryableExtensions.FirstAsync)
-                or nameof(EntityFrameworkQueryableExtensions.FirstOrDefaultAsync)
-                or nameof(EntityFrameworkQueryableExtensions.LastAsync)
-                or nameof(EntityFrameworkQueryableExtensions.LastOrDefaultAsync)
-                or nameof(EntityFrameworkQueryableExtensions.LongCountAsync)
-                or nameof(EntityFrameworkQueryableExtensions.MaxAsync)
-                // or nameof(EntityFrameworkQueryableExtensions.MaxByAsync)
-                or nameof(EntityFrameworkQueryableExtensions.MinAsync)
-                // or nameof(EntityFrameworkQueryableExtensions.MinByAsync)
-                or nameof(EntityFrameworkQueryableExtensions.SingleAsync)
-                or nameof(EntityFrameworkQueryableExtensions.SingleOrDefaultAsync)
-                or nameof(EntityFrameworkQueryableExtensions.SumAsync)
-                or nameof(EntityFrameworkQueryableExtensions.ForEachAsync)
-                when IsOnEfQueryableExtensions()
-                => CheckAndAddQuery(invocation),
-
-            nameof(RelationalQueryableExtensions.ExecuteDelete) or nameof(RelationalQueryableExtensions.ExecuteUpdate)
-                when IsOnEfRelationalQueryableExtensions()
-                => CheckAndAddQuery(invocation),
-
-            nameof(RelationalQueryableExtensions.ExecuteDeleteAsync) or nameof(RelationalQueryableExtensions.ExecuteUpdateAsync)
-                when IsOnEfRelationalQueryableExtensions()
-                => CheckAndAddQuery(invocation),
-
-            _ => base.VisitInvocationExpression(invocation)
-        };
+        base.VisitInvocationExpression(invocation);
 
         bool IsOnEnumerable()
             => IsOnTypeSymbol(_enumerableSymbol);
@@ -220,27 +214,28 @@ public class QueryLocator : CSharpSyntaxRewriter
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override SyntaxNode? VisitForEachStatement(ForEachStatementSyntax forEach)
+    public override void VisitForEachStatement(ForEachStatementSyntax forEach)
     {
         // Note: a LINQ queryable can't be placed directly inside await foreach, since IQueryable does not extend
         // IAsyncEnumerable. So users need to add our AsAsyncEnumerable, which is detected above as a normal invocation.
-        var visited = base.VisitForEachStatement(forEach);
 
         // C# interceptors can (currently) intercept only method calls, not property accesses; this means that we can't
         // TODO: Support DbSet() method call directly inside foreach/await foreach
-        if (forEach.Expression is InvocationExpressionSyntax invocation && IsQueryable(invocation))
+        if (forEach.Expression is InvocationExpressionSyntax invocation
+            && IsQueryable(invocation)
+            && TryProcessQuery(invocation))
         {
-            return forEach.WithExpression(CheckAndAddQuery(invocation));
+            return;
         }
 
-        return visited;
+        base.VisitForEachStatement(forEach);
     }
 
-    private ExpressionSyntax CheckAndAddQuery(InvocationExpressionSyntax query)
+    private bool TryProcessQuery(InvocationExpressionSyntax query)
     {
         // TODO: Drill down and see that there's a DbSet at the bottom (other LINQ providers may exist)
         _locatedQueries.Add(query);
-        return query;
+        return true;
     }
 
     private bool IsQueryable(ExpressionSyntax expression)

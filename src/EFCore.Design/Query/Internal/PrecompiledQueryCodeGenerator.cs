@@ -386,8 +386,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         // we need to rewrite them to their sync counterparts (since that's what gets injected into the query tree).
         var penultimateOperator = terminatingOperator switch
         {
-            { Arguments: [var sourceArgument, ..] } => sourceArgument,
             { Object: Expression @object } => @object, // This is needed e.g. for DbSet.AsAsyncEnumerable (non-static operator)
+            { Arguments: [var sourceArgument, ..] } => sourceArgument,
             _ => throw new UnreachableException()
         };
 
@@ -529,7 +529,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                         _g.CastExpression(_symbols.DbContextContainer, sourceIdentifier),
                         nameof(InternalDbSet<string>.DbContext))));
 
-            // var precompiledQueryContext = new PrecompiledQueryContext<Blog>();
+            // var precompiledQueryContext = new PrecompiledQueryContext<Blog>(dbContext);
             statements.Add(
                 _g.LocalDeclarationStatement(
                     "precompiledQueryContext",
