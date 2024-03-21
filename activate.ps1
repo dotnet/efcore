@@ -1,8 +1,11 @@
 #
-# This file must be used by invoking ". .\activate.ps1" from the command line.
-# You cannot run it directly.
 # To exit from the environment this creates, execute the 'deactivate' function.
 #
+
+if ($MyInvocation.InvocationName -ne '.') {
+    Write-Host -f Red "This script must be dot sourced. Run it by invoking '. .\activate.ps1'."
+    return
+}
 
 function deactivate ([switch]$init) {
     # reset old environment variables
@@ -40,7 +43,7 @@ if (-not $env:DISABLE_CUSTOM_PROMPT) {
     $function:_old_prompt = $function:prompt
     function dotnet_prompt {
         # Add a prefix to the current prompt, but don't discard it.
-        Write-Host "($(Split-Path $PSScriptRoot -Leaf)) " -NoNewLine
+        Write-Host -f Green "($(Split-Path $PSScriptRoot -Leaf)) " -NoNewLine
         & $function:_old_prompt
     }
 
