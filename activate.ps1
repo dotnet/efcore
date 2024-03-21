@@ -41,7 +41,7 @@ if (-not $env:DISABLE_CUSTOM_PROMPT) {
     $function:_old_prompt = $function:prompt
     function dotnet_prompt {
         # Add a prefix to the current prompt, but don't discard it.
-        write-host "($( split-path $PSScriptRoot -leaf )) " -nonewline
+        write-host -f Green "($( split-path $PSScriptRoot -leaf )) " -nonewline
         & $function:_old_prompt
     }
 
