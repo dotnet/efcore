@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -13,7 +14,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Scaffolding
 {
-    internal partial class IdentityUser0EntityType
+    [EntityFrameworkInternal]
+    public partial class IdentityUser0EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {

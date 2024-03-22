@@ -112,7 +112,8 @@ namespace TestNamespace
         modelBuilder.Entity<PrincipalBase>(
             eb =>
             {
-                eb.Property(e => e.FlagsEnum2)
+                eb.Property("FlagsEnum2")
+                    .UsePropertyAccessMode(PropertyAccessMode.Property)
                     .HasSentinel(AFlagsEnum.C | AFlagsEnum.B);
 
                 eb.Property(e => e.AlternateId)
@@ -606,6 +607,9 @@ namespace TestNamespace
             eb =>
             {
                 eb.Ignore(e => e.Owned);
+
+                eb.Property("FlagsEnum2");
+
                 eb.ComplexProperty(
                     e => e.Owned, eb =>
                     {
@@ -626,7 +630,11 @@ namespace TestNamespace
                             .IsRowVersion()
                             .HasAnnotation("foo", "bar");
                         eb.Ignore(e => e.Context);
-                        eb.ComplexProperty(o => o.Principal).IsRequired();
+                        eb.ComplexProperty(o => o.Principal, cb =>
+                        {
+                            cb.IsRequired();
+                            cb.Property("FlagsEnum2");
+                        });
                     });
             });
 
@@ -1125,7 +1133,7 @@ namespace TestNamespace
         public AnEnum Enum1 { get; set; }
         public AnEnum? Enum2 { get; set; }
         public AFlagsEnum FlagsEnum1 { get; set; }
-        public AFlagsEnum FlagsEnum2 { get; set; }
+        private AFlagsEnum FlagsEnum2 { get; set; }
 
         public List<short>? ValueTypeList { get; set; }
         public IList<byte>? ValueTypeIList { get; set; }
@@ -1368,7 +1376,7 @@ namespace TestNamespace
         [CallerMemberName] string testName = "")
         where TContext : DbContext
     {
-        using var context = (await CreateContextFactory<TContext>(
+        var contextFactory = await CreateContextFactory<TContext>(
             modelBuilder =>
             {
                 var model = modelBuilder.Model;
@@ -1377,13 +1385,13 @@ namespace TestNamespace
                 onModelCreating?.Invoke(modelBuilder);
             },
             onConfiguring,
-            addServices)).CreateContext();
+            addServices);
+        using var context = contextFactory.CreateContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
         options ??= new CompiledModelCodeGenerationOptions();
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
-        // options.UseNullableReferenceTypes = false;
 
         var generator = TestHelpers.CreateDesignServiceProvider(
                 context.GetService<IDatabaseProvider>().Name,
@@ -1426,15 +1434,18 @@ namespace TestNamespace
 
         if (useContext != null)
         {
-            var contextFactory = await CreateContextFactory<TContext>(
-                onConfiguring: options =>
-                {
-                    onConfiguring?.Invoke(options);
-                    options.UseModel(compiledModel);
-                },
-                addServices: addServices);
             ListLoggerFactory.Clear();
-            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext, c => useContext((TContext)c));
+            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
+
+            using var compiledModelContext = (await CreateContextFactory<TContext>(
+                    onConfiguring: options =>
+                    {
+                        onConfiguring?.Invoke(options);
+                        options.UseModel(compiledModel);
+                    },
+                    addServices: addServices))
+                .CreateContext();
+            await useContext(compiledModelContext);
         }
 
         AssertBaseline(scaffoldedFiles, testName);

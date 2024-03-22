@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTranslator
 {
-    private Dictionary<MemberAccess, ExpressionSyntax>? _memberAccessReplacements;
+    private IReadOnlyDictionary<MemberInfo, QualifiedName>? _memberAccessReplacements;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,8 +42,8 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     /// </summary>
     public virtual SyntaxNode TranslateStatement(
         Expression node,
-        Dictionary<object, ExpressionSyntax>? constantReplacements,
-        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacements,
+        IReadOnlyDictionary<object, string>? constantReplacements,
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
         ISet<string> collectedNamespaces)
     {
         _memberAccessReplacements = memberAccessReplacements;
@@ -59,8 +60,8 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     /// </summary>
     public virtual SyntaxNode TranslateExpression(
         Expression node,
-        Dictionary<object, ExpressionSyntax>? constantReplacements,
-        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacements,
+        IReadOnlyDictionary<object, string>? constantReplacements,
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
         ISet<string> collectedNamespaces)
     {
         _memberAccessReplacements = memberAccessReplacements;
@@ -94,17 +95,19 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void TranslateNonPublicFieldAccess(MemberExpression member)
+    protected override void TranslateNonPublicMemberAccess(MemberExpression memberExpression)
     {
-        if (_memberAccessReplacements?.TryGetValue(new MemberAccess(member.Member, assignment: false), out var methodName) == true)
+        var member = memberExpression.Member is PropertyInfo propertyInfo ? propertyInfo.GetMethod! : memberExpression.Member;
+        if (_memberAccessReplacements?.TryGetValue(member, out var methodName) == true)
         {
+            AddNamespace(methodName.Namespace);
             Result = InvocationExpression(
-                methodName,
-                ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(member.Expression)) })));
+                IdentifierName(methodName.Name),
+                ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(memberExpression.Expression)) })));
         }
         else
         {
-            base.TranslateNonPublicFieldAccess(member);
+            base.TranslateNonPublicMemberAccess(memberExpression);
         }
     }
 
@@ -114,21 +117,40 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void TranslateNonPublicFieldAssignment(MemberExpression member, Expression value)
+    protected override void TranslateNonPublicMemberAssignment(MemberExpression memberExpression, Expression value, SyntaxKind assignmentKind)
     {
-        if (_memberAccessReplacements?.TryGetValue(new MemberAccess(member.Member, assignment: true), out var methodName) == true)
+        var propertyInfo = memberExpression.Member as PropertyInfo;
+        var member = propertyInfo?.SetMethod! ?? memberExpression.Member;
+        if (_memberAccessReplacements?.TryGetValue(member, out var methodName) == true)
         {
-            Result = InvocationExpression(
-                methodName,
-                ArgumentList(SeparatedList(new[]
-                    {
-                        Argument(Translate<ExpressionSyntax>(member.Expression)),
-                        Argument(Translate<ExpressionSyntax>(value))
-                    })));
+            AddNamespace(methodName.Namespace);
+            if (propertyInfo != null)
+            {
+                if (assignmentKind is not SyntaxKind.SimpleAssignmentExpression)
+                {
+                    throw new NotImplementedException("Compound assignment not supported yet.");
+                }
+
+                Result = InvocationExpression(
+                    IdentifierName(methodName.Name),
+                    ArgumentList(SeparatedList(new[]
+                        {
+                            Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
+                            Argument(Translate<ExpressionSyntax>(value))
+                        })));
+            }
+            else
+            {
+                Result = AssignmentExpression(assignmentKind,
+                    InvocationExpression(
+                        IdentifierName(methodName.Name),
+                        ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(memberExpression.Expression)) }))),
+                    Translate<ExpressionSyntax>(value));
+            }
         }
         else
         {
-            base.TranslateNonPublicFieldAssignment(member, value);
+            base.TranslateNonPublicMemberAssignment(memberExpression, value, assignmentKind);
         }
     }
 }

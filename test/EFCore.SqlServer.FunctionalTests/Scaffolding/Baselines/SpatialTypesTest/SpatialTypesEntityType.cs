@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -17,7 +18,8 @@ using NetTopologySuite.Geometries;
 
 namespace TestNamespace
 {
-    internal partial class SpatialTypesEntityType
+    [EntityFrameworkInternal]
+    public partial class SpatialTypesEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -37,17 +39,17 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                (CompiledModelRelationalTestBase.SpatialTypes entity) => ReadId(entity),
-                (CompiledModelRelationalTestBase.SpatialTypes entity) => ReadId(entity) == 0,
-                (CompiledModelRelationalTestBase.SpatialTypes instance) => ReadId(instance),
-                (CompiledModelRelationalTestBase.SpatialTypes instance) => ReadId(instance) == 0);
+                (CompiledModelRelationalTestBase.SpatialTypes entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(entity),
+                (CompiledModelRelationalTestBase.SpatialTypes entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(entity) == 0,
+                (CompiledModelRelationalTestBase.SpatialTypes instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(instance),
+                (CompiledModelRelationalTestBase.SpatialTypes instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => WriteId(entity, value));
+                (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => WriteId(entity, value));
+                (CompiledModelRelationalTestBase.SpatialTypes entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && ReadId((CompiledModelRelationalTestBase.SpatialTypes)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(0) : ReadId((CompiledModelRelationalTestBase.SpatialTypes)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelRelationalTestBase.SpatialTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id((CompiledModelRelationalTestBase.SpatialTypes)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id((CompiledModelRelationalTestBase.SpatialTypes)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id((CompiledModelRelationalTestBase.SpatialTypes)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -72,6 +74,7 @@ namespace TestNamespace
                     (int v) => v));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("SpatialTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id", "TestNamespace") });
 
             var point = runtimeEntityType.AddProperty(
                 "Point",
@@ -144,12 +147,6 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref int GetId(CompiledModelRelationalTestBase.SpatialTypes @this);
-
-        public static int ReadId(CompiledModelRelationalTestBase.SpatialTypes @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelRelationalTestBase.SpatialTypes @this, int value)
-            => GetId(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(CompiledModelRelationalTestBase.SpatialTypes @this);
     }
 }

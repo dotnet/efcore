@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -21,7 +22,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace TestNamespace
 {
-    internal partial class PrincipalBaseEntityType
+    [EntityFrameworkInternal]
+    public partial class PrincipalBaseEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -47,17 +49,17 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             id.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadId(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => !ReadId(entity).HasValue,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadId(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => !ReadId(instance).HasValue);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(entity).HasValue,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(instance).HasValue);
             id.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) => WriteId(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) => WriteId(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Nullable<long>>(0) : entry.FlaggedAsTemporary(0) && !ReadId((CompiledModelTestBase.PrincipalBase)entry.Entity).HasValue ? entry.ReadTemporaryValue<Nullable<long>>(0) : ReadId((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Nullable<long>>(0) : entry.FlaggedAsTemporary(0) && !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id((CompiledModelTestBase.PrincipalBase)entry.Entity).HasValue ? entry.ReadTemporaryValue<Nullable<long>>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Nullable<long>>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -121,17 +123,17 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             enum1.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadEnum1(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)ReadEnum1(entity), (object)(CompiledModelTestBase.AnEnum)0L),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadEnum1(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadEnum1(instance), (object)(CompiledModelTestBase.AnEnum)0L));
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(entity), (object)(CompiledModelTestBase.AnEnum)0L),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(instance), (object)(CompiledModelTestBase.AnEnum)0L));
             enum1.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => WriteEnum1(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(entity) = value);
             enum1.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => WriteEnum1(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(entity) = value);
             enum1.SetAccessors(
-                (InternalEntityEntry entry) => ReadEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 2),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1),
                 (ValueBuffer valueBuffer) => valueBuffer[2]);
@@ -172,17 +174,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             enum2.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadEnum2(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => !ReadEnum2(entity).HasValue,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadEnum2(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => !ReadEnum2(instance).HasValue);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(entity).HasValue,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(instance).HasValue);
             enum2.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) => WriteEnum2(entity, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value));
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(entity) = value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value);
             enum2.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) => WriteEnum2(entity, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value));
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(entity) = value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value);
             enum2.SetAccessors(
-                (InternalEntityEntry entry) => ReadEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2, 3),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2),
                 (ValueBuffer valueBuffer) => valueBuffer[3]);
@@ -221,17 +223,17 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             flagsEnum1.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadFlagsEnum1(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)ReadFlagsEnum1(entity), (object)(CompiledModelTestBase.AFlagsEnum)0L),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum1(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum1(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(entity), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
             flagsEnum1.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum1(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(entity) = value);
             flagsEnum1.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum1(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(entity) = value);
             flagsEnum1.SetAccessors(
-                (InternalEntityEntry entry) => ReadFlagsEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadFlagsEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 4),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1),
                 (ValueBuffer valueBuffer) => valueBuffer[4]);
@@ -268,20 +270,20 @@ namespace TestNamespace
             var flagsEnum2 = runtimeEntityType.AddProperty(
                 "FlagsEnum2",
                 typeof(CompiledModelTestBase.AFlagsEnum),
-                propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
             flagsEnum2.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadFlagsEnum2(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)ReadFlagsEnum2(entity), (object)(CompiledModelTestBase.AFlagsEnum)0L),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum2(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum2(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(entity), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
             flagsEnum2.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum2(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(entity) = value);
             flagsEnum2.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum2(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(entity) = value);
             flagsEnum2.SetAccessors(
-                (InternalEntityEntry entry) => ReadFlagsEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadFlagsEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 5),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2),
                 (ValueBuffer valueBuffer) => valueBuffer[5]);
@@ -348,17 +350,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeArray.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeArray(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeArray(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(instance) == null);
             refTypeArray.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(entity) = value);
             refTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(entity) = value);
             refTypeArray.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 7),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
                 (ValueBuffer valueBuffer) => valueBuffer[7]);
@@ -433,17 +435,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeEnumerable.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeEnumerable(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeEnumerable(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(instance) == null);
             refTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(entity) = value);
             refTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(entity) = value);
             refTypeEnumerable.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 8),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
                 (ValueBuffer valueBuffer) => valueBuffer[8]);
@@ -502,17 +504,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeIList.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeIList(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeIList(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(instance) == null);
             refTypeIList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => WriteRefTypeIList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(entity) = value);
             refTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => WriteRefTypeIList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(entity) = value);
             refTypeIList.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 9),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
                 (ValueBuffer valueBuffer) => valueBuffer[9]);
@@ -571,17 +573,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeList.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeList(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeList(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(instance) == null);
             refTypeList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(entity) = value);
             refTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(entity) = value);
             refTypeList.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 10),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
                 (ValueBuffer valueBuffer) => valueBuffer[10]);
@@ -656,17 +658,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeArray.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeArray(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeArray(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(instance) == null);
             valueTypeArray.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(entity) = value);
             valueTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(entity) = value);
             valueTypeArray.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 11),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
                 (ValueBuffer valueBuffer) => valueBuffer[11]);
@@ -720,17 +722,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeEnumerable.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeEnumerable(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeEnumerable(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(instance) == null);
             valueTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 12),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
                 (ValueBuffer valueBuffer) => valueBuffer[12]);
@@ -784,17 +786,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeIList.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeIList(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeIList(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(instance) == null);
             valueTypeIList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(entity) = value);
             valueTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(entity) = value);
             valueTypeIList.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 13),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
                 (ValueBuffer valueBuffer) => valueBuffer[13]);
@@ -848,17 +850,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeList.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeList(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeList(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(instance) == null);
             valueTypeList.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => WriteValueTypeList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(entity) = value);
             valueTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => WriteValueTypeList(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(entity) = value);
             valueTypeList.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 14),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
                 (ValueBuffer valueBuffer) => valueBuffer[14]);
@@ -933,17 +935,17 @@ namespace TestNamespace
 
                 var complexType = complexProperty.ComplexType;
                 complexProperty.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity),
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null,
-                    (CompiledModelTestBase.PrincipalBase instance) => ReadOwned(instance),
-                    (CompiledModelTestBase.PrincipalBase instance) => ReadOwned(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity),
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null,
+                    (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(instance),
+                    (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(instance) == null);
                 complexProperty.SetSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => WriteOwned(entity, value));
+                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) = value);
                 complexProperty.SetMaterializationSetter(
-                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => WriteOwned(entity, value));
+                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) = value);
                 complexProperty.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity),
                     null,
                     (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.OwnedType>(complexProperty),
                     null);
@@ -970,25 +972,25 @@ namespace TestNamespace
                     scale: 2,
                     sentinel: "");
                 details.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(string) : ReadOwned(entity).Details,
-                    (CompiledModelTestBase.PrincipalBase entity) => !((ReadOwned(entity) == null ? default(string) : ReadOwned(entity).Details) == null) && (ReadOwned(entity) == null ? default(string) : ReadOwned(entity).Details) == "",
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity).Details,
+                    (CompiledModelTestBase.PrincipalBase entity) => !((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity).Details) == null) && (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity).Details) == "",
                     (CompiledModelTestBase.OwnedType instance) => instance.Details,
                     (CompiledModelTestBase.OwnedType instance) => !(instance.Details == null) && instance.Details == "");
                 details.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, string value) =>
                     {
-                        var level1 = ReadOwned(entity);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
                         level1.Details = value;
                     });
                 details.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, string value) =>
                     {
-                        var level1 = ReadOwned(entity);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
                         level1.Details = value;
                     });
                 details.SetAccessors(
-                    (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(15) ? entry.ReadStoreGeneratedValue<string>(2) : entry.FlaggedAsTemporary(15) && !((ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details) == null) && (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details) == "" ? entry.ReadTemporaryValue<string>(2) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details,
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details,
+                    (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(15) ? entry.ReadStoreGeneratedValue<string>(2) : entry.FlaggedAsTemporary(15) && !((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity).Details) == null) && (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity).Details) == "" ? entry.ReadTemporaryValue<string>(2) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity).Details,
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity).Details,
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(details, 15),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<string>(details),
                     (ValueBuffer valueBuffer) => valueBuffer[15]);
@@ -1028,25 +1030,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     sentinel: 0);
                 number.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(int) : ReadNumber(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(int) : ReadNumber(ReadOwned(entity))) == 0,
-                    (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance) == 0);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(int) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(int) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == 0,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(instance) == 0);
                 number.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, int value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteNumber(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(level1) = value;
                     });
                 number.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, int value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteNumber(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(level1) = value;
                     });
                 number.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(int) : ReadNumber(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(int) : ReadNumber(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(int) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(int) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(number, 16),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<int>(number),
                     (ValueBuffer valueBuffer) => valueBuffer[16]);
@@ -1078,25 +1080,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 refTypeArray.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(instance) == null);
                 refTypeArray.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeArray(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(level1) = value;
                     });
                 refTypeArray.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeArray(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(level1) = value;
                     });
                 refTypeArray.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 17),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
                     (ValueBuffer valueBuffer) => valueBuffer[17]);
@@ -1171,25 +1173,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 refTypeEnumerable.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(instance) == null);
                 refTypeEnumerable.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeEnumerable(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(level1) = value;
                     });
                 refTypeEnumerable.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeEnumerable(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(level1) = value;
                     });
                 refTypeEnumerable.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 18),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
                     (ValueBuffer valueBuffer) => valueBuffer[18]);
@@ -1248,25 +1250,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 refTypeIList.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(instance) == null);
                 refTypeIList.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeIList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(level1) = value;
                     });
                 refTypeIList.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeIList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(level1) = value;
                     });
                 refTypeIList.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 19),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
                     (ValueBuffer valueBuffer) => valueBuffer[19]);
@@ -1325,25 +1327,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 refTypeList.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(instance) == null);
                 refTypeList.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(level1) = value;
                     });
                 refTypeList.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteRefTypeList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(level1) = value;
                     });
                 refTypeList.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 20),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
                     (ValueBuffer valueBuffer) => valueBuffer[20]);
@@ -1418,25 +1420,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeArray.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(instance) == null);
                 valueTypeArray.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeArray(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(level1) = value;
                     });
                 valueTypeArray.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeArray(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(level1) = value;
                     });
                 valueTypeArray.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 21),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
                     (ValueBuffer valueBuffer) => valueBuffer[21]);
@@ -1490,25 +1492,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeEnumerable.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(instance) == null);
                 valueTypeEnumerable.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeEnumerable(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(level1) = value;
                     });
                 valueTypeEnumerable.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeEnumerable(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(level1) = value;
                     });
                 valueTypeEnumerable.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 22),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
                     (ValueBuffer valueBuffer) => valueBuffer[22]);
@@ -1562,25 +1564,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeIList.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(instance) == null);
                 valueTypeIList.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeIList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(level1) = value;
                     });
                 valueTypeIList.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeIList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(level1) = value;
                     });
                 valueTypeIList.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 23),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
                     (ValueBuffer valueBuffer) => valueBuffer[23]);
@@ -1634,25 +1636,25 @@ namespace TestNamespace
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
                 valueTypeList.SetGetter(
-                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity)),
-                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity))) == null,
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance),
-                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance) == null);
+                    (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(instance) == null);
                 valueTypeList.SetSetter(
                     (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(level1) = value;
                     });
                 valueTypeList.SetMaterializationSetter(
                     (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
                     {
-                        var level1 = ReadOwned(entity);
-                        WriteValueTypeList(level1, value);
+                        var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                        UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(level1) = value;
                     });
                 valueTypeList.SetAccessors(
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                     (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 24),
                     (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
                     (ValueBuffer valueBuffer) => valueBuffer[24]);
@@ -1725,25 +1727,25 @@ namespace TestNamespace
 
                     var complexType = complexProperty.ComplexType;
                     complexProperty.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)),
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null,
-                        (CompiledModelTestBase.OwnedType instance) => ReadPrincipal(instance),
-                        (CompiledModelTestBase.OwnedType instance) => ReadPrincipal(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)),
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null,
+                        (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(instance),
+                        (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(instance) == null);
                     complexProperty.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            WritePrincipal(level1, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1) = value;
                         });
                     complexProperty.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            WritePrincipal(level1, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1) = value;
                         });
                     complexProperty.SetAccessors(
-                        (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
-                        (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                        (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                        (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity)),
                         null,
                         (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(complexProperty),
                         null);
@@ -1759,27 +1761,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
                     alternateId.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Guid) : (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))).AlternateId,
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Guid) : (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))).AlternateId) == new Guid("00000000-0000-0000-0000-000000000000"),
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(Guid) : (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))).AlternateId,
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(Guid) : (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))).AlternateId) == new Guid("00000000-0000-0000-0000-000000000000"),
                         (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId,
                         (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId == new Guid("00000000-0000-0000-0000-000000000000"));
                     alternateId.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, Guid value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
                             level2.AlternateId = value;
                         });
                     alternateId.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, Guid value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
                             level2.AlternateId = value;
                         });
                     alternateId.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Guid) : (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))).AlternateId,
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Guid) : (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))).AlternateId,
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Guid) : (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))).AlternateId,
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Guid) : (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))).AlternateId,
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(alternateId, 25),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<Guid>(alternateId),
                         (ValueBuffer valueBuffer) => valueBuffer[25]);
@@ -1812,27 +1814,27 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     enum1.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))), (object)(CompiledModelTestBase.AnEnum)0L),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadEnum1(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadEnum1(instance), (object)(CompiledModelTestBase.AnEnum)0L));
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(CompiledModelTestBase.AnEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))), (object)(CompiledModelTestBase.AnEnum)0L),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(instance), (object)(CompiledModelTestBase.AnEnum)0L));
                     enum1.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteEnum1(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(level2) = value;
                         });
                     enum1.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteEnum1(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(level2) = value;
                         });
                     enum1.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AnEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AnEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 26),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1),
                         (ValueBuffer valueBuffer) => valueBuffer[26]);
@@ -1873,27 +1875,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     enum2.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => !((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))).HasValue,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadEnum2(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => !ReadEnum2(instance).HasValue);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => !((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))).HasValue,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(instance).HasValue);
                     enum2.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteEnum2(level2, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(level2) = value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value;
                         });
                     enum2.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteEnum2(level2, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(level2) = value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value;
                         });
                     enum2.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2, 27),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2),
                         (ValueBuffer valueBuffer) => valueBuffer[27]);
@@ -1932,27 +1934,27 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     flagsEnum1.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))), (object)(CompiledModelTestBase.AFlagsEnum)0L),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum1(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum1(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
                     flagsEnum1.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteFlagsEnum1(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(level2) = value;
                         });
                     flagsEnum1.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteFlagsEnum1(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(level2) = value;
                         });
                     flagsEnum1.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 28),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1),
                         (ValueBuffer valueBuffer) => valueBuffer[28]);
@@ -1989,30 +1991,30 @@ namespace TestNamespace
                     var flagsEnum2 = complexType.AddProperty(
                         "FlagsEnum2",
                         typeof(CompiledModelTestBase.AFlagsEnum),
-                        propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
                     flagsEnum2.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))), (object)(CompiledModelTestBase.AFlagsEnum)0L),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum2(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum2(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
                     flagsEnum2.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteFlagsEnum2(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(level2) = value;
                         });
                     flagsEnum2.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteFlagsEnum2(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(level2) = value;
                         });
                     flagsEnum2.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 29),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2),
                         (ValueBuffer valueBuffer) => valueBuffer[29]);
@@ -2053,27 +2055,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     id.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => !((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))).HasValue,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadId(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => !ReadId(instance).HasValue);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(Nullable<long>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => !((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(Nullable<long>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))).HasValue,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(instance).HasValue);
                     id.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteId(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(level2) = value;
                         });
                     id.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteId(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(level2) = value;
                         });
                     id.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<long>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<long>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(id, 30),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<long>>(id),
                         (ValueBuffer valueBuffer) => valueBuffer[30]);
@@ -2105,27 +2107,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     refTypeArray.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(instance) == null);
                     refTypeArray.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeArray(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(level2) = value;
                         });
                     refTypeArray.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeArray(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(level2) = value;
                         });
                     refTypeArray.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IPAddress[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 31),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
                         (ValueBuffer valueBuffer) => valueBuffer[31]);
@@ -2200,27 +2202,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     refTypeEnumerable.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(instance) == null);
                     refTypeEnumerable.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeEnumerable(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(level2) = value;
                         });
                     refTypeEnumerable.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeEnumerable(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(level2) = value;
                         });
                     refTypeEnumerable.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 32),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
                         (ValueBuffer valueBuffer) => valueBuffer[32]);
@@ -2279,27 +2281,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     refTypeIList.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(instance) == null);
                     refTypeIList.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeIList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(level2) = value;
                         });
                     refTypeIList.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeIList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(level2) = value;
                         });
                     refTypeIList.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<string>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 33),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
                         (ValueBuffer valueBuffer) => valueBuffer[33]);
@@ -2358,27 +2360,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     refTypeList.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(instance) == null);
                     refTypeList.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(level2) = value;
                         });
                     refTypeList.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteRefTypeList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(level2) = value;
                         });
                     refTypeList.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<IPAddress>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 34),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
                         (ValueBuffer valueBuffer) => valueBuffer[34]);
@@ -2453,27 +2455,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeArray.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(instance) == null);
                     valueTypeArray.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeArray(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(level2) = value;
                         });
                     valueTypeArray.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeArray(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(level2) = value;
                         });
                     valueTypeArray.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(DateTime[]) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 35),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
                         (ValueBuffer valueBuffer) => valueBuffer[35]);
@@ -2527,27 +2529,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeEnumerable.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(instance) == null);
                     valueTypeEnumerable.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeEnumerable(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(level2) = value;
                         });
                     valueTypeEnumerable.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeEnumerable(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(level2) = value;
                         });
                     valueTypeEnumerable.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 36),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
                         (ValueBuffer valueBuffer) => valueBuffer[36]);
@@ -2601,27 +2603,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeIList.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(instance) == null);
                     valueTypeIList.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeIList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(level2) = value;
                         });
                     valueTypeIList.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeIList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(level2) = value;
                         });
                     valueTypeIList.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<byte>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 37),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
                         (ValueBuffer valueBuffer) => valueBuffer[37]);
@@ -2675,27 +2677,27 @@ namespace TestNamespace
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
                     valueTypeList.SetGetter(
-                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
-                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance),
-                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance) == null);
+                        (CompiledModelTestBase.PrincipalBase entity) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity))) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(instance) == null);
                     valueTypeList.SetSetter(
                         (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(level2) = value;
                         });
                     valueTypeList.SetMaterializationSetter(
                         (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
                         {
-                            var level1 = ReadOwned(entity);
-                            var level2 = ReadPrincipal(level1);
-                            WriteValueTypeList(level2, value);
+                            var level1 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity);
+                            var level2 = UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(level1);
+                            UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(level2) = value;
                         });
                     valueTypeList.SetAccessors(
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
-                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<short>) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField((CompiledModelTestBase.PrincipalBase)entry.Entity))),
                         (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 38),
                         (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
                         (ValueBuffer valueBuffer) => valueBuffer[38]);
@@ -2752,230 +2754,80 @@ namespace TestNamespace
                 }
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Principal>k__BackingField")]
-            extern static ref CompiledModelTestBase.PrincipalBase GetPrincipal(CompiledModelTestBase.OwnedType @this);
-
-            public static CompiledModelTestBase.PrincipalBase ReadPrincipal(CompiledModelTestBase.OwnedType @this)
-                => GetPrincipal(@this);
-
-            public static void WritePrincipal(CompiledModelTestBase.OwnedType @this, CompiledModelTestBase.PrincipalBase value)
-                => GetPrincipal(@this) = value;
+            public static extern ref CompiledModelTestBase.PrincipalBase UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal(CompiledModelTestBase.OwnedType @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum1>k__BackingField")]
-            extern static ref CompiledModelTestBase.AnEnum GetEnum1(CompiledModelTestBase.PrincipalBase @this);
-
-            public static CompiledModelTestBase.AnEnum ReadEnum1(CompiledModelTestBase.PrincipalBase @this)
-                => GetEnum1(@this);
-
-            public static void WriteEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum value)
-                => GetEnum1(@this) = value;
+            public static extern ref CompiledModelTestBase.AnEnum UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum2>k__BackingField")]
-            extern static ref CompiledModelTestBase.AnEnum? GetEnum2(CompiledModelTestBase.PrincipalBase @this);
-
-            public static CompiledModelTestBase.AnEnum? ReadEnum2(CompiledModelTestBase.PrincipalBase @this)
-                => GetEnum2(@this);
-
-            public static void WriteEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum? value)
-                => GetEnum2(@this) = value;
+            public static extern ref CompiledModelTestBase.AnEnum? UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum1>k__BackingField")]
-            extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum1(CompiledModelTestBase.PrincipalBase @this);
-
-            public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum1(CompiledModelTestBase.PrincipalBase @this)
-                => GetFlagsEnum1(@this);
-
-            public static void WriteFlagsEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
-                => GetFlagsEnum1(@this) = value;
+            public static extern ref CompiledModelTestBase.AFlagsEnum UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum2>k__BackingField")]
-            extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum2(CompiledModelTestBase.PrincipalBase @this);
-
-            public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum2(CompiledModelTestBase.PrincipalBase @this)
-                => GetFlagsEnum2(@this);
-
-            public static void WriteFlagsEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
-                => GetFlagsEnum2(@this) = value;
+            public static extern ref CompiledModelTestBase.AFlagsEnum UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-            extern static ref long? GetId(CompiledModelTestBase.PrincipalBase @this);
-
-            public static long? ReadId(CompiledModelTestBase.PrincipalBase @this)
-                => GetId(@this);
-
-            public static void WriteId(CompiledModelTestBase.PrincipalBase @this, long? value)
-                => GetId(@this) = value;
+            public static extern ref long? UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeArray>k__BackingField")]
-            extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.PrincipalBase @this);
-
-            public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.PrincipalBase @this)
-                => GetRefTypeArray(@this);
-
-            public static void WriteRefTypeArray(CompiledModelTestBase.PrincipalBase @this, IPAddress[] value)
-                => GetRefTypeArray(@this) = value;
+            public static extern ref IPAddress[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeEnumerable>k__BackingField")]
-            extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
-
-            public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
-                => GetRefTypeEnumerable(@this);
-
-            public static void WriteRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<string> value)
-                => GetRefTypeEnumerable(@this) = value;
+            public static extern ref IEnumerable<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeIList>k__BackingField")]
-            extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.PrincipalBase @this);
-
-            public static IList<string> ReadRefTypeIList(CompiledModelTestBase.PrincipalBase @this)
-                => GetRefTypeIList(@this);
-
-            public static void WriteRefTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<string> value)
-                => GetRefTypeIList(@this) = value;
+            public static extern ref IList<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeList>k__BackingField")]
-            extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.PrincipalBase @this);
-
-            public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.PrincipalBase @this)
-                => GetRefTypeList(@this);
-
-            public static void WriteRefTypeList(CompiledModelTestBase.PrincipalBase @this, List<IPAddress> value)
-                => GetRefTypeList(@this) = value;
+            public static extern ref List<IPAddress> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeArray>k__BackingField")]
-            extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.PrincipalBase @this);
-
-            public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.PrincipalBase @this)
-                => GetValueTypeArray(@this);
-
-            public static void WriteValueTypeArray(CompiledModelTestBase.PrincipalBase @this, DateTime[] value)
-                => GetValueTypeArray(@this) = value;
+            public static extern ref DateTime[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeEnumerable>k__BackingField")]
-            extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
-
-            public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
-                => GetValueTypeEnumerable(@this);
-
-            public static void WriteValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<byte> value)
-                => GetValueTypeEnumerable(@this) = value;
+            public static extern ref IEnumerable<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
-            extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.PrincipalBase @this);
-
-            public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.PrincipalBase @this)
-                => GetValueTypeIList(@this);
-
-            public static void WriteValueTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<byte> value)
-                => GetValueTypeIList(@this) = value;
+            public static extern ref IList<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(CompiledModelTestBase.PrincipalBase @this);
 
             [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeList>k__BackingField")]
-            extern static ref List<short> GetValueTypeList(CompiledModelTestBase.PrincipalBase @this);
-
-            public static List<short> ReadValueTypeList(CompiledModelTestBase.PrincipalBase @this)
-                => GetValueTypeList(@this);
-
-            public static void WriteValueTypeList(CompiledModelTestBase.PrincipalBase @this, List<short> value)
-                => GetValueTypeList(@this) = value;
+            public static extern ref List<short> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(CompiledModelTestBase.PrincipalBase @this);
             }
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_ownedField")]
-        extern static ref CompiledModelTestBase.OwnedType GetOwned(CompiledModelTestBase.PrincipalBase @this);
-
-        public static CompiledModelTestBase.OwnedType ReadOwned(CompiledModelTestBase.PrincipalBase @this)
-            => GetOwned(@this);
-
-        public static void WriteOwned(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.OwnedType value)
-            => GetOwned(@this) = value;
+        public static extern ref CompiledModelTestBase.OwnedType UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_details")]
-        extern static ref string GetDetails(CompiledModelTestBase.OwnedType @this);
-
-        public static string ReadDetails(CompiledModelTestBase.OwnedType @this)
-            => GetDetails(@this);
-
-        public static void WriteDetails(CompiledModelTestBase.OwnedType @this, string value)
-            => GetDetails(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Number>k__BackingField")]
-        extern static ref int GetNumber(CompiledModelTestBase.OwnedType @this);
-
-        public static int ReadNumber(CompiledModelTestBase.OwnedType @this)
-            => GetNumber(@this);
-
-        public static void WriteNumber(CompiledModelTestBase.OwnedType @this, int value)
-            => GetNumber(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeArray")]
-        extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.OwnedType @this);
-
-        public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeArray(@this);
-
-        public static void WriteRefTypeArray(CompiledModelTestBase.OwnedType @this, IPAddress[] value)
-            => GetRefTypeArray(@this) = value;
+        public static extern ref IPAddress[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeEnumerable")]
-        extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.OwnedType @this);
-
-        public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeEnumerable(@this);
-
-        public static void WriteRefTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<string> value)
-            => GetRefTypeEnumerable(@this) = value;
+        public static extern ref IEnumerable<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeIList")]
-        extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.OwnedType @this);
-
-        public static IList<string> ReadRefTypeIList(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeIList(@this);
-
-        public static void WriteRefTypeIList(CompiledModelTestBase.OwnedType @this, IList<string> value)
-            => GetRefTypeIList(@this) = value;
+        public static extern ref IList<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeList")]
-        extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.OwnedType @this);
-
-        public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeList(@this);
-
-        public static void WriteRefTypeList(CompiledModelTestBase.OwnedType @this, List<IPAddress> value)
-            => GetRefTypeList(@this) = value;
+        public static extern ref List<IPAddress> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeArray")]
-        extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.OwnedType @this);
-
-        public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeArray(@this);
-
-        public static void WriteValueTypeArray(CompiledModelTestBase.OwnedType @this, DateTime[] value)
-            => GetValueTypeArray(@this) = value;
+        public static extern ref DateTime[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeEnumerable")]
-        extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.OwnedType @this);
-
-        public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeEnumerable(@this);
-
-        public static void WriteValueTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<byte> value)
-            => GetValueTypeEnumerable(@this) = value;
+        public static extern ref IEnumerable<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
-        extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.OwnedType @this);
-
-        public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeIList(@this);
-
-        public static void WriteValueTypeIList(CompiledModelTestBase.OwnedType @this, IList<byte> value)
-            => GetValueTypeIList(@this) = value;
+        public static extern ref IList<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeList")]
-        extern static ref List<short> GetValueTypeList(CompiledModelTestBase.OwnedType @this);
-
-        public static List<short> ReadValueTypeList(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeList(@this);
-
-        public static void WriteValueTypeList(CompiledModelTestBase.OwnedType @this, List<short> value)
-            => GetValueTypeList(@this) = value;
+        public static extern ref List<short> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(CompiledModelTestBase.OwnedType @this);
         }
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
@@ -2992,17 +2844,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Deriveds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             deriveds.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadDeriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadDeriveds(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.ReadDeriveds(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.ReadDeriveds(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(instance) == null);
             deriveds.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.WriteDeriveds(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = value);
             deriveds.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.WriteDeriveds(entity, value));
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = value);
             deriveds.SetAccessors(
-                (InternalEntityEntry entry) => PrincipalBaseEntityType.ReadDeriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => PrincipalBaseEntityType.ReadDeriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds),
                 null);
@@ -3013,9 +2865,9 @@ namespace TestNamespace
                 relationshipIndex: 2,
                 storeGenerationIndex: -1);
             deriveds.SetCollectionAccessor<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
-                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadDeriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.WriteDeriveds(entity, (ICollection<CompiledModelTestBase.PrincipalBase>)collection),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.WriteDeriveds(entity, (ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
                 (CompiledModelTestBase.PrincipalBase entity, Action<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
                 () => (ICollection<CompiledModelTestBase.PrincipalBase>)(ICollection<CompiledModelTestBase.PrincipalBase>)new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance));
             return runtimeForeignKey;
@@ -3087,7 +2939,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), SnapshotFactoryFactory.SnapshotCollection(ReadDeriveds(entity)));
+                    return (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 39,
@@ -3198,129 +3050,45 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref long? GetId(CompiledModelTestBase.PrincipalBase @this);
-
-        public static long? ReadId(CompiledModelTestBase.PrincipalBase @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelTestBase.PrincipalBase @this, long? value)
-            => GetId(@this) = value;
+        public static extern ref long? UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum1>k__BackingField")]
-        extern static ref CompiledModelTestBase.AnEnum GetEnum1(CompiledModelTestBase.PrincipalBase @this);
-
-        public static CompiledModelTestBase.AnEnum ReadEnum1(CompiledModelTestBase.PrincipalBase @this)
-            => GetEnum1(@this);
-
-        public static void WriteEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum value)
-            => GetEnum1(@this) = value;
+        public static extern ref CompiledModelTestBase.AnEnum UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum2>k__BackingField")]
-        extern static ref CompiledModelTestBase.AnEnum? GetEnum2(CompiledModelTestBase.PrincipalBase @this);
-
-        public static CompiledModelTestBase.AnEnum? ReadEnum2(CompiledModelTestBase.PrincipalBase @this)
-            => GetEnum2(@this);
-
-        public static void WriteEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum? value)
-            => GetEnum2(@this) = value;
+        public static extern ref CompiledModelTestBase.AnEnum? UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum1>k__BackingField")]
-        extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum1(CompiledModelTestBase.PrincipalBase @this);
-
-        public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum1(CompiledModelTestBase.PrincipalBase @this)
-            => GetFlagsEnum1(@this);
-
-        public static void WriteFlagsEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
-            => GetFlagsEnum1(@this) = value;
+        public static extern ref CompiledModelTestBase.AFlagsEnum UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum2>k__BackingField")]
-        extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum2(CompiledModelTestBase.PrincipalBase @this);
-
-        public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum2(CompiledModelTestBase.PrincipalBase @this)
-            => GetFlagsEnum2(@this);
-
-        public static void WriteFlagsEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
-            => GetFlagsEnum2(@this) = value;
+        public static extern ref CompiledModelTestBase.AFlagsEnum UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeArray>k__BackingField")]
-        extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.PrincipalBase @this);
-
-        public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.PrincipalBase @this)
-            => GetRefTypeArray(@this);
-
-        public static void WriteRefTypeArray(CompiledModelTestBase.PrincipalBase @this, IPAddress[] value)
-            => GetRefTypeArray(@this) = value;
+        public static extern ref IPAddress[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeEnumerable>k__BackingField")]
-        extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
-
-        public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
-            => GetRefTypeEnumerable(@this);
-
-        public static void WriteRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<string> value)
-            => GetRefTypeEnumerable(@this) = value;
+        public static extern ref IEnumerable<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeIList>k__BackingField")]
-        extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.PrincipalBase @this);
-
-        public static IList<string> ReadRefTypeIList(CompiledModelTestBase.PrincipalBase @this)
-            => GetRefTypeIList(@this);
-
-        public static void WriteRefTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<string> value)
-            => GetRefTypeIList(@this) = value;
+        public static extern ref IList<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeList>k__BackingField")]
-        extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.PrincipalBase @this);
-
-        public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.PrincipalBase @this)
-            => GetRefTypeList(@this);
-
-        public static void WriteRefTypeList(CompiledModelTestBase.PrincipalBase @this, List<IPAddress> value)
-            => GetRefTypeList(@this) = value;
+        public static extern ref List<IPAddress> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeArray>k__BackingField")]
-        extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.PrincipalBase @this);
-
-        public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.PrincipalBase @this)
-            => GetValueTypeArray(@this);
-
-        public static void WriteValueTypeArray(CompiledModelTestBase.PrincipalBase @this, DateTime[] value)
-            => GetValueTypeArray(@this) = value;
+        public static extern ref DateTime[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeEnumerable>k__BackingField")]
-        extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
-
-        public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
-            => GetValueTypeEnumerable(@this);
-
-        public static void WriteValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<byte> value)
-            => GetValueTypeEnumerable(@this) = value;
+        public static extern ref IEnumerable<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
-        extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.PrincipalBase @this);
-
-        public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.PrincipalBase @this)
-            => GetValueTypeIList(@this);
-
-        public static void WriteValueTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<byte> value)
-            => GetValueTypeIList(@this) = value;
+        public static extern ref IList<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeList>k__BackingField")]
-        extern static ref List<short> GetValueTypeList(CompiledModelTestBase.PrincipalBase @this);
-
-        public static List<short> ReadValueTypeList(CompiledModelTestBase.PrincipalBase @this)
-            => GetValueTypeList(@this);
-
-        public static void WriteValueTypeList(CompiledModelTestBase.PrincipalBase @this, List<short> value)
-            => GetValueTypeList(@this) = value;
+        public static extern ref List<short> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(CompiledModelTestBase.PrincipalBase @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Deriveds>k__BackingField")]
-        extern static ref ICollection<CompiledModelTestBase.PrincipalBase> GetDeriveds(CompiledModelTestBase.PrincipalBase @this);
-
-        public static ICollection<CompiledModelTestBase.PrincipalBase> ReadDeriveds(CompiledModelTestBase.PrincipalBase @this)
-            => GetDeriveds(@this);
-
-        public static void WriteDeriveds(CompiledModelTestBase.PrincipalBase @this, ICollection<CompiledModelTestBase.PrincipalBase> value)
-            => GetDeriveds(@this) = value;
+        public static extern ref ICollection<CompiledModelTestBase.PrincipalBase> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(CompiledModelTestBase.PrincipalBase @this);
     }
 }

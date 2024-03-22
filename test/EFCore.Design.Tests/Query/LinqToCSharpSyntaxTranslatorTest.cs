@@ -114,46 +114,45 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
             """typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 3)""");
 
     [Theory]
-    [InlineData(ExpressionType.AddAssign, "+")]
-    [InlineData(ExpressionType.MultiplyAssign, "*")]
-    [InlineData(ExpressionType.DivideAssign, "/")]
-    [InlineData(ExpressionType.ModuloAssign, "%")]
-    [InlineData(ExpressionType.SubtractAssign, "-")]
-    [InlineData(ExpressionType.AndAssign, "&")]
-    [InlineData(ExpressionType.OrAssign, "|")]
-    [InlineData(ExpressionType.LeftShiftAssign, "<<")]
-    [InlineData(ExpressionType.RightShiftAssign, ">>")]
-    [InlineData(ExpressionType.ExclusiveOrAssign, "^")]
+    [InlineData(ExpressionType.AddAssign, "+=")]
+    [InlineData(ExpressionType.MultiplyAssign, "*=")]
+    [InlineData(ExpressionType.DivideAssign, "/=")]
+    [InlineData(ExpressionType.ModuloAssign, "%=")]
+    [InlineData(ExpressionType.SubtractAssign, "-=")]
+    [InlineData(ExpressionType.AndAssign, "&=")]
+    [InlineData(ExpressionType.OrAssign, "|=")]
+    [InlineData(ExpressionType.LeftShiftAssign, "<<=")]
+    [InlineData(ExpressionType.RightShiftAssign, ">>=")]
+    [InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
     public void Private_instance_field_AssignOperators(ExpressionType expressionType, string op)
         => AssertExpression(
             MakeBinary(
                 expressionType,
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            $"""typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, (int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog) {op} 3)""");
+            $"""typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 3)""");
 
     [Theory]
-    [InlineData(ExpressionType.AddAssign, "+")]
-    [InlineData(ExpressionType.MultiplyAssign, "*")]
-    [InlineData(ExpressionType.DivideAssign, "/")]
-    [InlineData(ExpressionType.ModuloAssign, "%")]
-    [InlineData(ExpressionType.SubtractAssign, "-")]
-    [InlineData(ExpressionType.AndAssign, "&")]
-    [InlineData(ExpressionType.OrAssign, "|")]
-    [InlineData(ExpressionType.LeftShiftAssign, "<<")]
-    [InlineData(ExpressionType.RightShiftAssign, ">>")]
-    [InlineData(ExpressionType.ExclusiveOrAssign, "^")]
+    [InlineData(ExpressionType.AddAssign, "+=")]
+    [InlineData(ExpressionType.MultiplyAssign, "*=")]
+    [InlineData(ExpressionType.DivideAssign, "/=")]
+    [InlineData(ExpressionType.ModuloAssign, "%=")]
+    [InlineData(ExpressionType.SubtractAssign, "-=")]
+    [InlineData(ExpressionType.AndAssign, "&=")]
+    [InlineData(ExpressionType.OrAssign, "|=")]
+    [InlineData(ExpressionType.LeftShiftAssign, "<<=")]
+    [InlineData(ExpressionType.RightShiftAssign, ">>=")]
+    [InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
     public void Private_instance_field_AssignOperators_with_replacements(ExpressionType expressionType, string op)
         => AssertExpression(
             MakeBinary(
                 expressionType,
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            $"""WritePrivateField(blog, ReadPrivateField(blog) {op} Three)""",
+            $"""AccessPrivateField(blog) {op} Three""",
             new Dictionary<object, string>() { { 3, "Three" } },
-            new Dictionary<MemberAccess, string>() {
-                { new MemberAccess(BlogPrivateField, assignment: true), "WritePrivateField" },
-                { new MemberAccess(BlogPrivateField, assignment: false), "ReadPrivateField" }
+            new Dictionary<MemberInfo, QualifiedName>() {
+                { BlogPrivateField, new QualifiedName("AccessPrivateField", "") }
                 });
 
     [Theory]
@@ -1892,17 +1891,17 @@ catch
 
     private void AssertStatement(Expression expression, string expected,
         Dictionary<object, string>? constantReplacements = null,
-        Dictionary<MemberAccess, string>? memberAccessReplacements = null)
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null)
         => AssertCore(expression, isStatement: true, expected, constantReplacements, memberAccessReplacements);
 
     private void AssertExpression(Expression expression, string expected,
         Dictionary<object, string>? constantReplacements = null,
-        Dictionary<MemberAccess, string>? memberAccessReplacements = null)
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null)
         => AssertCore(expression, isStatement: false, expected, constantReplacements, memberAccessReplacements);
 
     private void AssertCore(Expression expression, bool isStatement, string expected,
         Dictionary<object, string>? constantReplacements,
-        Dictionary<MemberAccess, string>? memberAccessReplacements)
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

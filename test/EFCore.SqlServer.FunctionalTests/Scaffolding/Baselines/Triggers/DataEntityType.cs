@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -18,7 +19,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TestNamespace
 {
-    internal partial class DataEntityType
+    [EntityFrameworkInternal]
+    public partial class DataEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -65,17 +67,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             blob.SetGetter(
-                (CompiledModelTestBase.Data entity) => ReadBlob(entity),
-                (CompiledModelTestBase.Data entity) => ReadBlob(entity) == null,
-                (CompiledModelTestBase.Data instance) => ReadBlob(instance),
-                (CompiledModelTestBase.Data instance) => ReadBlob(instance) == null);
+                (CompiledModelTestBase.Data entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity),
+                (CompiledModelTestBase.Data entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity) == null,
+                (CompiledModelTestBase.Data instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(instance),
+                (CompiledModelTestBase.Data instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(instance) == null);
             blob.SetSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => WriteBlob(entity, value));
+                (CompiledModelTestBase.Data entity, byte[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity) = value);
             blob.SetMaterializationSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => WriteBlob(entity, value));
+                (CompiledModelTestBase.Data entity, byte[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity) = value);
             blob.SetAccessors(
-                (InternalEntityEntry entry) => ReadBlob((CompiledModelTestBase.Data)entry.Entity),
-                (InternalEntityEntry entry) => ReadBlob((CompiledModelTestBase.Data)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob((CompiledModelTestBase.Data)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob((CompiledModelTestBase.Data)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 1),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(blob),
                 (ValueBuffer valueBuffer) => valueBuffer[1]);
@@ -102,6 +104,7 @@ namespace TestNamespace
                     storeTypeName: "varbinary(max)"),
                 storeTypePostfix: StoreTypePostfix.None);
             blob.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            blob.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DataEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob", "TestNamespace") });
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -162,12 +165,6 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Blob>k__BackingField")]
-        extern static ref byte[] GetBlob(CompiledModelTestBase.Data @this);
-
-        public static byte[] ReadBlob(CompiledModelTestBase.Data @this)
-            => GetBlob(@this);
-
-        public static void WriteBlob(CompiledModelTestBase.Data @this, byte[] value)
-            => GetBlob(@this) = value;
+        public static extern ref byte[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(CompiledModelTestBase.Data @this);
     }
 }

@@ -325,6 +325,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         modelBuilder.Entity<PrincipalBase>(
             eb =>
             {
+                eb.Property("FlagsEnum2");
                 eb.ComplexProperty(
                     e => e.Owned, eb =>
                     {
@@ -464,6 +465,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             eb =>
             {
                 eb.Ignore(e => e.Owned);
+                eb.Property("FlagsEnum2");
 
                 eb.UseTpcMappingStrategy();
 

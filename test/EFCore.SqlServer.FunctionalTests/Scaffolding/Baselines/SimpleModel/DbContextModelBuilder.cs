@@ -64,11 +64,11 @@ namespace TestNamespace
             dependentDerivedintTable.Columns.Add("Data", dataColumn);
             var pK_DependentDerivedint = new UniqueConstraint("PK_DependentDerived<int>", dependentDerivedintTable, new[] { idColumn });
             dependentDerivedintTable.PrimaryKey = pK_DependentDerivedint;
-            var pK_DependentDerivedintUc = RelationalModel.GetKey(this,
+            var pK_DependentDerivedintKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<int>",
                 new[] { "Id" });
-            pK_DependentDerivedint.MappedKeys.Add(pK_DependentDerivedintUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentDerivedintUc).Add(pK_DependentDerivedint);
+            pK_DependentDerivedint.MappedKeys.Add(pK_DependentDerivedintKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentDerivedintKey).Add(pK_DependentDerivedint);
             dependentDerivedintTable.UniqueConstraints.Add("PK_DependentDerived<int>", pK_DependentDerivedint);
             relationalModel.Tables.Add(("DependentDerived<int>", null), dependentDerivedintTable);
             var dependentDerivedintTableMapping = new TableMapping(dependentDerived, dependentDerivedintTable, null);

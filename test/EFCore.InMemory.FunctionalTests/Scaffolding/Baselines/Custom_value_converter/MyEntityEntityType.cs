@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,7 +17,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace TestNamespace
 {
-    internal partial class MyEntityEntityType
+    [EntityFrameworkInternal]
+    public partial class MyEntityEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
