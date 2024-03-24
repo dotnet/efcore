@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-#nullable enable
-
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
@@ -13,7 +11,6 @@ using NetTopologySuite;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
-#nullable disable
 [SpatialiteRequired]
 public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
 {
