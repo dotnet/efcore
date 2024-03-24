@@ -3,10 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable disable
-
-#nullable enable
-
 public class StoreValueGenerationSqliteFixture : StoreValueGenerationFixtureBase
 {
     private string? _cleanDataSql;
