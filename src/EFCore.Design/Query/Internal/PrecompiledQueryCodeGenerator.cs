@@ -11,8 +11,6 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.EntityFrameworkCore.Internal;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -38,7 +36,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     private readonly HashSet<string> _namespaces = new();
     private readonly HashSet<MethodDeclarationSyntax> _unsafeAccessors = new();
     private readonly ExpressionPrinter _sqlExpressionPrinter = new();
-    private readonly StringBuilder _stringBuilder = new();
+    private readonly IndentedStringBuilder _code = new();
     private static readonly ShaperPublicMethodVerifier ShaperPublicMethodVerifier = new();
 
     private const string InterceptorsNamespace = "Microsoft.EntityFrameworkCore.GeneratedInterceptors";
@@ -103,19 +101,19 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
         var syntaxGenerator = SyntaxGenerator.GetGenerator(project);
 
-        var generatedSyntaxTrees = GeneratePrecompiledQueries(
+        var generatedFiles = GeneratePrecompiledQueries(
             compilation, syntaxGenerator, dbContext, precompilationErrors, additionalAssembly: null, cancellationToken);
 
-        foreach (var generatedSyntaxTree in generatedSyntaxTrees)
+        foreach (var generatedFile in generatedFiles)
         {
             // var document = project.AddDocument(OutputFileName, bootstrapperSyntaxRoot);
 
-            var generatedSource = (await generatedSyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false))
-                .ToFullString();
+            // var generatedSource = (await generatedSyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false))
+                // .ToFullString();
             // var outputFilePath = Path.Combine(outputDir, OutputFileName);
             // File.WriteAllText(outputFilePath, bootstrapperText);
 
-            var document = project.AddDocument(OutputFileName, generatedSource);
+            var document = project.AddDocument(OutputFileName, generatedFile.Code);
 
             // document = await ImportAdder.AddImportsAsync(document, options: null, cancellationToken).ConfigureAwait(false);
             // document = await ImportAdder.AddImportsFromSymbolAnnotationAsync(
@@ -162,7 +160,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IReadOnlyList<SyntaxTree> GeneratePrecompiledQueries(
+    public IReadOnlyList<GeneratedInterceptorFile> GeneratePrecompiledQueries(
         Compilation compilation,
         SyntaxGenerator syntaxGenerator,
         DbContext dbContext,
@@ -188,7 +186,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         _csharpToLinqTranslator.Load(compilation, dbContext, additionalAssembly);
 
         // TODO: Ignore our auto-generated code! Also compiled model, generated code (comment, filename...?).
-        var generatedSyntaxTrees = new List<SyntaxTree>();
+        var generatedSyntaxTrees = new List<GeneratedInterceptorFile>();
         foreach (var syntaxTree in compilation.SyntaxTrees
                      .Where(t => t.FilePath.Split(Path.DirectorySeparatorChar)[^1] != OutputFileName))
         {
@@ -215,7 +213,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SyntaxTree? ProcessSyntaxTreeAsync(
+    protected virtual GeneratedInterceptorFile? ProcessSyntaxTreeAsync(
         SyntaxTree syntaxTree,
         SemanticModel semanticModel,
         IReadOnlyList<InvocationExpressionSyntax> locatedQueries,
@@ -224,7 +222,15 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     {
         var queriesPrecompiledInFile = 0;
         _namespaces.Clear();
-        var classMembers = new List<SyntaxNode>();
+        _code.Clear();
+        _code
+            .AppendLine()
+            .Append("namespace ").AppendLine(InterceptorsNamespace)
+            .AppendLine("{")
+            .IncrementIndent()
+            .AppendLine("file static class EntityFrameworkCoreInterceptors")
+            .AppendLine("{")
+            .IncrementIndent();
 
         for (var queryNum = 0; queryNum < locatedQueries.Count; queryNum++)
         {
@@ -246,9 +252,20 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
                 // The query has been compiled successfully by the EF query pipeline.
                 // Now go over each LINQ operator, generating an interceptor for it.
-                ProcessQueryOperator(
-                    classMembers, semanticModel, (InvocationExpressionSyntax)querySyntax, queryTree, queryNum + 1, operatorNum: out _,
-                    isTerminatingOperator: true, cancellationToken, queryExecutor);
+                _code.AppendLine($"#region Query{queryNum + 1}").AppendLine();
+
+                try
+                {
+                    ProcessQueryOperator(
+                        _code, semanticModel, querySyntax, queryTree, queryNum + 1, operatorNum: out _, isTerminatingOperator: true,
+                        cancellationToken, queryExecutor);
+                }
+                finally
+                {
+                    _code
+                        .AppendLine()
+                        .AppendLine($"#endregion Query{queryNum + 1}");
+                }
             }
             catch (Exception e)
             {
@@ -257,9 +274,6 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             }
 
             // We're done generating the interceptors for the query's LINQ operators.
-            // TODO: Wrap the query's interceptor in a region
-            // interceptorMethodDeclaration = interceptorMethodDeclaration.WithLeadingTrivia(
-            // RegionDirectiveTrivia());
 
             queriesPrecompiledInFile++;
         }
@@ -269,25 +283,48 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             return null;
         }
 
-        var usingDirectives = List(
-            _namespaces
+        // Output all the unsafe accessors that were generated for all intercepted shapers, e.g.:
+        // [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
+        // static extern ref int GetSet_Foo_Name(Foo f);
+        if (_unsafeAccessors.Count > 0)
+        {
+            _code.AppendLine("#region Unsafe accessors");
+            foreach (var unsafeAccessor in _unsafeAccessors)
+            {
+                _code.AppendLine(unsafeAccessor.NormalizeWhitespace().ToFullString());
+            }
+            _code.AppendLine("#endregion Unsafe accessors");
+        }
+
+        _code
+            .DecrementIndent().AppendLine("}")
+            .DecrementIndent().AppendLine("}");
+
+        // TODO: Recycle
+        var generatedFile = new StringBuilder();
+        generatedFile.AppendLine("// <auto-generated />").AppendLine();
+
+        foreach (var ns in _namespaces
                 // In addition to the namespaces auto-detected by LinqToCSharpTranslator, we manually add these namespaces which are required
                 // by manually generated code above.
                 .Append("System")
                 .Append("System.Collections.Concurrent")
+                .Append("System.Collections.Generic")
                 .Append("System.Linq")
                 .Append("System.Linq.Expressions")
                 .Append("System.Runtime.CompilerServices")
                 .Append("System.Reflection")
-                .Append("System.Collections.Generic")
+                .Append("System.Threading.Tasks")
                 .Append("Microsoft.EntityFrameworkCore")
-                .Append("Microsoft.EntityFrameworkCore.Query")
                 .Append("Microsoft.EntityFrameworkCore.ChangeTracking.Internal")
-                .Append("Microsoft.EntityFrameworkCore.Query.Internal")
                 .Append("Microsoft.EntityFrameworkCore.Diagnostics")
                 .Append("Microsoft.EntityFrameworkCore.Infrastructure")
                 .Append("Microsoft.EntityFrameworkCore.Infrastructure.Internal")
+                .Append("Microsoft.EntityFrameworkCore.Internal")
                 .Append("Microsoft.EntityFrameworkCore.Metadata")
+                .Append("Microsoft.EntityFrameworkCore.Query")
+                .Append("Microsoft.EntityFrameworkCore.Query.Internal")
+                .Append("Microsoft.EntityFrameworkCore.Storage")
                 .OrderBy(
                     ns => ns switch
                     {
@@ -295,70 +332,28 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                         _ when ns.StartsWith("Microsoft.", StringComparison.Ordinal) => 9,
                         _ => 0
                     })
-                .ThenBy(ns => ns)
-                .Select(_g.NamespaceImportDeclaration));
+                .ThenBy(ns => ns))
+        {
+            generatedFile.Append("using ").Append(ns).AppendLine(";");
+        }
 
-        // TODO: Wrap the unsafe accessors in a region
-        // Output all the unsafe accessors that were generated for all intercepted shapers, e.g.:
-        // [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Name>k__BackingField")]
-        // static extern ref int GetSet_Foo_Name(Foo f);
-        classMembers.AddRange(_unsafeAccessors.OrderBy(ua => ua.Identifier.Text));
+        generatedFile.AppendLine(_code.ToString());
 
-        // sealed class InterceptsLocationAttribute : Attribute
-        // {
-        //     public InterceptsLocationAttribute(string filePath, int line, int column) { }
-        // }
-        var interceptsLocationAttributeDeclaration =
-            _g.ClassDeclaration(
-                "InterceptsLocationAttribute",
-                baseType: IdentifierName(nameof(Attribute)),
-                modifiers: DeclarationModifiers.Sealed | DeclarationModifiers.File,
-                members: new[]
-                {
-                    _g.ConstructorDeclaration(
-                        accessibility: Accessibility.Public,
-                        parameters: new[]
-                        {
-                            _g.ParameterDeclaration("filePath", _g.TypeExpression(SpecialType.System_String)),
-                            _g.ParameterDeclaration("line", _g.TypeExpression(SpecialType.System_Int32)),
-                            _g.ParameterDeclaration("column", _g.TypeExpression(SpecialType.System_Int32)),
-                        }
-                    )
-                });
+        generatedFile.AppendLine(
+            """
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    sealed class InterceptsLocationAttribute : Attribute
+    {
+        public InterceptsLocationAttribute(string filePath, int line, int column) { }
+    }
+}
+""");
 
-        // [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-        interceptsLocationAttributeDeclaration = _g.AddAttributes(
-            interceptsLocationAttributeDeclaration,
-            _g.Attribute(
-                "AttributeUsage",
-                _g.MemberAccessExpression(IdentifierName("AttributeTargets"), nameof(AttributeTargets.Method)),
-                _g.AttributeArgument("AllowMultiple", _g.TrueLiteralExpression())));
-
-        // TODO: Add generated comment
-        var compilationUnit =
-            _g.CompilationUnit(
-                    new List<SyntaxNode>(usingDirectives)
-                    {
-                        _g.NamespaceDeclaration(
-                                InterceptorsNamespace,
-                                _g.ClassDeclaration(
-                                    "EntityFrameworkCoreInterceptors",
-                                    modifiers: DeclarationModifiers.Static | DeclarationModifiers.File,
-                                    members: classMembers))
-                            .WithLeadingTrivia(
-                                // Suppress EF1001 as it's OK to reference EF-pubternal stuff from within generated code.
-                                Trivia(
-                                    PragmaWarningDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true)
-                                        .WithErrorCodes(SingletonSeparatedList<ExpressionSyntax>(IdentifierName("EF1001")))),
-                                // TODO: Enable nullable reference types by inspecting Roslyn symbols of corresponding LINQ expression methods etc.
-                                Trivia(NullableDirectiveTrivia(Token(SyntaxKind.DisableKeyword), true))),
-                        _g.NamespaceDeclaration("System.Runtime.CompilerServices", interceptsLocationAttributeDeclaration)
-                    })
-                .NormalizeWhitespace();
-
-        return SyntaxTree(
-            compilationUnit,
-            path: $"{Path.GetFileNameWithoutExtension(syntaxTree.FilePath)}.EFInterceptors.g{Path.GetExtension(syntaxTree.FilePath)}");
+        return new(
+            $"{Path.GetFileNameWithoutExtension(syntaxTree.FilePath)}.EFInterceptors.g{Path.GetExtension(syntaxTree.FilePath)}"
+            ,generatedFile.ToString());
     }
 
     /// <summary>
@@ -428,7 +423,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     }
 
     private void ProcessQueryOperator(
-        List<SyntaxNode> interceptors,
+        IndentedStringBuilder code,
         SemanticModel semanticModel,
         InvocationExpressionSyntax operatorSyntax,
         MethodCallExpression operatorLinq,
@@ -438,8 +433,31 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         CancellationToken cancellationToken,
         Expression? queryExecutor = null)
     {
-        var statements = new List<SyntaxNode>();
         var memberAccess = (MemberAccessExpressionSyntax)operatorSyntax.Expression;
+
+        // TODO: Also need to detect DbContext.Set<T>() invocation
+        InvocationExpressionSyntax? nestedOperatorSyntax = null;
+        if (memberAccess.Expression is InvocationExpressionSyntax tempNestedOperatorSyntax)
+        {
+            if (operatorLinq.Arguments[0] is not MethodCallExpression nestedOperatorLinq)
+            {
+                throw new UnreachableException(
+                    $"Encountered non-MethodCallExpression node '{operatorLinq.Arguments[0].GetType().Name}' although the corresponding syntax node was an invocation");
+            }
+
+            nestedOperatorSyntax = tempNestedOperatorSyntax;
+
+            // This isn't the first query operator in the chain.
+            // First recurse into the nested operator, to generate its interceptor first.
+            ProcessQueryOperator(
+                code, semanticModel, nestedOperatorSyntax, nestedOperatorLinq, queryNum, out operatorNum,
+                isTerminatingOperator: false, cancellationToken);
+            operatorNum++;
+        }
+        else
+        {
+            operatorNum = 1;
+        }
 
         // Create the parameter list for our interceptor method from the LINQ operator method's parameter list
         if (semanticModel.GetSymbolInfo(memberAccess, cancellationToken).Symbol is not IMethodSymbol operatorSymbol)
@@ -487,54 +505,33 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             _ => null
         };
 
-        var precompiledQueryContextSymbol = _symbols.PrecompiledQueryContext.Construct(sourceElementTypeSymbol);
+        // Output the interceptor method method signature (and [InterceptsLocation] attribute)
+        var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccess.Name.Span, cancellationToken).StartLinePosition;
+        var interceptorName = $"Query{queryNum}_{memberAccess.Name}{operatorNum}";
 
-        // TODO: Also need to detect DbContext.Set<T>() invocation
-        if (memberAccess.Expression is InvocationExpressionSyntax nestedOperatorSyntax)
-        {
-            if (operatorLinq.Arguments[0] is not MethodCallExpression nestedOperatorLinq)
-            {
-                throw new UnreachableException(
-                    $"Encountered non-MethodCallExpression node '{operatorLinq.Arguments[0].GetType().Name}' although the corresponding syntax node was an invocation");
-            }
+        code.AppendLine($"""[InterceptsLocation("{operatorSyntax.SyntaxTree.FilePath}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
 
-            // This isn't the first query operator in the chain.
-            // First recurse into the nested operator, to generate its interceptor first.
-            ProcessQueryOperator(
-                interceptors, semanticModel, nestedOperatorSyntax, nestedOperatorLinq, queryNum, out operatorNum,
-                isTerminatingOperator: false, cancellationToken);
-            operatorNum++;
+        // To create the interceptor method declaration, we copy the method definition of the original intercepted method, replacing the
+        // name and nulling out the body (we'll be appending the body statements as strings, not providing them as syntax nodes).
+        code.AppendLine(
+                ((MethodDeclarationSyntax)_g.WithName(
+                    _g.MethodDeclaration(reducedOperatorSymbol, statements: null),
+                    interceptorName))
+                .WithBody(null)
+                .NormalizeWhitespace().ToFullString())
+            .AppendLine("{")
+            .IncrementIndent();
 
-            // Then, when generating our interceptor, we'll need to receive the PrecompiledQueryContext from the nested operator and
-            // flow it forward.
-
-            // var precompiledQueryContext = (PrecompiledQueryContext<Blog>)source;
-            statements.Add(
-                _g.LocalDeclarationStatement(
-                    "precompiledQueryContext",
-                    _g.CastExpression(precompiledQueryContextSymbol, sourceIdentifier)));
-        }
-        else
-        {
-            // This is the first query operator in the chain. Cast the input source to IDbContextContainer and extract the EF
-            // service provider, create a new QueryContext, and wrap it all in a PrecompiledQueryContext that will flow through to the
-            // terminating operator, where the query will actually get executed.
-            operatorNum = 1;
-
-            // var dbContext = ((IDbContextContainer)source).DbContext;
-            statements.Add(
-                _g.LocalDeclarationStatement(
-                    "dbContext",
-                    _g.MemberAccessExpression(
-                        _g.CastExpression(_symbols.DbContextContainer, sourceIdentifier),
-                        nameof(InternalDbSet<string>.DbContext))));
-
-            // var precompiledQueryContext = new PrecompiledQueryContext<Blog>(dbContext);
-            statements.Add(
-                _g.LocalDeclarationStatement(
-                    "precompiledQueryContext",
-                    _g.ObjectCreationExpression(precompiledQueryContextSymbol, _g.IdentifierName("dbContext"))));
-        }
+        // If this is the first query operator (no nested operator), cast the input source to IDbContextContainer and extract the EF
+        // service provider, create a new QueryContext, and wrap it all in a PrecompiledQueryContext that will flow through to the
+        // terminating operator, where the query will actually get executed.
+        // Otherwise, if this is a non-first operator, receive the PrecompiledQueryContext from the nested operator and flow it forward.
+        // TODO: These should be strings, not symbols and syntax nodes
+        code.AppendLine(
+            "var precompiledQueryContext = "
+            + (nestedOperatorSyntax is null
+                ? $"new PrecompiledQueryContext<{sourceElementTypeSymbol.Name}>(((IDbContextContainer){sourceIdentifier}).DbContext);"
+                : $"(PrecompiledQueryContext<{sourceElementTypeSymbol.Name}>){sourceIdentifier};"));
 
         // Go over the operator's arguments (skipping the first, which is the source).
         // For those which have captured variables, run them through our funcletizer, which will return code for extracting any captured
@@ -551,20 +548,8 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 continue;
             }
 
-            // TODO: It may be possible to use Roslyn data flow analysis here, but that seems to also look at nested operators
-            // of this operator, even though we give it only the argument...
-            // This is necessary if we want to know the reference nullability of captured variables, so we can optimize the SQLs
-            // pregenerated (depends on the number of nullable parameters).
-            // var captured = semanticModel.AnalyzeDataFlow(argument.Expression).Captured;
-            // if (captured.Length > 0)
-            // {
-            //     var argumentAsLinq = _csharpToLinqTranslator.Translate(argument, semanticModel);
-            //     var boo = funcletizer.Funcletize(argumentAsLinq);
-            // }
-
-            var evaluatableRootPaths = _funcletizer.CalculatePathsToEvaluatableRoots(operatorLinq, i);
-
-            if (evaluatableRootPaths is null)
+            if (_funcletizer.CalculatePathsToEvaluatableRoots(operatorLinq, i) is not ExpressionTreeFuncletizer.PathNode
+                evaluatableRootPaths)
             {
                 // There are no captured variables in this lambda argument - skip the argument
                 continue;
@@ -574,13 +559,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             // which extracts them and sets them on our query context.
             if (!declaredQueryContextVariable)
             {
-                // var queryContext = precompiledQueryContext.QueryContext;
-                statements.Add(
-                    _g.LocalDeclarationStatement(
-                        "queryContext",
-                        _g.MemberAccessExpression(
-                            _g.IdentifierName("precompiledQueryContext"), nameof(PrecompiledQueryContext<int>.QueryContext))));
-
+                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
                 declaredQueryContextVariable = true;
             }
 
@@ -590,14 +569,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             {
                 // Special case: this is a non-lambda argument (Skip/Take/FromSql).
                 // Simply add the argument directly as a parameter
-
-                // queryContext.Add("__p_0", count);
-                statements.Add(
-                    _g.InvocationExpression(
-                        _g.MemberAccessExpression(_g.IdentifierName("queryContext"), nameof(QueryContext.AddParameter)),
-                        _g.LiteralExpression(evaluatableRootPaths.ParameterName!),
-                        _g.IdentifierName(parameter.Name!)));
-
+                code.AppendLine($"""queryContext.AddParameter("{evaluatableRootPaths.ParameterName}", {parameter.Name});""");
                 continue;
             }
 
@@ -614,13 +586,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                     var roslynPathSegment = _linqToCSharpTranslator.TranslateExpression(
                         linqPathSegment, constantReplacements: null, collectedNamespaces, unsafeAccessors);
 
-                    var cast = _g.CastExpression(
-                        GetTypeSyntax(capturedVariablesPathTree.ExpressionType),
-                        roslynPathSegment);
-
                     var variableName = capturedVariablesPathTree.ExpressionType.Name;
                     variableName = char.ToLower(variableName[0]) + variableName[1..^"Expression".Length] + ++variableCounter;
-                    statements.Add(_g.LocalDeclarationStatement(variableName, cast));
+                    code.AppendLine($"var {variableName} = ({capturedVariablesPathTree.ExpressionType.Name}){roslynPathSegment};");
 
                     if (capturedVariablesPathTree.Children?.Count > 0)
                     {
@@ -635,56 +603,24 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
                     // We've reached a leaf, meaning that it's an evaluatable node that contains captured variables.
                     // Generate code to evaluate this node and assign the result to the parameters dictionary:
+
                     // TODO: For the common case of a simple parameter (member access over closure type), generate reflection code directly
                     // TODO: instead of going through the interpreter, as we do in the funcletizer itself (for perf)
-
-                    // Expression.Convert(expression, typeof(object))
-                    var evaluator =
-                        _g.InvocationExpression(
-                            _g.MemberAccessExpression(
-                                _g.TypeExpression(_symbols.Expression),
-                                nameof(Expression.Convert)),
-                            _g.IdentifierName(variableName),
-                            _g.TypeOfExpression(_g.TypeExpression(SpecialType.System_Object)));
-
-                    // Expression.Lambda<Func<object?>>(Expression.Convert(right1, typeof(object)))
-                    evaluator =
-                        _g.InvocationExpression(
-                            _g.MemberAccessExpression(
-                                _g.TypeExpression(_symbols.Expression),
-                                _g.GenericName(
-                                    nameof(Expression.Lambda),
-                                    _g.GenericName(
-                                        "Func",
-                                        _g.TypeExpression(SpecialType.System_Object)))),
-                            evaluator);
-
                     // TODO: Remove the convert to object. We can flow out the actual type of the evaluatable root, and just stick it
                     //       in Func<> instead of object.
                     // TODO: For specific cases, don't go through the interpreter, but just integrate code that extracts the value directly.
                     //       (see ExpressionTreeFuncletizer.Evaluate()).
                     // TODO: Basically this means that the evaluator should come from ExpressionTreeFuncletizer itself, as part of its outputs
                     // TODO: Integrate try/catch around the evaluation?
-                    // Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile(preferInterpretation: true).Invoke();
-                    evaluator =
-                        _g.InvocationExpression(
-                            _g.MemberAccessExpression(
-                                _g.InvocationExpression(
-                                    _g.MemberAccessExpression(
-                                        evaluator,
-                                        nameof(Expression<int>.Compile)),
-                                    _g.Argument("preferInterpretation", RefKind.None, _g.TrueLiteralExpression())),
-                                "Invoke"));
-
-                    // queryContext.Add("__p_0", Expression.Lambda<Func<object>>(
-                    //         Expression.Convert(expression, typeof(object)))
-                    //     .Compile(preferInterpretation: true)
-                    //     .Invoke());
-                    statements.Add(
-                        _g.InvocationExpression(
-                            _g.MemberAccessExpression(_g.IdentifierName("queryContext"), nameof(QueryContext.AddParameter)),
-                            _g.LiteralExpression(capturedVariablesPathTree.ParameterName!),
-                            evaluator));
+                    code.AppendLine("queryContext.AddParameter(");
+                    using (code.Indent())
+                    {
+                        code
+                            .Append('"').Append(capturedVariablesPathTree.ParameterName!).AppendLine("\",")
+                            .AppendLine($"Expression.Lambda<Func<object?>>(Expression.Convert({variableName}, typeof(object)))")
+                            .AppendLine(".Compile(preferInterpretation: true)")
+                            .AppendLine(".Invoke());");
+                    }
                 }
             }
         }
@@ -694,49 +630,19 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             // We're intercepting the query's terminating operator - this is where the query actually gets executed.
             if (!declaredQueryContextVariable)
             {
-                // var queryContext = precompiledQueryContext.QueryContext;
-                statements.Add(
-                    _g.LocalDeclarationStatement(
-                        "queryContext",
-                        _g.MemberAccessExpression(
-                            _g.IdentifierName("precompiledQueryContext"), nameof(PrecompiledQueryContext<int>.QueryContext))));
+                code.AppendLine("var queryContext = precompiledQueryContext.QueryContext;");
             }
 
-            // if (Query1_Executor == null) {
-            //     Query1_Executor = Query1_GenerateExecutor(precompiledQueryContext.DbContext, precompiledQueryContext.QueryContext);
-            // }
-            var executorFieldIdentifier = _g.IdentifierName($"Query{queryNum}_Executor");
-            statements.Add(
-                _g.IfStatement(
-                    _g.ReferenceEqualsExpression(
-                        executorFieldIdentifier,
-                        _g.NullLiteralExpression()),
-                    new[]
-                    {
-                        _g.AssignmentStatement(
-                            executorFieldIdentifier,
-                            _g.InvocationExpression(
-                                _g.IdentifierName($"Query{queryNum}_GenerateExecutor"),
-                                _g.MemberAccessExpression(_g.IdentifierName("precompiledQueryContext"), "DbContext"),
-                                _g.IdentifierName("queryContext")))
-                    }));
+            var executorFieldIdentifier = $"Query{queryNum}_Executor";
+            code.AppendLine(
+                $"{executorFieldIdentifier} ??= Query{queryNum}_GenerateExecutor(precompiledQueryContext.DbContext, precompiledQueryContext.QueryContext);");
 
-            // TODO: Look at merging the two code paths a bit more once everything works
             if (returnElementTypeSymbol is null)
             {
                 // The query returns a scalar, not an enumerable (e.g. the terminating operator is Max()).
                 // The executor directly returns the needed result (e.g. int), so just return that.
-
-                // Func<QueryContext, TSource>
-                var executorTypeSymbol = _g.TypeExpression(
-                    _symbols.Func2.Construct(_symbols.QueryContext, returnTypeSymbol));
-
-                // return ((Func<QueryContext, TSource>)(Query1_Executor))(queryContext);
-                statements.Add(
-                    _g.ReturnStatement(
-                        (ExpressionSyntax)_g.InvocationExpression(
-                            _g.CastExpression(executorTypeSymbol, executorFieldIdentifier),
-                            _g.IdentifierName("queryContext"))));
+                var returnType = _g.TypeExpression(returnTypeSymbol).NormalizeWhitespace().ToFullString();
+                code.AppendLine($"return ((Func<QueryContext, {returnType}>)({executorFieldIdentifier}))(queryContext);");
             }
             else
             {
@@ -756,18 +662,12 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                         && operatorLinq.Type.IsGenericType
                         && operatorLinq.Type.GetGenericTypeDefinition() == typeof(IQueryable<>);
 
-                // ((Func<QueryContext, IEnumerable<TSource>>)(Query1_Executor))(queryContext)
-                var queryingEnumerable =
-                    _g.InvocationExpression(
-                        _g.CastExpression(
-                            _g.TypeExpression(
-                                _symbols.Func2.Construct(
-                                    _symbols.QueryContext,
-                                    isAsync
-                                        ? _symbols.GenericAsyncEnumerable.Construct(sourceElementTypeSymbol)
-                                        : _symbols.GenericEnumerable.Construct(sourceElementTypeSymbol))),
-                            executorFieldIdentifier),
-                        _g.IdentifierName("queryContext"));
+                var returnValue = isAsync
+                    ? $"IAsyncEnumerable<{sourceElementTypeSymbol.Name}>"
+                    : $"IEnumerable<{sourceElementTypeSymbol.Name}>";
+
+                code.AppendLine(
+                    $"var queryingEnumerable = ((Func<QueryContext, {returnValue}>)({executorFieldIdentifier}))(queryContext);");
 
                 if (isQueryable)
                 {
@@ -776,12 +676,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                     // IQueryable can't be directly inside await foreach (AsAsyncEnumerable() is required).
                     // For this case, we need to compose AsQueryable() on top, to make the querying enumerable compatible with the
                     // operator signature.
-
-                    // return ((Func<QueryContext, IEnumerable<TSource>>)(Query1_Executor))(queryContext).AsQueryable()
-                    statements.Add(
-                        _g.ReturnStatement(
-                            _g.InvocationExpression(
-                                _g.MemberAccessExpression(queryingEnumerable, nameof(Queryable.AsQueryable)))));
+                    code.AppendLine("return queryingEnumerable.AsQueryable();");
                 }
                 else
                 {
@@ -797,19 +692,18 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                         // TODO: This is an additional runtime allocation; if we had System.Linq.Async we wouldn't need this. We could
                         // have additional versions of all async terminating operators over IAsyncEnumerable<T> (effectively duplicating
                         // System.Linq.Async) as an alternative.
-                        queryingEnumerable = _g.ObjectCreationExpression(
-                            _symbols.PrecompiledQueryableAsyncEnumerableAdapter.Construct(sourceElementTypeSymbol),
-                            queryingEnumerable);
+                        code.AppendLine($"var asyncQueryingEnumerable = new PrecompiledQueryableAsyncEnumerableAdapter<{sourceElementTypeSymbol}>(queryingEnumerable);");
+                        code.Append("return asyncQueryingEnumerable");
+                    }
+                    else
+                    {
+                        code.Append("return queryingEnumerable");
                     }
 
-                    // return ((Func<QueryContext, IEnumerable<TSource>>)(Query1_Executor))(queryContext).ToDictionary(keySelector, elementSelector)
-                    statements.Add(
-                        _g.ReturnStatement(
-                            _g.InvocationExpression(
-                                _g.MemberAccessExpression(
-                                    queryingEnumerable,
-                                    memberAccess.Name),
-                                operatorSymbol.Parameters.Select(p => (ArgumentSyntax)_g.Argument(_g.IdentifierName(p.Name))))));
+                    // Invoke the original terminating operator (e.g. ToList(), ToDictionary()...) on the querying enumerable, passing
+                    // through the interceptor's arguments.
+                    code.AppendLine(
+                        $".{memberAccess.Name}({string.Join(", ", operatorSymbol.Parameters.Select(p => p.Name))});");
                 }
             }
         }
@@ -821,110 +715,57 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             // before returning it.
             Check.DebugAssert(returnElementTypeSymbol is not null, "Non-terminating operator must return IEnumerable<T>");
 
-            var returnedContext = _g.IdentifierName("precompiledQueryContext");
+            code.AppendLine(
+                returnTypeSymbol switch
+                {
+                    // The operator return IQueryable<T> or IOrderedQueryable<T>.
+                    // If T is the same as the source, simply return our context as is (note that PrecompiledQueryContext implements
+                    // IOrderedQueryable). Otherwise, e.g. Select() is being applied - change the context's type.
+                    _ when returnTypeSymbol.OriginalDefinition.Equals(_symbols.IQueryable, SymbolEqualityComparer.Default)
+                        || returnTypeSymbol.OriginalDefinition.Equals(_symbols.IOrderedQueryable, SymbolEqualityComparer.Default)
+                        => SymbolEqualityComparer.Default.Equals(sourceElementTypeSymbol, returnElementTypeSymbol)
+                            ? "return precompiledQueryContext;"
+                            : $"return precompiledQueryContext.ToType<{returnElementTypeSymbol}>();",
 
-            returnedContext = returnTypeSymbol switch
-            {
-                // The operator return IQueryable<T> or IOrderedQueryable<T>.
-                // If T is the same as the source, simply return our context as is (note that PrecompiledQueryContext implements
-                // IOrderedQueryable). Otherwise, e.g. Select() is being applied - change the context's type.
-                _ when returnTypeSymbol.OriginalDefinition.Equals(_symbols.IQueryable, SymbolEqualityComparer.Default)
-                    || returnTypeSymbol.OriginalDefinition.Equals(_symbols.IOrderedQueryable, SymbolEqualityComparer.Default)
-                    => SymbolEqualityComparer.Default.Equals(sourceElementTypeSymbol, returnElementTypeSymbol)
-                        ? returnedContext
-                        : _g.InvocationExpression(
-                            _g.MemberAccessExpression(
-                                returnedContext,
-                                _g.GenericName(
-                                    nameof(PrecompiledQueryContext<int>.ToType),
-                                    returnElementTypeSymbol))),
+                    _ when returnTypeSymbol.OriginalDefinition.Equals(_symbols.IIncludableQueryable, SymbolEqualityComparer.Default)
+                        && returnTypeSymbol is INamedTypeSymbol { OriginalDefinition.TypeArguments: [_, var includedPropertySymbol] }
+                        => $"return precompiledQueryContext.ToIncludable<{includedPropertySymbol}>();",
 
-                // The operator returns IIncludableQueryable (i.e. this is Include()); call PrecompiledQueryContext.ToIncludable().
-                _ when returnTypeSymbol.OriginalDefinition.Equals(_symbols.IIncludableQueryable, SymbolEqualityComparer.Default)
-                    && returnTypeSymbol is INamedTypeSymbol { OriginalDefinition.TypeArguments: [_, var includedPropertySymbol]}
-                    => _g.InvocationExpression(
-                        _g.MemberAccessExpression(
-                            returnedContext,
-                            _g.GenericName(
-                                nameof(PrecompiledQueryContext<int>.ToIncludable),
-                                includedPropertySymbol))),
-
-                _ => throw new UnreachableException()
-            };
-
-            statements.Add(_g.ReturnStatement(returnedContext));
+                    _ => throw new UnreachableException()
+                });
         }
 
-        // We're done generating the interceptor statements. Create a method declaration for it and return.
+        code.DecrementIndent().AppendLine("}").AppendLine();
 
-        var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccess.Name.Span, cancellationToken).StartLinePosition;
-        var interceptorName = $"Query{queryNum}_{memberAccess.Name}{operatorNum}";
-
-        // To create the interceptor method declaration, we copy the method definition of the original intercepted method, replacing the
-        // name and adding our interceptor statements.
-
-        // [InterceptsLocation("Program.cs", 15, 15)]
-        // public static IQueryable<TSource> Query1_Where2<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        var interceptorMethodDeclaration =
-            _g.AddAttributes(
-                _g.WithName(
-                    _g.MethodDeclaration(reducedOperatorSymbol, statements),
-                    interceptorName),
-                _g.Attribute(
-                    "InterceptsLocation",
-                    _g.LiteralExpression(operatorSyntax.SyntaxTree.FilePath),
-                    _g.LiteralExpression(startPosition.Line + 1),
-                    _g.LiteralExpression(startPosition.Character + 1)));
-
-        interceptors.Add(interceptorMethodDeclaration);
-
+        // After the terminating operator definition, generate the query's executor generator.
         if (isTerminatingOperator)
         {
             var variableNames = new HashSet<string>(); // TODO
-            GenerateQueryExecutor(
-                queryNum, queryExecutor!, _namespaces, _unsafeAccessors, variableNames,
-                out var queryExecutorFieldDeclaration,
-                out var queryExecutorGeneratorMethodDeclaration);
-
-            interceptors.Add(queryExecutorGeneratorMethodDeclaration);
-            interceptors.Add(queryExecutorFieldDeclaration);
+            GenerateQueryExecutor(code, queryNum, queryExecutor!, _namespaces, _unsafeAccessors, variableNames);
         }
     }
 
     private void GenerateQueryExecutor(
+        IndentedStringBuilder code,
         int queryNum,
         Expression queryExecutor,
         HashSet<string> namespaces,
         HashSet<MethodDeclarationSyntax> unsafeAccessors,
-        HashSet<string> variableNames,
-        out SyntaxNode queryExecutorFieldDeclaration,
-        out SyntaxNode queryExecutorGeneratorMethodDeclaration)
+        HashSet<string> variableNames)
     {
-        var statements = new List<SyntaxNode>
-        {
-            // var relationalModel = dbContext.Model.GetRelationalModel();
-            _g.LocalDeclarationStatement(
-                "relationalModel",
-                _g.InvocationExpression(
-                    _g.MemberAccessExpression(
-                        _g.MemberAccessExpression(_g.IdentifierName("dbContext"), nameof(DbContext.Model)),
-                        nameof(RelationalModelExtensions.GetRelationalModel)))),
-
-            // var relationalTypeMappingSource = dbContext.GetService<IRelationalTypeMappingSource>();
-            _g.LocalDeclarationStatement(
-                "relationalTypeMappingSource",
-                GenerateGetService(_symbols.IRelationalTypeMappingSource)),
-
-            // var materializerLiftableConstantContext = new RelationalMaterializerLiftableConstantContext(
-            //     dbContext.GetService<ShapedQueryCompilingExpressionVisitorDependencies>(),
-            //     dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>())
-            _g.LocalDeclarationStatement(
-                "materializerLiftableConstantContext",
-                _g.ObjectCreationExpression(
-                    _symbols.RelationalMaterializerLiftableConstantContext,
-                    GenerateGetService(_symbols.ShapedQueryCompilingExpressionVisitorDependencies),
-                    GenerateGetService(_symbols.RelationalShapedQueryCompilingExpressionVisitorDependencies)))
-        };
+        // We're going to generate the method which will create the query executor (Func<QueryContext, TResult>).
+        // Note that the we store the executor itself (and return it) as object, not as a typed Func<QueryContext, TResult>.
+        // We can't strong-type it since it may return an anonymous type, which is unspeakable; so instead we cast down from object to
+        // the real strongly-typed signature inside the interceptor, where the return value is represented as a generic type parameter
+        // (which can be an anonymous type).
+        // TODO: We can use strong types instead of object (and avoid the downcast) for cases where there are no unspeakable types.
+        code
+            .AppendLine($"private static object Query{queryNum}_GenerateExecutor(DbContext dbContext, QueryContext queryContext)")
+            .AppendLine("{")
+            .IncrementIndent()
+            .AppendLine("var relationalModel = dbContext.Model.GetRelationalModel();")
+            .AppendLine("var relationalTypeMappingSource = dbContext.GetService<IRelationalTypeMappingSource>();")
+            .AppendLine("var materializerLiftableConstantContext = new RelationalMaterializerLiftableConstantContext(dbContext.GetService<ShapedQueryCompilingExpressionVisitorDependencies>(), dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>());");
 
         variableNames.UnionWith(new[] { "relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext" });
 
@@ -963,21 +804,15 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                     var sqlTreeVariable = "sqlTree" + (++sqlTreeCounter);
                     variableNames.Add(sqlTreeVariable);
 
-                    var sqlTreeAssignment =
-                        _g.LocalDeclarationStatement(
-                            sqlTreeVariable,
-                            _linqToCSharpTranslator.TranslateExpression(quotedSqlTree, constantReplacements: null, namespaces, unsafeAccessors));
+                    code
+                        .AppendLine("/*")
+                        .AppendLine(_sqlExpressionPrinter.PrintExpression(queryExpression))
+                        .AppendLine("*/");
 
-                    sqlTreeAssignment = sqlTreeAssignment.WithLeadingTrivia(
-                        Comment(
-                            _stringBuilder
-                                .Clear()
-                                .AppendLine("/*")
-                                .AppendLine(_sqlExpressionPrinter.PrintExpression(queryExpression))
-                                .AppendLine("*/")
-                                .ToString()));
+                    var quotedSqlTreeSyntax = _linqToCSharpTranslator.TranslateExpression(
+                        quotedSqlTree, constantReplacements: null, namespaces, unsafeAccessors);
 
-                    statements.Add(sqlTreeAssignment);
+                    code.AppendLine($"var {sqlTreeVariable} = {quotedSqlTreeSyntax.NormalizeWhitespace().ToFullString()};");
 
                     // We've rendered the SQL tree, assigning it to variable "sqlTree". Update the RelationalCommandCache to point
                     // to it
@@ -992,10 +827,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 }
             }
 
-            statements.Add(
-                _g.LocalDeclarationStatement(
-                    parameter.Name!,
-                    _linqToCSharpTranslator.TranslateExpression(variableValue, constantReplacements: null, namespaces, unsafeAccessors)));
+            var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
+                variableValue, constantReplacements: null, namespaces, unsafeAccessors);
+            code.AppendLine($"var {parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
 
         var queryExecutorSyntaxTree =
@@ -1005,41 +839,12 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 namespaces,
                 unsafeAccessors);
 
-        // return (QueryContext queryContext) => SingleQueryingEnumerable.Create(......);
-        statements.Add(_g.ReturnStatement(queryExecutorSyntaxTree));
-
-        // We're done generating the method which will create the query executor (Func<QueryContext, TResult>).
-        // Note that the we store the executor itself (and return it) as object, not as a typed Func<QueryContext, TResult>.
-        // We can't strong-type it since it may return an anonymous type, which is unspeakable; so instead we cast down from object to
-        // the real strongly-typed signature inside the interceptor, where the return value is represented as a generic type parameter
-        // (which can be an anonymous type).
-        // TODO: We can use strong types instead of object (and avoid the downcast) for cases where there are no unspeakable types.
-
-        // private static void Query1_GenerateExecutor(BlogContext dbContext)
-        queryExecutorGeneratorMethodDeclaration = _g.MethodDeclaration(
-            accessibility: Accessibility.Private,
-            modifiers: DeclarationModifiers.Static,
-            returnType: _g.TypeExpression(SpecialType.System_Object),
-            name: $"Query{queryNum}_GenerateExecutor",
-            parameters:
-            [
-                _g.ParameterDeclaration("dbContext", _g.TypeExpression(_symbols.DbContext)),
-                _g.ParameterDeclaration("queryContext", _g.TypeExpression(_symbols.QueryContext))
-            ],
-            statements: statements);
-
-        // private static readonly object Query1_Executor;
-        queryExecutorFieldDeclaration =
-            _g.FieldDeclaration(
-                accessibility: Accessibility.Private,
-                modifiers: DeclarationModifiers.Static,
-                name: $"Query{queryNum}_Executor",
-                type: _g.TypeExpression(SpecialType.System_Object));
-
-        SyntaxNode GenerateGetService(INamedTypeSymbol serviceType)
-            => _g.InvocationExpression(
-                _g.MemberAccessExpression(
-                    _g.IdentifierName("dbContext"), _g.GenericName(nameof(IServiceProvider.GetService), serviceType)));
+        code
+            .AppendLine($"return {queryExecutorSyntaxTree.NormalizeWhitespace().ToFullString()};")
+            .DecrementIndent()
+            .AppendLine("}")
+            .AppendLine()
+            .AppendLine($"private static object Query{queryNum}_Executor;");
     }
 
     /// <summary>
@@ -1090,108 +895,108 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             // inject the sync versions into the query tree.
             nameof(EntityFrameworkQueryableExtensions.AllAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToAsync(QueryableMethods.All),
+                => RewriteToSync(QueryableMethods.All),
             nameof(EntityFrameworkQueryableExtensions.AnyAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.AnyWithoutPredicate),
+                => RewriteToSync(QueryableMethods.AnyWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.AnyAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.AnyWithPredicate),
+                => RewriteToSync(QueryableMethods.AnyWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.AverageAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(
+                => RewriteToSync(
                     QueryableMethods.GetAverageWithoutSelector(method.GetParameters()[0].ParameterType.GenericTypeArguments[0])),
             nameof(EntityFrameworkQueryableExtensions.AverageAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(
+                => RewriteToSync(
                     QueryableMethods.GetAverageWithSelector(
                         method.GetParameters()[1].ParameterType.GenericTypeArguments[0].GenericTypeArguments[1])),
             nameof(EntityFrameworkQueryableExtensions.ContainsAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToAsync(QueryableMethods.Contains),
+                => RewriteToSync(QueryableMethods.Contains),
             nameof(EntityFrameworkQueryableExtensions.CountAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.CountWithoutPredicate),
+                => RewriteToSync(QueryableMethods.CountWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.CountAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.CountWithPredicate),
+                => RewriteToSync(QueryableMethods.CountWithPredicate),
             // nameof(EntityFrameworkQueryableExtensions.DefaultIfEmptyAsync)
             nameof(EntityFrameworkQueryableExtensions.ElementAtAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToAsync(QueryableMethods.ElementAt),
+                => RewriteToSync(QueryableMethods.ElementAt),
             nameof(EntityFrameworkQueryableExtensions.ElementAtOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
-                => RewriteToAsync(QueryableMethods.ElementAtOrDefault),
+                => RewriteToSync(QueryableMethods.ElementAtOrDefault),
             nameof(EntityFrameworkQueryableExtensions.FirstAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.FirstWithoutPredicate),
+                => RewriteToSync(QueryableMethods.FirstWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.FirstAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.FirstWithPredicate),
+                => RewriteToSync(QueryableMethods.FirstWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.FirstOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.FirstOrDefaultWithoutPredicate),
+                => RewriteToSync(QueryableMethods.FirstOrDefaultWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.FirstOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.FirstOrDefaultWithPredicate),
+                => RewriteToSync(QueryableMethods.FirstOrDefaultWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.LastAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.LastWithoutPredicate),
+                => RewriteToSync(QueryableMethods.LastWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.LastAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.LastWithPredicate),
+                => RewriteToSync(QueryableMethods.LastWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.LastOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.LastOrDefaultWithoutPredicate),
+                => RewriteToSync(QueryableMethods.LastOrDefaultWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.LastOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.LastOrDefaultWithPredicate),
+                => RewriteToSync(QueryableMethods.LastOrDefaultWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.LongCountAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.LongCountWithoutPredicate),
+                => RewriteToSync(QueryableMethods.LongCountWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.LongCountAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.LongCountWithPredicate),
+                => RewriteToSync(QueryableMethods.LongCountWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.MaxAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.MaxWithoutSelector),
+                => RewriteToSync(QueryableMethods.MaxWithoutSelector),
             nameof(EntityFrameworkQueryableExtensions.MaxAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.MaxWithSelector),
+                => RewriteToSync(QueryableMethods.MaxWithSelector),
             nameof(EntityFrameworkQueryableExtensions.MinAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.MinWithoutSelector),
+                => RewriteToSync(QueryableMethods.MinWithoutSelector),
             nameof(EntityFrameworkQueryableExtensions.MinAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.MinWithSelector),
+                => RewriteToSync(QueryableMethods.MinWithSelector),
             // nameof(EntityFrameworkQueryableExtensions.MaxByAsync)
             // nameof(EntityFrameworkQueryableExtensions.MinByAsync)
             nameof(EntityFrameworkQueryableExtensions.SingleAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.SingleWithoutPredicate),
+                => RewriteToSync(QueryableMethods.SingleWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.SingleAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.SingleWithPredicate),
+                => RewriteToSync(QueryableMethods.SingleWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.SingleOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.SingleOrDefaultWithoutPredicate),
+                => RewriteToSync(QueryableMethods.SingleOrDefaultWithoutPredicate),
             nameof(EntityFrameworkQueryableExtensions.SingleOrDefaultAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(QueryableMethods.SingleOrDefaultWithPredicate),
+                => RewriteToSync(QueryableMethods.SingleOrDefaultWithPredicate),
             nameof(EntityFrameworkQueryableExtensions.SumAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 2
-                => RewriteToAsync(QueryableMethods.GetSumWithoutSelector(method.GetParameters()[0].ParameterType.GenericTypeArguments[0])),
+                => RewriteToSync(QueryableMethods.GetSumWithoutSelector(method.GetParameters()[0].ParameterType.GenericTypeArguments[0])),
             nameof(EntityFrameworkQueryableExtensions.SumAsync)
                 when method.DeclaringType == typeof(EntityFrameworkQueryableExtensions) && method.GetParameters().Length == 3
-                => RewriteToAsync(
+                => RewriteToSync(
                     QueryableMethods.GetSumWithSelector(
                         method.GetParameters()[1].ParameterType.GenericTypeArguments[0].GenericTypeArguments[1])),
 
             // ExecuteDelete/Update behave just like other scalar-returning operators
             nameof(RelationalQueryableExtensions.ExecuteDeleteAsync) when method.DeclaringType == typeof(RelationalQueryableExtensions)
-                => RewriteToAsync(typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.ExecuteDelete))),
+                => RewriteToSync(typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.ExecuteDelete))),
             nameof(RelationalQueryableExtensions.ExecuteUpdateAsync) when method.DeclaringType == typeof(RelationalQueryableExtensions)
-                => RewriteToAsync(typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.ExecuteUpdate))),
+                => RewriteToSync(typeof(RelationalQueryableExtensions).GetMethod(nameof(RelationalQueryableExtensions.ExecuteUpdate))),
 
             // In the regular case, we don't perform any rewriting, just composing the terminating operator on the penultimate one.
             _ when terminatingOperator.Object is null && terminatingOperator.Arguments.Count > 0
@@ -1200,7 +1005,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             _ => throw new InvalidOperationException($"Terminating operator '{method.Name}' is not supported.")
         };
 
-        MethodCallExpression RewriteToAsync(MethodInfo? syncMethod)
+        MethodCallExpression RewriteToSync(MethodInfo? syncMethod)
         {
             if (syncMethod is null)
             {
@@ -1220,48 +1025,6 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         }
     }
 
-    internal TypeSyntax GetTypeSyntax(Type type)
-    {
-        if (Type.GetTypeCode(type) switch
-            {
-                TypeCode.Boolean => SyntaxKind.BoolKeyword,
-                TypeCode.Char => SyntaxKind.CharKeyword,
-                TypeCode.SByte => SyntaxKind.SByteKeyword,
-                TypeCode.Byte => SyntaxKind.ByteKeyword,
-                TypeCode.Int16 => SyntaxKind.ShortKeyword,
-                TypeCode.UInt16 => SyntaxKind.UShortKeyword,
-                TypeCode.Int32 => SyntaxKind.IntKeyword,
-                TypeCode.UInt32 => SyntaxKind.UIntKeyword,
-                TypeCode.Int64 => SyntaxKind.LongKeyword,
-                TypeCode.UInt64 => SyntaxKind.ULongKeyword,
-                TypeCode.Single => SyntaxKind.FloatKeyword,
-                TypeCode.Double => SyntaxKind.DoubleKeyword,
-                TypeCode.Decimal => SyntaxKind.DecimalKeyword,
-                TypeCode.String => SyntaxKind.StringKeyword,
-                _ => (SyntaxKind?)null
-            } is { } predefinedSyntaxKind)
-        {
-            return PredefinedType(Token(predefinedSyntaxKind));
-        }
-
-        if (type == typeof(object))
-        {
-            return PredefinedType(Token(SyntaxKind.ObjectKeyword));
-        }
-
-        if (type == typeof(void))
-        {
-            return PredefinedType(Token(SyntaxKind.VoidKeyword));
-        }
-
-        if (type.IsGenericType)
-        {
-            throw new NotImplementedException();
-        }
-
-        return (TypeSyntax)_g.TypeExpression(_symbols.Resolve(type));
-    }
-
     /// <summary>
     ///     Contains information on a failure to precompile a specific query in the user's source code.
     ///     Includes information about the query, its location, and the exception that occured.
@@ -1275,23 +1038,10 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         // ReSharper disable InconsistentNaming
         public readonly INamedTypeSymbol GenericEnumerable;
         public readonly INamedTypeSymbol GenericAsyncEnumerable;
-        public readonly INamedTypeSymbol Func2;
         public readonly INamedTypeSymbol IQueryable;
         public readonly INamedTypeSymbol IOrderedQueryable;
         public readonly INamedTypeSymbol IIncludableQueryable;
         public readonly INamedTypeSymbol GenericTask;
-        public readonly INamedTypeSymbol Expression;
-
-        public readonly INamedTypeSymbol DbContext;
-        public readonly INamedTypeSymbol QueryContext;
-        public readonly INamedTypeSymbol PrecompiledQueryContext;
-        public readonly INamedTypeSymbol DbContextContainer;
-        public readonly INamedTypeSymbol PrecompiledQueryableAsyncEnumerableAdapter;
-
-        public readonly INamedTypeSymbol IRelationalTypeMappingSource;
-        public readonly INamedTypeSymbol RelationalMaterializerLiftableConstantContext;
-        public readonly INamedTypeSymbol ShapedQueryCompilingExpressionVisitorDependencies;
-        public readonly INamedTypeSymbol RelationalShapedQueryCompilingExpressionVisitorDependencies;
         // ReSharper restore InconsistentNaming
 
         private Symbols(Compilation compilation)
@@ -1302,8 +1052,6 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 GetTypeSymbolOrThrow("System.Collections.Generic.IEnumerable`1");
             GenericAsyncEnumerable =
                 GetTypeSymbolOrThrow("System.Collections.Generic.IAsyncEnumerable`1");
-            Func2 =
-                GetTypeSymbolOrThrow(typeof(Func<,>).FullName!);
             IQueryable =
                 GetTypeSymbolOrThrow("System.Linq.IQueryable`1");
             IOrderedQueryable =
@@ -1312,36 +1060,20 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.Query.IIncludableQueryable`2");
             GenericTask =
                 GetTypeSymbolOrThrow("System.Threading.Tasks.Task`1");
-            Expression =
-                GetTypeSymbolOrThrow("System.Linq.Expressions.Expression");
-            DbContext =
-                GetTypeSymbolOrThrow(typeof(DbContext).FullName!);
-            QueryContext =
-                GetTypeSymbolOrThrow(typeof(QueryContext).FullName!);
-            PrecompiledQueryContext =
-                GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.Query.Internal.PrecompiledQueryContext`1");
-            DbContextContainer =
-                GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.Internal.IDbContextContainer");
-            PrecompiledQueryableAsyncEnumerableAdapter =
-                GetTypeSymbolOrThrow(typeof(PrecompiledQueryableAsyncEnumerableAdapter<>).FullName!);
-            IRelationalTypeMappingSource =
-                GetTypeSymbolOrThrow(typeof(IRelationalTypeMappingSource).FullName!);
-            RelationalMaterializerLiftableConstantContext =
-                GetTypeSymbolOrThrow(typeof(RelationalMaterializerLiftableConstantContext).FullName!);
-            ShapedQueryCompilingExpressionVisitorDependencies =
-                GetTypeSymbolOrThrow(typeof(ShapedQueryCompilingExpressionVisitorDependencies).FullName!);
-            RelationalShapedQueryCompilingExpressionVisitorDependencies =
-                GetTypeSymbolOrThrow(typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).FullName!);
         }
 
         public static Symbols Load(Compilation compilation)
             => new(compilation);
 
-        public ITypeSymbol Resolve(Type type)
-            => GetTypeSymbolOrThrow(type.FullName!);
-
         private INamedTypeSymbol GetTypeSymbolOrThrow(string fullyQualifiedMetadataName)
             => _compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)
                 ?? throw new InvalidOperationException("Could not find type symbol for: " + fullyQualifiedMetadataName);
     }
+
+    /// <summary>
+    ///     A generated file containing LINQ operator interceptors.
+    /// </summary>
+    /// <param name="Path">The path of the generated file.</param>
+    /// <param name="Code">The code of the generated file.</param>
+    public record GeneratedInterceptorFile(string Path, string Code);
 }

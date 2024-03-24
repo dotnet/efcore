@@ -405,7 +405,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                             _liftableConstantFactory.CreateLiftableConstant(
                                 // TODO: Owned, STET
                                 c => c.Dependencies.Model.FindEntityType(typeBase.Name)!.FindPrimaryKey()!,
-                                typeBase.Name + "Key",
+                                /*typeBase.Name +*/ "key",
                                 typeof(IKey)),
                             // Constant(primaryKey),
                             NewArrayInit(
@@ -533,7 +533,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             {
                 materializationConditionBody = _liftableConstantFactory.CreateLiftableConstant(
                     c => c.Dependencies.Model.FindEntityType(materializedEntityType.Name)!,
-                    materializedEntityType.Name + "EntityType",
+                    /*materializedEntityType.Name + */"entityType",
                     typeof(IEntityType));
             }
 
@@ -555,7 +555,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     // Constant(concreteEntityTypes[i], typeof(IEntityType))
                     _liftableConstantFactory.CreateLiftableConstant(
                         c => c.Dependencies.Model.FindEntityType(concreteEntityType.Name)!,
-                        concreteEntityType.Name + "EntityType",
+                        /*concreteEntityType.Name + */"entityType",
                         typeof(IEntityType)));
             }
 

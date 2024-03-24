@@ -63,14 +63,13 @@ public static class TestContainer
 """;
 
         // This turns on the interceptors feature for the designated namespace(s).
-        var interceptorsFeature =
+        var parseOptions = new CSharpParseOptions().WithFeatures(
             new[]
             {
                 new KeyValuePair<string, string>("InterceptorsPreviewNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
-            };
+            });
 
-        var syntaxTree = CSharpSyntaxTree.ParseText(
-            source, path: "Test.cs", options: new CSharpParseOptions().WithFeatures(interceptorsFeature));
+        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions, path: "Test.cs");
 
         var compilation = CSharpCompilation.Create(
             "TestCompilation",
@@ -78,7 +77,7 @@ public static class TestContainer
             _metadataReferences,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        IReadOnlyList<SyntaxTree>? generatedSyntaxTrees = null;
+        IReadOnlyList<PrecompiledQueryCodeGenerator.GeneratedInterceptorFile>? generatedFiles = null;
 
         try
         {
@@ -96,7 +95,7 @@ public static class TestContainer
 
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
-                generatedSyntaxTrees = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
+                generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
                     compilation, syntaxGenerator, dbContext, precompilationErrors, additionalAssembly: assembly);
 
                 if (errorAsserter is null)
@@ -119,10 +118,7 @@ public static class TestContainer
 
             // We now have the code-generated interceptors; add them to the compilation and re-emit.
             compilation = compilation.AddSyntaxTrees(
-                generatedSyntaxTrees.Select(
-                    t => t.WithRootAndOptions(
-                        t.GetRoot(),
-                        t.Options.WithFeatures(interceptorsFeature))));
+                generatedFiles.Select(f => CSharpSyntaxTree.ParseText(f.Code, parseOptions, f.Path)));
 
             // We have the final compilation, including the interceptors. Emit and load it, and then invoke its entry point, which contains
             // the original test code with the EF LINQ query, etc.
@@ -142,25 +138,25 @@ public static class TestContainer
         }
         catch
         {
-            await PrintGeneratedSources();
+            PrintGeneratedSources();
 
             throw;
         }
 
         if (alwaysPrintGeneratedSources)
         {
-            await PrintGeneratedSources();
+            PrintGeneratedSources();
         }
 
-        async Task PrintGeneratedSources()
+        void PrintGeneratedSources()
         {
-            if (generatedSyntaxTrees is not null)
+            if (generatedFiles is not null)
             {
-                foreach (var generatedSyntaxTree in generatedSyntaxTrees)
+                foreach (var generatedFile in generatedFiles)
                 {
-                    testOutputHelper.WriteLine($"Generated file {generatedSyntaxTree.FilePath}: ");
+                    testOutputHelper.WriteLine($"Generated file {generatedFile.Path}: ");
                     testOutputHelper.WriteLine("");
-                    testOutputHelper.WriteLine((await generatedSyntaxTree.GetRootAsync()).ToFullString());
+                    testOutputHelper.WriteLine(generatedFile.Code);
                 }
             }
         }
