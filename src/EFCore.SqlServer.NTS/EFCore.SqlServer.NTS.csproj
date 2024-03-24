@@ -9,11 +9,13 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server;GIS;NTS;OGC;Spatial</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9999</NoWarn> <!-- Internal EF Core provider API usage (SQL Server) -->
   </PropertyGroup>
 
   <ItemGroup>
     <Using Include="System.Data.Common" />
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
     <Using Include="Microsoft.EntityFrameworkCore" />

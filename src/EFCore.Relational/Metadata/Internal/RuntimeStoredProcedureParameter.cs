@@ -1,17 +1,22 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
-///     Represents a stored procedure result column.
+///     Represents a stored procedure parameter.
 /// </summary>
-public class RuntimeStoredProcedureResultColumn : AnnotatableBase, IRuntimeStoredProcedureResultColumn
+[Experimental(EFDiagnostics.RelationalInternalUsage)]
+public class RuntimeStoredProcedureParameter : AnnotatableBase, IRuntimeStoredProcedureParameter
 {
-    private IStoreStoredProcedureResultColumn? _storeResultColumn;
+    private IStoreStoredProcedureParameter? _storeParameter;
     private readonly string? _propertyName;
     private readonly bool _forRowsAffected;
+    private readonly bool? _forOriginalValue;
     private readonly string _name;
+    private readonly ParameterDirection _direction;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,17 +24,21 @@ public class RuntimeStoredProcedureResultColumn : AnnotatableBase, IRuntimeStore
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
-    public RuntimeStoredProcedureResultColumn(
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
+    public RuntimeStoredProcedureParameter(
         RuntimeStoredProcedure storedProcedure,
         string name,
+        ParameterDirection direction,
         bool forRowsAffected,
-        string? propertyName)
+        string? propertyName,
+        bool? forOriginalValue)
     {
         StoredProcedure = storedProcedure;
         _propertyName = propertyName;
+        _forOriginalValue = forOriginalValue;
         _forRowsAffected = forRowsAffected;
         _name = name;
+        _direction = direction;
     }
 
     /// <summary>
@@ -44,7 +53,7 @@ public class RuntimeStoredProcedureResultColumn : AnnotatableBase, IRuntimeStore
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override string ToString()
-        => ((IStoredProcedureResultColumn)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        => ((IStoredProcedureParameter)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,59 +61,73 @@ public class RuntimeStoredProcedureResultColumn : AnnotatableBase, IRuntimeStore
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public virtual DebugView DebugView
         => new(
-            () => ((IStoredProcedureResultColumn)this).ToDebugString(),
-            () => ((IStoredProcedureResultColumn)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+            () => ((IStoredProcedureParameter)this).ToDebugString(),
+            () => ((IStoredProcedureParameter)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
-    IReadOnlyStoredProcedure IReadOnlyStoredProcedureResultColumn.StoredProcedure
+    IReadOnlyStoredProcedure IReadOnlyStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
 
     /// <inheritdoc />
-    IStoredProcedure IStoredProcedureResultColumn.StoredProcedure
+    IStoredProcedure IStoredProcedureParameter.StoredProcedure
     {
         [DebuggerStepThrough]
         get => StoredProcedure;
     }
 
     /// <inheritdoc />
-    string IReadOnlyStoredProcedureResultColumn.Name
+    string IReadOnlyStoredProcedureParameter.Name
     {
         [DebuggerStepThrough]
         get => _name;
     }
 
     /// <inheritdoc />
-    string? IReadOnlyStoredProcedureResultColumn.PropertyName
+    string? IReadOnlyStoredProcedureParameter.PropertyName
     {
         [DebuggerStepThrough]
         get => _propertyName;
     }
 
     /// <inheritdoc />
-    bool IReadOnlyStoredProcedureResultColumn.ForRowsAffected
+    ParameterDirection IReadOnlyStoredProcedureParameter.Direction
+    {
+        [DebuggerStepThrough]
+        get => _direction;
+    }
+
+    /// <inheritdoc />
+    bool? IReadOnlyStoredProcedureParameter.ForOriginalValue
+    {
+        [DebuggerStepThrough]
+        get => _forOriginalValue;
+    }
+
+    /// <inheritdoc />
+    bool IReadOnlyStoredProcedureParameter.ForRowsAffected
     {
         [DebuggerStepThrough]
         get => _forRowsAffected;
     }
 
     /// <inheritdoc />
-    IStoreStoredProcedureResultColumn IStoredProcedureResultColumn.StoreResultColumn
+    IStoreStoredProcedureParameter IStoredProcedureParameter.StoreParameter
     {
         [DebuggerStepThrough]
-        get => _storeResultColumn!;
+        get => _storeParameter!;
     }
 
     /// <inheritdoc />
-    IStoreStoredProcedureResultColumn IRuntimeStoredProcedureResultColumn.StoreResultColumn
+    IStoreStoredProcedureParameter IRuntimeStoredProcedureParameter.StoreParameter
     {
         [DebuggerStepThrough]
-        get => _storeResultColumn!;
-        set => _storeResultColumn = value;
+        get => _storeParameter!;
+        set => _storeParameter = value;
     }
 }

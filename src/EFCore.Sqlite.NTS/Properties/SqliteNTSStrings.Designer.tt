@@ -4,5 +4,6 @@
     Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Sqlite.Properties";
     Session["LoggingDefinitionsClass"] = "SqliteNtsLoggingDefinitions";
     Session["NoDiagnostics"] = true;
+    Session["ExperimentalAttributeArgument"] = "EFDiagnostics.ProviderInternalUsage";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

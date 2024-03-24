@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 ///         doing so can result in application failures when updating to a new Entity Framework Core release.
 ///     </para>
 /// </remarks>
-[EntityFrameworkInternal]
+[Experimental(EFDiagnostics.RelationalInternalUsage)]
 public sealed record MigrationsAnnotationProviderDependencies
 {
     /// <summary>
@@ -51,7 +51,7 @@ public sealed record MigrationsAnnotationProviderDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public MigrationsAnnotationProviderDependencies()
     {
     }

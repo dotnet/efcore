@@ -33,7 +33,7 @@ public class ModelConfigurationBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ModelConfigurationBuilder(ConventionSet conventions, IServiceProvider serviceProvider)
     {
         Check.NotNull(conventions, nameof(conventions));
@@ -48,7 +48,7 @@ public class ModelConfigurationBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual ModelConfiguration ModelConfiguration
         => _modelConfiguration;
 

@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 /// <summary>
 ///     Base class to be used by database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCodeGenerator
 {
     /// <summary>

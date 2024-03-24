@@ -36,7 +36,7 @@ public sealed record CSharpMigrationsGeneratorDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public CSharpMigrationsGeneratorDependencies(
         ICSharpHelper csharpHelper,
         ICSharpMigrationOperationGenerator csharpMigrationOperationGenerator,

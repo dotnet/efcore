@@ -21,7 +21,7 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ReferenceReferenceBuilder(
         IMutableEntityType declaringEntityType,
         IMutableEntityType relatedEntityType,
@@ -36,7 +36,7 @@ public class ReferenceReferenceBuilder<TEntity, TRelatedEntity> : ReferenceRefer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected ReferenceReferenceBuilder(
         InternalForeignKeyBuilder builder,
         ReferenceReferenceBuilder oldBuilder,

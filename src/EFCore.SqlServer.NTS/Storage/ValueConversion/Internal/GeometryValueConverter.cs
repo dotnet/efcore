@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Intern
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class GeometryValueConverter<TGeometry> : ValueConverter<TGeometry, SqlBytes>
     where TGeometry : Geometry
 {

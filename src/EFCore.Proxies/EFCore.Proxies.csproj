@@ -9,10 +9,12 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);Lazy loading</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9904</NoWarn> <!-- OK to use EFCore proxies APIs (this assembly) -->
   </PropertyGroup>
 
   <ItemGroup>
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
     <Using Include="Microsoft.EntityFrameworkCore" />

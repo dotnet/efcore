@@ -132,10 +132,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             var internalEntityEntry = new InternalEntityEntry(
                 _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
             foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
             {
@@ -143,19 +143,19 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 if (TryGetParameterValue(property, out var parameterValue))
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                     internalEntityEntry[property] = parameterValue;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                 }
             }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             internalEntityEntry.SetEntityState(EntityState.Added);
 
             value = internalEntityEntry[idProperty];
 
             internalEntityEntry.SetEntityState(EntityState.Detached);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
             return value != null;
         }

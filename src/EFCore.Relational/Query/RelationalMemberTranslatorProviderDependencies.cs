@@ -44,7 +44,7 @@ public sealed record RelationalMemberTranslatorProviderDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public RelationalMemberTranslatorProviderDependencies(
         ISqlExpressionFactory sqlExpressionFactory,
         IEnumerable<IMemberTranslatorPlugin> plugins)

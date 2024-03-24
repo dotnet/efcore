@@ -16,7 +16,7 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public StoredProcedureBuilder(IMutableStoredProcedure sproc, EntityTypeBuilder entityTypeBuilder)
     {
         Builder = ((StoredProcedure)sproc).Builder;
@@ -31,7 +31,7 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual InternalStoredProcedureBuilder Builder { [DebuggerStepThrough] get; }
 
     /// <inheritdoc />
@@ -207,7 +207,7 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual PropertyBuilder CreatePropertyBuilder(string propertyName)
     {
         var entityType = EntityTypeBuilder.Metadata;
@@ -223,9 +223,9 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
             throw new InvalidOperationException(CoreStrings.PropertyNotFound(propertyName, entityType.DisplayName()));
         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         return new ModelBuilder(entityType.Model)
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             .Entity(property.DeclaringType.Name)
             .Property(property.ClrType, propertyName);
     }
@@ -236,7 +236,7 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual PropertyBuilder CreatePropertyBuilder<TDerivedEntity, TProperty>(
         Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
         where TDerivedEntity : class
@@ -245,9 +245,9 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
         var entityType = EntityTypeBuilder.Metadata;
         var entityTypeBuilder = entityType.ClrType == typeof(TDerivedEntity)
             ? EntityTypeBuilder
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             : new ModelBuilder(entityType.Model).Entity(typeof(TDerivedEntity));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
         return entityTypeBuilder.Property(memberInfo.GetMemberType(), memberInfo.Name);
     }

@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigger, ITrigger
 {
     private InternalTriggerBuilder? _builder;
@@ -115,7 +116,7 @@ public class Trigger : ConventionAnnotatable, IMutableTrigger, IConventionTrigge
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual DebugView DebugView
         => new(
             () => ((ITrigger)this).ToDebugString(),

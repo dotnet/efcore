@@ -20,7 +20,7 @@ public class CheckConstraintBuilder : IInfrastructure<IConventionCheckConstraint
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public CheckConstraintBuilder(IMutableCheckConstraint checkConstraint)
     {
         Builder = ((CheckConstraint)checkConstraint).Builder;
@@ -32,7 +32,7 @@ public class CheckConstraintBuilder : IInfrastructure<IConventionCheckConstraint
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual InternalCheckConstraintBuilder Builder { [DebuggerStepThrough] get; }
 
     /// <inheritdoc />

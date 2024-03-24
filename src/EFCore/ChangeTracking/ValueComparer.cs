@@ -49,7 +49,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static MethodInfo GetGenericSnapshotMethod(Type type)
         => _genericSnapshotMethodMap.GetOrAdd(type, t =>
             typeof(ValueComparer<>).MakeGenericType(t).GetGenericMethod(
@@ -65,7 +65,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected static readonly MethodInfo HashCodeAddMethod
         = typeof(ValueComparer).GetRuntimeMethod(nameof(Add), [typeof(HashCode), typeof(int)])!;
 
@@ -75,7 +75,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected static readonly MethodInfo ToHashCodeMethod
         = typeof(HashCode).GetRuntimeMethod(nameof(HashCode.ToHashCode), new Type[0])!;
 
@@ -85,7 +85,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected static readonly Expression<Func<bool, bool>> BoolIdentity;
 
     static ValueComparer()
@@ -231,7 +231,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static HashCode Add(HashCode hash, int code)
     {
         hash.Add(code);

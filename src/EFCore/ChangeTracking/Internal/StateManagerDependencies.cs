@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///         The implementation does not need to be thread-safe.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed record StateManagerDependencies
 {
     /// <summary>
@@ -46,7 +47,7 @@ public sealed record StateManagerDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public StateManagerDependencies(
         IInternalEntityEntrySubscriber internalEntityEntrySubscriber,
         IInternalEntityEntryNotifier internalEntityEntryNotifier,
@@ -147,7 +148,7 @@ public sealed record StateManagerDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public IDbSetSource SetSource { get; init; }
 
     /// <summary>
@@ -156,7 +157,7 @@ public sealed record StateManagerDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public IEntityFinderSource EntityFinderSource { get; init; }
 
     /// <summary>

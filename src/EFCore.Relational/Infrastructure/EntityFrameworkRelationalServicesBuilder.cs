@@ -40,7 +40,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
     ///     This dictionary is exposed for testing and provider-validation only.
     ///     It should not be used from application code.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
         = new Dictionary<Type, ServiceCharacteristics>
         {

@@ -25,7 +25,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public EntityTypeBuilder(IMutableEntityType entityType)
     {
         Builder = ((EntityType)entityType).Builder;
@@ -37,7 +37,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalEntityTypeBuilder Builder { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -1138,7 +1138,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual ForeignKey HasOneBuilder(
         MemberIdentity navigationId,
         EntityType relatedEntityType)
@@ -1304,7 +1304,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual EntityType FindRelatedEntityType(string relatedTypeName, string? navigationName)
         => (navigationName == null
                 ? null
@@ -1317,7 +1317,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual EntityType FindRelatedEntityType(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName)

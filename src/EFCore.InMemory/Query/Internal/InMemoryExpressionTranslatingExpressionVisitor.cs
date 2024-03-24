@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
@@ -16,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";

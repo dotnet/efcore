@@ -20,7 +20,7 @@ public abstract class DbFunctionBuilderBase : IInfrastructure<IConventionDbFunct
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected DbFunctionBuilderBase(IMutableDbFunction function)
     {
         Builder = ((DbFunction)function).Builder;
@@ -32,7 +32,7 @@ public abstract class DbFunctionBuilderBase : IInfrastructure<IConventionDbFunct
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual InternalDbFunctionBuilder Builder { [DebuggerStepThrough] get; }
 
     /// <inheritdoc />

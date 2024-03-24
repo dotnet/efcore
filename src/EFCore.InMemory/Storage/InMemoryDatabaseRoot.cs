@@ -25,6 +25,6 @@ public sealed class InMemoryDatabaseRoot
     ///     Entity Framework code will set this instance as needed. It should be considered opaque to
     ///     application code; the type of object may change at any time.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.ProviderInternalUsage)]
     public object? Instance;
 }

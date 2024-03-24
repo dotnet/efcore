@@ -24,7 +24,7 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected RelationshipBuilderBase(
         IMutableEntityType principalEntityType,
         IMutableEntityType dependentEntityType,
@@ -45,7 +45,7 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected RelationshipBuilderBase(
         InternalForeignKeyBuilder builder,
         RelationshipBuilderBase oldBuilder,
@@ -86,7 +86,7 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType PrincipalEntityType { get; }
 
     /// <summary>
@@ -95,7 +95,7 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType DependentEntityType { get; }
 
     /// <summary>
@@ -104,7 +104,7 @@ public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForei
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder Builder { get; set; }
 
     /// <summary>

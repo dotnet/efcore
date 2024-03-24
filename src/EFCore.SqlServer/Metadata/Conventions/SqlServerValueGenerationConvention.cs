@@ -98,9 +98,9 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
     {
         // TODO: move to relational?
         if (property.DeclaringType.IsMappedToJson()
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             && property.IsOrdinalKeyProperty()
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false)
         {
             return ValueGenerated.OnAdd;

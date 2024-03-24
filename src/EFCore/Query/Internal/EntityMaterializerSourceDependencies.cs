@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed record EntityMaterializerSourceDependencies
 {
     /// <summary>
@@ -43,7 +44,7 @@ public sealed record EntityMaterializerSourceDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public EntityMaterializerSourceDependencies(IEnumerable<ISingletonInterceptor> singletonInterceptors)
     {
         SingletonInterceptors = singletonInterceptors;

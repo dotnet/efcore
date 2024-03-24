@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerDesignTimeServices : IDesignTimeServices
 {
     /// <summary>
@@ -26,11 +27,11 @@ public class SqlServerDesignTimeServices : IDesignTimeServices
     {
         serviceCollection.AddEntityFrameworkSqlServer();
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
             .TryAdd<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>()
             .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqlServerCSharpRuntimeAnnotationCodeGenerator>()
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             .TryAdd<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
             .TryAdd<IProviderConfigurationCodeGenerator, SqlServerCodeGenerator>()
             .TryAddCoreServices();

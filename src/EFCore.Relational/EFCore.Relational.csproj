@@ -8,12 +8,14 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9902</NoWarn> <!-- Internal EF Core relational API usage (this assembly) -->
     <NoWarn>$(NoWarn);EF1003</NoWarn> <!-- Precomiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
     <Using Include="System.Data.Common" />
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
     <Using Include="Microsoft.EntityFrameworkCore" />

@@ -22,7 +22,7 @@ public class StoredProcedureParameterBuilder : IInfrastructure<PropertyBuilder?>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public StoredProcedureParameterBuilder(
         InternalStoredProcedureParameterBuilder builder,
         PropertyBuilder? propertyBuilder)
@@ -43,7 +43,7 @@ public class StoredProcedureParameterBuilder : IInfrastructure<PropertyBuilder?>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual InternalStoredProcedureParameterBuilder Builder { get; }
 
     private PropertyBuilder? PropertyBuilder { get; }

@@ -201,7 +201,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IDbSetSource IDbContextDependencies.SetSource
         => DbContextDependencies.SetSource;
 
@@ -211,7 +211,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IEntityFinderFactory IDbContextDependencies.EntityFinderFactory
         => DbContextDependencies.EntityFinderFactory;
 
@@ -221,7 +221,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IAsyncQueryProvider IDbContextDependencies.QueryProvider
         => DbContextDependencies.QueryProvider;
 
@@ -231,7 +231,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IStateManager IDbContextDependencies.StateManager
         => DbContextDependencies.StateManager;
 
@@ -241,7 +241,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IChangeDetector IDbContextDependencies.ChangeDetector
         => DbContextDependencies.ChangeDetector;
 
@@ -251,7 +251,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher
         => DbContextDependencies.EntityGraphAttacher;
 
@@ -261,7 +261,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IExceptionDetector IDbContextDependencies.ExceptionDetector
         => DbContextDependencies.ExceptionDetector;
 
@@ -271,7 +271,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger
         => DbContextDependencies.UpdateLogger;
 
@@ -281,7 +281,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
         => DbContextDependencies.InfrastructureLogger;
 
@@ -291,7 +291,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     object IDbSetCache.GetOrAddSet(
         IDbSetSource source,
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
@@ -316,7 +316,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     object IDbSetCache.GetOrAddSet(
         IDbSetSource source,
         string entityTypeName,
@@ -342,7 +342,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IEnumerable<object> IDbSetCache.GetSets()
         => _sets?.Values ?? Enumerable.Empty<object>();
 
@@ -860,7 +860,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     void IDbContextPoolable.ClearLease()
         => _lease = DbContextLease.InactiveLease;
 
@@ -870,7 +870,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     void IDbContextPoolable.SetLease(DbContextLease lease)
         => SetLeaseInternal(lease);
 
@@ -880,7 +880,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     Task IDbContextPoolable.SetLeaseAsync(DbContextLease lease, CancellationToken cancellationToken)
     {
         SetLeaseInternal(lease);
@@ -950,7 +950,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     void IDbContextPoolable.SnapshotConfiguration()
     {
         var stateManagerEvents = _dbContextDependencies?.StateManager.CaptureEvents();
@@ -987,7 +987,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     void IResettableService.ResetState()
     {
         foreach (var service in GetResettableServices())
@@ -1004,7 +1004,7 @@ public class DbContext :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
     {
         foreach (var service in GetResettableServices())

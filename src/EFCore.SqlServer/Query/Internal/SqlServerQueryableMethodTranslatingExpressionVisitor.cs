@@ -1,13 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -17,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
 {
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
@@ -268,7 +266,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var isElementNullable = property?.GetElementType()!.IsNullable;
 
         var keyColumnTypeMapping = _typeMappingSource.FindMapping("nvarchar(4000)")!;
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         var selectExpression = new SelectExpression(
             [openJsonExpression],
             new ColumnExpression(
@@ -279,7 +277,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 isElementNullable ?? elementClrType.IsNullableType()),
             identifier: [(new ColumnExpression("key", tableAlias, typeof(string), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
             _queryCompilationContext.SqlAliasManager);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902
 
         // OPENJSON doesn't guarantee the ordering of the elements coming out; when using OPENJSON without WITH, a [key] column is returned
         // with the JSON array's ordering, which we can ORDER BY; this option doesn't exist with OPENJSON with WITH, unfortunately.
@@ -374,14 +372,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var openJsonExpression = new SqlServerOpenJsonExpression(
             tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path, columnInfos);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         var selectExpression = CreateSelect(
             jsonQueryExpression,
             openJsonExpression,
             "key",
             typeof(string),
             _typeMappingSource.FindMapping("nvarchar(4000)")!);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9902
 
         // See note on OPENJSON and ordering in TranslateCollection
         selectExpression.AppendOrdering(
@@ -443,9 +441,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && projectionTableAlias == openJsonExpression.Alias)
         {
             var newInExpression = _sqlExpressionFactory.In(translatedItem, parameter);
-#pragma warning disable EF1001
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
             return source.UpdateQueryExpression(new SelectExpression(newInExpression, _queryCompilationContext.SqlAliasManager));
-#pragma warning restore EF1001
+#pragma warning restore EF9902
         }
 
         return translatedSource;
@@ -528,10 +526,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         projection.TypeMapping,
                         projectionColumn.IsNullable);
 
-#pragma warning disable EF1001
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
                     return source.UpdateQueryExpression(
                         new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
-#pragma warning restore EF1001
+#pragma warning restore EF9902
                 }
             }
         }

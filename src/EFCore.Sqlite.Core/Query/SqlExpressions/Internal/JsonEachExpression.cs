@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 ///         doing so can result in application failures when updating to a new Entity Framework Core release.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class JsonEachExpression : TableValuedFunctionExpression
 {
     private static ConstructorInfo? _quotingConstructor;

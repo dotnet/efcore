@@ -27,7 +27,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CollectionNavigationBuilder(
         IMutableEntityType declaringEntityType,
         IMutableEntityType relatedEntityType,
@@ -49,7 +49,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder? Builder { get; private set; }
 
     private IMutableSkipNavigation? SkipNavigation { get; set; }
@@ -60,7 +60,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual string? CollectionName { get; }
 
     /// <summary>
@@ -69,7 +69,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual MemberInfo? CollectionMember { get; }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType RelatedEntityType { get; }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType DeclaringEntityType { get; }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder WithOneBuilder(string? navigationName)
         => WithOneBuilder(MemberIdentity.Create(navigationName));
 
@@ -138,7 +138,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder WithOneBuilder(
         MemberInfo? navigationMemberInfo)
         => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
@@ -233,7 +233,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableSkipNavigation WithLeftManyNavigation(MemberInfo inverseMemberInfo)
         => WithLeftManyNavigation(inverseMemberInfo.Name);
 
@@ -243,7 +243,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableSkipNavigation WithLeftManyNavigation(string? inverseName)
     {
         Check.NullButNotEmpty(inverseName, nameof(inverseName));
@@ -281,7 +281,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableSkipNavigation WithRightManyNavigation(string? navigationName, string? inverseName)
         => WithRightManyNavigation(MemberIdentity.Create(navigationName), inverseName);
 
@@ -291,7 +291,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableSkipNavigation WithRightManyNavigation(
         MemberInfo navigationMemberInfo,
         string? inverseName)

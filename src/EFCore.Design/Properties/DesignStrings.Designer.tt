@@ -4,5 +4,6 @@
     Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["LoggingDefinitionsClass"] = "DesignLoggingDefinitions";
     Session["NoDiagnostics"] = true;
+    Session["ExperimentalAttributeArgument"] = "EFDiagnostics.DesignInternalUsage";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

@@ -4,5 +4,6 @@
     Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["LoggingDefinitionsClass"] = "ProxiesLoggingDefinitions";
     Session["NoDiagnostics"] = true;
+    Session["ExperimentalAttributeArgument"] = "EFDiagnostics.ProxiesInternalUsage";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

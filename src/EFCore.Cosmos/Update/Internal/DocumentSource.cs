@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class DocumentSource
 {
     private readonly string _containerId;
@@ -112,30 +113,30 @@ public class DocumentSource
             }
             else if (fk.IsUnique)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 // #16707
                 var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
                 document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             }
             else
             {
                 SetTemporaryOrdinals(entry, fk, embeddedValue);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 // #16707
                 var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                 var embeddedOrdinal = 1;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                     // #16707
                     var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
                     array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                     embeddedOrdinal++;
                 }
 
@@ -209,10 +210,10 @@ public class DocumentSource
             }
             else if (fk.IsUnique)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 // #16707
                 var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                 var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                 embeddedDocument = embeddedDocument != null
@@ -229,19 +230,19 @@ public class DocumentSource
             {
                 SetTemporaryOrdinals(entry, fk, embeddedValue);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 // #16707
                 var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                 var embeddedOrdinal = 1;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                     // #16707
                     var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                     var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                     embeddedDocument = embeddedDocument != null
@@ -269,14 +270,14 @@ public class DocumentSource
         var ordinalKeyProperty = FindOrdinalKeyProperty(fk.DeclaringEntityType);
         if (ordinalKeyProperty != null)
         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             // #16707
             var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             var shouldSetTemporaryKeys = false;
             foreach (var dependent in (IEnumerable)embeddedValue)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 // #16707
                 var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
@@ -286,7 +287,7 @@ public class DocumentSource
                     shouldSetTemporaryKeys = true;
                     break;
                 }
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                 embeddedOrdinal++;
             }
@@ -296,12 +297,12 @@ public class DocumentSource
                 var temporaryOrdinal = -1;
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                     // #16707
                     var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 
                     embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                     temporaryOrdinal--;
                 }

@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///         doing so can result in application failures when updating to a new Entity Framework Core release.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
 {
     private static ConstructorInfo? _quotingConstructor, _columnInfoQuotingConstructor;

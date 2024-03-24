@@ -18,7 +18,7 @@ public class OwnedNavigationStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public OwnedNavigationStoredProcedureBuilder(
         IMutableStoredProcedure sproc,
         OwnedNavigationBuilder ownedNavigationBuilder)
@@ -35,7 +35,7 @@ public class OwnedNavigationStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual InternalStoredProcedureBuilder Builder { [DebuggerStepThrough] get; }
 
     /// <inheritdoc />
@@ -132,7 +132,7 @@ public class OwnedNavigationStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual PropertyBuilder CreatePropertyBuilder(string propertyName)
     {
         var entityType = OwnedNavigationBuilder.OwnedEntityType;
@@ -151,7 +151,7 @@ public class OwnedNavigationStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual PropertyBuilder CreatePropertyBuilder<TDependentEntity, TProperty>(
         Expression<Func<TDependentEntity, TProperty>> propertyExpression)
     {

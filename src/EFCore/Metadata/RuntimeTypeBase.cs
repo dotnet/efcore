@@ -36,7 +36,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected RuntimeTypeBase(
         string name,
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
@@ -93,7 +93,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     Gets all types in the model that directly derive from this type.
     /// </summary>
     /// <returns>The derived types.</returns>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IEnumerable<RuntimeTypeBase> DirectlyDerivedTypes
         => _directlyDerivedTypes ?? Enumerable.Empty<RuntimeTypeBase>();
 
@@ -103,7 +103,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual bool HasDirectlyDerivedTypes
         => _directlyDerivedTypes != null
         && _directlyDerivedTypes.Count > 0;
@@ -114,7 +114,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual IEnumerable<RuntimeTypeBase> GetDerivedTypes()
         => GetDerivedTypes<RuntimeTypeBase>();
 
@@ -253,7 +253,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual RuntimeProperty? FindDeclaredProperty(string name)
         => _properties.TryGetValue(name, out var property)
             ? property
@@ -326,7 +326,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IEnumerable<RuntimeProperty> GetProperties()
         => _baseType != null
             ? _baseType.GetProperties().Concat(_properties.Values)
@@ -595,7 +595,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void FinalizeType()
     {
     }

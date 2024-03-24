@@ -32,7 +32,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public RuntimeSkipNavigation(
         string name,
         Type clrType,
@@ -110,7 +110,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetCollectionAccessor<TEntity, TCollection, TElement>(
         Func<TEntity, TCollection>? getCollection,
         Action<TEntity, TCollection>? setCollection,
@@ -145,7 +145,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual DebugView DebugView
         => new(
             () => ((IReadOnlySkipNavigation)this).ToDebugString(),

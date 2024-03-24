@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 [DebuggerStepThrough]
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public static class MethodInfoExtensions
 {
     /// <summary>

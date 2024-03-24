@@ -50,7 +50,7 @@ public class EntityFrameworkServicesBuilder
     ///     This dictionary is exposed for testing and provider-validation only.
     ///     It should not be used from application code.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static readonly IDictionary<Type, ServiceCharacteristics> CoreServices
         = new Dictionary<Type, ServiceCharacteristics>
         {

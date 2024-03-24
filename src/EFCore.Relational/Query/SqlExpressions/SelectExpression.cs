@@ -59,7 +59,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public SelectExpression(
         string? alias,
         List<TableExpressionBase> tables,
@@ -83,7 +83,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public SelectExpression(
         List<TableExpressionBase> tables,
         Expression projection,
@@ -103,7 +103,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public SelectExpression(SqlExpression projection, SqlAliasManager sqlAliasManager)
         : this(tables: [], projection, identifier: [], sqlAliasManager)
     {
@@ -117,7 +117,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     // Immutable selects no longer need to create tables, so no need for an alias manager (note that in the long term, SelectExpression
     // should have an alias manager at all, so this is temporary).
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public static SelectExpression CreateImmutable(string alias, List<TableExpressionBase> tables, List<ProjectionExpression> projection)
         => new(alias, tables, groupBy: [], projections: projection, orderings: [], annotations: null, sqlAliasManager: null!) { IsMutable = false };
 
@@ -2296,7 +2296,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public StructuralTypeShaperExpression GenerateOwnedReferenceEntityProjectionExpression(
         StructuralTypeProjectionExpression principalEntityProjection,
         INavigation navigation,
@@ -2571,7 +2571,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public static StructuralTypeShaperExpression GenerateComplexPropertyShaperExpression(
         StructuralTypeProjectionExpression containerProjection,
         IComplexProperty complexProperty)
@@ -3712,7 +3712,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public SelectExpression Clone()
     {
         _cloningExpressionVisitor ??= new CloningExpressionVisitor(_sqlAliasManager);
@@ -3786,7 +3786,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // TODO: Look into TPC handling and possibly clean this up, #32873
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public SelectExpression RemoveTpcTableExpression()
         => (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor().Visit(this);
 
@@ -4393,7 +4393,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///         They are designed for debugging only and may change arbitrarily between releases.
     ///     </para>
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public string DebugView
         => this.Print();
 

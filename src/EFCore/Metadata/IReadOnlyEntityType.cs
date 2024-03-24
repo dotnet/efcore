@@ -671,7 +671,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
 
     /// <summary>
@@ -680,7 +680,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source);
 
     /// <summary>

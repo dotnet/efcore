@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
 {
     // Note: this array will be accessed using the precision as an index

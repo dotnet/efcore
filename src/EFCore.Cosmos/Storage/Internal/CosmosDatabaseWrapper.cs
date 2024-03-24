@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class CosmosDatabaseWrapper : Database
 {
     private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
@@ -66,18 +67,18 @@ public class CosmosDatabaseWrapper : Database
 
             if (!entityType.IsDocumentRoot())
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 // #16707
                 var root = GetRootDocument((InternalEntityEntry)entry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                 if (!entriesSaved.Contains(root)
                     && rootEntriesToSave.Add(root)
                     && root.EntityState == EntityState.Unchanged)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                     // #16707
                     ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                     entries.Add(root);
                 }
 
@@ -143,19 +144,19 @@ public class CosmosDatabaseWrapper : Database
 
             if (!entityType.IsDocumentRoot())
             {
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 var root = GetRootDocument((InternalEntityEntry)entry);
                 if (!entriesSaved.Contains(root)
                     && rootEntriesToSave.Add(root)
                     && root.EntityState == EntityState.Unchanged)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
                     // #16707
                     ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
-#pragma warning restore EF1001 // Internal EF Core API usage.
                     entries.Add(root);
                 }
 
                 continue;
+#pragma warning restore EF9901 // Internal EF Core API usage.
             }
 
             entriesSaved.Add(entry);
@@ -350,7 +351,7 @@ public class CosmosDatabaseWrapper : Database
         return documentSource;
     }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
     // Issue #16707
     private IUpdateEntry GetRootDocument(InternalEntityEntry entry)
     {
@@ -376,7 +377,7 @@ public class CosmosDatabaseWrapper : Database
 
         return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
     }
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
     private Exception WrapUpdateException(Exception exception, IReadOnlyList<IUpdateEntry> entries)
     {

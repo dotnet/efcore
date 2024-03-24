@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 ///     instances. The implementation must be thread-safe.
 ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
 /// </remarks>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public interface ICosmosSingletonOptions : ISingletonOptions
 {
     /// <summary>

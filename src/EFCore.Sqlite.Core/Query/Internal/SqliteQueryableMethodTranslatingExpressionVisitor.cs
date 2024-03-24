@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -29,7 +30,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal] // https://www.sqlite.org/json1.html#jeach
+    [Experimental(EFDiagnostics.ProviderInternalUsage)] // https://www.sqlite.org/json1.html#jeach
     public const string JsonEachKeyColumnName = "key";
 
     /// <summary>
@@ -38,7 +39,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal] // https://www.sqlite.org/json1.html#jeach
+    [Experimental(EFDiagnostics.ProviderInternalUsage)] // https://www.sqlite.org/json1.html#jeach
     public const string JsonEachValueColumnName = "value";
 
     /// <summary>
@@ -116,9 +117,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
 
-#pragma warning disable EF1001
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
             return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
-#pragma warning restore EF1001
+#pragma warning restore EF9902
         }
 
         return base.TranslateAny(source, predicate);
@@ -213,9 +214,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 argumentsPropagateNullability: new[] { true },
                 typeof(int));
 
-#pragma warning disable EF1001
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
             return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
-#pragma warning restore EF1001
+#pragma warning restore EF9902
         }
 
         return base.TranslateCount(source, predicate);
@@ -253,7 +254,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var keyColumnTypeMapping = _typeMappingSource.FindMapping(typeof(int))!;
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         var selectExpression = new SelectExpression(
             [jsonEachExpression],
             new ColumnExpression(
@@ -264,7 +265,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 isElementNullable ?? elementClrType.IsNullableType()),
             identifier: [(new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
             _sqlAliasManager);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9902
 
         // If we have a collection column, we know the type mapping at this point (as opposed to parameters, whose type mapping will get
         // inferred later based on usage in SqliteInferredTypeMappingApplier); we should be able to apply any SQL logic needed to convert
@@ -339,14 +340,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var jsonEachExpression = new JsonEachExpression(tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         var selectExpression = CreateSelect(
             jsonQueryExpression,
             jsonEachExpression,
             JsonEachKeyColumnName,
             typeof(int),
             _typeMappingSource.FindMapping(typeof(int))!);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9902
 
         selectExpression.AppendOrdering(
             new OrderingExpression(
@@ -417,14 +418,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         selectExpression.PushdownIntoSubquery();
         var subquery = selectExpression.Tables[0];
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         var newOuterSelectExpression = CreateSelect(
             jsonQueryExpression,
             subquery,
             JsonEachKeyColumnName,
             typeof(int),
             _typeMappingSource.FindMapping(typeof(int))!);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9902
 
         newOuterSelectExpression.AppendOrdering(
             new OrderingExpression(
@@ -507,9 +508,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         translation, _sqlExpressionFactory, projectionColumn.TypeMapping, projectionColumn.IsNullable);
                 }
 
-#pragma warning disable EF1001
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
                 return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
-#pragma warning restore EF1001
+#pragma warning restore EF9902
             }
         }
 
@@ -562,7 +563,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.ProviderInternalUsage)]
     public static SqlExpression ApplyJsonSqlConversion(
         SqlExpression expression,
         SqliteSqlExpressionFactory sqlExpressionFactory,

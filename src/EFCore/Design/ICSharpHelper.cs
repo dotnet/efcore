@@ -347,7 +347,7 @@ public interface ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     string Statement(Expression node,
         ISet<string> collectedNamespaces,
         IReadOnlyDictionary<object, string>? constantReplacements = null,
@@ -367,7 +367,7 @@ public interface ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     string Expression(Expression node,
         ISet<string> collectedNamespaces,
         IReadOnlyDictionary<object, string>? constantReplacements = null,

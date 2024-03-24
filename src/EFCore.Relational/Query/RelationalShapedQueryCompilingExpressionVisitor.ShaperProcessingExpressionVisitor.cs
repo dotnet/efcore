@@ -813,9 +813,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                         ? null
                                         : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
                                 Constant(_isTracking),
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                                 Constant(includeExpression.SetLoaded)));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                         var relatedEntityType = innerShaper.ReturnType;
                         var inverseNavigation = navigation.Inverse;
@@ -899,9 +899,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Constant(navigation),
                                 Constant(navigation.GetCollectionAccessor()),
                                 Constant(_isTracking),
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                                 Constant(includeExpression.SetLoaded)));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                         var relatedEntityType = innerShaper.ReturnType;
                         var inverseNavigation = navigation.Inverse;
@@ -1690,9 +1690,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Operand: NewExpression
                             }
                         } shadowSnapshotAssignment
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                         && shadowSnapshotAssignment.Type == typeof(ISnapshot))
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                     {
                         finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(shadowSnapshotAssignment));
                     }
@@ -1827,7 +1827,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var switchCases = new List<SwitchCase>();
                     var testsCount = testExpressions.Count;
 
-                    // generate PropertyName switch-case code 
+                    // generate PropertyName switch-case code
                     if (testsCount > 0)
                     {
                         var testExpression = IfThen(
@@ -1893,7 +1893,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         IfTrue: BlockExpression ifTrueBlock,
                         IfFalse: BlockExpression ifFalseBlock
                     }
+#pragma warning disable EF9901
                     && rightDefault.Type == typeof(InternalEntityEntry))
+#pragma warning restore EF9901
                 {
                     var entityAlreadyTrackedVariable = Variable(typeof(bool), "entityAlreadyTracked");
 
@@ -1937,12 +1939,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // jsonManagerPrm.CaptureState();
                     for (var i = 0; i < 5; i++)
                     {
+#pragma warning disable EF9901
                         newInstanceAssignmentExpressions.Add(
                             instanceAssignmentBody.Expressions[i].Type == typeof(ISnapshot)
                                 ? IfThen(
                                     Not(entityAlreadyTrackedVariable),
                                     instanceAssignmentBody.Expressions[i])
                                 : instanceAssignmentBody.Expressions[i]);
+#pragma warning restore EF9901
                     }
 
                     // from now on we have entity construction and property assignments
@@ -1981,11 +1985,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     resultBlockExpressions.Add(
                         Assign(instanceAssignment.Left, newInstanceAssignmentBlock));
 
+#pragma warning disable EF9901
                     var startTrackingAssignment = ifFalseBlock.Expressions
                         .OfType<BinaryExpression>()
                         .Single(
                             e => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression }
                                 && instance.Type == typeof(InternalEntityEntry));
+#pragma warning restore EF9901
 
                     var startTrackingExpression =
                         IfThen(
@@ -2066,10 +2072,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         if (property!.IsPrimitiveCollection
                             && !property.ClrType.IsArray)
                         {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                             var genericMethod = EntityMaterializerSource.PopulateListMethod.MakeGenericMethod(
                                 property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                             var currentVariable = Variable(parameter!.Type);
                             var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
                                 ? (Expression)currentVariable

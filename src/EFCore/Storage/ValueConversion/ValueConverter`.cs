@@ -63,7 +63,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
     ///     facets for the converted data.
     /// </param>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ValueConverter(
         Expression<Func<TModel, TProvider>> convertToProviderExpression,
         Expression<Func<TProvider, TModel>> convertFromProviderExpression,

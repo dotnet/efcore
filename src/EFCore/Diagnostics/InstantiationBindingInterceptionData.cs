@@ -17,7 +17,7 @@ public readonly struct InstantiationBindingInterceptionData
     ///     Constructs the parameter object.
     /// </summary>
     /// <param name="typeBase">The entity type for which the binding is being used.</param>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     [UsedImplicitly]
     public InstantiationBindingInterceptionData(ITypeBase typeBase)
     {

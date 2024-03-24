@@ -98,7 +98,7 @@ public class OperationExecutor : MarshalByRefObject
     /// <summary>
     ///     Exposes the underlying operations for testing.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public virtual MigrationsOperations MigrationsOperations
         => _migrationsOperations
             ??= new MigrationsOperations(
@@ -114,7 +114,7 @@ public class OperationExecutor : MarshalByRefObject
     /// <summary>
     ///     Exposes the underlying operations for testing.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public virtual DbContextOperations ContextOperations
         => _contextOperations
             ??= new DbContextOperations(
@@ -130,7 +130,7 @@ public class OperationExecutor : MarshalByRefObject
     /// <summary>
     ///     Exposes the underlying operations for testing.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public virtual DatabaseOperations DatabaseOperations
         => _databaseOperations
             ??= new DatabaseOperations(

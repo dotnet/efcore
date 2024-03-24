@@ -4,5 +4,6 @@
     Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.SqlServer.Properties";
     Session["LoggingDefinitionsClass"] = "SqlServerHierarchyIdLoggingDefinitions";
     Session["NoDiagnostics"] = true;
+    Session["ExperimentalAttributeArgument"] = "EFDiagnostics.ProviderInternalUsage";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///         and it is not designed to be directly constructed in your application code.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.RelationalInternalUsage)]
 public class InternalDbFunctionParameterBuilder : AnnotatableBuilder<DbFunctionParameter, IConventionModelBuilder>,
     IConventionDbFunctionParameterBuilder
 {
@@ -27,7 +28,7 @@ public class InternalDbFunctionParameterBuilder : AnnotatableBuilder<DbFunctionP
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public InternalDbFunctionParameterBuilder(DbFunctionParameter parameter, IConventionModelBuilder modelBuilder)
         : base(parameter, modelBuilder)
     {

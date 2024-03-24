@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
-#pragma warning disable 219, 612, 618
+#pragma warning disable 219, 612, 618, EF9901, EF9902, EF9904, EF9999
 #nullable disable
 
 namespace TestNamespace

@@ -27,7 +27,7 @@ public class CollectionCollectionBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CollectionCollectionBuilder(
         IMutableEntityType leftEntityType,
         IMutableEntityType rightEntityType,
@@ -67,7 +67,7 @@ public class CollectionCollectionBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType LeftEntityType { get; }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class CollectionCollectionBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType RightEntityType { get; }
 
     /// <summary>
@@ -95,7 +95,7 @@ public class CollectionCollectionBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalModelBuilder ModelBuilder
         => ((EntityType)LeftEntityType).Model.Builder;
 
@@ -396,7 +396,7 @@ public class CollectionCollectionBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType UsingEntity(
         string? joinEntityName,
         Type? joinEntityType,

@@ -5,6 +5,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 
 using static Expression;
 
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
 {
     private readonly Type _contextType;

@@ -24,7 +24,7 @@ public abstract class DbContextOptions : IDbContextOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected DbContextOptions()
     {
         _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance);
@@ -36,7 +36,7 @@ public abstract class DbContextOptions : IDbContextOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected DbContextOptions(
         IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
     {
@@ -50,7 +50,7 @@ public abstract class DbContextOptions : IDbContextOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected DbContextOptions(
         ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> extensions)
     {
@@ -105,7 +105,7 @@ public abstract class DbContextOptions : IDbContextOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> ExtensionsMap
         => _extensionsMap;
 

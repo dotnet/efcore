@@ -47,7 +47,7 @@ public class DateTimeOffsetToBinaryConverter : ValueConverter<DateTimeOffset, lo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static DateTimeOffset ToDateTimeOffset(long v)
         => new(
             new DateTime((v >> 11) * 1000),
@@ -59,7 +59,7 @@ public class DateTimeOffsetToBinaryConverter : ValueConverter<DateTimeOffset, lo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static long ToLong(DateTimeOffset v)
         => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF);
 

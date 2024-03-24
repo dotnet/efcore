@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 ///     Base class to be used by relational database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
 /// </summary>
 #pragma warning disable EF1001 // Internal EF Core API usage.
+[Experimental(EFDiagnostics.RelationalInternalUsage)]
 public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
 {
     /// <summary>

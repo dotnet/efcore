@@ -137,7 +137,7 @@ public class SqlTreePruner : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual SelectExpression PruneToplevelSelect(SelectExpression select)
     {
         // TODO: This doesn't belong in pruning, take a deeper look at how we manage TPC, #32873

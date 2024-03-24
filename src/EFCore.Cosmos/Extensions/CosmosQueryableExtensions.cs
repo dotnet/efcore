@@ -39,6 +39,7 @@ public static class CosmosQueryableExtensions
     {
         Check.NotNull(partitionKey, nameof(partitionKey));
 
+#pragma warning disable EF9901 // Internal EF Core API usage.
         return
             source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
@@ -48,6 +49,7 @@ public static class CosmosQueryableExtensions
                         source.Expression,
                         Expression.Constant(partitionKey)))
                 : source;
+#pragma warning restore EF9901 // Internal EF Core API usage.
     }
 
     /// <summary>

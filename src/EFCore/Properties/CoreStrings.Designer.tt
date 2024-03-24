@@ -3,5 +3,6 @@
     Session["ResourceFile"] = "CoreStrings.resx";
     Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["LoggingDefinitionsClass"] = "LoggingDefinitions";
+    Session["ExperimentalAttributeArgument"] = "EFDiagnostics.CoreInternalUsage";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

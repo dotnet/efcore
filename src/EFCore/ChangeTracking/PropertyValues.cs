@@ -30,7 +30,7 @@ public abstract class PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected PropertyValues(InternalEntityEntry internalEntry)
     {
         InternalEntry = internalEntry;
@@ -42,7 +42,7 @@ public abstract class PropertyValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
 
     /// <summary>

@@ -556,7 +556,7 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     IConventionElementTypeBuilder? SetElementType(Type? elementType, bool fromDataAnnotation = false);
 
     /// <summary>
@@ -565,6 +565,6 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     bool CanSetElementType(Type? elementType, bool fromDataAnnotation = false);
 }

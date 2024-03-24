@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
@@ -14,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
 {
     private readonly QueryCompilationContext _queryCompilationContext;

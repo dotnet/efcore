@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+#if NET8_0_OR_GREATER // This file is used in the ef project
+[Experimental(EFDiagnostics.DesignInternalUsage)]
+#endif
 public interface IOperationReporter
 {
     /// <summary>

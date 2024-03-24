@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using NetTopologySuite.Geometries;
 
-#pragma warning disable 219, 612, 618
+#pragma warning disable 219, 612, 618, EF9901, EF9902, EF9904, EF9999
 #nullable disable
 
 namespace TestNamespace

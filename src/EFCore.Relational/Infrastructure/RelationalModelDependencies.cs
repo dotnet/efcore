@@ -46,7 +46,7 @@ public sealed record RelationalModelDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public RelationalModelDependencies(
         IRowKeyValueFactoryFactory rowKeyValueFactoryFactory,
         IRowForeignKeyValueFactoryFactory foreignKeyRowValueFactorySource,
@@ -63,7 +63,7 @@ public sealed record RelationalModelDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public IRowKeyValueFactoryFactory RowKeyValueFactoryFactory { get; init; }
 
     /// <summary>
@@ -72,7 +72,7 @@ public sealed record RelationalModelDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public IRowForeignKeyValueFactoryFactory RowForeignKeyValueFactoryFactory { get; init; }
 
     /// <summary>
@@ -81,6 +81,6 @@ public sealed record RelationalModelDependencies
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public IRowIndexValueFactoryFactory RowIndexValueFactoryFactory { get; init; }
 }

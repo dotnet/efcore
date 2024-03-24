@@ -351,11 +351,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var includeMethod = navigation.IsCollection ? IncludeCollectionMethodInfo : IncludeReferenceMethodInfo;
             var includingClrType = navigation.DeclaringEntityType.ClrType;
             var relatedEntityClrType = navigation.TargetEntityType.ClrType;
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             var entityEntryVariable = _trackQueryResults
                 ? shaperBlock.Variables.Single(v => v.Type == typeof(InternalEntityEntry))
                 : (Expression)Constant(null, typeof(InternalEntityEntry));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
             var concreteEntityTypeVariable = shaperBlock.Variables.Single(v => v.Type == typeof(IEntityType));
             var inverseNavigation = navigation.Inverse;
@@ -381,9 +381,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         Constant(inverseNavigation, typeof(INavigation)),
                         Constant(fixup),
                         Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                         Constant(includeExpression.SetLoaded))));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
         }
 
         private static readonly MethodInfo IncludeReferenceMethodInfo
@@ -391,9 +391,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .GetDeclaredMethod(nameof(IncludeReference));
 
         private static void IncludeReference<TIncludingEntity, TIncludedEntity>(
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             InternalEntityEntry entry,
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             object entity,
             IEntityType entityType,
             TIncludedEntity relatedEntity,
@@ -425,9 +425,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             // For non-null relatedEntity StateManager will set the flag
             else if (relatedEntity == null)
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 entry.SetIsLoaded(navigation);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             }
         }
 
@@ -436,9 +436,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .GetDeclaredMethod(nameof(IncludeCollection));
 
         private static void IncludeCollection<TIncludingEntity, TIncludedEntity>(
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
             InternalEntityEntry entry,
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             object entity,
             IEntityType entityType,
             IEnumerable<TIncludedEntity> relatedEntities,
@@ -476,9 +476,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 if (setLoaded)
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                     entry.SetIsLoaded(navigation);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                 }
 
                 if (relatedEntities != null)

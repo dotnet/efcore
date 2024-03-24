@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public sealed class SqliteJsonDateTimeOffsetReaderWriter : JsonValueReaderWriter<DateTimeOffset>
 {
     private const string DateTimeOffsetFormatConst = @"{0:yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz}";

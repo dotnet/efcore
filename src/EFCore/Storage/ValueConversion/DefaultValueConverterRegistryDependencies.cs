@@ -49,7 +49,7 @@ public sealed record ValueConverterSelectorDependencies
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ValueConverterSelectorDependencies()
     {
     }

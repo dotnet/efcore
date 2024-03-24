@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 ///     The <see cref="DiagnosticSource" /> event payload for
 ///     <see cref="SqliteEventId.UnexpectedConnectionTypeWarning" />.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class UnexpectedConnectionTypeEventData : EventData
 {
     /// <summary>

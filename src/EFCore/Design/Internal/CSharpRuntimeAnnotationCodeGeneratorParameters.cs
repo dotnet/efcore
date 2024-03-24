@@ -6,6 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 /// <summary>
 ///     The parameter object for a <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
 {
     /// <summary>
@@ -22,7 +23,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CSharpRuntimeAnnotationCodeGeneratorParameters(
         string targetName,
         string className,

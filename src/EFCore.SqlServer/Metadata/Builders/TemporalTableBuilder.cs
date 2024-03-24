@@ -19,7 +19,7 @@ public class TemporalTableBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.ProviderInternalUsage)]
     public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
     {
         _entityTypeBuilder = entityTypeBuilder;
@@ -69,9 +69,9 @@ public class TemporalTableBuilder
         _entityTypeBuilder.Metadata.SetPeriodStartPropertyName(propertyName);
         var property = ConfigurePeriodProperty(propertyName);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
     }
 
     /// <summary>
@@ -88,9 +88,9 @@ public class TemporalTableBuilder
         _entityTypeBuilder.Metadata.SetPeriodEndPropertyName(propertyName);
         var property = ConfigurePeriodProperty(propertyName);
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
     }
 
     private IMutableProperty ConfigurePeriodProperty(string propertyName)

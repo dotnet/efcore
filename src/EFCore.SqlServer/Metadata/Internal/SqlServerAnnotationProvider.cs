@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerAnnotationProvider : RelationalAnnotationProvider
 {
     /// <summary>
@@ -250,12 +251,14 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
         }
 
         // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         if (column is not JsonColumn
             && column.PropertyMappings.FirstOrDefault()?.Property.IsSparse() is bool isSparse)
         {
             // Model validation ensures that these facets are the same on all mapped properties
             yield return new Annotation(SqlServerAnnotationNames.Sparse, isSparse);
         }
+#pragma warning restore EF9902
 
         var entityType = (IEntityType)column.Table.EntityTypeMappings.First().TypeBase;
         if (entityType.IsTemporal())

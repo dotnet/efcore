@@ -11,15 +11,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
 {
     /// <summary>
     ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
     public SqlServerMigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9902
         : base(dependencies)
     {
     }

@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 // Sealed for perf
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class MemberInfoNameComparer : IComparer<MemberInfo>
 {
     /// <summary>

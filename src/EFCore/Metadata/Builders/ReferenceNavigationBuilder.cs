@@ -29,7 +29,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ReferenceNavigationBuilder(
         IMutableEntityType declaringEntityType,
         IMutableEntityType relatedEntityType,
@@ -48,7 +48,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ReferenceNavigationBuilder(
         IMutableEntityType declaringEntityType,
         IMutableEntityType relatedEntityType,
@@ -68,7 +68,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder Builder { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual string? ReferenceName { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -86,7 +86,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual MemberInfo? ReferenceMember { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -95,7 +95,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType RelatedEntityType { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -104,7 +104,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual IMutableEntityType DeclaringEntityType { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -138,7 +138,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder WithManyBuilder(string? navigationName)
         => WithManyBuilder(MemberIdentity.Create(navigationName));
 
@@ -148,7 +148,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder WithManyBuilder(MemberInfo? navigationMemberInfo)
         => WithManyBuilder(MemberIdentity.Create(navigationMemberInfo));
 
@@ -205,7 +205,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder WithOneBuilder(string? navigationName)
         => WithOneBuilder(MemberIdentity.Create(navigationName));
 
@@ -215,7 +215,7 @@ public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyB
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder WithOneBuilder(MemberInfo? navigationMemberInfo)
         => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 

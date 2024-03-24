@@ -108,7 +108,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [Conditional("DEBUG")]
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public virtual void AssertColumnsNotInitialized()
     {
         if (_columnModifications != null
@@ -585,10 +585,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var jsonPropertyName = currentEntry.EntityType.GetJsonPropertyName()!;
                 currentOwnership = currentEntry.EntityType.FindOwnership()!;
                 var previousEntry = currentEntry;
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                 currentEntry = ((InternalEntityEntry)currentEntry).StateManager.FindPrincipal(
                     (InternalEntityEntry)currentEntry, currentOwnership)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
                 if (processedEntries.Contains(currentEntry))
                 {
@@ -878,9 +878,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             return;
         }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         var entry = (IUpdateEntry)((InternalEntityEntry)parentEntry).StateManager.TryGetEntry(navigationValue, entityType)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
         writer.WriteStartObject();
         foreach (var property in entityType.GetFlattenedProperties())

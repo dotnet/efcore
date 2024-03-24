@@ -27,7 +27,7 @@ public abstract class NavigationEntry : MemberEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected NavigationEntry(InternalEntityEntry internalEntry, string name, bool collection)
         : this(internalEntry, GetNavigation(internalEntry, name), collection)
     {
@@ -39,7 +39,7 @@ public abstract class NavigationEntry : MemberEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected NavigationEntry(InternalEntityEntry internalEntry, INavigationBase navigationBase, bool collection)
         : base(internalEntry, navigationBase)
     {

@@ -33,7 +33,7 @@ public class CollectionEntry : NavigationEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CollectionEntry(InternalEntityEntry internalEntry, string name)
         : base(internalEntry, name, collection: true)
     {
@@ -46,7 +46,7 @@ public class CollectionEntry : NavigationEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CollectionEntry(InternalEntityEntry internalEntry, INavigationBase navigationBase)
         : base(internalEntry, navigationBase, collection: true)
     {
@@ -333,7 +333,7 @@ public class CollectionEntry : NavigationEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalEntityEntry? GetInternalTargetEntry(object entity)
         => CurrentValue == null
             || !InternalEntry.CollectionContains(Metadata, entity)

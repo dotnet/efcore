@@ -24,7 +24,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public OwnedNavigationBuilder(IMutableForeignKey ownership)
     {
         PrincipalEntityType = (EntityType)ownership.PrincipalEntityType;
@@ -35,13 +35,13 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <summary>
     ///     Gets the principal entity type used to configure this relationship.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual EntityType PrincipalEntityType { get; }
 
     /// <summary>
     ///     Gets the dependent entity type used to configure this relationship.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual EntityType DependentEntityType
         => _dependentEntityType.IsInModel
             ? _dependentEntityType
@@ -53,7 +53,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder Builder
     {
         get
@@ -76,7 +76,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual T UpdateBuilder<T>(Func<T> configure)
     {
         IConventionForeignKey? foreignKey = _builder.Metadata;
@@ -951,7 +951,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual ForeignKey HasOneBuilder(
         MemberIdentity navigationId,
         EntityType relatedEntityType)
@@ -979,7 +979,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual EntityType FindRelatedEntityType(string relatedTypeName, string? navigationName)
     {
         EntityType? relatedEntityType = null;
@@ -1013,7 +1013,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual EntityType FindRelatedEntityType(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName)

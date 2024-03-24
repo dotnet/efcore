@@ -47,7 +47,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     [Obsolete("Use a constructor with parameters")]
     public RuntimeModel()
         : base()
@@ -62,7 +62,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public RuntimeModel(
         bool skipDetectChanges,
         Guid modelId,
@@ -88,7 +88,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     [Obsolete("This is set in the constructor now")]
     public virtual Guid ModelId { get => _modelId; set => _modelId = value; }
 
@@ -306,7 +306,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual IModel FinalizeModel()
         => this;
 
@@ -325,7 +325,7 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual DebugView DebugView
         => new(
             () => ((IReadOnlyModel)this).ToDebugString(),

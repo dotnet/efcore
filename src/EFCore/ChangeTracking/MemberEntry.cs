@@ -33,7 +33,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected MemberEntry(InternalEntityEntry internalEntry, IPropertyBase metadata)
     {
         InternalEntry = internalEntry;
@@ -46,7 +46,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalEntityEntry InternalEntry { get; }
 
     /// <summary>
@@ -105,7 +105,7 @@ public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
         => InternalEntry;
 

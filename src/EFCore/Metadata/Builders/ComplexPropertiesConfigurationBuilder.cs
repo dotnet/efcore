@@ -24,7 +24,7 @@ public class ComplexPropertiesConfigurationBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ComplexPropertiesConfigurationBuilder(ComplexPropertyConfiguration property)
     {
         Check.NotNull(property, nameof(property));
@@ -38,7 +38,7 @@ public class ComplexPropertiesConfigurationBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual ComplexPropertyConfiguration Configuration { get; }
 
     #region Hidden System.Object members

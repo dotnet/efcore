@@ -1992,7 +1992,7 @@ public class SqlNullabilityProcessor
     ///     which does not have a nullable projection. This is used to extract NULLs out of e.g. the parameter argument of SQL Server
     ///     OPENJSON, in order to allow a more efficient translation.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual bool TryMakeNonNullable(
         SelectExpression selectExpression,
         [NotNullWhen(true)] out SelectExpression? rewrittenSelectExpression,
@@ -2097,7 +2097,7 @@ public class SqlNullabilityProcessor
     /// <summary>
     ///     A provider hook for identifying a <see cref="TableExpressionBase" /> which represents a collection, e.g. OPENJSON on SQL Server.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual bool IsCollectionTable(TableExpressionBase table, [NotNullWhen(true)] out Expression? collection)
     {
         collection = null;
@@ -2108,7 +2108,7 @@ public class SqlNullabilityProcessor
     ///     Given a <see cref="TableExpressionBase" /> which was previously identified to be a parameterized collection table (e.g.
     ///     OPENJSON on SQL Server, see <see cref="IsCollectionTable" />), replaces the parameter for that table.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual TableExpressionBase UpdateParameterCollection(
         TableExpressionBase table,
         SqlParameterExpression newCollectionParameter)

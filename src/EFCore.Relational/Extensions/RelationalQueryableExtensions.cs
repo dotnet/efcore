@@ -231,10 +231,12 @@ public static class RelationalQueryableExtensions
     public static IQueryable<TEntity> AsSingleQuery<TEntity>(
         this IQueryable<TEntity> source)
         where TEntity : class
+#pragma warning disable EF9901
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<TEntity>(
                 Expression.Call(AsSingleQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
             : source;
+#pragma warning restore EF9901
 
     internal static readonly MethodInfo AsSingleQueryMethodInfo
         = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery))!;
@@ -263,10 +265,12 @@ public static class RelationalQueryableExtensions
     public static IQueryable<TEntity> AsSplitQuery<TEntity>(
         this IQueryable<TEntity> source)
         where TEntity : class
+#pragma warning disable EF9901
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<TEntity>(
                 Expression.Call(AsSplitQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
             : source;
+#pragma warning restore EF9901
 
     internal static readonly MethodInfo AsSplitQueryMethodInfo
         = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery))!;

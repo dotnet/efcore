@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
@@ -9,14 +10,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ApiConsistencyTestBase<TFixture>.ApiConsistencyFixtureBase, new()
 {
-    protected ApiConsistencyTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     protected const BindingFlags PublicInstance
         = BindingFlags.Instance | BindingFlags.Public;
 
@@ -34,7 +30,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             && firstParam.Name == "original"
             && firstParam.ParameterType == method.DeclaringType;
 
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Fluent_api_methods_should_not_return_void()
@@ -1151,6 +1147,24 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         Assert.False(
             parameters.Count > 0,
             "\r\n-- Prefixed bool parameters --\r\n" + string.Join(Environment.NewLine, parameters));
+    }
+
+    [ConditionalFact]
+    public virtual void Public_types_in_internal_namespace_should_have_experimental_attribute()
+    {
+        var types = TargetAssembly.GetExportedTypes()
+            .Where(
+                type => type.Namespace.EndsWith(".Internal", StringComparison.Ordinal)
+                    && type.IsVisible
+                    && !type.IsNested
+                    && !type.GetCustomAttributes<GeneratedCodeAttribute>().Any()
+                    && !type.GetCustomAttributes<ExperimentalAttribute>().Any())
+            .Select(type => type.FullName)
+            .ToList();
+
+        Assert.False(
+            types.Count > 0,
+            "\r\n-- Missing ExperimentalAttribute --\r\n" + string.Join(Environment.NewLine, types));
     }
 
     protected abstract Assembly TargetAssembly { get; }

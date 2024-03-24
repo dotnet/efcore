@@ -3,5 +3,6 @@
     Session["ResourceFile"] = "CosmosStrings.resx";
     Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Cosmos.Properties";
     Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.CosmosLoggingDefinitions";
+    Session["ExperimentalAttributeArgument"] = "EFDiagnostics.ProviderInternalUsage";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

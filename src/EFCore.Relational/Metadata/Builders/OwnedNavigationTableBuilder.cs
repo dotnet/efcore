@@ -18,7 +18,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public OwnedNavigationTableBuilder(in StoreObjectIdentifier? storeObject, OwnedNavigationBuilder ownedNavigationBuilder)
     {
         StoreObject = storeObject;
@@ -43,7 +43,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual StoreObjectIdentifier? StoreObject { get; }
 
     /// <summary>
@@ -153,7 +153,7 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     protected virtual StoreObjectIdentifier GetStoreObjectIdentifier()
         => StoreObject ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
 

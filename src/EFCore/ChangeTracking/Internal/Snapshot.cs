@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot : ISnapshot
 {
     /// <summary>
@@ -128,6 +129,7 @@ public sealed class Snapshot : ISnapshot
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23, T24, T25, T26, T27, T28, T29>
     : ISnapshot
@@ -486,6 +488,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23, T24, T25, T26, T27, T28>
     : ISnapshot
@@ -834,6 +837,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23, T24, T25, T26, T27>
     : ISnapshot
@@ -1172,6 +1176,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23, T24, T25, T26>
     : ISnapshot
@@ -1500,6 +1505,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23, T24, T25>
     : ISnapshot
@@ -1818,6 +1824,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23, T24>
     : ISnapshot
@@ -2101,6 +2108,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
         T23>
     : ISnapshot
@@ -2375,6 +2383,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
     : ISnapshot
 {
@@ -2639,6 +2648,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
     : ISnapshot
 {
@@ -2872,6 +2882,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
     : ISnapshot
 {
@@ -3097,6 +3108,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
     : ISnapshot
 {
@@ -3314,6 +3326,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
     : ISnapshot
 {
@@ -3523,6 +3536,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
     : ISnapshot
 {
@@ -3724,6 +3738,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
     : ISnapshot
 {
@@ -3916,6 +3931,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
     : ISnapshot
 {
@@ -4100,6 +4116,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
     : ISnapshot
 {
@@ -4276,6 +4293,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
     : ISnapshot
 {
@@ -4444,6 +4462,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     : ISnapshot
 {
@@ -4604,6 +4623,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     : ISnapshot
 {
@@ -4756,6 +4776,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     : ISnapshot
 {
@@ -4900,6 +4921,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
     : ISnapshot
 {
@@ -5036,6 +5058,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
     : ISnapshot
 {
@@ -5164,6 +5187,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
     : ISnapshot
 {
@@ -5284,6 +5308,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
     : ISnapshot
 {
@@ -5396,6 +5421,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
     : ISnapshot
 {
@@ -5500,6 +5526,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3, T4>
     : ISnapshot
 {
@@ -5596,6 +5623,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2, T3>
     : ISnapshot
 {
@@ -5684,6 +5712,7 @@ public sealed class Snapshot<T0, T1, T2, T3>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1, T2>
     : ISnapshot
 {
@@ -5762,6 +5791,7 @@ public sealed class Snapshot<T0, T1, T2>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0, T1>
     : ISnapshot
 {
@@ -5830,6 +5860,7 @@ public sealed class Snapshot<T0, T1>
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed class Snapshot<T0>
     : ISnapshot
 {

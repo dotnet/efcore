@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.DesignInternalUsage)]
 public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 {
     private readonly ICSharpHelper _code;
@@ -115,7 +116,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         builder.AppendLine()
-            .AppendLine("#pragma warning disable 219, 612, 618");
+            .AppendLine("#pragma warning disable 219, 612, 618, EF9901, EF9902, EF9904, EF9999");
 
         builder.AppendLine(nullable ? "#nullable enable" : "#nullable disable");
 

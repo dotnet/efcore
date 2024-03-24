@@ -21,7 +21,7 @@ public class EntityEntryGraphNode<TState> : EntityEntryGraphNode
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public EntityEntryGraphNode(
         InternalEntityEntry entry,
         TState state,
@@ -59,7 +59,7 @@ public class EntityEntryGraphNode<TState> : EntityEntryGraphNode
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public override EntityEntryGraphNode CreateNode(
         EntityEntryGraphNode currentNode,
         InternalEntityEntry internalEntityEntry,

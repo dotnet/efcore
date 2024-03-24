@@ -35,7 +35,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected RuntimePropertyBase(
         string name,
         PropertyInfo? propertyInfo,
@@ -92,7 +92,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetPropertyIndexes(int index, int originalValueIndex, int shadowIndex, int relationshipIndex, int storeGenerationIndex)
         => _indexes = new(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
 
@@ -102,7 +102,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetAccessors<TProperty>(
         Func<InternalEntityEntry, TProperty> currentValueGetter,
         Func<InternalEntityEntry, TProperty> preStoreGeneratedCurrentValueGetter,
@@ -122,7 +122,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetMaterializationSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
         where TEntity : class
         => _materializationSetter = new ClrPropertySetter<TEntity, TValue>(setter);
@@ -133,7 +133,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
         where TEntity : class
         => _setter = new ClrPropertySetter<TEntity, TValue>(setter);
@@ -144,7 +144,7 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetGetter<TEntity, TStructuralType, TValue>(
         Func<TEntity, TValue> getter,
         Func<TEntity, bool> hasDefaultValue,

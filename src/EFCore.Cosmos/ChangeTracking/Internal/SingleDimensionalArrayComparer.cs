@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TElement[]>
 {
     internal static readonly PropertyInfo ArrayLengthProperty
@@ -62,9 +63,9 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
                                     param1,
                                     param2,
                                     elementComparer.EqualsExpression),
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                                 BoolIdentity))))),
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
             param1, param2);
     }
 
@@ -75,7 +76,7 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
 
         var aggregateParam = Parameter(typeof(HashCode), "h");
         var aggregateElementParam = Parameter(elementType, "e");
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         var aggregateFunc = Lambda<Func<HashCode, TElement, HashCode>>(
             Call(HashCodeAddMethod, aggregateParam, elementComparer.ExtractHashCodeBody(aggregateElementParam)),
             aggregateParam, aggregateElementParam);
@@ -83,7 +84,7 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
         var selector = Lambda<Func<HashCode, int>>(
             Call(aggregateParam, ToHashCodeMethod),
             aggregateParam);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
         return Lambda<Func<TElement[], int>>(
             Call(

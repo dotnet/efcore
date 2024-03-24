@@ -39,7 +39,7 @@ public sealed record MigrationsScaffolderDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public MigrationsScaffolderDependencies(
         ICurrentDbContext currentContext,
         IModel model,
@@ -104,7 +104,7 @@ public sealed record MigrationsScaffolderDependencies
     /// <summary>
     ///     The operation reporter.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public IOperationReporter OperationReporter { get; init; }
 
     /// <summary>
@@ -115,7 +115,7 @@ public sealed record MigrationsScaffolderDependencies
     /// <summary>
     ///     The snapshot model processor.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.DesignInternalUsage)]
     public ISnapshotModelProcessor SnapshotModelProcessor { get; init; }
 
     /// <summary>

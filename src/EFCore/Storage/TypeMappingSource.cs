@@ -176,7 +176,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <param name="providerType">The provider type.</param>
     /// <param name="elementMapping">The element mapping, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual CoreTypeMapping? FindCollectionMapping(
         TypeMappingInfo info,
         Type modelType,

@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
     <Using Include="Microsoft.EntityFrameworkCore" />

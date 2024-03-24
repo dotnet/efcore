@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 ///     first resolve the object from the dependency injection container, then replace selected
 ///     services using the C# 'with' operator. Do not call the constructor at any point in this process.
 /// </remarks>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed record CSharpRuntimeAnnotationCodeGeneratorDependencies
 {
     /// <summary>
@@ -36,7 +37,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CSharpRuntimeAnnotationCodeGeneratorDependencies(ICSharpHelper cSharpHelper)
     {
         CSharpHelper = cSharpHelper;

@@ -553,8 +553,8 @@ public partial class CSharpMigrationsGeneratorTest
                 {
                     Name = "C2",
                     Table = "T1",
-                    ClrType = typeof(Database),
-                    OldColumn = new AddColumnOperation { ClrType = typeof(Property) }
+                    ClrType = typeof(string),
+                    OldColumn = new AddColumnOperation { ClrType = typeof(int) }
                 },
                 new AddColumnOperation
                 {
@@ -574,9 +574,7 @@ public partial class CSharpMigrationsGeneratorTest
             """
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
 
 #nullable disable
 
@@ -591,11 +589,11 @@ namespace MyNamespace
             migrationBuilder.Sql("-- TEST")
                 .Annotation("Some:EnumValue", RegexOptions.Multiline);
 
-            migrationBuilder.AlterColumn<Database>(
+            migrationBuilder.AlterColumn<string>(
                 name: "C2",
                 table: "T1",
                 nullable: false,
-                oldClrType: typeof(Property));
+                oldClrType: typeof(int));
 
             migrationBuilder.AddColumn<PropertyEntry>(
                 name: "C3",

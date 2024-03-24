@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqliteAnnotationProvider : RelationalAnnotationProvider
 {
     /// <summary>
@@ -59,10 +60,12 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
         }
 
         // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
         if (column is JsonColumn)
         {
             yield break;
         }
+#pragma warning restore EF9902
 
         // Model validation ensures that these facets are the same on all mapped properties
         var property = column.PropertyMappings.First().Property;

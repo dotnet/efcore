@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     The implementation may depend on other services registered with any lifetime.
 ///     The implementation does not need to be thread-safe.
 /// </remarks>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public interface IQueryCompiler
 {
     /// <summary>

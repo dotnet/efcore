@@ -56,7 +56,7 @@ public class SqlAliasManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public virtual Expression PostprocessAliases(Expression expression)
     {
         // To post-process (finalize) table aliases in the tree, we visit it to see which aliases are actually in use.

@@ -44,7 +44,7 @@ public sealed record CompiledQueryCacheKeyGeneratorDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public CompiledQueryCacheKeyGeneratorDependencies(
         IModel model,
         ICurrentDbContext currentContext,

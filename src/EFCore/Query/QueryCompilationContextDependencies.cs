@@ -46,7 +46,7 @@ public sealed record QueryCompilationContextDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public QueryCompilationContextDependencies(
         IModel model,
         IQueryTranslationPreprocessorFactory queryTranslationPreprocessorFactory,

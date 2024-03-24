@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.CodeDom.Compiler;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyModel;
@@ -16,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.DesignInternalUsage)]
 public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplatingEngineHost, IServiceProvider
 {
     private static readonly List<string> _noWarn = ["CS1701", "CS1702"];

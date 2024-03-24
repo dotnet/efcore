@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, IRuntimeEntityType
 {
     internal const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
@@ -3115,7 +3116,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
         => source.GetMaterializer(this);
 
@@ -3125,7 +3126,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
         => source.GetEmptyMaterializer(this);
 
@@ -4719,6 +4720,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public class Snapshot
     {
         /// <summary>

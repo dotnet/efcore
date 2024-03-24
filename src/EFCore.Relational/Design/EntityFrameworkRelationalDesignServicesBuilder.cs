@@ -36,7 +36,7 @@ public class EntityFrameworkRelationalDesignServicesBuilder : EntityFrameworkDes
     ///     This dictionary is exposed for testing and provider-validation only.
     ///     It should not be used from application code.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
         = new Dictionary<Type, ServiceCharacteristics>
         {
@@ -74,9 +74,9 @@ public class EntityFrameworkRelationalDesignServicesBuilder : EntityFrameworkDes
     public override EntityFrameworkServicesBuilder TryAddCoreServices()
     {
         TryAdd<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
         TryAdd<ICSharpRuntimeAnnotationCodeGenerator, RelationalCSharpRuntimeAnnotationCodeGenerator>();
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
 
         ServiceCollectionMap.GetInfrastructure()
             .AddDependencySingleton<AnnotationCodeGeneratorDependencies>()

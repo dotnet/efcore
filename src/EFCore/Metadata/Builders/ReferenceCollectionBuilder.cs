@@ -26,7 +26,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ReferenceCollectionBuilder(
         IMutableEntityType principalEntityType,
         IMutableEntityType dependentEntityType,
@@ -41,7 +41,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected ReferenceCollectionBuilder(
         InternalForeignKeyBuilder builder,
         ReferenceCollectionBuilder oldBuilder,
@@ -103,7 +103,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(IReadOnlyList<string> foreignKeyPropertyNames)
         => Builder.HasForeignKey(foreignKeyPropertyNames, (EntityType)DependentEntityType, ConfigurationSource.Explicit)!;
 
@@ -113,7 +113,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(IReadOnlyList<MemberInfo> foreignKeyMembers)
         => Builder.HasForeignKey(foreignKeyMembers, (EntityType)DependentEntityType, ConfigurationSource.Explicit)!;
 
@@ -137,7 +137,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(IReadOnlyList<string> keyPropertyNames)
         => Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit)!;
 
@@ -147,7 +147,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(IReadOnlyList<MemberInfo> keyMembers)
         => Builder.HasPrincipalKey(keyMembers, ConfigurationSource.Explicit)!;
 

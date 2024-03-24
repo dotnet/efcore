@@ -31,7 +31,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogTransactionError;
 
     /// <summary>
@@ -40,7 +40,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBoolWithDefaultWarning;
 
     /// <summary>
@@ -49,7 +49,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogConnectionCreating;
 
     /// <summary>
@@ -58,7 +58,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogConnectionCreated;
 
     /// <summary>
@@ -67,7 +67,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogConnectionDisposing;
 
     /// <summary>
@@ -76,7 +76,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogConnectionDisposed;
 
     /// <summary>
@@ -85,7 +85,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogOpeningConnection;
 
     /// <summary>
@@ -94,7 +94,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogOpenedConnection;
 
     /// <summary>
@@ -103,7 +103,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogClosingConnection;
 
     /// <summary>
@@ -112,7 +112,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogClosingDataReader;
 
     /// <summary>
@@ -121,7 +121,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogClosedConnection;
 
     /// <summary>
@@ -130,7 +130,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogConnectionError;
 
     /// <summary>
@@ -139,7 +139,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBeginningTransaction;
 
     /// <summary>
@@ -148,7 +148,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBeganTransaction;
 
     /// <summary>
@@ -157,7 +157,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogUsingTransaction;
 
     /// <summary>
@@ -166,7 +166,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommittingTransaction;
 
     /// <summary>
@@ -175,7 +175,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogRollingBackTransaction;
 
     /// <summary>
@@ -184,7 +184,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommittedTransaction;
 
     /// <summary>
@@ -193,7 +193,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogRolledBackTransaction;
 
     /// <summary>
@@ -202,7 +202,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCreatingTransactionSavepoint;
 
     /// <summary>
@@ -211,7 +211,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogRollingBackToTransactionSavepoint;
 
     /// <summary>
@@ -220,7 +220,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCreatedTransactionSavepoint;
 
     /// <summary>
@@ -229,7 +229,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogRolledBackToTransactionSavepoint;
 
     /// <summary>
@@ -238,7 +238,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogReleasingTransactionSavepoint;
 
     /// <summary>
@@ -247,7 +247,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogReleasedTransactionSavepoint;
 
     /// <summary>
@@ -256,7 +256,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogDisposingTransaction;
 
     /// <summary>
@@ -265,7 +265,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogDisposingDataReader;
 
     /// <summary>
@@ -274,7 +274,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogAmbientTransaction;
 
     /// <summary>
@@ -283,7 +283,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogPossibleUnintendedUseOfEquals;
 
     /// <summary>
@@ -292,7 +292,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogStoredProcedureConcurrencyTokenNotMapped;
 
     /// <summary>
@@ -301,7 +301,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogGeneratingDown;
 
     /// <summary>
@@ -310,7 +310,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogGeneratingUp;
 
     /// <summary>
@@ -319,7 +319,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogApplyingMigration;
 
     /// <summary>
@@ -328,7 +328,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogRevertingMigration;
 
     /// <summary>
@@ -337,7 +337,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogMigrating;
 
     /// <summary>
@@ -346,7 +346,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogNoMigrationsApplied;
 
     /// <summary>
@@ -355,7 +355,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogNoMigrationsFound;
 
     /// <summary>
@@ -364,7 +364,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogKeyHasDefaultValue;
 
     /// <summary>
@@ -373,7 +373,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommandCanceled;
 
     /// <summary>
@@ -382,7 +382,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommandCreating;
 
     /// <summary>
@@ -391,7 +391,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommandCreated;
 
     /// <summary>
@@ -400,7 +400,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommandInitialized;
 
     /// <summary>
@@ -409,7 +409,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogExecutingCommand;
 
     /// <summary>
@@ -418,7 +418,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogExecutedCommand;
 
     /// <summary>
@@ -427,7 +427,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogCommandFailed;
 
     /// <summary>
@@ -436,7 +436,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogConnectionErrorAsDebug;
 
     /// <summary>
@@ -445,7 +445,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogAmbientTransactionEnlisted;
 
     /// <summary>
@@ -454,7 +454,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogExplicitTransactionEnlisted;
 
     /// <summary>
@@ -463,7 +463,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBatchSmallerThanMinBatchSize;
 
     /// <summary>
@@ -472,7 +472,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBatchReadyForExecution;
 
     /// <summary>
@@ -481,7 +481,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogMigrationAttributeMissingWarning;
 
     /// <summary>
@@ -490,7 +490,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogNamedIndexAllPropertiesNotToMappedToAnyTable;
 
     /// <summary>
@@ -499,7 +499,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogUnnamedIndexAllPropertiesNotToMappedToAnyTable;
 
     /// <summary>
@@ -508,7 +508,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogNamedIndexPropertiesBothMappedAndNotMappedToTable;
 
     /// <summary>
@@ -517,7 +517,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable;
 
     /// <summary>
@@ -526,7 +526,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogNamedIndexPropertiesMappedToNonOverlappingTables;
 
     /// <summary>
@@ -535,7 +535,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogUnnamedIndexPropertiesMappedToNonOverlappingTables;
 
     /// <summary>
@@ -544,7 +544,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogKeyPropertiesNotMappedToTable;
 
     /// <summary>
@@ -553,7 +553,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogForeignKeyPropertiesMappedToUnrelatedTables;
 
     /// <summary>
@@ -562,7 +562,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogForeignKeyTpcPrincipal;
 
     /// <summary>
@@ -571,7 +571,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogTpcStoreGeneratedIdentity;
 
     /// <summary>
@@ -580,7 +580,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogMultipleCollectionIncludeWarning;
 
     /// <summary>
@@ -589,7 +589,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBatchExecutorFailedToRollbackToSavepoint;
 
     /// <summary>
@@ -598,7 +598,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogBatchExecutorFailedToReleaseSavepoint;
 
     /// <summary>
@@ -607,7 +607,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogOptionalDependentWithoutIdentifyingProperty;
 
     /// <summary>
@@ -616,7 +616,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogOptionalDependentWithAllNullProperties;
 
     /// <summary>
@@ -625,7 +625,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogOptionalDependentWithAllNullPropertiesSensitive;
 
     /// <summary>
@@ -634,7 +634,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogDuplicateColumnOrders;
 
     /// <summary>
@@ -643,7 +643,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogColumnOrderIgnoredWarning;
 
     /// <summary>
@@ -652,7 +652,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogExceptionDuringNonQueryOperation;
 
     /// <summary>
@@ -661,7 +661,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogExceptionDuringExecuteDelete;
 
     /// <summary>
@@ -670,7 +670,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogExceptionDuringExecuteUpdate;
 
     /// <summary>
@@ -679,7 +679,7 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogUnexpectedTrailingResultSetWhenSaving;
 
     /// <summary>
@@ -688,6 +688,6 @@ public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public EventDefinitionBase? LogTriggerOnNonRootTphEntity;
 }

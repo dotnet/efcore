@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 ///         Implemented by service property types to notify services instances of lifecycle changes.
 ///     </para>
 /// </summary>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public interface IInjectableService
 {
     /// <summary>

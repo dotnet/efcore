@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 ///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
 ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
 /// </remarks>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
 {
     /// <summary>

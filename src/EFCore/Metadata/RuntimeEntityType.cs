@@ -51,7 +51,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public RuntimeEntityType(
         string name,
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
@@ -803,7 +803,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetRelationshipSnapshotFactory(Func<InternalEntityEntry, ISnapshot> factory)
         => _relationshipSnapshotFactory = factory;
 
@@ -833,7 +833,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual InstantiationBinding? ServiceOnlyConstructorBinding
     {
         [DebuggerStepThrough]
@@ -849,7 +849,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual PropertyCounts Counts
     {
         get => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static entityType =>
@@ -901,7 +901,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _materializer, this, source,
@@ -913,7 +913,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _emptyMaterializer, this, source,
@@ -932,7 +932,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual DebugView DebugView
         => new(
             () => ((IReadOnlyEntityType)this).ToDebugString(),
@@ -1391,7 +1391,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetOriginalValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
         => _originalValuesFactory = factory;
 
@@ -1401,7 +1401,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
         => _storeGeneratedValuesFactory = factory;
 
@@ -1411,7 +1411,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetTemporaryValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
         => _temporaryValuesFactory = factory;
 
@@ -1421,7 +1421,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
         => _emptyShadowValuesFactory = factory;
 
@@ -1431,7 +1431,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetShadowValuesFactory(Func<IDictionary<string, object?>, ISnapshot> factory)
         => _shadowValuesFactory = factory;
 

@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 ///         The implementation does not need to be thread-safe.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.RelationalInternalUsage)]
 public sealed record CommandBatchPreparerDependencies
 {
     /// <summary>
@@ -44,7 +45,7 @@ public sealed record CommandBatchPreparerDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public CommandBatchPreparerDependencies(
         IModificationCommandBatchFactory modificationCommandBatchFactory,
         IParameterNameGeneratorFactory parameterNameGeneratorFactory,

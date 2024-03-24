@@ -138,10 +138,12 @@ public interface IRelationalModel : IAnnotatable
         {
             builder.Append(indentString).Append("RelationalModel: ");
 
+#pragma warning disable EF9901
             if ((Model is Model) && Collation != null)
             {
                 builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
             }
+#pragma warning restore EF9901
 
             foreach (var table in Tables)
             {

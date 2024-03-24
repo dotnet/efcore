@@ -27,7 +27,7 @@ public class ComplexPropertyBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public ComplexPropertyBuilder(IMutableComplexProperty complexProperty)
     {
         PropertyBuilder = ((ComplexProperty)complexProperty).Builder;
@@ -40,7 +40,7 @@ public class ComplexPropertyBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalComplexPropertyBuilder PropertyBuilder { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class ComplexPropertyBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected virtual InternalComplexTypeBuilder TypeBuilder { [DebuggerStepThrough] get; }
 
     /// <summary>

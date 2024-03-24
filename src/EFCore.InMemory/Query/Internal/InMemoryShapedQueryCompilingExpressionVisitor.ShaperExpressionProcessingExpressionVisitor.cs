@@ -141,9 +141,9 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                                             includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation)
                                         .Compile()),
                                 Constant(_tracking),
-#pragma warning disable EF1001 // Internal EF Core API usage.
+#pragma warning disable EF9901 // Internal EF Core API usage.
                                 Constant(includeExpression.SetLoaded)));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+#pragma warning restore EF9901 // Internal EF Core API usage.
                     }
                     else
                     {

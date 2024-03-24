@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 // Sealed for perf
+[Experimental(EFDiagnostics.RelationalInternalUsage)]
 public sealed class ColumnListComparer : IComparer<IReadOnlyList<IColumn>>, IEqualityComparer<IReadOnlyList<IColumn>>
 {
     /// <summary>

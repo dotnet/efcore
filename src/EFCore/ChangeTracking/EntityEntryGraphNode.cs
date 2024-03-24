@@ -29,7 +29,7 @@ public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public EntityEntryGraphNode(
         InternalEntityEntry entry,
         InternalEntityEntry? sourceEntry,
@@ -84,7 +84,7 @@ public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
         => _entry;
 
@@ -94,7 +94,7 @@ public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual EntityEntryGraphNode CreateNode(
         EntityEntryGraphNode currentNode,
         InternalEntityEntry internalEntityEntry,

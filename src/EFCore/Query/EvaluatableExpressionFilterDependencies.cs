@@ -43,7 +43,7 @@ public sealed record EvaluatableExpressionFilterDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public EvaluatableExpressionFilterDependencies(IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
     {
         Plugins = plugins;

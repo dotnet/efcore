@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 ///         The implementation does not need to be thread-safe.
 ///     </para>
 /// </remarks>
+[Experimental(EFDiagnostics.CoreInternalUsage)]
 public sealed record DbContextDependencies : IDbContextDependencies
 {
     /// <summary>

@@ -56,7 +56,7 @@ public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static byte[] ToBytes(DateTimeOffset value)
     {
         var timeBytes = (byte[])LongToBytes.ConvertToProvider(value.DateTime.ToBinary())!;
@@ -70,7 +70,7 @@ public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byt
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static DateTimeOffset FromBytes(byte[] bytes)
     {
         var timeBinary = (long)LongToBytes.ConvertFromProvider(bytes)!;

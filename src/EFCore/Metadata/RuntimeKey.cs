@@ -25,7 +25,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public RuntimeKey(IReadOnlyList<RuntimeProperty> properties)
     {
         Properties = properties;
@@ -53,7 +53,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual ISet<RuntimeForeignKey>? ReferencingForeignKeys { get; set; }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetPrincipalKeyValueFactory<TKey>(IPrincipalKeyValueFactory<TKey> factory)
         => _principalKeyValueFactory = factory;
 
@@ -72,7 +72,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual void SetIdentityMapFactory(Func<bool, IIdentityMap> factory)
         => _identityMapFactory = factory;
 
@@ -89,7 +89,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public virtual DebugView DebugView
         => new(
             () => ((IReadOnlyKey)this).ToDebugString(),

@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 /// <summary>
 ///     Detects the exceptions caused by SQL Server transient failures.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public static class SqlServerTransientExceptionDetector
 {
     /// <summary>

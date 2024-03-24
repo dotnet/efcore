@@ -75,7 +75,7 @@ public abstract class ValueConverter
     ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
     ///     facets for the converted data.
     /// </param>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     protected ValueConverter(
         LambdaExpression convertToProviderExpression,
         LambdaExpression convertFromProviderExpression,

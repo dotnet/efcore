@@ -13,10 +13,12 @@ Microsoft.EntityFrameworkCore.DbSet
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9901</NoWarn> <!-- OK to use EFCore internal APIs (this assembly) -->
   </PropertyGroup>
 
   <ItemGroup>
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
     <Using Include="Microsoft.EntityFrameworkCore" />
@@ -50,6 +52,7 @@ Microsoft.EntityFrameworkCore.DbSet
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Abstractions\EFCore.Abstractions.csproj" />
     <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

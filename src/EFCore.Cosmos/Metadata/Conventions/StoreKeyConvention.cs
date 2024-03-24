@@ -37,7 +37,7 @@ public class StoreKeyConvention :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.ProviderInternalUsage)]
     public static readonly string IdPropertyJsonName = "id";
 
     /// <summary>
@@ -46,7 +46,7 @@ public class StoreKeyConvention :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.ProviderInternalUsage)]
     public static readonly string DefaultIdPropertyName = "__id";
 
     /// <summary>
@@ -55,7 +55,7 @@ public class StoreKeyConvention :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.ProviderInternalUsage)]
     public static readonly string JObjectPropertyName = "__jObject";
 
     /// <summary>

@@ -46,7 +46,7 @@ public sealed record RelationalConnectionDependencies
     ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public RelationalConnectionDependencies(
         IDbContextOptions contextOptions,
         IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,
@@ -83,7 +83,7 @@ public sealed record RelationalConnectionDependencies
     /// <summary>
     ///     A service for resolving a connection string from a name.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.RelationalInternalUsage)]
     public INamedConnectionStringResolver ConnectionStringResolver { get; init; }
 
     /// <summary>

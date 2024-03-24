@@ -68,7 +68,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static Expression<Func<TNumber, byte[]>> ToBytes()
     {
         var type = typeof(TNumber).UnwrapNullableType();
@@ -122,7 +122,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static Expression<Func<byte[], TNumber>> ToNumber()
     {
         var type = typeof(TNumber).UnwrapNullableType();
@@ -210,7 +210,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static byte[] ReverseLong(byte[] bytes)
         => [bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]];
 
@@ -220,7 +220,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static byte[] ReverseInt(byte[] bytes)
         => [bytes[3], bytes[2], bytes[1], bytes[0]];
 
@@ -230,7 +230,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static byte[] ReverseShort(byte[] bytes)
         => [bytes[1], bytes[0]];
 
@@ -271,7 +271,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static byte[] DecimalToBytes(decimal value)
     {
         var bits = decimal.GetBits(value);
@@ -296,7 +296,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [EntityFrameworkInternal]
+    [Experimental(EFDiagnostics.CoreInternalUsage)]
     public static decimal BytesToDecimal(byte[] bytes)
     {
         Span<byte> gotBytes = BitConverter.IsLittleEndian ? stackalloc byte[16] : bytes;

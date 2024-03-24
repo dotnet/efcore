@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -13,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
 {
     /// <summary>
@@ -116,7 +115,7 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     protected override bool PreferExistsToInWithCoalesce
         => true;
 
-#pragma warning disable EF1001
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -146,5 +145,5 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
         => table is SqlServerOpenJsonExpression { Arguments: [SqlParameterExpression] } openJsonExpression
             ? openJsonExpression.Update(newCollectionParameter, path: null)
             : base.UpdateParameterCollection(table, newCollectionParameter);
-#pragma warning restore EF1001
+#pragma warning restore EF9902 // Internal EF Core relational API usage.
 }

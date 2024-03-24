@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
@@ -13,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
+[Experimental(EFDiagnostics.ProviderInternalUsage)]
 public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
 {
     /// <summary>
@@ -92,6 +92,7 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+#pragma warning disable EF9902 // Internal EF Core relational API usage.
     protected override bool IsCollectionTable(TableExpressionBase table, [NotNullWhen(true)] out Expression? collection)
     {
         if (table is TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var argument] })
@@ -115,5 +116,5 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         => table is TableValuedFunctionExpression { Arguments: [SqlParameterExpression] } jsonEachExpression
             ? jsonEachExpression.Update(new[] { newCollectionParameter })
             : base.UpdateParameterCollection(table, newCollectionParameter);
-#pragma warning restore EF1001
+#pragma warning restore EF9902
 }

@@ -8,11 +8,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DevelopmentDependency>true</DevelopmentDependency>
     <ImplicitUsings>true</ImplicitUsings>
-    <NoWarn>EF1003</NoWarn> <!-- Precompiled query is experimental -->
+    <NoWarn>$(NoWarn);EF9903</NoWarn> <!-- OK to use EFCore design APIs (this assembly) -->
+    <NoWarn>$(NoWarn);EF9901;EF9902</NoWarn> <!-- OK to use EFCore and EFCore.Relational internal APIs -->
+    <NoWarn>$(NoWarn);EF1003</NoWarn> <!-- Precompiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
     <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
     <Using Include="Microsoft.EntityFrameworkCore" />
