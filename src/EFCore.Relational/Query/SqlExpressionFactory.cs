@@ -64,7 +64,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ScalarSubqueryExpression e => e.ApplyTypeMapping(typeMapping),
             SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
             SqlConstantExpression e => e.ApplyTypeMapping(typeMapping),
-            SqlFragmentExpression e => e,
+            SqlFragmentExpression e => e.ApplyTypeMapping(typeMapping),
             SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
             SqlUnaryExpression e => ApplyTypeMappingOnSqlUnary(e, typeMapping),
@@ -687,6 +687,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression? escapeChar = null)
         => (LikeExpression)ApplyDefaultTypeMapping(new LikeExpression(match, pattern, escapeChar, null));
+
+    /// <inheritdoc />
+    public virtual SqlFragmentExpression Fragment(string sql, Type type, RelationalTypeMapping? typeMapping = null)
+        => new(sql, type, typeMapping);
 
     /// <inheritdoc />
     public virtual SqlFragmentExpression Fragment(string sql)
