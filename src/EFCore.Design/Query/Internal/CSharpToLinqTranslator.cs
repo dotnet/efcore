@@ -351,13 +351,19 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         var symbol = _semanticModel.GetSymbolInfo(identifierName).Symbol;
 
-        ILocalSymbol localSymbol;
+        ITypeSymbol typeSymbol;
         switch (symbol)
         {
-            case INamedTypeSymbol typeSymbol:
-                return Constant(ResolveType(typeSymbol));
-            case ILocalSymbol ls:
-                localSymbol = ls;
+            case INamedTypeSymbol s:
+                return Constant(ResolveType(s));
+            case ILocalSymbol s:
+                typeSymbol = s.Type;
+                break;
+            case IFieldSymbol s:
+                typeSymbol = s.Type;
+                break;
+            case IPropertySymbol s:
+                typeSymbol = s.Type;
                 break;
             case null:
                 throw new InvalidOperationException($"Identifier without symbol: {identifierName}");
@@ -366,24 +372,24 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         // TODO: Separate out EF Core-specific logic (EF Core would extend this visitor)
-        if (localSymbol.Type.Name.Contains("DbSet"))
+        if (typeSymbol.Name.Contains("DbSet"))
         {
             throw new NotImplementedException("DbSet local symbol");
         }
 
         // We have an identifier which isn't in our parameters stack.
 
-        // First, if the identifier type is the user's DbContext type, return a constant over that.
-        if (localSymbol.Type.Equals(_userDbContextSymbol, SymbolEqualityComparer.Default))
+        // First, if the identifier type is the user's DbContext type (e.g. DbContext local variable, or field/property),
+        // return a constant over that.
+        if (typeSymbol.Equals(_userDbContextSymbol, SymbolEqualityComparer.Default))
         {
-            // This is a local DbContext variable.
             return Constant(_userDbContext);
         }
 
         // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all captured variables, and populates
         // the _capturedVariable dictionary with them (with null values).
         // TODO: Test closure over class member (not local variable)
-        if (_capturedVariables.TryGetValue(localSymbol, out var memberExpression))
+        if (symbol is ILocalSymbol localSymbol && _capturedVariables.TryGetValue(localSymbol, out var memberExpression))
         {
             // The first time we see a captured variable, we create MemberExpression for it and cache it in _capturedVariables.
             return memberExpression
@@ -448,6 +454,13 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         if (_semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol methodSymbol)
         {
             throw new InvalidOperationException("Could not find symbol for method invocation: " + invocation);
+        }
+
+        // First, if the method return type is the user's DbContext type (e.g. DbContext local variable, or field/property), return a
+        // constant over that DbContext type; the invocation can serve as the root for a LINQ query we can precompile.
+        if (methodSymbol.ReturnType.Equals(_userDbContextSymbol, SymbolEqualityComparer.Default))
+        {
+            return Constant(_userDbContext);
         }
 
         var declaringType = ResolveType(methodSymbol.ContainingType);
@@ -557,12 +570,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         else
         {
             // Non-generic method
-
-            // TODO: private/internal binding flags
             var reducedMethodSymbol = methodSymbol.ReducedFrom ?? methodSymbol;
 
             methodInfo = declaringType.GetMethod(
                 methodSymbol.Name,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static,
                 reducedMethodSymbol.Parameters.Select(p => ResolveType(p.Type)).ToArray());
 
             if (methodInfo is null)

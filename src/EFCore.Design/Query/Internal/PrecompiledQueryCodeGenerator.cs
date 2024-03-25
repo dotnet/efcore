@@ -258,7 +258,11 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
                 {
                     ProcessQueryOperator(
                         _code, semanticModel, querySyntax, queryTree, queryNum + 1, operatorNum: out _, isTerminatingOperator: true,
-                        cancellationToken, queryExecutor);
+                        cancellationToken);
+
+                    // After the terminating operator definition, generate the query's executor generator.
+                    var variableNames = new HashSet<string>(); // TODO
+                    GenerateQueryExecutor(_code, queryNum + 1, queryExecutor, _namespaces, _unsafeAccessors, variableNames);
                 }
                 finally
                 {
@@ -430,8 +434,7 @@ namespace System.Runtime.CompilerServices
         int queryNum,
         out int operatorNum,
         bool isTerminatingOperator,
-        CancellationToken cancellationToken,
-        Expression? queryExecutor = null)
+        CancellationToken cancellationToken)
     {
         var memberAccess = (MemberAccessExpressionSyntax)operatorSyntax.Expression;
 
@@ -474,16 +477,16 @@ namespace System.Runtime.CompilerServices
         // TODO: Validate the below, throw informative (e.g. top-level TVF fails here because non-generic)
         var reducedOperatorSymbol = operatorSymbol.GetConstructedReducedFrom() ?? operatorSymbol;
 
-        var (sourceIdentifier, sourceType) = reducedOperatorSymbol.IsStatic
-            ? (_g.IdentifierName(reducedOperatorSymbol.Parameters[0].Name), reducedOperatorSymbol.Parameters[0].Type)
-            : (_g.ThisExpression(), reducedOperatorSymbol.ReceiverType!);
+        var (sourceVariableName, sourceTypeSymbol) = reducedOperatorSymbol.IsStatic
+            ? (reducedOperatorSymbol.Parameters[0].Name, reducedOperatorSymbol.Parameters[0].Type)
+            : ("this", reducedOperatorSymbol.ReceiverType!);
 
-        // var sourceParameter = reducedOperatorSymbol.IsStatic ? reducedOperatorSymbol.Parameters[0] : reducedOperatorSymbol.ReceiverType;
-        // var sourceParameterIdentifier = _g.IdentifierName(sourceParameter.Name);
-        if (sourceType is not INamedTypeSymbol { TypeArguments: [var sourceElementTypeSymbol]})
+        if (sourceTypeSymbol is not INamedTypeSymbol { TypeArguments: [var sourceElementTypeSymbol]})
         {
             throw new UnreachableException($"Non-IQueryable first parameter in LINQ operator '{operatorLinq.Method.Name}'");
         }
+
+        var sourceElementTypeName = sourceElementTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         var returnTypeSymbol = reducedOperatorSymbol.ReturnType;
 
@@ -530,8 +533,8 @@ namespace System.Runtime.CompilerServices
         code.AppendLine(
             "var precompiledQueryContext = "
             + (nestedOperatorSyntax is null
-                ? $"new PrecompiledQueryContext<{sourceElementTypeSymbol.Name}>(((IDbContextContainer){sourceIdentifier}).DbContext);"
-                : $"(PrecompiledQueryContext<{sourceElementTypeSymbol.Name}>){sourceIdentifier};"));
+                ? $"new PrecompiledQueryContext<{sourceElementTypeName}>(((IDbContextContainer){sourceVariableName}).DbContext);"
+                : $"(PrecompiledQueryContext<{sourceElementTypeName}>){sourceVariableName};"));
 
         // Go over the operator's arguments (skipping the first, which is the source).
         // For those which have captured variables, run them through our funcletizer, which will return code for extracting any captured
@@ -641,7 +644,7 @@ namespace System.Runtime.CompilerServices
             {
                 // The query returns a scalar, not an enumerable (e.g. the terminating operator is Max()).
                 // The executor directly returns the needed result (e.g. int), so just return that.
-                var returnType = _g.TypeExpression(returnTypeSymbol).NormalizeWhitespace().ToFullString();
+                var returnType = returnTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 code.AppendLine($"return ((Func<QueryContext, {returnType}>)({executorFieldIdentifier}))(queryContext);");
             }
             else
@@ -663,8 +666,8 @@ namespace System.Runtime.CompilerServices
                         && operatorLinq.Type.GetGenericTypeDefinition() == typeof(IQueryable<>);
 
                 var returnValue = isAsync
-                    ? $"IAsyncEnumerable<{sourceElementTypeSymbol.Name}>"
-                    : $"IEnumerable<{sourceElementTypeSymbol.Name}>";
+                    ? $"IAsyncEnumerable<{sourceElementTypeName}>"
+                    : $"IEnumerable<{sourceElementTypeName}>";
 
                 code.AppendLine(
                     $"var queryingEnumerable = ((Func<QueryContext, {returnValue}>)({executorFieldIdentifier}))(queryContext);");
@@ -692,7 +695,7 @@ namespace System.Runtime.CompilerServices
                         // TODO: This is an additional runtime allocation; if we had System.Linq.Async we wouldn't need this. We could
                         // have additional versions of all async terminating operators over IAsyncEnumerable<T> (effectively duplicating
                         // System.Linq.Async) as an alternative.
-                        code.AppendLine($"var asyncQueryingEnumerable = new PrecompiledQueryableAsyncEnumerableAdapter<{sourceElementTypeSymbol}>(queryingEnumerable);");
+                        code.AppendLine($"var asyncQueryingEnumerable = new PrecompiledQueryableAsyncEnumerableAdapter<{sourceElementTypeName}>(queryingEnumerable);");
                         code.Append("return asyncQueryingEnumerable");
                     }
                     else
@@ -725,24 +728,17 @@ namespace System.Runtime.CompilerServices
                         || returnTypeSymbol.OriginalDefinition.Equals(_symbols.IOrderedQueryable, SymbolEqualityComparer.Default)
                         => SymbolEqualityComparer.Default.Equals(sourceElementTypeSymbol, returnElementTypeSymbol)
                             ? "return precompiledQueryContext;"
-                            : $"return precompiledQueryContext.ToType<{returnElementTypeSymbol}>();",
+                            : $"return precompiledQueryContext.ToType<{returnElementTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}>();",
 
                     _ when returnTypeSymbol.OriginalDefinition.Equals(_symbols.IIncludableQueryable, SymbolEqualityComparer.Default)
                         && returnTypeSymbol is INamedTypeSymbol { OriginalDefinition.TypeArguments: [_, var includedPropertySymbol] }
-                        => $"return precompiledQueryContext.ToIncludable<{includedPropertySymbol}>();",
+                        => $"return precompiledQueryContext.ToIncludable<{includedPropertySymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}>();",
 
                     _ => throw new UnreachableException()
                 });
         }
 
         code.DecrementIndent().AppendLine("}").AppendLine();
-
-        // After the terminating operator definition, generate the query's executor generator.
-        if (isTerminatingOperator)
-        {
-            var variableNames = new HashSet<string>(); // TODO
-            GenerateQueryExecutor(code, queryNum, queryExecutor!, _namespaces, _unsafeAccessors, variableNames);
-        }
     }
 
     private void GenerateQueryExecutor(

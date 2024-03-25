@@ -10,8 +10,6 @@ using static Microsoft.EntityFrameworkCore.TestUtilities.PrecompiledQueryTestHel
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable enable
-
 // ReSharper disable InconsistentNaming
 
 public class PrecompiledQueryRelationalTestBase
@@ -836,11 +834,47 @@ _ = await context2.Blogs.ToListAsync();
 
     [ConditionalFact]
     public virtual Task DbContext_as_field()
-        => throw new NotImplementedException();
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    private static PrecompiledQueryContext _context;
+
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using (_context = new PrecompiledQueryContext(dbContextOptions))
+        {
+            var blogs = await _context.Blogs.ToListAsync();
+            Assert.Collection(
+                blogs.OrderBy(b => b.Id),
+                b => Assert.Equal(8, b.Id),
+                b => Assert.Equal(9, b.Id));
+        }
+    }
+}
+""");
 
     [ConditionalFact]
     public virtual Task DbContext_as_property()
-        => throw new NotImplementedException();
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    private static PrecompiledQueryContext Context { get; set; }
+
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using (Context = new PrecompiledQueryContext(dbContextOptions))
+        {
+            var blogs = await Context.Blogs.ToListAsync();
+            Assert.Collection(
+                blogs.OrderBy(b => b.Id),
+                b => Assert.Equal(8, b.Id),
+                b => Assert.Equal(9, b.Id));
+        }
+    }
+}
+""");
 
     [ConditionalFact]
     public virtual Task DbContext_as_captured_variable()
@@ -852,7 +886,28 @@ _ = foo();
 
     [ConditionalFact]
     public virtual Task DbContext_as_method_invocation_result()
-        => throw new NotImplementedException();
+        => FullSourceTest(
+            """
+public static class TestContainer
+{
+    private static PrecompiledQueryContext _context;
+
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+        using (_context = new PrecompiledQueryContext(dbContextOptions))
+        {
+            var blogs = await GetContext().Blogs.ToListAsync();
+            Assert.Collection(
+                blogs.OrderBy(b => b.Id),
+                b => Assert.Equal(8, b.Id),
+                b => Assert.Equal(9, b.Id));
+        }
+    }
+
+    private static PrecompiledQueryContext GetContext()
+        => _context;
+}
+""");
 
     #endregion Different DbContext expressions
 
@@ -1029,6 +1084,21 @@ var blogs2 = await context.Blogs.ToListAsync();
 await using var context = new PrecompiledQueryContext(dbContextOptions);
 
 """ + sourceCode,
+            Fixture.ServiceProvider.GetRequiredService<DbContextOptions>(),
+            typeof(PrecompiledQueryContext),
+            interceptorCodeAsserter,
+            errorAsserter,
+            TestOutputHelper,
+            AlwaysPrintGeneratedSources,
+            callerName);
+
+    protected virtual Task FullSourceTest(
+        string sourceCode,
+        Action<string>? interceptorCodeAsserter = null,
+        Action<List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>>? errorAsserter = null,
+        [CallerMemberName] string callerName = "")
+        => Fixture.PrecompiledQueryTestHelpers.FullSourceTest(
+            sourceCode,
             Fixture.ServiceProvider.GetRequiredService<DbContextOptions>(),
             typeof(PrecompiledQueryContext),
             interceptorCodeAsserter,

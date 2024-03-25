@@ -14,8 +14,6 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#nullable enable
-
 public abstract class PrecompiledQueryTestHelpers
 {
     private readonly MetadataReference[] _metadataReferences;
@@ -23,7 +21,31 @@ public abstract class PrecompiledQueryTestHelpers
     protected PrecompiledQueryTestHelpers()
         => _metadataReferences = BuildMetadataReferences().ToArray();
 
-    public async Task Test(
+    public Task Test(
+        string sourceCode,
+        DbContextOptions dbContextOptions,
+        Type dbContextType,
+        Action<string>? interceptorCodeAsserter,
+        Action<List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>>? errorAsserter,
+        ITestOutputHelper testOutputHelper,
+        bool alwaysPrintGeneratedSources,
+        string callerName)
+    {
+        var source = $$"""
+public static class TestContainer
+{
+    public static async Task Test(DbContextOptions dbContextOptions)
+    {
+{{sourceCode}}
+    }
+}
+""";
+        return FullSourceTest(
+            source, dbContextOptions, dbContextType, interceptorCodeAsserter, errorAsserter, testOutputHelper, alwaysPrintGeneratedSources,
+            callerName);
+    }
+
+    public async Task FullSourceTest(
         string sourceCode,
         DbContextOptions dbContextOptions,
         Type dbContextType,
@@ -40,7 +62,7 @@ public abstract class PrecompiledQueryTestHelpers
         //    EF LINQ queries.
         // 3. Integrate the additional syntax trees into the compilation, and again, produce an assembly from it and load it.
         // 4. Use reflection to find the EntryPoint (Main method) on this assembly, and invoke it.
-        var source = $$"""
+        var source = $"""
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,13 +75,7 @@ using Xunit;
 using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase;
 //using Microsoft.EntityFrameworkCore.PrecompiledQueryTest;
 
-public static class TestContainer
-{
-    public static async Task Test(DbContextOptions dbContextOptions)
-    {
-{{sourceCode}}
-    }
-}
+{sourceCode}
 """;
 
         // This turns on the interceptors feature for the designated namespace(s).

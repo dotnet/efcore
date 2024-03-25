@@ -1634,7 +1634,7 @@ GROUP BY [b].[Id]
 
     #endregion SQL expression quotability
 
-    #region Different DbContext expressions
+    #region Different query roots
 
     public override async Task DbContext_as_local_variable()
     {
@@ -1651,14 +1651,22 @@ FROM [Blogs] AS [b]
     {
         await base.DbContext_as_field();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+""");
     }
 
     public override async Task DbContext_as_property()
     {
         await base.DbContext_as_property();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+""");
     }
 
     public override async Task DbContext_as_captured_variable()
@@ -1676,10 +1684,14 @@ FROM [Blogs] AS [b]
     {
         await base.DbContext_as_method_invocation_result();
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [b].[Id], [b].[Name]
+FROM [Blogs] AS [b]
+""");
     }
 
-    #endregion Different DbContext expressions
+    #endregion Different query roots
 
     #region Negative cases
 
