@@ -20,10 +20,10 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     IQueryable<TEntity>,
     IAsyncEnumerable<TEntity>,
     IInfrastructure<IServiceProvider>,
-    IResettableService
+    IResettableService,
+    IDbContextContainer
     where TEntity : class
 {
-    private readonly DbContext _context;
     private readonly string? _entityTypeName;
     private IEntityType? _entityType;
     private EntityQueryable<TEntity>? _entityQueryable;
@@ -36,13 +36,21 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InternalDbSet(DbContext context, string? entityTypeName)
+    public InternalDbSet(DbContext dbContext, string? entityTypeName)
     {
         // Just storing context/service locator here so that the context will be initialized by the time the
         // set is used and services will be obtained from the correctly scoped container when this happens.
-        _context = context;
+        DbContext = dbContext;
         _entityTypeName = entityTypeName;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public DbContext DbContext { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,17 +68,17 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
             }
 
             _entityType = _entityTypeName != null
-                ? _context.Model.FindEntityType(_entityTypeName)
-                : _context.Model.FindEntityType(typeof(TEntity));
+                ? DbContext.Model.FindEntityType(_entityTypeName)
+                : DbContext.Model.FindEntityType(typeof(TEntity));
 
             if (_entityType == null)
             {
-                if (_context.Model.IsShared(typeof(TEntity)))
+                if (DbContext.Model.IsShared(typeof(TEntity)))
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                 }
 
-                var findSameTypeName = _context.Model.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
+                var findSameTypeName = DbContext.Model.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
                 //if the same name exists in your entity types we will show you the full namespace of the type
                 if (!string.IsNullOrEmpty(findSameTypeName))
                 {
@@ -129,7 +137,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     }
 
     private EntityQueryable<TEntity> CreateEntityQueryable()
-        => new(_context.GetDependencies().QueryProvider, EntityType);
+        => new(DbContext.GetDependencies().QueryProvider, EntityType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,9 +151,9 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         {
             CheckKey();
 
-            if (_context.ChangeTracker.AutoDetectChangesEnabled)
+            if (DbContext.ChangeTracker.AutoDetectChangesEnabled)
             {
-                _context.ChangeTracker.DetectChanges();
+                DbContext.ChangeTracker.DetectChanges();
             }
 
             return _localView ??= new LocalView<TEntity>(this);
@@ -287,7 +295,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override async Task AddRangeAsync(params TEntity[] entities)
     {
-        var stateManager = _context.GetDependencies().StateManager;
+        var stateManager = DbContext.GetDependencies().StateManager;
 
         foreach (var entity in entities)
         {
@@ -318,7 +326,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     {
         Check.NotNull(entities, nameof(entities));
 
-        var stateManager = _context.GetDependencies().StateManager;
+        var stateManager = DbContext.GetDependencies().StateManager;
 
         // An Added entity does not yet exist in the database. If it is then marked as deleted there is
         // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
@@ -367,7 +375,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         IEnumerable<TEntity> entities,
         CancellationToken cancellationToken = default)
     {
-        var stateManager = _context.GetDependencies().StateManager;
+        var stateManager = DbContext.GetDependencies().StateManager;
 
         foreach (var entity in entities)
         {
@@ -398,7 +406,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     {
         Check.NotNull(entities, nameof(entities));
 
-        var stateManager = _context.GetDependencies().StateManager;
+        var stateManager = DbContext.GetDependencies().StateManager;
 
         // An Added entity does not yet exist in the database. If it is then marked as deleted there is
         // nothing to delete because it was not yet inserted, so just make sure it doesn't get inserted.
@@ -440,7 +448,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
 
         var entry = EntryWithoutDetectChanges(entity);
 
-        if (_context.ChangeTracker.AutoDetectChangesEnabled)
+        if (DbContext.ChangeTracker.AutoDetectChangesEnabled)
         {
             entry.DetectChanges();
         }
@@ -459,7 +467,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
                     throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(EntityType.DisplayName()));
                 }
 
-                _finder = (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);
+                _finder = (IEntityFinder<TEntity>)DbContext.GetDependencies().EntityFinderFactory.Create(EntityType);
             }
 
             return _finder;
@@ -527,7 +535,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     IServiceProvider IInfrastructure<IServiceProvider>.Instance
-        => _context.GetInfrastructure();
+        => DbContext.GetInfrastructure();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -552,11 +560,11 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     }
 
     private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
-        => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+        => new(DbContext.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
 
     private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
     {
-        var stateManager = _context.GetDependencies().StateManager;
+        var stateManager = DbContext.GetDependencies().StateManager;
 
         foreach (var entity in entities)
         {
@@ -568,7 +576,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     {
         if (entry.EntityState == EntityState.Detached)
         {
-            _context.GetDependencies().EntityGraphAttacher.AttachGraph(
+            DbContext.GetDependencies().EntityGraphAttacher.AttachGraph(
                 entry,
                 entityState,
                 entityState,
@@ -588,7 +596,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
         EntityState entityState,
         CancellationToken cancellationToken)
         => entry.EntityState == EntityState.Detached
-            ? _context.GetDependencies().EntityGraphAttacher.AttachGraphAsync(
+            ? DbContext.GetDependencies().EntityGraphAttacher.AttachGraphAsync(
                 entry,
                 entityState,
                 entityState,

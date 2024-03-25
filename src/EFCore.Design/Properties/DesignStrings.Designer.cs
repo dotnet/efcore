@@ -610,6 +610,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 providerTypeName);
 
         /// <summary>
+        ///     LINQ query comprehension syntax is currently unsupported in precompiled queries.
+        /// </summary>
+        public static string QueryComprehensionSyntaxNotSupportedInPrecompiledQueries
+            => GetString("QueryComprehensionSyntaxNotSupportedInPrecompiledQueries");
+
+        /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
         /// </summary>
         public static string ReadOnlyFiles(object? outputDirectoryName, object? readOnlyFiles)

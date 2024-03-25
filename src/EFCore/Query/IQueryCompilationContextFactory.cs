@@ -24,6 +24,7 @@ public interface IQueryCompilationContextFactory
     ///     Creates a new <see cref="QueryCompilationContext" />.
     /// </summary>
     /// <param name="async">Specifies whether the query is async.</param>
+    /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
     /// <returns>The created query compilation context.</returns>
-    QueryCompilationContext Create(bool async);
+    QueryCompilationContext Create(bool async, bool precompiling);
 }

@@ -299,7 +299,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentSearchCondition;
 
-        return selectExpression.Update(projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset);
+        return selectExpression.Update(tables, predicate, groupBy, havingExpression, projections, orderings, offset, limit);
     }
 
     /// <summary>

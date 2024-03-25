@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -131,12 +132,26 @@ public class QueryCompiler : IQueryCompiler
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual Expression<Func<QueryContext, TResult>> PrecompileQuery<TResult>(Expression query, bool async)
+    {
+        query = ExtractParameters(query, _queryContextFactory.Create(), _logger, precompiledQuery: true);
+        return _database.CompileQueryExpression<TResult>(query, async);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual Expression ExtractParameters(
         Expression query,
         IParameterValues parameterValues,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger,
         bool compiledQuery = false,
+        bool precompiledQuery = false,
         bool generateContextAccessors = false)
         => new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, logger)
-            .ExtractParameters(query, parameterValues, parameterize: !compiledQuery, clearParameterizedValues: true);
+            .ExtractParameters(query, parameterValues, precompiledQuery, parameterize: !compiledQuery, clearParameterizedValues: true);
 }

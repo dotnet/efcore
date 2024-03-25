@@ -364,6 +364,9 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             AddNamespace(converter.ModelClrType, parameters.Namespaces);
             AddNamespace(converter.ProviderClrType, parameters.Namespaces);
 
+            // TODO
+            var unsafeAccessors = new HashSet<string>();
+
             mainBuilder
                 .Append("new ValueConverter<")
                 .Append(codeHelper.Reference(converter.ModelClrType))
@@ -371,10 +374,10 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .Append(codeHelper.Reference(converter.ProviderClrType))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .AppendLines(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, null, null),
+                .AppendLines(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, null, null),
+                .AppendLines(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true);
 
             if (converter.ConvertsNulls)
@@ -425,18 +428,21 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);
 
+            // TODO
+            var unsafeAccessors = new HashSet<string>();
+
             mainBuilder
                 .Append("new ValueComparer<")
                 .Append(codeHelper.Reference(comparer.Type))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces, null, null),
+                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces, null, null),
+                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces, null, null),
+                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .Append(")")
                 .DecrementIndent();

@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design;
@@ -60,6 +61,7 @@ public static class DesignTimeServiceCollectionExtensions
                     .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                     .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
                     .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
+                    .TryAddSingleton<IPrecompiledQueryCodeGenerator, PrecompiledQueryCodeGenerator>()
                     .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                     .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                     .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()

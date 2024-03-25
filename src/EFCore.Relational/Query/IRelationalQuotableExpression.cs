@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     Represents an expression that is quotable, that is, capable of returning an expression that, when evaluated, would construct an
 ///     expression identical to this one. Used to generate code for precompiled queries, which reconstructs this expression.
 /// </summary>
-[Experimental("EF1003")]
+[Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
 public interface IRelationalQuotableExpression
 {
     /// <summary>

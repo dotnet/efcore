@@ -461,13 +461,19 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitConstant(ConstantExpression constantExpression)
     {
-        if (constantExpression.Value is IPrintableExpression printable)
+        switch (constantExpression.Value)
         {
-            printable.Print(this);
-        }
-        else
-        {
-            PrintValue(constantExpression.Value);
+            case IPrintableExpression printable:
+                printable.Print(this);
+                break;
+
+            case IQueryable queryable:
+                _stringBuilder.Append(Print(queryable.Expression));
+                break;
+
+            default:
+                PrintValue(constantExpression.Value);
+                break;
         }
 
         return constantExpression;

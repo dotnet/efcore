@@ -1556,6 +1556,7 @@ public class CSharpHelper : ICSharpHelper
     public virtual string Statement(
         Expression node,
         ISet<string> collectedNamespaces,
+        ISet<string> unsafeAccessors,
         IReadOnlyDictionary<object, string>? constantReplacements,
         IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements)
     {
@@ -1581,11 +1582,18 @@ public class CSharpHelper : ICSharpHelper
             }
         }
 
-        return ToSourceCode(_translator.TranslateStatement(
+        var unsafeAccessorDeclarations = new HashSet<MethodDeclarationSyntax>();
+        var code = ToSourceCode(_translator.TranslateStatement(
             node,
             constantReplacementExpressions,
             memberAccessReplacementExpressions,
-            collectedNamespaces));
+            collectedNamespaces,
+            unsafeAccessorDeclarations));
+
+        // TODO: Possibly improve this (e.g. expose a single string that contains all the accessors concatenated?)
+        unsafeAccessors.UnionWith(unsafeAccessorDeclarations.Select(ToSourceCode));
+
+        return code;
     }
 
     /// <summary>
@@ -1597,6 +1605,7 @@ public class CSharpHelper : ICSharpHelper
     public virtual string Expression(
         Expression node,
         ISet<string> collectedNamespaces,
+        ISet<string> unsafeAccessors,
         IReadOnlyDictionary<object, string>? constantReplacements,
         IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements)
     {
@@ -1622,11 +1631,19 @@ public class CSharpHelper : ICSharpHelper
             }
         }
 
-        return ToSourceCode(_translator.TranslateExpression(
+        var unsafeAccessorDeclarations = new HashSet<MethodDeclarationSyntax>();
+
+        var code = ToSourceCode(_translator.TranslateExpression(
             node,
             constantReplacementExpressions,
             memberAccessReplacementExpressions,
-            collectedNamespaces));
+            collectedNamespaces,
+            unsafeAccessorDeclarations));
+
+        // TODO: Possibly improve this (e.g. expose a single string that contains all the accessors concatenated?)
+        unsafeAccessors.UnionWith(unsafeAccessorDeclarations.Select(ToSourceCode));
+
+        return code;
     }
 
     private static bool IsIdentifierStartCharacter(char ch)

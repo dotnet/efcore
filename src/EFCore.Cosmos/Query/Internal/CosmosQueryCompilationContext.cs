@@ -19,8 +19,9 @@ public class CosmosQueryCompilationContext : QueryCompilationContext
     /// </summary>
     public CosmosQueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
-        bool async)
-        : base(dependencies, async)
+        bool async,
+        bool precompiling)
+        : base(dependencies, async, precompiling)
     {
     }
 
