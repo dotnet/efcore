@@ -439,6 +439,6 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         }
     }
 
-    protected override void Seed(InheritanceContext context)
-        => InheritanceContext.Seed(context, UseGeneratedKeys);
+    protected override Task SeedAsync(InheritanceContext context)
+        => InheritanceContext.SeedAsync(context, UseGeneratedKeys);
 }

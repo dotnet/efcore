@@ -17,7 +17,7 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
     public DbSet<JsonEntityAllTypes> JsonEntitiesAllTypes { get; set; }
     public DbSet<JsonEntityConverters> JsonEntitiesConverters { get; set; }
 
-    public static void Seed(JsonQueryContext context)
+    public static Task SeedAsync(JsonQueryContext context)
     {
         var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
         var entitiesBasic = JsonQueryData.CreateEntitiesBasic();
@@ -40,6 +40,6 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
         context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
         context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
         context.JsonEntitiesConverters.AddRange(jsonEntitiesConverters);
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }

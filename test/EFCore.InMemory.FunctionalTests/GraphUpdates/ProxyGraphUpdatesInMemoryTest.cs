@@ -15,85 +15,87 @@ public class ProxyGraphUpdatesInMemoryTest
         }
 
         [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
-        public override void Optional_one_to_one_relationships_are_one_to_one()
+        public override Task Optional_one_to_one_relationships_are_one_to_one()
             => base.Optional_one_to_one_relationships_are_one_to_one();
 
         [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
-        public override void Optional_one_to_one_with_AK_relationships_are_one_to_one()
+        public override Task Optional_one_to_one_with_AK_relationships_are_one_to_one()
             => base.Optional_one_to_one_with_AK_relationships_are_one_to_one();
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
+        public override Task Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Optional_many_to_one_dependents_are_orphaned_in_store(
+        public override Task Optional_many_to_one_dependents_are_orphaned_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Optional_many_to_one_dependents_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_one_to_one_are_cascade_detached_when_Added(
+        public override Task Required_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
-        public override void Required_one_to_one_relationships_are_one_to_one()
+        public override Task Required_one_to_one_relationships_are_one_to_one()
             => base.Required_one_to_one_relationships_are_one_to_one();
 
         [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
-        public override void Required_one_to_one_with_AK_relationships_are_one_to_one()
+        public override Task Required_one_to_one_with_AK_relationships_are_one_to_one()
             => base.Required_one_to_one_with_AK_relationships_are_one_to_one();
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+        public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
+        public override Task Required_many_to_one_dependents_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_many_to_one_dependents_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+        public override Task Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
                 cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
+        public override Task Required_non_PK_one_to_one_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_non_PK_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
 
         [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
-        public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+        public override Task Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
             CascadeTiming cascadeDeleteTiming,
             CascadeTiming deleteOrphansTiming)
             => base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
                 cascadeDeleteTiming, deleteOrphansTiming);
 
-        protected override void ExecuteWithStrategyInTransaction(
-            Action<DbContext> testOperation,
-            Action<DbContext> nestedTestOperation1 = null,
-            Action<DbContext> nestedTestOperation2 = null,
-            Action<DbContext> nestedTestOperation3 = null)
+        protected override async Task ExecuteWithStrategyInTransactionAsync(
+            Func<DbContext, Task> testOperation,
+            Func<DbContext, Task> nestedTestOperation1 = null,
+            Func<DbContext, Task> nestedTestOperation2 = null,
+            Func<DbContext, Task> nestedTestOperation3 = null)
         {
-            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
-            Fixture.Reseed();
+            await base.ExecuteWithStrategyInTransactionAsync(
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+
+            await Fixture.ReseedAsync();
         }
 
         public abstract class ProxyGraphUpdatesInMemoryFixtureBase : ProxyGraphUpdatesFixtureBase
@@ -106,7 +108,8 @@ public class ProxyGraphUpdatesInMemoryTest
         }
     }
 
-    public class LazyLoading(LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture) : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>(fixture)
+    public class LazyLoading(LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture)
+        : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>(fixture)
     {
         protected override bool DoesLazyLoading
             => true;
@@ -127,13 +130,12 @@ public class ProxyGraphUpdatesInMemoryTest
         }
     }
 
-    public class ChangeTracking(ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture) : ProxyGraphUpdatesInMemoryTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>(fixture)
+    public class ChangeTracking(ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
+        : ProxyGraphUpdatesInMemoryTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>(fixture)
     {
-
         // Needs lazy loading
-        public override void Save_two_entity_cycle_with_lazy_loading()
-        {
-        }
+        public override Task Save_two_entity_cycle_with_lazy_loading()
+            => Task.CompletedTask;
 
         protected override bool DoesLazyLoading
             => false;
@@ -154,8 +156,9 @@ public class ProxyGraphUpdatesInMemoryTest
         }
     }
 
-    public class LazyLoadingAndChangeTracking(LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture) : ProxyGraphUpdatesInMemoryTestBase<
-        LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>(fixture)
+    public class LazyLoadingAndChangeTracking(LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
+        : ProxyGraphUpdatesInMemoryTestBase<
+            LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>(fixture)
     {
         protected override bool DoesLazyLoading
             => true;

@@ -13,11 +13,11 @@ public abstract class TestStore(string name, bool shared) : IDisposable
     public string Name { get; protected set; } = name;
     public bool Shared { get; } = shared;
 
-    public virtual TestStore Initialize(
+    public virtual async Task<TestStore> InitializeAsync(
         IServiceProvider? serviceProvider,
         Func<DbContext>? createContext,
-        Action<DbContext>? seed = null,
-        Action<DbContext>? clean = null)
+        Func<DbContext, Task>? seed = null,
+        Func<DbContext, Task>? clean = null)
     {
         ServiceProvider = serviceProvider;
         if (createContext == null)
@@ -27,54 +27,58 @@ public abstract class TestStore(string name, bool shared) : IDisposable
 
         if (Shared)
         {
-            GetTestStoreIndex(serviceProvider).CreateShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
+            await GetTestStoreIndex(serviceProvider).CreateSharedAsync(
+                GetType().Name + Name, async () => await InitializeAsync(createContext, seed, clean));
         }
         else
         {
-            GetTestStoreIndex(serviceProvider).CreateNonShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
+            await GetTestStoreIndex(serviceProvider).CreateNonSharedAsync(
+                GetType().Name + Name, async () => await InitializeAsync(createContext, seed, clean));
         }
 
         return this;
     }
 
-    public virtual TestStore Initialize(
+    public virtual Task<TestStore> InitializeAsync(
         IServiceProvider serviceProvider,
         Func<TestStore, DbContext> createContext,
-        Action<DbContext>? seed = null,
-        Action<DbContext>? clean = null)
-        => Initialize(serviceProvider, () => createContext(this), seed, clean);
+        Func<DbContext, Task>? seed = null,
+        Func<DbContext, Task>? clean = null)
+        => InitializeAsync(serviceProvider, () => createContext(this), seed, clean);
 
-    public virtual TestStore Initialize<TContext>(
+    public virtual Task<TestStore> InitializeAsync<TContext>(
         IServiceProvider serviceProvider,
         Func<TestStore, TContext> createContext,
-        Action<TContext>? seed = null,
-        Action<TContext>? clean = null)
+        Func<TContext, Task>? seed = null,
+        Func<TContext, Task>? clean = null)
         where TContext : DbContext
-        => Initialize(
+        => InitializeAsync(
             serviceProvider,
-            createContext,
+            () => createContext(this),
             // ReSharper disable twice RedundantCast
-            seed == null ? (Action<DbContext>?)null : c => seed((TContext)c),
-            clean == null ? (Action<DbContext>?)null : c => clean((TContext)c));
+            seed == null ? (Func<DbContext, Task>?)null : c => seed((TContext)c),
+            clean == null ? (Func<DbContext, Task>?)null : c => clean((TContext)c));
 
-    protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext>? seed, Action<DbContext>? clean)
+    protected virtual async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
         using var context = createContext();
-        clean?.Invoke(context);
+        if (clean != null)
+        {
+            await clean(context);
+        }
 
-        Clean(context);
+        await CleanAsync(context);
 
-        seed?.Invoke(context);
+        if (seed != null)
+        {
+            await seed(context);
+        }
     }
 
     public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
-    public abstract void Clean(DbContext context);
 
     public virtual Task CleanAsync(DbContext context)
-    {
-        Clean(context);
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 
     protected virtual DbContext CreateDefaultContext()
         => new(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);

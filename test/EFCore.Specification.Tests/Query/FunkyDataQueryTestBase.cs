@@ -608,7 +608,7 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             return context;
         }
 
-        protected override void Seed(FunkyDataContext context)
-            => FunkyDataContext.Seed(context);
+        protected override Task SeedAsync(FunkyDataContext context)
+            => FunkyDataContext.SeedAsync(context);
     }
 }

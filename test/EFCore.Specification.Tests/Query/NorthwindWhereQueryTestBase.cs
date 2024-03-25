@@ -1651,7 +1651,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10276 }),
 
             ss => ss.Set<Customer>().Where(
-                c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderID == 10276 ));
+                c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderID == 10276));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -644,9 +644,9 @@ public abstract class ManyToManyQueryFixtureBase : SharedStoreFixtureBase<ManyTo
     public virtual bool UseGeneratedKeys
         => false;
 
-    protected override void Seed(ManyToManyContext context)
+    protected override Task SeedAsync(ManyToManyContext context)
     {
         new ManyToManyData(context, UseGeneratedKeys);
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }

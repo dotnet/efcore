@@ -1706,7 +1706,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => from e1 in ss.Set<Employee>()
-                  where ss.Set<Employee>().OrderBy(e2 => e2.EmployeeID).SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo) == new Employee { EmployeeID = 1 }
+                  where ss.Set<Employee>().OrderBy(e2 => e2.EmployeeID).SingleOrDefault(e2 => e2.EmployeeID != e1.ReportsTo)
+                      == new Employee { EmployeeID = 1 }
                   select e1,
             ss => from e1 in ss.Set<Employee>()
                   where ss.Set<Employee>().OrderBy(e2 => e2.EmployeeID).FirstOrDefault(e2 => e2.EmployeeID != e1.ReportsTo).EmployeeID == 1
@@ -2948,17 +2949,17 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     public virtual async Task Throws_on_concurrent_query_list(bool async)
     {
         using var context = CreateContext();
-        context.Database.EnsureCreatedResiliently();
+        await context.Database.EnsureCreatedResilientlyAsync();
 
         using var synchronizationEvent = new ManualResetEventSlim(false);
         using var blockingSemaphore = new SemaphoreSlim(0);
         var blockingTask = Task.Run(
-            () =>
+            async () =>
             {
                 try
                 {
-                    context.Customers.Select(
-                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                    await context.Customers.Select(
+                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToListAsync();
                 }
                 finally
                 {
@@ -2989,17 +2990,17 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     public virtual async Task Throws_on_concurrent_query_first(bool async)
     {
         using var context = CreateContext();
-        context.Database.EnsureCreatedResiliently();
+        await context.Database.EnsureCreatedResilientlyAsync();
 
         using var synchronizationEvent = new ManualResetEventSlim(false);
         using var blockingSemaphore = new SemaphoreSlim(0);
         var blockingTask = Task.Run(
-            () =>
+            async () =>
             {
                 try
                 {
-                    context.Customers.Select(
-                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
+                    await context.Customers.Select(
+                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToListAsync();
                 }
                 finally
                 {
@@ -5696,7 +5697,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 .Select(g => new { g.Key, MaxTimestamp = g.Select(e => e.Order.OrderDate).Max() })
                 .OrderBy(x => x.MaxTimestamp)
                 .Select(x => x));
-	}
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -5713,7 +5714,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_over_concatenated_column_and_constant(bool async)
     {
-        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant",  "ALFKI" + "X"};
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant", "ALFKI" + "X" };
 
         return AssertQuery(
             async,
@@ -5724,7 +5725,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_over_concatenated_column_and_parameter(bool async)
     {
-        var data = new[] { "ALFKI" + "SomeVariable", "ANATR" + "SomeVariable",  "ALFKI" + "X" };
+        var data = new[] { "ALFKI" + "SomeVariable", "ANATR" + "SomeVariable", "ALFKI" + "X" };
         var someVariable = "SomeVariable";
 
         return AssertQuery(
@@ -5748,7 +5749,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_over_concatenated_columns_both_fixed_length(bool async)
     {
-        var data = new[] { "ALFKIALFKI", "ALFKI", "ANATR" + "Ana Trujillo Emparedados y helados", "ANATR" + "ANATR"};
+        var data = new[] { "ALFKIALFKI", "ALFKI", "ANATR" + "Ana Trujillo Emparedados y helados", "ANATR" + "ANATR" };
 
         return AssertQuery(
             async,

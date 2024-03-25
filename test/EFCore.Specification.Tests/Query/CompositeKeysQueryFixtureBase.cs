@@ -363,8 +363,8 @@ public abstract class CompositeKeysQueryFixtureBase : SharedStoreFixtureBase<Com
             .IsRequired(false);
     }
 
-    protected override void Seed(CompositeKeysContext context)
-        => CompositeKeysData.Seed(context);
+    protected override Task SeedAsync(CompositeKeysContext context)
+        => CompositeKeysData.SeedAsync(context);
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(

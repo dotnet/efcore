@@ -12,9 +12,9 @@ public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<Sq
     protected SqlServerFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
-    public void Can_create_database_with_alias_columns()
+    public async Task Can_create_database_with_alias_columns()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new TypeAliasContext(options))

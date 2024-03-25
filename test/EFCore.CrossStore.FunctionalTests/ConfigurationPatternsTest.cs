@@ -8,12 +8,11 @@ using Microsoft.EntityFrameworkCore.TestModels;
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerConfiguredCondition]
-public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisposable
+public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IAsyncLifetime
 {
     public ConfigurationPatternsTest(CrossStoreFixture fixture)
     {
         Fixture = fixture;
-        ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
     }
 
     [ConditionalFact]
@@ -184,28 +183,22 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
     }
 
     private CrossStoreFixture Fixture { get; }
-    private TestStore ExistingTestStore { get; }
+    private TestStore ExistingTestStore { get; set; }
     private static readonly string StoreName = "CrossStoreConfigurationPatternsTest";
 
-    private void Seed(CrossStoreContext context)
+    private Task SeedAsync(CrossStoreContext context)
     {
         context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 
-#pragma warning disable xUnit1013 // Public method should be marked as test
-    public void Dispose()
-        => ExistingTestStore.Dispose();
-#pragma warning restore xUnit1013 // Public method should be marked as test
-
     [SqlServerConfiguredCondition]
-    public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IDisposable
+    public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IAsyncLifetime
     {
         public NestedContextDifferentStores(CrossStoreFixture fixture)
         {
             Fixture = fixture;
-            ExistingTestStore = Fixture.CreateTestStore(SqlServerTestStoreFactory.Instance, StoreName, Seed);
         }
 
         [ConditionalFact]
@@ -249,20 +242,15 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
         }
 
         private CrossStoreFixture Fixture { get; }
-        private TestStore ExistingTestStore { get; }
+        private TestStore ExistingTestStore { get; set; }
         private static readonly string StoreName = "CrossStoreNestedContextTest";
 
-        private void Seed(CrossStoreContext context)
+        private Task SeedAsync(CrossStoreContext context)
         {
             context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
-
-#pragma warning disable xUnit1013 // Public method should be marked as test
-        public void Dispose()
-            => ExistingTestStore.Dispose();
-#pragma warning restore xUnit1013 // Public method should be marked as test
 
         private class BlogContext : DbContext
         {
@@ -310,5 +298,25 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString(StoreName), b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(_serviceProvider);
         }
+
+        public async Task InitializeAsync()
+        {
+            ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
+        }
+
+        public Task DisposeAsync()
+        {
+            ExistingTestStore.Dispose();
+            return Task.CompletedTask;
+        }
+    }
+
+    public async Task InitializeAsync()
+        => ExistingTestStore = await Fixture.CreateTestStoreAsync(SqlServerTestStoreFactory.Instance, StoreName, SeedAsync);
+
+    public Task DisposeAsync()
+    {
+        ExistingTestStore.Dispose();
+        return Task.CompletedTask;
     }
 }

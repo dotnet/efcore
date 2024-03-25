@@ -12,20 +12,12 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : TransactionTestBase<TFixture>.TransactionFixtureBase, new()
 {
     protected TransactionTestBase(TFixture fixture)
     {
         Fixture = fixture;
-        Fixture.Reseed();
-
-        if (TestStore.ConnectionState == ConnectionState.Closed)
-        {
-            TestStore.OpenConnection();
-        }
-
-        Fixture.ListLoggerFactory.Log.Clear();
     }
 
     protected TFixture Fixture { get; set; }
@@ -1579,12 +1571,12 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
                 });
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.AddRange(Customers);
             context.AddRange(Orders);
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 
@@ -1616,4 +1608,19 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
     protected class TransactionCustomer : TransactionEntity;
 
     protected class TransactionOrder : TransactionEntity;
+
+    public async Task InitializeAsync()
+    {
+        await Fixture.ReseedAsync();
+
+        if (TestStore.ConnectionState == ConnectionState.Closed)
+        {
+            TestStore.OpenConnection();
+        }
+
+        Fixture.ListLoggerFactory.Log.Clear();
+    }
+
+    public Task DisposeAsync()
+        => Task.CompletedTask;
 }

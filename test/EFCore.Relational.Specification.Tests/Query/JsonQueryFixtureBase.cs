@@ -470,8 +470,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         return context;
     }
 
-    protected override void Seed(JsonQueryContext context)
-        => JsonQueryContext.Seed(context);
+    protected override async Task SeedAsync(JsonQueryContext context)
+        => await JsonQueryContext.SeedAsync(context);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

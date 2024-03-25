@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SequenceEndToEndTest : IDisposable
+public class SequenceEndToEndTest : IAsyncLifetime
 {
     [ConditionalFact]
     public void Can_use_sequence_end_to_end()
@@ -403,13 +403,14 @@ public class SequenceEndToEndTest : IDisposable
         public string Name { get; set; }
     }
 
-    public SequenceEndToEndTest()
+    protected SqlServerTestStore TestStore { get; private set; }
+
+    public async Task InitializeAsync()
+        => TestStore = await SqlServerTestStore.CreateInitializedAsync("SequenceEndToEndTest");
+
+    public Task DisposeAsync()
     {
-        TestStore = SqlServerTestStore.CreateInitialized("SequenceEndToEndTest");
+        TestStore.Dispose();
+        return Task.CompletedTask;
     }
-
-    protected SqlServerTestStore TestStore { get; }
-
-    public void Dispose()
-        => TestStore.Dispose();
 }

@@ -16,7 +16,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_query_and_update_with_nullable_converter_on_unique_index()
+    public virtual async Task Can_query_and_update_with_nullable_converter_on_unique_index()
     {
         using (var context = CreateContext())
         {
@@ -36,12 +36,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                 },
                 new Person { Id = 4, Name = "Valtteri" });
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            var drivers = context.Set<Person>().OrderBy(p => p.Name).ToList();
+            var drivers = await context.Set<Person>().OrderBy(p => p.Name).ToListAsync();
 
             Assert.Equal(4, drivers.Count);
 
@@ -67,12 +67,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     SSN = new SocialSecurityNumber { Number = 222222222 }
                 });
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            var drivers = context.Set<Person>().OrderBy(p => p.Name).ToList();
+            var drivers = await context.Set<Person>().OrderBy(p => p.Name).ToListAsync();
 
             Assert.Equal(4, drivers.Count);
 
@@ -108,7 +108,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_query_and_update_with_nullable_converter_on_primary_key()
+    public virtual async Task Can_query_and_update_with_nullable_converter_on_primary_key()
     {
         using (var context = CreateContext())
         {
@@ -124,12 +124,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             Assert.Equal(1, pkEntry.CurrentValue);
             Assert.Equal(1, pkEntry.OriginalValue);
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            var dependent = context.Set<NonNullableDependent>().Include(e => e.Principal).Single();
+            var dependent = await context.Set<NonNullableDependent>().Include(e => e.Principal).SingleAsync();
 
             Assert.Equal(1, dependent.PrincipalId);
             Assert.Equal(1, dependent.Principal.Id);
@@ -160,7 +160,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_query_and_update_with_conversion_for_custom_type()
+    public virtual async Task Can_query_and_update_with_conversion_for_custom_type()
     {
         Guid id;
         using (var context = CreateContext())
@@ -168,14 +168,14 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             var user = context.Set<User>().Add(
                 new User(Email.Create("eeky_bear@example.com"))).Entity;
 
-            Assert.Equal(1, context.SaveChanges());
+            Assert.Equal(1, await context.SaveChangesAsync());
 
             id = user.Id;
         }
 
         using (var context = CreateContext())
         {
-            var user = context.Set<User>().Single(e => e.Id == id && e.Email == "eeky_bear@example.com");
+            var user = await context.Set<User>().SingleAsync(e => e.Id == id && e.Email == "eeky_bear@example.com");
 
             Assert.Equal(id, user.Id);
             Assert.Equal("eeky_bear@example.com", user.Email);
@@ -215,19 +215,19 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_query_and_update_with_conversion_for_custom_struct()
+    public virtual async Task Can_query_and_update_with_conversion_for_custom_struct()
     {
         using (var context = CreateContext())
         {
             var load = context.Set<Load>().Add(
                 new Load { LoadId = 1, Fuel = new Fuel(1.1) }).Entity;
 
-            Assert.Equal(1, context.SaveChanges());
+            Assert.Equal(1, await context.SaveChangesAsync());
         }
 
         using (var context = CreateContext())
         {
-            var load = context.Set<Load>().Single(e => e.LoadId == 1 && e.Fuel.Equals(new Fuel(1.1)));
+            var load = await context.Set<Load>().SingleAsync(e => e.LoadId == 1 && e.Fuel.Equals(new Fuel(1.1)));
 
             Assert.Equal(1, load.LoadId);
             Assert.Equal(1.1, load.Fuel.Volume);
@@ -247,7 +247,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_insert_and_read_back_with_case_insensitive_string_key()
+    public virtual async Task Can_insert_and_read_back_with_case_insensitive_string_key()
     {
         using (var context = CreateContext())
         {
@@ -259,16 +259,16 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
             Assert.Same(principal, dependent.Principal);
 
-            Assert.Equal(2, context.SaveChanges());
+            Assert.Equal(2, await context.SaveChangesAsync());
         }
 
         using (var context = CreateContext())
         {
-            var entity = context
+            var entity = (await context
                 .Set<StringKeyDataType>()
                 .Include(e => e.Dependents)
                 .Where(e => e.Id == "Gumball!!")
-                .ToList().Single();
+                .ToListAsync()).Single();
 
             Assert.Equal("Gumball!!", entity.Id);
             Assert.Equal("gumball!!", entity.Dependents.First().StringKeyDataTypeId);
@@ -276,11 +276,11 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
 
         using (var context = CreateContext())
         {
-            var entity = context
+            var entity = (await context
                 .Set<StringKeyDataType>()
                 .Include(e => e.Dependents)
                 .Where(e => e.Id == "gumball!!")
-                .ToList().Single();
+                .ToListAsync()).Single();
 
             Assert.Equal("Gumball!!", entity.Id);
             Assert.Equal("gumball!!", entity.Dependents.First().StringKeyDataTypeId);
@@ -288,19 +288,19 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_insert_and_read_back_with_string_list()
+    public virtual async Task Can_insert_and_read_back_with_string_list()
     {
         using (var context = CreateContext())
         {
             context.Set<StringListDataType>().Add(
                 new StringListDataType { Id = 1, Strings = new List<string> { "Gum", "Taffy" } });
 
-            Assert.Equal(1, context.SaveChanges());
+            Assert.Equal(1, await context.SaveChangesAsync());
         }
 
         using (var context = CreateContext())
         {
-            var entity = context.Set<StringListDataType>().Single();
+            var entity = await context.Set<StringListDataType>().SingleAsync();
 
             Assert.Equal(new[] { "Gum", "Taffy" }, entity.Strings);
         }
@@ -314,30 +314,30 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Can_insert_and_query_struct_to_string_converter_for_pk()
+    public virtual async Task Can_insert_and_query_struct_to_string_converter_for_pk()
     {
         using (var context = CreateContext())
         {
             context.Set<Order>().Add(new Order { Id = OrderId.Parse("Id1") });
 
-            Assert.Equal(1, context.SaveChanges());
+            Assert.Equal(1, await context.SaveChangesAsync());
         }
 
         using (var context = CreateContext())
         {
             // Inline
-            var entity = context.Set<Order>().Where(o => (string)o.Id == "Id1").Single();
+            var entity = await context.Set<Order>().Where(o => (string)o.Id == "Id1").SingleAsync();
 
             // constant from closure
             const string idAsStringConstant = "Id1";
-            entity = context.Set<Order>().Where(o => (string)o.Id == idAsStringConstant).Single();
+            entity = await context.Set<Order>().Where(o => (string)o.Id == idAsStringConstant).SingleAsync();
 
             // Variable from closure
             var idAsStringVariable = "Id1";
-            entity = context.Set<Order>().Where(o => (string)o.Id == idAsStringVariable).Single();
+            entity = await context.Set<Order>().Where(o => (string)o.Id == idAsStringVariable).SingleAsync();
 
             // Inline parsing function
-            entity = context.Set<Order>().Where(o => (string)o.Id == OrderId.Parse("Id1").StringValue).Single();
+            entity = await context.Set<Order>().Where(o => (string)o.Id == OrderId.Parse("Id1").StringValue).SingleAsync();
         }
     }
 
@@ -370,7 +370,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         using (var context = CreateContext())
         {
             context.Set<SimpleCounter>().Add(new SimpleCounter { CounterId = 1, StyleKey = "Swag" });
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
@@ -384,7 +384,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             var result = async ? await query.SingleAsync() : query.Single();
             Assert.NotNull(result);
             context.Remove(result);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
     }
 
@@ -397,10 +397,10 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Field_on_derived_type_retrieved_via_cast_applies_value_converter()
+    public virtual async Task Field_on_derived_type_retrieved_via_cast_applies_value_converter()
     {
         using var context = CreateContext();
-        var query = context.Set<Blog>()
+        var query = await context.Set<Blog>()
             .Where(b => b.BlogId == 2)
             .Select(
                 x => new
@@ -408,91 +408,91 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     x.BlogId,
                     x.Url,
                     RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
-                }).ToList();
+                }).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://rssblog.com/rss", result.RssUrl);
     }
 
     [ConditionalFact]
-    public virtual void Value_conversion_is_appropriately_used_for_join_condition()
+    public virtual async Task Value_conversion_is_appropriately_used_for_join_condition()
     {
         using var context = CreateContext();
         var blogId = 1;
-        var query = (from b in context.Set<Blog>()
-                     join p in context.Set<Post>()
-                         on new
-                         {
-                             BlogId = (int?)b.BlogId,
-                             b.IsVisible,
-                             AnotherId = b.BlogId
-                         }
-                         equals new
-                         {
-                             p.BlogId,
-                             IsVisible = true,
-                             AnotherId = blogId
-                         }
-                     where b.IsVisible
-                     select b.Url).ToList();
+        var query = await ((from b in context.Set<Blog>()
+                            join p in context.Set<Post>()
+                                on new
+                                {
+                                    BlogId = (int?)b.BlogId,
+                                    b.IsVisible,
+                                    AnotherId = b.BlogId
+                                }
+                                equals new
+                                {
+                                    p.BlogId,
+                                    IsVisible = true,
+                                    AnotherId = blogId
+                                }
+                            where b.IsVisible
+                            select b.Url).ToListAsync());
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result);
     }
 
     [ConditionalFact]
-    public virtual void Value_conversion_is_appropriately_used_for_left_join_condition()
+    public virtual async Task Value_conversion_is_appropriately_used_for_left_join_condition()
     {
         using var context = CreateContext();
         var blogId = 1;
-        var query = (from b in context.Set<Blog>()
-                     join p in context.Set<Post>()
-                         on new
-                         {
-                             BlogId = (int?)b.BlogId,
-                             b.IsVisible,
-                             AnotherId = b.BlogId
-                         }
-                         equals new
-                         {
-                             p.BlogId,
-                             IsVisible = true,
-                             AnotherId = blogId
-                         } into g
-                     from p in g.DefaultIfEmpty()
-                     where b.IsVisible
-                     select b.Url).ToList();
+        var query = await (from b in context.Set<Blog>()
+                           join p in context.Set<Post>()
+                               on new
+                               {
+                                   BlogId = (int?)b.BlogId,
+                                   b.IsVisible,
+                                   AnotherId = b.BlogId
+                               }
+                               equals new
+                               {
+                                   p.BlogId,
+                                   IsVisible = true,
+                                   AnotherId = blogId
+                               } into g
+                           from p in g.DefaultIfEmpty()
+                           where b.IsVisible
+                           select b.Url).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result);
     }
 
     [ConditionalFact]
-    public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         using var context = CreateContext();
-        var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
+        var query = await context.Set<Blog>().Where(b => b.IsVisible).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result.Url);
     }
 
     [ConditionalFact]
-    public virtual void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    public virtual async Task Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
     {
         using var context = CreateContext();
-        var query = context.Set<Blog>().Where(b => !b.IsVisible).ToList();
+        var query = await context.Set<Blog>().Where(b => !b.IsVisible).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://rssblog.com", result.Url);
     }
 
     [ConditionalFact]
-    public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
+    public virtual async Task Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
     {
         using var context = CreateContext();
-        var query1 = context.Set<Blog>().Where(b => b.IsVisible).ToList();
-        var query2 = context.Set<Blog>().Where(b => b.IsVisible != true).ToList();
+        var query1 = await context.Set<Blog>().Where(b => b.IsVisible).ToListAsync();
+        var query2 = await context.Set<Blog>().Where(b => b.IsVisible != true).ToListAsync();
 
         var result1 = Assert.Single(query1);
         Assert.Equal("http://blog.com", result1.Url);
@@ -502,10 +502,10 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Select_bool_with_value_conversion_is_used()
+    public virtual async Task Select_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
-        var result = context.Set<Blog>().Select(b => b.IsVisible).ToList();
+        var result = await context.Set<Blog>().Select(b => b.IsVisible).ToListAsync();
 
         Assert.Equal(2, result.Count);
         Assert.Contains(true, result);
@@ -513,20 +513,20 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Where_conditional_bool_with_value_conversion_is_used()
+    public virtual async Task Where_conditional_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
-        var query = context.Set<Blog>().Where(b => (b.IsVisible ? "Foo" : "Bar") == "Foo").ToList();
+        var query = await context.Set<Blog>().Where(b => (b.IsVisible ? "Foo" : "Bar") == "Foo").ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result.Url);
     }
 
     [ConditionalFact]
-    public virtual void Select_conditional_bool_with_value_conversion_is_used()
+    public virtual async Task Select_conditional_bool_with_value_conversion_is_used()
     {
         using var context = CreateContext();
-        var result = context.Set<Blog>().Select(b => b.IsVisible ? "Foo" : "Bar").ToList();
+        var result = await context.Set<Blog>().Select(b => b.IsVisible ? "Foo" : "Bar").ToListAsync();
 
         Assert.Equal(2, result.Count);
         Assert.Contains("Foo", result);
@@ -534,20 +534,20 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+    public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
     {
         using var context = CreateContext();
-        var query = context.Set<Blog>().Where(b => EF.Property<bool>(b, "IsVisible")).ToList();
+        var query = await context.Set<Blog>().Where(b => EF.Property<bool>(b, "IsVisible")).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result.Url);
     }
 
     [ConditionalFact]
-    public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+    public virtual async Task Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
     {
         using var context = CreateContext();
-        var query = context.Set<Blog>().Where(b => !(bool)b["IndexerVisible"]).ToList();
+        var query = await context.Set<Blog>().Where(b => !(bool)b["IndexerVisible"]).ToListAsync();
 
         var result = Assert.Single(query);
         Assert.Equal("http://blog.com", result.Url);
@@ -695,7 +695,8 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         Seller
     }
 
-    public override void Object_to_string_conversion() { }
+    public override Task Object_to_string_conversion()
+        => Task.CompletedTask;
 
     [ConditionalFact]
     public virtual void Optional_owned_with_converter_reading_non_nullable_column()
@@ -719,10 +720,10 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     }
 
     [ConditionalFact]
-    public virtual void Id_object_as_entity_key()
+    public virtual async Task Id_object_as_entity_key()
     {
         using var context = CreateContext();
-        var books = context.Set<Book>().Where(b => b.Id == new BookId(1)).ToList();
+        var books = await context.Set<Book>().Where(b => b.Id == new BookId(1)).ToListAsync();
 
         Assert.Equal("Book1", Assert.Single(books).Value);
     }
@@ -1435,10 +1436,10 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         }
 
         private class OrderIdEntityFrameworkValueConverter(ConverterMappingHints mappingHints) : ValueConverter<OrderId, string>(
-                orderId => orderId.StringValue,
-                stringValue => OrderId.Parse(stringValue),
-                mappingHints
-                )
+            orderId => orderId.StringValue,
+            stringValue => OrderId.Parse(stringValue),
+            mappingHints
+        )
         {
             public OrderIdEntityFrameworkValueConverter()
                 : this(null)

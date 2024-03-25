@@ -28,7 +28,7 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         var saveChangesInterceptor = new RelationalConcurrencySaveChangesInterceptor();
         var commandInterceptor = new TestCommandInterceptor();
 
-        var context = CreateContext(saveChangesInterceptor, commandInterceptor);
+        var context = await CreateContextAsync(saveChangesInterceptor, commandInterceptor);
 
         using var _ = context;
 
@@ -171,7 +171,8 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
     }
 
     public class SaveChangesInterceptionSqlServerTest(SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
-        : SaveChangesInterceptionSqlServerTestBase(fixture), IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
+        : SaveChangesInterceptionSqlServerTestBase(fixture),
+            IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
@@ -183,7 +184,8 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqlServerTest(SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+    public class SaveChangesInterceptionWithDiagnosticsSqlServerTest(
+        SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
         : SaveChangesInterceptionSqlServerTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {

@@ -2557,7 +2557,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 });
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             var buildings = new List<Building>
             {
@@ -2678,7 +2678,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.True((bool)joinEntry.Entity["InitializedCalled"]);
             }
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 

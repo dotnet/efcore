@@ -711,7 +711,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         protected override bool UsePooling
             => false;
 
-        protected override void Seed(ApplicationDbContext context)
+        protected override Task SeedAsync(ApplicationDbContext context)
         {
             var attendees1 = new List<TestModels.ConferencePlanner.Attendee>
             {
@@ -830,7 +830,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             }
 
             context.AddRange(tracks.Values);
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

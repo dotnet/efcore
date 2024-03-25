@@ -147,7 +147,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         await AssertUpdate(
             async,
             contextFactory.CreateContext,
-            ss => ss.Set<Owner>().Join(ss.Set<Owner>(), o => o.Id, i => i.Id, (o, i) => new { Outer = o, Inner = i}),
+            ss => ss.Set<Owner>().Join(ss.Set<Owner>(), o => o.Id, i => i.Id, (o, i) => new { Outer = o, Inner = i }),
             s => s.SetProperty(t => t.Outer.Title, "NewValue"),
             rowsAffectedCount: 0);
     }
@@ -185,10 +185,10 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                         tb.Property(b => b.Title);
                         tb.Property(b => b.Rating);
                     }),
-            seed: context =>
+            seed: async context =>
             {
                 context.Set<Blog>().Add(new Blog { Title = "SomeBlog" });
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             });
 
         await AssertUpdate(
@@ -212,10 +212,10 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                         tb.Property(b => b.Title);
                         tb.Property(b => b.Rating);
                     }),
-            seed: context =>
+            seed: async context =>
             {
                 context.Set<Blog>().Add(new Blog { Title = "SomeBlog" });
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             });
 
         await AssertUpdate(
@@ -360,42 +360,26 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 
     #region HelperMethods
 
-    public async Task AssertDelete<TContext, TResult>(
+    public Task AssertDelete<TContext, TResult>(
         bool async,
         Func<TContext> contextCreator,
         Func<TContext, IQueryable<TResult>> query,
         int rowsAffectedCount)
         where TContext : DbContext
-    {
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                contextCreator, UseTransaction,
-                async context =>
-                {
-                    var processedQuery = query(context);
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            contextCreator, UseTransaction,
+            async context =>
+            {
+                var processedQuery = query(context);
 
-                    var result = await processedQuery.ExecuteDeleteAsync();
+                var result = async
+                    ? await processedQuery.ExecuteDeleteAsync()
+                    : processedQuery.ExecuteDelete();
 
-                    Assert.Equal(rowsAffectedCount, result);
-                });
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                contextCreator, UseTransaction,
-                context =>
-                {
-                    var processedQuery = query(context);
+                Assert.Equal(rowsAffectedCount, result);
+            });
 
-                    var result = processedQuery.ExecuteDelete();
-
-                    Assert.Equal(rowsAffectedCount, result);
-                });
-        }
-    }
-
-    public async Task AssertUpdate<TContext, TResult>(
+    public Task AssertUpdate<TContext, TResult>(
         bool async,
         Func<TContext> contextCreator,
         Func<TContext, IQueryable<TResult>> query,
@@ -403,34 +387,18 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         int rowsAffectedCount)
         where TResult : class
         where TContext : DbContext
-    {
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                contextCreator, UseTransaction,
-                async context =>
-                {
-                    var processedQuery = query(context);
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            contextCreator, UseTransaction,
+            async context =>
+            {
+                var processedQuery = query(context);
 
-                    var result = await processedQuery.ExecuteUpdateAsync(setPropertyCalls);
+                var result = async
+                    ? await processedQuery.ExecuteUpdateAsync(setPropertyCalls)
+                    : processedQuery.ExecuteUpdate(setPropertyCalls);
 
-                    Assert.Equal(rowsAffectedCount, result);
-                });
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                contextCreator, UseTransaction,
-                context =>
-                {
-                    var processedQuery = query(context);
-
-                    var result = processedQuery.ExecuteUpdate(setPropertyCalls);
-
-                    Assert.Equal(rowsAffectedCount, result);
-                });
-        }
-    }
+                Assert.Equal(rowsAffectedCount, result);
+            });
 
     protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
         => Assert.Contains(

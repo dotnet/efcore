@@ -23,12 +23,13 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             modelBuilder =>
             {
                 modelBuilder.Ignore<DependentBase<int>>();
-                modelBuilder.Entity<DependentDerived<int>>(b =>
-                {
-                    b.Ignore(e => e.Principal);
-                    b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property<string>("Data");
-                });
+                modelBuilder.Entity<DependentDerived<int>>(
+                    b =>
+                    {
+                        b.Ignore(e => e.Principal);
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property<string>("Data");
+                    });
             },
             model => Assert.Single(model.GetEntityTypes()),
             // Blocked by dotnet/runtime/issues/89439
@@ -594,6 +595,8 @@ namespace TestNamespace
                     });
 
                 //c.SaveChanges();
+
+                return Task.CompletedTask;
             },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
@@ -724,6 +727,7 @@ namespace TestNamespace
         {
         }
     }
+
     public abstract class AbstractBase
     {
         public int Id { get; set; }
@@ -1081,6 +1085,7 @@ namespace TestNamespace
     }
 
     public readonly record struct ManyTypesId(int Id);
+
     public class Data
     {
         public byte[]? Blob { get; set; }
@@ -1122,7 +1127,9 @@ namespace TestNamespace
     {
         private new TKey Id { get; } = id;
 
-        public TKey GetId() => Id;
+        public TKey GetId()
+            => Id;
+
         public PrincipalDerived<DependentBase<TKey>>? Principal { get; set; }
     }
 
@@ -1135,7 +1142,9 @@ namespace TestNamespace
         }
 
         private string? Data { get; set; }
-        public string? GetData() => Data;
+
+        public string? GetData()
+            => Data;
     }
 
     public class OwnedType : INotifyPropertyChanged, INotifyPropertyChanging
@@ -1266,11 +1275,14 @@ namespace TestNamespace
     }
 
     protected abstract TestHelpers TestHelpers { get; }
-    protected override string StoreName => "CompiledModelTest";
+
+    protected override string StoreName
+        => "CompiledModelTest";
 
     private string _filePath = "";
 
-    protected virtual BuildSource AddReferences(BuildSource build,
+    protected virtual BuildSource AddReferences(
+        BuildSource build,
         [CallerFilePath] string filePath = "")
     {
         _filePath = filePath;
@@ -1291,10 +1303,10 @@ namespace TestNamespace
     {
     }
 
-    protected virtual void Test(
+    protected virtual Task Test(
         Action<ModelBuilder> onModelCreating,
         Action<IModel>? assertModel = null,
-        Action<DbContext>? useContext = null,
+        Func<DbContext, Task>? useContext = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         CompiledModelCodeGenerationOptions? options = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
@@ -1316,10 +1328,10 @@ namespace TestNamespace
             expectedExceptionMessage,
             testName);
 
-    protected virtual (TContext?, IModel?) Test<TContext>(
+    protected virtual async Task<(TContext?, IModel?)> Test<TContext>(
         Action<ModelBuilder>? onModelCreating = null,
         Action<IModel>? assertModel = null,
-        Action<TContext>? useContext = null,
+        Func<TContext, Task>? useContext = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         CompiledModelCodeGenerationOptions? options = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
@@ -1330,7 +1342,7 @@ namespace TestNamespace
         [CallerMemberName] string testName = "")
         where TContext : DbContext
     {
-        using var context = CreateContextFactory<TContext>(
+        using var context = (await CreateContextFactory<TContext>(
             modelBuilder =>
             {
                 var model = modelBuilder.Model;
@@ -1339,7 +1351,7 @@ namespace TestNamespace
                 onModelCreating?.Invoke(modelBuilder);
             },
             onConfiguring,
-            addServices).CreateContext();
+            addServices)).CreateContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
         options ??= new CompiledModelCodeGenerationOptions();
@@ -1388,7 +1400,7 @@ namespace TestNamespace
 
         if (useContext != null)
         {
-            var contextFactory = CreateContextFactory<TContext>(
+            var contextFactory = await CreateContextFactory<TContext>(
                 onConfiguring: options =>
                 {
                     onConfiguring?.Invoke(options);
@@ -1396,7 +1408,7 @@ namespace TestNamespace
                 },
                 addServices: addServices);
             ListLoggerFactory.Clear();
-            TestStore.Initialize(ServiceProvider, contextFactory.CreateContext, c => useContext((TContext)c));
+            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext, c => useContext((TContext)c));
         }
 
         AssertBaseline(scaffoldedFiles, testName);
@@ -1412,8 +1424,7 @@ namespace TestNamespace
     {
         var build = new BuildSource
         {
-            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code),
-            NullableReferenceTypes = options.UseNullableReferenceTypes
+            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code), NullableReferenceTypes = options.UseNullableReferenceTypes
         };
         AddReferences(build);
 

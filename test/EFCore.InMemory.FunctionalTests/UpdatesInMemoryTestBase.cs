@@ -17,21 +17,6 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
     protected override string UpdateConcurrencyMessage
         => InMemoryStrings.UpdateConcurrencyException;
 
-    protected override void ExecuteWithStrategyInTransaction(
-        Action<UpdatesContext> testOperation,
-        Action<UpdatesContext> nestedTestOperation1 = null,
-        Action<UpdatesContext> nestedTestOperation2 = null)
-    {
-        try
-        {
-            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2);
-        }
-        finally
-        {
-            Fixture.Reseed();
-        }
-    }
-
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<UpdatesContext, Task> testOperation,
         Func<UpdatesContext, Task> nestedTestOperation1 = null,
@@ -43,7 +28,7 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
         }
         finally
         {
-            Fixture.Reseed();
+            await Fixture.ReseedAsync();
         }
     }
 

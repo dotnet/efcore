@@ -662,7 +662,7 @@ WHERE (
                 array2.SetValue(value2, 2);
                 context.Entry(instance2).Property("SomeArray").CurrentValue = array2;
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -880,8 +880,8 @@ WHERE EXISTS (
             onModelCreating: mb => mb.Entity<Context32976.Principal>(),
             seed: context =>
             {
-                context.Add(new Context32976.Principal { Ints = [2, 3, 4]});
-                context.SaveChanges();
+                context.Add(new Context32976.Principal { Ints = [2, 3, 4] });
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();

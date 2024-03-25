@@ -127,15 +127,6 @@ public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
         public string? Name { get; set; }
     }
 
-    protected virtual void ExecuteWithStrategyInTransaction(
-        ContextFactory<DbContext> contextFactory,
-        Action<DbContext> testOperation,
-        Action<DbContext>? nestedTestOperation1 = null,
-        Action<DbContext>? nestedTestOperation2 = null,
-        Action<DbContext>? nestedTestOperation3 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
-            contextFactory.CreateContext, UseTransaction, testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
-
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         ContextFactory<DbContext> contextFactory,
         Func<DbContext, Task> testOperation,

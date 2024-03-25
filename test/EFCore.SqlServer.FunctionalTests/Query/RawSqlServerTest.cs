@@ -13,7 +13,7 @@ public class RawSqlServerTest : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task ToQuery_can_use_FromSqlRaw()
     {
-        var contextFactory = await InitializeAsync<MyContext13346>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContext13346>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -41,7 +41,7 @@ SELECT o.Amount From Orders AS o -- RAW
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new Order13346 { Amount = 1 },
@@ -50,7 +50,7 @@ SELECT o.Amount From Orders AS o -- RAW
                 new Order13346 { Amount = 4 }
             );
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Order13346

@@ -437,7 +437,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
-    public override void Can_insert_update_delete()
+    public override Task Can_insert_update_delete()
         => base.Can_insert_update_delete();
 
     public override async Task Byte_enum_value_constant_used_in_projection(bool async)
@@ -541,9 +541,9 @@ WHERE 0 = 1
 """);
     }
 
-    public override void Member_access_on_intermediate_type_works()
+    public override async Task Member_access_on_intermediate_type_works()
     {
-        base.Member_access_on_intermediate_type_works();
+        await base.Member_access_on_intermediate_type_works();
 
         AssertSql(
             """
@@ -645,9 +645,9 @@ WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
-    public override void Setting_foreign_key_to_a_different_type_throws()
+    public override async Task Setting_foreign_key_to_a_different_type_throws()
     {
-        base.Setting_foreign_key_to_a_different_type_throws();
+        await base.Setting_foreign_key_to_a_different_type_throws();
 
         AssertSql(
             """

@@ -18,4 +18,7 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 
     public override bool EnableComplexTypes
         => false;
+
+    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
 }

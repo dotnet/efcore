@@ -154,9 +154,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                 nameof(TheExperience.Jimi), nameof(TheExperience.Mitch), nameof(TheExperience.Noel), nameof(TheExperience.Jimi)
             ]
         },
-        {
-            typeof(Guid), [Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()]
-        },
+        { typeof(Guid), [Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()] },
         { typeof(ulong), ["77", "0", "78", "0"] },
         { typeof(sbyte), ["-77", "75", "-78", "0"] },
         { typeof(byte), ["77", "75", "78", "0"] },
@@ -167,7 +165,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
     [InlineData(new[] { 0, 1, 2, 3 })]
     [InlineData(new[] { 3, 2, 1, 0 })]
     [InlineData(new[] { 0, 2, 0, 2 })]
-    public virtual void Can_insert_and_read_back_with_conversions(int[] valueOrder)
+    public virtual async Task Can_insert_and_read_back_with_conversions(int[] valueOrder)
     {
         var id = Guid.Empty;
 
@@ -178,27 +176,27 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
             SetPropertyValues(context, entity, valueOrder[0], -1);
 
             context.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             id = entity.Id;
         }
 
         using (var context = CreateContext())
         {
-            SetPropertyValues(context, context.Set<ConvertingEntity>().Single(e => e.Id == id), valueOrder[1], valueOrder[0]);
-            context.SaveChanges();
+            SetPropertyValues(context, await context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id), valueOrder[1], valueOrder[0]);
+            await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            SetPropertyValues(context, context.Set<ConvertingEntity>().Single(e => e.Id == id), valueOrder[2], valueOrder[1]);
-            context.SaveChanges();
+            SetPropertyValues(context, await context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id), valueOrder[2], valueOrder[1]);
+            await context.SaveChangesAsync();
         }
 
         using (var context = CreateContext())
         {
-            SetPropertyValues(context, context.Set<ConvertingEntity>().Single(e => e.Id == id), valueOrder[3], valueOrder[2]);
-            context.SaveChanges();
+            SetPropertyValues(context, await context.Set<ConvertingEntity>().SingleAsync(e => e.Id == id), valueOrder[3], valueOrder[2]);
+            await context.SaveChangesAsync();
         }
     }
 

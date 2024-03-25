@@ -19,7 +19,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task BeginTransaction_without_interceptor(bool async)
     {
-        using var context = CreateContext(Enumerable.Empty<IInterceptor>());
+        using var context = await CreateContextAsync(Enumerable.Empty<IInterceptor>());
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
         using (var transaction = async
                    ? await context.Database.BeginTransactionAsync()
@@ -36,7 +36,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task UseTransaction_without_interceptor(bool async)
     {
-        using var context = CreateContext(Enumerable.Empty<IInterceptor>());
+        using var context = await CreateContextAsync(Enumerable.Empty<IInterceptor>());
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
         using var transaction = context.Database.GetDbConnection().BeginTransaction();
         var contextTransaction = async
@@ -56,7 +56,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_BeginTransaction(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -76,7 +76,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_BeginTransaction_with_isolation_level(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -96,7 +96,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_BeginTransaction_to_suppress(bool async)
     {
-        var (context, interceptor) = CreateContext<SuppressingTransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<SuppressingTransactionInterceptor>();
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -143,7 +143,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_BeginTransaction_to_wrap(bool async)
     {
-        var (context, interceptor) = CreateContext<WrappingTransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<WrappingTransactionInterceptor>();
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -208,7 +208,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_UseTransaction(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -230,7 +230,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_UseTransaction_to_wrap(bool async)
     {
-        var (context, interceptor) = CreateContext<WrappingTransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<WrappingTransactionInterceptor>();
         using (context)
         {
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -252,7 +252,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_Commit(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -281,7 +281,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_Commit_to_suppress(bool async)
     {
-        var (context, interceptor) = CreateContext<CommitSuppressingTransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<CommitSuppressingTransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -313,7 +313,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_Rollback(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -342,7 +342,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_Rollback_to_suppress(bool async)
     {
-        var (context, interceptor) = CreateContext<CommitSuppressingTransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<CommitSuppressingTransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -374,7 +374,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_CreateSavepoint(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -403,7 +403,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_RollbackToSavepoint(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -441,7 +441,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_ReleaseSavepoint(bool async)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -526,7 +526,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
     [InlineData(true, false)]
     public virtual async Task Intercept_error_on_commit_or_rollback(bool async, bool commit)
     {
-        var (context, interceptor) = CreateContext<TransactionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<TransactionInterceptor>();
         using (context)
         {
             using var contextTransaction = async
@@ -581,7 +581,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
         var interceptor2 = new WrappingTransactionInterceptor();
         var interceptor3 = new TransactionInterceptor();
         var interceptor4 = new WrappingTransactionInterceptor();
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new IInterceptor[] { new NoOpTransactionInterceptor(), interceptor1, interceptor2 },
             new IInterceptor[] { interceptor3, interceptor4, new NoOpTransactionInterceptor() });
         using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -633,8 +633,8 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
         protected override DbConnection DbConnection { get; } = dbConnection;
 
         public override IsolationLevel IsolationLevel { get; } = isolationLevel == IsolationLevel.Unspecified
-                ? IsolationLevel.Snapshot
-                : isolationLevel;
+            ? IsolationLevel.Snapshot
+            : isolationLevel;
     }
 
     private static void AssertBeginTransaction(DbContext context, TransactionInterceptor interceptor, bool async)

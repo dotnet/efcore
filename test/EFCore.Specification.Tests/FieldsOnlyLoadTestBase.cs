@@ -4847,7 +4847,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture> : IClassFixture<TFixture>
                 });
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Add(
                 new Parent
@@ -4868,7 +4868,7 @@ public abstract class FieldsOnlyLoadTestBase<TFixture> : IClassFixture<TFixture>
             // context.Add(
             //     new SimpleProduct { Deposit = new Deposit() });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

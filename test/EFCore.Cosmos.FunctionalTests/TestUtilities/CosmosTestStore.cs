@@ -24,8 +24,14 @@ public class CosmosTestStore : TestStore
     public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
         => new(name, shared: false, extensionConfiguration: extensionConfiguration);
 
-    public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
-        => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>?)null);
+    public static async Task<CosmosTestStore> CreateInitializedAsync(
+        string name,
+        Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
+    {
+        var testStore = Create(name, extensionConfiguration);
+        await testStore.InitializeAsync(null, (Func<DbContext>?)null);
+        return testStore;
+    }
 
     public static CosmosTestStore GetOrCreate(string name)
         => new(name);
@@ -97,7 +103,7 @@ public class CosmosTestStore : TestStore
         CosmosTestStore? testStore = null;
         try
         {
-            testStore = CreateInitialized("NonExistent");
+            testStore = await CreateInitializedAsync("NonExistent");
 
             return true;
         }
@@ -138,7 +144,7 @@ public class CosmosTestStore : TestStore
                 StringComparison.Ordinal),
         };
 
-    protected override void Initialize(Func<DbContext> createContext, Action<DbContext>? seed, Action<DbContext>? clean)
+    protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
         _initialized = true;
 
@@ -149,12 +155,12 @@ public class CosmosTestStore : TestStore
 
         if (_dataFilePath == null)
         {
-            base.Initialize(createContext ?? (() => _storeContext), seed, clean);
+            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean);
         }
         else
         {
             using var context = createContext();
-            CreateFromFile(context).GetAwaiter().GetResult();
+            await CreateFromFile(context);
         }
     }
 
@@ -216,9 +222,6 @@ public class CosmosTestStore : TestStore
             }
         }
     }
-
-    public override void Clean(DbContext context)
-        => CleanAsync(context).GetAwaiter().GetResult();
 
     public override async Task CleanAsync(DbContext context)
     {

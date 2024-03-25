@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class TPTInheritanceQuerySqlServerTest(TPTInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper) : TPTInheritanceQueryTestBase<TPTInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
+public class TPTInheritanceQuerySqlServerTest(TPTInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    : TPTInheritanceQueryTestBase<TPTInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
 {
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -97,7 +98,7 @@ ORDER BY [s].[Id]
 """);
     }
 
-    public override void Can_insert_update_delete()
+    public override Task Can_insert_update_delete()
         => base.Can_insert_update_delete();
 
     public override async Task Can_query_all_animals(bool async)
@@ -480,9 +481,9 @@ WHERE [r].[Species] IS NOT NULL
 """);
     }
 
-    public override void Member_access_on_intermediate_type_works()
+    public override async Task Member_access_on_intermediate_type_works()
     {
-        base.Member_access_on_intermediate_type_works();
+        await base.Member_access_on_intermediate_type_works();
 
         AssertSql(
             """
@@ -508,9 +509,9 @@ ORDER BY [a].[Name]
         AssertSql(" ");
     }
 
-    public override void Setting_foreign_key_to_a_different_type_throws()
+    public override async Task Setting_foreign_key_to_a_different_type_throws()
     {
-        base.Setting_foreign_key_to_a_different_type_throws();
+        await base.Setting_foreign_key_to_a_different_type_throws();
 
         AssertSql(
             """

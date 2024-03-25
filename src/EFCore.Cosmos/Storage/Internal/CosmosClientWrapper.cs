@@ -41,6 +41,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private readonly string _databaseId;
     private readonly IExecutionStrategy _executionStrategy;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+    private readonly IDiagnosticsLogger<DbLoggerCategory.Database> _databaseLogger;
     private readonly bool? _enableContentResponseOnWrite;
 
     static CosmosClientWrapper()
@@ -61,7 +62,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         ISingletonCosmosClientWrapper singletonWrapper,
         IDbContextOptions dbContextOptions,
         IExecutionStrategy executionStrategy,
-        IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+        IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+        IDiagnosticsLogger<DbLoggerCategory.Database> databaseLogger)
     {
         var options = dbContextOptions.FindExtension<CosmosOptionsExtension>();
 
@@ -69,6 +71,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         _databaseId = options!.DatabaseName;
         _executionStrategy = executionStrategy;
         _commandLogger = commandLogger;
+        _databaseLogger = databaseLogger;
         _enableContentResponseOnWrite = options.EnableContentResponseOnWrite;
     }
 
@@ -82,7 +85,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CreateDatabaseIfNotExists(ThroughputProperties? throughput)
-        => _executionStrategy.Execute((throughput, this), CreateDatabaseIfNotExistsOnce, null);
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((throughput, this), CreateDatabaseIfNotExistsOnce, null);
+    }
 
     private static bool CreateDatabaseIfNotExistsOnce(
         DbContext? context,
@@ -121,7 +128,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool DeleteDatabase()
-        => _executionStrategy.Execute(this, DeleteDatabaseOnce, null);
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute(this, DeleteDatabaseOnce, null);
+    }
 
     private static bool DeleteDatabaseOnce(
         DbContext? context,
@@ -162,7 +173,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CreateContainerIfNotExists(ContainerProperties properties)
-        => _executionStrategy.Execute((properties, this), CreateContainerIfNotExistsOnce, null);
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((properties, this), CreateContainerIfNotExistsOnce, null);
+    }
 
     private static bool CreateContainerIfNotExistsOnce(
         DbContext context,
@@ -215,7 +230,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         JToken document,
         IUpdateEntry entry)
-        => _executionStrategy.Execute((containerId, document, entry, this), CreateItemOnce, null);
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((containerId, document, entry, this), CreateItemOnce, null);
+    }
 
     private static bool CreateItemOnce(
         DbContext context,
@@ -286,7 +305,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string documentId,
         JObject document,
         IUpdateEntry entry)
-        => _executionStrategy.Execute((collectionId, documentId, document, entry, this), ReplaceItemOnce, null);
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((collectionId, documentId, document, entry, this), ReplaceItemOnce, null);
+    }
 
     private static bool ReplaceItemOnce(
         DbContext context,
@@ -358,7 +381,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         string documentId,
         IUpdateEntry entry)
-        => _executionStrategy.Execute((containerId, documentId, entry, this), DeleteItemOnce, null);
+    {
+        _databaseLogger.SyncNotSupported();
+
+        return _executionStrategy.Execute((containerId, documentId, entry, this), DeleteItemOnce, null);
+    }
 
     private static bool DeleteItemOnce(
         DbContext context,
@@ -508,6 +535,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string? partitionKey,
         CosmosSqlQuery query)
     {
+        _databaseLogger.SyncNotSupported();
+
         _commandLogger.ExecutingSqlQuery(containerId, partitionKey, query);
 
         return new DocumentEnumerable(this, containerId, partitionKey, query);
@@ -540,6 +569,8 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string? partitionKey,
         string resourceId)
     {
+        _databaseLogger.SyncNotSupported();
+
         _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
 
         var response = _executionStrategy.Execute((containerId, partitionKey, resourceId, this), CreateSingleItemQuery, null);

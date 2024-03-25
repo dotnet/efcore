@@ -4,7 +4,7 @@
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposable, IAsyncLifetime
+public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLifetime
     where TContext : DbContext
 {
     protected virtual Type ContextType { get; } = typeof(TContext);
@@ -42,7 +42,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
 
     private MethodInfo? _createDbContext;
 
-    public virtual Task InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
         _testStore = TestStoreFactory.GetOrCreate(StoreName);
 
@@ -67,9 +67,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
 
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
-        TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), Clean);
-
-        return Task.CompletedTask;
+        await TestStore.InitializeAsync(ServiceProvider, CreateContext, c => SeedAsync((TContext)c), CleanAsync);
     }
 
     public virtual TContext CreateContext()
@@ -91,14 +89,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected virtual bool ShouldLogCategory(string logCategory)
         => false;
 
-    public virtual void Reseed()
-    {
-        using var context = CreateContext();
-        TestStore.Clean(context);
-        Clean(context);
-        Seed(context);
-    }
-
     public virtual async Task ReseedAsync()
     {
         using var context = CreateContext();
@@ -107,15 +97,8 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
         await SeedAsync(context);
     }
 
-    protected virtual void Seed(TContext context)
-    {
-    }
-
     protected virtual Task SeedAsync(TContext context)
-    {
-        Seed(context);
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 
     protected virtual void Clean(DbContext context)
     {
@@ -125,11 +108,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     {
         Clean(context);
         return Task.CompletedTask;
-    }
-
-    // Called after DisposeAsync
-    public virtual void Dispose()
-    {
     }
 
     public virtual Task DisposeAsync()

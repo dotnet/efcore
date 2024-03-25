@@ -16,15 +16,15 @@ public class SqlServerTestStore : RelationalTestStore
     private static string CurrentDirectory
         => Environment.CurrentDirectory;
 
-    public static SqlServerTestStore GetNorthwindStore()
-        => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
-            .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>?)null);
+    public static async Task<SqlServerTestStore> GetNorthwindStoreAsync()
+        => (SqlServerTestStore)await SqlServerNorthwindTestStoreFactory.Instance
+            .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).InitializeAsync(null, (Func<DbContext>?)null);
 
     public static SqlServerTestStore GetOrCreate(string name)
         => new(name);
 
-    public static SqlServerTestStore GetOrCreateInitialized(string name)
-        => new SqlServerTestStore(name).InitializeSqlServer(null, (Func<DbContext>?)null, null);
+    public static async Task<SqlServerTestStore> GetOrCreateInitializedAsync(string name)
+        => await new SqlServerTestStore(name).InitializeSqlServerAsync(null, (Func<DbContext>?)null, null);
 
     public static SqlServerTestStore GetOrCreateWithInitScript(string name, string initScript)
         => new(name, initScript: initScript);
@@ -39,9 +39,12 @@ public class SqlServerTestStore : RelationalTestStore
     public static SqlServerTestStore Create(string name, bool useFileName = false)
         => new(name, useFileName, shared: false);
 
-    public static SqlServerTestStore CreateInitialized(string name, bool useFileName = false, bool? multipleActiveResultSets = null)
-        => new SqlServerTestStore(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets)
-            .InitializeSqlServer(null, (Func<DbContext>?)null, null);
+    public static async Task<SqlServerTestStore> CreateInitializedAsync(
+        string name,
+        bool useFileName = false,
+        bool? multipleActiveResultSets = null)
+        => await new SqlServerTestStore(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets)
+            .InitializeSqlServerAsync(null, (Func<DbContext>?)null, null);
 
     private readonly string? _fileName;
     private readonly string? _initScript;
@@ -70,37 +73,40 @@ public class SqlServerTestStore : RelationalTestStore
 
     }
 
-    public SqlServerTestStore InitializeSqlServer(
+    public async Task<SqlServerTestStore> InitializeSqlServerAsync(
         IServiceProvider? serviceProvider,
         Func<DbContext>? createContext,
-        Action<DbContext>? seed)
-        => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed);
+        Func<DbContext, Task>? seed)
+        => (SqlServerTestStore)await InitializeAsync(serviceProvider, createContext, seed);
 
-    public SqlServerTestStore InitializeSqlServer(
+    public async Task<SqlServerTestStore> InitializeSqlServerAsync(
         IServiceProvider serviceProvider,
         Func<SqlServerTestStore, DbContext> createContext,
-        Action<DbContext> seed)
-        => InitializeSqlServer(serviceProvider, () => createContext(this), seed);
+        Func<DbContext, Task> seed)
+        => await InitializeSqlServerAsync(serviceProvider, () => createContext(this), seed);
 
-    protected override void Initialize(Func<DbContext> createContext, Action<DbContext>? seed, Action<DbContext>? clean)
+    protected override async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
-        if (CreateDatabase(clean))
+        if (await CreateDatabase(clean))
         {
             if (_scriptPath != null)
             {
-                ExecuteScript(File.ReadAllText(_scriptPath));
+                ExecuteScript(await File.ReadAllTextAsync(_scriptPath));
             }
             else
             {
                 using var context = createContext();
-                context.Database.EnsureCreatedResiliently();
+                await context.Database.EnsureCreatedResilientlyAsync();
 
                 if (_initScript != null)
                 {
                     ExecuteScript(_initScript);
                 }
 
-                seed?.Invoke(context);
+                if (seed != null)
+                {
+                    await seed(context);
+                }
             }
         }
     }
@@ -110,7 +116,7 @@ public class SqlServerTestStore : RelationalTestStore
             .UseSqlServer(Connection, b => b.ApplyConfiguration())
             .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
-    private bool CreateDatabase(Action<DbContext>? clean)
+    private async Task<bool> CreateDatabase(Func<DbContext, Task>? clean)
     {
         using (var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false)))
         {
@@ -129,8 +135,13 @@ public class SqlServerTestStore : RelationalTestStore
                                 new DbContextOptionsBuilder()
                                     .EnableServiceProviderCaching(false))
                             .Options);
-                    Clean(context);
-                    clean?.Invoke(context);
+                    await CleanAsync(context);
+
+                    if (clean != null)
+                    {
+                        await clean(context);
+                    }
+
                     return true;
                 }
 
@@ -145,8 +156,11 @@ public class SqlServerTestStore : RelationalTestStore
         return true;
     }
 
-    public override void Clean(DbContext context)
-        => context.Database.EnsureClean();
+    public override Task CleanAsync(DbContext context)
+    {
+        context.Database.EnsureClean();
+        return Task.CompletedTask;
+    }
 
     public void ExecuteScript(string script)
         => Execute(
