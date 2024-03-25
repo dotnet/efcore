@@ -1127,6 +1127,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             return DefaultExpression(Generate(type));
         }
 
+        if (value is IRelationalQuotableExpression relationalQuotableExpression
+            && Translate(relationalQuotableExpression.Quote()) is ExpressionSyntax expressionSyntax)
+        {
+            return expressionSyntax;
+        }
+
         throw new NotSupportedException(
             $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
             + Environment.NewLine + value);

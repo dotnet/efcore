@@ -777,59 +777,11 @@ namespace System.Runtime.CompilerServices
         var queryExecutorAfterLiftingExpression =
             _liftableConstantProcessor.LiftConstants(queryExecutor, materializerLiftableConstantContext, variableNames);
 
-        var sqlTreeCounter = 0;
-
         foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
         {
-            var (parameter, variableValue) = liftedConstant;
-
-            // TODO: Somewhat hacky, special handling for the SQL tree argument of RelationalCommandCache (since it requires
-            // very special rendering logic
-            if (parameter.Type == typeof(RelationalCommandCache))
-            {
-                if (variableValue is NewExpression newRelationalCommandCacheExpression
-                    && newRelationalCommandCacheExpression.Arguments.FirstOrDefault(a => a.Type == typeof(Expression)) is
-                        ConstantExpression { Value: Expression queryExpression })
-                {
-                    if (queryExpression is not IRelationalQuotableExpression quotableExpression)
-                    {
-                        throw new InvalidOperationException("SQL tree expression isn't quotable: " + queryExpression.GetType().Name);
-                    }
-
-                    var quotedSqlTree = quotableExpression.Quote();
-
-                    // Render out the SQL tree, preceded by an ExpressionPrinter dump of it in a comment for easier debugging.
-                    // Note that since the SQL tree is a graph (columns reference their SelectExpression's tables), rendering happens
-                    // in multiple statements.
-                    var sqlTreeVariable = "sqlTree" + (++sqlTreeCounter);
-                    variableNames.Add(sqlTreeVariable);
-
-                    code
-                        .AppendLine("/*")
-                        .AppendLine(_sqlExpressionPrinter.PrintExpression(queryExpression))
-                        .AppendLine("*/");
-
-                    var quotedSqlTreeSyntax = _linqToCSharpTranslator.TranslateExpression(
-                        quotedSqlTree, constantReplacements: null, namespaces, unsafeAccessors);
-
-                    code.AppendLine($"var {sqlTreeVariable} = {quotedSqlTreeSyntax.NormalizeWhitespace().ToFullString()};");
-
-                    // We've rendered the SQL tree, assigning it to variable "sqlTree". Update the RelationalCommandCache to point
-                    // to it
-                    variableValue = newRelationalCommandCacheExpression.Update(newRelationalCommandCacheExpression.Arguments
-                        .Select(a => a.Type == typeof(Expression)
-                            ? Expression.Parameter(typeof(Expression), sqlTreeVariable)
-                            : a));
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Could not find SQL query in lifted {nameof(RelationalCommandCache)}");
-                }
-            }
-
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                variableValue, constantReplacements: null, namespaces, unsafeAccessors);
-            code.AppendLine($"var {parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
+                liftedConstant.Expression, constantReplacements: null, namespaces, unsafeAccessors);
+            code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
 
         var queryExecutorSyntaxTree =
