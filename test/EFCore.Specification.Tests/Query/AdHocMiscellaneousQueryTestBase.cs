@@ -2262,4 +2262,53 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     }
 
     #endregion
+
+    #region 33330
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context33330>(seed: c => c.SeedAsync());
+        using var context = contextFactory.CreateContext();
+
+        var interval = TimeSpan.FromTicks(10);
+
+        var queryable = context.WithTimeSpans.Select(e => e.TimeSpan + interval);
+
+        var results = async
+            ? await queryable.ToListAsync()
+            : queryable.ToList();
+
+        Assert.Equal(new TimeSpan(110L), results.Single());
+    }
+
+    private class Context33330(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<WithTimeSpan> WithTimeSpans { get; set; }
+
+        public class WithTimeSpan
+        {
+            public int Id { get; set; }
+            public TimeSpan TimeSpan { get; set; }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<WithTimeSpan>(e =>
+            {
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Id).ValueGeneratedOnAdd();
+                e.Property(x => x.TimeSpan)
+                    .HasConversion(v => v.Ticks,
+                        v => TimeSpan.FromTicks(v));
+            });
+
+        public Task SeedAsync()
+        {
+            Add(new WithTimeSpan { TimeSpan = TimeSpan.FromTicks(100) });
+            return SaveChangesAsync();
+        }
+    }
+
+    #endregion
 }
