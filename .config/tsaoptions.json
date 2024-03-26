@@ -4,7 +4,7 @@
   "instanceUrl": "https://devdiv.visualstudio.com/",
   "iterationPath": "DevDiv",
   "notificationAliases": [
-    "aspnetcore-build@microsoft.com"
+    "efdatateam@microsoft.com"
   ],
   "projectName": "DEVDIV",
   "repositoryName": "efcore",

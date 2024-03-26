@@ -1,24 +1,3 @@
-schedules:
-- cron: 0 9 * * 1
-  displayName: "Run CodeQL3000 weekly, Monday at 2:00 AM PDT"
-  branches:
-    include:
-    - release/2.1
-    - release/6.0
-    - release/7.0
-    - main
-  always: true
-
-parameters:
-  # Parameter below is ignored in public builds.
-  #
-  # Choose whether to run the CodeQL3000 tasks.
-  # Manual builds align w/ official builds unless this parameter is true.
-  - name: runCodeQL3000
-    default: false
-    displayName: Run CodeQL3000 tasks
-    type: boolean
-
 variables:
   - name: _BuildConfig
     value: Release
@@ -38,26 +17,17 @@ variables:
   - ${{ else }}:
     - name: PostBuildSign
       value: true
-  - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-    - group: DotNet-HelixApi-Access
-    - group: DotNetBuilds storage account read tokens
-    - group: AzureDevOps-Artifact-Feeds-Pats
-    - name: _InternalRuntimeDownloadArgs
-      value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal
-             /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
-  - ${{ if eq(variables['System.TeamProject'], 'public') }}:
-    - name: _InternalRuntimeDownloadArgs
-      value: ''
+  - group: DotNet-HelixApi-Access
+  - group: DotNetBuilds storage account read tokens
+  - group: AzureDevOps-Artifact-Feeds-Pats
+  - name: _InternalRuntimeDownloadArgs
+    value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
   - name: LC_ALL
     value: 'en_US.UTF-8'
   - name: LANG
     value: 'en_US.UTF-8'
   - name: LANGUAGE
     value: 'en_US.UTF-8'
-  - name: runCodeQL3000
-    value: ${{ and(ne(variables['System.TeamProject'], 'public'), or(eq(variables['Build.Reason'], 'Schedule'), and(eq(variables['Build.Reason'], 'Manual'), eq(parameters.runCodeQL3000, 'true')))) }}
-  - template: /eng/common/templates/variables/pool-providers.yml
-
 trigger:
   batch: true
   branches:
@@ -66,64 +36,65 @@ trigger:
       - release/*
       - feature/*
       - internal/release/*
-
 pr: ['*']
-
-stages:
-- stage: build
-  displayName: Build
-  jobs:
-    - template: eng/common/templates/jobs/jobs.yml
-      parameters:
-        enableMicrobuild: ${{ ne(variables.runCodeQL3000, 'true') }}
-        enablePublishBuildArtifacts: true
-        enablePublishBuildAssets: ${{ ne(variables.runCodeQL3000, 'true') }}
-        enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
-        publishAssetsImmediately: true
-        enableSourceIndex: ${{ and(ne(variables['System.TeamProject'], 'public'), eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}
-        enableTelemetry: true
-        helixRepo: dotnet/efcore
-        jobs:
+resources:
+  repositories:
+  - repository: 1ESPipelineTemplates
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    featureFlags:
+      autoBaseline: false
+    sdl:
+      sourceAnalysisPool:
+        name: NetCore1ESPool-Svc-Internal
+        image: 1es-windows-2022
+        os: windows
+      baseline:
+        baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
+      binskim:
+        scanOutputDirectoryOnly: true
+    customBuildTags:
+    - ES365AIMigrationTooling
+    stages:
+    - stage: build
+      displayName: Build
+      jobs:
+      - template: /eng/common/templates-official/jobs/jobs.yml@self
+        parameters:
+          enableMicrobuild: true
+          enablePublishBuildArtifacts: true
+          enablePublishBuildAssets: true
+          enablePublishTestResults: true
+          enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
+          publishAssetsImmediately: true
+          enableSourceIndex: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
+          enableTelemetry: true
+          helixRepo: dotnet/efcore
+          jobs:
           - job: Windows
-            enablePublishTestResults: ${{ ne(variables.runCodeQL3000, 'true') }}
             pool:
-              ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: $(DncEngPublicBuildPool)
-                demands: ImageOverride -equals 1es-windows-2019-open
-              ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: $(DncEngInternalBuildPool)
-                demands: ImageOverride -equals 1es-windows-2019
-            ${{ if eq(variables.runCodeQL3000, 'true') }}:
-              # Component governance and SBOM creation are not needed here. Disable what Arcade would inject.
-              disableComponentGovernance: true
-              enableSbom: false
-              # CodeQL3000 extends build duration.
-              timeoutInMinutes: 180
-            ${{ else }}:
-              timeoutInMinutes: 90
+              name: NetCore1ESPool-Svc-Internal
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            timeoutInMinutes: 180
             variables:
+              - _AdditionalBuildArgs: ''
               - _InternalBuildArgs: ''
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
-              - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+              - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
                 - _SignType: real
                 - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
-              - ${{ if eq(variables.runCodeQL3000, 'true') }}:
-                - _AdditionalBuildArgs: /p:Test=false /p:Sign=false /p:Pack=false /p:Publish=false /p:UseSharedCompilation=false
-                # Security analysis is included in normal runs. Disable its auto-injection.
-                - skipNugetSecurityAnalysis: true
-                # Do not let CodeQL3000 Extension gate scan frequency.
-                - Codeql.Cadence: 0
-                # Enable CodeQL3000 unconditionally so it may be run on any branch.
-                - Codeql.Enabled: true
-                # Ignore test and infrastructure code.
-                - Codeql.SourceRoot: src
-                # CodeQL3000 needs this plumbed along as a variable to enable TSA.
-                - Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
-                # Default expects tsaoptions.json under SourceRoot.
-                - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
-              - ${{ else }}:
-                - _AdditionalBuildArgs: ''
+              # Ignore test and infrastructure code.
+              - Codeql.SourceRoot: src
+              # CodeQL3000 needs this plumbed along as a variable to enable TSA.
+              - Codeql.TSAEnabled: true
+              # Default expects tsaoptions.json under SourceRoot.
+              - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
@@ -139,178 +110,146 @@ stages:
                 displayName: 'Set CI tags'
               - powershell: SqlLocalDB start
                 displayName: Start LocalDB
-              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                - task: PowerShell@2
-                  displayName: Setup Private Feeds Credentials
-                  inputs:
-                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                    arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                  env:
-                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - ${{ if eq(variables.runCodeQL3000, 'true') }}:
-                - task: CodeQL3000Init@0
-                  displayName: CodeQL Initialize
-                - script: "echo ##vso[build.addbuildtag]CodeQL3000"
-                  displayName: 'Set CI CodeQL3000 tag'
-                  condition: ne(variables.CODEQL_DIST,'')
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
-                  $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+              - task: PowerShell@2
+                displayName: Setup Private Feeds Credentials
+                inputs:
+                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
+                  arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
+                env:
+                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
-              - ${{ if eq(variables.runCodeQL3000, 'true') }}:
-                - task: CodeQL3000Finalize@0
-                  displayName: CodeQL Finalize
-              - ${{ else }}:
-                - task: PublishBuildArtifacts@1
-                  displayName: Upload TestResults
-                  condition: always()
-                  continueOnError: true
-                  inputs:
-                    pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                    artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                    artifactType: Container
-                    parallel: true
-
-          - ${{ if ne(variables.runCodeQL3000, 'true') }}:
-            - job: macOS
-              enablePublishTestResults: true
-              pool:
-                vmImage: macOS-11
-              variables:
-                # Rely on task Arcade injects, not auto-injected build step.
-                - skipComponentGovernanceDetection: true
-              steps:
-                - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  - task: Bash@3
-                    displayName: Setup Private Feeds Credentials
-                    inputs:
-                      filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                      arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                    env:
-                      Token: $(dn-bot-dnceng-artifact-feeds-rw)
-                - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                  env:
-                    Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                    COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
-                  name: Build
-                - task: PublishBuildArtifacts@1
-                  displayName: Upload TestResults
-                  condition: always()
-                  continueOnError: true
-                  inputs:
-                    pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                    artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                    artifactType: Container
-                    parallel: true
-
-            - job: Linux
-              timeoutInMinutes: 120
-              enablePublishTestResults: true
-              pool:
-                ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
-                  vmImage: ubuntu-22.04
-                ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
-                  name: $(DncEngInternalBuildPool)
-                  demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
-              variables:
-                - _runCounter: $[counter(variables['Build.Reason'], 0)]
-                # Rely on task Arcade injects, not auto-injected build step.
-                - skipComponentGovernanceDetection: true
-                - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest', 'Schedule')) }}:
-                  - _CosmosConnectionUrl: 'true'
-              steps:
-                - bash: |
-                      echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                      echo "##vso[task.setvariable variable=_CosmosToken]$(ef-nightly-cosmos-key)"
-                  displayName: Prepare to run Cosmos tests on ef-nightly-test
-                  condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
-                - bash: |
-                      echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                      echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
-                  displayName: Prepare to run Cosmos tests on ef-pr-test
-                  condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
-                - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  - task: Bash@3
-                    displayName: Setup Private Feeds Credentials
-                    inputs:
-                      filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                      arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                    env:
-                      Token: $(dn-bot-dnceng-artifact-feeds-rw)
-                - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
-                  env:
-                    Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                    Test__Cosmos__AuthToken: $(_CosmosToken)
-                  name: Build
-                - task: PublishBuildArtifacts@1
-                  displayName: Upload TestResults
-                  condition: always()
-                  continueOnError: true
-                  inputs:
-                    pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
-                    artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
-                    artifactType: Container
-                    parallel: true
-
-            - job: Helix
-              timeoutInMinutes: 180
-              pool:
-                ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                  name: $(DncEngPublicBuildPool)
-                  demands: ImageOverride -equals 1es-windows-2019-open
-                ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  name: $(DncEngInternalBuildPool)
-                  demands: ImageOverride -equals 1es-windows-2019
-              variables:
-                # Rely on task Arcade injects, not auto-injected build step.
-                - skipComponentGovernanceDetection: true
-                - name: _HelixBuildConfig
-                  value: $(_BuildConfig)
-                - ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                  - name: HelixTargetQueues
-                    value: OSX.1100.Amd64.Open;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
-                  - name: _HelixAccessToken
-                    value: '' # Needed for public queues
-                - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  - name: HelixTargetQueues
-                    value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
-                  - name: _HelixAccessToken
-                    value: $(HelixApiAccessToken) # Needed for internal queues
-              steps:
-                - task: NuGetCommand@2
-                  displayName: 'Clear NuGet caches'
-                  condition: succeeded()
-                  inputs:
-                    command: custom
-                    arguments: 'locals all -clear'
-                - ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  - task: PowerShell@2
-                    displayName: Setup Private Feeds Credentials
-                    inputs:
-                      filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                      arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                    env:
-                      Token: $(dn-bot-dnceng-artifact-feeds-rw)
-                - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
-                  displayName: Restore packages
-                - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
-                  displayName: Send job to helix
-                  env:
-                    HelixAccessToken: $(_HelixAccessToken)
-                    SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
-                    MSSQL_SA_PASSWORD: "Password12!"
-                    COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
-                    DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
-
-- ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
-  - template: eng\common\templates\post-build\post-build.yml
-    parameters:
-      publishingInfraVersion: 3
-      # Symbol validation isn't being very reliable lately. This should be enabled back
-      # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
-      enableSymbolValidation: false
-      enableSigningValidation: false
-      enableNugetValidation: false
-      enableSourceLinkValidation: false
-      publishAssetsImmediately: true
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults
+          - job: macOS
+            pool:
+              name: Azure Pipelines
+              image: macOS-11
+              os: macOS
+            variables:
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+            steps:
+              - task: Bash@3
+                displayName: Setup Private Feeds Credentials
+                inputs:
+                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
+                  arguments: $(Build.SourcesDirectory)/NuGet.config $Token
+                env:
+                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  # Work-around for https://github.com/dotnet/runtime/issues/70758
+                  COMPlus_EnableWriteXorExecute: 0
+                name: Build
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults
+          - job: Linux
+            timeoutInMinutes: 120
+            pool:
+              name: NetCore1ESPool-Svc-Internal
+              demands: ImageOverride -equals 1es-ubuntu-2204
+              os: linux
+            variables:
+              - _runCounter: $[counter(variables['Build.Reason'], 0)]
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+              - ${{ if notin(variables['Build.Reason'], 'PullRequest', 'Schedule') }}:
+                - _CosmosConnectionUrl: 'true'
+            steps:
+              - bash: |
+                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
+                  echo "##vso[task.setvariable variable=_CosmosToken]$(ef-nightly-cosmos-key)"
+                displayName: Prepare to run Cosmos tests on ef-nightly-test
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
+              - bash: |
+                  echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
+                  echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
+                displayName: Prepare to run Cosmos tests on ef-pr-test
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
+              - task: Bash@3
+                displayName: Setup Private Feeds Credentials
+                inputs:
+                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
+                  arguments: $(Build.SourcesDirectory)/NuGet.config $Token
+                env:
+                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  Test__Cosmos__AuthToken: $(_CosmosToken)
+                name: Build
+            templateContext:
+              outputs:
+              - output: pipelineArtifact
+                displayName: Upload TestResults
+                condition: always()
+                path: artifacts/TestResults/$(_BuildConfig)/
+                artifact: $(Agent.Os)_$(Agent.JobName) TestResults
+          - job: Helix
+            timeoutInMinutes: 180
+            pool:
+              name: NetCore1ESPool-Svc-Internal
+              demands: ImageOverride -equals 1es-windows-2022
+              os: windows
+            variables:
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+              - name: _HelixAccessToken
+              # Needed for internal queues
+                value: $(HelixApiAccessToken)
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - task: PowerShell@2
+                displayName: Setup Private Feeds Credentials
+                inputs:
+                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
+                  arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
+                env:
+                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send job to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  # We need to set this env var to publish helix results to Azure Dev Ops
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  MSSQL_SA_PASSWORD: "Password12!"
+                  # Work-around for https://github.com/dotnet/runtime/issues/70758
+                  COMPlus_EnableWriteXorExecute: 0
+                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
+    - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
+      - template: /eng/common/templates-official/post-build/post-build.yml@self
+        parameters:
+          publishingInfraVersion: 3
+          # Symbol validation isn't being very reliable lately. This should be enabled back
+          # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
+          enableSymbolValidation: false
+          enableSigningValidation: false
+          enableNugetValidation: false
+          enableSourceLinkValidation: false
+          SDLValidationParameters:
+            enable: false
