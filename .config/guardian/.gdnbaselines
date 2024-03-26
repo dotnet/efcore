@@ -1,0 +1,41 @@
+{
+  "hydrated": true,
+  "properties": {
+    "helpUri": "https://eng.ms/docs/microsoft-security/security/azure-security/cloudai-security-fundamentals-engineering/security-integration/guardian-wiki/microsoft-guardian/general/baselines",
+    "hydrationStatus": "This file contains identifying data. It is **NOT** safe to check into your repo. To dehydrate this file, run `guardian dehydrate --help` and follow the guidance."
+  },
+  "version": "1.0.0",
+  "baselines": {
+    "default": {
+      "name": "default",
+      "createdDate": "2024-03-18 18:56:14Z",
+      "lastUpdatedDate": "2024-03-18 18:56:14Z"
+    }
+  },
+  "results": {
+    "669098c2981b719b462da19de85b79975f42c84324e2a97495a071d3be667770": {
+      "signature": "669098c2981b719b462da19de85b79975f42c84324e2a97495a071d3be667770",
+      "alternativeSignatures": [],
+      "target": "azure-pipelines-public.yml",
+      "line": 301,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-GENERAL0060",
+      "createdDate": "2024-03-18 18:56:14Z"
+    },
+    "07b47302c50eb284f09501218f012eb0ea54edf3d8ae1a3737f1bd5083da699a": {
+      "signature": "07b47302c50eb284f09501218f012eb0ea54edf3d8ae1a3737f1bd5083da699a",
+      "alternativeSignatures": [],
+      "target": "azure-pipelines.yml",
+      "line": 223,
+      "memberOf": [
+        "default"
+      ],
+      "tool": "credscan",
+      "ruleId": "CSCAN-GENERAL0060",
+      "createdDate": "2024-03-18 18:56:14Z"
+    }
+  }
+}
