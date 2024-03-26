@@ -1698,7 +1698,7 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Fails only on C.I. See #33402")]
     public async Task Add_update_delete_query_throws_if_no_container()
     {
         await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("EndToEndEmpty");
