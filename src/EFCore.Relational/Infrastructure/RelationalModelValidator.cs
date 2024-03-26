@@ -1940,7 +1940,7 @@ public class RelationalModelValidator : ModelValidator
         IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        if ((string?)entityType[RelationalAnnotationNames.MappingStrategy] == RelationalAnnotationNames.TpcMappingStrategy
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
             && entityType.BaseType == null)
         {
             foreach (var storeGeneratedProperty in key.Properties.Where(p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0))
