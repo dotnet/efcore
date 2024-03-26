@@ -95,7 +95,7 @@ COMMIT;
 
 BEGIN TRANSACTION;
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', 'Value With
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
 Empty Lines')
 
@@ -106,7 +106,7 @@ COMMIT;
 
 BEGIN TRANSACTION;
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
 Empty Lines')
@@ -118,7 +118,7 @@ COMMIT;
 
 BEGIN TRANSACTION;
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
 Value With
 
 GO
@@ -168,14 +168,14 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', 'Value With
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
 Empty Lines')
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000005_Migration5', '7.0.0-test');
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
 Empty Lines')
@@ -183,7 +183,7 @@ Empty Lines')
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000006_Migration6', '7.0.0-test');
 
-INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
 Value With
 
 GO

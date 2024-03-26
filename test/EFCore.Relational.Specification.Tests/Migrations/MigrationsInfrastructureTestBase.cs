@@ -486,7 +486,7 @@ public abstract class
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', '{TestValue}')");
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, '{TestValue}')");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -508,7 +508,7 @@ public abstract class
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', '{TestValue}')");
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, '{TestValue}')");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -533,7 +533,7 @@ public abstract class
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', '{TestValue}')");
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, '{TestValue}')");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
