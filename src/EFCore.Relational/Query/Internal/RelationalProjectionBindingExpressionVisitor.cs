@@ -653,7 +653,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
 
-    private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
+    // Public because can get referenced by precompiled shaper code
+    public static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
 #pragma warning restore IDE0052 // Remove unread private members
         => (T)queryContext.ParameterValues[parameterName]!;
 

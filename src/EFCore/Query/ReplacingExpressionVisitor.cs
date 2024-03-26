@@ -34,6 +34,16 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
         => new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
 
     /// <summary>
+    ///     Replaces one expression with another in given expression tree.
+    /// </summary>
+    /// <param name="originals">A list of original expressions to replace.</param>
+    /// <param name="replacements">A list of expressions to be used as replacements.</param>
+    /// <param name="tree">The expression tree in which replacement is going to be performed.</param>
+    /// <returns>An expression tree with replacements made.</returns>
+    public static Expression Replace(Expression[] originals, Expression[] replacements, Expression tree)
+        => new ReplacingExpressionVisitor(originals, replacements).Visit(tree);
+
+    /// <summary>
     ///     Creates a new instance of the <see cref="ReplacingExpressionVisitor" /> class.
     /// </summary>
     /// <param name="originals">A list of original expressions to replace.</param>

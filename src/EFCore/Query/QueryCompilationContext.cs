@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -56,9 +58,13 @@ public class QueryCompilationContext
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
     private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
-    private readonly ExpressionPrinter _expressionPrinter;
+    private readonly ExpressionPrinter _expressionPrinter = new();
 
     private Dictionary<string, LambdaExpression>? _runtimeParameters;
+
+#if DEBUG
+    private readonly ShaperPublicMethodVerifier _shaperPublicMethodVerifier = new();
+#endif
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.
@@ -82,8 +88,6 @@ public class QueryCompilationContext
         _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
         _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
-
-        _expressionPrinter = new ExpressionPrinter();
     }
 
     /// <summary>
@@ -156,6 +160,33 @@ public class QueryCompilationContext
     /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
     public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
     {
+        var queryExecutorExpression = CreateQueryExecutorExpression<TResult>(query);
+
+        // The materializer expression tree has liftable constant nodes, pointing to various constants that should be the same instances
+        // across invocations of the query.
+        // In normal mode, these nodes should simply be evaluated, and a ConstantExpression to those instances embedded directly in the
+        // tree (for precompiled queries we generate C# code for resolving those instances instead).
+        var queryExecutorAfterLiftingExpression =
+            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(queryExecutorExpression);
+
+        try
+        {
+            return queryExecutorAfterLiftingExpression.Compile();
+        }
+        finally
+        {
+            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
+        }
+    }
+
+    /// <summary>
+    ///     Creates the query executor func which gives results for this query.
+    /// </summary>
+    /// <typeparam name="TResult">The result type of this query.</typeparam>
+    /// <param name="query">The query to generate executor for.</param>
+    /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
+    public virtual Expression<Func<QueryContext, TResult>> CreateQueryExecutorExpression<TResult>(Expression query)
+    {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
         query = queryAndEventData.Query;
 
@@ -176,14 +207,14 @@ public class QueryCompilationContext
             query,
             QueryContextParameter);
 
-        try
-        {
-            return queryExecutorExpression.Compile();
-        }
-        finally
-        {
-            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
-        }
+#if DEBUG
+        // Verify that the shaper does not call any non-public methods, since such invocations cannot be generated in C# for precompiled
+        // queries. We have this here (in DEBUG) to check any method calls we integrate somewhere in the query pipeline (e.g. for parameter
+        // rewriting for string.StartsWith).
+        _shaperPublicMethodVerifier.Visit(queryExecutorExpression);
+#endif
+
+        return queryExecutorExpression;
     }
 
     /// <summary>
