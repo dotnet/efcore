@@ -13,6 +13,7 @@ Microsoft.EntityFrameworkCore.DbSet
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);CS1591</NoWarn> <!-- ignore missing docs -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -49,7 +50,7 @@ Microsoft.EntityFrameworkCore.DbSet
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.Abstractions\EFCore.Abstractions.csproj" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>

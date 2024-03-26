@@ -50,6 +50,7 @@ public class QueryTranslationPreprocessor
     /// <returns>A query expression after transformations.</returns>
     public virtual Expression Process(Expression query)
     {
+        query = CheckPrecompiledQuerySafeExpression(query);
         query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
         query = NormalizeQueryableMethod(query);
         query = new CallForwardingExpressionVisitor().Visit(query);
@@ -65,6 +66,18 @@ public class QueryTranslationPreprocessor
         query = new NullCheckRemovingExpressionVisitor().Visit(query);
 
         return query;
+    }
+
+    private Expression CheckPrecompiledQuerySafeExpression(Expression query)
+    {
+        if (query is MethodCallExpression { Method.IsGenericMethod: true } methodCall
+            && methodCall.Method.GetGenericMethodDefinition() == PrecompiledQuerySafeMarker.ComposeMethodInfo)
+        {
+            return methodCall.Arguments[0];
+        }
+
+        // TODO: Check feature switch for whether we should allow only safe queries
+        throw new InvalidOperationException(CoreStrings.RuntimeQueryCompilationDisabled);
     }
 
     /// <summary>
