@@ -1631,6 +1631,9 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
     public override Task String_Join_over_nullable_column(bool async)
         => AssertTranslationFailed(() => base.String_Join_over_nullable_column(async));
 
+    public override Task String_Join_non_aggregate(bool async)
+        => AssertTranslationFailed(() => base.String_Join_non_aggregate(async));
+
     public override Task String_Concat(bool async)
         => AssertTranslationFailed(() => base.String_Concat(async));
 

@@ -408,6 +408,9 @@ ORDER BY "t"."City", "c0"."CustomerID" DESC
 """);
     }
 
+    public override Task String_Join_non_aggregate(bool async)
+        => AssertTranslationFailed(() => base.String_Join_non_aggregate(async));
+
     public override async Task String_Concat(bool async)
     {
         await base.String_Concat(async);
