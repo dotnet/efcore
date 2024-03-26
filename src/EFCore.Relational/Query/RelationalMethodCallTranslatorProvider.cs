@@ -37,7 +37,8 @@ public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvi
                 new GetValueOrDefaultTranslator(sqlExpressionFactory),
                 new ComparisonTranslator(sqlExpressionFactory),
                 new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
-                new RandomTranslator(sqlExpressionFactory)
+                new RandomTranslator(sqlExpressionFactory),
+                new NullIfTranslator(sqlExpressionFactory)
             });
         _sqlExpressionFactory = sqlExpressionFactory;
     }

@@ -56,4 +56,17 @@ public static class RelationalDbFunctionsExtensions
         this DbFunctions _,
         [NotParameterized] params T[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Greatest)));
+
+    /// <summary>
+    ///     Returns <see langword="null"/> if <paramref name="expression"/> equals <paramref name="matchExpression"/>, otherwise returns <paramref name="expression"/>. Usually corresponds to the <c>NULLIF</c> SQL function.
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="expression">The expression.</param>
+    /// <param name="matchExpression">The matching expression.</param>
+    public static T? NullIf<T>(
+        this DbFunctions _,
+        T expression,
+        T matchExpression)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
 }
