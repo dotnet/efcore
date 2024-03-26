@@ -1775,26 +1775,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
     }
 
-    /// <summary>
-    ///     Generates a SQL fragment for extra with options of a key from a
-    ///     <see cref="AddPrimaryKeyOperation" />, or <see cref="AddUniqueConstraintOperation" />.
-    /// </summary>
-    /// <param name="operation">The operation.</param>
-    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected override void KeyWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
+    /// <inheritdoc/>
+    protected override void KeyTraits(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        var options = new List<string>();
-
         if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
         {
-            options.Add("FILLFACTOR = " + fillFactor);
-        }
-
-        if (options.Count > 0)
-        {
             builder
-                .Append(" WITH (")
-                .Append(string.Join(", ", options))
+                .Append(" WITH (FILLFACTOR = ")
+                .Append(fillFactor.ToString())
                 .Append(")");
         }
     }

@@ -241,8 +241,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         PrimaryKeyConstraint(operation, model, builder);
 
-        KeyWithOptions(operation, builder);
-
         if (terminate)
         {
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -268,8 +266,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             .Append(" ADD ");
 
         UniqueConstraint(operation, model, builder);
-
-        KeyWithOptions(operation, builder);
 
         builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         EndStatement(builder);
@@ -1622,6 +1618,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder.Append("(")
             .Append(ColumnList(operation.Columns))
             .Append(")");
+
+        KeyTraits(operation, model, builder);
     }
 
     /// <summary>
@@ -1669,6 +1667,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder.Append("(")
             .Append(ColumnList(operation.Columns))
             .Append(")");
+
+        KeyTraits(operation, model, builder);
     }
 
     /// <summary>
@@ -1717,12 +1717,13 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     }
 
     /// <summary>
-    ///     Generates a SQL fragment for extra with options of a key from a
-    ///     <see cref="AddPrimaryKeyOperation" /> or <see cref="AddUniqueConstraintOperation" />.
+    ///     Generates a SQL fragment for traits of an primary key or alternate key from a <see cref="CreateTableOperation" />,
+    ///     <see cref="AddPrimaryKeyOperation" />, or <see cref="AddUniqueConstraintOperation" />.
     /// </summary>
     /// <param name="operation">The operation.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected virtual void KeyWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
+    protected virtual void KeyTraits(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
     }
 
