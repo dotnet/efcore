@@ -49,6 +49,17 @@ public class TemporalGearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTes
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        await base.Non_string_concat_uses_appropriate_type_mapping(async);
+
+        AssertSql(
+            """
+SELECT [m].[Duration]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+""");
+    }
+
     public override async Task Include_where_list_contains_navigation(bool async)
     {
         await Assert.ThrowsAsync<EqualException>(

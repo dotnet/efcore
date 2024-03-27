@@ -10250,7 +10250,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w1].[OwnerFullName], [w1].[Id]
         await base.Include_one_to_many_on_composite_key_then_orderby_key_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
@@ -10279,7 +10279,7 @@ LEFT JOIN (
         await base.Join_include_coalesce_simple(async);
 
         AssertSql(
-"""
+            """
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], CASE
     WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -10289,16 +10289,16 @@ LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]
 """,
-                //
-                """
+            //
+            """
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [g0].[FullName] = [w].[OwnerFullName]
 ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]
 """,
-                //
-                """
+            //
+            """
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]
@@ -10313,7 +10313,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId], [w].[Id
         await base.Join_include_coalesce_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], CASE
     WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -10323,8 +10323,8 @@ LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]
 """,
-                //
-                """
+            //
+            """
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [w1].[Id], [w1].[AmmunitionType], [w1].[IsAutomatic], [w1].[Name], [w1].[OwnerFullName], [w1].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Gears] AS [g0] ON [g].[LeaderNickname] = [g0].[Nickname]
@@ -10340,7 +10340,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId], [w].[Id
         await base.Join_include_conditional(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [g0].[Nickname] IS NOT NULL AND [g0].[SquadId] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -10360,7 +10360,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]
         await base.Derived_reference_is_skipped_when_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Name], [l].[Discriminator], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l].[DefeatedByNickname], [l].[DefeatedBySquadId], [l].[HighCommandId], [l0].[Id], [l0].[IsOperational], [l0].[Name]
 FROM [LocustLeaders] AS [l]
 LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]
@@ -10409,6 +10409,18 @@ END IN (
     FROM OPENJSON(@__keys_2) WITH ([value] uniqueidentifier '$') AS [k]
 )
 """);
+    }
+
+    public override async Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        await base.Non_string_concat_uses_appropriate_type_mapping(async);
+
+        AssertSql(
+            """
+SELECT [m].[Duration]
+FROM [Missions] AS [m]
+"""
+        );
     }
 
     private void AssertSql(params string[] expected)
