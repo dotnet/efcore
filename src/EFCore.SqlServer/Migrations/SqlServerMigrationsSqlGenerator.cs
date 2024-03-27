@@ -1550,20 +1550,24 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
 
-        if (!operation.IsCached)
+        var cacheSize = operation.CacheSize;
+        if (cacheSize != null)
         {
-            builder.Append(" NO CACHE");
-        }
-        else if (operation.CacheSize.HasValue)
-        {
-            builder
-            .Append(" CACHE ")
-                .Append(IntegerConstant(operation.CacheSize.Value));
+            if (cacheSize != 1 && cacheSize != 0)
+            {
+                builder
+                    .Append(" CACHE ")
+                    .Append(IntegerConstant(cacheSize.Value));
+            }
+            else
+            {
+                builder
+                    .Append(" NO CACHE");
+            }
         }
         else if (forAlter)
         {
-            builder
-                .Append(" CACHE");
+            builder.Append(" CACHE");
         }
     }
 

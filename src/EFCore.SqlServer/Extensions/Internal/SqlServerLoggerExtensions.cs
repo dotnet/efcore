@@ -487,7 +487,6 @@ public static class SqlServerLoggerExtensions
         long start,
         long min,
         long max,
-        bool cached,
         int? cacheSize)
     {
         // No DiagnosticsSource events because these are purely design-time messages
@@ -508,7 +507,6 @@ public static class SqlServerLoggerExtensions
                     start,
                     min,
                     max,
-                    cached,
                     cacheSize));
         }
     }

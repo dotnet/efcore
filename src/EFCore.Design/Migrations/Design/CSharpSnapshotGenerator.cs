@@ -393,13 +393,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsCyclic()");
         }
 
-        if (sequence.IsCached != Sequence.DefaultIsCached)
-        {
-            stringBuilder
-                .AppendLine()
-                .Append(".UseNoCache()");
-        }
-        else if (sequence.CacheSize != Sequence.DefaultCacheSize)
+        if (sequence.CacheSize.HasValue)
         {
             stringBuilder
                 .AppendLine()

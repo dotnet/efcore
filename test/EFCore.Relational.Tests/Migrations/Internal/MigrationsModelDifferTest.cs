@@ -4303,7 +4303,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
                 Assert.Equal(20, operation.CacheSize);
             });
 
@@ -4383,7 +4382,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
                 Assert.Equal(20, operation.CacheSize);
             },
             skipSourceConventions: true);
@@ -4416,7 +4414,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(5, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
                 Assert.Equal(20, operation.CacheSize);
             },
             skipSourceConventions: true);
@@ -4449,7 +4446,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(5, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
                 Assert.Equal(20, operation.CacheSize);
             });
 
@@ -4481,7 +4477,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.False(operation.IsCyclic);
-                Assert.True(operation.IsCached);
                 Assert.Equal(20, operation.CacheSize);
             },
             skipSourceConventions: true);
@@ -4515,7 +4510,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
                 Assert.Equal(5, operation.CacheSize);
             });
 
@@ -4549,8 +4543,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.False(operation.IsCached);
-                Assert.Null(operation.CacheSize);
+                Assert.Equal(1, operation.CacheSize);
             });
 
     [ConditionalFact]
@@ -4581,7 +4574,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Equal(1, operation.MinValue);
             Assert.Equal(4, operation.MaxValue);
             Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
             Assert.Equal(20, operation.CacheSize);
         });
 
@@ -4615,7 +4607,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Equal(1, operation.MinValue);
             Assert.Equal(4, operation.MaxValue);
             Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
             Assert.Equal(20, operation.CacheSize);
         });
 
@@ -4648,7 +4639,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Equal(1, operation.MinValue);
             Assert.Equal(4, operation.MaxValue);
             Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
             Assert.Null(operation.CacheSize);
         });
 
@@ -4680,7 +4670,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Equal(1, operation.MinValue);
             Assert.Equal(4, operation.MaxValue);
             Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
             Assert.Null(operation.CacheSize);
         });
 
@@ -4712,8 +4701,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Equal(1, operation.MinValue);
             Assert.Equal(4, operation.MaxValue);
             Assert.True(operation.IsCyclic);
-            Assert.False(operation.IsCached);
-            Assert.Null(operation.CacheSize);
+            Assert.Equal(1, operation.CacheSize);
         });
 
     [ConditionalFact]
@@ -4750,7 +4738,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, createOperation.MinValue);
                 Assert.Equal(4, createOperation.MaxValue);
                 Assert.True(createOperation.IsCyclic);
-                Assert.True(createOperation.IsCached);
                 Assert.Equal(20, createOperation.CacheSize);
             },
             skipSourceConventions: true);

@@ -68,9 +68,6 @@ public class SqliteEventIdTest : EventIdTestBase
         public bool IsCyclic
             => throw new NotImplementedException();
 
-        public bool IsCached
-            => throw new NotImplementedException();
-
         public int? CacheSize
             => throw new NotImplementedException();
     }

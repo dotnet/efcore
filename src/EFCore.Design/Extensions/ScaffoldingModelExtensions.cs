@@ -809,17 +809,21 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(isCyclic) ?? isCyclic;
         }
 
-        if (sequence.IsCached != Sequence.DefaultIsCached)
+        var cacheSize = sequence.CacheSize;
+        if (cacheSize.HasValue)
         {
-            var useNoCache = new FluentApiCodeFragment(nameof(SequenceBuilder.UseNoCache));
+            if (cacheSize != 1 && cacheSize != 0)
+            {
+                var useCache = new FluentApiCodeFragment(nameof(SequenceBuilder.UseCache)) { Arguments = { cacheSize } };
 
-            root = root?.Chain(useNoCache) ?? useNoCache;
-        }
-        else
-        {
-            var useCache = new FluentApiCodeFragment(nameof(SequenceBuilder.UseCache)) { Arguments = { sequence.CacheSize } };
+                root = root?.Chain(useCache) ?? useCache;
+            }
+            else
+            {
+                var useNoCache = new FluentApiCodeFragment(nameof(SequenceBuilder.UseNoCache));
 
-            root = root?.Chain(useCache) ?? useCache;
+                root = root?.Chain(useNoCache) ?? useNoCache;
+            }
         }
 
         return root;

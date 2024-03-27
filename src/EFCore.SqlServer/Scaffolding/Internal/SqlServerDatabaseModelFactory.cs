@@ -457,8 +457,8 @@ WHERE "
             var startValue = reader.GetValueOrDefault<long>("start_value");
             var minValue = reader.GetValueOrDefault<long>("minimum_value");
             var maxValue = reader.GetValueOrDefault<long>("maximum_value");
-            var cached = reader.GetValueOrDefault<bool>("is_cached");
-            var cacheSize = reader.GetValueOrDefault<int?>("cache_size");
+            var cacheSize = reader.GetValueOrDefault<int?>("cache_size")
+                ?? (reader.GetValueOrDefault<bool>("is_cached") ? null : 1);
 
             // Swap store type if type alias is used
             if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
@@ -468,7 +468,7 @@ WHERE "
 
             storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
 
-            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue, cached, cacheSize);
+            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue, cacheSize);
 
             var sequence = new DatabaseSequence
             {
@@ -481,7 +481,6 @@ WHERE "
                 StartValue = startValue,
                 MinValue = minValue,
                 MaxValue = maxValue,
-                IsCached = cached,
                 CacheSize = cacheSize
             };
 

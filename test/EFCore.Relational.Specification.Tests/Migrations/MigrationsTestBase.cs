@@ -2417,7 +2417,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var sequence = Assert.Single(model.Sequences);
                 Assert.Equal("Alpha", sequence.Name);
-                Assert.False(sequence.IsCached);
+                Assert.Equal(1, sequence.CacheSize);
             });
 
 
@@ -2430,7 +2430,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var sequence = Assert.Single(model.Sequences);
                 Assert.Equal("Beta", sequence.Name);
-                Assert.True(sequence.IsCached);
                 Assert.Equal(20, sequence.CacheSize);
             });
 
@@ -2443,7 +2442,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var sequence = Assert.Single(model.Sequences);
                 Assert.Equal("Gamma", sequence.Name);
-                Assert.True(sequence.IsCached);
                 Assert.Null(sequence.CacheSize);
             });
 
@@ -2468,7 +2466,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(2, sequence.MinValue);
                 Assert.Equal(916, sequence.MaxValue);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
                 Assert.Equal(20, sequence.CacheSize);
             });
 
@@ -2492,7 +2489,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(-5, sequence.MinValue);
                 Assert.Equal(10, sequence.MaxValue);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
                 Assert.Equal(20, sequence.CacheSize);
             });
 
@@ -2506,6 +2502,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var sequence = Assert.Single(model.Sequences);
                 Assert.Equal(2, sequence.IncrementBy);
+                Assert.Null(sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -2517,7 +2514,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
                 Assert.Equal(20, sequence.CacheSize);
             });
 
@@ -2531,8 +2527,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
-                Assert.False(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
+                Assert.Equal(1, sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -2544,8 +2539,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
-                Assert.False(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
+                Assert.Equal(1, sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -2557,7 +2551,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
                 Assert.Null(sequence.CacheSize);
             });
 
@@ -2570,7 +2563,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
                 Assert.Equal(20, sequence.CacheSize);
             });
 
@@ -2583,7 +2575,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
-                Assert.True(sequence.IsCached);
                 Assert.Null(sequence.CacheSize);
             });
 

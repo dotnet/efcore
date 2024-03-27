@@ -1295,21 +1295,24 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
 
-        if (!operation.IsCached)
+        if (operation.CacheSize != null)
         {
-            builder
-                .Append(" NO CACHE");
-        }
-        else if (operation.CacheSize != null)
-        {
-            builder
-                .Append(" CACHE ")
-                .Append(intTypeMapping.GenerateSqlLiteral(operation.CacheSize.Value));
+            var cacheSize = operation.CacheSize;
+            if (cacheSize != 1 && cacheSize != 0)
+            {
+                builder
+                    .Append(" CACHE ")
+                    .Append(intTypeMapping.GenerateSqlLiteral(cacheSize));
+            }
+            else
+            {
+                builder
+                    .Append(" NO CACHE");
+            }
         }
         else if (forAlter)
         {
-            builder
-                .Append(" CACHE");
+            builder.Append(" CACHE");
         }
     }
 

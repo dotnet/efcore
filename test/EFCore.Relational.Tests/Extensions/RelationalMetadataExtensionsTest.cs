@@ -448,7 +448,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.True(((IConventionSequence)sequence).IsInModel);
 
@@ -460,7 +459,6 @@ public class RelationalMetadataExtensionsTest
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
         sequence.IsCyclic = false;
-        sequence.IsCached = true;
         sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
@@ -471,7 +469,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Equal(20, sequence.CacheSize);
 
         Assert.Same(sequence, model.RemoveSequence("Foo"));
@@ -500,7 +497,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(sequence, model.FindSequence("Foo", "Smoo"));
 
@@ -510,7 +506,6 @@ public class RelationalMetadataExtensionsTest
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
         sequence.IsCyclic = false;
-        sequence.IsCached = true;
         sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
@@ -521,7 +516,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Equal(20, sequence.CacheSize);
     }
 
@@ -546,7 +540,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
         Assert.Same(typeof(long), sequence.Type);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
     }
 
@@ -570,7 +563,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
 
         model.SetDefaultSchema("Smoo");
@@ -583,7 +575,6 @@ public class RelationalMetadataExtensionsTest
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
         sequence.IsCyclic = true;
-        sequence.IsCached = true;
         sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
@@ -594,7 +585,6 @@ public class RelationalMetadataExtensionsTest
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
         Assert.True(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Equal(20, sequence.CacheSize);
     }
 

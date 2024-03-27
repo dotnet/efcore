@@ -198,8 +198,7 @@ public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionM
     {
         if (CanSetNoCache(configurationSource))
         {
-            Metadata.SetIsCached(false, configurationSource);
-            Metadata.SetCacheSize(null, configurationSource);
+            Metadata.SetCacheSize(1, configurationSource);
             return this;
         }
         return null;
@@ -212,8 +211,7 @@ public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionM
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetNoCache(ConfigurationSource configurationSource)
-                => configurationSource.Overrides(Metadata.GetIsCachedConfigurationSource())
-            || Metadata.IsCached == false;
+        => configurationSource.Overrides(Metadata.GetCacheSizeConfigurationSource());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -225,7 +223,6 @@ public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionM
     {
         if (CanSetCacheSize(cacheSize, configurationSource))
         {
-            Metadata.SetIsCached(true, configurationSource);
             Metadata.SetCacheSize(cacheSize, configurationSource);
             return this;
         }
