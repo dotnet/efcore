@@ -12,12 +12,9 @@ namespace Microsoft.EntityFrameworkCore;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : DiagnosticAnalyzer
 {
-    public const string Id = "EF1002";
-
     private static readonly DiagnosticDescriptor Descriptor
-        // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
-        = new DiagnosticDescriptor(
-            Id,
+        = new(
+            EFDiagnostics.InterpolatedStringUsageInRawQueries,
             title: AnalyzerStrings.InterpolatedStringUsageInRawQueriesAnalyzerTitle,
             messageFormat: AnalyzerStrings.InterpolatedStringUsageInRawQueriesMessageFormat,
             category: "Security",

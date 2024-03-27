@@ -10,7 +10,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <ImplicitUsings>true</ImplicitUsings>
-    <NoWarn>EF1003</NoWarn> <!-- Precompiled query is experimental -->
+    <NoWarn>EF9100</NoWarn> <!-- Precompiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
