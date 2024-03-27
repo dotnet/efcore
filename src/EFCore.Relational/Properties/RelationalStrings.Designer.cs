@@ -1170,6 +1170,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
 
         /// <summary>
+        ///     Using parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use constant, or project the entire JSON entity collection instead.
+        /// </summary>
+        public static string JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution)
+            => string.Format(
+                GetString("JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution", nameof(entityTypeName), nameof(asNoTrackingWithIdentityResolution)),
+                entityTypeName, asNoTrackingWithIdentityResolution);
+
+        /// <summary>
+        ///     When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.
+        /// </summary>
+        public static string JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution)
+            => string.Format(
+                GetString("JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution", nameof(entityTypeName), nameof(asNoTrackingWithIdentityResolution)),
+                entityTypeName, asNoTrackingWithIdentityResolution);
+
+        /// <summary>
+        ///     Projecting queryable operations on JSON collection is not supported for '{asNoTrackingWithIdentityResolution}'.
+        /// </summary>
+        public static string JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(object? asNoTrackingWithIdentityResolution)
+            => string.Format(
+                GetString("JsonProjectingQueryableOperationNoTrackingWithIdentityResolution", nameof(asNoTrackingWithIdentityResolution)),
+                asNoTrackingWithIdentityResolution);
+
+        /// <summary>
         ///     The JSON property name should only be configured on nested owned navigations.
         /// </summary>
         public static string JsonPropertyNameShouldBeConfiguredOnNestedNavigation

@@ -80,6 +80,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly ISet<string>? _tags;
         private readonly bool _isTracking;
+        private readonly bool _queryStateManager;
         private readonly bool _isAsync;
         private readonly bool _splitQuery;
         private readonly bool _detailedErrorsEnabled;
@@ -186,6 +187,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _generateCommandCache = true;
             _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
+                or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
             _splitQuery = splitQuery;
 
@@ -212,6 +215,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _generateCommandCache = false;
             _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
+                or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
             _splitQuery = false;
         }
@@ -241,6 +246,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _generateCommandCache = true;
             _detailedErrorsEnabled = parentVisitor._detailedErrorsEnabled;
             _isTracking = parentVisitor.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            _queryStateManager = parentVisitor.QueryCompilationContext.QueryTrackingBehavior is QueryTrackingBehavior.TrackAll
+                or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             _isAsync = parentVisitor.QueryCompilationContext.IsAsync;
             _splitQuery = true;
 
@@ -310,6 +317,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             _containsCollectionMaterialization = new CollectionShaperFindingExpressionVisitor()
                 .ContainsCollectionMaterialization(shaperExpression);
+
+            // for NoTrackingWithIdentityResolution we need to make sure we see JSON entities in the correct order
+            // specifically, if we project JSON collection, it needs to be projected before any individual element from that collection
+            // otherwise we store JSON entities in incorrect order in the Change Tracker, leading to possible data corruption
+            // we only need to do this once, on top level
+            // see issue #33073 for more context
+            if (_queryStateManager && !_isTracking && collectionId == 0)
+            {
+                var jsonCorrectOrderOfEntitiesForChangeTrackerValidator = new JsonCorrectOrderOfEntitiesForChangeTrackerValidator(_selectExpression);
+                jsonCorrectOrderOfEntitiesForChangeTrackerValidator.Validate(shaperExpression);
+            }
 
             if (!_containsCollectionMaterialization)
             {
@@ -1391,7 +1409,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var rewrittenEntityShaperMaterializer = new JsonEntityMaterializerRewriter(
                 entityType,
-                _isTracking,
+                _queryStateManager,
                 jsonReaderDataShaperLambdaParameter,
                 innerShapersMap,
                 innerFixupMap,
@@ -1514,7 +1532,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private sealed class JsonEntityMaterializerRewriter : ExpressionVisitor
         {
             private readonly IEntityType _entityType;
-            private readonly bool _isTracking;
+            private readonly bool _queryStateManager;
             private readonly ParameterExpression _jsonReaderDataParameter;
             private readonly IDictionary<string, Expression> _innerShapersMap;
             private readonly IDictionary<string, LambdaExpression> _innerFixupMap;
@@ -1530,7 +1548,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             public JsonEntityMaterializerRewriter(
                 IEntityType entityType,
-                bool isTracking,
+                bool queryStateManager,
                 ParameterExpression jsonReaderDataParameter,
                 IDictionary<string, Expression> innerShapersMap,
                 IDictionary<string, LambdaExpression> innerFixupMap,
@@ -1538,7 +1556,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
             {
                 _entityType = entityType;
-                _isTracking = isTracking;
+                _queryStateManager = queryStateManager;
                 _jsonReaderDataParameter = jsonReaderDataParameter;
                 _innerShapersMap = innerShapersMap;
                 _innerFixupMap = innerFixupMap;
@@ -1702,9 +1720,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
                     }
 
-                    // Fixup is only needed for non-tracking queries, in case of tracking - ChangeTracker does the job
+                    // Fixup is only needed for non-tracking queries, in case of tracking (or NoTrackingWithIdentityResolution) - ChangeTracker does the job
                     // or for empty/null collections of a tracking queries.
-                    if (_isTracking)
+                    if (_queryStateManager)
                     {
                         ProcessFixup(_trackingInnerFixupMap);
                     }
@@ -1881,7 +1899,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // the code here re-arranges the existing materializer so that even if we find parent in the change tracker
                 // we still process all the child navigations, it's just that we use the parent instance from change tracker, rather than create new one
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                if (_isTracking
+                if (_queryStateManager
                     && visited is ConditionalExpression
                     {
                         Test: BinaryExpression
@@ -2671,6 +2689,234 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
 
                 return base.Visit(expression);
+            }
+        }
+
+        private sealed class JsonCorrectOrderOfEntitiesForChangeTrackerValidator(SelectExpression selectExpression) : ExpressionVisitor
+        {
+            private bool _insideCollection;
+            private bool _insideInclude;
+            private readonly List<(IEntityType JsonEntityType, List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)> KeyAccessInfo)> _projectedKeyAccessInfos = [];
+            private readonly List<IEntityType> _includedJsonEntityTypes = [];
+
+            public void Validate(Expression expression)
+            {
+                // this visitor makes sure that we don't end up with data corruption in NoTrackingWithIdentityResolution mode
+                // In order to avoid it, we need to make sure entities land in Change Tracker in a correct order
+                // This is because until we have ordered collections, when we populate collection from Change Tracker, we do it in the same
+                // order that the entities landed there. So if, say, 3rd element of the collection is read first, if subsequently the entire
+                // collection is projected, that third element will appear at the start, and only after elements 1 and 2 will show up
+                _insideCollection = false;
+                _insideInclude = false;
+                Visit(expression);
+
+                // all projections that are contained in any of the included are safe - we process all the includes first
+                // so the entries are guaranteed to land in Change Tracker in the right order
+                // for all the remaining - entities deeper in the structure must appear after entities/collections that are "shallower"
+                // i.e. entity.MyJsonCollection must appear before entity.MyJsonCollection[2]
+                // we can verify that by comparing key access infos
+                // we process from the end to the beginning, so we can safely remove elements as we iterate over the list
+                if (_projectedKeyAccessInfos.Count > 0 && _includedJsonEntityTypes.Count > 0)
+                {
+                    for (var i = _projectedKeyAccessInfos.Count - 1; i >= 0; i--)
+                    {
+                        if (_includedJsonEntityTypes.Any(t => t == _projectedKeyAccessInfos[i].JsonEntityType
+                            || _projectedKeyAccessInfos[i].JsonEntityType.IsInOwnershipPath(t)))
+                        {
+                            _projectedKeyAccessInfos.RemoveAt(i);
+                        }
+                    }
+                }
+
+                // if there is only one thing projected, we are good no matter what
+                // if we project one thing only, the result will always land in correct order in ChangeTracker
+                if (_projectedKeyAccessInfos.Count > 1)
+                {
+                    var i = 0;
+
+                    do
+                    {
+                        var outerKeyAccessInfo = _projectedKeyAccessInfos[i].KeyAccessInfo;
+                        var outerJsonEntityType = _projectedKeyAccessInfos[i].JsonEntityType;
+
+                        // accessing collection element using parameter is not supported for NoTrackingWithIdentityResolution
+                        // we can't always tell if the path is the same or not - e.g. when we use two different parameters with the same value
+                        // or a constant and a parameter with the same value as the constant we would think it's different, but they are the same
+                        // so we can't correctly flag this scenario as invalid and it could cause data corruption
+                        // so we just disable it altogether
+                        // consider this query:
+                        // var prm1 = 0;
+                        // var prm2 = 0
+                        // entities.Select(x => new
+                        // {
+                        //     One = x.JsonCollection[prm1].NestedCollection[1],
+                        //     Two = x.JsonCollection[prm2].NestedCollection
+                        // })
+                        if (outerKeyAccessInfo.Any(x => x.KeyProperty == null && x.KeyProjectionIndex != null))
+                        {
+                            throw new InvalidOperationException(RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                                outerJsonEntityType.DisplayName(), nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                        }
+
+                        for (var j = _projectedKeyAccessInfos.Count -1; j > i; j--)
+                        {
+                            var innerKeyAccessInfo = _projectedKeyAccessInfos[j].KeyAccessInfo;
+                            var innerJsonEntityType = _projectedKeyAccessInfos[j].JsonEntityType;
+
+                            var different = false;
+                            for (var k = 0; k < Math.Min(outerKeyAccessInfo.Count, innerKeyAccessInfo.Count); k++)
+                            {
+                                if (!KeyAccessInfoElementEqual(outerKeyAccessInfo[k], innerKeyAccessInfo[k]))
+                                {
+                                    different = true;
+                                    break;
+                                }
+                            }
+
+                            // if shared path is the same, we are ok if full paths are the same or if the outer path is shorter than inner
+                            // in that case the inner entry can be removed from the list - it will land in ChangeTracker in the correct order
+                            // if outer path is longer however, there is risk of data corruption so we throw
+                            // if common paths are different, we don't do anything - outer and inner are different they won't clash in ChangeTracker
+                            // just continue processing, inner will eventually become outer and we will validate if all is correct with it
+                            if (!different)
+                            {
+                                if (outerJsonEntityType != innerJsonEntityType
+                                    && !innerJsonEntityType.IsInOwnershipPath(outerJsonEntityType)
+                                    && !outerJsonEntityType.IsInOwnershipPath(innerJsonEntityType))
+                                {
+                                    // inner and outer are on different ownership paths - they are not related so they won't clash
+                                    continue;
+                                }
+
+                                if ((outerJsonEntityType == innerJsonEntityType || innerJsonEntityType.IsInOwnershipPath(outerJsonEntityType))
+                                    && outerKeyAccessInfo.Count <= innerKeyAccessInfo.Count)
+                                {
+                                    // outer and inner are on same ownership paths and outer is the owner of inner
+                                    // this is good - we can remove inner from the list now, because it will be materialized correctly
+                                    _projectedKeyAccessInfos.RemoveAt(j);
+                                    continue;
+                                }
+
+                                throw new InvalidOperationException(RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                                    outerJsonEntityType.DisplayName(),
+                                    nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                            }
+                        }
+
+                        i++;
+                    }
+                    while (i < _projectedKeyAccessInfos.Count);
+                }
+
+                static bool KeyAccessInfoElementEqual(
+                    (IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex) first,
+                    (IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex) second)
+                {
+                    if (first.KeyProperty != null != (second.KeyProperty != null))
+                    {
+                        return false;
+                    }
+
+                    if (first.ConstantKeyValue != second.ConstantKeyValue)
+                    {
+                        return false;
+                    }
+
+                    // key property itself could be different, as long as they map to the same index in data reader, it's the same key
+                    // this could be a problem when index is a parameter (two different parameters but same value),
+                    // but we disabled that scenario already
+                    return first.KeyProjectionIndex == second.KeyProjectionIndex;
+                }
+            }
+
+            protected override Expression VisitExtension(Expression extensionExpression)
+            {
+                if (extensionExpression is RelationalCollectionShaperExpression collectionShaperExpression)
+                {
+                    var insideCollection = _insideCollection;
+                    _insideCollection = true;
+                    Visit(collectionShaperExpression.InnerShaper);
+                    _insideCollection = insideCollection;
+
+                    return collectionShaperExpression;
+                }
+
+                if (extensionExpression is RelationalSplitCollectionShaperExpression splitCollectionShaperExpression)
+                {
+                    var insideCollection = _insideCollection;
+                    _insideCollection = true;
+                    Visit(splitCollectionShaperExpression.InnerShaper);
+                    _insideCollection = insideCollection;
+
+                    return splitCollectionShaperExpression;
+                }
+
+                if (extensionExpression is IncludeExpression includeExpression)
+                {
+                    var insideInclude = _insideInclude;
+                    _insideInclude = true;
+                    Visit(includeExpression.NavigationExpression);
+                    _insideInclude = insideInclude;
+                }
+
+                if (extensionExpression is StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression entityProjectionBindingExpression } entityShaperExpression)
+                {
+                    var entityProjection = selectExpression.GetProjection(entityProjectionBindingExpression).GetConstantValue<object>();
+
+                    if (entityProjection is QueryableJsonProjectionInfo || (_insideCollection && entityProjection is JsonProjectionInfo))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                    }
+
+                    if (entityProjection is JsonProjectionInfo jsonEntityProjectionInfo)
+                    {
+                        var jsonEntityType = (IEntityType)entityShaperExpression.StructuralType;
+                        if (_insideInclude)
+                        {
+                            if (!_includedJsonEntityTypes.Contains(jsonEntityType))
+                            {
+                                _includedJsonEntityTypes.Add(jsonEntityType);
+                            }
+                        }
+                        else
+                        {
+                            _projectedKeyAccessInfos.Add((jsonEntityType, jsonEntityProjectionInfo.KeyAccessInfo));
+                        }
+                    }
+
+                    return extensionExpression;
+                }
+
+                if (extensionExpression is CollectionResultExpression { ProjectionBindingExpression: ProjectionBindingExpression collectionProjectionBindingExpression } collectionResultExpression)
+                {
+                    var collectionProjection = selectExpression.GetProjection(collectionProjectionBindingExpression).GetConstantValue<object>();
+                    if (collectionProjection is QueryableJsonProjectionInfo || (_insideCollection && collectionProjection is JsonProjectionInfo))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                    }
+
+                    if (collectionProjection is JsonProjectionInfo jsonCollectionProjectionInfo)
+                    {
+                        var jsonEntityType = collectionResultExpression.Navigation!.TargetEntityType;
+                        if (_insideInclude)
+                        {
+                            if (!_includedJsonEntityTypes.Contains(jsonEntityType))
+                            {
+                                _includedJsonEntityTypes.Add(jsonEntityType);
+                            }
+                        }
+                        else
+                        {
+                            _projectedKeyAccessInfos.Add((jsonEntityType, jsonCollectionProjectionInfo.KeyAccessInfo));
+                        }
+                    }
+
+                    return extensionExpression;
+                }
+
+                return base.VisitExtension(extensionExpression);
             }
         }
     }

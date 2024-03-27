@@ -559,6 +559,15 @@
   <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
     <value>This node should be handled by provider-specific sql generator.</value>
   </data>
+  <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
+    <value>Using parameter to access the element of a JSON collection '{entityTypeName}' is not supported for '{asNoTrackingWithIdentityResolution}'. Use constant, or project the entire JSON entity collection instead.</value>
+  </data>
+  <data name="JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution" xml:space="preserve">
+    <value>When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.</value>
+  </data>
+  <data name="JsonProjectingQueryableOperationNoTrackingWithIdentityResolution" xml:space="preserve">
+    <value>Projecting queryable operations on JSON collection is not supported for '{asNoTrackingWithIdentityResolution}'.</value>
+  </data>
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
   </data>

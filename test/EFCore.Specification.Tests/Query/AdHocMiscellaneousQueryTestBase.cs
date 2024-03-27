@@ -162,20 +162,20 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Postcode> Postcodes { get; set; }
-    }
 
-    public class Customer
-    {
-        public int CustomerID { get; set; }
-        public string CustomerName { get; set; }
-        public int? PostcodeID { get; set; }
-    }
+        public class Customer
+        {
+            public int CustomerID { get; set; }
+            public string CustomerName { get; set; }
+            public int? PostcodeID { get; set; }
+        }
 
-    public class Postcode
-    {
-        public int PostcodeID { get; set; }
-        public string PostcodeValue { get; set; }
-        public string TownName { get; set; }
+        public class Postcode
+        {
+            public int PostcodeID { get; set; }
+            public string PostcodeValue { get; set; }
+            public string TownName { get; set; }
+        }
     }
 
     #endregion
