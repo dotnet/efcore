@@ -354,6 +354,42 @@ EXEC(N'CREATE TABLE [Customers] (
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Create_table_with_fill_factor()
+    {
+        await Test(
+            _ => { },
+            builder =>
+            {
+                builder.Entity("People").Property<int>("TheKey");
+                builder.Entity("People").Property<Guid>("TheAlternateKey");
+                builder.Entity("People").HasKey("TheKey").HasFillFactor(81);
+                builder.Entity("People").HasAlternateKey("TheAlternateKey").HasFillFactor(82);
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+
+                var primaryKey = table.PrimaryKey;
+                Assert.NotNull(primaryKey);
+                Assert.Equal(81, primaryKey[SqlServerAnnotationNames.FillFactor]);
+
+                var uniqueConstraint = table.UniqueConstraints.FirstOrDefault();
+                Assert.NotNull(uniqueConstraint);
+                Assert.Equal(82, uniqueConstraint[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE [People] (
+    [TheKey] int NOT NULL IDENTITY,
+    [TheAlternateKey] uniqueidentifier NOT NULL,
+    CONSTRAINT [PK_People] PRIMARY KEY ([TheKey]) WITH (FILLFACTOR = 81),
+    CONSTRAINT [AK_People_TheAlternateKey] UNIQUE ([TheAlternateKey]) WITH (FILLFACTOR = 82)
+);
+""");
+    }
+
     public override async Task Drop_table()
     {
         await base.Drop_table();

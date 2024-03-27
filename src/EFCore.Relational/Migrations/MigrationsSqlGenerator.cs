@@ -241,8 +241,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         PrimaryKeyConstraint(operation, model, builder);
 
-        KeyWithOptions(operation, builder);
-
         if (terminate)
         {
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
@@ -268,8 +266,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             .Append(" ADD ");
 
         UniqueConstraint(operation, model, builder);
-
-        KeyWithOptions(operation, builder);
 
         builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         EndStatement(builder);
@@ -1622,6 +1618,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder.Append("(")
             .Append(ColumnList(operation.Columns))
             .Append(")");
+
+        IndexOptions(operation, model, builder);
     }
 
     /// <summary>
@@ -1669,6 +1667,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder.Append("(")
             .Append(ColumnList(operation.Columns))
             .Append(")");
+
+        IndexOptions(operation, model, builder);
     }
 
     /// <summary>
@@ -1717,16 +1717,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     }
 
     /// <summary>
-    ///     Generates a SQL fragment for extra with options of a key from a
-    ///     <see cref="AddPrimaryKeyOperation" /> or <see cref="AddUniqueConstraintOperation" />.
-    /// </summary>
-    /// <param name="operation">The operation.</param>
-    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected virtual void KeyWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
-    {
-    }
-
-    /// <summary>
     ///     Generates a SQL fragment for traits of an index from a <see cref="CreateIndexOperation" />,
     ///     <see cref="AddPrimaryKeyOperation" />, or <see cref="AddUniqueConstraintOperation" />.
     /// </summary>
@@ -1767,13 +1757,14 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     /// <param name="operation">The operation.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected virtual void IndexOptions(CreateIndexOperation operation, IModel? model, MigrationCommandListBuilder builder)
+    protected virtual void IndexOptions(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        if (!string.IsNullOrEmpty(operation.Filter))
+        if (operation is CreateIndexOperation createIndexOperation
+            && !string.IsNullOrEmpty(createIndexOperation.Filter))
         {
             builder
                 .Append(" WHERE ")
-                .Append(operation.Filter);
+                .Append(createIndexOperation.Filter);
         }
     }
 
