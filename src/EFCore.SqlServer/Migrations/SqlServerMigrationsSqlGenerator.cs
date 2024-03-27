@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -1775,18 +1774,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
     }
 
-    /// <inheritdoc/>
-    protected override void KeyTraits(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
-    {
-        if (operation[SqlServerAnnotationNames.FillFactor] is int fillFactor)
-        {
-            builder
-                .Append(" WITH (FILLFACTOR = ")
-                .Append(fillFactor.ToString())
-                .Append(")");
-        }
-    }
-
     /// <summary>
     ///     Generates a SQL fragment for traits of an index from a <see cref="CreateIndexOperation" />,
     ///     <see cref="AddPrimaryKeyOperation" />, or <see cref="AddUniqueConstraintOperation" />.
@@ -1808,7 +1795,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="operation">The operation.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected override void IndexOptions(CreateIndexOperation operation, IModel? model, MigrationCommandListBuilder builder)
+    protected override void IndexOptions(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
         if (operation[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeColumns
             && includeColumns.Count > 0)
@@ -1827,37 +1814,40 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder.Append(")");
         }
 
-        if (!string.IsNullOrEmpty(operation.Filter))
+        if (operation is CreateIndexOperation createIndexOperation)
         {
-            builder
-                .Append(" WHERE ")
-                .Append(operation.Filter);
-        }
-        else if (UseLegacyIndexFilters(operation, model))
-        {
-            var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
-            var nullableColumns = operation.Columns
-                .Where(c => table?.FindColumn(c)?.IsNullable != false)
-                .ToList();
-
-            builder.Append(" WHERE ");
-            for (var i = 0; i < nullableColumns.Count; i++)
+            if (!string.IsNullOrEmpty(createIndexOperation.Filter))
             {
-                if (i != 0)
-                {
-                    builder.Append(" AND ");
-                }
-
                 builder
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
-                    .Append(" IS NOT NULL");
+                    .Append(" WHERE ")
+                    .Append(createIndexOperation.Filter);
+            }
+            else if (UseLegacyIndexFilters(createIndexOperation, model))
+            {
+                var table = model?.GetRelationalModel().FindTable(createIndexOperation.Table, createIndexOperation.Schema);
+                var nullableColumns = createIndexOperation.Columns
+                    .Where(c => table?.FindColumn(c)?.IsNullable != false)
+                    .ToList();
+
+                builder.Append(" WHERE ");
+                for (var i = 0; i < nullableColumns.Count; i++)
+                {
+                    if (i != 0)
+                    {
+                        builder.Append(" AND ");
+                    }
+
+                    builder
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
+                        .Append(" IS NOT NULL");
+                }
             }
         }
 
         IndexWithOptions(operation, builder);
     }
 
-    private static void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
+    private static void IndexWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
     {
         var options = new List<string>();
 
