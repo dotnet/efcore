@@ -286,13 +286,13 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void GenerateTables(SelectExpression selectExpression)
+    protected override void GenerateFrom(SelectExpression selectExpression)
     {
         // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
-        // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // a requirement in other databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
         // generate "1 AS empty" instead of just "1".
         _withinTable = true;
-        base.GenerateTables(selectExpression);
+        base.GenerateFrom(selectExpression);
         _withinTable = false;
     }
 

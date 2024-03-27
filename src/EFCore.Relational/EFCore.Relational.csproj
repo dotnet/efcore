@@ -9,6 +9,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF1003</NoWarn> <!-- Precomiled query is experimental -->
+    <NoWarn>$(NoWarn);EF1004</NoWarn> <!-- Experimental provider-facing feature -->
   </PropertyGroup>
 
   <ItemGroup>

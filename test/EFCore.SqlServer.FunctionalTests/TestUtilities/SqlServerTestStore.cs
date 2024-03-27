@@ -70,7 +70,6 @@ public class SqlServerTestStore : RelationalTestStore
         {
             _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).Assembly.Location)!, scriptPath);
         }
-
     }
 
     public async Task<SqlServerTestStore> InitializeSqlServerAsync(
