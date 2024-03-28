@@ -83,7 +83,7 @@ public class LikeExpression : SqlExpression
                 [typeof(SqlExpression), typeof(SqlExpression), typeof(SqlExpression), typeof(RelationalTypeMapping)])!,
             Match.Quote(),
             Pattern.Quote(),
-            RelationalExpressionQuotingUtilities.VisitOrNull(EscapeChar),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(EscapeChar),
             RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />

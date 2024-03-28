@@ -64,7 +64,14 @@ public class SqlAliasManager
     {
         // To post-process (finalize) table aliases in the tree, we visit it to see which aliases are actually in use.
         // We then remap those alias, e.g. closing any gaps caused by tables getting pruned, etc.
-        // Finally, we revisit the tree in order to apply the remappings.
+        // Finally, we revisit the tree in order to apply the remapped aliases.
+
+        // Note that in principle, new aliases shouldn't get generated after postprocessing occurs (we should ideally check against that).
+        // But we have cases where aliases may get generated in the 2nd part of the query pipeline (specifically in
+        // SqlNullabilityProcessor), which runs after postprocessing. We could move alias postprocessing to there, but that would move
+        // that work to a perf-sensitive part of the query pipeline, and it's purely optional (the only downside of the current situation
+        // is that the aliases have gaps).
+
         var tableAliases = TableAliasCollector.Collect(expression);
 
         var aliasRewritingMap = RemapTableAliases(tableAliases);

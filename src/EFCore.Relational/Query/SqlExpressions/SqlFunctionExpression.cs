@@ -338,7 +338,7 @@ public class SqlFunctionExpression : SqlExpression
                 typeof(SqlExpression), typeof(string), typeof(string), typeof(bool), typeof(IEnumerable<SqlExpression>),
                 typeof(bool), typeof(bool), typeof(IEnumerable<bool>), typeof(bool), typeof(Type), typeof(RelationalTypeMapping)
             ])!,
-            RelationalExpressionQuotingUtilities.VisitOrNull(Instance),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Instance),
             Constant(Schema, typeof(string)),
             Constant(Name),
             Constant(IsNiladic),

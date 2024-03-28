@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
 {
+    private readonly IModel _model;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
@@ -27,7 +28,10 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
         RelationalQueryCompilationContext queryCompilationContext)
         : base(dependencies, relationalDependencies, queryCompilationContext)
-        => _typeMappingSource = relationalDependencies.TypeMappingSource;
+    {
+        _model = queryCompilationContext.Model;
+        _typeMappingSource = relationalDependencies.TypeMappingSource;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,7 +81,7 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         // and on the WITH clause determining the conversion out on the SQL Server side
 
         // First, find the collection type mapping and apply it to the parameter
-        if (_typeMappingSource.FindMapping(parameterExpression.Type, Model, elementTypeMapping) is not SqlServerStringTypeMapping
+        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, elementTypeMapping) is not SqlServerStringTypeMapping
                 {
                     ElementTypeMapping: not null
                 }

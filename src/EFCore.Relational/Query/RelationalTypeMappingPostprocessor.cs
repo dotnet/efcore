@@ -31,14 +31,26 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
         RelationalQueryCompilationContext queryCompilationContext)
     {
-        Model = queryCompilationContext.Model;
+        Dependencies = dependencies;
+        RelationalDependencies = relationalDependencies;
+        QueryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
     }
 
     /// <summary>
-    ///     The model.
+    ///     Parameter object containing dependencies for this class.
     /// </summary>
-    protected virtual IModel Model { get; }
+    protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     Parameter object containing relational dependencies for this class.
+    /// </summary>
+    protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
+
+    /// <summary>
+    ///     The query compilation context object to use.
+    /// </summary>
+    protected virtual RelationalQueryCompilationContext QueryCompilationContext { get; }
 
     /// <summary>
     ///     Processes type mappings in the expression tree.
