@@ -204,7 +204,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Throws_when_mapping_an_IReadOnlyCollection()
+    public virtual void Does_not_throw_when_mapping_an_IReadOnlyCollection()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -215,9 +215,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 eb.PrimitiveCollection(e => e.Tags);
             });
 
-        VerifyError(
-            CoreStrings.ReadOnlyListType("IReadOnlyCollection<int>"),
-            modelBuilder, sensitiveDataLoggingEnabled: false);
+        Validate(modelBuilder);
     }
 
     protected class WithReadOnlyCollection
@@ -227,7 +225,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Throws_when_mapping_an_IReadOnlyList()
+    public virtual void Does_not_throw_when_mapping_an_IReadOnlyList()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -238,9 +236,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 eb.PrimitiveCollection(e => e.Tags);
             });
 
-        VerifyError(
-            CoreStrings.ReadOnlyListType("IReadOnlyList<char>"),
-            modelBuilder, sensitiveDataLoggingEnabled: false);
+        Validate(modelBuilder);
     }
 
     protected class WithReadOnlyList

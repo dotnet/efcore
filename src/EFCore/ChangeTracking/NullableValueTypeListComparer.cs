@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
@@ -9,17 +11,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This comparer should be used for nullable value types. Use <see cref="NullableValueTypeListComparer{TElement}" /> for reference
+///         This comparer should be used for nullable value types. Use <see cref="NullableValueTypeListComparer{TConcreteCollection,TElement}" /> for reference
 ///         types and non-nullable value types.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
 ///     </para>
 /// </remarks>
+/// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnumerable<TElement?>>
+public sealed class NullableValueTypeListComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement?>>
     where TElement : struct
 {
+    private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
+
+    private static readonly bool IsReadOnly = IsArray
+        || (typeof(TConcreteCollection).IsGenericType
+            && typeof(TConcreteCollection).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
+
     /// <summary>
     ///     Creates a new instance of the list comparer.
     /// </summary>
@@ -117,10 +126,9 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
                     typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
         }
 
-        if (sourceList.IsReadOnly)
+        if (IsArray)
         {
             var snapshot = new TElement?[sourceList.Count];
-
             for (var i = 0; i < sourceList.Count; i++)
             {
                 var instance = sourceList[i];
@@ -131,16 +139,15 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
         }
         else
         {
-            var snapshot = source is List<TElement?> || sourceList.IsReadOnly
-                ? new List<TElement?>(sourceList.Count)
-                : (IList<TElement?>)Activator.CreateInstance(source.GetType())!;
-
+            var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
             foreach (var e in sourceList)
             {
                 snapshot.Add(e == null ? null : elementComparer.Snapshot(e));
             }
 
-            return snapshot;
+            return IsReadOnly
+                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteCollection), [snapshot])!
+                : snapshot;
         }
     }
 }

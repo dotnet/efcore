@@ -47,9 +47,15 @@ public class JsonOwnedAllTypes
     public JsonEnum? TestNullableEnumWithIntConverter { get; set; }
     public JsonEnum? TestNullableEnumWithConverterThatHandlesNulls { get; set; }
 
+    public List<List<long>> TestInt64CollectionCollection { get; set; }  = [];
+    public List<double[]> TestDoubleCollectionCollection { get; set; }  = new();
+    public List<float[]> TestSingleCollectionCollection { get; set; }  = new([([1.1f, 1.2f])]);
+    public bool[][] TestBooleanCollectionCollection { get; set; }  = [];
+    public ObservableCollection<IReadOnlyCollection<char>> TestCharacterCollectionCollection { get; set; }  = [];
+
     public string[] TestDefaultStringCollection { get; set; }
-    public List<string> TestMaxLengthStringCollection { get; set; }
-    public IList<short> TestInt16Collection { get; set; }
+    public ReadOnlyCollection<string> TestMaxLengthStringCollection { get; set; }
+    public IReadOnlyList<short> TestInt16Collection { get; set; }
 
     public int[] TestInt32Collection { get; set; } = [];
 
@@ -79,6 +85,16 @@ public class JsonOwnedAllTypes
     public TimeSpan[] TestTimeSpanCollection { get; set; } = [new(1, 1, 1)];
     public DateOnly[] TestDateOnlyCollection { get; set; }
     public TimeOnly[] TestTimeOnlyCollection { get; set; }
+
+    public string[][] TestDefaultStringCollectionCollection { get; init; }
+    public List<ReadOnlyCollection<string>> TestMaxLengthStringCollectionCollection { get; init; }
+    public IList<IReadOnlyList<short>> TestInt16CollectionCollection { get; set; }
+
+    public int[][] TestInt32CollectionCollection { get; set; } = [];
+
+    public ObservableCollection<int?[]> TestNullableInt32CollectionCollection { get; set; } = [[99]];
+    public ICollection<List<Collection<JsonEnum?>>> TestNullableEnumCollectionCollection { get; set; } = [];
+    public JsonEnum?[][][] TestNullableEnumWithIntConverterCollectionCollection { get; set; } = [[[JsonEnum.Three]]];
 
     public List<float> TestSingleCollection
     {

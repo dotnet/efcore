@@ -11,14 +11,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 public class JsonEntityAllTypes
 {
-    private List<long> _testInt64CollectionX = [];
-    private IList<double> _testDoubleCollectionX = new List<double>();
-    private List<float> _testSingleCollectionX = [1.1f, 1.2f];
-    private IList<bool> _testBooleanCollectionX = new List<bool> { true };
-    private ObservableCollection<char> _testCharacterCollectionX = [];
     private ObservableCollection<int?> _testNullableInt32CollectionX = [99];
     private Collection<JsonEnum?> _testNullableEnumCollectionX = [];
     private Collection<JsonEnum?> _testNullableEnumWithIntConverterCollectionX = [JsonEnum.Three];
+
+    public List<List<long>> TestInt64CollectionCollection { get; set; }  = [];
+    public IReadOnlyList<double[]> TestDoubleCollectionCollection { get; set; }  = new List<double[]>();
+    public List<float>[] TestSingleCollectionCollection { get; set; }  = [[1.1f, 1.2f]];
+    public bool[][] TestBooleanCollectionCollection { get; set; }  = [];
+    public ObservableCollection<ReadOnlyCollection<char>> TestCharacterCollectionCollection { get; set; }  = [];
 
     public int Id { get; set; }
     public JsonOwnedAllTypes Reference { get; init; }
@@ -28,71 +29,32 @@ public class JsonEntityAllTypes
     public List<string> TestMaxLengthStringCollection { get; init; }
     public IList<short> TestInt16Collection { get; set; }
 
+    public string[][] TestDefaultStringCollectionCollection { get; init; }
+    public List<IReadOnlyList<string>> TestMaxLengthStringCollectionCollection { get; init; }
+    public IReadOnlyList<IReadOnlyList<short>> TestInt16CollectionCollection { get; set; }
+
     public int[] TestInt32Collection { get; set; } = [];
 
-    public List<long> TestInt64Collection
-    {
-        get => _testInt64CollectionX;
-        set
-        {
-            _testInt64CollectionX = value;
-            NewCollectionSet = true;
-        }
-    }
-
-    public IList<double> TestDoubleCollection
-    {
-        get => _testDoubleCollectionX;
-        set
-        {
-            _testDoubleCollectionX = value;
-            NewCollectionSet = true;
-        }
-    }
+    public int[][] TestInt32CollectionCollection { get; set; } = [];
 
     public decimal[] TestDecimalCollection { get; set; }
     public List<DateTime> TestDateTimeCollection { get; set; }
     public IList<DateTimeOffset> TestDateTimeOffsetCollection { get; set; }
     public TimeSpan[] TestTimeSpanCollection { get; set; } = [new(1, 1, 1)];
 
-    public List<float> TestSingleCollection
-    {
-        get => _testSingleCollectionX;
-        set
-        {
-            _testSingleCollectionX = value;
-            NewCollectionSet = true;
-        }
-    }
-
-    public IList<bool> TestBooleanCollection
-    {
-        get => _testBooleanCollectionX;
-        set
-        {
-            _testBooleanCollectionX = value;
-            NewCollectionSet = true;
-        }
-    }
-
+    public ReadOnlyCollection<long> TestInt64Collection { get; set; } = new ReadOnlyCollection<long>([]);
+    public IList<double> TestDoubleCollection { get; set; } = new List<double>();
+    public IReadOnlyList<float> TestSingleCollection { get; set; } = [1.1f, 1.2f];
+    public IList<bool> TestBooleanCollection { get; set; } = new List<bool> { true };
+    public ObservableCollection<char> TestCharacterCollection { get; set; } = [];
     public byte[] TestByteCollection { get; set; }
 
     [Required]
-    public List<Guid> TestGuidCollection { get; set; }
+    public ReadOnlyCollection<Guid> TestGuidCollection { get; set; }
 
     public IList<ushort> TestUnsignedInt16Collection { get; set; }
     public uint[] TestUnsignedInt32Collection { get; set; }
     public ObservableCollection<ulong> TestUnsignedInt64Collection { get; set; }
-
-    public ObservableCollection<char> TestCharacterCollection
-    {
-        get => _testCharacterCollectionX;
-        set
-        {
-            _testCharacterCollectionX = value;
-            NewCollectionSet = true;
-        }
-    }
 
     public sbyte[] TestSignedByteCollection { get; set; }
 
@@ -129,6 +91,9 @@ public class JsonEntityAllTypes
         }
     }
 
+    public ObservableCollection<int?[]> TestNullableInt32CollectionCollection { get; set; } = [[99]];
+    public ICollection<List<Collection<JsonEnum?>>> TestNullableEnumCollectionCollection { get; set; } = [];
+    public JsonEnum?[][][] TestNullableEnumWithIntConverterCollectionCollection { get; set; } = [[[JsonEnum.Three]]];
     public JsonEnum?[] TestNullableEnumWithConverterThatHandlesNullsCollection { get; set; }
 
     [NotMapped]

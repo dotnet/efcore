@@ -418,7 +418,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         var mainBuilder = parameters.MainBuilder;
 
         var constructor = comparer.GetType().GetDeclaredConstructor([typeof(ValueComparer)]);
-        var elementComparerProperty = comparer.GetType().GetProperty(nameof(ListComparer<object>.ElementComparer));
+        var elementComparerProperty = comparer.GetType().GetProperty(nameof(ListComparer<object, int>.ElementComparer));
         if (constructor == null
             || elementComparerProperty == null)
         {

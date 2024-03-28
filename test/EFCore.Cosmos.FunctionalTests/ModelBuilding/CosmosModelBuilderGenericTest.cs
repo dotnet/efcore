@@ -11,198 +11,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 {
     public class CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture) : NonRelationshipTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
-        public override void Can_set_composite_key_for_primitive_collection_on_an_entity_with_fields()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(EntityWithFields), "CollectionCompanyId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_composite_key_for_primitive_collection_on_an_entity_with_fields).Message);
-
-        public override void Can_set_alternate_key_for_primitive_collection_on_an_entity_with_fields()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(EntityWithFields), "CollectionCompanyId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_alternate_key_for_primitive_collection_on_an_entity_with_fields).Message);
-
-        public override void Can_call_PrimitiveCollection_on_an_entity_with_fields()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(EntityWithFields), "CollectionId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_call_PrimitiveCollection_on_an_entity_with_fields).Message);
-
-        public override void Access_mode_can_be_overridden_at_entity_and_primitive_collection_levels()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Down"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Access_mode_can_be_overridden_at_entity_and_primitive_collection_levels).Message);
-
-        public override void Can_set_custom_value_generator_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_custom_value_generator_for_primitive_collections).Message);
-
-        public override void Can_set_element_type_annotation()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(Customer), "Notes"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_element_type_annotation).Message);
-
-        public override void Can_set_max_length_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_max_length_for_primitive_collections).Message);
-
-        public override void Can_set_primitive_collection_annotation()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(Customer), "Notes"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_primitive_collection_annotation).Message);
-
-        public override void Can_set_primitive_collection_annotation_by_type()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(Customer), "Notes"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_primitive_collection_annotation_by_type).Message);
-
-        public override void Can_set_primitive_collection_annotation_when_no_clr_property()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(Customer), "Notes"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_primitive_collection_annotation_when_no_clr_property).Message);
-
-        public override void Can_set_sentinel_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_sentinel_for_primitive_collections).Message);
-
-        public override void Can_set_unicode_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_unicode_for_primitive_collections).Message);
-
-        public override void Element_types_are_nullable_by_default_if_the_type_is_nullable()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_are_nullable_by_default_if_the_type_is_nullable).Message);
-
-        public override void Element_types_can_be_made_required()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_be_made_required).Message);
-
-        public override void Element_types_can_have_custom_type_value_converter_type_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_have_custom_type_value_converter_type_set).Message);
-
-        public override void Element_types_can_have_max_length()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_have_max_length).Message);
-
-        public override void Element_types_can_have_non_generic_value_converter_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_have_non_generic_value_converter_set).Message);
-
-        public override void Element_types_can_have_precision_and_scale()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_have_precision_and_scale).Message);
-
-        public override void Element_types_can_have_provider_type_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_have_provider_type_set).Message);
-
-        public override void Element_types_can_have_unicode_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_can_have_unicode_set).Message);
-
-        public override void Element_types_have_default_precision_and_scale()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_have_default_precision_and_scale).Message);
-
-        public override void Element_types_have_default_unicode()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_have_default_unicode).Message);
-
-        public override void Element_types_have_no_max_length_by_default()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Element_types_have_no_max_length_by_default).Message);
-
-        public override void Primitive_collections_are_required_by_default_only_if_CLR_type_is_nullable()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_are_required_by_default_only_if_CLR_type_is_nullable).Message);
-
-        public override void Primitive_collections_can_be_made_optional()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_made_optional).Message);
-
-        public override void Primitive_collections_can_be_made_required()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_made_required).Message);
-
-        public override void Primitive_collections_can_be_set_to_generate_values_on_Add()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_set_to_generate_values_on_Add).Message);
-
-        public override void Primitive_collections_can_have_access_mode_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_have_access_mode_set).Message);
-
-        public override void Primitive_collections_can_have_field_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Down"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_have_field_set).Message);
-
-        public override void Primitive_collections_can_have_value_converter_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_have_value_converter_set).Message);
-
-        public override void Primitive_collections_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties).Message);
-
-        public override void Value_converter_type_on_primitive_collection_is_checked()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Up"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Value_converter_type_on_primitive_collection_is_checked).Message);
-
         public override void Properties_can_set_row_version()
             => Assert.Equal(
                 CosmosStrings.NonETagConcurrencyToken(nameof(Quarks), "Charm"),
@@ -215,28 +23,20 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(
                     base.Properties_can_be_made_concurrency_tokens).Message);
 
-        public override void Properties_can_have_provider_type_set_for_type()
-        {
-            var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
+        public override void Primitive_collections_can_be_made_concurrency_tokens()
+            => Assert.Equal(
+                CosmosStrings.NonETagConcurrencyToken(nameof(CollectionQuarks), "Charm"),
+                Assert.Throws<InvalidOperationException>(
+                    base.Primitive_collections_can_be_made_concurrency_tokens).Message);
 
-            modelBuilder.Entity<Quarks>(
-                b =>
-                {
-                    b.Property(e => e.Up);
-                    b.Property(e => e.Down);
-                    b.Property<int>("Charm");
-                    b.Property<string>("Strange");
-                    b.Property<string>("__id").HasConversion(null);
-                });
+        public override void Properties_can_have_custom_type_value_converter_type_set()
+            => Properties_can_have_custom_type_value_converter_type_set<string>();
 
-            var model = modelBuilder.FinalizeModel();
-            var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks))!;
+        public override void Properties_can_have_non_generic_value_converter_set()
+            => Properties_can_have_non_generic_value_converter_set<string>();
 
-            Assert.Null(entityType.FindProperty("Up")!.GetProviderClrType());
-            Assert.Same(typeof(byte[]), entityType.FindProperty("Down")!.GetProviderClrType());
-            Assert.Null(entityType.FindProperty("Charm")!.GetProviderClrType());
-            Assert.Same(typeof(byte[]), entityType.FindProperty("Strange")!.GetProviderClrType());
-        }
+        public override void Properties_can_have_provider_type_set()
+            => Properties_can_have_provider_type_set<string>();
 
         public override void Properties_can_be_set_to_generate_values_on_Add()
         {
@@ -435,113 +235,20 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
         }
 
-        public override void Primitive_collections_can_be_made_concurrency_tokens()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_made_concurrency_tokens).Message);
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
     public class CosmosGenericComplexType(CosmosModelBuilderFixture fixture) : ComplexTypeTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
-        public override void Access_mode_can_be_overridden_at_entity_and_property_levels()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Down"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Access_mode_can_be_overridden_at_entity_and_property_levels).Message);
+        public override void Properties_can_have_custom_type_value_converter_type_set()
+            => Properties_can_have_custom_type_value_converter_type_set<string>();
 
-        public override void Can_add_shadow_primitive_collections_when_they_have_been_ignored()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(Customer), "Shadow"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_add_shadow_primitive_collections_when_they_have_been_ignored).Message);
+        public override void Properties_can_have_non_generic_value_converter_set()
+            => Properties_can_have_non_generic_value_converter_set<string>();
 
-        public override void Can_call_PrimitiveCollection_on_a_field()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(EntityWithFields), "CollectionId"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_call_PrimitiveCollection_on_a_field).Message);
-
-        public override void Can_set_custom_value_generator_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_custom_value_generator_for_primitive_collections).Message);
-
-        public override void Can_set_max_length_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_max_length_for_primitive_collections).Message);
-
-        public override void Can_set_primitive_collection_annotation_when_no_clr_property()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(Customer), "Ints"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_primitive_collection_annotation_when_no_clr_property).Message);
-
-        public override void Can_set_sentinel_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_sentinel_for_primitive_collections).Message);
-
-        public override void Can_set_unicode_for_primitive_collections()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Can_set_unicode_for_primitive_collections).Message);
-
-        public override void Primitive_collections_are_required_by_default_only_if_CLR_type_is_nullable()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_are_required_by_default_only_if_CLR_type_is_nullable).Message);
-
-        public override void Primitive_collections_can_be_made_concurrency_tokens()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_made_concurrency_tokens).Message);
-
-        public override void Primitive_collections_can_be_made_optional()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_made_optional).Message);
-
-        public override void Primitive_collections_can_be_made_required()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_made_required).Message);
-
-        public override void Primitive_collections_can_be_set_to_generate_values_on_Add()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Bottom"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_be_set_to_generate_values_on_Add).Message);
-
-        public override void Primitive_collections_can_have_field_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Down"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_can_have_field_set).Message);
-
-        public override void Primitive_collections_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Charm"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Primitive_collections_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties).Message);
-
-        public override void Properties_can_have_access_mode_set()
-            => Assert.Equal(
-                CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Down"),
-                Assert.Throws<InvalidOperationException>(
-                    base.Properties_can_have_access_mode_set).Message);
+        public override void Properties_can_have_provider_type_set()
+            => Properties_can_have_provider_type_set<string>();
 
         public override void Can_set_complex_property_annotation()
         {
@@ -570,38 +277,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
-      Notes (List<string>)", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
-        }
-
-        public override void Properties_can_have_provider_type_set_for_type()
-        {
-            var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
-
-            modelBuilder
-                .Ignore<Order>()
-                .Ignore<IndexedClass>()
-                .Entity<ComplexProperties>(
-                    b =>
-                    {
-                        b.Property<string>("__id").HasConversion(null);
-                        b.ComplexProperty(
-                            e => e.Quarks,
-                            b =>
-                            {
-                                b.Property(e => e.Up);
-                                b.Property(e => e.Down);
-                                b.Property<int>("Charm");
-                                b.Property<string>("Strange");
-                            });
-                    });
-
-            var model = modelBuilder.FinalizeModel();
-            var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
-
-            Assert.Null(complexType.FindProperty("Up")!.GetProviderClrType());
-            Assert.Same(typeof(byte[]), complexType.FindProperty("Down")!.GetProviderClrType());
-            Assert.Null(complexType.FindProperty("Charm")!.GetProviderClrType());
-            Assert.Same(typeof(byte[]), complexType.FindProperty("Strange")!.GetProviderClrType());
+      Notes (List<string>) Element type: string Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]

@@ -415,7 +415,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         AssertPrimitiveCollection(expected.TestDateTimeOffsetCollection, actual.TestDateTimeOffsetCollection);
         AssertPrimitiveCollection(expected.TestDoubleCollection, actual.TestDoubleCollection);
         AssertPrimitiveCollection(expected.TestGuidCollection, actual.TestGuidCollection);
-        AssertPrimitiveCollection(expected.TestInt16Collection, actual.TestInt16Collection);
+        AssertPrimitiveCollection((IList<short>)expected.TestInt16Collection, (IList<short>)actual.TestInt16Collection);
         AssertPrimitiveCollection(expected.TestInt32Collection, actual.TestInt32Collection);
         AssertPrimitiveCollection(expected.TestInt64Collection, actual.TestInt64Collection);
         AssertPrimitiveCollection(expected.TestSignedByteCollection, actual.TestSignedByteCollection);

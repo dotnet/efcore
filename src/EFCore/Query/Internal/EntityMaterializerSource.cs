@@ -173,27 +173,35 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         {
             if (property is IProperty { IsPrimitiveCollection: true, ClrType.IsArray: false })
             {
-                var genericMethod = PopulateListMethod.MakeGenericMethod(
-                    property.ClrType.TryGetElementType(typeof(IEnumerable<>))!);
-                var currentVariable = Expression.Variable(property.ClrType);
-                var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
-                    ? (Expression)currentVariable
-                    : Expression.Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
-                return Expression.Block(
-                    new[] { currentVariable },
-                    Expression.Assign(
-                        currentVariable,
-                        Expression.MakeMemberAccess(parameter, property.GetMemberInfo(forMaterialization: true, forSet: false))),
-                    Expression.IfThenElse(
-                        Expression.OrElse(
-                            Expression.ReferenceEqual(currentVariable, Expression.Constant(null)),
-                            Expression.ReferenceEqual(value, Expression.Constant(null))),
-                        Expression.MakeMemberAccess(parameter, memberInfo).Assign(value),
-                        Expression.Call(
-                            genericMethod,
-                            value,
-                            convertedVariable)
-                    ));
+                var elementType = property.ClrType.TryGetElementType(typeof(IEnumerable<>))!;
+                var iCollectionInterface = typeof(ICollection<>).MakeGenericType(elementType);
+                if (iCollectionInterface.IsAssignableFrom(property.ClrType))
+                {
+                    var genericMethod = PopulateListMethod.MakeGenericMethod(elementType);
+                    var currentVariable = Expression.Variable(property.ClrType);
+                    var convertedVariable = genericMethod.GetParameters()[1].ParameterType.IsAssignableFrom(currentVariable.Type)
+                        ? (Expression)currentVariable
+                        : Expression.Convert(currentVariable, genericMethod.GetParameters()[1].ParameterType);
+                    return Expression.Block(
+                        new[] { currentVariable },
+                        Expression.Assign(
+                            currentVariable,
+                            Expression.MakeMemberAccess(parameter, property.GetMemberInfo(forMaterialization: true, forSet: false))),
+                        Expression.IfThenElse(
+                            Expression.OrElse(
+                                Expression.OrElse(
+                                    Expression.ReferenceEqual(currentVariable, Expression.Constant(null)),
+                                    Expression.ReferenceEqual(value, Expression.Constant(null))),
+                                Expression.MakeMemberAccess(
+                                    currentVariable,
+                                    iCollectionInterface.GetProperty(nameof(ICollection<object>.IsReadOnly))!)),
+                            Expression.MakeMemberAccess(parameter, memberInfo).Assign(value),
+                            Expression.Call(
+                                genericMethod,
+                                value,
+                                convertedVariable)
+                        ));
+                }
             }
 
             return property.IsIndexerProperty()
