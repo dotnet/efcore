@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         for more information and examples.
 ///     </para>
 /// </remarks>
-[Experimental("EF1004")]
+[Experimental(EFDiagnostics.ProviderExperimentalApi)]
 public interface ISqlAliasManagerFactory
 {
     /// <summary>

@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <inheritdoc />
-[Experimental("EF1004")]
+[Experimental(EFDiagnostics.ProviderExperimentalApi)]
 public class SqlAliasManagerFactory : ISqlAliasManagerFactory
 {
     /// <inheritdoc />
