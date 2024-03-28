@@ -74,11 +74,11 @@ namespace TestNamespace
             dependentBasebyteTable.Columns.Add("PrincipalId", principalIdColumn);
             var pK_DependentBasebyte = new UniqueConstraint("PK_DependentBase<byte?>", dependentBasebyteTable, new[] { idColumn });
             dependentBasebyteTable.PrimaryKey = pK_DependentBasebyte;
-            var pK_DependentBasebyteUc = RelationalModel.GetKey(this,
+            var pK_DependentBasebyteKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
                 new[] { "Id" });
-            pK_DependentBasebyte.MappedKeys.Add(pK_DependentBasebyteUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentBasebyteUc).Add(pK_DependentBasebyte);
+            pK_DependentBasebyte.MappedKeys.Add(pK_DependentBasebyteKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentBasebyteKey).Add(pK_DependentBasebyte);
             dependentBasebyteTable.UniqueConstraints.Add("PK_DependentBase<byte?>", pK_DependentBasebyte);
             var iX_DependentBasebyte_PrincipalId = new TableIndex(
             "IX_DependentBase<byte?>_PrincipalId", dependentBasebyteTable, new[] { principalIdColumn }, true);
@@ -251,11 +251,11 @@ namespace TestNamespace
             principalBaseTable.Columns.Add("ValueTypeList", valueTypeListColumn);
             var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn0 });
             principalBaseTable.PrimaryKey = pK_PrincipalBase;
-            var pK_PrincipalBaseUc = RelationalModel.GetKey(this,
+            var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "Id" });
-            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseUc).Add(pK_PrincipalBase);
+            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
             principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
             var iX_PrincipalBase_PrincipalDerivedDependentBasebyteId = new TableIndex(
             "IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, new[] { principalDerivedDependentBasebyteIdColumn }, false);
@@ -388,7 +388,7 @@ namespace TestNamespace
             principalBase_DeleteStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Delete", "TPC"), principalBase_DeleteStoreSproc);
             var principalBase_DeleteDSproc = (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!;
-            var principalBase_DeleteSprocMapping = new StoredProcedureMapping(principalBase, principalBase_DeleteStoreSproc, (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!, principalBaseTableMapping, false);
+            var principalBase_DeleteSprocMapping = new StoredProcedureMapping(principalBase, principalBase_DeleteStoreSproc, principalBase_DeleteDSproc, principalBaseTableMapping, false);
             principalBase_DeleteStoreSproc.AddTypeMapping(principalBase_DeleteSprocMapping, false);
             deleteSprocMappings.Add(principalBase_DeleteSprocMapping);
             principalBaseTableMapping.DeleteStoredProcedureMapping = principalBase_DeleteSprocMapping;
@@ -463,7 +463,7 @@ namespace TestNamespace
             principalBase_InsertStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Insert", "TPC"), principalBase_InsertStoreSproc);
             var principalBase_InsertISproc = (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!;
-            var principalBase_InsertSprocMapping = new StoredProcedureMapping(principalBase, principalBase_InsertStoreSproc, (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!, principalBaseTableMapping, false);
+            var principalBase_InsertSprocMapping = new StoredProcedureMapping(principalBase, principalBase_InsertStoreSproc, principalBase_InsertISproc, principalBaseTableMapping, false);
             principalBase_InsertStoreSproc.AddTypeMapping(principalBase_InsertSprocMapping, false);
             insertSprocMappings.Add(principalBase_InsertSprocMapping);
             principalBaseTableMapping.InsertStoredProcedureMapping = principalBase_InsertSprocMapping;
@@ -552,7 +552,7 @@ namespace TestNamespace
             principalBase_UpdateStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Update", "TPC"), principalBase_UpdateStoreSproc);
             var principalBase_UpdateUSproc = (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!;
-            var principalBase_UpdateSprocMapping = new StoredProcedureMapping(principalBase, principalBase_UpdateStoreSproc, (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!, principalBaseTableMapping, false);
+            var principalBase_UpdateSprocMapping = new StoredProcedureMapping(principalBase, principalBase_UpdateStoreSproc, principalBase_UpdateUSproc, principalBaseTableMapping, false);
             principalBase_UpdateStoreSproc.AddTypeMapping(principalBase_UpdateSprocMapping, false);
             updateSprocMappings.Add(principalBase_UpdateSprocMapping);
             principalBaseTableMapping.UpdateStoredProcedureMapping = principalBase_UpdateSprocMapping;
@@ -728,27 +728,18 @@ namespace TestNamespace
             principalDerivedTable.Columns.Add("ValueTypeList", valueTypeListColumn0);
             var pK_PrincipalDerived = new UniqueConstraint("PK_PrincipalDerived", principalDerivedTable, new[] { idColumn1 });
             principalDerivedTable.PrimaryKey = pK_PrincipalDerived;
-            var pK_PrincipalDerivedUc = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "Id" });
-            pK_PrincipalDerived.MappedKeys.Add(pK_PrincipalDerivedUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalDerivedUc).Add(pK_PrincipalDerived);
+            pK_PrincipalDerived.MappedKeys.Add(pK_PrincipalBaseKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalDerived);
             principalDerivedTable.UniqueConstraints.Add("PK_PrincipalDerived", pK_PrincipalDerived);
             var iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId = new TableIndex(
             "IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, new[] { principalDerivedDependentBasebyteIdColumn0 }, false);
-            var iX_PrincipalDerived_PrincipalDerivedDependentBasebyteIdIx = RelationalModel.GetIndex(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "PrincipalDerivedId" });
-            iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteIdIx);
-            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
+            iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
             principalDerivedTable.Indexes.Add("IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
             var pIX0 = new TableIndex(
             "PIX", principalDerivedTable, new[] { principalBaseIdColumn0 }, true);
-            var pIX0Ix = RelationalModel.GetIndex(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                "PrincipalIndex");
-            pIX0.MappedIndexes.Add(pIX0Ix);
-            RelationalModel.GetOrCreateTableIndexes(pIX0Ix).Add(pIX0);
+            pIX0.MappedIndexes.Add(pIXIx);
+            RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX0);
             principalDerivedTable.Indexes.Add("PIX", pIX0);
             relationalModel.Tables.Add(("PrincipalDerived", "TPC"), principalDerivedTable);
             var principalDerivedTableMapping = new TableMapping(principalDerived, principalDerivedTable, null);
@@ -864,7 +855,7 @@ namespace TestNamespace
             derived_DeleteStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Delete", "TPC"), derived_DeleteStoreSproc);
             var derived_DeleteDSproc = (IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!;
-            var derived_DeleteSprocMapping = new StoredProcedureMapping(principalDerived, derived_DeleteStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!, principalDerivedTableMapping, null);
+            var derived_DeleteSprocMapping = new StoredProcedureMapping(principalDerived, derived_DeleteStoreSproc, derived_DeleteDSproc, principalDerivedTableMapping, null);
             derived_DeleteStoreSproc.AddTypeMapping(derived_DeleteSprocMapping, false);
             deleteSprocMappings0.Add(derived_DeleteSprocMapping);
             principalDerivedTableMapping.DeleteStoredProcedureMapping = derived_DeleteSprocMapping;
@@ -939,7 +930,7 @@ namespace TestNamespace
             derived_InsertStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Insert", "TPC"), derived_InsertStoreSproc);
             var derived_InsertISproc = (IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!;
-            var derived_InsertSprocMapping = new StoredProcedureMapping(principalDerived, derived_InsertStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!, principalDerivedTableMapping, null);
+            var derived_InsertSprocMapping = new StoredProcedureMapping(principalDerived, derived_InsertStoreSproc, derived_InsertISproc, principalDerivedTableMapping, null);
             derived_InsertStoreSproc.AddTypeMapping(derived_InsertSprocMapping, false);
             insertSprocMappings0.Add(derived_InsertSprocMapping);
             principalDerivedTableMapping.InsertStoredProcedureMapping = derived_InsertSprocMapping;
@@ -1028,7 +1019,7 @@ namespace TestNamespace
             derived_UpdateStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Update", "Derived"), derived_UpdateStoreSproc);
             var derived_UpdateUSproc = (IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!;
-            var derived_UpdateSprocMapping = new StoredProcedureMapping(principalDerived, derived_UpdateStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!, principalDerivedTableMapping, null);
+            var derived_UpdateSprocMapping = new StoredProcedureMapping(principalDerived, derived_UpdateStoreSproc, derived_UpdateUSproc, principalDerivedTableMapping, null);
             derived_UpdateStoreSproc.AddTypeMapping(derived_UpdateSprocMapping, false);
             updateSprocMappings0.Add(derived_UpdateSprocMapping);
             principalDerivedTableMapping.UpdateStoredProcedureMapping = derived_UpdateSprocMapping;
@@ -1077,13 +1068,8 @@ namespace TestNamespace
                 "FK_PrincipalDerived_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, principalDerivedTable,
                 new[] { principalDerivedDependentBasebyteIdColumn0 },
                 principalDerivedTable.FindUniqueConstraint("PK_PrincipalDerived")!, ReferentialAction.NoAction);
-            var fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk = RelationalModel.GetForeignKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "PrincipalDerivedId" },
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>",
-                new[] { "Id" });
-            fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedForeignKeys.Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk);
-            RelationalModel.GetOrCreateForeignKeyConstraints(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk).Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
+            fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedForeignKeys.Add(fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk);
+            RelationalModel.GetOrCreateForeignKeyConstraints(fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk).Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
             principalDerivedTable.ForeignKeyConstraints.Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
             principalDerivedTable.ReferencingForeignKeyConstraints.Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
             return relationalModel.MakeReadOnly();

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -20,7 +21,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace TestNamespace
 {
-    internal partial class DependentBaseEntityType
+    [EntityFrameworkInternal]
+    public partial class DependentBaseEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -135,17 +137,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.DependentBase<byte?>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             id.SetGetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => ReadId(entity),
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => !ReadId(entity).HasValue,
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => ReadId(instance),
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => !ReadId(instance).HasValue);
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity),
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity).HasValue,
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(instance),
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(instance).HasValue);
             id.SetSetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, Nullable<byte> value) => WriteId(entity, value));
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, Nullable<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, Nullable<byte> value) => WriteId(entity, value));
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, Nullable<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<byte>>(id, 3),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<byte>>(id),
                 (ValueBuffer valueBuffer) => valueBuffer[3]);
@@ -169,6 +171,7 @@ namespace TestNamespace
                     (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
                     (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id", "TestNamespace") });
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalId, principalAlternateId });
@@ -210,17 +213,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.DependentBase<byte?>).GetField("<Principal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             principal.SetGetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => DependentBaseEntityType.ReadPrincipal(entity),
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => DependentBaseEntityType.ReadPrincipal(entity) == null,
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => DependentBaseEntityType.ReadPrincipal(instance),
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => DependentBaseEntityType.ReadPrincipal(instance) == null);
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity),
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) == null,
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(instance),
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(instance) == null);
             principal.SetSetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => DependentBaseEntityType.WritePrincipal(entity, value));
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) = value);
             principal.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => DependentBaseEntityType.WritePrincipal(entity, value));
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) = value);
             principal.SetAccessors(
-                (InternalEntityEntry entry) => DependentBaseEntityType.ReadPrincipal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
-                (InternalEntityEntry entry) => DependentBaseEntityType.ReadPrincipal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>>(principal),
                 null);
@@ -240,17 +243,17 @@ namespace TestNamespace
                 lazyLoadingEnabled: false);
 
             dependent.SetGetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.ReadDependent(entity),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.ReadDependent(entity) == null,
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.ReadDependent(instance),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.ReadDependent(instance) == null);
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(entity),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(entity) == null,
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(instance),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(instance) == null);
             dependent.SetSetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, CompiledModelTestBase.DependentBase<Nullable<byte>> value) => PrincipalDerivedEntityType.WriteDependent(entity, value));
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, CompiledModelTestBase.DependentBase<Nullable<byte>> value) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(entity) = value);
             dependent.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, CompiledModelTestBase.DependentBase<Nullable<byte>> value) => PrincipalDerivedEntityType.WriteDependent(entity, value));
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, CompiledModelTestBase.DependentBase<Nullable<byte>> value) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(entity) = value);
             dependent.SetAccessors(
-                (InternalEntityEntry entry) => PrincipalDerivedEntityType.ReadDependent((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
-                (InternalEntityEntry entry) => PrincipalDerivedEntityType.ReadDependent((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.DependentBase<Nullable<byte>>>(dependent),
                 null);
@@ -288,7 +291,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentBase<Nullable<byte>>)source.Entity;
-                    return (ISnapshot)new Snapshot<long, Guid, object>(((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)principalAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), ReadPrincipal(entity));
+                    return (ISnapshot)new Snapshot<long, Guid, object>(((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)principalAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 4,
@@ -313,21 +316,9 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref byte? GetId(CompiledModelTestBase.DependentBase<byte?> @this);
-
-        public static byte? ReadId(CompiledModelTestBase.DependentBase<byte?> @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelTestBase.DependentBase<byte?> @this, byte? value)
-            => GetId(@this) = value;
+        public static extern ref byte? UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(CompiledModelTestBase.DependentBase<byte?> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Principal>k__BackingField")]
-        extern static ref CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> GetPrincipal(CompiledModelTestBase.DependentBase<byte?> @this);
-
-        public static CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> ReadPrincipal(CompiledModelTestBase.DependentBase<byte?> @this)
-            => GetPrincipal(@this);
-
-        public static void WritePrincipal(CompiledModelTestBase.DependentBase<byte?> @this, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> value)
-            => GetPrincipal(@this) = value;
+        public static extern ref CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(CompiledModelTestBase.DependentBase<byte?> @this);
     }
 }

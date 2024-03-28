@@ -62,6 +62,19 @@ public interface ICSharpHelper
     string Identifier(string name, ICollection<string>? scope = null, bool? capitalize = null);
 
     /// <summary>
+    ///     Generates a valid C# identifier from the specified string unique to the scope.
+    /// </summary>
+    /// <param name="name">The base identifier name.</param>
+    /// <param name="value">The value that will be associated with the identifier.</param>
+    /// <param name="scope">A list of in-scope identifiers.</param>
+    /// <param name="capitalize">
+    ///     <see langword="true" /> if the first letter should be converted to uppercase;
+    ///     <see langword="false" /> if the first letter should be converted to lowercase;
+    /// </param>
+    /// <returns>The identifier.</returns>
+    string Identifier<T>(string name, T value, IDictionary<string, T> scope, bool? capitalize = null);
+
+    /// <summary>
     ///     Generates a property accessor lambda.
     /// </summary>
     /// <param name="properties">The property names.</param>
@@ -351,7 +364,7 @@ public interface ICSharpHelper
     string Statement(Expression node,
         ISet<string> collectedNamespaces,
         IReadOnlyDictionary<object, string>? constantReplacements = null,
-        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements = null);
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null);
 
     /// <summary>
     ///     Translates a node representing an expression into source code that would produce it.
@@ -371,5 +384,5 @@ public interface ICSharpHelper
     string Expression(Expression node,
         ISet<string> collectedNamespaces,
         IReadOnlyDictionary<object, string>? constantReplacements = null,
-        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements = null);
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null);
 }

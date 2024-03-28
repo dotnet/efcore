@@ -62,11 +62,11 @@ namespace TestNamespace
             dataTable.Columns.Add("Blob", blobColumn);
             var pK_Data = new UniqueConstraint("PK_Data", dataTable, new[] { idColumn });
             dataTable.PrimaryKey = pK_Data;
-            var pK_DataUc = RelationalModel.GetKey(this,
+            var pK_DataKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
                 new[] { "Id" });
-            pK_Data.MappedKeys.Add(pK_DataUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DataUc).Add(pK_Data);
+            pK_Data.MappedKeys.Add(pK_DataKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_DataKey).Add(pK_Data);
             dataTable.UniqueConstraints.Add("PK_Data", pK_Data);
             dataTable.Triggers.Add("Trigger1", data.FindDeclaredTrigger("Trigger1"));
             dataTable.Triggers.Add("Trigger2", data.FindDeclaredTrigger("Trigger2"));

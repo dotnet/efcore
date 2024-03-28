@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -16,7 +17,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace TestNamespace
 {
-    internal partial class PrincipalDerivedEntityType
+    [EntityFrameworkInternal]
+    public partial class PrincipalDerivedEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -68,17 +70,17 @@ namespace TestNamespace
             }
 
             skipNavigation.SetGetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => ReadPrincipals(entity),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => ReadPrincipals(entity) == null,
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => ReadPrincipals(instance),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => ReadPrincipals(instance) == null);
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity) == null,
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(instance),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(instance) == null);
             skipNavigation.SetSetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => WritePrincipals(entity, value));
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity) = value);
             skipNavigation.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => WritePrincipals(entity, value));
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity) = value);
             skipNavigation.SetAccessors(
-                (InternalEntityEntry entry) => ReadPrincipals((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
-                (InternalEntityEntry entry) => ReadPrincipals((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(skipNavigation),
                 null);
@@ -89,11 +91,12 @@ namespace TestNamespace
                 relationshipIndex: 6,
                 storeGenerationIndex: -1);
             skipNavigation.SetCollectionAccessor<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => ReadPrincipals(entity),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => WritePrincipals(entity, (ICollection<CompiledModelTestBase.PrincipalBase>)collection),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => WritePrincipals(entity, (ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
                 (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, Action<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
                 () => (ICollection<CompiledModelTestBase.PrincipalBase>)(ICollection<CompiledModelTestBase.PrincipalBase>)new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance));
+            skipNavigation.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals", "TestNamespace") });
             return skipNavigation;
         }
 
@@ -134,7 +137,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, Guid, object, object, object, object, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<Guid>)alternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(alternateId)), PrincipalBaseEntityType.ReadOwned(entity), null, ReadDependent(entity), SnapshotFactoryFactory.SnapshotCollection(ReadManyOwned(entity)), null);
+                    return (ISnapshot)new Snapshot<Nullable<long>, Guid, object, object, object, object, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<Guid>)alternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(alternateId)), PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(entity), null, UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(entity), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity)), null);
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 14,
@@ -157,30 +160,12 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Principals>k__BackingField")]
-        extern static ref ICollection<CompiledModelTestBase.PrincipalBase> GetPrincipals(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
-
-        public static ICollection<CompiledModelTestBase.PrincipalBase> ReadPrincipals(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this)
-            => GetPrincipals(@this);
-
-        public static void WritePrincipals(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this, ICollection<CompiledModelTestBase.PrincipalBase> value)
-            => GetPrincipals(@this) = value;
+        public static extern ref ICollection<CompiledModelTestBase.PrincipalBase> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Dependent>k__BackingField")]
-        extern static ref CompiledModelTestBase.DependentBase<byte?> GetDependent(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
-
-        public static CompiledModelTestBase.DependentBase<byte?> ReadDependent(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this)
-            => GetDependent(@this);
-
-        public static void WriteDependent(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this, CompiledModelTestBase.DependentBase<byte?> value)
-            => GetDependent(@this) = value;
+        public static extern ref CompiledModelTestBase.DependentBase<byte?> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "ManyOwned")]
-        extern static ref ICollection<CompiledModelTestBase.OwnedType> GetManyOwned(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
-
-        public static ICollection<CompiledModelTestBase.OwnedType> ReadManyOwned(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this)
-            => GetManyOwned(@this);
-
-        public static void WriteManyOwned(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this, ICollection<CompiledModelTestBase.OwnedType> value)
-            => GetManyOwned(@this) = value;
+        public static extern ref ICollection<CompiledModelTestBase.OwnedType> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
     }
 }

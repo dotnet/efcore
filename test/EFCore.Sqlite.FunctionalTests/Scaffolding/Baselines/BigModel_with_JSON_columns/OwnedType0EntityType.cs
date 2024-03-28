@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -21,7 +22,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace TestNamespace
 {
-    internal partial class OwnedType0EntityType
+    [EntityFrameworkInternal]
+    public partial class OwnedType0EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -113,17 +115,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             details.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadDetails(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadDetails(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadDetails(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadDetails(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(instance) == null);
             details.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, string value) => WriteDetails(entity, value));
+                (CompiledModelTestBase.OwnedType entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(entity) = value);
             details.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, string value) => WriteDetails(entity, value));
+                (CompiledModelTestBase.OwnedType entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(entity) = value);
             details.SetAccessors(
-                (InternalEntityEntry entry) => ReadDetails((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadDetails((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(details, 3),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(details),
                 (ValueBuffer valueBuffer) => valueBuffer[3]);
@@ -134,6 +136,7 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             details.TypeMapping = SqliteStringTypeMapping.Default;
+            details.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details", "TestNamespace") });
 
             var number = runtimeEntityType.AddProperty(
                 "Number",
@@ -142,17 +145,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             number.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadNumber(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadNumber(entity) == 0,
-                (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance) == 0);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(entity) == 0,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(instance) == 0);
             number.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, int value) => WriteNumber(entity, value));
+                (CompiledModelTestBase.OwnedType entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(entity) = value);
             number.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, int value) => WriteNumber(entity, value));
+                (CompiledModelTestBase.OwnedType entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(entity) = value);
             number.SetAccessors(
-                (InternalEntityEntry entry) => ReadNumber((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadNumber((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(number, 4),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<int>(number),
                 (ValueBuffer valueBuffer) => valueBuffer[4]);
@@ -177,6 +180,7 @@ namespace TestNamespace
                     (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            number.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number", "TestNamespace") });
 
             var refTypeArray = runtimeEntityType.AddProperty(
                 "RefTypeArray",
@@ -185,17 +189,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeArray.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeArray(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeArray(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(instance) == null);
             refTypeArray.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(entity) = value);
             refTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(entity) = value);
             refTypeArray.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 5),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
                 (ValueBuffer valueBuffer) => valueBuffer[5]);
@@ -253,6 +257,7 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             (IPAddress v) => v.ToString(),
                             (string v) => IPAddress.Parse(v)))));
+            refTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray", "TestNamespace") });
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -261,17 +266,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeEnumerable.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeEnumerable(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeEnumerable(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(instance) == null);
             refTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(entity) = value);
             refTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(entity) = value);
             refTypeEnumerable.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 6),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
                 (ValueBuffer valueBuffer) => valueBuffer[6]);
@@ -299,6 +304,7 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            refTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable", "TestNamespace") });
 
             var refTypeIList = runtimeEntityType.AddProperty(
                 "RefTypeIList",
@@ -307,17 +313,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeIList.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeIList(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeIList(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(instance) == null);
             refTypeIList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<string> value) => WriteRefTypeIList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IList<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(entity) = value);
             refTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<string> value) => WriteRefTypeIList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IList<string> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(entity) = value);
             refTypeIList.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 7),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
                 (ValueBuffer valueBuffer) => valueBuffer[7]);
@@ -345,6 +351,7 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
+            refTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList", "TestNamespace") });
 
             var refTypeList = runtimeEntityType.AddProperty(
                 "RefTypeList",
@@ -353,17 +360,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             refTypeList.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeList(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeList(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(instance) == null);
             refTypeList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(entity) = value);
             refTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(entity) = value);
             refTypeList.SetAccessors(
-                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 8),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
                 (ValueBuffer valueBuffer) => valueBuffer[8]);
@@ -421,6 +428,7 @@ namespace TestNamespace
                         new ValueConverter<IPAddress, string>(
                             (IPAddress v) => v.ToString(),
                             (string v) => IPAddress.Parse(v)))));
+            refTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList", "TestNamespace") });
 
             var valueTypeArray = runtimeEntityType.AddProperty(
                 "ValueTypeArray",
@@ -429,17 +437,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeArray.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeArray(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeArray(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(instance) == null);
             valueTypeArray.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(entity) = value);
             valueTypeArray.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(entity) = value);
             valueTypeArray.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 9),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
                 (ValueBuffer valueBuffer) => valueBuffer[9]);
@@ -467,6 +475,7 @@ namespace TestNamespace
                 jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance),
                 elementMapping: SqliteDateTimeTypeMapping.Default);
+            valueTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray", "TestNamespace") });
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
                 "ValueTypeEnumerable",
@@ -475,17 +484,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeEnumerable.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeEnumerable(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeEnumerable(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(instance) == null);
             valueTypeEnumerable.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(entity) = value);
             valueTypeEnumerable.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 10),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
                 (ValueBuffer valueBuffer) => valueBuffer[10]);
@@ -527,6 +536,7 @@ namespace TestNamespace
                         (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            valueTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable", "TestNamespace") });
 
             var valueTypeIList = runtimeEntityType.AddProperty(
                 "ValueTypeIList",
@@ -535,17 +545,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeIList.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeIList(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeIList(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(instance) == null);
             valueTypeIList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(entity) = value);
             valueTypeIList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(entity) = value);
             valueTypeIList.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 11),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
                 (ValueBuffer valueBuffer) => valueBuffer[11]);
@@ -587,6 +597,7 @@ namespace TestNamespace
                         (byte v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            valueTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList", "TestNamespace") });
 
             var valueTypeList = runtimeEntityType.AddProperty(
                 "ValueTypeList",
@@ -595,17 +606,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             valueTypeList.SetGetter(
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeList(entity),
-                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeList(entity) == null,
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance),
-                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance) == null);
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(entity),
+                (CompiledModelTestBase.OwnedType entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(instance),
+                (CompiledModelTestBase.OwnedType instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(instance) == null);
             valueTypeList.SetSetter(
-                (CompiledModelTestBase.OwnedType entity, List<short> value) => WriteValueTypeList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, List<short> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(entity) = value);
             valueTypeList.SetMaterializationSetter(
-                (CompiledModelTestBase.OwnedType entity, List<short> value) => WriteValueTypeList(entity, value));
+                (CompiledModelTestBase.OwnedType entity, List<short> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(entity) = value);
             valueTypeList.SetAccessors(
-                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
-                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 12),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
                 (ValueBuffer valueBuffer) => valueBuffer[12]);
@@ -647,11 +658,18 @@ namespace TestNamespace
                         (short v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "INTEGER")));
+            valueTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList", "TestNamespace") });
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
                 propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 serviceType: typeof(DbContext));
+            context.SetPropertyIndexes(
+                index: -1,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalDerivedId, principalDerivedAlternateId, id });
@@ -677,17 +695,17 @@ namespace TestNamespace
                 eagerLoaded: true);
 
             manyOwned.SetGetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.ReadManyOwned(entity),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.ReadManyOwned(entity) == null,
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.ReadManyOwned(instance),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.ReadManyOwned(instance) == null);
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity) == null,
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(instance),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> instance) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(instance) == null);
             manyOwned.SetSetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> value) => PrincipalDerivedEntityType.WriteManyOwned(entity, value));
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> value) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity) = value);
             manyOwned.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> value) => PrincipalDerivedEntityType.WriteManyOwned(entity, value));
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> value) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity) = value);
             manyOwned.SetAccessors(
-                (InternalEntityEntry entry) => PrincipalDerivedEntityType.ReadManyOwned((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
-                (InternalEntityEntry entry) => PrincipalDerivedEntityType.ReadManyOwned((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned((CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<ICollection<CompiledModelTestBase.OwnedType>>(manyOwned),
                 null);
@@ -698,9 +716,9 @@ namespace TestNamespace
                 relationshipIndex: 5,
                 storeGenerationIndex: -1);
             manyOwned.SetCollectionAccessor<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>, ICollection<CompiledModelTestBase.OwnedType>, CompiledModelTestBase.OwnedType>(
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.ReadManyOwned(entity),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> collection) => PrincipalDerivedEntityType.WriteManyOwned(entity, (ICollection<CompiledModelTestBase.OwnedType>)collection),
-                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> collection) => PrincipalDerivedEntityType.WriteManyOwned(entity, (ICollection<CompiledModelTestBase.OwnedType>)collection),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity),
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> collection) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity) = (ICollection<CompiledModelTestBase.OwnedType>)collection,
+                (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, ICollection<CompiledModelTestBase.OwnedType> collection) => PrincipalDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(entity) = (ICollection<CompiledModelTestBase.OwnedType>)collection,
                 (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> entity, Action<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>, ICollection<CompiledModelTestBase.OwnedType>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>, ICollection<CompiledModelTestBase.OwnedType>, CompiledModelTestBase.OwnedType>(entity, setter),
                 () => (ICollection<CompiledModelTestBase.OwnedType>)(ICollection<CompiledModelTestBase.OwnedType>)new HashSet<CompiledModelTestBase.OwnedType>(ReferenceEqualityComparer.Instance));
             return runtimeForeignKey;
@@ -763,93 +781,33 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_details")]
-        extern static ref string GetDetails(CompiledModelTestBase.OwnedType @this);
-
-        public static string ReadDetails(CompiledModelTestBase.OwnedType @this)
-            => GetDetails(@this);
-
-        public static void WriteDetails(CompiledModelTestBase.OwnedType @this, string value)
-            => GetDetails(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Number>k__BackingField")]
-        extern static ref int GetNumber(CompiledModelTestBase.OwnedType @this);
-
-        public static int ReadNumber(CompiledModelTestBase.OwnedType @this)
-            => GetNumber(@this);
-
-        public static void WriteNumber(CompiledModelTestBase.OwnedType @this, int value)
-            => GetNumber(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeArray")]
-        extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.OwnedType @this);
-
-        public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeArray(@this);
-
-        public static void WriteRefTypeArray(CompiledModelTestBase.OwnedType @this, IPAddress[] value)
-            => GetRefTypeArray(@this) = value;
+        public static extern ref IPAddress[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeEnumerable")]
-        extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.OwnedType @this);
-
-        public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeEnumerable(@this);
-
-        public static void WriteRefTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<string> value)
-            => GetRefTypeEnumerable(@this) = value;
+        public static extern ref IEnumerable<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeIList")]
-        extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.OwnedType @this);
-
-        public static IList<string> ReadRefTypeIList(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeIList(@this);
-
-        public static void WriteRefTypeIList(CompiledModelTestBase.OwnedType @this, IList<string> value)
-            => GetRefTypeIList(@this) = value;
+        public static extern ref IList<string> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeList")]
-        extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.OwnedType @this);
-
-        public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.OwnedType @this)
-            => GetRefTypeList(@this);
-
-        public static void WriteRefTypeList(CompiledModelTestBase.OwnedType @this, List<IPAddress> value)
-            => GetRefTypeList(@this) = value;
+        public static extern ref List<IPAddress> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeArray")]
-        extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.OwnedType @this);
-
-        public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeArray(@this);
-
-        public static void WriteValueTypeArray(CompiledModelTestBase.OwnedType @this, DateTime[] value)
-            => GetValueTypeArray(@this) = value;
+        public static extern ref DateTime[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeEnumerable")]
-        extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.OwnedType @this);
-
-        public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeEnumerable(@this);
-
-        public static void WriteValueTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<byte> value)
-            => GetValueTypeEnumerable(@this) = value;
+        public static extern ref IEnumerable<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
-        extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.OwnedType @this);
-
-        public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeIList(@this);
-
-        public static void WriteValueTypeIList(CompiledModelTestBase.OwnedType @this, IList<byte> value)
-            => GetValueTypeIList(@this) = value;
+        public static extern ref IList<byte> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList(CompiledModelTestBase.OwnedType @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeList")]
-        extern static ref List<short> GetValueTypeList(CompiledModelTestBase.OwnedType @this);
-
-        public static List<short> ReadValueTypeList(CompiledModelTestBase.OwnedType @this)
-            => GetValueTypeList(@this);
-
-        public static void WriteValueTypeList(CompiledModelTestBase.OwnedType @this, List<short> value)
-            => GetValueTypeList(@this) = value;
+        public static extern ref List<short> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList(CompiledModelTestBase.OwnedType @this);
     }
 }

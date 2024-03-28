@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -17,7 +18,8 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Scaffolding
 {
-    internal partial class IndexEntityType
+    [EntityFrameworkInternal]
+    public partial class IndexEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -37,17 +39,17 @@ namespace Scaffolding
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetGetter(
-                (CompiledModelInMemoryTest.Index entity) => ReadId(entity),
-                (CompiledModelInMemoryTest.Index entity) => ReadId(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
-                (CompiledModelInMemoryTest.Index instance) => ReadId(instance),
-                (CompiledModelInMemoryTest.Index instance) => ReadId(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
+                (CompiledModelInMemoryTest.Index entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(entity),
+                (CompiledModelInMemoryTest.Index entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
+                (CompiledModelInMemoryTest.Index instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(instance),
+                (CompiledModelInMemoryTest.Index instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
             id.SetSetter(
-                (CompiledModelInMemoryTest.Index entity, Guid value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.Index entity, Guid value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.Index entity, Guid value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.Index entity, Guid value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : entry.FlaggedAsTemporary(0) && ReadId((CompiledModelInMemoryTest.Index)entry.Entity) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : ReadId((CompiledModelInMemoryTest.Index)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelInMemoryTest.Index)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Guid>(0) : entry.FlaggedAsTemporary(0) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id((CompiledModelInMemoryTest.Index)entry.Entity) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id((CompiledModelInMemoryTest.Index)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id((CompiledModelInMemoryTest.Index)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Guid>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -73,6 +75,7 @@ namespace Scaffolding
                 clrType: typeof(Guid),
                 jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(id));
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IndexEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id", "Scaffolding") });
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -119,12 +122,6 @@ namespace Scaffolding
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref Guid GetId(CompiledModelInMemoryTest.Index @this);
-
-        public static Guid ReadId(CompiledModelInMemoryTest.Index @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelInMemoryTest.Index @this, Guid value)
-            => GetId(@this) = value;
+        public static extern ref Guid UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Index_Id(CompiledModelInMemoryTest.Index @this);
     }
 }

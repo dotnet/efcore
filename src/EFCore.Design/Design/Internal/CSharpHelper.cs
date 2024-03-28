@@ -235,6 +235,50 @@ public class CSharpHelper : ICSharpHelper
     /// </summary>
     public virtual string Identifier(string name, ICollection<string>? scope = null, bool? capitalize = null)
     {
+        var identifier = Identifier(name, capitalize);
+        if (scope == null)
+        {
+            return Keywords.Contains(identifier) ? "@" + identifier : identifier;
+        }
+
+        var uniqueIdentifier = Keywords.Contains(identifier) ? "@" + identifier : identifier;
+        var qualifier = 0;
+        while (scope.Contains(uniqueIdentifier))
+        {
+            uniqueIdentifier = identifier + qualifier++;
+        }
+
+        scope.Add(uniqueIdentifier);
+        identifier = uniqueIdentifier;
+
+        return identifier;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public string Identifier<T>(string name, T value, IDictionary<string, T> scope, bool? capitalize = null)
+    {
+        var identifier = Identifier(name, capitalize);
+
+        var uniqueIdentifier = Keywords.Contains(identifier) ? "@" + identifier : identifier;
+        var qualifier = 0;
+        while (scope.ContainsKey(uniqueIdentifier))
+        {
+            uniqueIdentifier = identifier + qualifier++;
+        }
+
+        scope.Add(uniqueIdentifier, value);
+        identifier = uniqueIdentifier;
+
+        return identifier;
+    }
+
+    private static string Identifier(string name, bool? capitalize)
+    {
         var builder = new StringBuilder();
         var partStart = 0;
 
@@ -268,20 +312,7 @@ public class CSharpHelper : ICSharpHelper
         }
 
         var identifier = builder.ToString();
-        if (scope != null)
-        {
-            var uniqueIdentifier = identifier;
-            var qualifier = 0;
-            while (scope.Contains(uniqueIdentifier))
-            {
-                uniqueIdentifier = identifier + qualifier++;
-            }
-
-            scope.Add(uniqueIdentifier);
-            identifier = uniqueIdentifier;
-        }
-
-        return Keywords.Contains(identifier) ? "@" + identifier : identifier;
+        return identifier;
     }
 
     private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
@@ -1557,36 +1588,12 @@ public class CSharpHelper : ICSharpHelper
         Expression node,
         ISet<string> collectedNamespaces,
         IReadOnlyDictionary<object, string>? constantReplacements,
-        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements)
-    {
-        Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
-        if (constantReplacements != null)
-        {
-            constantReplacementExpressions = [];
-
-            foreach (var instancePair in constantReplacements)
-            {
-                constantReplacementExpressions[instancePair.Key] = SyntaxFactory.IdentifierName(instancePair.Value);
-            }
-        }
-
-        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacementExpressions = null;
-        if (memberAccessReplacements != null)
-        {
-            memberAccessReplacementExpressions = [];
-
-            foreach (var methodPair in memberAccessReplacements)
-            {
-                memberAccessReplacementExpressions[methodPair.Key] = SyntaxFactory.IdentifierName(methodPair.Value);
-            }
-        }
-
-        return ToSourceCode(_translator.TranslateStatement(
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
+        => ToSourceCode(_translator.TranslateStatement(
             node,
-            constantReplacementExpressions,
-            memberAccessReplacementExpressions,
+            constantReplacements,
+            memberAccessReplacements,
             collectedNamespaces));
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1598,36 +1605,12 @@ public class CSharpHelper : ICSharpHelper
         Expression node,
         ISet<string> collectedNamespaces,
         IReadOnlyDictionary<object, string>? constantReplacements,
-        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements)
-    {
-        Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
-        if (constantReplacements != null)
-        {
-            constantReplacementExpressions = [];
-
-            foreach (var instancePair in constantReplacements)
-            {
-                constantReplacementExpressions[instancePair.Key] = SyntaxFactory.IdentifierName(instancePair.Value);
-            }
-        }
-
-        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacementExpressions = null;
-        if (memberAccessReplacements != null)
-        {
-            memberAccessReplacementExpressions = [];
-
-            foreach (var methodPair in memberAccessReplacements)
-            {
-                memberAccessReplacementExpressions[methodPair.Key] = SyntaxFactory.IdentifierName(methodPair.Value);
-            }
-        }
-
-        return ToSourceCode(_translator.TranslateExpression(
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
+        => ToSourceCode(_translator.TranslateExpression(
             node,
-            constantReplacementExpressions,
-            memberAccessReplacementExpressions,
+            constantReplacements,
+            memberAccessReplacements,
             collectedNamespaces));
-    }
 
     private static bool IsIdentifierStartCharacter(char ch)
     {

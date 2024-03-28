@@ -20,7 +20,8 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace TestNamespace
 {
-    internal partial class LazyProxiesEntity1EntityType
+    [EntityFrameworkInternal]
+    public partial class LazyProxiesEntity1EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -44,17 +45,17 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => ReadId(entity),
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => ReadId(entity) == 0,
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => ReadId(instance),
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => ReadId(instance) == 0);
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(entity),
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(entity) == 0,
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(instance),
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, int value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, int value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && ReadId((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(0) : ReadId((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -80,6 +81,7 @@ namespace TestNamespace
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id", "TestNamespace") });
 
             var referenceNavigationId = runtimeEntityType.AddProperty(
                 "ReferenceNavigationId",
@@ -112,6 +114,12 @@ namespace TestNamespace
                 "LazyLoader",
                 propertyInfo: typeof(IProxyLazyLoader).GetProperty("LazyLoader", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 serviceType: typeof(ILazyLoader));
+            lazyLoader.SetPropertyIndexes(
+                index: -1,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -138,17 +146,17 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field);
 
             referenceNavigation.SetGetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => LazyProxiesEntity1EntityType.ReadReferenceNavigation(entity),
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => LazyProxiesEntity1EntityType.ReadReferenceNavigation(entity) == null,
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => LazyProxiesEntity1EntityType.ReadReferenceNavigation(instance),
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => LazyProxiesEntity1EntityType.ReadReferenceNavigation(instance) == null);
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity),
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) == null,
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(instance),
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(instance) == null);
             referenceNavigation.SetSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => LazyProxiesEntity1EntityType.WriteReferenceNavigation(entity, value));
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) = value);
             referenceNavigation.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => LazyProxiesEntity1EntityType.WriteReferenceNavigation(entity, value));
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) = value);
             referenceNavigation.SetAccessors(
-                (InternalEntityEntry entry) => LazyProxiesEntity1EntityType.ReadReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
-                (InternalEntityEntry entry) => LazyProxiesEntity1EntityType.ReadReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
+                (InternalEntityEntry entry) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
+                (InternalEntityEntry entry) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.LazyProxiesEntity2>(referenceNavigation),
                 null);
@@ -167,17 +175,17 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field);
 
             collectionNavigation.SetGetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2EntityType.ReadCollectionNavigation(entity),
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2EntityType.ReadCollectionNavigation(entity) == null,
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 instance) => LazyProxiesEntity2EntityType.ReadCollectionNavigation(instance),
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 instance) => LazyProxiesEntity2EntityType.ReadCollectionNavigation(instance) == null);
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity),
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity) == null,
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 instance) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(instance),
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 instance) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(instance) == null);
             collectionNavigation.SetSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> value) => LazyProxiesEntity2EntityType.WriteCollectionNavigation(entity, value));
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> value) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity) = value);
             collectionNavigation.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> value) => LazyProxiesEntity2EntityType.WriteCollectionNavigation(entity, value));
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> value) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity) = value);
             collectionNavigation.SetAccessors(
-                (InternalEntityEntry entry) => LazyProxiesEntity2EntityType.ReadCollectionNavigation((CompiledModelInMemoryTest.LazyProxiesEntity2)entry.Entity),
-                (InternalEntityEntry entry) => LazyProxiesEntity2EntityType.ReadCollectionNavigation((CompiledModelInMemoryTest.LazyProxiesEntity2)entry.Entity),
+                (InternalEntityEntry entry) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation((CompiledModelInMemoryTest.LazyProxiesEntity2)entry.Entity),
+                (InternalEntityEntry entry) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation((CompiledModelInMemoryTest.LazyProxiesEntity2)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>>(collectionNavigation),
                 null);
@@ -188,9 +196,9 @@ namespace TestNamespace
                 relationshipIndex: 1,
                 storeGenerationIndex: -1);
             collectionNavigation.SetCollectionAccessor<CompiledModelInMemoryTest.LazyProxiesEntity2, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>, CompiledModelInMemoryTest.LazyProxiesEntity1>(
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2EntityType.ReadCollectionNavigation(entity),
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2EntityType.WriteCollectionNavigation(entity, (ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)collection),
-                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2EntityType.WriteCollectionNavigation(entity, (ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)collection),
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity),
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity) = (ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)collection,
+                (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1> collection) => LazyProxiesEntity2EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity) = (ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)collection,
                 (CompiledModelInMemoryTest.LazyProxiesEntity2 entity, Action<CompiledModelInMemoryTest.LazyProxiesEntity2, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelInMemoryTest.LazyProxiesEntity2, ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>, CompiledModelInMemoryTest.LazyProxiesEntity1>(entity, setter),
                 () => (ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)(ICollection<CompiledModelInMemoryTest.LazyProxiesEntity1>)new HashSet<CompiledModelInMemoryTest.LazyProxiesEntity1>(ReferenceEqualityComparer.Instance));
             return runtimeForeignKey;
@@ -219,7 +227,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity1)source.Entity;
-                    return (ISnapshot)new Snapshot<int, Nullable<int>, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Nullable<int>>(referenceNavigationId) == null ? null : ((ValueComparer<Nullable<int>>)referenceNavigationId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(referenceNavigationId)), ReadReferenceNavigation(entity));
+                    return (ISnapshot)new Snapshot<int, Nullable<int>, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Nullable<int>>(referenceNavigationId) == null ? null : ((ValueComparer<Nullable<int>>)referenceNavigationId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(referenceNavigationId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,
@@ -236,21 +244,9 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref int GetId(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
-
-        public static int ReadId(CompiledModelInMemoryTest.LazyProxiesEntity1 @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelInMemoryTest.LazyProxiesEntity1 @this, int value)
-            => GetId(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_Id(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ReferenceNavigation>k__BackingField")]
-        extern static ref CompiledModelInMemoryTest.LazyProxiesEntity2 GetReferenceNavigation(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
-
-        public static CompiledModelInMemoryTest.LazyProxiesEntity2 ReadReferenceNavigation(CompiledModelInMemoryTest.LazyProxiesEntity1 @this)
-            => GetReferenceNavigation(@this);
-
-        public static void WriteReferenceNavigation(CompiledModelInMemoryTest.LazyProxiesEntity1 @this, CompiledModelInMemoryTest.LazyProxiesEntity2 value)
-            => GetReferenceNavigation(@this) = value;
+        public static extern ref CompiledModelInMemoryTest.LazyProxiesEntity2 UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(CompiledModelInMemoryTest.LazyProxiesEntity1 @this);
     }
 }

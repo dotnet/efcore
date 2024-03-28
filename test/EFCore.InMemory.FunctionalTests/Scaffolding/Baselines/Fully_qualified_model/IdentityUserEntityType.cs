@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,7 +19,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Scaffolding
 {
-    internal partial class IdentityUserEntityType
+    [EntityFrameworkInternal]
+    public partial class IdentityUserEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -39,17 +41,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
             id.SetGetter(
-                (IdentityUser entity) => ReadId(entity),
-                (IdentityUser entity) => ReadId(entity) == null,
-                (IdentityUser instance) => ReadId(instance),
-                (IdentityUser instance) => ReadId(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(instance) == null);
             id.SetSetter(
-                (IdentityUser entity, string value) => WriteId(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(entity) = value);
             id.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteId(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => ReadId((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -75,6 +77,7 @@ namespace Scaffolding
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(id));
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id", "Scaffolding") });
 
             var accessFailedCount = runtimeEntityType.AddProperty(
                 "AccessFailedCount",
@@ -83,17 +86,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<AccessFailedCount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             accessFailedCount.SetGetter(
-                (IdentityUser entity) => ReadAccessFailedCount(entity),
-                (IdentityUser entity) => ReadAccessFailedCount(entity) == 0,
-                (IdentityUser instance) => ReadAccessFailedCount(instance),
-                (IdentityUser instance) => ReadAccessFailedCount(instance) == 0);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(entity) == 0,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(instance) == 0);
             accessFailedCount.SetSetter(
-                (IdentityUser entity, int value) => WriteAccessFailedCount(entity, value));
+                (IdentityUser entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(entity) = value);
             accessFailedCount.SetMaterializationSetter(
-                (IdentityUser entity, int value) => WriteAccessFailedCount(entity, value));
+                (IdentityUser entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(entity) = value);
             accessFailedCount.SetAccessors(
-                (InternalEntityEntry entry) => ReadAccessFailedCount((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadAccessFailedCount((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(accessFailedCount, 1),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<int>(accessFailedCount),
                 (ValueBuffer valueBuffer) => valueBuffer[1]);
@@ -118,6 +121,7 @@ namespace Scaffolding
                     (int v) => v),
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+            accessFailedCount.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount", "Scaffolding") });
 
             var concurrencyStamp = runtimeEntityType.AddProperty(
                 "ConcurrencyStamp",
@@ -126,17 +130,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<ConcurrencyStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             concurrencyStamp.SetGetter(
-                (IdentityUser entity) => ReadConcurrencyStamp(entity),
-                (IdentityUser entity) => ReadConcurrencyStamp(entity) == null,
-                (IdentityUser instance) => ReadConcurrencyStamp(instance),
-                (IdentityUser instance) => ReadConcurrencyStamp(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(instance) == null);
             concurrencyStamp.SetSetter(
-                (IdentityUser entity, string value) => WriteConcurrencyStamp(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(entity) = value);
             concurrencyStamp.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteConcurrencyStamp(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(entity) = value);
             concurrencyStamp.SetAccessors(
-                (InternalEntityEntry entry) => ReadConcurrencyStamp((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadConcurrencyStamp((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(concurrencyStamp, 2),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(concurrencyStamp),
                 (ValueBuffer valueBuffer) => valueBuffer[2]);
@@ -161,6 +165,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            concurrencyStamp.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp", "Scaffolding") });
 
             var discriminator = runtimeEntityType.AddProperty(
                 "Discriminator",
@@ -196,17 +201,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<Email>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             email.SetGetter(
-                (IdentityUser entity) => ReadEmail(entity),
-                (IdentityUser entity) => ReadEmail(entity) == null,
-                (IdentityUser instance) => ReadEmail(instance),
-                (IdentityUser instance) => ReadEmail(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(instance) == null);
             email.SetSetter(
-                (IdentityUser entity, string value) => WriteEmail(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(entity) = value);
             email.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteEmail(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(entity) = value);
             email.SetAccessors(
-                (InternalEntityEntry entry) => ReadEmail((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadEmail((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(email, 4),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(email),
                 (ValueBuffer valueBuffer) => valueBuffer[4]);
@@ -231,6 +236,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            email.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email", "Scaffolding") });
 
             var emailConfirmed = runtimeEntityType.AddProperty(
                 "EmailConfirmed",
@@ -239,17 +245,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<EmailConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             emailConfirmed.SetGetter(
-                (IdentityUser entity) => ReadEmailConfirmed(entity),
-                (IdentityUser entity) => ReadEmailConfirmed(entity) == false,
-                (IdentityUser instance) => ReadEmailConfirmed(instance),
-                (IdentityUser instance) => ReadEmailConfirmed(instance) == false);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(entity) == false,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(instance) == false);
             emailConfirmed.SetSetter(
-                (IdentityUser entity, bool value) => WriteEmailConfirmed(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(entity) = value);
             emailConfirmed.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => WriteEmailConfirmed(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(entity) = value);
             emailConfirmed.SetAccessors(
-                (InternalEntityEntry entry) => ReadEmailConfirmed((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadEmailConfirmed((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(emailConfirmed, 5),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(emailConfirmed),
                 (ValueBuffer valueBuffer) => valueBuffer[5]);
@@ -274,6 +280,7 @@ namespace Scaffolding
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+            emailConfirmed.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed", "Scaffolding") });
 
             var lockoutEnabled = runtimeEntityType.AddProperty(
                 "LockoutEnabled",
@@ -282,17 +289,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             lockoutEnabled.SetGetter(
-                (IdentityUser entity) => ReadLockoutEnabled(entity),
-                (IdentityUser entity) => ReadLockoutEnabled(entity) == false,
-                (IdentityUser instance) => ReadLockoutEnabled(instance),
-                (IdentityUser instance) => ReadLockoutEnabled(instance) == false);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(entity) == false,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(instance) == false);
             lockoutEnabled.SetSetter(
-                (IdentityUser entity, bool value) => WriteLockoutEnabled(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(entity) = value);
             lockoutEnabled.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => WriteLockoutEnabled(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(entity) = value);
             lockoutEnabled.SetAccessors(
-                (InternalEntityEntry entry) => ReadLockoutEnabled((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadLockoutEnabled((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(lockoutEnabled, 6),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(lockoutEnabled),
                 (ValueBuffer valueBuffer) => valueBuffer[6]);
@@ -317,6 +324,7 @@ namespace Scaffolding
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+            lockoutEnabled.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled", "Scaffolding") });
 
             var lockoutEnd = runtimeEntityType.AddProperty(
                 "LockoutEnd",
@@ -325,17 +333,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnd>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             lockoutEnd.SetGetter(
-                (IdentityUser entity) => ReadLockoutEnd(entity),
-                (IdentityUser entity) => !ReadLockoutEnd(entity).HasValue,
-                (IdentityUser instance) => ReadLockoutEnd(instance),
-                (IdentityUser instance) => !ReadLockoutEnd(instance).HasValue);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(entity),
+                (IdentityUser entity) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(entity).HasValue,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(instance),
+                (IdentityUser instance) => !UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(instance).HasValue);
             lockoutEnd.SetSetter(
-                (IdentityUser entity, Nullable<DateTimeOffset> value) => WriteLockoutEnd(entity, value));
+                (IdentityUser entity, Nullable<DateTimeOffset> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(entity) = value);
             lockoutEnd.SetMaterializationSetter(
-                (IdentityUser entity, Nullable<DateTimeOffset> value) => WriteLockoutEnd(entity, value));
+                (IdentityUser entity, Nullable<DateTimeOffset> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(entity) = value);
             lockoutEnd.SetAccessors(
-                (InternalEntityEntry entry) => ReadLockoutEnd((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadLockoutEnd((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<DateTimeOffset>>(lockoutEnd, 7),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd),
                 (ValueBuffer valueBuffer) => valueBuffer[7]);
@@ -360,6 +368,7 @@ namespace Scaffolding
                     (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
                 clrType: typeof(DateTimeOffset),
                 jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
+            lockoutEnd.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd", "Scaffolding") });
 
             var normalizedEmail = runtimeEntityType.AddProperty(
                 "NormalizedEmail",
@@ -368,17 +377,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedEmail>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             normalizedEmail.SetGetter(
-                (IdentityUser entity) => ReadNormalizedEmail(entity),
-                (IdentityUser entity) => ReadNormalizedEmail(entity) == null,
-                (IdentityUser instance) => ReadNormalizedEmail(instance),
-                (IdentityUser instance) => ReadNormalizedEmail(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(instance) == null);
             normalizedEmail.SetSetter(
-                (IdentityUser entity, string value) => WriteNormalizedEmail(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(entity) = value);
             normalizedEmail.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteNormalizedEmail(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(entity) = value);
             normalizedEmail.SetAccessors(
-                (InternalEntityEntry entry) => ReadNormalizedEmail((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadNormalizedEmail((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(normalizedEmail, 8),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(normalizedEmail),
                 (ValueBuffer valueBuffer) => valueBuffer[8]);
@@ -403,6 +412,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            normalizedEmail.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail", "Scaffolding") });
 
             var normalizedUserName = runtimeEntityType.AddProperty(
                 "NormalizedUserName",
@@ -411,17 +421,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<NormalizedUserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             normalizedUserName.SetGetter(
-                (IdentityUser entity) => ReadNormalizedUserName(entity),
-                (IdentityUser entity) => ReadNormalizedUserName(entity) == null,
-                (IdentityUser instance) => ReadNormalizedUserName(instance),
-                (IdentityUser instance) => ReadNormalizedUserName(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(instance) == null);
             normalizedUserName.SetSetter(
-                (IdentityUser entity, string value) => WriteNormalizedUserName(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(entity) = value);
             normalizedUserName.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteNormalizedUserName(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(entity) = value);
             normalizedUserName.SetAccessors(
-                (InternalEntityEntry entry) => ReadNormalizedUserName((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadNormalizedUserName((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(normalizedUserName, 9),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(normalizedUserName),
                 (ValueBuffer valueBuffer) => valueBuffer[9]);
@@ -446,6 +456,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            normalizedUserName.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName", "Scaffolding") });
 
             var passwordHash = runtimeEntityType.AddProperty(
                 "PasswordHash",
@@ -454,17 +465,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<PasswordHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             passwordHash.SetGetter(
-                (IdentityUser entity) => ReadPasswordHash(entity),
-                (IdentityUser entity) => ReadPasswordHash(entity) == null,
-                (IdentityUser instance) => ReadPasswordHash(instance),
-                (IdentityUser instance) => ReadPasswordHash(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(instance) == null);
             passwordHash.SetSetter(
-                (IdentityUser entity, string value) => WritePasswordHash(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(entity) = value);
             passwordHash.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WritePasswordHash(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(entity) = value);
             passwordHash.SetAccessors(
-                (InternalEntityEntry entry) => ReadPasswordHash((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadPasswordHash((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(passwordHash, 10),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(passwordHash),
                 (ValueBuffer valueBuffer) => valueBuffer[10]);
@@ -489,6 +500,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            passwordHash.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash", "Scaffolding") });
 
             var phoneNumber = runtimeEntityType.AddProperty(
                 "PhoneNumber",
@@ -497,17 +509,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumber>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             phoneNumber.SetGetter(
-                (IdentityUser entity) => ReadPhoneNumber(entity),
-                (IdentityUser entity) => ReadPhoneNumber(entity) == null,
-                (IdentityUser instance) => ReadPhoneNumber(instance),
-                (IdentityUser instance) => ReadPhoneNumber(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(instance) == null);
             phoneNumber.SetSetter(
-                (IdentityUser entity, string value) => WritePhoneNumber(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(entity) = value);
             phoneNumber.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WritePhoneNumber(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(entity) = value);
             phoneNumber.SetAccessors(
-                (InternalEntityEntry entry) => ReadPhoneNumber((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadPhoneNumber((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(phoneNumber, 11),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(phoneNumber),
                 (ValueBuffer valueBuffer) => valueBuffer[11]);
@@ -532,6 +544,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            phoneNumber.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber", "Scaffolding") });
 
             var phoneNumberConfirmed = runtimeEntityType.AddProperty(
                 "PhoneNumberConfirmed",
@@ -540,17 +553,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumberConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             phoneNumberConfirmed.SetGetter(
-                (IdentityUser entity) => ReadPhoneNumberConfirmed(entity),
-                (IdentityUser entity) => ReadPhoneNumberConfirmed(entity) == false,
-                (IdentityUser instance) => ReadPhoneNumberConfirmed(instance),
-                (IdentityUser instance) => ReadPhoneNumberConfirmed(instance) == false);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(entity) == false,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(instance) == false);
             phoneNumberConfirmed.SetSetter(
-                (IdentityUser entity, bool value) => WritePhoneNumberConfirmed(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(entity) = value);
             phoneNumberConfirmed.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => WritePhoneNumberConfirmed(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(entity) = value);
             phoneNumberConfirmed.SetAccessors(
-                (InternalEntityEntry entry) => ReadPhoneNumberConfirmed((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadPhoneNumberConfirmed((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(phoneNumberConfirmed, 12),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(phoneNumberConfirmed),
                 (ValueBuffer valueBuffer) => valueBuffer[12]);
@@ -575,6 +588,7 @@ namespace Scaffolding
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+            phoneNumberConfirmed.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed", "Scaffolding") });
 
             var securityStamp = runtimeEntityType.AddProperty(
                 "SecurityStamp",
@@ -583,17 +597,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<SecurityStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             securityStamp.SetGetter(
-                (IdentityUser entity) => ReadSecurityStamp(entity),
-                (IdentityUser entity) => ReadSecurityStamp(entity) == null,
-                (IdentityUser instance) => ReadSecurityStamp(instance),
-                (IdentityUser instance) => ReadSecurityStamp(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(instance) == null);
             securityStamp.SetSetter(
-                (IdentityUser entity, string value) => WriteSecurityStamp(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(entity) = value);
             securityStamp.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteSecurityStamp(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(entity) = value);
             securityStamp.SetAccessors(
-                (InternalEntityEntry entry) => ReadSecurityStamp((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadSecurityStamp((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(securityStamp, 13),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(securityStamp),
                 (ValueBuffer valueBuffer) => valueBuffer[13]);
@@ -618,6 +632,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            securityStamp.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp", "Scaffolding") });
 
             var twoFactorEnabled = runtimeEntityType.AddProperty(
                 "TwoFactorEnabled",
@@ -626,17 +641,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<TwoFactorEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
             twoFactorEnabled.SetGetter(
-                (IdentityUser entity) => ReadTwoFactorEnabled(entity),
-                (IdentityUser entity) => ReadTwoFactorEnabled(entity) == false,
-                (IdentityUser instance) => ReadTwoFactorEnabled(instance),
-                (IdentityUser instance) => ReadTwoFactorEnabled(instance) == false);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(entity) == false,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(instance) == false);
             twoFactorEnabled.SetSetter(
-                (IdentityUser entity, bool value) => WriteTwoFactorEnabled(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(entity) = value);
             twoFactorEnabled.SetMaterializationSetter(
-                (IdentityUser entity, bool value) => WriteTwoFactorEnabled(entity, value));
+                (IdentityUser entity, bool value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(entity) = value);
             twoFactorEnabled.SetAccessors(
-                (InternalEntityEntry entry) => ReadTwoFactorEnabled((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadTwoFactorEnabled((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(twoFactorEnabled, 14),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(twoFactorEnabled),
                 (ValueBuffer valueBuffer) => valueBuffer[14]);
@@ -661,6 +676,7 @@ namespace Scaffolding
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
+            twoFactorEnabled.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled", "Scaffolding") });
 
             var userName = runtimeEntityType.AddProperty(
                 "UserName",
@@ -669,17 +685,17 @@ namespace Scaffolding
                 fieldInfo: typeof(IdentityUser<string>).GetField("<UserName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             userName.SetGetter(
-                (IdentityUser entity) => ReadUserName(entity),
-                (IdentityUser entity) => ReadUserName(entity) == null,
-                (IdentityUser instance) => ReadUserName(instance),
-                (IdentityUser instance) => ReadUserName(instance) == null);
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(entity),
+                (IdentityUser entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(entity) == null,
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(instance),
+                (IdentityUser instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(instance) == null);
             userName.SetSetter(
-                (IdentityUser entity, string value) => WriteUserName(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(entity) = value);
             userName.SetMaterializationSetter(
-                (IdentityUser entity, string value) => WriteUserName(entity, value));
+                (IdentityUser entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(entity) = value);
             userName.SetAccessors(
-                (InternalEntityEntry entry) => ReadUserName((IdentityUser)entry.Entity),
-                (InternalEntityEntry entry) => ReadUserName((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName((IdentityUser)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName((IdentityUser)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(userName, 15),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(userName),
                 (ValueBuffer valueBuffer) => valueBuffer[15]);
@@ -704,6 +720,7 @@ namespace Scaffolding
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
+            userName.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName", "Scaffolding") });
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -765,138 +782,48 @@ namespace Scaffolding
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref string GetId(IdentityUser @this);
-
-        public static string ReadId(IdentityUser @this)
-            => GetId(@this);
-
-        public static void WriteId(IdentityUser @this, string value)
-            => GetId(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<AccessFailedCount>k__BackingField")]
-        extern static ref int GetAccessFailedCount(IdentityUser @this);
-
-        public static int ReadAccessFailedCount(IdentityUser @this)
-            => GetAccessFailedCount(@this);
-
-        public static void WriteAccessFailedCount(IdentityUser @this, int value)
-            => GetAccessFailedCount(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ConcurrencyStamp>k__BackingField")]
-        extern static ref string GetConcurrencyStamp(IdentityUser @this);
-
-        public static string ReadConcurrencyStamp(IdentityUser @this)
-            => GetConcurrencyStamp(@this);
-
-        public static void WriteConcurrencyStamp(IdentityUser @this, string value)
-            => GetConcurrencyStamp(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Email>k__BackingField")]
-        extern static ref string GetEmail(IdentityUser @this);
-
-        public static string ReadEmail(IdentityUser @this)
-            => GetEmail(@this);
-
-        public static void WriteEmail(IdentityUser @this, string value)
-            => GetEmail(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EmailConfirmed>k__BackingField")]
-        extern static ref bool GetEmailConfirmed(IdentityUser @this);
-
-        public static bool ReadEmailConfirmed(IdentityUser @this)
-            => GetEmailConfirmed(@this);
-
-        public static void WriteEmailConfirmed(IdentityUser @this, bool value)
-            => GetEmailConfirmed(@this) = value;
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<LockoutEnabled>k__BackingField")]
-        extern static ref bool GetLockoutEnabled(IdentityUser @this);
-
-        public static bool ReadLockoutEnabled(IdentityUser @this)
-            => GetLockoutEnabled(@this);
-
-        public static void WriteLockoutEnabled(IdentityUser @this, bool value)
-            => GetLockoutEnabled(@this) = value;
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<LockoutEnd>k__BackingField")]
-        extern static ref DateTimeOffset? GetLockoutEnd(IdentityUser @this);
-
-        public static DateTimeOffset? ReadLockoutEnd(IdentityUser @this)
-            => GetLockoutEnd(@this);
-
-        public static void WriteLockoutEnd(IdentityUser @this, DateTimeOffset? value)
-            => GetLockoutEnd(@this) = value;
+        public static extern ref DateTimeOffset? UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NormalizedEmail>k__BackingField")]
-        extern static ref string GetNormalizedEmail(IdentityUser @this);
-
-        public static string ReadNormalizedEmail(IdentityUser @this)
-            => GetNormalizedEmail(@this);
-
-        public static void WriteNormalizedEmail(IdentityUser @this, string value)
-            => GetNormalizedEmail(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NormalizedUserName>k__BackingField")]
-        extern static ref string GetNormalizedUserName(IdentityUser @this);
-
-        public static string ReadNormalizedUserName(IdentityUser @this)
-            => GetNormalizedUserName(@this);
-
-        public static void WriteNormalizedUserName(IdentityUser @this, string value)
-            => GetNormalizedUserName(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PasswordHash>k__BackingField")]
-        extern static ref string GetPasswordHash(IdentityUser @this);
-
-        public static string ReadPasswordHash(IdentityUser @this)
-            => GetPasswordHash(@this);
-
-        public static void WritePasswordHash(IdentityUser @this, string value)
-            => GetPasswordHash(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhoneNumber>k__BackingField")]
-        extern static ref string GetPhoneNumber(IdentityUser @this);
-
-        public static string ReadPhoneNumber(IdentityUser @this)
-            => GetPhoneNumber(@this);
-
-        public static void WritePhoneNumber(IdentityUser @this, string value)
-            => GetPhoneNumber(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhoneNumberConfirmed>k__BackingField")]
-        extern static ref bool GetPhoneNumberConfirmed(IdentityUser @this);
-
-        public static bool ReadPhoneNumberConfirmed(IdentityUser @this)
-            => GetPhoneNumberConfirmed(@this);
-
-        public static void WritePhoneNumberConfirmed(IdentityUser @this, bool value)
-            => GetPhoneNumberConfirmed(@this) = value;
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<SecurityStamp>k__BackingField")]
-        extern static ref string GetSecurityStamp(IdentityUser @this);
-
-        public static string ReadSecurityStamp(IdentityUser @this)
-            => GetSecurityStamp(@this);
-
-        public static void WriteSecurityStamp(IdentityUser @this, string value)
-            => GetSecurityStamp(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TwoFactorEnabled>k__BackingField")]
-        extern static ref bool GetTwoFactorEnabled(IdentityUser @this);
-
-        public static bool ReadTwoFactorEnabled(IdentityUser @this)
-            => GetTwoFactorEnabled(@this);
-
-        public static void WriteTwoFactorEnabled(IdentityUser @this, bool value)
-            => GetTwoFactorEnabled(@this) = value;
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(IdentityUser @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UserName>k__BackingField")]
-        extern static ref string GetUserName(IdentityUser @this);
-
-        public static string ReadUserName(IdentityUser @this)
-            => GetUserName(@this);
-
-        public static void WriteUserName(IdentityUser @this, string value)
-            => GetUserName(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(IdentityUser @this);
     }
 }

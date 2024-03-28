@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -17,7 +18,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TestNamespace
 {
-    internal partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
+    [EntityFrameworkInternal]
+    public partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {

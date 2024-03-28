@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -16,7 +17,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TestNamespace
 {
-    internal partial class DependentDerivedEntityType
+    [EntityFrameworkInternal]
+    public partial class DependentDerivedEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -35,17 +37,17 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                (CompiledModelTestBase.DependentDerived<int> entity) => ReadId(entity),
-                (CompiledModelTestBase.DependentDerived<int> entity) => ReadId(entity) == 0,
-                (CompiledModelTestBase.DependentDerived<int> instance) => ReadId(instance),
-                (CompiledModelTestBase.DependentDerived<int> instance) => ReadId(instance) == 0);
+                (CompiledModelTestBase.DependentDerived<int> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity),
+                (CompiledModelTestBase.DependentDerived<int> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity) == 0,
+                (CompiledModelTestBase.DependentDerived<int> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(instance),
+                (CompiledModelTestBase.DependentDerived<int> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, int value) => WriteId(entity, value));
+                (CompiledModelTestBase.DependentDerived<int> entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, int value) => WriteId(entity, value));
+                (CompiledModelTestBase.DependentDerived<int> entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -70,6 +72,7 @@ namespace TestNamespace
                     (int v) => v));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DependentDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id", "TestNamespace") });
 
             var data = runtimeEntityType.AddProperty(
                 "Data",
@@ -78,17 +81,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.DependentDerived<int>).GetField("<Data>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             data.SetGetter(
-                (CompiledModelTestBase.DependentDerived<int> entity) => ReadData(entity),
-                (CompiledModelTestBase.DependentDerived<int> entity) => ReadData(entity) == null,
-                (CompiledModelTestBase.DependentDerived<int> instance) => ReadData(instance),
-                (CompiledModelTestBase.DependentDerived<int> instance) => ReadData(instance) == null);
+                (CompiledModelTestBase.DependentDerived<int> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity),
+                (CompiledModelTestBase.DependentDerived<int> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity) == null,
+                (CompiledModelTestBase.DependentDerived<int> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(instance),
+                (CompiledModelTestBase.DependentDerived<int> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(instance) == null);
             data.SetSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, string value) => WriteData(entity, value));
+                (CompiledModelTestBase.DependentDerived<int> entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity) = value);
             data.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentDerived<int> entity, string value) => WriteData(entity, value));
+                (CompiledModelTestBase.DependentDerived<int> entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity) = value);
             data.SetAccessors(
-                (InternalEntityEntry entry) => ReadData((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
-                (InternalEntityEntry entry) => ReadData((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data((CompiledModelTestBase.DependentDerived<int>)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(data, 1),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(data),
                 (ValueBuffer valueBuffer) => valueBuffer[1]);
@@ -117,6 +120,7 @@ namespace TestNamespace
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
             data.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            data.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DependentDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data", "TestNamespace") });
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -170,21 +174,9 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref int GetId(CompiledModelTestBase.DependentDerived<int> @this);
-
-        public static int ReadId(CompiledModelTestBase.DependentDerived<int> @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelTestBase.DependentDerived<int> @this, int value)
-            => GetId(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(CompiledModelTestBase.DependentDerived<int> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Data>k__BackingField")]
-        extern static ref string GetData(CompiledModelTestBase.DependentDerived<int> @this);
-
-        public static string ReadData(CompiledModelTestBase.DependentDerived<int> @this)
-            => GetData(@this);
-
-        public static void WriteData(CompiledModelTestBase.DependentDerived<int> @this, string value)
-            => GetData(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(CompiledModelTestBase.DependentDerived<int> @this);
     }
 }

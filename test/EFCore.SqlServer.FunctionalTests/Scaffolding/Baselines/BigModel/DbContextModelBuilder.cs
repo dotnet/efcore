@@ -121,11 +121,11 @@ namespace TestNamespace
             dependentBasebyteTable.Columns.Add("Money", moneyColumn);
             var pK_DependentBasebyte = new UniqueConstraint("PK_DependentBase<byte?>", dependentBasebyteTable, new[] { principalIdColumn, principalAlternateIdColumn });
             dependentBasebyteTable.PrimaryKey = pK_DependentBasebyte;
-            var pK_DependentBasebyteUc = RelationalModel.GetKey(this,
+            var pK_DependentBasebyteKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
                 new[] { "PrincipalId", "PrincipalAlternateId" });
-            pK_DependentBasebyte.MappedKeys.Add(pK_DependentBasebyteUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentBasebyteUc).Add(pK_DependentBasebyte);
+            pK_DependentBasebyte.MappedKeys.Add(pK_DependentBasebyteKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentBasebyteKey).Add(pK_DependentBasebyte);
             dependentBasebyteTable.UniqueConstraints.Add("PK_DependentBase<byte?>", pK_DependentBasebyte);
             var iX_DependentBasebyte_PrincipalId = new TableIndex(
             "IX_DependentBase<byte?>_PrincipalId", dependentBasebyteTable, new[] { principalIdColumn }, true);
@@ -1617,11 +1617,11 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("UriToStringConverterProperty", uriToStringConverterPropertyColumn);
             var pK_ManyTypes = new UniqueConstraint("PK_ManyTypes", manyTypesTable, new[] { idColumn0 });
             manyTypesTable.PrimaryKey = pK_ManyTypes;
-            var pK_ManyTypesUc = RelationalModel.GetKey(this,
+            var pK_ManyTypesKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+ManyTypes",
                 new[] { "Id" });
-            pK_ManyTypes.MappedKeys.Add(pK_ManyTypesUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_ManyTypesUc).Add(pK_ManyTypes);
+            pK_ManyTypes.MappedKeys.Add(pK_ManyTypesKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_ManyTypesKey).Add(pK_ManyTypes);
             manyTypesTable.UniqueConstraints.Add("PK_ManyTypes", pK_ManyTypes);
             relationalModel.Tables.Add(("ManyTypes", null), manyTypesTable);
             var manyTypesTableMapping = new TableMapping(manyTypes, manyTypesTable, null);
@@ -2044,24 +2044,24 @@ namespace TestNamespace
             };
             principalBaseTable.Columns.Add("ValueTypeList", valueTypeListColumn);
             var aK_PrincipalBase_Id = new UniqueConstraint("AK_PrincipalBase_Id", principalBaseTable, new[] { idColumn1 });
-            var aK_PrincipalBase_IdUc = RelationalModel.GetKey(this,
+            var aK_PrincipalBase_IdKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "Id" });
-            aK_PrincipalBase_Id.MappedKeys.Add(aK_PrincipalBase_IdUc);
-            RelationalModel.GetOrCreateUniqueConstraints(aK_PrincipalBase_IdUc).Add(aK_PrincipalBase_Id);
+            aK_PrincipalBase_Id.MappedKeys.Add(aK_PrincipalBase_IdKey);
+            RelationalModel.GetOrCreateUniqueConstraints(aK_PrincipalBase_IdKey).Add(aK_PrincipalBase_Id);
             principalBaseTable.UniqueConstraints.Add("AK_PrincipalBase_Id", aK_PrincipalBase_Id);
             var pK = new UniqueConstraint("PK", principalBaseTable, new[] { idColumn1, alternateIdColumn });
             principalBaseTable.PrimaryKey = pK;
-            var pKUc = RelationalModel.GetKey(this,
+            var pKKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "Id", "AlternateId" });
-            pK.MappedKeys.Add(pKUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pKUc).Add(pK);
-            var pKUc0 = RelationalModel.GetKey(this,
+            pK.MappedKeys.Add(pKKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pKKey).Add(pK);
+            var pKKey0 = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase.Owned#OwnedType",
                 new[] { "PrincipalBaseId", "PrincipalBaseAlternateId" });
-            pK.MappedKeys.Add(pKUc0);
-            RelationalModel.GetOrCreateUniqueConstraints(pKUc0).Add(pK);
+            pK.MappedKeys.Add(pKKey0);
+            RelationalModel.GetOrCreateUniqueConstraints(pKKey0).Add(pK);
             principalBaseTable.UniqueConstraints.Add("PK", pK);
             var iX_PrincipalBase_AlternateId_Id = new TableIndex(
             "IX_PrincipalBase_AlternateId_Id", principalBaseTable, new[] { alternateIdColumn, idColumn1 }, false);
@@ -2203,11 +2203,8 @@ namespace TestNamespace
             detailsTable.Columns.Add("Details", detailsColumn);
             var pK_Details = new UniqueConstraint("PK_Details", detailsTable, new[] { principalBaseIdColumn, principalBaseAlternateIdColumn });
             detailsTable.PrimaryKey = pK_Details;
-            var pK_DetailsUc = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase.Owned#OwnedType",
-                new[] { "PrincipalBaseId", "PrincipalBaseAlternateId" });
-            pK_Details.MappedKeys.Add(pK_DetailsUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DetailsUc).Add(pK_Details);
+            pK_Details.MappedKeys.Add(pKKey0);
+            RelationalModel.GetOrCreateUniqueConstraints(pKKey0).Add(pK_Details);
             detailsTable.UniqueConstraints.Add("PK_Details", pK_Details);
             relationalModel.Tables.Add(("Details", null), detailsTable);
             var detailsTableMapping = new TableMapping(ownedType, detailsTable, null)
@@ -2281,27 +2278,18 @@ namespace TestNamespace
             var alternateIdColumn0 = new Column("AlternateId", "uniqueidentifier", principalDerivedTable);
             principalDerivedTable.Columns.Add("AlternateId", alternateIdColumn0);
             var aK_PrincipalDerived_DerivedId = new UniqueConstraint("AK_PrincipalDerived_DerivedId", principalDerivedTable, new[] { derivedIdColumn });
-            var aK_PrincipalDerived_DerivedIdUc = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "Id" });
-            aK_PrincipalDerived_DerivedId.MappedKeys.Add(aK_PrincipalDerived_DerivedIdUc);
-            RelationalModel.GetOrCreateUniqueConstraints(aK_PrincipalDerived_DerivedIdUc).Add(aK_PrincipalDerived_DerivedId);
+            aK_PrincipalDerived_DerivedId.MappedKeys.Add(aK_PrincipalBase_IdKey);
+            RelationalModel.GetOrCreateUniqueConstraints(aK_PrincipalBase_IdKey).Add(aK_PrincipalDerived_DerivedId);
             principalDerivedTable.UniqueConstraints.Add("AK_PrincipalDerived_DerivedId", aK_PrincipalDerived_DerivedId);
             var pK0 = new UniqueConstraint("PK", principalDerivedTable, new[] { derivedIdColumn, alternateIdColumn0 });
             principalDerivedTable.PrimaryKey = pK0;
-            var pK0Uc = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "Id", "AlternateId" });
-            pK0.MappedKeys.Add(pK0Uc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK0Uc).Add(pK0);
+            pK0.MappedKeys.Add(pKKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pKKey).Add(pK0);
             principalDerivedTable.UniqueConstraints.Add("PK", pK0);
             var iX_PrincipalDerived_AlternateId_DerivedId = new TableIndex(
             "IX_PrincipalDerived_AlternateId_DerivedId", principalDerivedTable, new[] { alternateIdColumn0, derivedIdColumn }, false);
-            var iX_PrincipalDerived_AlternateId_DerivedIdIx = RelationalModel.GetIndex(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "AlternateId", "Id" });
-            iX_PrincipalDerived_AlternateId_DerivedId.MappedIndexes.Add(iX_PrincipalDerived_AlternateId_DerivedIdIx);
-            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalDerived_AlternateId_DerivedIdIx).Add(iX_PrincipalDerived_AlternateId_DerivedId);
+            iX_PrincipalDerived_AlternateId_DerivedId.MappedIndexes.Add(iX_PrincipalBase_AlternateId_IdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_AlternateId_IdIx).Add(iX_PrincipalDerived_AlternateId_DerivedId);
             principalDerivedTable.Indexes.Add("IX_PrincipalDerived_AlternateId_DerivedId", iX_PrincipalDerived_AlternateId_DerivedId);
             relationalModel.Tables.Add(("PrincipalDerived", null), principalDerivedTable);
             var principalDerivedTableMapping = new TableMapping(principalDerived, principalDerivedTable, null);
@@ -2444,11 +2432,11 @@ namespace TestNamespace
             manyOwnedTable.Columns.Add("ValueTypeList", valueTypeListColumn0);
             var pK_ManyOwned = new UniqueConstraint("PK_ManyOwned", manyOwnedTable, new[] { principalDerivedDependentBasebyteIdColumn, principalDerivedDependentBasebyteAlternateIdColumn, idColumn2 });
             manyOwnedTable.PrimaryKey = pK_ManyOwned;
-            var pK_ManyOwnedUc = RelationalModel.GetKey(this,
+            var pK_ManyOwnedKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>.ManyOwned#OwnedType",
                 new[] { "PrincipalDerivedId", "PrincipalDerivedAlternateId", "Id" });
-            pK_ManyOwned.MappedKeys.Add(pK_ManyOwnedUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_ManyOwnedUc).Add(pK_ManyOwned);
+            pK_ManyOwned.MappedKeys.Add(pK_ManyOwnedKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_ManyOwnedKey).Add(pK_ManyOwned);
             manyOwnedTable.UniqueConstraints.Add("PK_ManyOwned", pK_ManyOwned);
             relationalModel.Tables.Add(("ManyOwned", null), manyOwnedTable);
             var manyOwnedTableMapping = new TableMapping(ownedType0, manyOwnedTable, null);
@@ -2514,11 +2502,11 @@ namespace TestNamespace
             principalBasePrincipalDerivedDependentBasebyteTable.Columns.Add("rowid", rowidColumn);
             var pK_PrincipalBasePrincipalDerivedDependentBasebyte = new UniqueConstraint("PK_PrincipalBasePrincipalDerived<DependentBase<byte?>>", principalBasePrincipalDerivedDependentBasebyteTable, new[] { derivedsIdColumn, derivedsAlternateIdColumn, principalsIdColumn, principalsAlternateIdColumn });
             principalBasePrincipalDerivedDependentBasebyteTable.PrimaryKey = pK_PrincipalBasePrincipalDerivedDependentBasebyte;
-            var pK_PrincipalBasePrincipalDerivedDependentBasebyteUc = RelationalModel.GetKey(this,
+            var pK_PrincipalBasePrincipalDerivedDependentBasebyteKey = RelationalModel.GetKey(this,
                 "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
                 new[] { "DerivedsId", "DerivedsAlternateId", "PrincipalsId", "PrincipalsAlternateId" });
-            pK_PrincipalBasePrincipalDerivedDependentBasebyte.MappedKeys.Add(pK_PrincipalBasePrincipalDerivedDependentBasebyteUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBasePrincipalDerivedDependentBasebyteUc).Add(pK_PrincipalBasePrincipalDerivedDependentBasebyte);
+            pK_PrincipalBasePrincipalDerivedDependentBasebyte.MappedKeys.Add(pK_PrincipalBasePrincipalDerivedDependentBasebyteKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBasePrincipalDerivedDependentBasebyteKey).Add(pK_PrincipalBasePrincipalDerivedDependentBasebyte);
             principalBasePrincipalDerivedDependentBasebyteTable.UniqueConstraints.Add("PK_PrincipalBasePrincipalDerived<DependentBase<byte?>>", pK_PrincipalBasePrincipalDerivedDependentBasebyte);
             var iX_PrincipalBasePrincipalDerivedDependentBasebyte_PrincipalsId_PrincipalsAlternateId = new TableIndex(
             "IX_PrincipalBasePrincipalDerived<DependentBase<byte?>>_PrincipalsId_PrincipalsAlternateId", principalBasePrincipalDerivedDependentBasebyteTable, new[] { principalsIdColumn, principalsAlternateIdColumn }, false);

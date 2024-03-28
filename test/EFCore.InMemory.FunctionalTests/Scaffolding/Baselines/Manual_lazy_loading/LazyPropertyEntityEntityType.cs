@@ -19,7 +19,8 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace TestNamespace
 {
-    internal partial class LazyPropertyEntityEntityType
+    [EntityFrameworkInternal]
+    public partial class LazyPropertyEntityEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -43,17 +44,17 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
             id.SetGetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => ReadId(entity),
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => ReadId(entity) == 0,
-                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => ReadId(instance),
-                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => ReadId(instance) == 0);
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(entity),
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(entity) == 0,
+                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(instance),
+                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(instance) == 0);
             id.SetSetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && ReadId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(0) : ReadId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -79,6 +80,7 @@ namespace TestNamespace
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id", "TestNamespace") });
 
             var lazyConstructorEntityId = runtimeEntityType.AddProperty(
                 "LazyConstructorEntityId",
@@ -87,17 +89,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelInMemoryTest.LazyPropertyEntity).GetField("<LazyConstructorEntityId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
             lazyConstructorEntityId.SetGetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => ReadLazyConstructorEntityId(entity),
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => ReadLazyConstructorEntityId(entity) == 0,
-                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => ReadLazyConstructorEntityId(instance),
-                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => ReadLazyConstructorEntityId(instance) == 0);
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(entity),
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(entity) == 0,
+                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(instance),
+                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(instance) == 0);
             lazyConstructorEntityId.SetSetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => WriteLazyConstructorEntityId(entity, value));
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(entity) = value);
             lazyConstructorEntityId.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => WriteLazyConstructorEntityId(entity, value));
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity, int value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(entity) = value);
             lazyConstructorEntityId.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<int>(1) : entry.FlaggedAsTemporary(1) && ReadLazyConstructorEntityId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(1) : ReadLazyConstructorEntityId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
-                (InternalEntityEntry entry) => ReadLazyConstructorEntityId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<int>(1) : entry.FlaggedAsTemporary(1) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity) == 0 ? entry.ReadTemporaryValue<int>(1) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(lazyConstructorEntityId, 1),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(lazyConstructorEntityId, 1),
                 (ValueBuffer valueBuffer) => valueBuffer[1]);
@@ -123,11 +125,18 @@ namespace TestNamespace
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
             lazyConstructorEntityId.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(lazyConstructorEntityId));
+            lazyConstructorEntityId.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId", "TestNamespace") });
 
             var loader = runtimeEntityType.AddServiceProperty(
                 "Loader",
                 propertyInfo: typeof(CompiledModelInMemoryTest.LazyPropertyEntity).GetProperty("Loader", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 serviceType: typeof(ILazyLoader));
+            loader.SetPropertyIndexes(
+                index: -1,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -158,17 +167,17 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field);
 
             lazyConstructorEntity.SetGetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => LazyPropertyEntityEntityType.ReadLazyConstructorEntity(entity),
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => LazyPropertyEntityEntityType.ReadLazyConstructorEntity(entity) == null,
-                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => LazyPropertyEntityEntityType.ReadLazyConstructorEntity(instance),
-                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => LazyPropertyEntityEntityType.ReadLazyConstructorEntity(instance) == null);
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(entity),
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(entity) == null,
+                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(instance),
+                (CompiledModelInMemoryTest.LazyPropertyEntity instance) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(instance) == null);
             lazyConstructorEntity.SetSetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity, CompiledModelInMemoryTest.LazyConstructorEntity value) => LazyPropertyEntityEntityType.WriteLazyConstructorEntity(entity, value));
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity, CompiledModelInMemoryTest.LazyConstructorEntity value) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(entity) = value);
             lazyConstructorEntity.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyPropertyEntity entity, CompiledModelInMemoryTest.LazyConstructorEntity value) => LazyPropertyEntityEntityType.WriteLazyConstructorEntity(entity, value));
+                (CompiledModelInMemoryTest.LazyPropertyEntity entity, CompiledModelInMemoryTest.LazyConstructorEntity value) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(entity) = value);
             lazyConstructorEntity.SetAccessors(
-                (InternalEntityEntry entry) => LazyPropertyEntityEntityType.ReadLazyConstructorEntity((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
-                (InternalEntityEntry entry) => LazyPropertyEntityEntityType.ReadLazyConstructorEntity((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
+                (InternalEntityEntry entry) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
+                (InternalEntityEntry entry) => LazyPropertyEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity((CompiledModelInMemoryTest.LazyPropertyEntity)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.LazyConstructorEntity>(lazyConstructorEntity),
                 null);
@@ -187,17 +196,17 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field);
 
             lazyPropertyEntity.SetGetter(
-                (CompiledModelInMemoryTest.LazyConstructorEntity entity) => LazyConstructorEntityEntityType.ReadLazyPropertyEntity(entity),
-                (CompiledModelInMemoryTest.LazyConstructorEntity entity) => LazyConstructorEntityEntityType.ReadLazyPropertyEntity(entity) == null,
-                (CompiledModelInMemoryTest.LazyConstructorEntity instance) => LazyConstructorEntityEntityType.ReadLazyPropertyEntity(instance),
-                (CompiledModelInMemoryTest.LazyConstructorEntity instance) => LazyConstructorEntityEntityType.ReadLazyPropertyEntity(instance) == null);
+                (CompiledModelInMemoryTest.LazyConstructorEntity entity) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity(entity),
+                (CompiledModelInMemoryTest.LazyConstructorEntity entity) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity(entity) == null,
+                (CompiledModelInMemoryTest.LazyConstructorEntity instance) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity(instance),
+                (CompiledModelInMemoryTest.LazyConstructorEntity instance) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity(instance) == null);
             lazyPropertyEntity.SetSetter(
-                (CompiledModelInMemoryTest.LazyConstructorEntity entity, CompiledModelInMemoryTest.LazyPropertyEntity value) => LazyConstructorEntityEntityType.WriteLazyPropertyEntity(entity, value));
+                (CompiledModelInMemoryTest.LazyConstructorEntity entity, CompiledModelInMemoryTest.LazyPropertyEntity value) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity(entity) = value);
             lazyPropertyEntity.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyConstructorEntity entity, CompiledModelInMemoryTest.LazyPropertyEntity value) => LazyConstructorEntityEntityType.WriteLazyPropertyEntity(entity, value));
+                (CompiledModelInMemoryTest.LazyConstructorEntity entity, CompiledModelInMemoryTest.LazyPropertyEntity value) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity(entity) = value);
             lazyPropertyEntity.SetAccessors(
-                (InternalEntityEntry entry) => LazyConstructorEntityEntityType.ReadLazyPropertyEntity((CompiledModelInMemoryTest.LazyConstructorEntity)entry.Entity),
-                (InternalEntityEntry entry) => LazyConstructorEntityEntityType.ReadLazyPropertyEntity((CompiledModelInMemoryTest.LazyConstructorEntity)entry.Entity),
+                (InternalEntityEntry entry) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity((CompiledModelInMemoryTest.LazyConstructorEntity)entry.Entity),
+                (InternalEntityEntry entry) => LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity((CompiledModelInMemoryTest.LazyConstructorEntity)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.LazyPropertyEntity>(lazyPropertyEntity),
                 null);
@@ -207,6 +216,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: 2,
                 storeGenerationIndex: -1);
+            lazyPropertyEntity.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("LazyConstructorEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyConstructorEntity_LazyPropertyEntity", "TestNamespace") });
             return runtimeForeignKey;
         }
 
@@ -233,7 +243,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyPropertyEntity)source.Entity;
-                    return (ISnapshot)new Snapshot<int, int, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), ((ValueComparer<int>)lazyConstructorEntityId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(lazyConstructorEntityId)), ReadLazyConstructorEntity(entity));
+                    return (ISnapshot)new Snapshot<int, int, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), ((ValueComparer<int>)lazyConstructorEntityId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(lazyConstructorEntityId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,
@@ -250,30 +260,12 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref int GetId(CompiledModelInMemoryTest.LazyPropertyEntity @this);
-
-        public static int ReadId(CompiledModelInMemoryTest.LazyPropertyEntity @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelInMemoryTest.LazyPropertyEntity @this, int value)
-            => GetId(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_Id(CompiledModelInMemoryTest.LazyPropertyEntity @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<LazyConstructorEntityId>k__BackingField")]
-        extern static ref int GetLazyConstructorEntityId(CompiledModelInMemoryTest.LazyPropertyEntity @this);
-
-        public static int ReadLazyConstructorEntityId(CompiledModelInMemoryTest.LazyPropertyEntity @this)
-            => GetLazyConstructorEntityId(@this);
-
-        public static void WriteLazyConstructorEntityId(CompiledModelInMemoryTest.LazyPropertyEntity @this, int value)
-            => GetLazyConstructorEntityId(@this) = value;
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntityId(CompiledModelInMemoryTest.LazyPropertyEntity @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<LazyConstructorEntity>k__BackingField")]
-        extern static ref CompiledModelInMemoryTest.LazyConstructorEntity GetLazyConstructorEntity(CompiledModelInMemoryTest.LazyPropertyEntity @this);
-
-        public static CompiledModelInMemoryTest.LazyConstructorEntity ReadLazyConstructorEntity(CompiledModelInMemoryTest.LazyPropertyEntity @this)
-            => GetLazyConstructorEntity(@this);
-
-        public static void WriteLazyConstructorEntity(CompiledModelInMemoryTest.LazyPropertyEntity @this, CompiledModelInMemoryTest.LazyConstructorEntity value)
-            => GetLazyConstructorEntity(@this) = value;
+        public static extern ref CompiledModelInMemoryTest.LazyConstructorEntity UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyPropertyEntity_LazyConstructorEntity(CompiledModelInMemoryTest.LazyPropertyEntity @this);
     }
 }

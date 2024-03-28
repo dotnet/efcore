@@ -412,11 +412,11 @@ namespace TestNamespace
             principalBaseTable.Columns.Add("ValueTypeList", valueTypeListColumn);
             var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn });
             principalBaseTable.PrimaryKey = pK_PrincipalBase;
-            var pK_PrincipalBaseUc = RelationalModel.GetKey(this,
+            var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "Id" });
-            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseUc);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseUc).Add(pK_PrincipalBase);
+            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
             principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
             var iX_PrincipalBase_PrincipalBaseId = new TableIndex(
             "IX_PrincipalBase_PrincipalBaseId", principalBaseTable, new[] { principalBaseIdColumn }, false);
@@ -713,7 +713,7 @@ namespace TestNamespace
             principalBase_DeleteStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Delete", null), principalBase_DeleteStoreSproc);
             var principalBase_DeleteDSproc = (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!;
-            var principalBase_DeleteSprocMapping = new StoredProcedureMapping(principalBase, principalBase_DeleteStoreSproc, (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!, principalBaseTableMapping, true);
+            var principalBase_DeleteSprocMapping = new StoredProcedureMapping(principalBase, principalBase_DeleteStoreSproc, principalBase_DeleteDSproc, principalBaseTableMapping, true);
             principalBase_DeleteStoreSproc.AddTypeMapping(principalBase_DeleteSprocMapping, false);
             deleteSprocMappings.Add(principalBase_DeleteSprocMapping);
             principalBaseTableMapping.DeleteStoredProcedureMapping = principalBase_DeleteSprocMapping;
@@ -785,7 +785,7 @@ namespace TestNamespace
             principalBase_InsertStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Insert", null), principalBase_InsertStoreSproc);
             var principalBase_InsertISproc = (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!;
-            var principalBase_InsertSprocMapping = new StoredProcedureMapping(principalBase, principalBase_InsertStoreSproc, (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!, principalBaseTableMapping, true);
+            var principalBase_InsertSprocMapping = new StoredProcedureMapping(principalBase, principalBase_InsertStoreSproc, principalBase_InsertISproc, principalBaseTableMapping, true);
             principalBase_InsertStoreSproc.AddTypeMapping(principalBase_InsertSprocMapping, false);
             insertSprocMappings.Add(principalBase_InsertSprocMapping);
             principalBaseTableMapping.InsertStoredProcedureMapping = principalBase_InsertSprocMapping;
@@ -869,7 +869,7 @@ namespace TestNamespace
             principalBase_UpdateStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Update", null), principalBase_UpdateStoreSproc);
             var principalBase_UpdateUSproc = (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!;
-            var principalBase_UpdateSprocMapping = new StoredProcedureMapping(principalBase, principalBase_UpdateStoreSproc, (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!, principalBaseTableMapping, true);
+            var principalBase_UpdateSprocMapping = new StoredProcedureMapping(principalBase, principalBase_UpdateStoreSproc, principalBase_UpdateUSproc, principalBaseTableMapping, true);
             principalBase_UpdateStoreSproc.AddTypeMapping(principalBase_UpdateSprocMapping, false);
             updateSprocMappings.Add(principalBase_UpdateSprocMapping);
             principalBaseTableMapping.UpdateStoredProcedureMapping = principalBase_UpdateSprocMapping;
@@ -1035,57 +1035,54 @@ namespace TestNamespace
 
             var deleteSprocMappings0 = new List<StoredProcedureMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:DeleteStoredProcedureMappings", deleteSprocMappings0);
-            var principalBase_DeleteDSproc0 = (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!;
-            var principalBase_DeleteSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_DeleteStoreSproc, (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!, principalBaseTableMapping2, null);
+            var principalBase_DeleteSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_DeleteStoreSproc, principalBase_DeleteDSproc, principalBaseTableMapping2, null);
             principalBase_DeleteStoreSproc.AddTypeMapping(principalBase_DeleteSprocMapping0, false);
             deleteSprocMappings0.Add(principalBase_DeleteSprocMapping0);
             principalBaseTableMapping2.DeleteStoredProcedureMapping = principalBase_DeleteSprocMapping0;
-            RelationalModel.CreateStoredProcedureParameterMapping(id_OriginalParameter, principalBase_DeleteDSproc0.FindParameter("Id_Original")!, principalDerived.FindProperty("Id")!, principalBase_DeleteSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(id_OriginalParameter, principalBase_DeleteDSproc.FindParameter("Id_Original")!, principalDerived.FindProperty("Id")!, principalBase_DeleteSprocMapping0);
 
             var insertSprocMappings0 = new List<StoredProcedureMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:InsertStoredProcedureMappings", insertSprocMappings0);
-            var principalBase_InsertISproc0 = (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!;
-            var principalBase_InsertSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_InsertStoreSproc, (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!, principalBaseTableMapping2, null);
+            var principalBase_InsertSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_InsertStoreSproc, principalBase_InsertISproc, principalBaseTableMapping2, null);
             principalBase_InsertStoreSproc.AddTypeMapping(principalBase_InsertSprocMapping0, false);
             insertSprocMappings0.Add(principalBase_InsertSprocMapping0);
             principalBaseTableMapping2.InsertStoredProcedureMapping = principalBase_InsertSprocMapping0;
-            RelationalModel.CreateStoredProcedureParameterMapping(idParameter, principalBase_InsertISproc0.FindParameter("Id")!, principalDerived.FindProperty("Id")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(discriminatorParameter, principalBase_InsertISproc0.FindParameter("Discriminator")!, principalDerived.FindProperty("Discriminator")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter, principalBase_InsertISproc0.FindParameter("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter, principalBase_InsertISproc0.FindParameter("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter, principalBase_InsertISproc0.FindParameter("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter, principalBase_InsertISproc0.FindParameter("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter, principalBase_InsertISproc0.FindParameter("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeArrayParameter, principalBase_InsertISproc0.FindParameter("RefTypeArray")!, principalDerived.FindProperty("RefTypeArray")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeEnumerableParameter, principalBase_InsertISproc0.FindParameter("RefTypeEnumerable")!, principalDerived.FindProperty("RefTypeEnumerable")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeIListParameter, principalBase_InsertISproc0.FindParameter("RefTypeIList")!, principalDerived.FindProperty("RefTypeIList")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeListParameter, principalBase_InsertISproc0.FindParameter("RefTypeList")!, principalDerived.FindProperty("RefTypeList")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeArrayParameter, principalBase_InsertISproc0.FindParameter("ValueTypeArray")!, principalDerived.FindProperty("ValueTypeArray")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeEnumerableParameter, principalBase_InsertISproc0.FindParameter("ValueTypeEnumerable")!, principalDerived.FindProperty("ValueTypeEnumerable")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeIListParameter, principalBase_InsertISproc0.FindParameter("ValueTypeIList")!, principalDerived.FindProperty("ValueTypeIList")!, principalBase_InsertSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeListParameter, principalBase_InsertISproc0.FindParameter("ValueTypeList")!, principalDerived.FindProperty("ValueTypeList")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(idParameter, principalBase_InsertISproc.FindParameter("Id")!, principalDerived.FindProperty("Id")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(discriminatorParameter, principalBase_InsertISproc.FindParameter("Discriminator")!, principalDerived.FindProperty("Discriminator")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter, principalBase_InsertISproc.FindParameter("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter, principalBase_InsertISproc.FindParameter("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter, principalBase_InsertISproc.FindParameter("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter, principalBase_InsertISproc.FindParameter("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter, principalBase_InsertISproc.FindParameter("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeArrayParameter, principalBase_InsertISproc.FindParameter("RefTypeArray")!, principalDerived.FindProperty("RefTypeArray")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeEnumerableParameter, principalBase_InsertISproc.FindParameter("RefTypeEnumerable")!, principalDerived.FindProperty("RefTypeEnumerable")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeIListParameter, principalBase_InsertISproc.FindParameter("RefTypeIList")!, principalDerived.FindProperty("RefTypeIList")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeListParameter, principalBase_InsertISproc.FindParameter("RefTypeList")!, principalDerived.FindProperty("RefTypeList")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeArrayParameter, principalBase_InsertISproc.FindParameter("ValueTypeArray")!, principalDerived.FindProperty("ValueTypeArray")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeEnumerableParameter, principalBase_InsertISproc.FindParameter("ValueTypeEnumerable")!, principalDerived.FindProperty("ValueTypeEnumerable")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeIListParameter, principalBase_InsertISproc.FindParameter("ValueTypeIList")!, principalDerived.FindProperty("ValueTypeIList")!, principalBase_InsertSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeListParameter, principalBase_InsertISproc.FindParameter("ValueTypeList")!, principalDerived.FindProperty("ValueTypeList")!, principalBase_InsertSprocMapping0);
 
             var updateSprocMappings0 = new List<StoredProcedureMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:UpdateStoredProcedureMappings", updateSprocMappings0);
-            var principalBase_UpdateUSproc0 = (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!;
-            var principalBase_UpdateSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_UpdateStoreSproc, (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!, principalBaseTableMapping2, null);
+            var principalBase_UpdateSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_UpdateStoreSproc, principalBase_UpdateUSproc, principalBaseTableMapping2, null);
             principalBase_UpdateStoreSproc.AddTypeMapping(principalBase_UpdateSprocMapping0, false);
             updateSprocMappings0.Add(principalBase_UpdateSprocMapping0);
             principalBaseTableMapping2.UpdateStoredProcedureMapping = principalBase_UpdateSprocMapping0;
-            RelationalModel.CreateStoredProcedureParameterMapping(id_OriginalParameter0, principalBase_UpdateUSproc0.FindParameter("Id_Original")!, principalDerived.FindProperty("Id")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter0, principalBase_UpdateUSproc0.FindParameter("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter0, principalBase_UpdateUSproc0.FindParameter("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter0, principalBase_UpdateUSproc0.FindParameter("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter0, principalBase_UpdateUSproc0.FindParameter("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter0, principalBase_UpdateUSproc0.FindParameter("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeArrayParameter0, principalBase_UpdateUSproc0.FindParameter("RefTypeArray")!, principalDerived.FindProperty("RefTypeArray")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeEnumerableParameter0, principalBase_UpdateUSproc0.FindParameter("RefTypeEnumerable")!, principalDerived.FindProperty("RefTypeEnumerable")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeIListParameter0, principalBase_UpdateUSproc0.FindParameter("RefTypeIList")!, principalDerived.FindProperty("RefTypeIList")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(refTypeListParameter0, principalBase_UpdateUSproc0.FindParameter("RefTypeList")!, principalDerived.FindProperty("RefTypeList")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeArrayParameter0, principalBase_UpdateUSproc0.FindParameter("ValueTypeArray")!, principalDerived.FindProperty("ValueTypeArray")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeEnumerableParameter0, principalBase_UpdateUSproc0.FindParameter("ValueTypeEnumerable")!, principalDerived.FindProperty("ValueTypeEnumerable")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeIListParameter0, principalBase_UpdateUSproc0.FindParameter("ValueTypeIList")!, principalDerived.FindProperty("ValueTypeIList")!, principalBase_UpdateSprocMapping0);
-            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeListParameter0, principalBase_UpdateUSproc0.FindParameter("ValueTypeList")!, principalDerived.FindProperty("ValueTypeList")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(id_OriginalParameter0, principalBase_UpdateUSproc.FindParameter("Id_Original")!, principalDerived.FindProperty("Id")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter0, principalBase_UpdateUSproc.FindParameter("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter0, principalBase_UpdateUSproc.FindParameter("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter0, principalBase_UpdateUSproc.FindParameter("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter0, principalBase_UpdateUSproc.FindParameter("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter0, principalBase_UpdateUSproc.FindParameter("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeArrayParameter0, principalBase_UpdateUSproc.FindParameter("RefTypeArray")!, principalDerived.FindProperty("RefTypeArray")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeEnumerableParameter0, principalBase_UpdateUSproc.FindParameter("RefTypeEnumerable")!, principalDerived.FindProperty("RefTypeEnumerable")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeIListParameter0, principalBase_UpdateUSproc.FindParameter("RefTypeIList")!, principalDerived.FindProperty("RefTypeIList")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(refTypeListParameter0, principalBase_UpdateUSproc.FindParameter("RefTypeList")!, principalDerived.FindProperty("RefTypeList")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeArrayParameter0, principalBase_UpdateUSproc.FindParameter("ValueTypeArray")!, principalDerived.FindProperty("ValueTypeArray")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeEnumerableParameter0, principalBase_UpdateUSproc.FindParameter("ValueTypeEnumerable")!, principalDerived.FindProperty("ValueTypeEnumerable")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeIListParameter0, principalBase_UpdateUSproc.FindParameter("ValueTypeIList")!, principalDerived.FindProperty("ValueTypeIList")!, principalBase_UpdateSprocMapping0);
+            RelationalModel.CreateStoredProcedureParameterMapping(valueTypeListParameter0, principalBase_UpdateUSproc.FindParameter("ValueTypeList")!, principalDerived.FindProperty("ValueTypeList")!, principalBase_UpdateSprocMapping0);
             var fK_PrincipalBase_PrincipalBase_PrincipalBaseId = new ForeignKeyConstraint(
                 "FK_PrincipalBase_PrincipalBase_PrincipalBaseId", principalBaseTable, principalBaseTable,
                 new[] { principalBaseIdColumn },
