@@ -53,7 +53,7 @@ public static class RelationalExpressionQuotingUtilities
     ///     If <paramref name="expression" /> is <see langword="null" />, returns a <see cref="ConstantExpression" /> with a
     ///     <see langword="null" /> value. Otherwise, calls <see cref="IRelationalQuotableExpression.Quote" /> and returns the result.
     /// </summary>
-    public static Expression VisitOrNull<T>(T? expression) where T : IRelationalQuotableExpression
+    public static Expression QuoteOrNull<T>(T? expression) where T : IRelationalQuotableExpression
         => expression is null ? Constant(null, typeof(T)) : expression.Quote();
 
     /// <summary>

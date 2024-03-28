@@ -135,13 +135,13 @@ public class CaseExpression : SqlExpression
                 _quotingConstructorWithoutOperand ??=
                     typeof(CaseExpression).GetConstructor([typeof(IReadOnlyList<CaseWhenClause>), typeof(SqlExpression)])!,
                 whenClauses,
-                RelationalExpressionQuotingUtilities.VisitOrNull(ElseResult))
+                RelationalExpressionQuotingUtilities.QuoteOrNull(ElseResult))
             : New(
                 _quotingConstructorWithOperand ??= typeof(CaseExpression).GetConstructor(
                     [typeof(SqlExpression), typeof(IReadOnlyList<CaseWhenClause>), typeof(SqlExpression)])!,
                 Operand.Quote(),
                 whenClauses,
-                RelationalExpressionQuotingUtilities.VisitOrNull(ElseResult));
+                RelationalExpressionQuotingUtilities.QuoteOrNull(ElseResult));
     }
 
     /// <inheritdoc />

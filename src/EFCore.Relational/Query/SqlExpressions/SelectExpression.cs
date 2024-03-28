@@ -4232,14 +4232,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             NewArrayInit(
                 typeof(TableExpressionBase),
                 initializers: Tables.Select(t => t.Quote())),
-            RelationalExpressionQuotingUtilities.VisitOrNull(Predicate),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Predicate),
             NewArrayInit(typeof(SqlExpression), initializers: GroupBy.Select(g => g.Quote())),
-            RelationalExpressionQuotingUtilities.VisitOrNull(Having),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Having),
             NewArrayInit(typeof(ProjectionExpression), initializers: Projection.Select(p => p.Quote())),
             Constant(IsDistinct),
             NewArrayInit(typeof(OrderingExpression), initializers: Orderings.Select(o => o.Quote())),
-            RelationalExpressionQuotingUtilities.VisitOrNull(Limit),
-            RelationalExpressionQuotingUtilities.VisitOrNull(Offset),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Limit),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Offset),
             RelationalExpressionQuotingUtilities.QuoteTags(Tags),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 

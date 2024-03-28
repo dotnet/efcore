@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
 {
+    private readonly IModel _model;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
     private Dictionary<string, RelationalTypeMapping>? _currentSelectInferredTypeMappings;
@@ -31,6 +32,7 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
         RelationalQueryCompilationContext queryCompilationContext)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
+        _model = queryCompilationContext.Model;
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = (SqliteSqlExpressionFactory)relationalDependencies.SqlExpressionFactory;
     }
@@ -118,7 +120,7 @@ public class SqliteTypeMappingPostprocessor : RelationalTypeMappingPostprocessor
             return jsonEachExpression;
         }
 
-        if (_typeMappingSource.FindMapping(parameterExpression.Type, Model, inferredTypeMapping) is not SqliteStringTypeMapping
+        if (_typeMappingSource.FindMapping(parameterExpression.Type, _model, inferredTypeMapping) is not SqliteStringTypeMapping
             parameterTypeMapping)
         {
             throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");
