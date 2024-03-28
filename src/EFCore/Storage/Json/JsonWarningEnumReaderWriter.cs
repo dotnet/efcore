@@ -72,4 +72,9 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
             writer.WriteNumberValue((ulong)Convert.ChangeType(value, typeof(ulong)));
         }
     }
+
+    private readonly Expression<Func<JsonWarningEnumReaderWriter<TEnum>>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

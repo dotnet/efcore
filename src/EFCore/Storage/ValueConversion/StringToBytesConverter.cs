@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class StringToBytesConverter : ValueConverter<string?, byte[]?>
 {
+    private static readonly MethodInfo EncodingGetBytesMethodInfo = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
+    private static readonly MethodInfo EncodingGetStringMethodInfo = typeof(Encoding).GetMethod(nameof(Encoding.GetString), [typeof(byte[])])!;
+
     /// <summary>
     ///     Creates a new instance of this converter.
     /// </summary>
@@ -28,8 +31,8 @@ public class StringToBytesConverter : ValueConverter<string?, byte[]?>
         Encoding encoding,
         ConverterMappingHints? mappingHints = null)
         : base(
-            v => encoding.GetBytes(v!),
-            v => encoding.GetString(v!),
+            FromProvider(encoding),
+            ToProvider(encoding),
             mappingHints)
     {
     }
@@ -39,4 +42,26 @@ public class StringToBytesConverter : ValueConverter<string?, byte[]?>
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
         = new(typeof(string), typeof(byte[]), i => new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
+
+    private static Expression<Func<string?, byte[]?>> FromProvider(Encoding encoding)
+    {
+        // v => encoding.GetBytes(v!),
+        var prm = Expression.Parameter(typeof(string), "v");
+        var result = Expression.Lambda<Func<string?, byte[]?>>(
+            Expression.Call(Expression.Constant(encoding), EncodingGetBytesMethodInfo, prm),
+            prm);
+
+        return result;
+    }
+
+    private static Expression<Func<byte[]?, string?>> ToProvider(Encoding encoding)
+    {
+        // v => encoding.GetString(v!)
+        var prm = Expression.Parameter(typeof(byte[]), "v");
+        var result = Expression.Lambda<Func<byte[]?, string?>>(
+            Expression.Call(Expression.Constant(encoding), EncodingGetStringMethodInfo, prm),
+            prm);
+
+        return result;
+    }
 }

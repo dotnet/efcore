@@ -50,4 +50,9 @@ public sealed class SqliteJsonDecimalReaderWriter : JsonValueReaderWriter<decima
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, decimal value)
         => writer.WriteStringValue(string.Format(CultureInfo.InvariantCulture, DecimalFormatConst, value));
+
+    private readonly Expression<Func<SqliteJsonDecimalReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

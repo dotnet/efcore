@@ -56,6 +56,23 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
                 typeof(IInfrastructure<IServiceProvider>)));
     }
 
+    /// <inheritdoc />
+    public override Expression BindToParameter(
+        Expression materializationExpression,
+        ParameterBindingInfo bindingInfo)
+    {
+        Check.NotNull(materializationExpression, nameof(materializationExpression));
+        Check.NotNull(bindingInfo, nameof(bindingInfo));
+
+        return Expression.Call(
+            GetServiceMethod.MakeGenericMethod(ServiceType),
+            Expression.Convert(
+                Expression.Property(
+                    materializationExpression,
+                    MaterializationContext.ContextProperty),
+                typeof(IInfrastructure<IServiceProvider>)));
+    }
+
     /// <summary>
     ///     Creates a copy that contains the given consumed properties.
     /// </summary>

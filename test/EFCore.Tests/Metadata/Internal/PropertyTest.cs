@@ -554,6 +554,10 @@ public class PropertyTest
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        private readonly Expression<Func<SimpleJasonValueReaderWriter>> _instanceLambda = () => new();
+
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
     private class JasonValueReaderWriterWithPrivateInstance : JsonValueReaderWriter<string>
@@ -565,6 +569,10 @@ public class PropertyTest
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        private readonly Expression<Func<JasonValueReaderWriterWithPrivateInstance>> _instanceLambda = () => Instance;
+
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
     private class JasonValueReaderWriterWithBadInstance : JsonValueReaderWriter<string>
@@ -576,6 +584,8 @@ public class PropertyTest
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        public override Expression ConstructorExpression => Expression.Default(typeof(JasonValueReaderWriterWithBadInstance));
     }
 
     private class SimpleJasonValueReaderWriterWithInstance : JsonValueReaderWriter<string>
@@ -587,6 +597,10 @@ public class PropertyTest
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        private readonly Expression<Func<SimpleJasonValueReaderWriterWithInstance>> _instanceLambda = () => Instance;
+
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
     private class SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor : JsonValueReaderWriter<string>
@@ -602,6 +616,10 @@ public class PropertyTest
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        private readonly Expression<Func<SimpleJasonValueReaderWriterWithInstanceAndPrivateConstructor>> _instanceLambda = () => Instance;
+
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
     private class NonDerivedJsonValueReaderWriter;
@@ -616,6 +634,10 @@ public class PropertyTest
 
         public override Type ValueType
             => typeof(string);
+
+        private readonly Expression<Func<NonGenericJsonValueReaderWriter>> _instanceLambda = () => new();
+
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
     private abstract class AbstractJasonValueReaderWriter : JsonValueReaderWriter<string>;
@@ -631,17 +653,24 @@ public class PropertyTest
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        private readonly Expression<Func<PrivateJasonValueReaderWriter>> _instanceLambda = () => new();
+
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
-#pragma warning disable CS9113 // Parameter '_' is unread
     private class NonParameterlessJsonValueReaderWriter(bool _) : JsonValueReaderWriter<string>
-#pragma warning restore CS9113
     {
         public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
             => writer.WriteStringValue(value);
+
+        private readonly ConstructorInfo _constructorInfo = typeof(NonParameterlessJsonValueReaderWriter).GetConstructor([typeof(bool)])!;
+
+        public override Expression ConstructorExpression =>
+            Expression.New(_constructorInfo, Expression.Constant(_));
     }
 
     private static IMutableModel CreateModel()

@@ -26,4 +26,9 @@ public sealed class JsonDecimalReaderWriter : JsonValueReaderWriter<decimal>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, decimal value)
         => writer.WriteNumberValue(value);
+
+    private readonly Expression<Func<JsonDecimalReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

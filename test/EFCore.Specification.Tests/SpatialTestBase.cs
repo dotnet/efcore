@@ -42,7 +42,7 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
         Assert.False(db.Entry(entity).Property(e => e.Point).IsModified);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "AOT: NTS is not supported")]
     public virtual async void Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         Point CreatePoint(double y = 2.2)
@@ -92,7 +92,7 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
             });
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "AOT: NTS is not supported")]
     public virtual void Translators_handle_static_members()
     {
         using var db = Fixture.CreateContext();
@@ -108,7 +108,7 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
          }).FirstOrDefault();
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "AOT: NTS is not supported")]
     public virtual void Can_roundtrip_Z_and_M()
     {
         using var db = Fixture.CreateContext();

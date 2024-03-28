@@ -56,4 +56,9 @@ public sealed class SqliteJsonDateTimeOffsetReaderWriter : JsonValueReaderWriter
             JsonEncodedText.Encode(
                 string.Format(CultureInfo.InvariantCulture, DateTimeOffsetFormatConst, value),
                 JavaScriptEncoder.UnsafeRelaxedJsonEscaping));
+
+    private readonly Expression<Func<SqliteJsonDateTimeOffsetReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

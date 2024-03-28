@@ -2242,7 +2242,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                     }
                     equals new
                     {
-                        A = EF.Property<int?>(l2, "Level1_Optional_Id"), B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
+                        A = EF.Property<int?>(l2, "Level1_Optional_Id"),
+                        B = EF.Property<int?>(l2, "OneToMany_Optional_Self_Inverse2Id")
                     }
                 select l1);
 
@@ -3300,7 +3301,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                             ? null
                             : new Level2Dto
                             {
-                                Id = l1.OneToOne_Optional_FK1.Id, Name = l1.OneToOne_Optional_FK1.Name,
+                                Id = l1.OneToOne_Optional_FK1.Id,
+                                Name = l1.OneToOne_Optional_FK1.Name,
                             }
                     })
                 .OrderBy(e => e.Level2.Name)
@@ -3458,7 +3460,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                     o => new { o.Id, Condition = true },
                     i => new
                     {
-                        Id = i.Key, Condition = i.Sum > 10,
+                        Id = i.Key,
+                        Condition = i.Sum > 10,
                     },
                     (o, i) => i.Key));
 
@@ -3763,7 +3766,8 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
             ss => from x in ss.Set<InheritanceBase2>()
                   select new
                   {
-                      x.Id, InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
+                      x.Id,
+                      InheritanceLeaf2Id = EF.Property<int?>(x, "InheritanceLeaf2Id"),
                   },
             elementSorter: e => e.Id);
 

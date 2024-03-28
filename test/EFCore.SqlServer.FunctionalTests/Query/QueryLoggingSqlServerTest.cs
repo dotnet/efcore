@@ -34,7 +34,7 @@ public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFi
             "Compiling query expression: ",
             Fixture.TestSqlLoggerFactory.Log[0].Message);
         Assert.StartsWith(
-            "Generated query execution expression: " + Environment.NewLine + "'queryContext => new SingleQueryingEnumerable<Customer>(",
+            "Generated query execution expression: " + Environment.NewLine + "'queryContext => SingleQueryingEnumerable.Create<Customer>(",
             Fixture.TestSqlLoggerFactory.Log[1].Message);
     }
 

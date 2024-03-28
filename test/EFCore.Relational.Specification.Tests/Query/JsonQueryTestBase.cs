@@ -1311,7 +1311,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: list comparer captures element comparer, see issue #33383")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_distinct_in_projection(bool async)
         => AssertQuery(
@@ -1349,7 +1349,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: list comparer captures element comparer, see issue #33383")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_multiple_collection_projections(bool async)
         => AssertQuery(
@@ -1376,7 +1376,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 AssertCollection(e.Fourth, a.Fourth);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: list comparer captures element comparer, see issue #33383")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_branch_collection_distinct_and_other_collection(bool async)
         => AssertQuery(

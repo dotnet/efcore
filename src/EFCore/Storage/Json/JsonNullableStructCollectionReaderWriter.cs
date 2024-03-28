@@ -113,4 +113,11 @@ public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteColl
 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _elementReaderWriter;
+
+    private readonly ConstructorInfo _constructorInfo =
+        typeof(JsonNullableStructCollectionReaderWriter<TCollection, TConcreteCollection, TElement>).GetConstructor([typeof(JsonValueReaderWriter<TElement>)])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression =>
+        Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }

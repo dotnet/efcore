@@ -1064,6 +1064,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                from method in type.GetMethods(AnyInstance)
                where method.DeclaringType == type
                    && !Fixture.NonVirtualMethods.Contains(method)
+                   && !Fixture.VirtualMethodExceptions.Contains(method)
                    && !method.IsVirtual
                    && !method.Name.StartsWith("add_", StringComparison.Ordinal)
                    && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
@@ -1275,6 +1276,15 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new();
         public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
         public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = [];
+        public virtual HashSet<MethodInfo> VirtualMethodExceptions { get; } =
+            [
+            // un-sealed record
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            typeof(MaterializerLiftableConstantContext).GetMethod("get_Dependencies"),
+            typeof(MaterializerLiftableConstantContext).GetMethod("set_Dependencies"),
+            typeof(MaterializerLiftableConstantContext).GetMethod("Deconstruct"),
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            ];
 
         public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; } =
             [

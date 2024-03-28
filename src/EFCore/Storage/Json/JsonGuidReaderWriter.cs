@@ -26,4 +26,9 @@ public sealed class JsonGuidReaderWriter : JsonValueReaderWriter<Guid>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
         => writer.WriteStringValue(value);
+
+    private readonly Expression<Func<JsonGuidReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

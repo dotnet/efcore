@@ -31,4 +31,9 @@ public sealed class SqliteJsonGeometryWktReaderWriter : JsonValueReaderWriter<Ge
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, Geometry value)
         => writer.WriteStringValue(value.ToText());
+
+    private readonly Expression<Func<SqliteJsonGeometryWktReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

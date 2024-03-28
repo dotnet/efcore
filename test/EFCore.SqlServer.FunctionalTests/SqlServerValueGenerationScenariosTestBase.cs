@@ -699,7 +699,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
         }
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "AOT: NTS is not supported")]
     [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public async Task Insert_with_non_key_default_spatial_value()
     {

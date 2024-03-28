@@ -27,4 +27,9 @@ public sealed class JsonSignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<TE
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TEnum value)
         => writer.WriteNumberValue((long)Convert.ChangeType(value, typeof(long))!);
+
+    private readonly Expression<Func<JsonSignedEnumReaderWriter<TEnum>>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

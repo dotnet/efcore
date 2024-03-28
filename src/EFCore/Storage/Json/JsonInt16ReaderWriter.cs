@@ -26,4 +26,9 @@ public sealed class JsonInt16ReaderWriter : JsonValueReaderWriter<short>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, short value)
         => writer.WriteNumberValue(value);
+
+    private readonly Expression<Func<JsonInt16ReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

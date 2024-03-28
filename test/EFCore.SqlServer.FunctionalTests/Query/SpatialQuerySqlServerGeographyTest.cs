@@ -218,7 +218,7 @@ FROM [LineStringEntity] AS [l]
     public override Task Crosses(bool async)
         => Task.CompletedTask;
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task CurveToLine(bool async)
     {

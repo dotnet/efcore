@@ -47,4 +47,9 @@ public sealed class SqliteJsonGuidReaderWriter : JsonValueReaderWriter<Guid>
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
         => writer.WriteStringValue(value.ToString().ToUpperInvariant());
+
+    private readonly Expression<Func<SqliteJsonGuidReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

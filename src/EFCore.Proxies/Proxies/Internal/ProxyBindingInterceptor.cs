@@ -52,6 +52,7 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
 
             return new FactoryMethodBinding(
                 _proxyFactory,
+                Expression.Constant(_proxyFactory, typeof(IProxyFactory)),
                 CreateLazyLoadingProxyMethod,
                 new List<ParameterBinding>
                 {
@@ -67,6 +68,7 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
         {
             return new FactoryMethodBinding(
                 _proxyFactory,
+                Expression.Constant(_proxyFactory, typeof(IProxyFactory)),
                 CreateProxyMethod,
                 new List<ParameterBinding>
                 {

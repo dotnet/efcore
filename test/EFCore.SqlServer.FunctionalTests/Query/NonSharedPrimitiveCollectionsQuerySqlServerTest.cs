@@ -699,9 +699,12 @@ WHERE (
 
     #endregion
 
-    [ConditionalFact]
-    public override Task Column_with_custom_converter()
-        => base.Column_with_custom_converter();
+    public override async Task Column_with_custom_converter()
+    {
+        await base.Column_with_custom_converter();
+
+        AssertSql("");
+    }
 
     public override async Task Parameter_with_inferred_value_converter()
     {

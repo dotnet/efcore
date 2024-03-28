@@ -34,4 +34,10 @@ public class JsonCastValueReaderWriter<TConverted> :
 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _providerReaderWriter;
+
+    private readonly ConstructorInfo _constructorInfo = typeof(JsonCastValueReaderWriter<TConverted>).GetConstructor([typeof(JsonValueReaderWriter)])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression =>
+        Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }

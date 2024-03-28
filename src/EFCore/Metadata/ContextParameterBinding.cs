@@ -48,6 +48,24 @@ public class ContextParameterBinding : ServiceParameterBinding
             : propertyExpression;
     }
 
+    /// <inheritdoc />
+    public override Expression BindToParameter(
+        Expression materializationExpression,
+        ParameterBindingInfo bindingInfo)
+    {
+        Check.NotNull(materializationExpression, nameof(materializationExpression));
+        Check.NotNull(bindingInfo, nameof(bindingInfo));
+
+        var propertyExpression
+            = Expression.Property(
+                materializationExpression,
+                MaterializationContext.ContextProperty);
+
+        return ServiceType != typeof(DbContext)
+            ? Expression.TypeAs(propertyExpression, ServiceType)
+            : propertyExpression;
+    }
+
     /// <summary>
     ///     Creates a copy that contains the given consumed properties.
     /// </summary>

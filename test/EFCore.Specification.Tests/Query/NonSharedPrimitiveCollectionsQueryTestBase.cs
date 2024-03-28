@@ -113,7 +113,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
 
     #endregion Support for specific element types
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "AOT: custom converters are not supported")]
     public virtual async Task Column_with_custom_converter()
     {
         var contextFactory = await InitializeAsync<TestContext>(

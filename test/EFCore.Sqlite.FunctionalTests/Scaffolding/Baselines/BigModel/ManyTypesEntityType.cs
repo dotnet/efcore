@@ -237,12 +237,12 @@ namespace TestNamespace
                     size: 1),
                 converter: new ValueConverter<bool, string>(
                     (bool v) => (string)(v ? "B" : "A"),
-                    (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)'B'),
+                    (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)"B".ToUpperInvariant()[0]),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<bool, string>(
                         (bool v) => (string)(v ? "B" : "A"),
-                        (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)'B')));
+                        (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)"B".ToUpperInvariant()[0])));
             boolToStringConverterProperty.SetSentinelFromProviderValue("A");
 
             var boolToTwoValuesConverterProperty = runtimeEntityType.AddProperty(

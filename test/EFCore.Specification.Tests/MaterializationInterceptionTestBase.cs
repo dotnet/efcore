@@ -494,6 +494,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
 
             return new FactoryMethodBinding(
                 this,
+                Expression.Constant(this),
                 typeof(TestBindingInterceptor).GetTypeInfo().GetDeclaredMethod(nameof(BookFactory))!,
                 new List<ParameterBinding>(),
                 interceptionData.TypeBase.ClrType);

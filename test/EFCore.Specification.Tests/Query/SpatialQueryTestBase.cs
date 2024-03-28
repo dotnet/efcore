@@ -21,7 +21,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
     protected virtual bool AssertDistances
         => true;
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task SimpleSelect(bool async)
     {
@@ -42,7 +42,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<MultiLineStringEntity>());
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task WithConversion(bool async)
         => AssertQuery(
@@ -111,7 +111,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Text, a.Text, WktComparer.Instance);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Boundary(bool async)
         => AssertQuery(
@@ -124,7 +124,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Boundary, a.Boundary, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Buffer(bool async)
         => AssertQuery(
@@ -147,7 +147,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Buffer_quadrantSegments(bool async)
         => AssertQuery(
@@ -170,7 +170,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Centroid(bool async)
         => AssertQuery(
@@ -183,7 +183,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Centroid, a.Centroid, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Combine_aggregate(bool async)
         => AssertQuery(
@@ -205,7 +205,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(eCollection.Geometries, aCollection.Geometries);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task EnvelopeCombine_aggregate(bool async)
         => AssertQuery(
@@ -235,7 +235,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ConvexHull(bool async)
         => AssertQuery(
@@ -249,7 +249,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.ConvexHull, a.ConvexHull, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ConvexHull_aggregate(bool async)
         => AssertQuery(
@@ -324,7 +324,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Difference(bool async)
     {
@@ -590,7 +590,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task EndPoint(bool async)
         => AssertQuery(
@@ -598,7 +598,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, EndPoint = e.LineString == null ? null : e.LineString.EndPoint }),
             elementSorter: e => e.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Envelope(bool async)
         => AssertQuery(
@@ -625,7 +625,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ExteriorRing(bool async)
         => AssertQuery(
@@ -642,7 +642,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 e => new { e.Id, GeometryType = e.Point == null ? null : e.Point.GeometryType }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GetGeometryN(bool async)
         => AssertQuery(
@@ -652,7 +652,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 e => new { e.Id, Geometry0 = e.MultiLineString == null ? null : e.MultiLineString.GetGeometryN(0) }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GetGeometryN_with_null_argument(bool async)
         => AssertQuery(
@@ -666,7 +666,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = default(Geometry) }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GetInteriorRingN(bool async)
         => AssertQuery(
@@ -689,7 +689,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GetPointN(bool async)
         => AssertQuery(
@@ -699,7 +699,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Select(e => new { e.Id, Point0 = e.LineString == null ? null : e.LineString.GetPointN(0) }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task InteriorPoint(bool async)
         => AssertQuery(
@@ -726,7 +726,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Intersection(bool async)
     {
@@ -841,7 +841,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Item(bool async)
         => AssertQuery(
@@ -958,7 +958,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task PointOnSurface(bool async)
         => AssertQuery(
@@ -999,7 +999,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Reverse(bool async)
         => AssertQuery(
@@ -1026,7 +1026,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 e => new { e.Id, SRID = e.Geometry == null ? (int?)null : e.Geometry.SRID }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task StartPoint(bool async)
         => AssertQuery(
@@ -1035,7 +1035,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Select(e => new { e.Id, StartPoint = e.LineString == null ? null : e.LineString.StartPoint }),
             elementSorter: x => x.Id);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task SymmetricDifference(bool async)
     {
@@ -1096,7 +1096,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementSorter: x => x.Id);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Union(bool async)
     {
@@ -1114,7 +1114,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             });
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Union_aggregate(bool async)
         => AssertQuery(
@@ -1130,7 +1130,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Union, a.Union, GeometryComparer.Instance);
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Union_void(bool async)
         => AssertQuery(
@@ -1190,7 +1190,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 }
             });
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task XY_with_collection_join(bool async)
         => AssertFirstOrDefault(

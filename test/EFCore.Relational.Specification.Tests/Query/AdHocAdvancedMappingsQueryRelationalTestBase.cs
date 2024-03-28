@@ -71,7 +71,8 @@ public abstract class AdHocAdvancedMappingsQueryRelationalTestBase : AdHocAdvanc
             .Select(
                 x => new
                 {
-                    x.B.A.Id, x.B.Info.Created,
+                    x.B.A.Id,
+                    x.B.Info.Created,
                 }).ToList();
 
         Assert.Equal(new DateTime(2000, 1, 1), query[0].Created);
