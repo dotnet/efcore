@@ -29,17 +29,18 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
                 new SqlServerConvertTranslator(sqlExpressionFactory),
                 new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
                 new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                new SqlServerDateOnlyMethodTranslator(sqlExpressionFactory),
                 new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
                 new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                 new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                 new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
                 new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory),
+                new SqlServerJsonFunctionsTranslator(sqlExpressionFactory),
                 new SqlServerMathTranslator(sqlExpressionFactory),
                 new SqlServerNewGuidTranslator(sqlExpressionFactory),
                 new SqlServerObjectToStringTranslator(sqlExpressionFactory, typeMappingSource),
                 new SqlServerStringMethodTranslator(sqlExpressionFactory),
-                new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory)
+                new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory),
+                new SqlServerJsonValueFunctionTranslator(sqlExpressionFactory)
             });
     }
 }
