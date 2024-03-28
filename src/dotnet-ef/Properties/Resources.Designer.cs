@@ -436,6 +436,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("StartupProjectDescription");
 
         /// <summary>
+        ///     The suffix to attach to the name of all the generated files
+        /// </summary>
+        public static string SuffixDescription
+            => GetString("SuffixDescription");
+
+        /// <summary>
         ///     Don't generate DbContext.OnConfiguring.
         /// </summary>
         public static string SuppressOnConfiguringDescription

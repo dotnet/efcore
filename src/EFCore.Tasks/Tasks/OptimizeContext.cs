@@ -1,12 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
-using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.EntityFrameworkCore.Tasks.Internal;
-using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tasks;
 
@@ -43,35 +40,41 @@ public class OptimizeContext : OperationTaskBase
         {
             Log.LogMessage(MessageImportance.High, "Optimizing DbContext...");
 
-            var additionalArguments = new List<string> { "dbcontext", "optimize" };
+            AdditionalArguments.Add("dbcontext");
+            AdditionalArguments.Add("optimize");
             if (OutputDir != null)
             {
-                additionalArguments.Add("--output-dir");
-                additionalArguments.Add(OutputDir.ItemSpec);
+                AdditionalArguments.Add("--output-dir");
+                AdditionalArguments.Add(OutputDir.ItemSpec);
             }
 
             var targetNamespace = MsBuildUtilities.TrimAndGetNullForEmpty(TargetNamespace);
             if (targetNamespace != null)
             {
-                additionalArguments.Add("--namespace");
-                additionalArguments.Add(targetNamespace);
+                AdditionalArguments.Add("--namespace");
+                AdditionalArguments.Add(targetNamespace);
             }
 
             var dbContextName = MsBuildUtilities.TrimAndGetNullForEmpty(DbContextName);
             if(dbContextName != null)
             {
-                additionalArguments.Add("--context");
-                additionalArguments.Add(dbContextName);
+                AdditionalArguments.Add("--context");
+                AdditionalArguments.Add(dbContextName);
             }
 
-            var success = Execute(additionalArguments, out var result);
+            AdditionalArguments.Add("--suffix");
+            AdditionalArguments.Add(".g");
+
+            var success = base.Execute();
+            AdditionalArguments.Clear();
+
             if (!success
-                || result == null)
+                || Output == null)
             {
                 return false;
             }
 
-            GeneratedFiles = result.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+            GeneratedFiles = Output.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
                 .Select(f => new TaskItem(f)).ToArray();
         }
         catch (Exception e)

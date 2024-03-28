@@ -31,4 +31,10 @@ public class CompiledModelCodeGenerationOptions
     /// </summary>
     /// <value> A value indicating whether nullable reference types are enabled. </value>
     public virtual bool UseNullableReferenceTypes { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the suffix to attach to the name of all the generated files.
+    /// </summary>
+    /// <value> The suffix to attach to the name of all the generated files. </value>
+    public virtual string? Suffix { get; set; }
 }

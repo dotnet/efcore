@@ -4,7 +4,7 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework=".NET8.0">
+      <group targetFramework="$DefaultNetCoreTargetFramework$">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$Version$" />
       </group>
     </dependencies>
@@ -17,7 +17,7 @@
     <file src="$OutputPath$$DefaultNetCoreTargetFramework$\$AssemblyName$.pdb" target="tasks\$DefaultNetCoreTargetFramework$\" />
     <file src="$OutputPath$$DefaultNetCoreTargetFramework$\$AssemblyName$.deps.json" target="tasks\$DefaultNetCoreTargetFramework$\" />
     <file src="$OutputPath$net472\*" target="tasks\net472\" />
-    <file src="..\..\artifacts\bin\ef\$Configuration$\netcoreapp2.0\*" target="tools\netcoreapp2.0\" />
+    <file src="$ArtifactsBinDir$ef\$Configuration$\netcoreapp2.0\*" target="tools\netcoreapp2.0\" />
     <file src="buildTransitive\*" target="buildTransitive\" />
   </files>
 </package>
