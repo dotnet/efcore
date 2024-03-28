@@ -21,7 +21,6 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     private readonly long? _maxValue;
     private readonly bool _isCyclic;
     private readonly int? _cacheSize;
-    private readonly bool _isCached;
     private readonly bool _modelSchemaIsNull;
 
     /// <summary>
@@ -37,7 +36,6 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     /// <param name="minValue">The minimum value.</param>
     /// <param name="maxValue">The maximum value.</param>
     /// <param name="cacheSize">The cache size.</param>
-    /// <param name="cached">Whether the sequence use preallocated values.</param>
     /// <param name="modelSchemaIsNull">A value indicating whether <see cref="ModelSchema" /> is null.</param>
     public RuntimeSequence(
         string name,
@@ -49,7 +47,6 @@ public class RuntimeSequence : AnnotatableBase, ISequence
         bool cyclic = false,
         long? minValue = null,
         long? maxValue = null,
-        bool cached = true,
         int? cacheSize = null,
         bool modelSchemaIsNull = false)
     {
@@ -62,7 +59,6 @@ public class RuntimeSequence : AnnotatableBase, ISequence
         _isCyclic = cyclic;
         _minValue = minValue;
         _maxValue = maxValue;
-        _isCached = cached;
         _cacheSize = cacheSize;
         _modelSchemaIsNull = modelSchemaIsNull;
     }
@@ -162,13 +158,6 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     {
         [DebuggerStepThrough]
         get => _isCyclic;
-    }
-
-    /// <inheritdoc />
-    bool IReadOnlySequence.IsCached
-    {
-        [DebuggerStepThrough]
-        get => _isCached;
     }
 
     /// <inheritdoc />

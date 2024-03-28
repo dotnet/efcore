@@ -1804,7 +1804,6 @@ namespace RootNamespace
                 Assert.Equal(3, sequence.MaxValue);
                 Assert.Equal(2, sequence.IncrementBy);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
                 Assert.Equal(20, sequence.CacheSize);
                 Assert.Equal("bar", sequence["foo"]);
             });

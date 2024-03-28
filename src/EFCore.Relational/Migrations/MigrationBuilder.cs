@@ -522,9 +522,7 @@ public class MigrationBuilder
     /// <param name="oldMinValue">The previous minimum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="oldMaxValue">The previous maximum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="oldCyclic">Indicates whether or not the sequence would previously re-start when the maximum value is reached.</param>
-    /// <param name="cached">Indicates whether the sequence use preallocated values.</param>
     /// <param name="cacheSize">The amount of preallocated values.</param>
-    /// <param name="oldCached">Indicates whether the sequence previously used preallocated values</param>
     /// <param name="oldCacheSize">The previous amount of preallocated values.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual AlterOperationBuilder<AlterSequenceOperation> AlterSequence(
@@ -538,9 +536,7 @@ public class MigrationBuilder
         long? oldMinValue = null,
         long? oldMaxValue = null,
         bool oldCyclic = false,
-        bool cached = true,
         int? cacheSize = null,
-        bool oldCached = true,
         int? oldCacheSize = null)
     {
         Check.NotEmpty(name, nameof(name));
@@ -553,7 +549,6 @@ public class MigrationBuilder
             MinValue = minValue,
             MaxValue = maxValue,
             IsCyclic = cyclic,
-            IsCached = cached,
             CacheSize = cacheSize,
             OldSequence = new CreateSequenceOperation
             {
@@ -561,7 +556,6 @@ public class MigrationBuilder
                 MinValue = oldMinValue,
                 MaxValue = oldMaxValue,
                 IsCyclic = oldCyclic,
-                IsCached = oldCached,
                 CacheSize = oldCacheSize,
             }
         };
@@ -714,7 +708,6 @@ public class MigrationBuilder
     /// <param name="minValue">The minimum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="maxValue">The maximum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="cyclic">Indicates whether or not the sequence will re-start when the maximum value is reached.</param>
-    /// <param name="cached">Indicates whether the sequence use preallocated values.</param>
     /// <param name="cacheSize">The amount of preallocated values.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<CreateSequenceOperation> CreateSequence(
@@ -725,9 +718,8 @@ public class MigrationBuilder
         long? minValue = null,
         long? maxValue = null,
         bool cyclic = false,
-        bool cached = true,
         int? cacheSize = null)
-        => CreateSequence<long>(name, schema, startValue, incrementBy, minValue, maxValue, cyclic, cached, cacheSize);
+        => CreateSequence<long>(name, schema, startValue, incrementBy, minValue, maxValue, cyclic, cacheSize);
 
     /// <summary>
     ///     Builds a <see cref="CreateSequenceOperation" /> to create a new sequence.
@@ -743,7 +735,6 @@ public class MigrationBuilder
     /// <param name="minValue">The minimum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="maxValue">The maximum value of the sequence, or <see langword="null" /> if not specified.</param>
     /// <param name="cyclic">Indicates whether or not the sequence will re-start when the maximum value is reached.</param>
-    /// <param name="cached">Indicates whether the sequence use preallocated values.</param>
     /// <param name="cacheSize">The amount of preallocated values.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<CreateSequenceOperation> CreateSequence<T>(
@@ -754,7 +745,6 @@ public class MigrationBuilder
         long? minValue = null,
         long? maxValue = null,
         bool cyclic = false,
-        bool cached = true,
         int? cacheSize = null)
     {
         Check.NotEmpty(name, nameof(name));
@@ -769,7 +759,6 @@ public class MigrationBuilder
             MinValue = minValue,
             MaxValue = maxValue,
             IsCyclic = cyclic,
-            IsCached = cached,
             CacheSize = cacheSize
         };
         Operations.Add(operation);

@@ -778,22 +778,12 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("cyclic: true");
             }
 
-            if (operation.IsCached && operation.CacheSize.HasValue)
+            if (operation.CacheSize != null)
             {
                 builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached))
                     .AppendLine(",")
                     .Append("cacheSize: ")
                     .Append(Code.Literal(operation.CacheSize));
-            }
-            else if (!operation.IsCached)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached));
             }
 
             if (operation.OldSequence.IncrementBy != 1)
@@ -827,22 +817,12 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("oldCyclic: true");
             }
 
-            if (operation.OldSequence.IsCached && operation.OldSequence.CacheSize.HasValue)
+            if (operation.OldSequence.CacheSize.HasValue)
             {
                 builder
-                    .AppendLine(",")
-                    .Append("oldCached: ")
-                    .Append(Code.Literal(operation.OldSequence.IsCached))
                     .AppendLine(",")
                     .Append("oldCacheSize: ")
                     .Append(Code.Literal(operation.OldSequence.CacheSize));
-            }
-            else if (!operation.IsCached)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("oldCached: ")
-                    .Append(Code.Literal(operation.OldSequence.IsCached));
             }
 
             builder.Append(")");
@@ -1061,22 +1041,12 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("cyclic: true");
             }
 
-            if (operation.IsCached && operation.CacheSize.HasValue)
+            if (operation.CacheSize.HasValue)
             {
                 builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached))
                     .AppendLine(",")
                     .Append("cacheSize: ")
                     .Append(Code.Literal(operation.CacheSize));
-            }
-            else if(!operation.IsCached)
-            {
-                builder
-                    .AppendLine(",")
-                    .Append("cached: ")
-                    .Append(Code.Literal(operation.IsCached));
             }
 
             builder.Append(")");
