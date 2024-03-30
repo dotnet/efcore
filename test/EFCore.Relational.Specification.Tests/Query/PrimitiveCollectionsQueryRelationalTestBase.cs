@@ -43,4 +43,12 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixt
 
         Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
     }
+
+    public override async Task Project_inline_collection_with_Concat(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Project_inline_collection_with_Concat(async))).Message;
+
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
+    }
 }

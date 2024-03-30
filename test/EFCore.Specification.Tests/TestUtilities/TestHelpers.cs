@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -259,10 +260,21 @@ public abstract class TestHelpers
         {
             Assert.True(
                 actual.Contains(expectedItem),
-                $"\r\nExpected item: [{expectedItem}] not found in results: [{string.Join(", ", actual.Take(10))}]...");
+                $"\r\nExpected item: '{Render(expectedItem)}' not found in results: '{string.Join(", ", actual.Take(10).Select(Render))}'...");
         }
 
         return actual.Count;
+
+        static object? Render(T element)
+        {
+            if (element is not string and IList list)
+            {
+                var start = '[' + string.Join(", ", list.ToList<object>().Take(4));
+                return list.Count > 4 ? start + "...]" : start + ']';
+            }
+
+            return element;
+        }
     }
 
     public static int AssertResults<T>(

@@ -1333,6 +1333,30 @@ ORDER BY "p"."Id"
 """);
     }
 
+    public override async Task Project_inline_collection(bool async)
+    {
+        await base.Project_inline_collection(async);
+
+        AssertSql(
+            """
+SELECT "p"."String"
+FROM "PrimitiveCollectionsEntity" AS "p"
+""");
+    }
+
+    public override async Task Project_inline_collection_with_Union(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_inline_collection_with_Union(async))).Message);
+
+    public override async Task Project_inline_collection_with_Concat(bool async)
+    {
+        await base.Project_inline_collection_with_Concat(async);
+
+        AssertSql();
+    }
+
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

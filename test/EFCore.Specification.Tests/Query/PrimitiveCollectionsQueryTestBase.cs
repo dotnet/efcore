@@ -928,6 +928,55 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             },
             assertOrder: true);
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_inline_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Select(x => new[] { x.String, "foo" }),
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_inline_collection_with_Union(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Select(
+                    x => new
+                    {
+                        x.Id,
+                        Values = new[] { x.String }.Union(ss.Set<PrimitiveCollectionsEntity>().OrderBy(xx => xx.Id).Select(xx => xx.String)).ToList()
+                    })
+                .OrderBy(x => x.Id),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Values, a.Values, ordered: false);
+            },
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_inline_collection_with_Concat(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Select(
+                    x => new
+                    {
+                        x.Id,
+                        Values = new[] { x.String }.Concat(ss.Set<PrimitiveCollectionsEntity>().OrderBy(xx => xx.Id).Select(xx => xx.String)).ToList()
+                    })
+                .OrderBy(x => x.Id),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                AssertCollection(e.Values, a.Values, ordered: false);
+            },
+            assertOrder: true);
+
     [ConditionalTheory] // #32208, #32215
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
