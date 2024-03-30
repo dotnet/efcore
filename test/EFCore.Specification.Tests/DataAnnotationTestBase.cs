@@ -2227,7 +2227,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     {
         var modelBuilder = CreateModelBuilder();
         modelBuilder.Entity<AmbiguousInversePropertyLeft>();
-        modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
+        modelBuilder.Entity<AmbiguousInversePropertyRightDerived>();
 
         Assert.Equal(
             CoreStrings.WarningAsErrorTemplate(
@@ -2249,7 +2249,6 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
     protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
     {
-        public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
     }
 
     protected class AmbiguousInversePropertyRight
@@ -2771,6 +2770,21 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         Validate(modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void InverseProperty_with_potentially_ambigous_derived_types()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var model = modelBuilder.Model;
+
+        modelBuilder.Ignore<CPSorder>();
+        modelBuilder.Entity<SpecialOrder>();
+        modelBuilder.Entity<CPSpecialOrder>();
+
+        modelBuilder.Entity<CPSorder>().HasKey(e => e.Id);
+
+        Validate(modelBuilder);
+    }
+
     public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
         protected override string StoreName
@@ -2928,5 +2942,13 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
         [InverseProperty(nameof(CPSorder.CPSchargePartner))]
         public virtual ICollection<CPSorder> CPSorders { get; set; }
+    }
+
+    protected class SpecialOrder : CPSorder
+    {
+    }
+
+    protected class CPSpecialOrder : CPSorder
+    {
     }
 }
