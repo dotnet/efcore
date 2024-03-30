@@ -360,6 +360,9 @@
   <data name="StartupProjectDescription" xml:space="preserve">
     <value>The path to the project file.</value>
   </data>
+  <data name="SuffixDescription" xml:space="preserve">
+    <value>The suffix to attach to the name of all the generated files</value>
+  </data>
   <data name="SuppressOnConfiguringDescription" xml:space="preserve">
     <value>Don't generate DbContext.OnConfiguring.</value>
   </data>
