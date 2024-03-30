@@ -4,6 +4,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -257,6 +258,10 @@ FROM "JsonEntitiesConverters" AS "j"
 WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
 """);
     }
+
+    // #33522
+    public override Task Json_predicate_on_byte_array(bool async)
+        => Assert.ThrowsAsync<EqualException>(() => base.Json_predicate_on_byte_array(async));
 
     public override async Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
         => Assert.Equal(
