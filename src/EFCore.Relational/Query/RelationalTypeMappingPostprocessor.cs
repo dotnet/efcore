@@ -176,17 +176,17 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
 
                 var value = rowValue.Values[j];
 
-                var inferredTypeMapping = inferredTypeMappings[j];
-                if (inferredTypeMapping is not null && value.TypeMapping is null)
+                if (value.TypeMapping is null
+                    && inferredTypeMappings[j] is RelationalTypeMapping inferredTypeMapping)
                 {
                     value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
+                }
 
-                    // We currently add explicit conversions on the first row, to ensure that the inferred types are properly typed.
-                    // See #30605 for removing that when not needed.
-                    if (i == 0)
-                    {
-                        value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
-                    }
+                // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred types
+                // are properly typed. See #30605 for removing that when not needed.
+                if (i == 0 && j > 0 && value is not ColumnExpression)
+                {
+                    value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
                 }
 
                 newValues[j - (stripOrdering ? 1 : 0)] = value;

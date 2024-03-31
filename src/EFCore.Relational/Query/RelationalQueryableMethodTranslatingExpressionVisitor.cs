@@ -366,10 +366,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     {
         var elementType = inlineQueryRootExpression.ElementType;
 
-        var rowExpressions = new List<RowValueExpression>();
         var encounteredNull = false;
         var intTypeMapping = _typeMappingSource.FindMapping(typeof(int), RelationalDependencies.Model);
+        RelationalTypeMapping? inferredTypeMaping = null;
+        var sqlExpressions = new SqlExpression[inlineQueryRootExpression.Values.Count];
 
+        // Do a first pass, translating the elements and inferring type mappings/nullability.
         for (var i = 0; i < inlineQueryRootExpression.Values.Count; i++)
         {
             // Note that we specifically don't apply the default type mapping to the translation, to allow it to get inferred later based
@@ -380,6 +382,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 return null;
             }
 
+            // Infer the type mapping from the different inline elements, applying the type mapping of a column to constants/parameters, and
+            // also to the projection of the VALUES expression as a whole.
+            // TODO: This currently picks up the first type mapping; we can do better once we have a type compatibility chart (#15586)
+            // TODO: See similarity with SqlExpressionFactory.ApplyTypeMappingOnIn()
+            inferredTypeMaping ??= translatedValue.TypeMapping;
+
             // TODO: Poor man's null semantics: in SqlNullabilityProcessor we don't fully handle the nullability of SelectExpression
             // projections. Whether the SelectExpression's projection is nullable or not is determined here in translation, but at this
             // point we don't know how to properly calculate nullability (and can't look at parameters).
@@ -387,41 +395,55 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             encounteredNull |=
                 translatedValue is not SqlConstantExpression { Value: not null } and not ColumnExpression { IsNullable: false };
 
-            rowExpressions.Add(
+            sqlExpressions[i] = translatedValue;
+        }
+
+        // Second pass: create the VALUES expression's row value expressions.
+        var rowExpressions = new RowValueExpression[sqlExpressions.Length];
+        for (var i = 0; i < sqlExpressions.Length; i++)
+        {
+            var sqlExpression = sqlExpressions[i];
+
+            rowExpressions[i] =
                 new RowValueExpression(
                     new[]
                     {
                         // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
                         _sqlExpressionFactory.Constant(i, intTypeMapping),
-                        // Note that for the actual value, we must leave the type mapping null to allow it to get inferred later based on usage
-                        translatedValue
-                    }));
+                        // If no type mapping was inferred (i.e. no column in the inline collection), it's left null, to allow it to get
+                        // inferred later based on usage. Note that for the element in the VALUES expression, we'll also apply an explicit
+                        // CONVERT to make sure the database gets the right type (see
+                        // RelationalTypeMappingPostprocessor.ApplyTypeMappingsOnValuesExpression)
+                        sqlExpression.TypeMapping is null && inferredTypeMaping is not null
+                            ? _sqlExpressionFactory.ApplyTypeMapping(sqlExpression, inferredTypeMaping)
+                            : sqlExpression
+                    });
         }
 
         var alias = _sqlAliasManager.GenerateTableAlias("values");
         var valuesExpression = new ValuesExpression(alias, rowExpressions, new[] { ValuesOrderingColumnName, ValuesValueColumnName });
 
         // Note: we leave the element type mapping null, to allow it to get inferred based on queryable operators composed on top.
+        var valueColumn = new ColumnExpression(
+            ValuesValueColumnName,
+            alias,
+            elementType.UnwrapNullableType(),
+            typeMapping: inferredTypeMaping,
+            nullable: encounteredNull);
+        var orderingColumn = new ColumnExpression(
+            ValuesOrderingColumnName,
+            alias,
+            typeof(int),
+            typeMapping: intTypeMapping,
+            nullable: false);
+
         var selectExpression = new SelectExpression(
             [valuesExpression],
-            new ColumnExpression(
-                ValuesValueColumnName,
-                alias,
-                elementType.UnwrapNullableType(),
-                typeMapping: null,
-                nullable: encounteredNull),
-            identifier: [],
+            valueColumn,
+            identifier: [(orderingColumn, orderingColumn.TypeMapping!.Comparer)],
             _sqlAliasManager);
 
-        selectExpression.AppendOrdering(
-            new OrderingExpression(
-                selectExpression.CreateColumnExpression(
-                    valuesExpression,
-                    ValuesOrderingColumnName,
-                    typeof(int),
-                    intTypeMapping,
-                    columnNullable: false),
-                ascending: true));
+        selectExpression.AppendOrdering(new OrderingExpression(orderingColumn, ascending: true));
 
         Expression shaperExpression = new ProjectionBindingExpression(
             selectExpression, new ProjectionMember(), encounteredNull ? elementType.MakeNullable() : elementType);
