@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class QueryExpressionInterceptionSqlServerTestBase : QueryExpressionInterceptionTestBase
 {
     protected QueryExpressionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)

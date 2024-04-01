@@ -281,7 +281,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         => _migrationsAssembly;
 
     /// <summary>
-    ///     The Assembly that contains migrations, or <see langword="null" /> if none has been set.
+    ///     The assembly that contains migrations, or <see langword="null" /> if none has been set.
     /// </summary>
     public virtual Assembly? MigrationsAssemblyObject
         => _migrationsAssemblyObject;

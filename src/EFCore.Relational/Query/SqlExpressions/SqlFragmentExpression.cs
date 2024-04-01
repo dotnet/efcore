@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class SqlFragmentExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlFragmentExpression" /> class.
     /// </summary>
@@ -32,6 +34,12 @@ public class SqlFragmentExpression : SqlExpression
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlFragmentExpression).GetConstructor([typeof(string)])!,
+            Constant(Sql)); // TODO: The new type mapping once that's merged
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

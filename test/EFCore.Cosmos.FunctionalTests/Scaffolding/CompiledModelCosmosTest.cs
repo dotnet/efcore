@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-#nullable enable
-
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;

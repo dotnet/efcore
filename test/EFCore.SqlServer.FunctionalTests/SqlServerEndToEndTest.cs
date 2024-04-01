@@ -13,6 +13,8 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 {
     private const string DatabaseName = "SqlServerEndToEndTest";
@@ -26,9 +28,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_use_decimal_and_byte_as_identity_columns()
+    public async Task Can_use_decimal_and_byte_as_identity_columns()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var nownNum1 = new NownNum { Id = 77.0m, TheWalrus = "Crying" };
         var nownNum2 = new NownNum { Id = 78.0m, TheWalrus = "Walrus" };
 
@@ -213,9 +215,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact] // Issue #29931
-    public void Can_use_SqlQuery_when_context_has_DbFunction()
+    public async Task Can_use_SqlQuery_when_context_has_DbFunction()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
         using (var context = new DbFunctionContext(options))
         {
@@ -253,9 +255,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_use_string_enum_or_byte_array_as_key()
+    public async Task Can_use_string_enum_or_byte_array_as_key()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var sNum1 = new SNum { TheWalrus = "I" };
         var sNum2 = new SNum { TheWalrus = "Am" };
 
@@ -289,9 +291,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_remove_multiple_byte_array_as_key()
+    public async Task Can_remove_multiple_byte_array_as_key()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var bNum1 = new BNum { TheWalrus = "Eggman" };
         var bNum2 = new BNum { TheWalrus = "Eggmen" };
 
@@ -324,9 +326,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_add_table_splitting_dependent_after_principal()
+    public async Task Can_add_table_splitting_dependent_after_principal()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
         var options = Fixture.CreateOptions(testDatabase);
         EvaluationAction evaluationAction = null;
@@ -367,9 +369,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Throws_when_adding_table_splitting_dependent_without_principal()
+    public async Task Throws_when_adding_table_splitting_dependent_without_principal()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
         var options = Fixture.CreateOptions(testDatabase);
         using (var context = new ProjectContext(options))
@@ -461,7 +463,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalFact]
     public async Task Can_add_and_remove_entities_with_keys_of_different_type()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
         var options = Fixture.CreateOptions(testDatabase);
         using (var context = new CompositeKeysDbContext(options))
@@ -511,9 +513,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_insert_non_owner_principal_for_owned()
+    public async Task Can_insert_non_owner_principal_for_owned()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
         var options = Fixture.CreateOptions(testDatabase);
         using (var context = new FileContext(options))
@@ -575,7 +577,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalFact]
     public async Task Can_insert_TPT_dependents_with_identity()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
 
         var options = Fixture.CreateOptions(testDatabase);
         using (var context = new CarContext(options))
@@ -611,9 +613,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_run_linq_query_on_entity_set()
+    public async Task Can_run_linq_query_on_entity_set()
     {
-        using var testStore = SqlServerTestStore.GetNorthwindStore();
+        using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
         using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
         var results = db.Customers
             .Where(c => c.CompanyName.StartsWith("A"))
@@ -633,9 +635,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
+    public async Task Can_run_linq_query_on_entity_set_with_value_buffer_reader()
     {
-        using var testStore = SqlServerTestStore.GetNorthwindStore();
+        using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
         using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
         var results = db.Customers
             .Where(c => c.CompanyName.StartsWith("A"))
@@ -655,9 +657,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_enumerate_entity_set()
+    public async Task Can_enumerate_entity_set()
     {
-        using var testStore = SqlServerTestStore.GetNorthwindStore();
+        using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
         using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
         var results = new List<Customer>();
         foreach (var item in db.Customers)
@@ -673,7 +675,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalFact]
     public async Task Can_save_changes()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
         using (var db = new BloggingContext(options))
         {
@@ -746,7 +748,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalFact]
     public async Task Can_save_changes_in_tracked_entities()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         int updatedId;
         int deletedId;
         int addedId;
@@ -801,9 +803,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_track_an_entity_with_more_than_10_properties()
+    public async Task Can_track_an_entity_with_more_than_10_properties()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
         using (var context = new GameDbContext(options))
         {
@@ -830,9 +832,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_replace_identifying_FK_entity_with_many_to_many()
+    public async Task Can_replace_identifying_FK_entity_with_many_to_many()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new SomeDbContext(options))
@@ -870,7 +872,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         new object[] { 0, 1, 2, 3, 4, 7 },
         2,
         MemberType = typeof(DataGenerator))]
-    public void Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
+    public async Task Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
     {
         var students = new Student[]
         {
@@ -935,7 +937,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             new() { Title = "Literature", Credits = 4 }
         };
 
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         var nextCourse = 0;
@@ -947,7 +949,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 if (courseCount > 1)
                 {
                     students[i].Courses.Add(courses[nextCourse++]);
-                    if(nextCourse >= courseCount)
+                    if (nextCourse >= courseCount)
                     {
                         nextCourse = 0;
                     }
@@ -958,6 +960,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                         nextCourse = 0;
                     }
                 }
+
                 context.Students.Add(students[i]);
             }
 
@@ -966,33 +969,35 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 context.Courses.Add(courses[i]);
             }
 
-            Assert.All(context.Enrollments.Local, e =>
-            {
-                var entry = context.Entry(e);
-                var student = e.Student;
-                var course = e.Course;
-                Assert.Equal(student.Id, e.StudentId);
-                Assert.Equal(course.Id, e.CourseId);
-                Assert.Equal(context.Entry(student).Property(e => e.Id).CurrentValue, entry.Property(e => e.StudentId).CurrentValue);
-                Assert.Equal(context.Entry(course).Property(e => e.Id).CurrentValue, entry.Property(e => e.CourseId).CurrentValue);
-                Assert.True(entry.Property(e => e.StudentId).IsTemporary);
-                Assert.True(entry.Property(e => e.CourseId).IsTemporary);
-                Assert.True(context.Entry(student).Property(e => e.Id).IsTemporary);
-                Assert.True(context.Entry(course).Property(e => e.Id).IsTemporary);
-            });
+            Assert.All(
+                context.Enrollments.Local, e =>
+                {
+                    var entry = context.Entry(e);
+                    var student = e.Student;
+                    var course = e.Course;
+                    Assert.Equal(student.Id, e.StudentId);
+                    Assert.Equal(course.Id, e.CourseId);
+                    Assert.Equal(context.Entry(student).Property(e => e.Id).CurrentValue, entry.Property(e => e.StudentId).CurrentValue);
+                    Assert.Equal(context.Entry(course).Property(e => e.Id).CurrentValue, entry.Property(e => e.CourseId).CurrentValue);
+                    Assert.True(entry.Property(e => e.StudentId).IsTemporary);
+                    Assert.True(entry.Property(e => e.CourseId).IsTemporary);
+                    Assert.True(context.Entry(student).Property(e => e.Id).IsTemporary);
+                    Assert.True(context.Entry(course).Property(e => e.Id).IsTemporary);
+                });
 
             context.SaveChanges();
 
-            Assert.All(context.Enrollments.Local, e =>
-            {
-                var entry = context.Entry(e);
-                var student = e.Student;
-                var course = e.Course;
-                Assert.Equal(student.Id, e.StudentId);
-                Assert.Equal(course.Id, e.CourseId);
-                Assert.False(entry.Property(e => e.StudentId).IsTemporary);
-                Assert.False(entry.Property(e => e.CourseId).IsTemporary);
-            });
+            Assert.All(
+                context.Enrollments.Local, e =>
+                {
+                    var entry = context.Entry(e);
+                    var student = e.Student;
+                    var course = e.Course;
+                    Assert.Equal(student.Id, e.StudentId);
+                    Assert.Equal(course.Id, e.CourseId);
+                    Assert.False(entry.Property(e => e.StudentId).IsTemporary);
+                    Assert.False(entry.Property(e => e.CourseId).IsTemporary);
+                });
         }
 
         using (var context = new UniversityContext(options))
@@ -1001,13 +1006,14 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             Assert.Equal(courseCount, context.Courses.ToList().Count());
 
             var enrollments = context.Enrollments.Include(e => e.Course).Include(e => e.Student).ToList();
-            Assert.All(enrollments, e =>
-            {
-                var student = e.Student;
-                var course = e.Course;
-                Assert.Equal(student.Id, e.StudentId);
-                Assert.Equal(course.Id, e.CourseId);
-            });
+            Assert.All(
+                enrollments, e =>
+                {
+                    var student = e.Student;
+                    var course = e.Course;
+                    Assert.Equal(student.Id, e.StudentId);
+                    Assert.Equal(course.Id, e.CourseId);
+                });
         }
     }
 
@@ -1182,9 +1188,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Adding_an_item_to_a_collection_marks_it_as_modified()
+    public async Task Adding_an_item_to_a_collection_marks_it_as_modified()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using var context = new GameDbContext(options);
@@ -1207,9 +1213,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_set_reference_twice()
+    public async Task Can_set_reference_twice()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new GameDbContext(options))
@@ -1247,9 +1253,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     }
 
     [ConditionalFact]
-    public void Can_include_on_loaded_entity()
+    public async Task Can_include_on_loaded_entity()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         using (var context = new GameDbContext(options))
@@ -1477,7 +1483,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalFact]
     public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
     {
-        using var testStore = SqlServerTestStore.GetNorthwindStore();
+        using var testStore = await SqlServerTestStore.GetNorthwindStoreAsync();
         using var db = new NorthwindContext(Fixture.CreateOptions(testStore));
         var customer = await db.Customers.OrderBy(c => c.CustomerID).FirstOrDefaultAsync();
 
@@ -1491,7 +1497,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalFact] // Issue #931
     public async Task Can_save_and_query_with_schema()
     {
-        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testStore = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testStore);
 
         await testStore.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
@@ -1558,7 +1564,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     private async Task RoundTripChanges<TBlog>()
         where TBlog : class, IBlog, new()
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
         int blog1Id;

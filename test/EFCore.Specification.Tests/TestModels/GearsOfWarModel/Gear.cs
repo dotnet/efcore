@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
+#nullable disable
+
 public class Gear
 {
     public Gear()

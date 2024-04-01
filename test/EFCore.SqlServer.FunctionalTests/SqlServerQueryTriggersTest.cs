@@ -5,7 +5,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTriggersFixture fixture) : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
+#nullable disable
+
+public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTriggersFixture fixture)
+    : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;
 
@@ -108,11 +111,11 @@ public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTrig
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        protected override void Seed(DbContext context)
+        protected override async Task SeedAsync(DbContext context)
         {
-            context.Database.EnsureCreatedResiliently();
+            await context.Database.EnsureCreatedResilientlyAsync();
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_InsertUpdateProduct
 ON UpdatedProducts

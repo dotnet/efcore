@@ -31,7 +31,8 @@ public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataType
         Assert.Empty(query);
     }
 
-    public override void Object_to_string_conversion() { }
+    public override Task Object_to_string_conversion()
+        => Task.CompletedTask;
 
     public abstract class ConvertToProviderTypesFixtureBase : BuiltInDataTypesFixtureBase
     {

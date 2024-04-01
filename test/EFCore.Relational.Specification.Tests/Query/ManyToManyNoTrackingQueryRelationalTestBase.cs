@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : ManyToManyNoTrackingQueryTestBase<TFixture>
     where TFixture : ManyToManyQueryFixtureBase, new()
 {
@@ -12,9 +14,6 @@ public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : Ma
         : base(fixture)
     {
     }
-
-    protected virtual bool CanExecuteQueryString
-        => false;
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -264,6 +263,5 @@ public abstract class ManyToManyNoTrackingQueryRelationalTestBase<TFixture> : Ma
             fixture,
             RewriteExpectedQueryExpression,
             RewriteServerQueryExpression,
-            ignoreEntryCount: IgnoreEntryCount,
-            canExecuteQueryString: CanExecuteQueryString);
+            ignoreEntryCount: IgnoreEntryCount);
 }

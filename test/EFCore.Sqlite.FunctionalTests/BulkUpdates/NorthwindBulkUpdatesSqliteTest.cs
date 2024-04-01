@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public class NorthwindBulkUpdatesSqliteTest(
     NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer> fixture,
     ITestOutputHelper testOutputHelper) : NorthwindBulkUpdatesTestBase<NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer>>(fixture, testOutputHelper)

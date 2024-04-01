@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
 {
@@ -220,7 +222,7 @@ public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture
                         .HasForeignKey<Address2>("PersonId"));
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             var address1 = new Address { Street = "3 Dragons Way", City = "Meereen" };
             var address2 = new Address { Street = "42 Castle Black", City = "The Wall" };
@@ -260,7 +262,7 @@ public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture
 
             context.Set<Address2>().AddRange(address21, address22, address23);
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 

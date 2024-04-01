@@ -69,9 +69,11 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
         switch (expression)
         {
             case ShapedQueryExpression shapedQueryExpression:
-                return shapedQueryExpression
+                shapedQueryExpression = shapedQueryExpression
                     .UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression))
                     .UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression));
+
+                return shapedQueryExpression.UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression));
 
             case SelectExpression selectExpression:
             {

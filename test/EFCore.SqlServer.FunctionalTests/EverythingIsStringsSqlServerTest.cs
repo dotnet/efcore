@@ -6,9 +6,12 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-public class EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture fixture) : BuiltInDataTypesTestBase<
-    EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>(fixture)
+public class EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture fixture)
+    : BuiltInDataTypesTestBase<
+        EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>(fixture)
 {
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
@@ -171,25 +174,21 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
     }
 
-    public override void Can_read_back_mapped_enum_from_collection_first_or_default()
-    {
+    public override Task Can_read_back_mapped_enum_from_collection_first_or_default()
         // The query needs to generate TOP(1)
-    }
+        => Task.CompletedTask;
 
-    public override void Can_read_back_bool_mapped_as_int_through_navigation()
-    {
+    public override Task Can_read_back_bool_mapped_as_int_through_navigation()
         // Column is mapped as int rather than string
-    }
+        => Task.CompletedTask;
 
-    public override void Can_compare_enum_to_constant()
-    {
+    public override Task Can_compare_enum_to_constant()
         // Column is mapped as int rather than string
-    }
+        => Task.CompletedTask;
 
-    public override void Can_compare_enum_to_parameter()
-    {
+    public override Task Can_compare_enum_to_parameter()
         // Column is mapped as int rather than string
-    }
+        => Task.CompletedTask;
 
     public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
     {

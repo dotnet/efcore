@@ -10,6 +10,7 @@ internal partial class DbContextOptimizeCommand : ContextCommandBase
 {
     private CommandOption? _outputDir;
     private CommandOption? _namespace;
+    private CommandOption? _suffix;
 
     public override void Configure(CommandLineApplication command)
     {
@@ -17,6 +18,7 @@ internal partial class DbContextOptimizeCommand : ContextCommandBase
 
         _outputDir = command.Option("-o|--output-dir <PATH>", Resources.OutputDirDescription);
         _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
+        _suffix = command.Option("--suffix <SUFFIX>", Resources.SuffixDescription);
 
         base.Configure(command);
     }

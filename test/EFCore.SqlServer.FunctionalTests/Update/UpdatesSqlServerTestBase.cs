@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -10,18 +8,18 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public abstract class UpdatesSqlServerTestBase<TFixture> : UpdatesRelationalTestBase<TFixture>
     where TFixture : UpdatesSqlServerTestBase<TFixture>.UpdatesSqlServerFixtureBase
 {
-    public UpdatesSqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
+    protected UpdatesSqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         Fixture.TestSqlLoggerFactory.Clear();
     }
 
-    public override void Can_add_and_remove_self_refs()
+    public override async Task Can_add_and_remove_self_refs()
     {
-        Fixture.ResetIdentity();
+        await Fixture.ResetIdentity();
 
-        base.Can_add_and_remove_self_refs();
+        await base.Can_add_and_remove_self_refs();
 
         AssertSql(
             """
@@ -262,10 +260,10 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).HasFilter("Name IS NOT NULL");
         }
 
-        public virtual void ResetIdentity()
+        public virtual async Task ResetIdentity()
         {
             var context = CreateContext();
-            context.Database.ExecuteSqlRaw(ResetIdentitySql);
+            await context.Database.ExecuteSqlRawAsync(ResetIdentitySql);
             TestSqlLoggerFactory.Clear();
         }
 

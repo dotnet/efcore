@@ -14,6 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class InExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructorWithSubquery;
+    private static ConstructorInfo? _quotingConstructorWithValues;
+    private static ConstructorInfo? _quotingConstructorWithValuesParameter;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="InExpression" /> class, representing a SQL <c>IN</c> expression with a subquery.
     /// </summary>
@@ -193,6 +197,34 @@ public class InExpression : SqlExpression
             ? this
             : new InExpression(item, subquery, values, valuesParameter, TypeMapping);
     }
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => this switch
+        {
+            { Subquery: not null } => New(
+                _quotingConstructorWithSubquery ??= typeof(InExpression).GetConstructor(
+                    [typeof(SqlExpression), typeof(SelectExpression), typeof(RelationalTypeMapping)])!,
+                Item.Quote(),
+                Subquery.Quote(),
+                RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping)),
+
+            { Values: not null } => New(
+                _quotingConstructorWithValues ??= typeof(InExpression).GetConstructor(
+                    [typeof(SqlExpression), typeof(IReadOnlyList<SqlExpression>), typeof(RelationalTypeMapping)])!,
+                Item.Quote(),
+                NewArrayInit(typeof(SqlExpression), initializers: Values.Select(v => v.Quote())),
+                RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping)),
+
+            { ValuesParameter: not null } => New(
+                _quotingConstructorWithValuesParameter ??= typeof(InExpression).GetConstructor(
+                    [typeof(SqlExpression), typeof(SqlParameterExpression), typeof(RelationalTypeMapping)])!,
+                Item.Quote(),
+                ValuesParameter.Quote(),
+                RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping)),
+
+            _ => throw new UnreachableException()
+        };
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

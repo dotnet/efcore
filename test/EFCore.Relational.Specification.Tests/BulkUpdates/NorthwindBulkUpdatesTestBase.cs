@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
     where TFixture : NorthwindBulkUpdatesFixture<NoopModelCustomizer>, new()
 {
@@ -274,33 +276,27 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Delete_FromSql_converted_to_subquery(bool async)
-    {
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                () => Fixture.CreateContext(),
-                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
-                async context => await context.Set<OrderDetail>().FromSqlRaw(
-                        NormalizeDelimitersInRawString(
-                            @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
+    public virtual Task Delete_FromSql_converted_to_subquery(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            () => Fixture.CreateContext(),
+            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
+            async context =>
+            {
+                var queryable = context.Set<OrderDetail>().FromSqlRaw(
+                    NormalizeDelimitersInRawString(
+                        @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
 FROM [Order Details]
-WHERE [OrderID] < 10300"))
-                    .ExecuteDeleteAsync());
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                () => Fixture.CreateContext(),
-                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
-                context => context.Set<OrderDetail>().FromSqlRaw(
-                        NormalizeDelimitersInRawString(
-                            @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
-FROM [Order Details]
-WHERE [OrderID] < 10300"))
-                    .ExecuteDelete());
-        }
-    }
+WHERE [OrderID] < 10300"));
+
+                if (async)
+                {
+                    await queryable.ExecuteDeleteAsync();
+                }
+                else
+                {
+                    queryable.ExecuteDelete();
+                }
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -979,33 +975,27 @@ WHERE [OrderID] < 10300"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update_FromSql_set_constant(bool async)
-    {
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                () => Fixture.CreateContext(),
-                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
-                async context => await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimitersInRawString(
-                            @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
+    public virtual Task Update_FromSql_set_constant(bool async)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            () => Fixture.CreateContext(),
+            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
+            async context =>
+            {
+                var queryable = context.Set<Customer>().FromSqlRaw(
+                    NormalizeDelimitersInRawString(
+                        @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
 FROM [Customers]
-WHERE [CustomerID] LIKE 'A%'"))
-                    .ExecuteUpdateAsync(s => s.SetProperty(c => c.ContactName, "Updated")));
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                () => Fixture.CreateContext(),
-                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
-                context => context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimitersInRawString(
-                            @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
-FROM [Customers]
-WHERE [CustomerID] LIKE 'A%'"))
-                    .ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated")));
-        }
-    }
+WHERE [CustomerID] LIKE 'A%'"));
+
+                if (async)
+                {
+                    await queryable.ExecuteUpdateAsync(s => s.SetProperty(c => c.ContactName, "Updated"));
+                }
+                else
+                {
+                    queryable.ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated"));
+                }
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

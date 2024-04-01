@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
@@ -18,7 +20,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task ThenInclude_with_interface_navigations()
     {
-        var contextFactory = await InitializeAsync<Context3409>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context3409>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -93,7 +95,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 .WithOne(c => (Child)c.SelfReferenceBackNavigation);
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var parent1 = new Parent();
 
@@ -107,7 +109,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             Parents.AddRange(parent1);
             Children.AddRange(child1, child2, child3);
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public interface IParent
@@ -156,7 +158,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Customer_collections_materialize_properly()
     {
-        var contextFactory = await InitializeAsync<Context3758>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context3758>(seed: c => c.SeedAsync());
 
         using var ctx = contextFactory.CreateContext();
 
@@ -210,7 +212,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 });
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var o111 = new Order { Name = "O111" };
             var o112 = new Order { Name = "O112" };
@@ -261,7 +263,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 o212, o221, o222, o231,
                 o232, o241);
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Customer
@@ -301,7 +303,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Reference_include_on_derived_type_with_sibling_works()
     {
-        var contextFactory = await InitializeAsync<Context7312>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context7312>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -317,14 +319,14 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<ProposalCustom> ProposalCustoms { get; set; }
         public DbSet<ProposalLeave> ProposalLeaves { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new Proposal(),
                 new ProposalCustom { Name = "CustomProposal" },
                 new ProposalLeave { LeaveStart = DateTime.Now, LeaveType = new ProposalLeaveType() }
             );
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Proposal
@@ -357,7 +359,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Include_collection_optional_reference_collection()
     {
-        var contextFactory = await InitializeAsync<Context9038>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context9038>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -410,7 +412,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 });
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var famalies = new List<PersonFamily9038> { new() { LastName = "Garrison" }, new() { LastName = "Cartman" } };
             var teachers = new List<PersonTeacher9038>
@@ -436,7 +438,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
             People.AddRange(teachers);
             People.AddRange(students);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public abstract class Person9038
@@ -479,7 +481,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Include_with_order_by_on_interface_key()
     {
-        var contextFactory = await InitializeAsync<Context10635>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context10635>(seed: c => c.SeedAsync());
         using (var context = contextFactory.CreateContext())
         {
             var query = context.Parents.Include(p => p.Children).OrderBy(p => p.Id).ToList();
@@ -496,7 +498,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<Parent10635> Parents { get; set; }
         public DbSet<Child10635> Children { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var c11 = new Child10635 { Name = "Child111" };
             var c12 = new Child10635 { Name = "Child112" };
@@ -507,7 +509,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             var p2 = new Parent10635 { Name = "Parent2", Children = new[] { c21 } };
             Parents.AddRange(p1, p2);
             Children.AddRange(c11, c12, c13, c21);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public interface IEntity10635
@@ -537,7 +539,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Collection_without_setter_materialized_correctly()
     {
-        var contextFactory = await InitializeAsync<Context11923>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11923>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query1 = context.Blogs
             .Select(
@@ -587,7 +589,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             modelBuilder.Entity<Post>();
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var p111 = new Post { Name = "P111" };
             var p112 = new Post { Name = "P112" };
@@ -616,7 +618,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
             Blogs.AddRange(b1, b2);
             Posts.AddRange(p111, p112, p121, p122, p123, p131, p211, p212, p221, p222, p223, p231);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Blog
@@ -666,7 +668,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Include_collection_works_when_defined_on_intermediate_type()
     {
-        var contextFactory = await InitializeAsync<Context11944>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11944>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -696,7 +698,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ElementarySchool>().HasMany(s => s.Students).WithOne(s => s.School);
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var student1 = new Student();
             var student2 = new Student();
@@ -707,7 +709,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             Schools.AddRange(school);
             ElementarySchools.Add(elementarySchool);
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Student
@@ -821,7 +823,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Include_collection_with_OfType_base()
     {
-        var contextFactory = await InitializeAsync<Context12582>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context12582>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -853,7 +855,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeDevice> Devices { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var d1 = new EmployeeDevice { Device = "d1" };
             var d2 = new EmployeeDevice { Device = "d2" };
@@ -861,7 +863,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
 
             Devices.AddRange(d1, d2);
             Employees.Add(e);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public interface IEmployee
@@ -897,7 +899,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Correlated_collection_correctly_associates_entities_with_byte_array_keys()
     {
-        var contextFactory = await InitializeAsync<Context12748>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context12748>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = from blog in context.Blogs
                     select new
@@ -915,11 +917,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Comment> Comments { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Blogs.Add(new Blog { Name = Encoding.UTF8.GetBytes("Awesome Blog") });
             Comments.Add(new Comment { BlogName = Encoding.UTF8.GetBytes("Awesome Blog") });
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Blog
@@ -1199,7 +1201,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Cycles_in_auto_include()
     {
-        var contextFactory = await InitializeAsync<Context22568>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context22568>(seed: c => c.SeedAsync());
         using (var context = contextFactory.CreateContext())
         {
             var principals = context.Set<Context22568.PrincipalOneToOne>().ToList();
@@ -1277,7 +1279,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             modelBuilder.Entity<CycleC>().Navigation(e => e.As).AutoInclude();
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(new PrincipalOneToOne { Dependent = new DependentOneToOne() });
             Add(
@@ -1286,7 +1288,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     Dependents = [new(), new()]
                 });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class PrincipalOneToOne
@@ -1618,7 +1620,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Count_member_over_IReadOnlyCollection_works(bool async)
     {
-        var contextFactory = await InitializeAsync<Context26433>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context26433>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
 
         var query = context.Authors
@@ -1636,7 +1638,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             base.Add(
                 new Author
@@ -1651,7 +1653,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     }
                 });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Author

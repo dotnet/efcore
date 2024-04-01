@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -14,9 +16,6 @@ public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationa
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

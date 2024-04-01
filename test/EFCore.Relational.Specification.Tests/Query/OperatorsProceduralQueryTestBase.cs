@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Operators;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 {
     private static readonly MethodInfo LikeMethodInfo
@@ -125,7 +127,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     protected override string StoreName
         => "OperatorsProceduralTest";
 
-    protected virtual void Seed(OperatorsContext ctx)
+    protected virtual async Task SeedAsync(OperatorsContext ctx)
     {
         ctx.Set<OperatorEntityString>().AddRange(ExpectedData.OperatorEntitiesString);
         ctx.Set<OperatorEntityInt>().AddRange(ExpectedData.OperatorEntitiesInt);
@@ -135,14 +137,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         ctx.Set<OperatorEntityNullableBool>().AddRange(ExpectedData.OperatorEntitiesNullableBool);
         ctx.Set<OperatorEntityDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesDateTimeOffset);
 
-        ctx.SaveChanges();
+        await ctx.SaveChangesAsync();
     }
 
     //[ConditionalFact]
     public virtual async Task Procedural_predicate_test_six_sources_three_pairs()
     {
         var maxDepth = 7;
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: ctx => SeedAsync(ctx));
         using var context = contextFactory.CreateContext();
         var actualSetSource = new ActualSetSource(context);
 
@@ -189,7 +191,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     public virtual async Task Procedural_projection_test_six_sources_two_trios()
     {
         var maxDepth = 7;
-        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: ctx => SeedAsync(ctx));
         using var context = contextFactory.CreateContext();
         var actualSetSource = new ActualSetSource(context);
 
@@ -834,7 +836,12 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TResult result)
+    public class OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>(
+        TEntity1 entity1,
+        TEntity2 entity2,
+        TEntity3 entity3,
+        TEntity4 entity4,
+        TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
@@ -848,7 +855,13 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TEntity5 entity5, TResult result)
+    public class OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>(
+        TEntity1 entity1,
+        TEntity2 entity2,
+        TEntity3 entity3,
+        TEntity4 entity4,
+        TEntity5 entity5,
+        TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase

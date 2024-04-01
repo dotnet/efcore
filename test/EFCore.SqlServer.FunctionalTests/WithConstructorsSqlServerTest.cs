@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class WithConstructorsSqlServerTest(WithConstructorsSqlServerTest.WithConstructorsSqlServerFixture fixture) : WithConstructorsTestBase<WithConstructorsSqlServerTest.WithConstructorsSqlServerFixture>(fixture)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

@@ -6,6 +6,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : SpatialFixtureBase, new()
 {
@@ -41,7 +43,7 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
+    public virtual async void Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         Point CreatePoint(double y = 2.2)
             => new(1.1, y, 3.3);
@@ -55,22 +57,21 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
         var point = CreatePoint();
         var polygon = CreatePolygon();
 
-        ExecuteWithStrategyInTransaction(
+        await ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 context.AddRange(
                     new PointEntity { Id = id1, Point = point },
                     new PolygonEntity { Id = id2, Polygon = polygon });
 
-                context.SaveChanges();
-            },
-            context =>
+                return context.SaveChangesAsync();
+            }, async context =>
             {
                 point.X = 11.1;
                 polygon.Coordinates[1].X = 11.1;
 
-                var fromStore1 = context.Set<PointEntity>().First(p => p.Id == id1);
-                var fromStore2 = context.Set<PolygonEntity>().First(p => p.Id == id2);
+                var fromStore1 = await context.Set<PointEntity>().FirstAsync(p => p.Id == id1);
+                var fromStore2 = await context.Set<PolygonEntity>().FirstAsync(p => p.Id == id2);
 
                 Assert.Equal(CreatePoint(), fromStore1.Point);
                 Assert.Equal(CreatePolygon(), fromStore2.Polygon);
@@ -80,12 +81,11 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
 
                 context.Entry(fromStore2).State = EntityState.Unchanged;
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var fromStore1 = context.Set<PointEntity>().First(p => p.Id == id1);
-                var fromStore2 = context.Set<PolygonEntity>().First(p => p.Id == id2);
+                var fromStore1 = await context.Set<PointEntity>().FirstAsync(p => p.Id == id1);
+                var fromStore2 = await context.Set<PolygonEntity>().FirstAsync(p => p.Id == id2);
 
                 Assert.Equal(CreatePoint(22.2), fromStore1.Point);
                 Assert.Equal(CreatePolygon(), fromStore2.Polygon);
@@ -127,11 +127,11 @@ public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(0, entity.PointZM.M);
     }
 
-    protected virtual void ExecuteWithStrategyInTransaction(
-        Action<SpatialContext> testOperation,
-        Action<SpatialContext> nestedTestOperation1 = null,
-        Action<SpatialContext> nestedTestOperation2 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
+    protected virtual Task ExecuteWithStrategyInTransactionAsync(
+        Func<SpatialContext, Task> testOperation,
+        Func<SpatialContext, Task> nestedTestOperation1 = null,
+        Func<SpatialContext, Task> nestedTestOperation2 = null)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext, UseTransaction,
             testOperation, nestedTestOperation1, nestedTestOperation2);
 

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -1001,14 +999,6 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         where TEntity : class
         => new(context.GetService<IStateManager>().StartTrackingFromQuery(
             context.Model.FindEntityType(typeof(TEntity))!, pub, Snapshot.Empty));
-
-    protected virtual void ExecuteWithStrategyInTransaction(
-        Action<DbContext> testOperation,
-        Action<DbContext>? nestedTestOperation1 = null,
-        Action<DbContext>? nestedTestOperation2 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
-            CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<DbContext, Task> testOperation,

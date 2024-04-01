@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture>(TFixture fixture) : CompositeKeysQueryTestBase<TFixture>(fixture)
     where TFixture : CompositeKeysQueryFixtureBase, new()
 {
@@ -31,10 +33,7 @@ public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture>(TFixtu
         }
     }
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

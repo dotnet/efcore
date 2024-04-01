@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalComplexNavigationsCollectionsQuerySqlServerTest
     : ComplexNavigationsCollectionsQueryRelationalTestBase<TemporalComplexNavigationsQuerySqlServerFixture>

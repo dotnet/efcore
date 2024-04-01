@@ -4,6 +4,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using NameSpace1;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class AdHocMiscellaneousQueryRelationalTestBase : AdHocMiscellaneousQueryTestBase
@@ -30,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 RelationalStrings.ErrorMaterializingPropertyNullReference(nameof(Context2951.ZeroKey2951), "Id", typeof(int)),
-                Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.ZeroKeys.ToListAsync())).Message);
         }
 
-        protected abstract void Seed2951(Context2951 context);
+        protected abstract Task Seed2951(Context2951 context);
 
         protected class Context2951(DbContextOptions options) : DbContext(options)
         {

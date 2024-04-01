@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
+#nullable disable
+
 public class F1Context(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Team> Teams { get; set; }
@@ -16,11 +18,11 @@ public class F1Context(DbContextOptions options) : PoolableDbContext(options)
 
     public DbSet<Circuit> Circuits { get; set; }
 
-    public static void Seed(F1Context context)
+    public static Task SeedAsync(F1Context context)
     {
         AddEntities(context);
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 
     private static void AddEntities(F1Context context)

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class NotificationEntitiesSqliteTest(NotificationEntitiesSqliteTest.NotificationEntitiesSqliteFixture fixture) : NotificationEntitiesTestBase<
     NotificationEntitiesSqliteTest.NotificationEntitiesSqliteFixture>(fixture)
 {

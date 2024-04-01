@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public interface IBulkUpdatesFixtureBase : IQueryFixtureBase
 {
     Action<DatabaseFacade, IDbContextTransaction> GetUseTransaction()

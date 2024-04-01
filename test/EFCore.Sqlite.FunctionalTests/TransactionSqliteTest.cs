@@ -3,7 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class TransactionSqliteTest(TransactionSqliteTest.TransactionSqliteFixture fixture) : TransactionTestBase<TransactionSqliteTest.TransactionSqliteFixture>(fixture)
+#nullable disable
+
+public class TransactionSqliteTest(TransactionSqliteTest.TransactionSqliteFixture fixture)
+    : TransactionTestBase<TransactionSqliteTest.TransactionSqliteFixture>(fixture)
 {
     protected override bool SnapshotSupported
         => false;
@@ -23,14 +26,14 @@ public class TransactionSqliteTest(TransactionSqliteTest.TransactionSqliteFixtur
         protected override ITestStoreFactory TestStoreFactory
             => SharedCacheSqliteTestStoreFactory.Instance;
 
-        public override void Reseed()
+        public override async Task ReseedAsync()
         {
             using var context = CreateContext();
-            context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
-            context.Set<TransactionOrder>().RemoveRange(context.Set<TransactionOrder>());
-            context.SaveChanges();
+            context.Set<TransactionCustomer>().RemoveRange(await context.Set<TransactionCustomer>().ToListAsync());
+            context.Set<TransactionOrder>().RemoveRange(await context.Set<TransactionOrder>().ToListAsync());
+            await context.SaveChangesAsync();
 
-            Seed(context);
+            await SeedAsync(context);
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

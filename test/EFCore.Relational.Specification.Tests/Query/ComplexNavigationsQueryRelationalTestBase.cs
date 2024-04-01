@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class ComplexNavigationsQueryRelationalTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
     where TFixture : ComplexNavigationsQueryFixtureBase, new()
 {
@@ -14,10 +16,7 @@ public abstract class ComplexNavigationsQueryRelationalTestBase<TFixture> : Comp
     public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
         => AssertTranslationFailed(() => base.Complex_query_with_optional_navigations_and_client_side_evaluation(async));
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

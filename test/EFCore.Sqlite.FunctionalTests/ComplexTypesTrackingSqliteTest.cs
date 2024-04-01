@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ComplexTypesTrackingSqliteTest : ComplexTypesTrackingTestBase<ComplexTypesTrackingSqliteTest.SqliteFixture>
 {
     public ComplexTypesTrackingSqliteTest(SqliteFixture fixture, ITestOutputHelper testOutputHelper)

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalTableSqlServerTest : NonSharedModelTestBase
 {
@@ -474,7 +476,7 @@ WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
         Action<ModelBuilder> onModelCreating,
         bool seed = true)
         => InitializeAsync<TransportationContext>(
-            onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.Seed() : null);
+            onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.SeedAsync() : null);
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
     {

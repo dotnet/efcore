@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
@@ -16,7 +18,7 @@ public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task SelectMany_with_collection_selector_having_subquery()
     {
-        var contextFactory = await InitializeAsync<MyContext7973>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<MyContext7973>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var users = (from user in context.Users
                      from organisation in context.Organisations.Where(o => o.OrganisationUsers.Any()).DefaultIfEmpty()
@@ -39,14 +41,14 @@ public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
                 .HasForeignKey(ou => ou.UserId);
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new OrganisationUser { Organisation = new Organisation(), User = new User() },
                 new Organisation(),
                 new User());
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class User

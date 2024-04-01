@@ -17,7 +17,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
     protected override string StoreName
         => "OperatorsTest";
 
-    protected virtual void Seed(OperatorsContext ctx)
+    protected virtual Task Seed(OperatorsContext ctx)
     {
         ctx.Set<OperatorEntityString>().AddRange(ExpectedData.OperatorEntitiesString);
         ctx.Set<OperatorEntityInt>().AddRange(ExpectedData.OperatorEntitiesInt);
@@ -27,7 +27,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         ctx.Set<OperatorEntityNullableBool>().AddRange(ExpectedData.OperatorEntitiesNullableBool);
         ctx.Set<OperatorEntityDateTimeOffset>().AddRange(ExpectedData.OperatorEntitiesDateTimeOffset);
 
-        ctx.SaveChanges();
+        return ctx.SaveChangesAsync();
     }
 
     [ConditionalFact(Skip = "issue #30245")]
@@ -312,7 +312,6 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-#nullable enable
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Concat_and_json_scalar(bool async)
@@ -327,7 +326,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                 context.Set<Owner>().AddRange(
                     new Owner { Owned = new Owned { SomeProperty = "Bar" } },
                     new Owner { Owned = new Owned { SomeProperty = "Baz" } });
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
         await using var context = contextFactory.CreateContext();
 

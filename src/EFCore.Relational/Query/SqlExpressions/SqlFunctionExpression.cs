@@ -16,6 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class SqlFunctionExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlFunctionExpression" /> class which represents a built-in niladic function.
     /// </summary>
@@ -327,6 +329,31 @@ public class SqlFunctionExpression : SqlExpression
                 Type,
                 TypeMapping)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SqlFunctionExpression).GetConstructor(
+            [
+                typeof(SqlExpression), typeof(string), typeof(string), typeof(bool), typeof(IEnumerable<SqlExpression>),
+                typeof(bool), typeof(bool), typeof(IEnumerable<bool>), typeof(bool), typeof(Type), typeof(RelationalTypeMapping)
+            ])!,
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Instance),
+            Constant(Schema, typeof(string)),
+            Constant(Name),
+            Constant(IsNiladic),
+            Arguments is null
+                ? Constant(null, typeof(IEnumerable<SqlExpression>))
+                : NewArrayInit(typeof(SqlExpression), initializers: Arguments.Select(a => a.Quote())),
+            Constant(IsNullable),
+            Constant(InstancePropagatesNullability, typeof(bool?)),
+            ArgumentsPropagateNullability is null
+                ? Constant(null, typeof(IEnumerable<bool>))
+                : NewArrayInit(
+                    typeof(bool), initializers: ArgumentsPropagateNullability.Select(n => Constant(n))),
+            Constant(IsBuiltIn),
+            Constant(Type),
+            RelationalExpressionQuotingUtilities.QuoteTypeMapping(TypeMapping));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

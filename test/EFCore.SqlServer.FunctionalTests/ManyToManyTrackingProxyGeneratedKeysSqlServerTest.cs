@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest(ManyToManyTrackingProxyGeneratedKeysSqlServerTest.ManyToManyTrackingProxyGeneratedKeysSqlServerFixture fixture)
+#nullable disable
+
+public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest(
+    ManyToManyTrackingProxyGeneratedKeysSqlServerTest.ManyToManyTrackingProxyGeneratedKeysSqlServerFixture fixture)
     : ManyToManyTrackingSqlServerTestBase<
         ManyToManyTrackingProxyGeneratedKeysSqlServerTest.ManyToManyTrackingProxyGeneratedKeysSqlServerFixture>(fixture)
 {
@@ -13,24 +16,21 @@ public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest(ManyToManyTrackin
         // Mutable properties aren't proxyable on Dictionary
         => Task.CompletedTask;
 
-    public override void Can_update_many_to_many_shared_with_payload()
-    {
+    public override Task Can_update_many_to_many_shared_with_payload()
         // Mutable properties aren't proxyable on Dictionary
-    }
+        => Task.CompletedTask;
 
-    public override void Can_insert_update_delete_shared_type_entity_type()
-    {
+    public override Task Can_insert_update_delete_shared_type_entity_type()
         // Mutable properties aren't proxyable on Dictionary
-    }
+        => Task.CompletedTask;
 
     public override Task Can_insert_many_to_many_shared_with_payload_unidirectional(bool async)
         // Mutable properties aren't proxyable on Dictionary
         => Task.CompletedTask;
 
-    public override void Can_update_many_to_many_shared_with_payload_unidirectional()
-    {
+    public override Task Can_update_many_to_many_shared_with_payload_unidirectional()
         // Mutable properties aren't proxyable on Dictionary
-    }
+        => Task.CompletedTask;
 
     protected override bool RequiresDetectChanges
         => false;

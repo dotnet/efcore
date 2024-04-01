@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
     where TModelCustomizer : ITestModelCustomizer, new()
 {
@@ -19,6 +21,12 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
 
     protected override bool ShouldLogCategory(string logCategory)
         => logCategory == DbLoggerCategory.Query.Name;
+
+    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
+
+    public void NoSyncTest(Action testCode)
+        => CosmosTestHelpers.Instance.NoSyncTest(testCode);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

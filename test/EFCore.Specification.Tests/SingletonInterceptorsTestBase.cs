@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -72,9 +70,9 @@ public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTe
         }
     }
 
-    public TContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject, bool usePooling)
+    public async Task<TContext> CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject, bool usePooling)
     {
-        var contextFactory = base.Initialize<TContext>(
+        var contextFactory = await base.InitializeAsync<TContext>(
             onConfiguring: inject ? null : o => o.AddInterceptors(interceptors),
             addServices: inject ? s => InjectInterceptors(s, interceptors) : null,
             usePooling: usePooling,

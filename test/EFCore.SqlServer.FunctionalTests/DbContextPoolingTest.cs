@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 #pragma warning disable CS9113 // Parameter is unread.
 public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper) : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 #pragma warning restore CS9113 // Parameter is unread.

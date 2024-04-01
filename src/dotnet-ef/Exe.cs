@@ -66,7 +66,7 @@ internal static class Exe
         return process.ExitCode;
     }
 
-    private static string ToArguments(IReadOnlyList<string> args)
+    public static string ToArguments(IReadOnlyList<string> args)
     {
         var builder = new StringBuilder();
         for (var i = 0; i < args.Count; i++)

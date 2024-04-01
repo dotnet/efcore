@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 
@@ -2024,6 +2022,24 @@ CREATE TABLE "Person" (
 """);
     }
 
+    public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
+    {
+        await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
+
+        AssertSql(
+"""
+CREATE TABLE "Contacts" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Contacts" PRIMARY KEY AUTOINCREMENT,
+    "Discriminator" TEXT NOT NULL,
+    "Name" TEXT NULL,
+    "Number" INTEGER NULL,
+    "MyComplex_Prop" TEXT NULL,
+    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
+    "MyComplex_MyNestedComplex_Foo" INTEGER NULL
+);
+""");
+    }
+
     public override Task Create_sequence()
         => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
 
@@ -2081,24 +2097,6 @@ CREATE TABLE "Person" (
     public override Task Move_sequence()
         => AssertNotSupportedAsync(base.Move_sequence, SqliteStrings.SequencesNotSupported);
 
-    public override async Task Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH()
-    {
-        await base.Create_table_with_complex_type_with_required_properties_on_derived_entity_in_TPH();
-
-        AssertSql(
-"""
-CREATE TABLE "Contacts" (
-    "Id" INTEGER NOT NULL CONSTRAINT "PK_Contacts" PRIMARY KEY AUTOINCREMENT,
-    "Discriminator" TEXT NOT NULL,
-    "Name" TEXT NULL,
-    "Number" INTEGER NULL,
-    "MyComplex_Prop" TEXT NULL,
-    "MyComplex_MyNestedComplex_Bar" TEXT NULL,
-    "MyComplex_MyNestedComplex_Foo" INTEGER NULL
-);
-""");
-    }
-
     [ConditionalFact]
     public override async Task Add_required_primitve_collection_to_existing_table()
     {
@@ -2147,6 +2145,61 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
     public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
         await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT 'some numbers';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT '[1,2,3]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("'[3, 2, 1]'");
+
+        AssertSql(
+"""
+ALTER TABLE "Customers" ADD "Numbers" TEXT NOT NULL DEFAULT ('[3, 2, 1]');
+""");
+    }
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
 """

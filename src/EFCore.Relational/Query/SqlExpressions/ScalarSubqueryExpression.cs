@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class ScalarSubqueryExpression : SqlExpression
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="ScalarSubqueryExpression" /> class.
     /// </summary>
@@ -69,6 +71,12 @@ public class ScalarSubqueryExpression : SqlExpression
         => subquery != Subquery
             ? new ScalarSubqueryExpression(subquery)
             : this;
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(ScalarSubqueryExpression).GetConstructor([typeof(SelectExpression)])!,
+            Subquery.Quote());
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

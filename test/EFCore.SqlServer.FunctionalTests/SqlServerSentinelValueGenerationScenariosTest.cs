@@ -5,6 +5,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqlServerSentinelValueGenerationScenariosTest : SqlServerValueGenerationScenariosTestBase
 {
     protected override string DatabaseName

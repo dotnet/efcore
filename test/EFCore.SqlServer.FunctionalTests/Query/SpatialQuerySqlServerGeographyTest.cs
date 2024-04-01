@@ -7,6 +7,8 @@ using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
 public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase<SpatialQuerySqlServerGeographyFixture>
 {
@@ -16,9 +18,6 @@ public class SpatialQuerySqlServerGeographyTest : SpatialQueryRelationalTestBase
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     // TODO: Remove after NetTopologySuite/NetTopologySuite#233
     protected override bool AssertDistances

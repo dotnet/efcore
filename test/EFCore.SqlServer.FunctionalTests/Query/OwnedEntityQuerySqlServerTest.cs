@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -17,7 +19,7 @@ public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
     [ConditionalFact]
     public virtual async Task Optional_dependent_is_null_when_sharing_required_column_with_principal()
     {
-        var contextFactory = await InitializeAsync<Context22054>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context22054>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Set<Context22054.User22054>().OrderByDescending(e => e.Id).ToList();
         Assert.Equal(3, query.Count);
@@ -72,7 +74,7 @@ ORDER BY [u].[Id] DESC
                         .HasColumnName("RowVersion");
                 });
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new User22054
@@ -102,7 +104,7 @@ ORDER BY [u].[Id] DESC
                 },
                 new User22054 { Contact = null, Data = null });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class User22054
@@ -141,7 +143,7 @@ ORDER BY [u].[Id] DESC
     [ConditionalFact]
     public virtual async Task Owned_entity_mapped_to_separate_table()
     {
-        var contextFactory = await InitializeAsync<Context22340>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context22340>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault();
 
@@ -197,7 +199,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
                 });
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var masterTrunk = new MasterTrunk22340
             {
@@ -206,7 +208,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
             };
             Add(masterTrunk);
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class MasterTrunk22340
@@ -237,7 +239,7 @@ ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].
     [ConditionalFact]
     public virtual async Task Collection_include_on_owner_with_owned_type_mapped_to_different_table()
     {
-        var contextFactory = await InitializeAsync<Context23211>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context23211>(seed: c => c.SeedAsync());
         using (var context = contextFactory.CreateContext())
         {
             var owner = context.Set<Context23211.Owner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
@@ -282,7 +284,7 @@ ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
             Assert.Equal("A", owner.Owned.Value);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
 FROM [SecondOwner23211] AS [s]
 LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
@@ -312,7 +314,7 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
             modelBuilder.Entity<SecondOwner23211>().OwnsOne(e => e.Owned, b => b.ToTable("Owned23211"));
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(
                 new Owner23211
@@ -323,13 +325,9 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
                 });
 
             Add(
-                new SecondOwner23211
-                {
-                    Dependents = [new(), new()],
-                    Owned = new OwnedType23211 { Value = "A" }
-                });
+                new SecondOwner23211 { Dependents = [new(), new()], Owned = new OwnedType23211 { Value = "A" } });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Owner23211
@@ -370,14 +368,14 @@ ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
         await base.Include_collection_for_entity_with_owned_type_works();
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[MovieId], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[MovieId]
 ORDER BY [m].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[MovieId], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[MovieId]
@@ -390,7 +388,7 @@ ORDER BY [m].[Id]
         await base.Multilevel_owned_entities_determine_correct_nullability();
 
         AssertSql(
-"""
+            """
 @p0='BaseEntity' (Nullable = false) (Size = 13)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -406,7 +404,7 @@ VALUES (@p0);
         await base.Correlated_subquery_with_owned_navigation_being_compared_to_null_works();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], CASE
     WHEN [a].[Turnovers_AmountIn] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -508,7 +506,7 @@ FROM [Parents] AS [p]
         await base.Nested_owned_required_dependents_are_materialized();
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Contact_Name], [e].[Contact_Address_City], [e].[Contact_Address_State], [e].[Contact_Address_Street], [e].[Contact_Address_Zip]
 FROM [Entity] AS [e]
 """);
@@ -547,7 +545,7 @@ ORDER BY [s].[Id], [s].[Id0], [s].[Id1]
         await base.Projecting_owned_collection_and_aggregate(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], (
     SELECT COALESCE(SUM([p].[CommentsCount]), 0)
     FROM [Post] AS [p]
@@ -563,7 +561,7 @@ ORDER BY [b].[Id], [p0].[BlogId]
         await base.Projecting_correlated_collection_property_for_owned_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
 FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]

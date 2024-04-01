@@ -5,7 +5,7 @@
                 "type": "nuget",
                 "nuget": {
                     "name": "Qdrant.Client",
-                    "version": "1.7.0"
+                    "version": "1.8.0"
                 }
             }
         },
@@ -14,7 +14,7 @@
                 "type": "nuget",
                 "nuget": {
                     "name": "Milvus.Client",
-                    "version": "2.2.2-preview.6"
+                    "version": "2.3.0-preview.1"
                 }
             }
         },

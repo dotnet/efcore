@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
@@ -15,16 +13,16 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
     public virtual async Task Entity_type_with_navigation_mapped_to_SqlQuery(bool async)
     {
         var contextFactory = await InitializeAsync<Context27629>(
-            seed: c =>
+            seed: async c =>
             {
                 var author = new Author { Name = "Toast", Posts = { new Post { Title = "Sausages of the world!" } } };
                 c.Add(author);
-                c.SaveChanges();
+                await c.SaveChangesAsync();
 
                 var postStat = new PostStat { Count = 10, Author = author };
                 author.PostStat = postStat;
                 c.Add(postStat);
-                c.SaveChanges();
+                await c.SaveChangesAsync();
             });
 
         using var context = contextFactory.CreateContext();

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -50,7 +51,16 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Pushdown should null it out as if GroupBy was present was pushed down.
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
-    private SelectExpression(
+    private static ConstructorInfo? _quotingConstructor;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public SelectExpression(
         string? alias,
         List<TableExpressionBase> tables,
         List<SqlExpression> groupBy,
@@ -381,7 +391,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             void ProcessTypeProjection(StructuralTypeProjectionExpression projection)
             {
-                foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+                foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
                 {
                     AddToProjection(projection.BindProperty(property), alias: null);
                 }
@@ -677,7 +687,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         if (selectExpression.Limit is SqlConstantExpression { Value: 2 } limitConstantExpression)
                         {
-                            selectExpression.Limit = new SqlConstantExpression(Constant(1), limitConstantExpression.TypeMapping);
+                            selectExpression.Limit = new SqlConstantExpression(1, limitConstantExpression.TypeMapping);
                         }
                     }
                 }
@@ -1282,7 +1292,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             void ProcessType(StructuralTypeProjectionExpression typeProjection)
             {
-                foreach (var property in typeProjection.StructuralType.GetAllPropertiesInHierarchy())
+                foreach (var property in typeProjection.StructuralType.GetPropertiesInHierarchy())
                 {
                     if (typeProjection is { StructuralType: IEntityType entityType }
                         && entityType.IsMappedToJson()
@@ -1738,7 +1748,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 break;
 
             case StructuralTypeShaperExpression { ValueBufferExpression: StructuralTypeProjectionExpression projection }:
-                foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+                foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
                 {
                     PopulateGroupByTerms(projection.BindProperty(property), groupByTerms, groupByAliases, name: null);
                 }
@@ -2088,68 +2098,68 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
                 var type = structuralProjection1.StructuralType;
 
-                foreach (var property in type.GetAllPropertiesInHierarchy())
-                {
-                    var column1 = structuralProjection1.BindProperty(property);
-                    var column2 = structuralProjection2.BindProperty(property);
-                    var alias = GenerateUniqueColumnAlias(column1.Name);
-                    var innerProjection = new ProjectionExpression(column1, alias);
-                    select1._projection.Add(innerProjection);
-                    select2._projection.Add(new ProjectionExpression(column2, alias));
-                    var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias);
-                    if (column1.IsNullable
-                        || column2.IsNullable)
+                    foreach (var property in type.GetPropertiesInHierarchy())
                     {
-                        outerColumn = outerColumn.MakeNullable();
-                    }
-
-                    propertyExpressions[property] = outerColumn;
-
-                    // Lift up any identifier columns to the set operation result (the outer).
-                    // This is typically the entity primary key columns, but can also be all of a complex type's properties if Distinct
-                    // was previously called.
-                    if (outerIdentifiers.Length > 0)
-                    {
-                        var index = select1._identifier.FindIndex(e => e.Column.Equals(column1));
-                        if (index != -1)
+                        var column1 = structuralProjection1.BindProperty(property);
+                        var column2 = structuralProjection2.BindProperty(property);
+                        var alias = GenerateUniqueColumnAlias(column1.Name);
+                        var innerProjection = new ProjectionExpression(column1, alias);
+                        select1._projection.Add(innerProjection);
+                        select2._projection.Add(new ProjectionExpression(column2, alias));
+                        var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias);
+                        if (column1.IsNullable
+                            || column2.IsNullable)
                         {
-                            if (select2._identifier[index].Column.Equals(column2))
+                            outerColumn = outerColumn.MakeNullable();
+                        }
+
+                        propertyExpressions[property] = outerColumn;
+
+                        // Lift up any identifier columns to the set operation result (the outer).
+                        // This is typically the entity primary key columns, but can also be all of a complex type's properties if Distinct
+                        // was previously called.
+                        if (outerIdentifiers.Length > 0)
+                        {
+                            var index = select1._identifier.FindIndex(e => e.Column.Equals(column1));
+                            if (index != -1)
                             {
-                                outerIdentifiers[index] = outerColumn;
+                                if (select2._identifier[index].Column.Equals(column2))
+                                {
+                                    outerIdentifiers[index] = outerColumn;
+                                }
+                                else
+                                {
+                                    // If select1 matched but select2 did not then we erase all identifiers
+                                    // TODO: We could make this little more robust by allow the indexes to be different. See issue#24475
+                                    // i.e. Identifier ordering being different.
+                                    outerIdentifiers = [];
+                                }
                             }
-                            else
+                            // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
+                            // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
+                            // the same as with a non-structural type projection.
+                            else if (projection1.StructuralType is IComplexType)
                             {
-                                // If select1 matched but select2 did not then we erase all identifiers
-                                // TODO: We could make this little more robust by allow the indexes to be different. See issue#24475
-                                // i.e. Identifier ordering being different.
-                                outerIdentifiers = [];
+                                var outerTypeMapping = column1.TypeMapping ?? column1.TypeMapping;
+                                if (outerTypeMapping == null)
+                                {
+                                    throw new InvalidOperationException(
+                                        RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
+                                }
+
+                                otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
                             }
                         }
-                        // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
-                        // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
-                        // the same as with a non-structural type projection.
-                        else if (projection1.StructuralType is IComplexType)
-                        {
-                            var outerTypeMapping = column1.TypeMapping ?? column1.TypeMapping;
-                            if (outerTypeMapping == null)
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
-                            }
-
-                            otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
-                        }
                     }
-                }
 
-                foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(type))
-                {
-                    var complexPropertyShaper1 = structuralProjection1.BindComplexProperty(complexProperty);
+                    foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(type))
+                    {
+                        var complexPropertyShaper1 = structuralProjection1.BindComplexProperty(complexProperty);
                     var complexPropertyShaper2 = structuralProjection2.BindComplexProperty(complexProperty);
 
                     var resultComplexProjection = ProcessStructuralType(
                         (StructuralTypeProjectionExpression)complexPropertyShaper1.ValueBufferExpression,
-                        (StructuralTypeProjectionExpression)complexPropertyShaper2.ValueBufferExpression);
+                            (StructuralTypeProjectionExpression)complexPropertyShaper2.ValueBufferExpression);
 
                     var resultComplexShaper = new RelationalStructuralTypeShaperExpression(
                         complexProperty.ComplexType,
@@ -2228,7 +2238,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
     {
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
-            new SqlConstantExpression(Constant(null, typeof(string)), null));
+            new SqlConstantExpression(null, typeof(string), null));
 
         var dummySelectExpression = CreateImmutable(
             _sqlAliasManager.GenerateTableAlias("empty"),
@@ -2822,7 +2832,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     limit = offset is SqlConstantExpression offsetConstant
                                         && limit is SqlConstantExpression limitConstant
                                             ? new SqlConstantExpression(
-                                                Constant((int)offsetConstant.Value! + (int)limitConstant.Value!),
+                                                (int)offsetConstant.Value! + (int)limitConstant.Value!,
                                                 limit.TypeMapping)
                                             : new SqlBinaryExpression(ExpressionType.Add, offset, limit, limit.Type, limit.TypeMapping);
                                 }
@@ -3190,7 +3200,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     if (expression is StructuralTypeProjectionExpression projection)
                     {
-                        foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+                        foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
                         {
                             result.Add(projection.BindProperty(property));
                         }
@@ -3543,7 +3553,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
             var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
 
-            foreach (var property in projection.StructuralType.GetAllPropertiesInHierarchy())
+            foreach (var property in projection.StructuralType.GetPropertiesInHierarchy())
             {
                 // json entity projection (i.e. JSON entity that was transformed into query root) may have synthesized keys
                 // but they don't correspond to any columns - we need to skip those
@@ -4199,6 +4209,39 @@ public sealed partial class SelectExpression : TableExpressionBase
             IsMutable = false
         };
     }
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(SelectExpression).GetConstructor(
+            [
+                typeof(string), // alias
+                typeof(IReadOnlyList<TableExpressionBase>), // tables
+                typeof(SqlExpression), // predicate
+                typeof(IReadOnlyList<SqlExpression>), // groupby
+                typeof(SqlExpression), // having
+                typeof(IReadOnlyList<ProjectionExpression>), // projections
+                typeof(bool), // distinct
+                typeof(IReadOnlyList<OrderingExpression>), // orderings
+                typeof(SqlExpression), // limit
+                typeof(SqlExpression), // offset
+                typeof(IReadOnlySet<string>), // tags
+                typeof(IReadOnlyDictionary<string, IAnnotation>) // annotations
+            ])!,
+            Constant(Alias, typeof(string)),
+            NewArrayInit(
+                typeof(TableExpressionBase),
+                initializers: Tables.Select(t => t.Quote())),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Predicate),
+            NewArrayInit(typeof(SqlExpression), initializers: GroupBy.Select(g => g.Quote())),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Having),
+            NewArrayInit(typeof(ProjectionExpression), initializers: Projection.Select(p => p.Quote())),
+            Constant(IsDistinct),
+            NewArrayInit(typeof(OrderingExpression), initializers: Orderings.Select(o => o.Quote())),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Limit),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Offset),
+            RelationalExpressionQuotingUtilities.QuoteTags(Tags),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

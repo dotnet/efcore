@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySqlServerTest.OwnedQuerySqlServerFixture>
 {
     public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -10,9 +12,6 @@ public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySq
     {
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     public override async Task Query_with_owned_entity_equality_operator(bool async)
     {

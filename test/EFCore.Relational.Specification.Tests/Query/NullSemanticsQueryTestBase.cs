@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NullSemanticsQueryFixtureBase, new()
 {

@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingTestBase
     where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
     where TExtension : RelationalOptionsExtension, new()

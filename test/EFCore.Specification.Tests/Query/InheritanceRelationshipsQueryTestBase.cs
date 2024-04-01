@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class InheritanceRelationshipsQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : InheritanceRelationshipsQueryFixtureBase, new()
 {

@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 #pragma warning disable RCS1155 // Use StringComparison when comparing strings.
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 // ReSharper disable once UnusedTypeParameter
 public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
@@ -329,7 +331,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         Customer customer = null;
         using (var context = CreateContext())
         {
-            customer = context.Customers.Single(c => c.CustomerID == "AROUT");
+            customer = await context.Customers.SingleAsync(c => c.CustomerID == "AROUT");
         }
 
         ClearLog();
@@ -491,7 +493,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         Customer customer = null;
         using (var context = CreateContext())
         {
-            customer = context.Customers.Single(x => x.CustomerID == "AROUT");
+            customer = await context.Customers.SingleAsync(x => x.CustomerID == "AROUT");
         }
 
         ClearLog();
@@ -953,7 +955,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Where_math_log_new_base(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount, 7) < 0));
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log(od.Discount, 7) < -1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1188,7 +1190,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Where_mathf_log_new_base(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log(od.Discount, 7) < 0));
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log(od.Discount, 7) < -1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1850,4 +1852,18 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             ss => ss.Set<Order>()
                 .Where(o => o.OrderDate.HasValue && DateOnly.FromDateTime(o.OrderDate.Value) == new DateOnly(1996, 9, 16))
                 .AsTracking());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_ToString_IndexOf(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.OrderID.ToString().IndexOf("123") == -1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_IndexOf_ToString(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => "123".IndexOf(x.OrderID.ToString()) == -1));
 }

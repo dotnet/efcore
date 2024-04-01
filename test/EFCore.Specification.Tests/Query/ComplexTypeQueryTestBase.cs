@@ -5,8 +5,6 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable enable
-
 public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : ComplexTypeQueryFixtureBase, new()
 {

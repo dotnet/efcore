@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ModelBuilding101TestBase
 {
     protected virtual void Model101Test([CallerMemberName] string testMame = "")

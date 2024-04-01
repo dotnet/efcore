@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IFilteredQueryFixtureBase
     where TModelCustomizer : ITestModelCustomizer, new()
 {
@@ -273,9 +275,6 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         => new TModelCustomizer().Customize(modelBuilder, context);
-
-    protected override void Seed(NorthwindContext context)
-        => NorthwindData.Seed(context);
 
     protected override Task SeedAsync(NorthwindContext context)
         => NorthwindData.SeedAsync(context);

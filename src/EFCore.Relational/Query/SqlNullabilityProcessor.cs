@@ -557,7 +557,7 @@ public class SqlNullabilityProcessor
         // - if there is no Else block, return null
         if (whenClauses.Count == 0)
         {
-            return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.TypeMapping);
+            return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
         // if there is only one When clause and it's test evaluates to 'true' AND there is no else block, simply return the result
@@ -925,7 +925,7 @@ public class SqlNullabilityProcessor
                         continue;
                     }
 
-                    processedValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));
+                    processedValues.Add(_sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
                 }
             }
             else
@@ -1415,7 +1415,7 @@ public class SqlNullabilityProcessor
         nullable = ParameterValues[sqlParameterExpression.Name] == null;
 
         return nullable
-            ? _sqlExpressionFactory.Constant(null, sqlParameterExpression.TypeMapping)
+            ? _sqlExpressionFactory.Constant(null, sqlParameterExpression.Type, sqlParameterExpression.TypeMapping)
             : sqlParameterExpression;
     }
 

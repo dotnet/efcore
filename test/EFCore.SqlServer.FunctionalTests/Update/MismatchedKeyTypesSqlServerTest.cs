@@ -1,11 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture fixture) : IClassFixture<MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture>
+public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture fixture)
+    : IClassFixture<MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture>
 {
     public MismatchedKeyTypesSqlServerFixture Fixture { get; } = fixture;
 
@@ -732,21 +731,9 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
         public int? PrincipalId3 { get; set; }
     }
 
-    public class MismatchedKeyTypesSqlServerFixture : IDisposable
+    public class MismatchedKeyTypesSqlServerFixture : IAsyncLifetime
     {
-        public MismatchedKeyTypesSqlServerFixture()
-        {
-            Store = SqlServerTestStore.CreateInitialized("MismatchedKeyTypes");
-
-            using (var context = new MismatchedKeyTypesContextNoFks(this))
-            {
-                context.Database.EnsureClean();
-            }
-
-            Seed();
-        }
-
-        public void Seed()
+        public async Task SeedAsync()
         {
             using var context = new MismatchedKeyTypesContext(this);
 
@@ -792,13 +779,28 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
                     Id3 = -1
                 });
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        public SqlServerTestStore Store { get; set; }
+        public SqlServerTestStore Store { get; set; } = null!;
 
-        public void Dispose()
-            => Store.Dispose();
+        public async Task InitializeAsync()
+        {
+            Store = await SqlServerTestStore.CreateInitializedAsync("MismatchedKeyTypes");
+
+            using (var context = new MismatchedKeyTypesContextNoFks(this))
+            {
+                context.Database.EnsureClean();
+            }
+
+            await SeedAsync();
+        }
+
+        public Task DisposeAsync()
+        {
+            Store.Dispose();
+            return Task.CompletedTask;
+        }
     }
 
     private class TemporaryByteValueGenerator : ValueGenerator<int>

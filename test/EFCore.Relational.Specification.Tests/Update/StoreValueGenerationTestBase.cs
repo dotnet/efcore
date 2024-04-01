@@ -5,19 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
+#nullable disable
 
-public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : StoreValueGenerationFixtureBase
 {
     protected StoreValueGenerationTestBase(TFixture fixture)
     {
         Fixture = fixture;
-
-        fixture.CleanData();
-        fixture.Seed();
-
-        ClearLog();
     }
 
     #region Single operation
@@ -162,7 +157,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
             };
 
         StoreValueGenerationData first;
-        StoreValueGenerationData? second;
+        StoreValueGenerationData second;
 
         switch (firstOperationType)
         {
@@ -387,4 +382,15 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
         None,
         All
     }
+
+    public async Task InitializeAsync()
+    {
+        Fixture.CleanData();
+        await Fixture.SeedAsync();
+
+        ClearLog();
+    }
+
+    public Task DisposeAsync()
+        => Task.CompletedTask;
 }

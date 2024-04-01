@@ -20,7 +20,8 @@ internal partial class DbContextOptimizeCommand
         var result = executor.OptimizeContext(
             _outputDir!.Value(),
             _namespace!.Value(),
-            Context!.Value());
+            Context!.Value(),
+            _suffix!.Value());
 
         ReportResults(result);
 

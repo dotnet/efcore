@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
-#nullable enable
-
 public class ComplexTypeData : ISetSource
 {
     private readonly IReadOnlyList<Customer> _customers;
@@ -80,7 +78,12 @@ public class ComplexTypeData : ISetSource
                 AddressLine1 = "79 Main St.",
                 ZipCode = 29293,
                 Country = new Country { FullName = "Germany", Code = "DE" },
-                Tags = new List<string> { "a1", "a2", "a3" }
+                Tags = new List<string>
+                {
+                    "a1",
+                    "a2",
+                    "a3"
+                }
             }
         };
 
@@ -228,7 +231,7 @@ public class ComplexTypeData : ISetSource
         };
     }
 
-    public static void Seed(PoolableDbContext context)
+    public static Task SeedAsync(PoolableDbContext context)
     {
         var customers = CreateCustomers();
         var customerGroups = CreateCustomerGroups(customers);
@@ -240,6 +243,6 @@ public class ComplexTypeData : ISetSource
         context.AddRange(valuedCustomers);
         context.AddRange(valuedCustomerGroups);
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }

@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocMiscellaneousQuerySqliteTest : AdHocMiscellaneousQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    protected override void Seed2951(Context2951 context)
-    {
-        context.Database.ExecuteSqlRaw(
-"""
+    protected override Task Seed2951(Context2951 context)
+        => context.Database.ExecuteSqlRawAsync(
+            """
 CREATE TABLE ZeroKey (Id int);
 INSERT INTO ZeroKey VALUES (NULL)
 """);
-    }
 
     public override async Task Average_with_cast()
         => Assert.Equal(

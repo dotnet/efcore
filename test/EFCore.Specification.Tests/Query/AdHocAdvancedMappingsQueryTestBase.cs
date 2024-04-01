@@ -7,6 +7,8 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
@@ -56,7 +58,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     [ConditionalFact]
     public virtual async Task Projecting_correlated_collection_along_with_non_mapped_property()
     {
-        var contextFactory = await InitializeAsync<Context11835>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11835>(seed: c => c.SeedAsync());
         using (var context = contextFactory.CreateContext())
         {
             var result = context.Blogs.Select(
@@ -85,7 +87,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var b1 = new Blog { Title = "B1" };
             var b2 = new Blog { Title = "B2" };
@@ -97,7 +99,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
             Blogs.AddRange(b1, b2);
             Posts.AddRange(p11, p12, p13, p21, p22);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Blog
@@ -126,7 +128,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     [ConditionalFact]
     public virtual async Task Projection_failing_with_EnumToStringConverter()
     {
-        var contextFactory = await InitializeAsync<Context15684>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context15684>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = from p in context.Products
                     join c in context.Categories on p.CategoryId equals c.Id into grouping
@@ -153,14 +155,14 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
                 .Property(e => e.Status)
                 .HasConversion(new EnumToStringConverter<CategoryStatus>());
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Products.Add(
                 new Product { Name = "Apple", Category = new Category { Name = "Fruit", Status = CategoryStatus.Active } });
 
             Products.Add(new Product { Name = "Bike" });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Product
@@ -301,7 +303,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     [ConditionalFact]
     public virtual async Task Double_convert_interface_created_expression_tree()
     {
-        var contextFactory = await InitializeAsync<Context17794>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context17794>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var expression = Context17794.HasAction17794<Context17794.Offer>(Context17794.Actions.Accepted);
         var query = context.Offers.Where(expression).Count();
@@ -318,10 +320,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         {
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             Add(new Offer { OfferActions = new List<OfferAction> { new() { Action = Actions.Accepted } } });
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public static Expression<Func<T, bool>> HasAction17794<T>(Actions action)
@@ -371,7 +373,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     [ConditionalFact]
     public virtual async Task Casts_are_removed_from_expression_tree_when_redundant()
     {
-        var contextFactory = await InitializeAsync<Context18087>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context18087>(seed: c => c.SeedAsync());
 
         using (var context = contextFactory.CreateContext())
         {
@@ -409,14 +411,14 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     {
         public DbSet<MockEntity> MockEntities { get; set; }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new MockEntity { Name = "Entity1", NavigationEntity = null },
                 new MockEntity { Name = "Entity2", NavigationEntity = null },
                 new MockEntity { Name = "NewEntity", NavigationEntity = null });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public interface IDomainEntity
@@ -445,7 +447,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
     [ConditionalFact]
     public virtual async Task Can_query_hierarchy_with_non_nullable_property_on_derived()
     {
-        var contextFactory = await InitializeAsync<Context18346>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context18346>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Businesses.ToList();
         Assert.Equal(3, query.Count);
@@ -461,13 +463,13 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
                 .HasValue<Shop>(BusinessType.Shop)
                 .HasValue<Brand>(BusinessType.Brand);
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var shop1 = new Shop { IsOnline = true, Name = "Amzn" };
             var shop2 = new Shop { IsOnline = false, Name = "Mom and Pop's Shoppe" };
             var brand = new Brand { Name = "Tsla" };
             Businesses.AddRange(shop1, shop2, brand);
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public abstract class Business
@@ -597,7 +599,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
 
     public virtual async Task Hierarchy_query_with_abstract_type_sibling_helper(bool async, Action<ModelBuilder> onModelCreating)
     {
-        var contextFactory = await InitializeAsync<Context28196>(onModelCreating: onModelCreating, seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context28196>(onModelCreating: onModelCreating, seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Animals.OfType<Context28196.Pet>().Where(a => a.Species.StartsWith("F"));
         var result = async
@@ -618,7 +620,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             modelBuilder.Entity<FarmAnimal>();
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             AddRange(
                 new Cat
@@ -649,7 +651,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
                     Species = "Ovis aries"
                 });
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public abstract class Animal

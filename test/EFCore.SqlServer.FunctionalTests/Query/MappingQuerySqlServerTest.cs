@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class MappingQuerySqlServerTest : MappingQueryTestBase<MappingQuerySqlServerTest.MappingQuerySqlServerFixture>
 {
     public override void All_customers()

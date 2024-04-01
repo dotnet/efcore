@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 public class AppendSelectPropertyExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private bool HasValidPropertyToSelect(Expression expression)
-        => expression.Type.GetGenericArguments()[0].GetProperties().Any(p => !p.GetMethod.IsStatic);
+        => expression.Type.GetGenericArguments()[0].GetProperties().Any(p => !p.GetMethod!.IsStatic);
 
     public override bool IsValid(Expression expression)
         => IsQueryableResult(expression)
@@ -15,7 +15,7 @@ public class AppendSelectPropertyExpressionMutator(DbContext context) : Expressi
     public override Expression Apply(Expression expression, Random random)
     {
         var typeArgument = expression.Type.GetGenericArguments()[0];
-        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod.IsStatic).ToList();
+        var properties = typeArgument.GetProperties().Where(p => !p.GetMethod!.IsStatic).ToList();
         properties = FilterPropertyInfos(typeArgument, properties);
 
         var i = random.Next(properties.Count);

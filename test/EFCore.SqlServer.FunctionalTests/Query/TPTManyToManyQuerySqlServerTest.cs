@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPTManyToManyQuerySqlServerTest : TPTManyToManyQueryRelationalTestBase<TPTManyToManyQuerySqlServerFixture>
 {
     public TPTManyToManyQuerySqlServerTest(TPTManyToManyQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -11,9 +13,6 @@ public class TPTManyToManyQuerySqlServerTest : TPTManyToManyQueryRelationalTestB
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

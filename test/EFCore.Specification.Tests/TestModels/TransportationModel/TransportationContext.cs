@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
+#nullable disable
+
 public class TransportationContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -71,10 +73,10 @@ public class TransportationContext(DbContextOptions options) : PoolableDbContext
             });
     }
 
-    public void Seed()
+    public Task SeedAsync()
     {
         Vehicles.AddRange(CreateVehicles());
-        SaveChanges();
+        return SaveChangesAsync();
     }
 
     public void AssertSeeded()

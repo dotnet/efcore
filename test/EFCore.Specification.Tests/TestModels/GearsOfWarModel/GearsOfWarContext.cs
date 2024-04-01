@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
+#nullable disable
+
 public class GearsOfWarContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Gear> Gears { get; set; }
@@ -17,7 +19,7 @@ public class GearsOfWarContext(DbContextOptions options) : PoolableDbContext(opt
     public DbSet<LocustLeader> LocustLeaders { get; set; }
     public DbSet<LocustHighCommand> LocustHighCommands { get; set; }
 
-    public static void Seed(GearsOfWarContext context)
+    public static async Task SeedAsync(GearsOfWarContext context)
     {
         var squads = GearsOfWarData.CreateSquads();
         var missions = GearsOfWarData.CreateMissions();
@@ -43,10 +45,10 @@ public class GearsOfWarContext(DbContextOptions options) : PoolableDbContext(opt
         context.LocustLeaders.AddRange(locustLeaders);
         context.Factions.AddRange(factions);
         context.LocustHighCommands.AddRange(locustHighCommands);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         GearsOfWarData.WireUp2(locustLeaders, factions);
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
@@ -353,6 +351,42 @@ EXEC(N'CREATE TABLE [Customers] (
     SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomersHistory]),
     MEMORY_OPTIMIZED = ON
 )');
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Create_table_with_fill_factor()
+    {
+        await Test(
+            _ => { },
+            builder =>
+            {
+                builder.Entity("People").Property<int>("TheKey");
+                builder.Entity("People").Property<Guid>("TheAlternateKey");
+                builder.Entity("People").HasKey("TheKey").HasFillFactor(81);
+                builder.Entity("People").HasAlternateKey("TheAlternateKey").HasFillFactor(82);
+            },
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+
+                var primaryKey = table.PrimaryKey;
+                Assert.NotNull(primaryKey);
+                Assert.Equal(81, primaryKey[SqlServerAnnotationNames.FillFactor]);
+
+                var uniqueConstraint = table.UniqueConstraints.FirstOrDefault();
+                Assert.NotNull(uniqueConstraint);
+                Assert.Equal(82, uniqueConstraint[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+CREATE TABLE [People] (
+    [TheKey] int NOT NULL IDENTITY,
+    [TheAlternateKey] uniqueidentifier NOT NULL,
+    CONSTRAINT [PK_People] PRIMARY KEY ([TheKey]) WITH (FILLFACTOR = 81),
+    CONSTRAINT [AK_People_TheAlternateKey] UNIQUE ([TheAlternateKey]) WITH (FILLFACTOR = 82)
+);
 """);
     }
 
@@ -3091,9 +3125,6 @@ IF SCHEMA_ID(N'dbo2') IS NULL EXEC(N'CREATE SCHEMA [dbo2];');
 CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAXVALUE 916 CYCLE CACHE 20;
 """);
     }
-
-
-
 
     public override async Task Create_sequence_nocache()
     {
@@ -10816,9 +10847,9 @@ CREATE TABLE [HistoryTable] (
     }
 
     [ConditionalFact]
-    public override async Task Add_required_primitve_collection_to_existing_table()
+    public override async Task Add_required_primitive_collection_to_existing_table()
     {
-        await base.Add_required_primitve_collection_to_existing_table();
+        await base.Add_required_primitive_collection_to_existing_table();
 
         AssertSql(
 """
@@ -10827,9 +10858,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
     }
 
     [ConditionalFact]
-    public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    public override async Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
     {
-        await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
+        await base.Add_required_primitive_collection_with_custom_default_value_to_existing_table();
 
         AssertSql(
 """
@@ -10838,9 +10869,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
     }
 
     [ConditionalFact]
-    public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
+    public override async Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table()
     {
-        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
+        await base.Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
 
         AssertSql(
 """
@@ -10849,9 +10880,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1
     }
 
     [ConditionalFact(Skip = "issue #33038")]
-    public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    public override async Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
     {
-        await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
+        await base.Add_required_primitive_collection_with_custom_converter_to_existing_table();
 
         AssertSql(
 """
@@ -10860,9 +10891,9 @@ ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
     }
 
     [ConditionalFact]
-    public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    public override async Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
     {
-        await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
+        await base.Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table();
 
         AssertSql(
 """
@@ -10930,6 +10961,61 @@ CREATE TABLE [Contacts] (
     [MyComplex_MyNestedComplex_Foo] int NULL,
     CONSTRAINT [PK_Contacts] PRIMARY KEY ([Id])
 );
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'[1,2,3]';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_default_value_sql_to_existing_table_core("N'[3, 2, 1]'");
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT (N'[3, 2, 1]');
+""");
+    }
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public override async Task Add_required_primitve_collection_with_custom_converter_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_converter_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'nothing';
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+    {
+        await base.Add_required_primitve_collection_with_custom_converter_and_custom_default_value_to_existing_table();
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [Numbers] nvarchar(max) NOT NULL DEFAULT N'some numbers';
 """);
     }
 

@@ -1,0 +1,216 @@
+parameters:
+  # Parameter below is ignored in public builds.
+  #
+  # Choose whether to run the CodeQL3000 tasks.
+  # Manual builds align w/ official builds unless this parameter is true.
+  - name: runCodeQL3000
+    default: false
+    displayName: Run CodeQL3000 tasks
+    type: boolean
+
+variables:
+  - name: _BuildConfig
+    value: Release
+  - name: _TeamName
+    value: AspNetCore
+  - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+    value: true
+  - name: _PublishUsingPipelines
+    value: true
+  - name: _CosmosConnectionUrl
+    value: https://localhost:8081
+  - name: _CosmosToken
+    value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
+  - ${{ if or(startswith(variables['Build.SourceBranch'], 'refs/heads/release/'), startswith(variables['Build.SourceBranch'], 'refs/heads/internal/release/'), eq(variables['Build.Reason'], 'Manual')) }}:
+    - name: PostBuildSign
+      value: false
+  - ${{ else }}:
+    - name: PostBuildSign
+      value: true
+  - name: _InternalRuntimeDownloadArgs
+    value: ''
+  - name: LC_ALL
+    value: 'en_US.UTF-8'
+  - name: LANG
+    value: 'en_US.UTF-8'
+  - name: LANGUAGE
+    value: 'en_US.UTF-8'
+  - name: runCodeQL3000
+    value: false
+  - template: /eng/common/templates/variables/pool-providers.yml
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+      - release/*
+      - feature/*
+      - internal/release/*
+
+pr: ['*']
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+    - template: eng/common/templates/jobs/jobs.yml
+      parameters:
+        enableMicrobuild: ${{ ne(variables.runCodeQL3000, 'true') }}
+        enablePublishBuildArtifacts: true
+        enablePublishBuildAssets: ${{ ne(variables.runCodeQL3000, 'true') }}
+        enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
+        publishAssetsImmediately: true
+        enableSourceIndex: false
+        enableTelemetry: true
+        helixRepo: dotnet/efcore
+        jobs:
+          - job: Windows
+            enablePublishTestResults: ${{ ne(variables.runCodeQL3000, 'true') }}
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2019-open
+            ${{ if eq(variables.runCodeQL3000, 'true') }}:
+              # Component governance and SBOM creation are not needed here. Disable what Arcade would inject.
+              disableComponentGovernance: true
+              enableSbom: false
+              # CodeQL3000 extends build duration.
+              timeoutInMinutes: 180
+            ${{ else }}:
+              timeoutInMinutes: 90
+            variables:
+              - _InternalBuildArgs: ''
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+              - ${{ if eq(variables.runCodeQL3000, 'true') }}:
+                - _AdditionalBuildArgs: /p:Test=false /p:Sign=false /p:Pack=false /p:Publish=false /p:UseSharedCompilation=false
+                # Security analysis is included in normal runs. Disable its auto-injection.
+                - skipNugetSecurityAnalysis: true
+                # Do not let CodeQL3000 Extension gate scan frequency.
+                - Codeql.Cadence: 0
+                # Enable CodeQL3000 unconditionally so it may be run on any branch.
+                - Codeql.Enabled: true
+                # Ignore test and infrastructure code.
+                - Codeql.SourceRoot: src
+                # CodeQL3000 needs this plumbed along as a variable to enable TSA.
+                - Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
+                # Default expects tsaoptions.json under SourceRoot.
+                - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
+              - ${{ else }}:
+                - _AdditionalBuildArgs: ''
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: "echo ##vso[build.addbuildtag]daily-build"
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
+                displayName: 'Set CI tags'
+              - script: "echo ##vso[build.addbuildtag]release-candidate"
+                condition: and(notin(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
+                displayName: 'Set CI tags'
+              - powershell: SqlLocalDB start
+                displayName: Start LocalDB
+              - ${{ if eq(variables.runCodeQL3000, 'true') }}:
+                - task: CodeQL3000Init@0
+                  displayName: CodeQL Initialize
+                - script: "echo ##vso[build.addbuildtag]CodeQL3000"
+                  displayName: 'Set CI CodeQL3000 tag'
+                  condition: ne(variables.CODEQL_DIST,'')
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
+                  $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                name: Build
+              - ${{ else }}:
+                - task: PublishBuildArtifacts@1
+                  displayName: Upload TestResults
+                  condition: always()
+                  continueOnError: true
+                  inputs:
+                    pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                    artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                    artifactType: Container
+                    parallel: true
+
+          - job: macOS
+            enablePublishTestResults: true
+            pool:
+              vmImage: macOS-11
+            variables:
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+            steps:
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
+                name: Build
+              - task: PublishBuildArtifacts@1
+                displayName: Upload TestResults
+                condition: always()
+                continueOnError: true
+                inputs:
+                  pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactType: Container
+                  parallel: true
+
+          - job: Linux
+            timeoutInMinutes: 120
+            enablePublishTestResults: true
+            pool:
+              vmImage: ubuntu-22.04
+            variables:
+              - _runCounter: $[counter(variables['Build.Reason'], 0)]
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+            steps:
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                env:
+                  Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                  Test__Cosmos__AuthToken: $(_CosmosToken)
+                name: Build
+              - task: PublishBuildArtifacts@1
+                displayName: Upload TestResults
+                condition: always()
+                continueOnError: true
+                inputs:
+                  pathtoPublish: artifacts/TestResults/$(_BuildConfig)/
+                  artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
+                  artifactType: Container
+                  parallel: true
+
+          - job: Helix
+            timeoutInMinutes: 180
+            pool:
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2019-open
+            variables:
+              # Rely on task Arcade injects, not auto-injected build step.
+              - skipComponentGovernanceDetection: true
+              - name: _HelixBuildConfig
+                value: $(_BuildConfig)
+              - name: HelixTargetQueues
+                value: OSX.1100.Amd64.Open;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+              - name: _HelixAccessToken
+                value: '' # Needed for public queues
+            steps:
+              - task: NuGetCommand@2
+                displayName: 'Clear NuGet caches'
+                condition: succeeded()
+                inputs:
+                  command: custom
+                  arguments: 'locals all -clear'
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                displayName: Restore packages
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                displayName: Send job to helix
+                env:
+                  HelixAccessToken: $(_HelixAccessToken)
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
+                  MSSQL_SA_PASSWORD: "Password12!"
+                  COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
+                  DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)

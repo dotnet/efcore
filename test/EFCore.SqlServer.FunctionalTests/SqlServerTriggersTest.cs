@@ -6,7 +6,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixture fixture) : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
+#nullable disable
+
+public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixture fixture)
+    : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
 {
     private SqlServerTriggersFixture Fixture { get; } = fixture;
 
@@ -141,11 +144,11 @@ public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixtur
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        protected override void Seed(PoolableDbContext context)
+        protected override async Task SeedAsync(PoolableDbContext context)
         {
-            context.Database.EnsureCreatedResiliently();
+            await context.Database.EnsureCreatedResilientlyAsync();
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_InsertProduct
 ON Products
@@ -159,7 +162,7 @@ BEGIN
     SELECT * FROM INSERTED;
 END");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_UpdateProduct
 ON Products
@@ -177,7 +180,7 @@ BEGIN
     WHERE p.Id IN(SELECT INSERTED.Id FROM INSERTED);
 END");
 
-            context.Database.ExecuteSqlRaw(
+            await context.Database.ExecuteSqlRawAsync(
                 @"
 CREATE TRIGGER TRG_DeleteProduct
 ON Products

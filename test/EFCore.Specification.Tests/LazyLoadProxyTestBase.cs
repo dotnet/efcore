@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -60,7 +58,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(children, parent.Children);
                 Assert.Equal(singlePkToPk, parent.SinglePkToPk);
                 Assert.Equal(single, parent.Single);
-                Assert.Equal(childrenAk, parent.ChildrenAk);
+                Assert.Equal(childrenAk, parent.ChildrenAk!);
                 Assert.Equal(singleAk, parent.SingleAk);
                 Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk);
                 Assert.Equal(singleShadowFk, parent.SingleShadowFk);
@@ -5230,7 +5228,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             configurationBuilder.ComplexProperties<Tog>();
         }
 
-        protected override void Seed(DbContext context)
+        protected override Task SeedAsync(DbContext context)
         {
             context.Add(
                 new Quest
@@ -5581,7 +5579,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                     Milk = CreateMilk()
                 });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
 
         protected static Culture CreateCulture()

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class CompositeKeysSplitQuerySqlServerTest : CompositeKeysSplitQueryRelationalTestBase<CompositeKeysQuerySqlServerFixture>
 {
     public CompositeKeysSplitQuerySqlServerTest(
@@ -13,9 +15,6 @@ public class CompositeKeysSplitQuerySqlServerTest : CompositeKeysSplitQueryRelat
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     public override async Task Projecting_collections_multi_level(bool async)
     {

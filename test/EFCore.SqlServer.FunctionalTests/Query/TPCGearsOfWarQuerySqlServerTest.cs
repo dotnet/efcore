@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPCGearsOfWarQuerySqlServerTest : TPCGearsOfWarQueryRelationalTestBase<TPCGearsOfWarQuerySqlServerFixture>
 {
     public TPCGearsOfWarQuerySqlServerTest(TPCGearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -14,12 +16,20 @@ public class TPCGearsOfWarQuerySqlServerTest : TPCGearsOfWarQueryRelationalTestB
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    protected override bool CanExecuteQueryString
-        => true;
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    public override async Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        await base.Non_string_concat_uses_appropriate_type_mapping(async);
+
+        AssertSql(
+            """
+SELECT [m].[Duration]
+FROM [Missions] AS [m]
+""");
+    }
 
     public override async Task Entity_equality_empty(bool async)
     {

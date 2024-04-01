@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class SpatialQueryRelationalTestBase<TFixture> : SpatialQueryTestBase<TFixture>
     where TFixture : SpatialQueryFixtureBase, new()
 {
@@ -11,10 +13,7 @@ public abstract class SpatialQueryRelationalTestBase<TFixture> : SpatialQueryTes
     {
     }
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

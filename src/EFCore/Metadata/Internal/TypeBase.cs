@@ -1315,17 +1315,17 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// <returns>The properties.</returns>
     public virtual IEnumerable<Property> GetFlattenedProperties()
     {
-        foreach (var property in GetProperties())
+        if (_baseType != null)
         {
-            yield return property;
-        }
-
-        foreach (var complexProperty in GetComplexProperties())
-        {
-            foreach (var property in complexProperty.ComplexType.GetFlattenedProperties())
+            foreach (var property in _baseType.GetFlattenedProperties())
             {
                 yield return property;
             }
+        }
+
+        foreach (var property in GetFlattenedDeclaredProperties())
+        {
+            yield return property;
         }
     }
 

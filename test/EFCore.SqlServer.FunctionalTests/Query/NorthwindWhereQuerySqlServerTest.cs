@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -14,9 +16,6 @@ public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTes
         ClearLog();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -2104,7 +2103,7 @@ WHERE (
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE N'%20%'
+WHERE CONVERT(varchar(11), [o].[OrderID]) LIKE '%20%'
 """);
     }
 

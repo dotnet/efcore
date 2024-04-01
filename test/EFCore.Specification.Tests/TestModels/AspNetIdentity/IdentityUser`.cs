@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
+#nullable disable
+
 public class IdentityUser<TKey>
     where TKey : IEquatable<TKey>
 {

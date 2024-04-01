@@ -5,6 +5,8 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateOperatorsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -16,9 +18,6 @@ public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateO
         ClearLog();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

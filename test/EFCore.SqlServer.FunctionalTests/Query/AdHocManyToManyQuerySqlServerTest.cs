@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocManyToManyQuerySqlServerTest : AdHocManyToManyQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

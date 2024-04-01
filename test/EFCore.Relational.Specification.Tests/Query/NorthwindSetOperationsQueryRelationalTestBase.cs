@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindSetOperationsQueryRelationalTestBase<TFixture> : NorthwindSetOperationsQueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -27,10 +29,7 @@ public abstract class NorthwindSetOperationsQueryRelationalTestBase<TFixture> : 
         Assert.Equal(RelationalStrings.SetOperationsNotAllowedAfterClientEvaluation, message);
     }
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

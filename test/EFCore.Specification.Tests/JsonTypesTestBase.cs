@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -26,7 +24,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(sbyte.MaxValue, """{"Prop":127}""")]
     [InlineData((sbyte)0, """{"Prop":0}""")]
     [InlineData((sbyte)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_sbyte_JSON_values(sbyte value, string json)
+    public virtual Task Can_read_write_sbyte_JSON_values(sbyte value, string json)
         => Can_read_and_write_JSON_value<Int8Type, sbyte>(nameof(Int8Type.Int8), value, json);
 
     protected class Int8Type
@@ -39,7 +37,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(short.MaxValue, """{"Prop":32767}""")]
     [InlineData((short)0, """{"Prop":0}""")]
     [InlineData((short)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_short_JSON_values(short value, string json)
+    public virtual Task Can_read_write_short_JSON_values(short value, string json)
         => Can_read_and_write_JSON_value<Int16Type, short>(nameof(Int16Type.Int16), value, json);
 
     protected class Int16Type
@@ -52,7 +50,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(int.MaxValue, """{"Prop":2147483647}""")]
     [InlineData(0, """{"Prop":0}""")]
     [InlineData(1, """{"Prop":1}""")]
-    public virtual void Can_read_write_int_JSON_values(int value, string json)
+    public virtual Task Can_read_write_int_JSON_values(int value, string json)
         => Can_read_and_write_JSON_value<Int32Type, int>(nameof(Int32Type.Int32), value, json);
 
     protected class Int32Type
@@ -65,7 +63,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(long.MaxValue, """{"Prop":9223372036854775807}""")]
     [InlineData((long)0, """{"Prop":0}""")]
     [InlineData((long)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_long_JSON_values(long value, string json)
+    public virtual Task Can_read_write_long_JSON_values(long value, string json)
         => Can_read_and_write_JSON_value<Int64Type, long>(nameof(Int64Type.Int64), value, json);
 
     protected class Int64Type
@@ -77,7 +75,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(byte.MinValue, """{"Prop":0}""")]
     [InlineData(byte.MaxValue, """{"Prop":255}""")]
     [InlineData((byte)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_byte_JSON_values(byte value, string json)
+    public virtual Task Can_read_write_byte_JSON_values(byte value, string json)
         => Can_read_and_write_JSON_value<UInt8Type, byte>(nameof(UInt8Type.UInt8), value, json);
 
     protected class UInt8Type
@@ -89,7 +87,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(ushort.MinValue, """{"Prop":0}""")]
     [InlineData(ushort.MaxValue, """{"Prop":65535}""")]
     [InlineData((ushort)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_ushort_JSON_values(ushort value, string json)
+    public virtual Task Can_read_write_ushort_JSON_values(ushort value, string json)
         => Can_read_and_write_JSON_value<UInt16Type, ushort>(nameof(UInt16Type.UInt16), value, json);
 
     protected class UInt16Type
@@ -101,7 +99,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(uint.MinValue, """{"Prop":0}""")]
     [InlineData(uint.MaxValue, """{"Prop":4294967295}""")]
     [InlineData((uint)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_uint_JSON_values(uint value, string json)
+    public virtual Task Can_read_write_uint_JSON_values(uint value, string json)
         => Can_read_and_write_JSON_value<UInt32Type, uint>(nameof(UInt32Type.UInt32), value, json);
 
     protected class UInt32Type
@@ -113,7 +111,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(ulong.MinValue, """{"Prop":0}""")]
     [InlineData(ulong.MaxValue, """{"Prop":18446744073709551615}""")]
     [InlineData((ulong)1, """{"Prop":1}""")]
-    public virtual void Can_read_write_ulong_JSON_values(ulong value, string json)
+    public virtual Task Can_read_write_ulong_JSON_values(ulong value, string json)
         => Can_read_and_write_JSON_value<UInt64Type, ulong>(nameof(UInt64Type.UInt64), value, json);
 
     protected class UInt64Type
@@ -126,7 +124,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(float.MaxValue, """{"Prop":3.4028235E+38}""")]
     [InlineData((float)0.0, """{"Prop":0}""")]
     [InlineData((float)1.1, """{"Prop":1.1}""")]
-    public virtual void Can_read_write_float_JSON_values(float value, string json)
+    public virtual Task Can_read_write_float_JSON_values(float value, string json)
         => Can_read_and_write_JSON_value<FloatType, float>(nameof(FloatType.Float), value, json);
 
     protected class FloatType
@@ -139,7 +137,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(double.MaxValue, """{"Prop":1.7976931348623157E+308}""")]
     [InlineData(0.0, """{"Prop":0}""")]
     [InlineData(1.1, """{"Prop":1.1}""")]
-    public virtual void Can_read_write_double_JSON_values(double value, string json)
+    public virtual Task Can_read_write_double_JSON_values(double value, string json)
         => Can_read_and_write_JSON_value<DoubleType, double>(nameof(DoubleType.Double), value, json);
 
     protected class DoubleType
@@ -152,7 +150,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("79228162514264337593543950335", """{"Prop":79228162514264337593543950335}""")]
     [InlineData("0.0", """{"Prop":0.0}""")]
     [InlineData("1.1", """{"Prop":1.1}""")]
-    public virtual void Can_read_write_decimal_JSON_values(decimal value, string json)
+    public virtual Task Can_read_write_decimal_JSON_values(decimal value, string json)
         => Can_read_and_write_JSON_value<DecimalType, decimal>(nameof(DecimalType.Decimal), value, json);
 
     protected class DecimalType
@@ -164,7 +162,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("1/1/0001", """{"Prop":"0001-01-01"}""")]
     [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
     [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
-    public virtual void Can_read_write_DateOnly_JSON_values(string value, string json)
+    public virtual Task Can_read_write_DateOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<DateOnlyType, DateOnly>(
             nameof(DateOnlyType.DateOnly),
             DateOnly.Parse(value, CultureInfo.InvariantCulture), json);
@@ -178,7 +176,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00:00:00.0000000", """{"Prop":"00:00:00.0000000"}""")]
     [InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}""")]
     [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
-    public virtual void Can_read_write_TimeOnly_JSON_values(string value, string json)
+    public virtual Task Can_read_write_TimeOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<TimeOnlyType, TimeOnly>(
             nameof(TimeOnlyType.TimeOnly),
             TimeOnly.Parse(value, CultureInfo.InvariantCulture), json);
@@ -192,7 +190,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("0001-01-01T00:00:00.0000000", """{"Prop":"0001-01-01T00:00:00"}""")]
     [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}""")]
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
-    public virtual void Can_read_write_DateTime_JSON_values(string value, string json)
+    public virtual Task Can_read_write_DateTime_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<DateTimeType, DateTime>(
             nameof(DateTimeType.DateTime),
             DateTime.Parse(value, CultureInfo.InvariantCulture), json);
@@ -207,7 +205,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("9999-12-31T23:59:59.9999999+02:00", """{"Prop":"9999-12-31T23:59:59.9999999+02:00"}""")]
     [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}""")]
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
-    public virtual void Can_read_write_DateTimeOffset_JSON_values(string value, string json)
+    public virtual Task Can_read_write_DateTimeOffset_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<DateTimeOffsetType, DateTimeOffset>(
             nameof(DateTimeOffsetType.DateTimeOffset),
             DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
@@ -222,7 +220,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("10675199.02:48:05.4775807", """{"Prop":"10675199:2:48:05.4775807"}""")]
     [InlineData("00:00:00", """{"Prop":"0:00:00"}""")]
     [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
-    public virtual void Can_read_write_TimeSpan_JSON_values(string value, string json)
+    public virtual Task Can_read_write_TimeSpan_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<TimeSpanType, TimeSpan>(
             nameof(TimeSpanType.TimeSpan),
             TimeSpan.Parse(value), json);
@@ -235,7 +233,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [ConditionalTheory]
     [InlineData(false, """{"Prop":false}""")]
     [InlineData(true, """{"Prop":true}""")]
-    public virtual void Can_read_write_bool_JSON_values(bool value, string json)
+    public virtual Task Can_read_write_bool_JSON_values(bool value, string json)
         => Can_read_and_write_JSON_value<BooleanType, bool>(nameof(BooleanType.Boolean), value, json);
 
     protected class BooleanType
@@ -248,7 +246,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(char.MaxValue, """{"Prop":"\uFFFF"}""")]
     [InlineData(' ', """{"Prop":" "}""")]
     [InlineData("Z", """{"Prop":"Z"}""")]
-    public virtual void Can_read_write_char_JSON_values(char value, string json)
+    public virtual Task Can_read_write_char_JSON_values(char value, string json)
         => Can_read_and_write_JSON_value<CharacterType, char>(nameof(CharacterType.Character), value, json);
 
     protected class CharacterType
@@ -260,7 +258,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}""")]
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
-    public virtual void Can_read_write_GUID_JSON_values(Guid value, string json)
+    public virtual Task Can_read_write_GUID_JSON_values(Guid value, string json)
         => Can_read_and_write_JSON_value<GuidType, Guid>(nameof(GuidType.Guid), value, json);
 
     protected class GuidType
@@ -275,7 +273,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(
         "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
         @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
-    public virtual void Can_read_write_string_JSON_values(string value, string json)
+    public virtual Task Can_read_write_string_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<StringType, string>(nameof(StringType.String), value, json);
 
     protected class StringType
@@ -288,7 +286,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("255,255,255,255", """{"Prop":"/////w=="}""")]
     [InlineData("", """{"Prop":""}""")]
     [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
-    public virtual void Can_read_write_binary_JSON_values(string value, string json)
+    public virtual Task Can_read_write_binary_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<BytesType, byte[]>(
             nameof(BytesType.Bytes),
             value == "" ? [] : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
@@ -303,7 +301,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         "https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName",
         """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}""")]
     [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
-    public virtual void Can_read_write_URI_JSON_values(string value, string json)
+    public virtual Task Can_read_write_URI_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<UriType, Uri>(nameof(UriType.Uri), new Uri(value), json);
 
     protected class UriType
@@ -319,7 +317,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("::1", """{"Prop":"::1"}""")]
     [InlineData("::", """{"Prop":"::"}""")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
-    public virtual void Can_read_write_IP_address_JSON_values(string value, string json)
+    public virtual Task Can_read_write_IP_address_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<IPAddressType, IPAddress>(nameof(IPAddressType.IpAddress), IPAddress.Parse(value), json);
 
     protected class IPAddressType
@@ -331,7 +329,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("001122334455", """{"Prop":"001122334455"}""")]
     [InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}""")]
     [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
-    public virtual void Can_read_write_physical_address_JSON_values(string value, string json)
+    public virtual Task Can_read_write_physical_address_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<PhysicalAddressType, PhysicalAddress>(
             nameof(PhysicalAddressType.PhysicalAddress),
             PhysicalAddress.Parse(value), json);
@@ -346,7 +344,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((sbyte)Enum8.Max, """{"Prop":127}""")]
     [InlineData((sbyte)Enum8.Default, """{"Prop":0}""")]
     [InlineData((sbyte)Enum8.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_sbyte_enum_JSON_values(Enum8 value, string json)
+    public virtual Task Can_read_write_sbyte_enum_JSON_values(Enum8 value, string json)
         => Can_read_and_write_JSON_value<Enum8Type, Enum8>(nameof(Enum8Type.Enum8), value, json);
 
     protected class Enum8Type
@@ -359,7 +357,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((short)Enum16.Max, """{"Prop":32767}""")]
     [InlineData((short)Enum16.Default, """{"Prop":0}""")]
     [InlineData((short)Enum16.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_short_enum_JSON_values(Enum16 value, string json)
+    public virtual Task Can_read_write_short_enum_JSON_values(Enum16 value, string json)
         => Can_read_and_write_JSON_value<Enum16Type, Enum16>(nameof(Enum16Type.Enum16), value, json);
 
     protected class Enum16Type
@@ -372,7 +370,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((int)Enum32.Max, """{"Prop":2147483647}""")]
     [InlineData((int)Enum32.Default, """{"Prop":0}""")]
     [InlineData((int)Enum32.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_int_enum_JSON_values(Enum32 value, string json)
+    public virtual Task Can_read_write_int_enum_JSON_values(Enum32 value, string json)
         => Can_read_and_write_JSON_value<Enum32Type, Enum32>(nameof(Enum32Type.Enum32), value, json);
 
     protected class Enum32Type
@@ -385,7 +383,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((long)Enum64.Max, """{"Prop":9223372036854775807}""")]
     [InlineData((long)Enum64.Default, """{"Prop":0}""")]
     [InlineData((long)Enum64.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_long_enum_JSON_values(Enum64 value, string json)
+    public virtual Task Can_read_write_long_enum_JSON_values(Enum64 value, string json)
         => Can_read_and_write_JSON_value<Enum64Type, Enum64>(nameof(Enum64Type.Enum64), value, json);
 
     protected class Enum64Type
@@ -397,7 +395,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((byte)EnumU8.Min, """{"Prop":0}""")]
     [InlineData((byte)EnumU8.Max, """{"Prop":255}""")]
     [InlineData((byte)EnumU8.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_byte_enum_JSON_values(EnumU8 value, string json)
+    public virtual Task Can_read_write_byte_enum_JSON_values(EnumU8 value, string json)
         => Can_read_and_write_JSON_value<EnumU8Type, EnumU8>(nameof(EnumU8Type.EnumU8), value, json);
 
     protected class EnumU8Type
@@ -409,7 +407,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((ushort)EnumU16.Min, """{"Prop":0}""")]
     [InlineData((ushort)EnumU16.Max, """{"Prop":65535}""")]
     [InlineData((ushort)EnumU16.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_ushort_enum_JSON_values(EnumU16 value, string json)
+    public virtual Task Can_read_write_ushort_enum_JSON_values(EnumU16 value, string json)
         => Can_read_and_write_JSON_value<EnumU16Type, EnumU16>(nameof(EnumU16Type.EnumU16), value, json);
 
     protected class EnumU16Type
@@ -421,7 +419,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((uint)EnumU32.Min, """{"Prop":0}""")]
     [InlineData((uint)EnumU32.Max, """{"Prop":4294967295}""")]
     [InlineData((uint)EnumU32.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_uint_enum_JSON_values(EnumU32 value, string json)
+    public virtual Task Can_read_write_uint_enum_JSON_values(EnumU32 value, string json)
         => Can_read_and_write_JSON_value<EnumU32Type, EnumU32>(nameof(EnumU32Type.EnumU32), value, json);
 
     protected class EnumU32Type
@@ -433,7 +431,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((ulong)EnumU64.Min, """{"Prop":0}""")]
     [InlineData((ulong)EnumU64.Max, """{"Prop":18446744073709551615}""")]
     [InlineData((ulong)EnumU64.One, """{"Prop":1}""")]
-    public virtual void Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
+    public virtual Task Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
         => Can_read_and_write_JSON_value<EnumU64Type, EnumU64>(nameof(EnumU64Type.EnumU64), value, json);
 
     protected class EnumU64Type
@@ -447,7 +445,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((sbyte)0, """{"Prop":0}""")]
     [InlineData((sbyte)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_sbyte_JSON_values(sbyte? value, string json)
+    public virtual Task Can_read_write_nullable_sbyte_JSON_values(sbyte? value, string json)
         => Can_read_and_write_JSON_value<NullableInt8Type, sbyte?>(nameof(NullableInt8Type.Int8), value, json);
 
     protected class NullableInt8Type
@@ -461,7 +459,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((short)0, """{"Prop":0}""")]
     [InlineData((short)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_short_JSON_values(short? value, string json)
+    public virtual Task Can_read_write_nullable_short_JSON_values(short? value, string json)
         => Can_read_and_write_JSON_value<NullableInt16Type, short?>(nameof(NullableInt16Type.Int16), value, json);
 
     protected class NullableInt16Type
@@ -475,7 +473,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(0, """{"Prop":0}""")]
     [InlineData(1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_int_JSON_values(int? value, string json)
+    public virtual Task Can_read_write_nullable_int_JSON_values(int? value, string json)
         => Can_read_and_write_JSON_value<NullableInt32Type, int?>(nameof(NullableInt32Type.Int32), value, json);
 
     protected class NullableInt32Type
@@ -489,7 +487,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((long)0, """{"Prop":0}""")]
     [InlineData((long)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_long_JSON_values(long? value, string json)
+    public virtual Task Can_read_write_nullable_long_JSON_values(long? value, string json)
         => Can_read_and_write_JSON_value<NullableInt64Type, long?>(nameof(NullableInt64Type.Int64), value, json);
 
     protected class NullableInt64Type
@@ -502,7 +500,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(byte.MaxValue, """{"Prop":255}""")]
     [InlineData((byte)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_byte_JSON_values(byte? value, string json)
+    public virtual Task Can_read_write_nullable_byte_JSON_values(byte? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt8Type, byte?>(nameof(NullableUInt8Type.UInt8), value, json);
 
     protected class NullableUInt8Type
@@ -515,7 +513,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(ushort.MaxValue, """{"Prop":65535}""")]
     [InlineData((ushort)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ushort_JSON_values(ushort? value, string json)
+    public virtual Task Can_read_write_nullable_ushort_JSON_values(ushort? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt16Type, ushort?>(nameof(NullableUInt16Type.UInt16), value, json);
 
     protected class NullableUInt16Type
@@ -528,7 +526,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(uint.MaxValue, """{"Prop":4294967295}""")]
     [InlineData((uint)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_uint_JSON_values(uint? value, string json)
+    public virtual Task Can_read_write_nullable_uint_JSON_values(uint? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt32Type, uint?>(nameof(NullableUInt32Type.UInt32), value, json);
 
     protected class NullableUInt32Type
@@ -541,7 +539,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(ulong.MaxValue, """{"Prop":18446744073709551615}""")]
     [InlineData((ulong)1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ulong_JSON_values(ulong? value, string json)
+    public virtual Task Can_read_write_nullable_ulong_JSON_values(ulong? value, string json)
         => Can_read_and_write_JSON_value<NullableUInt64Type, ulong?>(nameof(NullableUInt64Type.UInt64), value, json);
 
     protected class NullableUInt64Type
@@ -555,7 +553,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((float)0.0, """{"Prop":0}""")]
     [InlineData((float)1.1, """{"Prop":1.1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_float_JSON_values(float? value, string json)
+    public virtual Task Can_read_write_nullable_float_JSON_values(float? value, string json)
         => Can_read_and_write_JSON_value<NullableFloatType, float?>(nameof(NullableFloatType.Float), value, json);
 
     protected class NullableFloatType
@@ -569,7 +567,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(0.0, """{"Prop":0}""")]
     [InlineData(1.1, """{"Prop":1.1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_double_JSON_values(double? value, string json)
+    public virtual Task Can_read_write_nullable_double_JSON_values(double? value, string json)
         => Can_read_and_write_JSON_value<NullableDoubleType, double?>(nameof(NullableDoubleType.Double), value, json);
 
     protected class NullableDoubleType
@@ -583,7 +581,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("0.0", """{"Prop":0.0}""")]
     [InlineData("1.1", """{"Prop":1.1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_decimal_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_decimal_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDecimalType, decimal?>(
             nameof(NullableDecimalType.Decimal),
             value == null ? default(decimal?) : decimal.Parse(value, CultureInfo.InvariantCulture), json);
@@ -598,7 +596,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
     [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_DateOnly_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_DateOnly_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDateOnlyType, DateOnly?>(
             nameof(NullableDateOnlyType.DateOnly),
             value == null ? default(DateOnly?) : DateOnly.Parse(value, CultureInfo.InvariantCulture), json);
@@ -613,7 +611,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}""")]
     [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableTimeOnlyType, TimeOnly?>(
             nameof(NullableTimeOnlyType.TimeOnly),
             value == null ? default(TimeOnly?) : TimeOnly.Parse(value, CultureInfo.InvariantCulture), json);
@@ -628,7 +626,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}""")]
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDateTimeType, DateTime?>(
             nameof(NullableDateTimeType.DateTime),
             value == null ? default(DateTime?) : DateTime.Parse(value, CultureInfo.InvariantCulture), json);
@@ -644,7 +642,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}""")]
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_DateTimeOffset_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_DateTimeOffset_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetType, DateTimeOffset?>(
             nameof(NullableDateTimeOffsetType.DateTimeOffset),
             value == null ? default(DateTimeOffset?) : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
@@ -660,7 +658,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00:00:00", """{"Prop":"0:00:00"}""")]
     [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_TimeSpan_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_TimeSpan_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableTimeSpanType, TimeSpan?>(
             nameof(NullableTimeSpanType.TimeSpan),
             value == null ? default(TimeSpan?) : TimeSpan.Parse(value), json);
@@ -674,7 +672,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(false, """{"Prop":false}""")]
     [InlineData(true, """{"Prop":true}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_bool_JSON_values(bool? value, string json)
+    public virtual Task Can_read_write_nullable_bool_JSON_values(bool? value, string json)
         => Can_read_and_write_JSON_value<NullableBooleanType, bool?>(nameof(NullableBooleanType.Boolean), value, json);
 
     protected class NullableBooleanType
@@ -688,7 +686,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(' ', """{"Prop":" "}""")]
     [InlineData('Z', """{"Prop":"Z"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_char_JSON_values(char? value, string json)
+    public virtual Task Can_read_write_nullable_char_JSON_values(char? value, string json)
         => Can_read_and_write_JSON_value<NullableCharacterType, char?>(nameof(NullableCharacterType.Character), value, json);
 
     protected class NullableCharacterType
@@ -701,7 +699,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_GUID_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_GUID_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableGuidType, Guid?>(
             nameof(NullableGuidType.Guid),
             value == null ? null : Guid.Parse(value, CultureInfo.InvariantCulture), json);
@@ -719,7 +717,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
         @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableStringType, string?>(nameof(NullableStringType.String), value, json);
 
     protected class NullableStringType
@@ -733,7 +731,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("", """{"Prop":""}""")]
     [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_binary_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_binary_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableBytesType, byte[]?>(
             nameof(NullableBytesType.Bytes),
             value == null
@@ -753,7 +751,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}""")]
     [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_URI_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_URI_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableUriType, Uri?>(
             nameof(NullableUriType.Uri),
             value == null ? default : new Uri(value), json);
@@ -772,7 +770,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("::", """{"Prop":"::"}""")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_IP_address_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_IP_address_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullableIPAddressType, IPAddress?>(
             nameof(NullableIPAddressType.IpAddress),
             value == null ? default : IPAddress.Parse(value), json);
@@ -787,7 +785,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}""")]
     [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_physical_address_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_physical_address_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_value<NullablePhysicalAddressType, PhysicalAddress?>(
             nameof(NullablePhysicalAddressType.PhysicalAddress),
             value == null ? default : PhysicalAddress.Parse(value), json);
@@ -803,7 +801,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((sbyte)Enum8.Default, """{"Prop":0}""")]
     [InlineData((sbyte)Enum8.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_sbyte_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_sbyte_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum8Type, Enum8?>(
             nameof(NullableEnum8Type.Enum8),
             value == null ? default(Enum8?) : (Enum8)value, json);
@@ -819,7 +817,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((short)Enum16.Default, """{"Prop":0}""")]
     [InlineData((short)Enum16.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_short_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_short_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum16Type, Enum16?>(
             nameof(NullableEnum16Type.Enum16),
             value == null ? default(Enum16?) : (Enum16)value, json);
@@ -835,7 +833,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((int)Enum32.Default, """{"Prop":0}""")]
     [InlineData((int)Enum32.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_int_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_int_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum32Type, Enum32?>(
             nameof(NullableEnum32Type.Enum32),
             value == null ? default(Enum32?) : (Enum32)value, json);
@@ -851,7 +849,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((long)Enum64.Default, """{"Prop":0}""")]
     [InlineData((long)Enum64.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_long_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_long_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnum64Type, Enum64?>(
             nameof(NullableEnum64Type.Enum64),
             value == null ? default(Enum64?) : (Enum64)value, json);
@@ -866,7 +864,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((byte)EnumU8.Max, """{"Prop":255}""")]
     [InlineData((byte)EnumU8.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_byte_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_byte_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU8Type, EnumU8?>(
             nameof(NullableEnumU8Type.EnumU8),
             value == null ? default(EnumU8?) : (EnumU8)value, json);
@@ -881,7 +879,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((ushort)EnumU16.Max, """{"Prop":65535}""")]
     [InlineData((ushort)EnumU16.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ushort_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_ushort_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU16Type, EnumU16?>(
             nameof(NullableEnumU16Type.EnumU16),
             value == null ? default(EnumU16?) : (EnumU16)value, json);
@@ -896,7 +894,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((uint)EnumU32.Max, """{"Prop":4294967295}""")]
     [InlineData((uint)EnumU32.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_uint_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_uint_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU32Type, EnumU32?>(
             nameof(NullableEnumU32Type.EnumU32),
             value == null ? default(EnumU32?) : (EnumU32)value, json);
@@ -911,7 +909,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((ulong)EnumU64.Max, """{"Prop":18446744073709551615}""")]
     [InlineData((ulong)EnumU64.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_value<NullableEnumU64Type, EnumU64?>(
             nameof(NullableEnumU64Type.EnumU64),
             value == null ? default(EnumU64?) : (EnumU64)value, json);
@@ -927,7 +925,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((sbyte)0, """{"Prop":"0"}""")]
     [InlineData((sbyte)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_sbyte_as_string_JSON_values(sbyte? value, string json)
+    public virtual Task Can_read_write_nullable_sbyte_as_string_JSON_values(sbyte? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt8Type, sbyte?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt8Type.Int8), value, json);
@@ -938,7 +936,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((short)0, """{"Prop":"0"}""")]
     [InlineData((short)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_short_as_string_JSON_values(short? value, string json)
+    public virtual Task Can_read_write_nullable_short_as_string_JSON_values(short? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt16Type, short?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt16Type.Int16), value, json);
@@ -949,7 +947,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(0, """{"Prop":"0"}""")]
     [InlineData(1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_int_as_string_JSON_values(int? value, string json)
+    public virtual Task Can_read_write_nullable_int_as_string_JSON_values(int? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt32Type, int?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt32Type.Int32), value, json);
@@ -960,7 +958,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((long)0, """{"Prop":"0"}""")]
     [InlineData((long)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_long_as_string_JSON_values(long? value, string json)
+    public virtual Task Can_read_write_nullable_long_as_string_JSON_values(long? value, string json)
         => Can_read_and_write_JSON_property_value<NullableInt64Type, long?>(
             b => b.HasConversion<string>(),
             nameof(NullableInt64Type.Int64), value, json);
@@ -970,7 +968,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(byte.MaxValue, """{"Prop":"255"}""")]
     [InlineData((byte)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_byte_as_string_JSON_values(byte? value, string json)
+    public virtual Task Can_read_write_nullable_byte_as_string_JSON_values(byte? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt8Type, byte?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt8Type.UInt8), value, json);
@@ -980,7 +978,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(ushort.MaxValue, """{"Prop":"65535"}""")]
     [InlineData((ushort)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ushort_as_string_JSON_values(ushort? value, string json)
+    public virtual Task Can_read_write_nullable_ushort_as_string_JSON_values(ushort? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt16Type, ushort?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt16Type.UInt16), value, json);
@@ -990,7 +988,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(uint.MaxValue, """{"Prop":"4294967295"}""")]
     [InlineData((uint)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_uint_as_string_JSON_values(uint? value, string json)
+    public virtual Task Can_read_write_nullable_uint_as_string_JSON_values(uint? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt32Type, uint?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt32Type.UInt32), value, json);
@@ -1000,7 +998,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(ulong.MaxValue, """{"Prop":"18446744073709551615"}""")]
     [InlineData((ulong)1, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ulong_as_string_JSON_values(ulong? value, string json)
+    public virtual Task Can_read_write_nullable_ulong_as_string_JSON_values(ulong? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUInt64Type, ulong?>(
             b => b.HasConversion<string>(),
             nameof(NullableUInt64Type.UInt64), value, json);
@@ -1011,7 +1009,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((float)0.0, """{"Prop":"0"}""")]
     [InlineData((float)1.1, """{"Prop":"1.1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_float_as_string_JSON_values(float? value, string json)
+    public virtual Task Can_read_write_nullable_float_as_string_JSON_values(float? value, string json)
         => Can_read_and_write_JSON_property_value<NullableFloatType, float?>(
             b => b.HasConversion<string>(),
             nameof(NullableFloatType.Float), value, json);
@@ -1022,7 +1020,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(0.0, """{"Prop":"0"}""")]
     [InlineData(1.1, """{"Prop":"1.1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_double_as_string_JSON_values(double? value, string json)
+    public virtual Task Can_read_write_nullable_double_as_string_JSON_values(double? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDoubleType, double?>(
             b => b.HasConversion<string>(),
             nameof(NullableDoubleType.Double), value, json);
@@ -1033,7 +1031,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("0.0", """{"Prop":"0.0"}""")]
     [InlineData("1.1", """{"Prop":"1.1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_decimal_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_decimal_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDecimalType, decimal?>(
             b => b.HasConversion<string>(),
             nameof(NullableDecimalType.Decimal),
@@ -1044,7 +1042,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
     [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_DateOnly_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_DateOnly_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDateOnlyType, DateOnly?>(
             b => b.HasConversion<string>(),
             nameof(NullableDateOnlyType.DateOnly),
@@ -1055,7 +1053,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("23:59:59.9999999", """{"Prop":"23:59:59.9999999"}""")]
     [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_TimeOnly_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_TimeOnly_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableTimeOnlyType, TimeOnly?>(
             b => b.HasConversion<string>(),
             nameof(NullableTimeOnlyType.TimeOnly),
@@ -1066,7 +1064,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31 23:59:59.9999999"}""")]
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29 10:52:47.2064353"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_DateTime_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_DateTime_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDateTimeType, DateTime?>(
             b => b.HasConversion<string>(),
             nameof(NullableDateTimeType.DateTime),
@@ -1078,7 +1076,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01 00:00:00-03:00"}""")]
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29 11:11:15.5672854\u002B04:00"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_DateTimeOffset_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_DateTimeOffset_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableDateTimeOffsetType, DateTimeOffset?>(
             b => b.HasConversion<string>(),
             nameof(NullableDateTimeOffsetType.DateTimeOffset),
@@ -1090,7 +1088,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00:00:00", """{"Prop":"00:00:00"}""")]
     [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_TimeSpan_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_TimeSpan_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableTimeSpanType, TimeSpan?>(
             b => b.HasConversion<string>(),
             nameof(NullableTimeSpanType.TimeSpan),
@@ -1100,7 +1098,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(false, """{"Prop":"0"}""")]
     [InlineData(true, """{"Prop":"1"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_bool_as_string_JSON_values(bool? value, string json)
+    public virtual Task Can_read_write_nullable_bool_as_string_JSON_values(bool? value, string json)
         => Can_read_and_write_JSON_property_value<NullableBooleanType, bool?>(
             b => b.HasConversion<string>(),
             nameof(NullableBooleanType.Boolean), value, json);
@@ -1111,7 +1109,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(' ', """{"Prop":" "}""")]
     [InlineData('Z', """{"Prop":"Z"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_char_as_string_JSON_values(char? value, string json)
+    public virtual Task Can_read_write_nullable_char_as_string_JSON_values(char? value, string json)
         => Can_read_and_write_JSON_property_value<NullableCharacterType, char?>(
             b => b.HasConversion<string>(),
             nameof(NullableCharacterType.Character), value, json);
@@ -1121,7 +1119,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_as_string_GUID_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_as_string_GUID_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableGuidType, Guid?>(
             b => b.HasConversion<string>(),
             nameof(NullableGuidType.Guid),
@@ -1135,7 +1133,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
         @"{""Prop"":""\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A""}")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_string_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_string_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableStringType, string?>(
             b => b.HasConversion<string>(),
             nameof(NullableStringType.String), value, json);
@@ -1146,7 +1144,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("", """{"Prop":""}""")]
     [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_binary_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_binary_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableBytesType, byte[]?>(
             b => b.HasConversion<string>(),
             nameof(NullableBytesType.Bytes),
@@ -1162,7 +1160,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         """{"Prop":"https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName"}""")]
     [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_URI_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_URI_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableUriType, Uri?>(
             b => b.HasConversion<string>(),
             nameof(NullableUriType.Uri),
@@ -1177,7 +1175,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("::", """{"Prop":"::"}""")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_IP_address_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_IP_address_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullableIPAddressType, IPAddress?>(
             b => b.HasConversion<string>(),
             nameof(NullableIPAddressType.IpAddress),
@@ -1188,7 +1186,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00-11-22-33-44-55", """{"Prop":"001122334455"}""")]
     [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_physical_address_as_string_JSON_values(string? value, string json)
+    public virtual Task Can_read_write_nullable_physical_address_as_string_JSON_values(string? value, string json)
         => Can_read_and_write_JSON_property_value<NullablePhysicalAddressType, PhysicalAddress?>(
             b => b.HasConversion<string>(),
             nameof(NullablePhysicalAddressType.PhysicalAddress),
@@ -1201,7 +1199,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((sbyte)Enum8.One, """{"Prop":"One"}""")]
     [InlineData((sbyte)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_sbyte_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_sbyte_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum8Type, Enum8?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum8Type.Enum8),
@@ -1214,7 +1212,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((short)Enum16.One, """{"Prop":"One"}""")]
     [InlineData((short)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_short_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_short_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum16Type, Enum16?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum16Type.Enum16),
@@ -1227,7 +1225,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((int)Enum32.One, """{"Prop":"One"}""")]
     [InlineData(77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_int_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_int_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum32Type, Enum32?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum32Type.Enum32),
@@ -1240,7 +1238,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((long)Enum64.One, """{"Prop":"One"}""")]
     [InlineData((long)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_long_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_long_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnum64Type, Enum64?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnum64Type.Enum64),
@@ -1252,7 +1250,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((byte)EnumU8.One, """{"Prop":"One"}""")]
     [InlineData((byte)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_byte_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_byte_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU8Type, EnumU8?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU8Type.EnumU8),
@@ -1264,7 +1262,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((ushort)EnumU16.One, """{"Prop":"One"}""")]
     [InlineData((ushort)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ushort_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_ushort_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU16Type, EnumU16?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU16Type.EnumU16),
@@ -1276,7 +1274,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((uint)EnumU32.One, """{"Prop":"One"}""")]
     [InlineData((uint)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_uint_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_uint_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU32Type, EnumU32?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU32Type.EnumU32),
@@ -1288,18 +1286,18 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData((ulong)EnumU64.One, """{"Prop":"One"}""")]
     [InlineData((ulong)77, """{"Prop":"77"}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_ulong_enum_as_string_JSON_values(object? value, string json)
+    public virtual Task Can_read_write_nullable_ulong_enum_as_string_JSON_values(object? value, string json)
         => Can_read_and_write_JSON_property_value<NullableEnumU64Type, EnumU64?>(
             b => b.HasConversion<string>(),
             nameof(NullableEnumU64Type.EnumU64),
             value == null ? default(EnumU64?) : (EnumU64)value, json);
 
     [ConditionalFact]
-    public virtual void Can_read_write_point()
+    public virtual async Task Can_read_write_point()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<PointType, Point>(
+        await Can_read_and_write_JSON_value<PointType, Point>(
             nameof(PointType.Point),
             factory.CreatePoint(new Coordinate(2, 4)),
             """{"Prop":"POINT (2 4)"}""");
@@ -1311,7 +1309,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_point()
+    public virtual Task Can_read_write_nullable_point()
         => Can_read_and_write_JSON_value<NullablePointType, Point?>(
             nameof(NullablePointType.Point),
             null,
@@ -1323,11 +1321,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_with_Z()
+    public async virtual Task Can_read_write_point_with_Z()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<PointZType, Point>(
+        await Can_read_and_write_JSON_value<PointZType, Point>(
             nameof(PointZType.PointZ),
             factory.CreatePoint(new CoordinateZ(2, 4, 6)),
             """{"Prop":"POINT Z(2 4 6)"}""");
@@ -1339,11 +1337,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_with_M()
+    public virtual async Task Can_read_write_point_with_M()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<PointMType, Point>(
+        await Can_read_and_write_JSON_value<PointMType, Point>(
             nameof(PointMType.PointM),
             factory.CreatePoint(new CoordinateM(2, 4, 6)),
             """{"Prop":"POINT (2 4)"}""");
@@ -1355,11 +1353,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_with_Z_and_M()
+    public virtual async Task Can_read_write_point_with_Z_and_M()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<PointZMType, Point>(
+        await Can_read_and_write_JSON_value<PointZMType, Point>(
             nameof(PointZMType.PointZM),
             factory.CreatePoint(new CoordinateZM(1, 2, 3, 4)),
             """{"Prop":"POINT Z(1 2 3)"}""");
@@ -1371,11 +1369,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_line_string()
+    public virtual async Task Can_read_write_line_string()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<LineStringType, LineString>(
+        await Can_read_and_write_JSON_value<LineStringType, LineString>(
             nameof(LineStringType.LineString),
             factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]),
             """{"Prop":"LINESTRING (0 0, 1 0)"}""");
@@ -1387,7 +1385,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_line_string()
+    public virtual Task Can_read_write_nullable_line_string()
         => Can_read_and_write_JSON_value<NullableLineStringType, LineString?>(
             nameof(NullableLineStringType.LineString),
             null,
@@ -1399,17 +1397,17 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_multi_line_string()
+    public virtual async Task Can_read_write_multi_line_string()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<MultiLineStringType, MultiLineString>(
+        await Can_read_and_write_JSON_value<MultiLineStringType, MultiLineString>(
             nameof(MultiLineStringType.MultiLineString),
             factory.CreateMultiLineString(
             [
                 factory.CreateLineString(
                     [new Coordinate(0, 0), new Coordinate(0, 1)]),
-                    factory.CreateLineString(
+                factory.CreateLineString(
                     [new Coordinate(1, 0), new Coordinate(1, 1)])
             ]),
             """{"Prop":"MULTILINESTRING ((0 0, 0 1), (1 0, 1 1))"}""");
@@ -1421,7 +1419,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_multi_line_string()
+    public virtual Task Can_read_write_nullable_multi_line_string()
         => Can_read_and_write_JSON_value<NullableMultiLineStringType, MultiLineString?>(
             nameof(NullableMultiLineStringType.MultiLineString),
             null,
@@ -1433,11 +1431,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_polygon()
+    public virtual async Task Can_read_write_polygon()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<PolygonType, Polygon>(
+        await Can_read_and_write_JSON_value<PolygonType, Polygon>(
             nameof(PolygonType.Polygon),
             factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":"POLYGON ((0 0, 1 0, 0 1, 0 0))"}""");
@@ -1449,7 +1447,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_polygon()
+    public virtual Task Can_read_write_nullable_polygon()
         => Can_read_and_write_JSON_value<NullablePolygonType, Polygon?>(
             nameof(NullablePolygonType.Polygon),
             null,
@@ -1461,11 +1459,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_polygon_typed_as_geometry()
+    public virtual async Task Can_read_write_polygon_typed_as_geometry()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_value<GeometryType, Geometry>(
+        await Can_read_and_write_JSON_value<GeometryType, Geometry>(
             nameof(GeometryType.Geometry),
             factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":"POLYGON ((0 0, 1 0, 0 1, 0 0))"}""");
@@ -1477,7 +1475,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_polygon_typed_as_nullable_geometry()
+    public virtual Task Can_read_write_polygon_typed_as_nullable_geometry()
         => Can_read_and_write_JSON_value<NullableGeometryType, Geometry?>(
             nameof(NullableGeometryType.Geometry),
             null,
@@ -1489,11 +1487,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_as_GeoJson()
+    public virtual async Task Can_read_write_point_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<PointType, Point>(
+        await Can_read_and_write_JSON_property_value<PointType, Point>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(PointType.Point),
             factory.CreatePoint(new Coordinate(2, 4)),
@@ -1501,7 +1499,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_point_as_GeoJson()
+    public virtual Task Can_read_write_nullable_point_as_GeoJson()
         => Can_read_and_write_JSON_property_value<NullablePointType, Point?>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(NullablePointType.Point),
@@ -1509,11 +1507,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             """{"Prop":null}""");
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_with_Z_as_GeoJson()
+    public virtual async Task Can_read_write_point_with_Z_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<PointZType, Point>(
+        await Can_read_and_write_JSON_property_value<PointZType, Point>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(PointZType.PointZ),
             factory.CreatePoint(new CoordinateZ(2, 4, 6)),
@@ -1521,11 +1519,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_with_M_as_GeoJson()
+    public virtual async Task Can_read_write_point_with_M_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<PointMType, Point>(
+        await Can_read_and_write_JSON_property_value<PointMType, Point>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(PointMType.PointM),
             factory.CreatePoint(new CoordinateM(2, 4, 6)),
@@ -1533,11 +1531,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_point_with_Z_and_M_as_GeoJson()
+    public virtual async Task Can_read_write_point_with_Z_and_M_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<PointZMType, Point>(
+        await Can_read_and_write_JSON_property_value<PointZMType, Point>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(PointZMType.PointZM),
             factory.CreatePoint(new CoordinateZM(1, 2, 3, 4)),
@@ -1545,11 +1543,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_line_string_as_GeoJson()
+    public virtual async Task Can_read_write_line_string_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<LineStringType, LineString>(
+        await Can_read_and_write_JSON_property_value<LineStringType, LineString>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(LineStringType.LineString),
             factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]),
@@ -1557,7 +1555,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_line_string_as_GeoJson()
+    public virtual Task Can_read_write_nullable_line_string_as_GeoJson()
         => Can_read_and_write_JSON_property_value<NullableLineStringType, LineString?>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(NullableLineStringType.LineString),
@@ -1565,25 +1563,25 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             """{"Prop":null}""");
 
     [ConditionalFact]
-    public virtual void Can_read_write_multi_line_string_as_GeoJson()
+    public virtual async Task Can_read_write_multi_line_string_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<MultiLineStringType, MultiLineString>(
+        await Can_read_and_write_JSON_property_value<MultiLineStringType, MultiLineString>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(MultiLineStringType.MultiLineString),
             factory.CreateMultiLineString(
             [
                 factory.CreateLineString(
                     [new Coordinate(0, 0), new Coordinate(0, 1)]),
-                    factory.CreateLineString(
+                factory.CreateLineString(
                     [new Coordinate(1, 0), new Coordinate(1, 1)])
             ]),
             """{"Prop":{"type":"MultiLineString","coordinates":[[[0.0,0.0],[0.0,1.0]],[[1.0,0.0],[1.0,1.0]]]}}""");
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_multi_line_string_as_GeoJson()
+    public virtual Task Can_read_write_nullable_multi_line_string_as_GeoJson()
         => Can_read_and_write_JSON_property_value<NullableMultiLineStringType, MultiLineString?>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(NullableMultiLineStringType.MultiLineString),
@@ -1591,11 +1589,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             """{"Prop":null}""");
 
     [ConditionalFact]
-    public virtual void Can_read_write_polygon_as_GeoJson()
+    public virtual async Task Can_read_write_polygon_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<PolygonType, Polygon>(
+        await Can_read_and_write_JSON_property_value<PolygonType, Polygon>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(PolygonType.Polygon),
             factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
@@ -1603,7 +1601,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_nullable_polygon_as_GeoJson()
+    public virtual Task Can_read_write_nullable_polygon_as_GeoJson()
         => Can_read_and_write_JSON_property_value<NullablePolygonType, Polygon?>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(NullablePolygonType.Polygon),
@@ -1611,11 +1609,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             """{"Prop":null}""");
 
     [ConditionalFact]
-    public virtual void Can_read_write_polygon_typed_as_geometry_as_GeoJson()
+    public virtual async Task Can_read_write_polygon_typed_as_geometry_as_GeoJson()
     {
         var factory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
 
-        Can_read_and_write_JSON_property_value<GeometryType, Geometry>(
+        await Can_read_and_write_JSON_property_value<GeometryType, Geometry>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(GeometryType.Geometry),
             factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
@@ -1623,7 +1621,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson()
+    public virtual Task Can_read_write_polygon_typed_as_nullable_geometry_as_GeoJson()
         => Can_read_and_write_JSON_property_value<NullableGeometryType, Geometry?>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(NullableGeometryType.Geometry),
@@ -1635,7 +1633,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(int.MaxValue, """{"Prop":2147483647}""")]
     [InlineData(0, """{"Prop":0}""")]
     [InlineData(1, """{"Prop":1}""")]
-    public virtual void Can_read_write_converted_type_JSON_values(int value, string json)
+    public virtual Task Can_read_write_converted_type_JSON_values(int value, string json)
         => Can_read_and_write_JSON_value<DddIdType, DddId>(
             b => b.Entity<DddIdType>().HasNoKey().Property(e => e.DddId),
             b => b.Properties<DddId>().HaveConversion<DddIdConverter>(),
@@ -1653,7 +1651,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData(0, """{"Prop":0}""")]
     [InlineData(1, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
-    public virtual void Can_read_write_nullable_converted_type_JSON_values(int? value, string json)
+    public virtual Task Can_read_write_nullable_converted_type_JSON_values(int? value, string json)
         => Can_read_and_write_JSON_value<NullableDddIdType, DddId?>(
             b => b.Entity<NullableDddIdType>().HasNoKey().Property(e => e.DddId),
             b => b.Properties<DddId>().HaveConversion<DddIdConverter>(),
@@ -1668,7 +1666,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [ConditionalTheory]
     [InlineData(EnumProperty.FieldA, """{"Prop":"A"}""")]
     [InlineData(EnumProperty.FieldB, """{"Prop":"B"}""")]
-    public virtual void Can_read_write_enum_char_converted_type_JSON_values(int value, string json)
+    public virtual Task Can_read_write_enum_char_converted_type_JSON_values(int value, string json)
         => Can_read_and_write_JSON_value<EnumCharType, EnumProperty>(
             b => b.Entity<EnumCharType>().HasNoKey().Property(e => e.EnumProperty),
             b => b.Properties<EnumProperty>().HaveConversion<EnumValueConverter<EnumProperty>>(),
@@ -1700,7 +1698,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("::1", """{"Prop":"::1"}""")]
     [InlineData("::", """{"Prop":"::"}""")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
-    public virtual void Can_read_write_custom_converted_type_JSON_values(string value, string json)
+    public virtual Task Can_read_write_custom_converted_type_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<IpAddressType, IpAddress>(
             b => b.Entity<IpAddressType>().HasNoKey().Property(e => e.Address),
             b => b.Properties<IpAddress>().HaveConversion<IpAddressConverter>(),
@@ -1732,7 +1730,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_sbyte_JSON_values()
+    public virtual Task Can_read_write_collection_of_sbyte_JSON_values()
         => Can_read_and_write_JSON_value<Int8CollectionType, List<sbyte>>(
             nameof(Int8CollectionType.Int8),
             [
@@ -1749,7 +1747,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_short_JSON_values()
+    public virtual Task Can_read_write_collection_of_short_JSON_values()
         => Can_read_and_write_JSON_value<Int16CollectionType, List<short>>(
             nameof(Int16CollectionType.Int16),
             [
@@ -1766,7 +1764,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_int_JSON_values()
+    public virtual Task Can_read_write_collection_of_int_JSON_values()
         => Can_read_and_write_JSON_value<Int32CollectionType, List<int>>(
             nameof(Int32CollectionType.Int32),
             [
@@ -1783,7 +1781,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_long_JSON_values()
+    public virtual Task Can_read_write_collection_of_long_JSON_values()
         => Can_read_and_write_JSON_value<Int64CollectionType, List<long>>(
             nameof(Int64CollectionType.Int64),
             [
@@ -1800,7 +1798,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_byte_JSON_values()
+    public virtual Task Can_read_write_collection_of_byte_JSON_values()
         => Can_read_and_write_JSON_value<UInt8CollectionType, List<byte>>(
             nameof(UInt8CollectionType.UInt8),
             [
@@ -1817,7 +1815,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_ushort_JSON_values()
+    public virtual Task Can_read_write_collection_of_ushort_JSON_values()
         => Can_read_and_write_JSON_value<UInt16CollectionType, List<ushort>>(
             nameof(UInt16CollectionType.UInt16),
             [
@@ -1834,7 +1832,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_uint_JSON_values()
+    public virtual Task Can_read_write_collection_of_uint_JSON_values()
         => Can_read_and_write_JSON_value<UInt32CollectionType, List<uint>>(
             nameof(UInt32CollectionType.UInt32),
             [
@@ -1851,7 +1849,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_ulong_JSON_values()
+    public virtual Task Can_read_write_collection_of_ulong_JSON_values()
         => Can_read_and_write_JSON_value<UInt64CollectionType, List<ulong>>(
             nameof(UInt64CollectionType.UInt64),
             [
@@ -1869,7 +1867,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_float_JSON_values()
+    public virtual Task Can_read_write_collection_of_float_JSON_values()
         => Can_read_and_write_JSON_value<FloatCollectionType, List<float>>(
             nameof(FloatCollectionType.Float),
             [
@@ -1886,7 +1884,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_double_JSON_values()
+    public virtual Task Can_read_write_collection_of_double_JSON_values()
         => Can_read_and_write_JSON_value<DoubleCollectionType, List<double>>(
             nameof(DoubleCollectionType.Double),
             [
@@ -1903,7 +1901,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_decimal_JSON_values()
+    public virtual Task Can_read_write_collection_of_decimal_JSON_values()
         => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
             nameof(DecimalCollectionType.Decimal),
             [
@@ -1920,7 +1918,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_DateOnly_JSON_values()
+    public virtual Task Can_read_write_collection_of_DateOnly_JSON_values()
         => Can_read_and_write_JSON_value<DateOnlyCollectionType, List<DateOnly>>(
             nameof(DateOnlyCollectionType.DateOnly),
             [
@@ -1937,7 +1935,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_TimeOnly_JSON_values()
+    public virtual Task Can_read_write_collection_of_TimeOnly_JSON_values()
         => Can_read_and_write_JSON_value<TimeOnlyCollectionType, List<TimeOnly>>(
             nameof(TimeOnlyCollectionType.TimeOnly),
             [
@@ -1955,7 +1953,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_DateTime_JSON_values()
+    public virtual Task Can_read_write_collection_of_DateTime_JSON_values()
         => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
             nameof(DateTimeCollectionType.DateTime),
             [
@@ -1972,7 +1970,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_DateTimeOffset_JSON_values()
+    public virtual Task Can_read_write_collection_of_DateTimeOffset_JSON_values()
         => Can_read_and_write_JSON_value<DateTimeOffsetCollectionType, List<DateTimeOffset>>(
             nameof(DateTimeOffsetCollectionType.DateTimeOffset),
             [
@@ -1991,7 +1989,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_TimeSpan_JSON_values()
+    public virtual Task Can_read_write_collection_of_TimeSpan_JSON_values()
         => Can_read_and_write_JSON_value<TimeSpanCollectionType, List<TimeSpan>>(
             nameof(TimeSpanCollectionType.TimeSpan),
             [
@@ -2008,7 +2006,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_bool_JSON_values()
+    public virtual Task Can_read_write_collection_of_bool_JSON_values()
         => Can_read_and_write_JSON_value<BooleanCollectionType, List<bool>>(
             nameof(BooleanCollectionType.Boolean),
             [false, true],
@@ -2021,7 +2019,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_char_JSON_values()
+    public virtual Task Can_read_write_collection_of_char_JSON_values()
         => Can_read_and_write_JSON_value<CharacterCollectionType, List<char>>(
             nameof(CharacterCollectionType.Character),
             [
@@ -2038,7 +2036,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_GUID_JSON_values()
+    public virtual Task Can_read_write_collection_of_GUID_JSON_values()
         => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
             nameof(GuidCollectionType.Guid),
             [
@@ -2055,7 +2053,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_string_JSON_values()
+    public virtual Task Can_read_write_collection_of_string_JSON_values()
         => Can_read_and_write_JSON_value<StringCollectionType, List<string>>(
             nameof(StringCollectionType.String),
             [
@@ -2072,7 +2070,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_binary_JSON_values()
+    public virtual Task Can_read_write_collection_of_binary_JSON_values()
         => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
             nameof(BytesCollectionType.Bytes),
             [
@@ -2090,7 +2088,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_URI_JSON_values()
+    public virtual Task Can_read_write_collection_of_URI_JSON_values()
         => Can_read_and_write_JSON_value<UriCollectionType, List<Uri>>(
             nameof(UriCollectionType.Uri),
             [
@@ -2106,7 +2104,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_IP_address_JSON_values()
+    public virtual Task Can_read_write_collection_of_IP_address_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressCollectionType, List<IPAddress>>(
             nameof(IpAddressCollectionType.IpAddress),
             [
@@ -2127,7 +2125,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_physical_address_JSON_values()
+    public virtual Task Can_read_write_collection_of_physical_address_JSON_values()
         => Can_read_and_write_JSON_value<PhysicalAddressCollectionType, List<PhysicalAddress>>(
             nameof(PhysicalAddressCollectionType.PhysicalAddress),
             [
@@ -2145,7 +2143,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_sbyte_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_sbyte_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum8CollectionType, List<Enum8>>(
             nameof(Enum8CollectionType.Enum8),
             [
@@ -2164,7 +2162,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_short_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_short_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum16CollectionType, List<Enum16>>(
             nameof(Enum16CollectionType.Enum16),
             [
@@ -2183,7 +2181,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_int_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_int_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum32CollectionType, List<Enum32>>(
             nameof(Enum32CollectionType.Enum32),
             [
@@ -2202,7 +2200,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_long_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_long_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum64CollectionType, List<Enum64>>(
             nameof(Enum64CollectionType.Enum64),
             [
@@ -2221,7 +2219,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_byte_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_byte_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU8CollectionType, List<EnumU8>>(
             nameof(EnumU8CollectionType.EnumU8),
             [
@@ -2240,7 +2238,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_ushort_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_ushort_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU16CollectionType, List<EnumU16>>(
             nameof(EnumU16CollectionType.EnumU16),
             [
@@ -2259,7 +2257,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_uint_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_uint_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU32CollectionType, List<EnumU32>>(
             nameof(EnumU32CollectionType.EnumU32),
             [
@@ -2279,7 +2277,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_ulong_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_ulong_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU64CollectionType, List<EnumU64>>(
             nameof(EnumU64CollectionType.EnumU64),
             [
@@ -2298,7 +2296,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_sbyte_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_sbyte_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt8CollectionType, List<sbyte?>>(
             nameof(NullableInt8CollectionType.Int8),
             [
@@ -2316,7 +2314,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_short_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_short_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt16CollectionType, List<short?>>(
             nameof(NullableInt16CollectionType.Int16),
             [
@@ -2334,7 +2332,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_int_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_int_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt32CollectionType, List<int?>>(
             nameof(NullableInt32CollectionType.Int32),
             [
@@ -2352,7 +2350,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_long_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_long_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt64CollectionType, List<long?>>(
             nameof(NullableInt64CollectionType.Int64),
             [
@@ -2370,7 +2368,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_byte_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_byte_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt8CollectionType, List<byte?>>(
             nameof(NullableUInt8CollectionType.UInt8),
             [
@@ -2388,7 +2386,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_ushort_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_ushort_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt16CollectionType, List<ushort?>>(
             nameof(NullableUInt16CollectionType.UInt16),
             [
@@ -2406,7 +2404,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_uint_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_uint_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt32CollectionType, List<uint?>>(
             nameof(NullableUInt32CollectionType.UInt32),
             [
@@ -2424,7 +2422,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_ulong_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_ulong_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt64CollectionType, List<ulong?>>(
             nameof(NullableUInt64CollectionType.UInt64),
             [
@@ -2442,7 +2440,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_float_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_float_JSON_values()
         => Can_read_and_write_JSON_value<NullableFloatCollectionType, List<float?>>(
             nameof(NullableFloatCollectionType.Float),
             [
@@ -2460,7 +2458,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_double_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_double_JSON_values()
         => Can_read_and_write_JSON_value<NullableDoubleCollectionType, List<double?>>(
             nameof(NullableDoubleCollectionType.Double),
             [
@@ -2478,7 +2476,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_decimal_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_decimal_JSON_values()
         => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
             nameof(NullableDecimalCollectionType.Decimal),
             [
@@ -2496,7 +2494,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_DateOnly_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_DateOnly_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateOnlyCollectionType, List<DateOnly?>>(
             nameof(NullableDateOnlyCollectionType.DateOnly),
             [
@@ -2514,7 +2512,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_TimeOnly_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_TimeOnly_JSON_values()
         => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(
             nameof(NullableTimeOnlyCollectionType.TimeOnly),
             [
@@ -2532,7 +2530,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_DateTime_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_DateTime_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),
             [
@@ -2550,7 +2548,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetCollectionType, List<DateTimeOffset?>>(
             nameof(NullableDateTimeOffsetCollectionType.DateTimeOffset),
             [
@@ -2570,7 +2568,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_TimeSpan_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_TimeSpan_JSON_values()
         => Can_read_and_write_JSON_value<NullableTimeSpanCollectionType, List<TimeSpan?>>(
             nameof(NullableTimeSpanCollectionType.TimeSpan),
             [
@@ -2588,7 +2586,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_bool_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_bool_JSON_values()
         => Can_read_and_write_JSON_value<NullableBooleanCollectionType, List<bool?>>(
             nameof(NullableBooleanCollectionType.Boolean),
             [
@@ -2605,7 +2603,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_char_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_char_JSON_values()
         => Can_read_and_write_JSON_value<NullableCharacterCollectionType, List<char?>>(
             nameof(NullableCharacterCollectionType.Character),
             [
@@ -2623,7 +2621,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_GUID_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_GUID_JSON_values()
         => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
             nameof(NullableGuidCollectionType.Guid),
             [
@@ -2641,7 +2639,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_string_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_string_JSON_values()
         => Can_read_and_write_JSON_value<NullableStringCollectionType, List<string?>>(
             nameof(NullableStringCollectionType.String),
             [
@@ -2659,7 +2657,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_binary_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_binary_JSON_values()
         => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
             nameof(NullableBytesCollectionType.Bytes),
             [
@@ -2678,7 +2676,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_URI_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_URI_JSON_values()
         => Can_read_and_write_JSON_value<NullableUriCollectionType, List<Uri?>>(
             nameof(NullableUriCollectionType.Uri),
             [
@@ -2695,7 +2693,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_IP_address_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_IP_address_JSON_values()
         => Can_read_and_write_JSON_value<NullableIpAddressCollectionType, List<IPAddress?>>(
             nameof(NullableIpAddressCollectionType.IpAddress),
             [
@@ -2717,7 +2715,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_physical_address_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_physical_address_JSON_values()
         => Can_read_and_write_JSON_value<NullablePhysicalAddressCollectionType, List<PhysicalAddress?>>(
             nameof(NullablePhysicalAddressCollectionType.PhysicalAddress),
             [
@@ -2736,7 +2734,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_sbyte_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_sbyte_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum8CollectionType, List<Enum8?>>(
             nameof(NullableEnum8CollectionType.Enum8),
             [
@@ -2756,7 +2754,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_short_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_short_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum16CollectionType, List<Enum16?>>(
             nameof(NullableEnum16CollectionType.Enum16),
             [
@@ -2776,7 +2774,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_int_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_int_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum32CollectionType, List<Enum32?>>(
             nameof(NullableEnum32CollectionType.Enum32),
             [
@@ -2796,7 +2794,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_long_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_long_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum64CollectionType, List<Enum64?>>(
             nameof(NullableEnum64CollectionType.Enum64),
             [
@@ -2816,7 +2814,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_byte_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_byte_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU8CollectionType, List<EnumU8?>>(
             nameof(NullableEnumU8CollectionType.EnumU8),
             [
@@ -2836,7 +2834,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_ushort_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_ushort_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU16CollectionType, List<EnumU16?>>(
             nameof(NullableEnumU16CollectionType.EnumU16),
             [
@@ -2856,7 +2854,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_uint_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_uint_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU32CollectionType, List<EnumU32?>>(
             nameof(NullableEnumU32CollectionType.EnumU32),
             [
@@ -2876,7 +2874,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU64CollectionType, List<EnumU64?>>(
             nameof(NullableEnumU64CollectionType.EnumU64),
             [
@@ -2896,7 +2894,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_sbyte_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_sbyte_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<Int8ConvertedType, sbyte[]>(
             b => b.HasConversion<CustomCollectionConverter<sbyte[], sbyte>, CustomCollectionComparer<sbyte[], sbyte>>(),
             nameof(Int8ConvertedType.Int8Converted),
@@ -2909,7 +2907,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_int_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_int_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<Int32ConvertedType, List<int>>(
             b => b.HasConversion<CustomCollectionConverter<List<int>, int>, CustomCollectionComparer<List<int>, int>>(),
             nameof(Int32ConvertedType.Int32Converted),
@@ -2926,7 +2924,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_ulong_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_ulong_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<UInt64ConvertedType, ObservableCollection<ulong>>(
             b => b.HasConversion<CustomCollectionConverter<ObservableCollection<ulong>, ulong>,
                 CustomCollectionComparer<ObservableCollection<ulong>, ulong>>(),
@@ -2944,7 +2942,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_double_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_double_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<DoubleConvertedType, double[]>(
             b => b.HasConversion<CustomCollectionConverter<double[], double>, CustomCollectionComparer<double[], double>>(),
             nameof(DoubleConvertedType.DoubleConverted),
@@ -2957,7 +2955,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_DateOnly_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_DateOnly_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<DateOnlyConvertedType, IList<DateOnly>>(
             b => b.HasConversion<CustomCollectionConverter<IList<DateOnly>, DateOnly>,
                 CustomCollectionComparer<IList<DateOnly>, DateOnly>>(),
@@ -2976,7 +2974,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_DateTime_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_DateTime_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<DateTimeConvertedType, IList<DateTime>>(
             b => b
                 .HasConversion<CustomCollectionConverter<IList<DateTime>, DateTime>, CustomCollectionComparer<IList<DateTime>, DateTime>>(),
@@ -2995,7 +2993,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_bool_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_bool_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<BooleanConvertedType, IList<bool>>(
             b => b.HasConversion<CustomCollectionConverter<IList<bool>, bool>, CustomCollectionComparer<IList<bool>, bool>>(),
             nameof(BooleanConvertedType.BooleanConverted),
@@ -3008,7 +3006,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_char_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_char_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<CharacterConvertedType, IList<char>>(
             b => b.HasConversion<CustomCollectionConverter<IList<char>, char>, CustomCollectionComparer<IList<char>, char>>(),
             nameof(CharacterConvertedType.CharacterConverted),
@@ -3026,7 +3024,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_string_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_string_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<StringConvertedType, IList<string>>(
             b => b.HasConversion<CustomCollectionConverter<IList<string>, string>, CustomCollectionComparer<IList<string>, string>>(),
             nameof(StringConvertedType.StringConverted),
@@ -3044,7 +3042,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_binary_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_binary_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<BytesConvertedType, IList<byte[]>>(
             b => b.HasConversion<CustomCollectionConverter<IList<byte[]>, byte[]>, CustomCollectionComparer<IList<byte[]>, byte[]>>(),
             nameof(BytesConvertedType.BytesConverted),
@@ -3063,7 +3061,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_int_enum_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_int_enum_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<Enum32ConvertedType, List<Enum32>>(
             b => b.HasConversion<CustomCollectionConverter<List<Enum32>, Enum32>, CustomCollectionComparer<List<Enum32>, Enum32>>(),
             nameof(Enum32ConvertedType.Enum32Converted),
@@ -3082,7 +3080,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_ulong_enum_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_ulong_enum_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<EnumU64ConvertedType, IList<EnumU64>>(
             b => b.HasConversion<CustomCollectionConverter<IList<EnumU64>, EnumU64>, CustomCollectionComparer<IList<EnumU64>, EnumU64>>(),
             nameof(EnumU64ConvertedType.EnumU64Converted),
@@ -3102,7 +3100,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_sbyte_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_sbyte_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableInt8ConvertedType, sbyte?[]>(
             b => b.HasConversion<CustomCollectionConverter<sbyte?[], sbyte?>, CustomCollectionComparer<sbyte?[], sbyte?>>(),
             nameof(NullableInt8ConvertedType.Int8Converted),
@@ -3115,7 +3113,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_int_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_int_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableInt32ConvertedType, List<int?>>(
             b => b.HasConversion<CustomCollectionConverter<List<int?>, int?>, CustomCollectionComparer<List<int?>, int?>>(),
             nameof(NullableInt32ConvertedType.Int32Converted),
@@ -3133,7 +3131,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_ulong_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_ulong_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableUInt64ConvertedType, ObservableCollection<ulong?>>(
             b => b.HasConversion<CustomCollectionConverter<ObservableCollection<ulong?>, ulong?>,
                 CustomCollectionComparer<ObservableCollection<ulong?>, ulong?>>(),
@@ -3152,7 +3150,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_double_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_double_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableDoubleConvertedType, double?[]>(
             b => b.HasConversion<CustomCollectionConverter<double?[], double?>, CustomCollectionComparer<double?[], double?>>(),
             nameof(NullableDoubleConvertedType.DoubleConverted),
@@ -3165,7 +3163,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_DateOnly_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_DateOnly_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableDateOnlyConvertedType, IList<DateOnly?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<DateOnly?>, DateOnly?>,
                 CustomCollectionComparer<IList<DateOnly?>, DateOnly?>>(),
@@ -3185,7 +3183,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_DateTime_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_DateTime_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableDateTimeConvertedType, IList<DateTime?>>(
             b => b
                 .HasConversion<CustomCollectionConverter<IList<DateTime?>, DateTime?>,
@@ -3206,7 +3204,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_bool_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_bool_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableBooleanConvertedType, IList<bool?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<bool?>, bool?>, CustomCollectionComparer<IList<bool?>, bool?>>(),
             nameof(NullableBooleanConvertedType.BooleanConverted),
@@ -3224,7 +3222,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_char_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_char_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableCharacterConvertedType, IList<char?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<char?>, char?>, CustomCollectionComparer<IList<char?>, char?>>(),
             nameof(NullableCharacterConvertedType.CharacterConverted),
@@ -3243,7 +3241,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_string_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_string_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableStringConvertedType, IList<string?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<string?>, string?>, CustomCollectionComparer<IList<string?>, string?>>(),
             nameof(NullableStringConvertedType.StringConverted),
@@ -3262,7 +3260,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_binary_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_binary_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableBytesConvertedType, IList<byte[]?>>(
             b => b.HasConversion<CustomCollectionConverter<IList<byte[]?>, byte[]?>, CustomCollectionComparer<IList<byte[]?>, byte[]?>>(),
             nameof(NullableBytesConvertedType.BytesConverted),
@@ -3282,7 +3280,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_int_enum_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_int_enum_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableEnum32ConvertedType, List<Enum32?>>(
             b => b.HasConversion<CustomCollectionConverter<List<Enum32?>, Enum32?>, CustomCollectionComparer<List<Enum32?>, Enum32?>>(),
             nameof(NullableEnum32ConvertedType.Enum32Converted),
@@ -3302,7 +3300,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_ulong_enum_values_with_converter_as_JSON_string()
+    public virtual Task Can_read_write_collection_of_nullable_ulong_enum_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableEnumU64ConvertedType, IList<EnumU64?>>(
             b => b
                 .HasConversion<CustomCollectionConverter<IList<EnumU64?>, EnumU64?>, CustomCollectionComparer<IList<EnumU64?>, EnumU64?>>(),
@@ -3324,7 +3322,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_int_with_converter_JSON_values()
+    public virtual Task Can_read_write_collection_of_int_with_converter_JSON_values()
         => Can_read_and_write_JSON_collection_value<DddIdCollectionType, List<DddId>>(
             b => b.ElementType(
                 b =>
@@ -3347,7 +3345,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_nullable_int_with_converter_JSON_values()
+    public virtual Task Can_read_write_collection_of_nullable_int_with_converter_JSON_values()
         => Can_read_and_write_JSON_collection_value<NullableDddIdCollectionType, List<DddId?>>(
             b => b.ElementType().HasConversion<DddIdConverter>(),
             nameof(NullableDddIdCollectionType.DddId),
@@ -3367,7 +3365,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_binary_as_collection()
+    public virtual Task Can_read_write_binary_as_collection()
         => Can_read_and_write_JSON_collection_value<BinaryAsJsonType, byte[]>(
             _ => { },
             nameof(BinaryAsJsonType.BinaryAsJson),
@@ -3380,7 +3378,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values()
+    public virtual Task Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values()
         => Can_read_and_write_JSON_collection_value<DecimalCollectionType, List<decimal>>(
             b => b.ElementType().HasPrecision(12, 6),
             nameof(DecimalCollectionType.Decimal),
@@ -3393,7 +3391,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.Precision, 12 }, { CoreAnnotationNames.Scale, 6 } });
 
     [ConditionalFact]
-    public virtual void Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values()
+    public virtual Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values()
         => Can_read_and_write_JSON_collection_value<GuidCollectionType, List<Guid>>(
             b => b.ElementType().HasConversion<byte[]>(),
             nameof(GuidCollectionType.Guid),
@@ -3405,7 +3403,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD+OIEqL6JjHwarevQ==","/////////////////////w=="]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ProviderClrType, typeof(byte[]) } });
 
-    protected virtual void Can_read_and_write_JSON_value<TEntity, TModel>(
+    protected virtual async Task Can_read_and_write_JSON_value<TEntity, TModel>(
         string propertyName,
         TModel value,
         string json,
@@ -3416,7 +3414,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     {
         if (mappedCollection)
         {
-            Can_read_and_write_JSON_value<TEntity, TModel>(
+            await Can_read_and_write_JSON_value<TEntity, TModel>(
                 b => b.Entity<TEntity>().HasNoKey().PrimitiveCollection(propertyName),
                 null,
                 propertyName,
@@ -3428,7 +3426,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         }
         else
         {
-            Can_read_and_write_JSON_value<TEntity, TModel>(
+            await Can_read_and_write_JSON_value<TEntity, TModel>(
                 b => b.Entity<TEntity>().HasNoKey().Property(propertyName),
                 null,
                 propertyName,
@@ -3440,7 +3438,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         }
     }
 
-    protected virtual void Can_read_and_write_JSON_property_value<TEntity, TModel>(
+    protected virtual Task Can_read_and_write_JSON_property_value<TEntity, TModel>(
         Action<PropertyBuilder> buildProperty,
         string propertyName,
         TModel value,
@@ -3455,10 +3453,10 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             value,
             json,
             mappedCollection: false,
-            existingObject,
-            facets);
+            existingObject: existingObject,
+            facets: facets);
 
-    protected virtual void Can_read_and_write_JSON_collection_value<TEntity, TModel>(
+    protected virtual Task Can_read_and_write_JSON_collection_value<TEntity, TModel>(
         Action<PrimitiveCollectionBuilder> buildCollection,
         string propertyName,
         TModel value,
@@ -3473,10 +3471,10 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             value,
             json,
             mappedCollection: true,
-            existingObject,
-            facets);
+            existingObject: existingObject,
+            facets: facets);
 
-    protected virtual void Can_read_and_write_JSON_value<TEntity, TModel>(
+    protected virtual async Task Can_read_and_write_JSON_value<TEntity, TModel>(
         Action<ModelBuilder> buildModel,
         Action<ModelConfigurationBuilder>? configureConventions,
         string propertyName,
@@ -3487,7 +3485,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         Dictionary<string, object?>? facets = null)
         where TEntity : class
     {
-        var contextFactory = CreateContextFactory<DbContext>(
+        var contextFactory = await CreateContextFactory<DbContext>(
             buildModel,
             addServices: AddServices,
             configureConventions: configureConventions);
@@ -3565,7 +3563,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         }
     }
 
-    protected override string StoreName => "JsonTypesTest";
+    protected override string StoreName
+        => "JsonTypesTest";
 
     protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
         => serviceCollection;

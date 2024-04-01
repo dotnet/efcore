@@ -1,33 +1,31 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
+public abstract class NonSharedModelTestBase : IAsyncLifetime
 {
     public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
 
-    private ServiceProvider _serviceProvider;
+    private ServiceProvider? _serviceProvider;
 
     protected IServiceProvider ServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
                 $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
-    private TestStore _testStore;
+    private TestStore? _testStore;
 
     protected TestStore TestStore
         => _testStore
             ?? throw new InvalidOperationException(
                 $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
-    private ListLoggerFactory _listLoggerFactory;
+    private ListLoggerFactory? _listLoggerFactory;
 
     protected ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
@@ -35,68 +33,49 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     public virtual Task InitializeAsync()
         => Task.CompletedTask;
 
-    protected virtual ContextFactory<TContext> Initialize<TContext>(
-        Action<ModelBuilder> onModelCreating = null,
-        Action<DbContextOptionsBuilder> onConfiguring = null,
-        Func<IServiceCollection, IServiceCollection> addServices = null,
-        Action<ModelConfigurationBuilder> configureConventions = null,
-        Action<TContext> seed = null,
-        Func<string, bool> shouldLogCategory = null,
-        Func<TestStore> createTestStore = null,
+    protected virtual async Task<ContextFactory<TContext>> InitializeAsync<TContext>(
+        Action<ModelBuilder>? onModelCreating = null,
+        Action<DbContextOptionsBuilder>? onConfiguring = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null,
+        Action<ModelConfigurationBuilder>? configureConventions = null,
+        Func<TContext, Task>? seed = null,
+        Func<string, bool>? shouldLogCategory = null,
+        Func<Task<TestStore>>? createTestStore = null,
         bool usePooling = true,
         bool useServiceProvider = true)
         where TContext : DbContext
     {
-        var contextFactory = CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
+        var contextFactory = await CreateContextFactory<TContext>(
+            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling,
+            useServiceProvider);
 
-        TestStore.Initialize(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
+        await TestStore.InitializeAsync(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
 
         ListLoggerFactory.Clear();
 
         return contextFactory;
     }
 
-    protected virtual Task<ContextFactory<TContext>> InitializeAsync<TContext>(
-        Action<ModelBuilder> onModelCreating = null,
-        Action<DbContextOptionsBuilder> onConfiguring = null,
-        Func<IServiceCollection, IServiceCollection> addServices = null,
-        Action<ModelConfigurationBuilder> configureConventions = null,
-        Action<TContext> seed = null,
-        Func<string, bool> shouldLogCategory = null,
-        Func<TestStore> createTestStore = null,
+    protected async Task<ContextFactory<TContext>> CreateContextFactory<TContext>(
+        Action<ModelBuilder>? onModelCreating = null,
+        Action<DbContextOptionsBuilder>? onConfiguring = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null,
+        Action<ModelConfigurationBuilder>? configureConventions = null,
+        Func<string, bool>? shouldLogCategory = null,
+        Func<Task<TestStore>>? createTestStore = null,
         bool usePooling = true,
         bool useServiceProvider = true)
         where TContext : DbContext
     {
-        var contextFactory = CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
-
-        TestStore.Initialize(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
-
-        ListLoggerFactory.Clear();
-
-        return Task.FromResult(contextFactory);
-    }
-
-    protected ContextFactory<TContext> CreateContextFactory<TContext>(
-        Action<ModelBuilder> onModelCreating = null,
-        Action<DbContextOptionsBuilder> onConfiguring = null,
-        Func<IServiceCollection, IServiceCollection> addServices = null,
-        Action<ModelConfigurationBuilder> configureConventions = null,
-        Func<string, bool> shouldLogCategory = null,
-        Func<TestStore> createTestStore = null,
-        bool usePooling = true,
-        bool useServiceProvider = true)
-        where TContext : DbContext
-    {
-        _testStore = createTestStore?.Invoke() ?? CreateTestStore();
+        _testStore = createTestStore != null
+            ? await createTestStore()
+            : CreateTestStore();
 
         shouldLogCategory ??= _ => false;
         var services = (useServiceProvider
-            ? TestStoreFactory.AddProviderServices(new ServiceCollection())
-            : new ServiceCollection())
-                .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory));
+                ? TestStoreFactory.AddProviderServices(new ServiceCollection())
+                : new ServiceCollection())
+            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory));
 
         if (onModelCreating != null)
         {
@@ -106,7 +85,8 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         addServices?.Invoke(services);
 
         services = usePooling
-            ? services.AddPooledDbContextFactory(typeof(TContext), (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring))
+            ? services.AddPooledDbContextFactory(
+                typeof(TContext), (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring))
             : services.AddDbContext(
                 typeof(TContext),
                 (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring),
@@ -119,9 +99,9 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     }
 
     private DbContextOptionsBuilder ConfigureOptions(
-        IServiceProvider serviceProvider,
+        IServiceProvider? serviceProvider,
         DbContextOptionsBuilder optionsBuilder,
-        Action<DbContextOptionsBuilder> onConfiguring)
+        Action<DbContextOptionsBuilder>? onConfiguring)
     {
         optionsBuilder = AddOptions(TestStore.AddProviderOptions(optionsBuilder));
         if (serviceProvider == null)
@@ -190,13 +170,13 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         public IServiceProvider ServiceProvider { get; }
         protected virtual bool UsePooling { get; }
 
-        private IDbContextFactory<TContext> PooledContextFactory { get; }
+        private IDbContextFactory<TContext>? PooledContextFactory { get; }
 
         public TestStore TestStore { get; }
 
         public virtual TContext CreateContext()
             => UsePooling
-                ? PooledContextFactory.CreateDbContext()
+                ? PooledContextFactory!.CreateDbContext()
                 : (TContext)ServiceProvider.GetRequiredService(typeof(TContext));
     }
 }

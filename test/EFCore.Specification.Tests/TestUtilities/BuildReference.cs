@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class BuildReference
 {
-    private BuildReference(IEnumerable<MetadataReference> references, bool copyLocal = false, string path = null)
+    private BuildReference(IEnumerable<MetadataReference> references, bool copyLocal = false, string? path = null)
     {
         References = references;
         CopyLocal = copyLocal;
@@ -19,11 +19,11 @@ public class BuildReference
     public IEnumerable<MetadataReference> References { get; }
 
     public bool CopyLocal { get; }
-    public string Path { get; }
+    public string? Path { get; }
 
     public static BuildReference ByName(string name, bool copyLocal = false)
     {
-        var references = (from l in DependencyContext.Default.CompileLibraries
+        var references = (from l in DependencyContext.Default!.CompileLibraries
                           where l.Assemblies.Any(a => IOPath.GetFileNameWithoutExtension(a) == name)
                           from r in l.ResolveReferencePaths()
                           where IOPath.GetFileNameWithoutExtension(r) == name

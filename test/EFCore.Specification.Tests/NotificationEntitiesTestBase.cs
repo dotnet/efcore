@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
 {
@@ -119,12 +121,12 @@ public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFi
             modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Add(
                 new Blog { Id = 1, Posts = new List<Post> { new() { Id = 1 }, new() { Id = 2 } } });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

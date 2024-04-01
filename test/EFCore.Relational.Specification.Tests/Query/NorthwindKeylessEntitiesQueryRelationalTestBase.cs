@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> : NorthwindKeylessEntitiesQueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -12,9 +14,6 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
         : base(fixture)
     {
     }
-
-    protected virtual bool CanExecuteQueryString
-        => false;
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -68,5 +67,5 @@ public abstract class NorthwindKeylessEntitiesQueryRelationalTestBase<TFixture> 
 
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

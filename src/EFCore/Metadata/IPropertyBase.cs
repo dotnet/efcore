@@ -59,4 +59,10 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     /// <returns>The index of the property.</returns>
     int GetIndex()
         => this.GetPropertyIndexes().Index;
+
+    /// <summary>
+    ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    IComparer<IUpdateEntry> GetCurrentValueComparer();
 }

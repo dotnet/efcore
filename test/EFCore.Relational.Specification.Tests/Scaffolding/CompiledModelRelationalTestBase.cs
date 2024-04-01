@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-#nullable enable
-
 using System.Data;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -18,22 +16,23 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
             model => AssertBigModel(model, jsonColumns: true),
-            c =>
-            {
-                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                    new PrincipalDerived<DependentBase<byte?>>
-                    {
-                        Id = 1,
-                        AlternateId = new Guid(),
-                        Dependent = new DependentDerived<byte?>(1, "one"),
-                        Owned = new OwnedType(c)
-                    });
+            // Blocked by dotnet/runtime/issues/89439
+            //c =>
+            //{
+            //    c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+            //        new PrincipalDerived<DependentBase<byte?>>
+            //        {
+            //            Id = 1,
+            //            AlternateId = new Guid(),
+            //            Dependent = new DependentDerived<byte?>(1, "one"),
+            //            Owned = new OwnedType(c)
+            //        });
 
-                c.SaveChanges();
+            //    c.SaveChanges();
 
-                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
-                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
-            },
+            //    var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
+            //    Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
+            //},
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -98,11 +97,12 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     .UsingEntity(
                         jb =>
                         {
-                            jb.ToTable(tb =>
-                            {
-                                tb.HasComment("Join table");
-                                tb.ExcludeFromMigrations();
-                            });
+                            jb.ToTable(
+                                tb =>
+                                {
+                                    tb.HasComment("Join table");
+                                    tb.ExcludeFromMigrations();
+                                });
                             jb.Property<byte[]>("rowid")
                                 .IsRowVersion()
                                 .HasComment("RowVersion")
@@ -284,15 +284,15 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         if (jsonColumns)
         {
             Assert.Equal(
-            new[]
-            {
-                derivedSkipNavigation.ForeignKey,
-                referenceOwnership,
-                collectionOwnership,
-                dependentForeignKey,
-                derivedSkipNavigation.Inverse.ForeignKey
-            },
-            principalKey.GetReferencingForeignKeys());
+                new[]
+                {
+                    derivedSkipNavigation.ForeignKey,
+                    referenceOwnership,
+                    collectionOwnership,
+                    dependentForeignKey,
+                    derivedSkipNavigation.Inverse.ForeignKey
+                },
+                principalKey.GetReferencingForeignKeys());
 
             Assert.Equal(
                 new[] { dependentBaseForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey },
@@ -301,16 +301,16 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         else
         {
             Assert.Equal(
-            new[]
-            {
-                derivedSkipNavigation.ForeignKey,
-                tptForeignKey,
-                referenceOwnership,
-                collectionOwnership,
-                dependentForeignKey,
-                derivedSkipNavigation.Inverse.ForeignKey
-            },
-            principalKey.GetReferencingForeignKeys());
+                new[]
+                {
+                    derivedSkipNavigation.ForeignKey,
+                    tptForeignKey,
+                    referenceOwnership,
+                    collectionOwnership,
+                    dependentForeignKey,
+                    derivedSkipNavigation.Inverse.ForeignKey
+                },
+                principalKey.GetReferencingForeignKeys());
 
             Assert.Equal(
                 new[] { dependentBaseForeignKey, tptForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey },
@@ -374,8 +374,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         .HasParameter("RefTypeEnumerable")
                         .HasOriginalValueParameter(p => p.Id));
                 eb.DeleteUsingStoredProcedure(
-                    s => s
-                        .HasRowsAffectedReturnValue()
+                    s => s.HasRowsAffectedParameter()
                         .HasOriginalValueParameter(p => p.Id));
             });
 
@@ -428,7 +427,6 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal("Deets", detailsProperty.GetColumnName(principalTable));
 
         var dbFunction = model.FindDbFunction("PrincipalBaseTvf")!;
-        Assert.Equal("dbo", dbFunction.Schema);
         Assert.False(dbFunction.IsNullable);
         Assert.False(dbFunction.IsScalar);
         Assert.False(dbFunction.IsBuiltIn);
@@ -452,13 +450,13 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Tpc()
+    public virtual void Tpc_Sprocs()
         => Test(
-            BuildTpcModel,
-            AssertTpc,
+            BuildTpcSprocsModel,
+            AssertTpcSprocs,
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
-    protected virtual void BuildTpcModel(ModelBuilder modelBuilder)
+    protected virtual void BuildTpcSprocsModel(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("TPC");
 
@@ -510,9 +508,18 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         .HasParameter("RefTypeEnumerable")
                         .HasOriginalValueParameter(p => p.Id));
                 eb.DeleteUsingStoredProcedure(
-                    s => s
-                        .HasRowsAffectedReturnValue()
-                        .HasOriginalValueParameter(p => p.Id));
+                    s =>
+                    {
+                        s.HasOriginalValueParameter(p => p.Id);
+                        if (UseSprocReturnValue)
+                        {
+                            s.HasRowsAffectedReturnValue();
+                        }
+                        else
+                        {
+                            s.HasRowsAffectedParameter(p => p.HasName("RowsAffected"));
+                        }
+                    });
 
                 eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
                     .IsUnique()
@@ -580,7 +587,10 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
     }
 
-    protected virtual void AssertTpc(IModel model)
+    protected virtual bool UseSprocReturnValue
+        => false;
+
+    protected virtual void AssertTpcSprocs(IModel model)
     {
         Assert.Equal("TPC", model.GetDefaultSchema());
 
@@ -681,11 +691,18 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         var deleteSproc = principalBase.GetDeleteStoredProcedure()!;
         Assert.Equal("PrincipalBase_Delete", deleteSproc.Name);
         Assert.Equal("TPC", deleteSproc.Schema);
-        Assert.Equal(new[] { "Id_Original" }, deleteSproc.Parameters.Select(p => p.Name));
+        if (UseSprocReturnValue)
+        {
+            Assert.Equal(["Id_Original"], deleteSproc.Parameters.Select(p => p.Name));
+        }
+        else
+        {
+            Assert.Equal(["Id_Original", "RowsAffected"], deleteSproc.Parameters.Select(p => p.Name));
+        }
+
         Assert.Empty(deleteSproc.ResultColumns);
-        Assert.True(deleteSproc.IsRowsAffectedReturned);
+        Assert.Equal(UseSprocReturnValue, deleteSproc.IsRowsAffectedReturned);
         Assert.Same(principalBase, deleteSproc.EntityType);
-        Assert.Equal("Id_Original", deleteSproc.Parameters.Last().Name);
         Assert.Null(id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.DeleteStoredProcedure)!.Value));
 
         Assert.Equal("PrincipalBase", principalBase.GetDiscriminatorValue());
@@ -897,7 +914,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
 
     [ConditionalFact]
-    public virtual void DbFunctions()
+    public virtual Task DbFunctions()
         => Test<DbFunctionContext>(
             assertModel: model =>
             {
@@ -981,7 +998,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 Assert.Equal("date", isDateParameter.StoreFunctionParameter.Name);
                 Assert.Equal(isDateParameter.StoreType, isDateParameter.StoreFunctionParameter.StoreType);
 
-                var getData = model.FindDbFunction(typeof(DbFunctionContext)
+                var getData = model.FindDbFunction(
+                    typeof(DbFunctionContext)
                         .GetMethod("GetData", [typeof(int)])!)!;
                 Assert.Equal("GetData", getData.Name);
                 //Assert.Equal("dbo", getData.Schema);
@@ -1117,7 +1135,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Custom_function_type_mapping()
+    public virtual Task Custom_function_type_mapping()
         => Test<FunctionTypeMappingContext>(
             assertModel: model =>
             {
@@ -1143,7 +1161,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Custom_function_parameter_type_mapping()
+    public virtual Task Custom_function_parameter_type_mapping()
         => Test<FunctionParameterTypeMappingContext>(
             assertModel: model =>
             {
@@ -1170,7 +1188,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Throws_for_custom_function_translation()
+    public virtual Task Throws_for_custom_function_translation()
         => Test<FunctionTranslationContext>(
             expectedExceptionMessage: RelationalStrings.CompiledModelFunctionTranslation("GetSqlFragmentStatic"));
 

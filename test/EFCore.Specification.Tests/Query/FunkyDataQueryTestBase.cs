@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, new()
 {
@@ -606,7 +608,7 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             return context;
         }
 
-        protected override void Seed(FunkyDataContext context)
-            => FunkyDataContext.Seed(context);
+        protected override Task SeedAsync(FunkyDataContext context)
+            => FunkyDataContext.SeedAsync(context);
     }
 }

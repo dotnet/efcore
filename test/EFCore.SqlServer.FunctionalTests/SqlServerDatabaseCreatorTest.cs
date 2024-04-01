@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 // Tests are split into classes to enable parallel execution
 // Some combinations are skipped to reduce run time
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
@@ -80,8 +82,8 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
     private static async Task Returns_true_when_database_exists_test(bool async, bool ambientTransaction, bool useCanConnect, bool file)
     {
         using var testDatabase = file
-            ? SqlServerTestStore.CreateInitialized("ExistingBloggingFile", useFileName: true)
-            : SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging");
+            ? await SqlServerTestStore.CreateInitializedAsync("ExistingBloggingFile", useFileName: true)
+            : await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging");
         using var context = new BloggingContext(testDatabase);
         var creator = GetDatabaseCreator(context);
 
@@ -127,7 +129,7 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
 
     private static async Task Delete_database_test(bool async, bool open, bool ambientTransaction, bool file)
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized("EnsureDeleteBlogging" + (file ? "File" : ""), file);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureDeleteBlogging" + (file ? "File" : ""), file);
         if (!open)
         {
             testDatabase.CloseConnection();
@@ -249,7 +251,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
         using var context = new BloggingContext(testDatabase);
         if (createDatabase)
         {
-            testDatabase.Initialize(null, (Func<DbContext>)null);
+            await testDatabase.InitializeAsync(null, (Func<DbContext>)null);
         }
         else
         {
@@ -325,7 +327,7 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
 
     private static async Task Noop_when_database_exists_and_has_schema_test(bool async, bool file)
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized("InitializedBlogging" + (file ? "File" : ""), file);
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("InitializedBlogging" + (file ? "File" : ""), file);
         using var context = new BloggingContext(testDatabase);
         context.Database.EnsureCreatedResiliently();
 
@@ -374,7 +376,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
     [InlineData(false, true)]
     public async Task Returns_false_when_database_exists_but_has_no_tables(bool async, bool ambientTransaction)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreateInitialized("Empty");
+        using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("Empty");
         var creator = GetDatabaseCreator(testDatabase);
 
         await GetExecutionStrategy(testDatabase).ExecuteAsync(
@@ -392,8 +394,8 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
     [InlineData(false, false)]
     public async Task Returns_true_when_database_exists_and_has_any_tables(bool async, bool ambientTransaction)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreate("ExistingTables")
-            .InitializeSqlServer(null, t => new BloggingContext(t), null);
+        using var testDatabase = await SqlServerTestStore.GetOrCreate("ExistingTables")
+            .InitializeSqlServerAsync(null, t => new BloggingContext(t), null);
         var creator = GetDatabaseCreator(testDatabase);
 
         await GetExecutionStrategy(testDatabase).ExecuteAsync(
@@ -415,7 +417,7 @@ public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
     [InlineData(false, false)]
     public static async Task Deletes_database(bool async, bool ambientTransaction)
     {
-        using var testDatabase = SqlServerTestStore.CreateInitialized("DeleteBlogging");
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("DeleteBlogging");
         testDatabase.CloseConnection();
 
         var creator = GetDatabaseCreator(testDatabase);
@@ -477,7 +479,7 @@ public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreator
     [InlineData(false, false)]
     public async Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging" + (async ? "Async" : ""));
+        using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging" + (async ? "Async" : ""));
         using var context = new BloggingContext(testDatabase);
         var creator = GetDatabaseCreator(context);
 
@@ -646,7 +648,7 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
     [InlineData(false)]
     public async Task Throws_if_database_already_exists(bool async)
     {
-        using var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging");
+        using var testDatabase = await SqlServerTestStore.GetOrCreateInitializedAsync("ExistingBlogging");
         var creator = GetDatabaseCreator(testDatabase);
 
         var ex = async
@@ -678,7 +680,8 @@ public class SqlServerDatabaseCreatorTest
         => new BloggingContext(testStore).GetService<IExecutionStrategyFactory>().Create();
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestSqlServerExecutionStrategyFactory(ExecutionStrategyDependencies dependencies) : SqlServerExecutionStrategyFactory(dependencies)
+    private class TestSqlServerExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
+        : SqlServerExecutionStrategyFactory(dependencies)
     {
         protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
             => new NonRetryingExecutionStrategy(dependencies);

@@ -11,6 +11,8 @@ using Track = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.Track;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ConferencePlannerTestBase<TFixture>.ConferencePlannerFixtureBase, new()
 {
@@ -709,7 +711,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
         protected override bool UsePooling
             => false;
 
-        protected override void Seed(ApplicationDbContext context)
+        protected override Task SeedAsync(ApplicationDbContext context)
         {
             var attendees1 = new List<TestModels.ConferencePlanner.Attendee>
             {
@@ -828,7 +830,7 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
             }
 
             context.AddRange(tracks.Values);
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

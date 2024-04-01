@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ManyToManyFieldsLoadSqlServerTest(ManyToManyFieldsLoadSqlServerTest.ManyToManyFieldsLoadSqlServerFixture fixture) : ManyToManyFieldsLoadTestBase<
     ManyToManyFieldsLoadSqlServerTest.ManyToManyFieldsLoadSqlServerFixture>(fixture)
 {

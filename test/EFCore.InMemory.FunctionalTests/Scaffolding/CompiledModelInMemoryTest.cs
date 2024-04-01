@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 });
 
         [ConditionalFact]
-        public virtual void Global_namespace()
+        public virtual Task Global_namespace()
             => Test<GlobalNamespaceContext>(
                 modelBuilder => modelBuilder.Entity("1", e =>
                 {
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 options: new CompiledModelCodeGenerationOptions { ModelNamespace = string.Empty });
 
         [ConditionalFact]
-        public virtual void Self_referential_property()
+        public virtual Task Self_referential_property()
             => Test(
                 modelBuilder =>
                     modelBuilder.Entity<SelfReferentialEntity>(
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 });
 
         [ConditionalFact]
-        public virtual void Fully_qualified_model()
+        public virtual Task Fully_qualified_model()
             => Test<DbContext>(
                 modelBuilder => {
                     modelBuilder.Entity<Index>();

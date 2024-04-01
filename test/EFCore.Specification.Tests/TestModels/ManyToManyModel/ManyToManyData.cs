@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
+#nullable disable
+
 public class ManyToManyData : ISetSource
 {
     private readonly bool _useGeneratedKeys;

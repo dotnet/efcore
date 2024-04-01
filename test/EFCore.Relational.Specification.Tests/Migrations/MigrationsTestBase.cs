@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : MigrationsTestBase<TFixture>.MigrationsFixtureBase, new()
 {
@@ -2408,42 +2410,42 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Create_sequence_nocache()
-    => Test(
-        builder => { },
-        builder => builder.HasSequence("Alpha").UseNoCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.Equal("Alpha", sequence.Name);
-            Assert.False(sequence.IsCached);
-        });
+        => Test(
+            builder => { },
+            builder => builder.HasSequence("Alpha").UseNoCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.Equal("Alpha", sequence.Name);
+                Assert.False(sequence.IsCached);
+            });
 
 
     [ConditionalFact]
     public virtual Task Create_sequence_cache()
-    => Test(
-        builder => { },
-        builder => builder.HasSequence("Beta").UseCache(20),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.Equal("Beta", sequence.Name);
-            Assert.True(sequence.IsCached);
-            Assert.Equal(20, sequence.CacheSize);
-        });
+        => Test(
+            builder => { },
+            builder => builder.HasSequence("Beta").UseCache(20),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.Equal("Beta", sequence.Name);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Create_sequence_default_cache()
-    => Test(
-        builder => { },
-        builder => builder.HasSequence("Gamma").UseCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.Equal("Gamma", sequence.Name);
-            Assert.True(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => { },
+            builder => builder.HasSequence("Gamma").UseCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.Equal("Gamma", sequence.Name);
+                Assert.True(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Create_sequence_all_settings()
@@ -2508,82 +2510,82 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalFact]
     public virtual Task Alter_sequence_default_cache_to_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Delta").UseCache(),
-        builder => { },
-        builder => builder.HasSequence<int>("Delta").UseCache(20),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Equal(20, sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Delta").UseCache(),
+            builder => { },
+            builder => builder.HasSequence<int>("Delta").UseCache(20),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
+            });
 
 
     [ConditionalFact]
     public virtual Task Alter_sequence_default_cache_to_nocache()
-    => Test(
-        builder => builder.HasSequence<int>("Epsilon").UseCache(),
-        builder => { },
-        builder => builder.HasSequence<int>("Epsilon").UseNoCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.False(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Epsilon").UseCache(),
+            builder => { },
+            builder => builder.HasSequence<int>("Epsilon").UseNoCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.False(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_cache_to_nocache()
-    => Test(
-        builder => builder.HasSequence<int>("Zeta").UseCache(20),
-        builder => { },
-        builder => builder.HasSequence<int>("Zeta").UseNoCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.False(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Zeta").UseCache(20),
+            builder => { },
+            builder => builder.HasSequence<int>("Zeta").UseNoCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.False(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_cache_to_default_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Eta").UseCache(20),
-        builder => { },
-        builder => builder.HasSequence<int>("Eta").UseCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Eta").UseCache(20),
+            builder => { },
+            builder => builder.HasSequence<int>("Eta").UseCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_nocache_to_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Theta").UseNoCache(),
-        builder => { },
-        builder => builder.HasSequence<int>("Theta").UseCache(20),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Equal(20, sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Theta").UseNoCache(),
+            builder => { },
+            builder => builder.HasSequence<int>("Theta").UseCache(20),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_nocache_to_default_cache()
-    => Test(
-        builder => builder.HasSequence<int>("Iota").UseNoCache(),
-        builder => { },
-        builder => builder.HasSequence<int>("Iota").UseCache(),
-        model =>
-        {
-            var sequence = Assert.Single(model.Sequences);
-            Assert.True(sequence.IsCached);
-            Assert.Null(sequence.CacheSize);
-        });
+        => Test(
+            builder => builder.HasSequence<int>("Iota").UseNoCache(),
+            builder => { },
+            builder => builder.HasSequence<int>("Iota").UseCache(),
+            model =>
+            {
+                var sequence = Assert.Single(model.Sequences);
+                Assert.True(sequence.IsCached);
+                Assert.Null(sequence.CacheSize);
+            });
 
     [ConditionalFact]
     public virtual Task Alter_sequence_restart_with()
@@ -2811,10 +2813,11 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         e.HasBaseType("Contact");
                         e.Property<int>("Number");
-                        e.ComplexProperty<MyComplex>("MyComplex", ct =>
-                        {
-                            ct.ComplexProperty<MyNestedComplex>("MyNestedComplex").IsRequired();
-                        });
+                        e.ComplexProperty<MyComplex>(
+                            "MyComplex", ct =>
+                            {
+                                ct.ComplexProperty<MyNestedComplex>("MyNestedComplex").IsRequired();
+                            });
                     });
             },
             model =>
@@ -2859,37 +2862,318 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
+    public virtual Task Add_required_primitive_collection_to_existing_table()
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired();
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public virtual Task Add_required_primitive_collection_with_custom_default_value_to_existing_table()
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired().HasDefaultValue(
+                        new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        });
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public abstract Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table();
+
+    protected virtual Task Add_required_primitive_collection_with_custom_default_value_sql_to_existing_table_core(string defaultValueSql)
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired().HasDefaultValueSql(defaultValueSql);
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact(Skip = "issue #33038")]
+    public virtual Task Add_required_primitive_collection_with_custom_converter_to_existing_table()
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").HasConversion(
+                            new ValueConverter<List<int>, string>(
+                                convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
+                                convertFromProviderExpression: x => x == "nothing"
+                                    ? new List<int> { }
+                                    : new List<int>
+                                    {
+                                        7,
+                                        8,
+                                        9
+                                    }))
+                        .IsRequired();
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public virtual Task Add_required_primitive_collection_with_custom_converter_and_custom_default_value_to_existing_table()
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").HasConversion(
+                            new ValueConverter<List<int>, string>(
+                                convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
+                                convertFromProviderExpression: x => x == "nothing"
+                                    ? new List<int> { }
+                                    : new List<int>
+                                    {
+                                        7,
+                                        8,
+                                        9
+                                    }))
+                        .HasDefaultValue(new List<int> { 42 })
+                        .IsRequired();
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public virtual Task Add_optional_primitive_collection_to_existing_table()
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers");
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public virtual Task Create_table_with_required_primitive_collection()
+        => Test(
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired();
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
+    public virtual Task Create_table_with_optional_primitive_collection()
+        => Test(
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers");
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
+
+    [ConditionalFact]
     public virtual Task Add_required_primitve_collection_to_existing_table()
-          => Test(
-              builder => builder.Entity(
-                  "Customer", e =>
-                  {
-                      e.Property<int>("Id").ValueGeneratedOnAdd();
-                      e.HasKey("Id");
-                      e.Property<string>("Name");
-                      e.ToTable("Customers");
-                  }),
-              builder => builder.Entity(
-                      "Customer", e =>
-                      {
-                          e.Property<int>("Id").ValueGeneratedOnAdd();
-                          e.HasKey("Id");
-                          e.Property<string>("Name");
-                          e.Property<List<int>>("Numbers").IsRequired();
-                          e.ToTable("Customers");
-                      }),
-              model =>
-              {
-                  var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-                  Assert.Collection(
-                      customersTable.Columns,
-                      c => Assert.Equal("Id", c.Name),
-                      c => Assert.Equal("Name", c.Name),
-                      c => Assert.Equal("Numbers", c.Name));
-                  Assert.Same(
-                      customersTable.Columns.Single(c => c.Name == "Id"),
-                      Assert.Single(customersTable.PrimaryKey!.Columns));
-              });
+        => Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired();
+                    e.ToTable("Customers");
+                }),
+            model =>
+            {
+                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
+                Assert.Collection(
+                    customersTable.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("Numbers", c.Name));
+                Assert.Same(
+                    customersTable.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(customersTable.PrimaryKey!.Columns));
+            });
 
     [ConditionalFact]
     public virtual Task Add_required_primitve_collection_with_custom_default_value_to_existing_table()
@@ -2903,14 +3187,20 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.ToTable("Customers");
                 }),
             builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired().HasDefaultValue(new List<int> { 1, 2, 3 });
-                        e.ToTable("Customers");
-                    }),
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired().HasDefaultValue(
+                        new List<int>
+                        {
+                            1,
+                            2,
+                            3
+                        });
+                    e.ToTable("Customers");
+                }),
             model =>
             {
                 var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
@@ -2938,14 +3228,14 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.ToTable("Customers");
                 }),
             builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired().HasDefaultValueSql(defaultValueSql);
-                        e.ToTable("Customers");
-                    }),
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").IsRequired().HasDefaultValueSql(defaultValueSql);
+                    e.ToTable("Customers");
+                }),
             model =>
             {
                 var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
@@ -2971,17 +3261,25 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.ToTable("Customers");
                 }),
             builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").HasConversion(new ValueConverter<List<int>, string>(
-                            convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
-                            convertFromProviderExpression: x => x == "nothing" ? new List<int> { } : new List<int> { 7, 8, 9 }))
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").HasConversion(
+                            new ValueConverter<List<int>, string>(
+                                convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
+                                convertFromProviderExpression: x => x == "nothing"
+                                    ? new List<int> { }
+                                    : new List<int>
+                                    {
+                                        7,
+                                        8,
+                                        9
+                                    }))
                         .IsRequired();
-                        e.ToTable("Customers");
-                    }),
+                    e.ToTable("Customers");
+                }),
             model =>
             {
                 var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
@@ -3007,103 +3305,26 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.ToTable("Customers");
                 }),
             builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").HasConversion(new ValueConverter<List<int>, string>(
-                            convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
-                            convertFromProviderExpression: x => x == "nothing" ? new List<int> { } : new List<int> { 7, 8, 9 }))
-                        .HasDefaultValue(new List<int> { 42 })
-                        .IsRequired();
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
-
-    [ConditionalFact]
-    public virtual Task Add_optional_primitive_collection_to_existing_table()
-        => Test(
-            builder => builder.Entity(
                 "Customer", e =>
                 {
                     e.Property<int>("Id").ValueGeneratedOnAdd();
                     e.HasKey("Id");
                     e.Property<string>("Name");
+                    e.Property<List<int>>("Numbers").HasConversion(
+                            new ValueConverter<List<int>, string>(
+                                convertToProviderExpression: x => x != null && x.Count > 0 ? "some numbers" : "nothing",
+                                convertFromProviderExpression: x => x == "nothing"
+                                    ? new List<int> { }
+                                    : new List<int>
+                                    {
+                                        7,
+                                        8,
+                                        9
+                                    }))
+                        .HasDefaultValue(new List<int> { 42 })
+                        .IsRequired();
                     e.ToTable("Customers");
                 }),
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers");
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
-
-    [ConditionalFact]
-    public virtual Task Create_table_with_required_primitive_collection()
-        => Test(
-            builder => { },
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers").IsRequired();
-                        e.ToTable("Customers");
-                    }),
-            model =>
-            {
-                var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
-                Assert.Collection(
-                    customersTable.Columns,
-                    c => Assert.Equal("Id", c.Name),
-                    c => Assert.Equal("Name", c.Name),
-                    c => Assert.Equal("Numbers", c.Name));
-                Assert.Same(
-                    customersTable.Columns.Single(c => c.Name == "Id"),
-                    Assert.Single(customersTable.PrimaryKey!.Columns));
-            });
-
-    [ConditionalFact]
-    public virtual Task Create_table_with_optional_primitive_collection()
-        => Test(
-            builder => { },
-            builder => builder.Entity(
-                    "Customer", e =>
-                    {
-                        e.Property<int>("Id").ValueGeneratedOnAdd();
-                        e.HasKey("Id");
-                        e.Property<string>("Name");
-                        e.Property<List<int>>("Numbers");
-                        e.ToTable("Customers");
-                    }),
             model =>
             {
                 var customersTable = Assert.Single(model.Tables.Where(t => t.Name == "Customers"));
@@ -3285,7 +3506,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         finally
         {
             using var _ = Fixture.TestSqlLoggerFactory.SuspendRecordingEvents();
-            Fixture.TestStore.Clean(context);
+            await Fixture.TestStore.CleanAsync(context);
         }
     }
 

@@ -4,6 +4,7 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
@@ -39,6 +40,10 @@
       <_Parameter1>PackageVersion</_Parameter1>
       <_Parameter2>$(PackageVersion)</_Parameter2>
     </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
   </ItemGroup>
 
   <ItemGroup>

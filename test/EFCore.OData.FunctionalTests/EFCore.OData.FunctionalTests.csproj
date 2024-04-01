@@ -4,6 +4,7 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.OData.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
@@ -41,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.5" />
   </ItemGroup>
 
   <ItemGroup>

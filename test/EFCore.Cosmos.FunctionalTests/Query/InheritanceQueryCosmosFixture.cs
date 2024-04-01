@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -16,4 +18,7 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 
     public override bool EnableComplexTypes
         => false;
+
+    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
+        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
 }

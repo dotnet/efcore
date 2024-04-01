@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class LazyLoadProxySqliteTest(LazyLoadProxySqliteTest.LoadSqliteFixture fixture) : LazyLoadProxyTestBase<LazyLoadProxySqliteTest.LoadSqliteFixture>(fixture)
 {
     [ConditionalFact]

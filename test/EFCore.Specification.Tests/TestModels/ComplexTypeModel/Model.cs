@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
-#nullable enable
-
 public class Customer
 {
     public int Id { get; set; }

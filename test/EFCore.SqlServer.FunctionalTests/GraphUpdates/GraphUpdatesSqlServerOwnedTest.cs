@@ -3,7 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlServerFixture fixture) : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>(fixture)
+#nullable disable
+
+public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlServerFixture fixture)
+    : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>(fixture)
 {
     // No owned types
     public override Task Update_root_by_collection_replacement_of_inserted_first_level(bool async)
@@ -54,29 +57,25 @@ public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlSe
         => Task.CompletedTask;
 
     // Owned dependents are always loaded
-    public override void Required_one_to_one_are_cascade_deleted_in_store(
+    public override Task Required_one_to_one_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
-    {
-    }
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
+    public override Task Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)
-    {
-    }
+        => Task.CompletedTask;
 
     // No owned types
     public override Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
         => Task.CompletedTask;
 
-    public override void Required_one_to_one_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
-    {
-    }
+    public override Task Required_one_to_one_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
+        => Task.CompletedTask;
 
-    public override void Required_one_to_one_with_AK_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
-    {
-    }
+    public override Task Required_one_to_one_with_AK_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
+        => Task.CompletedTask;
 
     // No owned types
     public override Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)

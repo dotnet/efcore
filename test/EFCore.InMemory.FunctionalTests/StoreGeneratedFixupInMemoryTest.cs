@@ -30,10 +30,10 @@ public class StoreGeneratedFixupInMemoryTest(StoreGeneratedFixupInMemoryTest.Sto
         Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
     }
 
-    protected override void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
+    protected override async Task ExecuteWithStrategyInTransactionAsync(Func<DbContext, Task> testOperation)
     {
-        base.ExecuteWithStrategyInTransaction(testOperation);
-        Fixture.Reseed();
+        await base.ExecuteWithStrategyInTransactionAsync(testOperation);
+        await Fixture.ReseedAsync();
     }
 
     protected override bool EnforcesFKs

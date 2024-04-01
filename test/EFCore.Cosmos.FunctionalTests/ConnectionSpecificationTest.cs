@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ConnectionSpecificationTest
 {
     [ConditionalFact]

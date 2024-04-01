@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -13,7 +15,9 @@ public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTes
     private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
         typeof(RelationalOptionsExtension).GetField("_querySplittingBehavior", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    protected override DbContextOptionsBuilder SetQuerySplittingBehavior(DbContextOptionsBuilder optionsBuilder, QuerySplittingBehavior splittingBehavior)
+    protected override DbContextOptionsBuilder SetQuerySplittingBehavior(
+        DbContextOptionsBuilder optionsBuilder,
+        QuerySplittingBehavior splittingBehavior)
     {
         new SqlServerDbContextOptionsBuilder(optionsBuilder).UseQuerySplittingBehavior(splittingBehavior);
 
@@ -37,8 +41,8 @@ public class AdHocQuerySplittingQuerySqlServerTest : AdHocQuerySplittingQueryTes
         return optionsBuilder;
     }
 
-    protected override TestStore CreateTestStore25225()
-        => SqlServerTestStore.CreateInitialized(StoreName, multipleActiveResultSets: true);
+    protected override async Task<TestStore> CreateTestStore25225()
+        => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: true);
 
     public override async Task Can_configure_SingleQuery_at_context_level()
     {
@@ -151,7 +155,7 @@ ORDER BY [p].[Id]
         await base.Using_AsSingleQuery_without_context_configuration_does_not_throw_warning();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [c].[Id], [c].[ParentId], [a].[Id], [a].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -266,8 +270,8 @@ ORDER BY [p1].[Id]
     public virtual async Task Using_AsSplitQuery_without_multiple_active_result_sets_works()
     {
         var contextFactory = await InitializeAsync<Context21355>(
-            seed: c => c.Seed(),
-            createTestStore: () => SqlServerTestStore.CreateInitialized(StoreName, multipleActiveResultSets: false));
+            seed: c => c.SeedAsync(),
+            createTestStore: async () => await SqlServerTestStore.CreateInitializedAsync(StoreName, multipleActiveResultSets: false));
 
         using var context = contextFactory.CreateContext();
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
@@ -299,7 +303,7 @@ ORDER BY [p].[Id]
         await base.NoTracking_split_query_creates_only_required_instances(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [t].[Id], [t].[Value]
 FROM [Tests] AS [t]
 ORDER BY [t].[Id]

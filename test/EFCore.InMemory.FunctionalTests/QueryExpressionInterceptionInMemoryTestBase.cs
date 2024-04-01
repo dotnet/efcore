@@ -10,9 +10,9 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpress
     {
     }
 
-    public override UniverseContext Seed(UniverseContext context)
+    public override async Task<UniverseContext> SeedAsync(UniverseContext context)
     {
-        base.Seed(context);
+        await base.SeedAsync(context);
 
         context.AddRange(
             new Singularity { Id = 77, Type = "Black Hole" },
@@ -20,7 +20,7 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpress
             new Brane { Id = 77, Type = "Black Hole?" },
             new Brane { Id = 88, Type = "Bing Bang?" });
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         context.ChangeTracker.Clear();
 
         return context;
@@ -44,7 +44,8 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpress
     }
 
     public class QueryExpressionInterceptionInMemoryTest(QueryExpressionInterceptionInMemoryTest.InterceptionInMemoryFixture fixture)
-        : QueryExpressionInterceptionInMemoryTestBase(fixture), IClassFixture<QueryExpressionInterceptionInMemoryTest.InterceptionInMemoryFixture>
+        : QueryExpressionInterceptionInMemoryTestBase(fixture),
+            IClassFixture<QueryExpressionInterceptionInMemoryTest.InterceptionInMemoryFixture>
     {
         public class InterceptionInMemoryFixture : InterceptionInMemoryFixtureBase
         {
@@ -53,7 +54,8 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpress
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsInMemoryTest(QueryExpressionInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture fixture)
+    public class QueryExpressionInterceptionWithDiagnosticsInMemoryTest(
+        QueryExpressionInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture fixture)
         : QueryExpressionInterceptionInMemoryTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture>
     {

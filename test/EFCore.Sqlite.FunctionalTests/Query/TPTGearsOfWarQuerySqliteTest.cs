@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase<TPTGearsOfWarQuerySqliteFixture>
 {
     public TPTGearsOfWarQuerySqliteTest(TPTGearsOfWarQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)

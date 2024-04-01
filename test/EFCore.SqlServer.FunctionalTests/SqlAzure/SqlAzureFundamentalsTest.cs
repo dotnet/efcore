@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
 public class SqlAzureFundamentalsTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
 {

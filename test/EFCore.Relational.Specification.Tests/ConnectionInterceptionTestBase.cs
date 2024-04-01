@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Data;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -19,7 +17,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_connection_passively(bool async)
     {
-        var (context, interceptor) = CreateContext<ConnectionInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<ConnectionInterceptor>();
         using (context)
         {
             // Test infrastructure uses an open connection, so close it first.
@@ -71,7 +69,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
     [InlineData(true)]
     public virtual async Task Intercept_connection_to_override_opening(bool async)
     {
-        var (context, interceptor) = CreateContext<ConnectionOverridingInterceptor>();
+        var (context, interceptor) = await CreateContextAsync<ConnectionOverridingInterceptor>();
         using (context)
         {
             // Test infrastructure uses an open connection, so close it first.
@@ -127,7 +125,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         var interceptor2 = new ConnectionOverridingInterceptor();
         var interceptor3 = new ConnectionInterceptor();
         var interceptor4 = new ConnectionOverridingInterceptor();
-        using var context = CreateContext(
+        using var context = await CreateContextAsync(
             new IInterceptor[] { new NoOpConnectionInterceptor(), interceptor1, interceptor2 },
             new IInterceptor[] { interceptor3, interceptor4, new NoOpConnectionInterceptor() });
         // Test infrastructure uses an open connection, so close it first.

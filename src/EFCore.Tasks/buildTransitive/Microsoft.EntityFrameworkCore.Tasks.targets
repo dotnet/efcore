@@ -10,10 +10,10 @@
           BeforeTargets="_ReadGeneratedFilesList"
           Condition="'$(EFOptimizeContext)'=='true'">
     <PropertyGroup>
-      <EFStartupProject Condition="'$(EFStartupProject)' ==''">$(MSBuildProjectFullPath)</EFStartupProject>
-      <EFRootNamespace Condition="'$(EFRootNamespace)' == ''">$(RootNamespace)</EFRootNamespace>
-      <EFRootNamespace Condition="'$(EFRootNamespace)' == ''">$(AssemblyName)</EFRootNamespace>
-      <EFTargetNamespace Condition="'$(EFTargetNamespace)' == ''">$(EFRootNamespace)</EFTargetNamespace>
+      <EFStartupProject Condition="'$(EFStartupProject)'==''">$(MSBuildProjectFullPath)</EFStartupProject>
+      <EFRootNamespace Condition="'$(EFRootNamespace)'==''">$(RootNamespace)</EFRootNamespace>
+      <EFRootNamespace Condition="'$(EFRootNamespace)'==''">$(AssemblyName)</EFRootNamespace>
+      <EFTargetNamespace Condition="'$(EFTargetNamespace)'==''">$(EFRootNamespace)</EFTargetNamespace>
       <_FullOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(OutputPath)'))</_FullOutputPath>
       <_FullIntermediateOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(IntermediateOutputPath)'))</_FullIntermediateOutputPath>
       <EFNullable>false</EFNullable>
@@ -32,6 +32,12 @@
     <PropertyGroup Condition="'$(OutputType)'=='WinExe'">
       <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).exe</_AssemblyFullName>
     </PropertyGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Build"
+             BuildInParallel="true"
+             Condition="'$(EFStartupProject)'!='$(MSBuildProjectFullPath)'"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;EFOptimizeContext=false" />
 
     <MSBuild Projects="$(EFStartupProject)"
              Targets="OptimizeContext"

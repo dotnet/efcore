@@ -3,8 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable enable
-
 public class PrimitiveCollectionsQuerySqlServerTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
@@ -1470,6 +1468,43 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Id] < 4
 ORDER BY [p].[Id]
 """);
+    }
+
+    public override async Task Project_inline_collection(bool async)
+    {
+        await base.Project_inline_collection(async);
+
+        AssertSql(
+            """
+SELECT [p].[String]
+FROM [PrimitiveCollectionsEntity] AS [p]
+""");
+    }
+
+    public override async Task Project_inline_collection_with_Union(bool async)
+    {
+        await base.Project_inline_collection_with_Union(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [u].[Value]
+FROM [PrimitiveCollectionsEntity] AS [p]
+OUTER APPLY (
+    SELECT [v].[Value]
+    FROM (VALUES ([p].[String])) AS [v]([Value])
+    UNION
+    SELECT [p0].[String] AS [Value]
+    FROM [PrimitiveCollectionsEntity] AS [p0]
+) AS [u]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override async Task Project_inline_collection_with_Concat(bool async)
+    {
+        await base.Project_inline_collection_with_Concat(async);
+
+        AssertSql();
     }
 
     public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)

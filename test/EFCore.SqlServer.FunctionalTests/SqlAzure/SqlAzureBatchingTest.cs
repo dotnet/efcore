@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
 public class SqlAzureBatchingTest(BatchingSqlAzureFixture fixture) : IClassFixture<BatchingSqlAzureFixture>
 {

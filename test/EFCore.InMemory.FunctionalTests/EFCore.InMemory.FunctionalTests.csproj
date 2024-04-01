@@ -4,6 +4,7 @@
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <!-- Avoid referencing EFCore.Relational -->
@@ -20,6 +21,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\src\Shared\MemberInfoExtensions.cs" Link="MemberInfoExtensions.cs" />
+    <Compile Include="..\Shared\ModuleInitializer.cs" Link="ModuleInitializer.cs" />
   </ItemGroup>
 
   <ItemGroup>

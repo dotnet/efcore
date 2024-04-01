@@ -29,11 +29,11 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     public SqlServerQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        SqlServerQueryCompilationContext queryCompilationContext,
-        IRelationalTypeMappingSource typeMappingSource)
+        SqlServerQueryCompilationContext queryCompilationContext)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
-        _jsonPostprocessor = new SqlServerJsonPostprocessor(typeMappingSource, relationalDependencies.SqlExpressionFactory);
+        _jsonPostprocessor = new SqlServerJsonPostprocessor(
+            relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory);
     }
 
     /// <summary>
@@ -51,6 +51,15 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 
         return query2;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression ProcessTypeMappings(Expression expression)
+        => new SqlServerTypeMappingPostprocessor(Dependencies, RelationalDependencies, RelationalQueryCompilationContext).Process(expression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

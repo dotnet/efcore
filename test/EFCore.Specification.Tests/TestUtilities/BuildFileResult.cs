@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class BuildFileResult(string targetPath)
 {
     public string TargetPath { get; } = targetPath;

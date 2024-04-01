@@ -49,6 +49,14 @@ public class CompiledModelScaffolder : ICompiledModelScaffolder
 
         var scaffoldedModel = codeGenerator.GenerateModel(model, options);
 
+        if (options.Suffix != null)
+        {
+            foreach (var file in scaffoldedModel)
+            {
+                file.Path = file.Path.Insert(file.Path.LastIndexOf('.'), options.Suffix);
+            }
+        }
+
         CheckOutputFiles(scaffoldedModel, outputDir);
 
         Directory.CreateDirectory(outputDir);

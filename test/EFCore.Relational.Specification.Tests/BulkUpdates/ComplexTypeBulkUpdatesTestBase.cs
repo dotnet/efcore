@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexTypeModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
+#nullable disable
+
 public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
     where TFixture : ComplexTypeBulkUpdatesFixtureBase, new()
 {

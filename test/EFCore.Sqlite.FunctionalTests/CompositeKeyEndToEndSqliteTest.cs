@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class CompositeKeyEndToEndSqliteTest(CompositeKeyEndToEndSqliteTest.CompositeKeyEndToEndSqliteFixture fixture) : CompositeKeyEndToEndTestBase<
     CompositeKeyEndToEndSqliteTest.CompositeKeyEndToEndSqliteFixture>(fixture)
 {

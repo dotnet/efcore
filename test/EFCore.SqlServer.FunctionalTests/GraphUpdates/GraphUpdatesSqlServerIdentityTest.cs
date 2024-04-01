@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class GraphUpdatesSqlServerIdentityTest(GraphUpdatesSqlServerIdentityTest.SqlServerFixture fixture) : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerIdentityTest.SqlServerFixture>(fixture)
 {
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

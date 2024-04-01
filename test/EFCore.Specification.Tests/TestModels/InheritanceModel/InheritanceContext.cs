@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
+#nullable disable
+
 public class InheritanceContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Animal> Animals { get; set; }
@@ -14,7 +16,7 @@ public class InheritanceContext(DbContextOptions options) : PoolableDbContext(op
     public DbSet<Tea> Tea { get; set; }
     public DbSet<Plant> Plants { get; set; }
 
-    public static void Seed(InheritanceContext context, bool useGeneratedKeys)
+    public static Task SeedAsync(InheritanceContext context, bool useGeneratedKeys)
     {
         var animals = InheritanceData.CreateAnimals(useGeneratedKeys);
         var countries = InheritanceData.CreateCountries();
@@ -28,6 +30,6 @@ public class InheritanceContext(DbContextOptions options) : PoolableDbContext(op
         context.Drinks.AddRange(drinks);
         context.Plants.AddRange(plants);
 
-        context.SaveChanges();
+        return context.SaveChangesAsync();
     }
 }

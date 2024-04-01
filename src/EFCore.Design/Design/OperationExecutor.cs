@@ -531,13 +531,14 @@ public class OperationExecutor : MarshalByRefObject
             var outputDir = (string?)args["outputDir"];
             var modelNamespace = (string?)args["modelNamespace"];
             var contextType = (string?)args["contextType"];
+            var suffix = (string?)args["suffix"];
 
-            Execute(() => executor.OptimizeContextImpl(outputDir, modelNamespace, contextType));
+            Execute(() => executor.OptimizeContextImpl(outputDir, modelNamespace, contextType, suffix));
         }
     }
 
-    private IReadOnlyList<string> OptimizeContextImpl(string? outputDir, string? modelNamespace, string? contextType)
-        => ContextOperations.Optimize(outputDir, modelNamespace, contextType);
+    private IReadOnlyList<string> OptimizeContextImpl(string? outputDir, string? modelNamespace, string? contextType, string? suffix)
+        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix);
 
     /// <summary>
     ///     Represents an operation to scaffold a <see cref="DbContext" /> and entity types for a database.

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelationalTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
@@ -16,9 +18,6 @@ public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelat
         ClearLog();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
@@ -1221,7 +1220,7 @@ WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o
             """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < 0.0E0
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < -1.0E0
 """);
     }
 
@@ -1599,7 +1598,7 @@ WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Di
             """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real)
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(-1 AS real)
 """);
     }
 
@@ -2723,6 +2722,33 @@ WHERE [o].[OrderDate] IS NOT NULL AND CAST([o].[OrderDate] AS date) = '1996-09-1
 
     public override Task Datetime_subtraction_TotalDays(bool async)
         => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
+
+    public override async Task Select_ToString_IndexOf(bool async)
+    {
+        await base.Select_ToString_IndexOf(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CHARINDEX('123', CONVERT(varchar(11), [o].[OrderID])) - 1 = -1
+""");
+    }
+
+    public override async Task Select_IndexOf_ToString(bool async)
+    {
+        await base.Select_IndexOf_ToString(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CASE
+    WHEN CONVERT(varchar(11), [o].[OrderID]) = '' THEN 0
+    ELSE CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), '123') - 1
+END = -1
+""");
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

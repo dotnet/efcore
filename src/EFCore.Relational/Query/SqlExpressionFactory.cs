@@ -201,7 +201,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 break;
             }
 
-            case ExpressionType.Add:
+            case ExpressionType.Add when IsForString(left.TypeMapping) || IsForString(right.TypeMapping):
                 inferredTypeMapping = typeMapping;
 
                 if (inferredTypeMapping is null)
@@ -249,6 +249,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 resultTypeMapping = inferredTypeMapping;
                 break;
 
+            case ExpressionType.Add:
             case ExpressionType.Subtract:
             case ExpressionType.Multiply:
             case ExpressionType.Divide:
@@ -274,6 +275,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ApplyTypeMapping(right, inferredTypeMapping),
             resultType,
             resultTypeMapping);
+
+        static bool IsForString(RelationalTypeMapping? typeMapping)
+            => (typeMapping?.Converter?.ProviderClrType ?? typeMapping?.ClrType) == typeof(string);
     }
 
     private InExpression ApplyTypeMappingOnIn(InExpression inExpression)
@@ -693,12 +697,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => new(sql);
 
     /// <inheritdoc />
-    public virtual SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null)
-        => new(Expression.Constant(value), typeMapping);
+    public virtual SqlConstantExpression Constant(object value, RelationalTypeMapping? typeMapping = null)
+        => new(value, typeMapping);
 
     /// <inheritdoc />
     public virtual SqlConstantExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null)
-        => new(Expression.Constant(value, type), typeMapping);
+        => new(value, type, typeMapping);
 
     /// <inheritdoc />
     public virtual bool TryCreateLeast(

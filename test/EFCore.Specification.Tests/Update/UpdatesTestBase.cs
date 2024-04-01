@@ -37,7 +37,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 else
                 {
                     context.Add(rodney1);
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
 
                 context.Remove(rodney1);
@@ -51,7 +51,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 else
                 {
                     context.Add(rodney2);
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
 
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
@@ -68,14 +68,14 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var gift = new Gift { Recipient = "Alice", Obscurer = new GiftPaper { Pattern = "Stripes" } };
                 await context.AddAsync(gift);
-                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
             },
             async context =>
             {
                 var gift = await context.Set<Gift>().Include(e => e.Obscurer).SingleAsync();
                 var bag = new GiftBag { Pattern = "Gold stars" };
                 gift.Obscurer = bag;
-                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
             },
             async context =>
             {
@@ -95,14 +95,14 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var lift = new Lift { Recipient = "Alice", Obscurer = new LiftPaper { Pattern = "Stripes" } };
                 await context.AddAsync(lift);
-                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
             },
             async context =>
             {
                 var lift = await context.Set<Lift>().Include(e => e.Obscurer).SingleAsync();
                 var bag = new LiftBag { Pattern = "Gold stars" };
                 lift.Obscurer = bag;
-                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                _ = async ? await context.SaveChangesAsync() : await context.SaveChangesAsync();
             },
             async context =>
             {
@@ -114,27 +114,27 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
+    public virtual Task Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
         var id1 = Guid.NewGuid();
         var id2 = Guid.NewGuid();
         var bytes = new byte[] { 1, 2, 3, 4 };
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.AFewBytes.AddRange(
                     new AFewBytes { Id = id1, Bytes = bytes },
                     new AFewBytes { Id = id2, Bytes = bytes });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
                 bytes[1] = 22;
 
-                var fromStore1 = context.AFewBytes.First(p => p.Id == id1);
-                var fromStore2 = context.AFewBytes.First(p => p.Id == id2);
+                var fromStore1 = await context.AFewBytes.FirstAsync(p => p.Id == id1);
+                var fromStore2 = await context.AFewBytes.FirstAsync(p => p.Id == id2);
 
                 Assert.Equal(2, fromStore1.Bytes[1]);
                 Assert.Equal(2, fromStore2.Bytes[1]);
@@ -144,12 +144,12 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 context.Entry(fromStore1).State = EntityState.Modified;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var fromStore1 = context.AFewBytes.First(p => p.Id == id1);
-                var fromStore2 = context.AFewBytes.First(p => p.Id == id2);
+                var fromStore1 = await context.AFewBytes.FirstAsync(p => p.Id == id1);
+                var fromStore2 = await context.AFewBytes.FirstAsync(p => p.Id == id2);
 
                 Assert.Equal(222, fromStore1.Bytes[1]);
                 Assert.Equal(2, fromStore2.Bytes[1]);
@@ -157,12 +157,12 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void Save_partial_update()
+    public virtual Task Save_partial_update()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var entry = context.Products.Attach(
                     new Product { Id = productId, Price = 1.49M });
@@ -173,11 +173,11 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.False(entry.Property(p => p.DependentId).IsModified);
                 Assert.False(entry.Property(p => p.Name).IsModified);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var product = context.Products.First(p => p.Id == productId);
+                var product = await context.Products.FirstAsync(p => p.Id == productId);
 
                 Assert.Equal(1.99M, product.Price);
                 Assert.Equal("Apple Cider", product.Name);
@@ -185,9 +185,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void Save_partial_update_on_missing_record_throws()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Save_partial_update_on_missing_record_throws()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var entry = context.Products.Attach(
                     new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10"), Name = "Apple Fritter" });
@@ -196,17 +196,17 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 Assert.Equal(
                     UpdateConcurrencyMessage,
-                    Assert.Throws<DbUpdateConcurrencyException>(
-                        () => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                        () => context.SaveChangesAsync())).Message);
             });
 
     [ConditionalFact]
-    public virtual void Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
+    public virtual Task Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var entry = context.Products.Attach(
                     new Product
@@ -220,18 +220,18 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 Assert.Equal(
                     UpdateConcurrencyTokenMessage,
-                    Assert.Throws<DbUpdateConcurrencyException>(
-                        () => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                        () => context.SaveChangesAsync())).Message);
             });
     }
 
     [ConditionalFact]
-    public virtual void Update_on_bytes_concurrency_token_original_value_mismatch_throws()
+    public virtual Task Update_on_bytes_concurrency_token_original_value_mismatch_throws()
     {
         var productId = Guid.NewGuid();
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Add(
                     new ProductWithBytes
@@ -241,9 +241,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                         Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
                 var entry = context.ProductWithBytes.Attach(
                     new ProductWithBytes
@@ -255,19 +255,19 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 entry.Entity.Name = "GigaChips";
 
-                Assert.Throws<DbUpdateConcurrencyException>(
-                    () => context.SaveChanges());
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                    () => context.SaveChangesAsync());
             },
-            context => Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId)!.Name));
+            async context => Assert.Equal("MegaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
 
     [ConditionalFact]
-    public virtual void Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
+    public virtual Task Update_on_bytes_concurrency_token_original_value_matches_does_not_throw()
     {
         var productId = Guid.NewGuid();
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Add(
                     new ProductWithBytes
@@ -277,9 +277,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                         Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
                 var entry = context.ProductWithBytes.Attach(
                     new ProductWithBytes
@@ -291,18 +291,18 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 entry.Entity.Name = "GigaChips";
 
-                Assert.Equal(1, context.SaveChanges());
+                Assert.Equal(1, await context.SaveChangesAsync());
             },
-            context => Assert.Equal("GigaChips", context.ProductWithBytes.Find(productId)!.Name));
+            async context => Assert.Equal("GigaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
 
     [ConditionalFact]
-    public virtual void Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
+    public virtual Task Remove_on_bytes_concurrency_token_original_value_mismatch_throws()
     {
         var productId = Guid.NewGuid();
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Add(
                     new ProductWithBytes
@@ -312,9 +312,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                         Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
                 var entry = context.ProductWithBytes.Attach(
                     new ProductWithBytes
@@ -326,19 +326,19 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 entry.State = EntityState.Deleted;
 
-                Assert.Throws<DbUpdateConcurrencyException>(
-                    () => context.SaveChanges());
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                    () => context.SaveChangesAsync());
             },
-            context => Assert.Equal("MegaChips", context.ProductWithBytes.Find(productId)!.Name));
+            async context => Assert.Equal("MegaChips", (await context.ProductWithBytes.FindAsync(productId))!.Name));
     }
 
     [ConditionalFact]
-    public virtual void Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
+    public virtual Task Remove_on_bytes_concurrency_token_original_value_matches_does_not_throw()
     {
         var productId = Guid.NewGuid();
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Add(
                     new ProductWithBytes
@@ -348,9 +348,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                         Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
                 var entry = context.ProductWithBytes.Attach(
                     new ProductWithBytes
@@ -362,15 +362,15 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 entry.State = EntityState.Deleted;
 
-                Assert.Equal(1, context.SaveChanges());
+                Assert.Equal(1, await context.SaveChangesAsync());
             },
-            context => Assert.Null(context.ProductWithBytes.Find(productId)));
+            async context => Assert.Null(await context.ProductWithBytes.FindAsync(productId)));
     }
 
     [ConditionalFact]
-    public virtual void Can_add_and_remove_self_refs()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_add_and_remove_self_refs()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var parent = new Person("1", null);
                 var child1 = new Person("2", parent);
@@ -388,7 +388,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 context.Add(grandchild3);
                 context.Add(grandchild4);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 context.Remove(parent);
                 context.Remove(child1);
@@ -414,33 +414,32 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 context.Add(grandchild3);
                 context.Add(grandchild4);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var people = context.Set<Person>()
+                var people = await context.Set<Person>()
                     .Include(p => p.Parent!).ThenInclude(c => c.Parent!).ThenInclude(c => c.Parent)
-                    .ToList();
+                    .ToListAsync();
                 Assert.Equal(7, people.Count);
                 Assert.Equal("1", people.Single(p => p.Parent == null).Name);
             });
 
     [ConditionalFact]
-    public virtual void Can_change_enums_with_conversion()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Can_change_enums_with_conversion()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
-                    Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
                 };
 
                 context.Add(person);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
                 var person = context.Set<Person>().Single();
                 person.Address = new Address
@@ -452,11 +451,11 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 person.Country = "Türkiye";
                 person.ZipCode = "42100";
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var person = context.Set<Person>().Single();
+                var person = await context.Set<Person>().SingleAsync();
 
                 Assert.Equal(Country.Türkiye, person.Address!.Country);
                 Assert.Equal("Konya", person.Address.City);
@@ -466,66 +465,65 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public virtual void Can_remove_partial()
+    public virtual Task Can_remove_partial()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Products.Remove(
                     new Product { Id = productId, Price = 1.49M });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var product = context.Products.FirstOrDefault(f => f.Id == productId);
+                var product = await context.Products.FirstOrDefaultAsync(f => f.Id == productId);
 
                 Assert.Null(product);
             });
     }
 
     [ConditionalFact]
-    public virtual void Remove_partial_on_missing_record_throws()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Remove_partial_on_missing_record_throws()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Products.Remove(
                     new Product { Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10") });
 
                 Assert.Equal(
                     UpdateConcurrencyMessage,
-                    Assert.Throws<DbUpdateConcurrencyException>(
-                        () => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                        () => context.SaveChangesAsync())).Message);
             });
 
     [ConditionalFact]
-    public virtual void Remove_partial_on_concurrency_token_original_value_mismatch_throws()
+    public virtual Task Remove_partial_on_concurrency_token_original_value_mismatch_throws()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 context.Products.Remove(
                     new Product
                     {
-                        Id = productId,
-                        Price = 3.49M // Not the same as the value stored in the database
+                        Id = productId, Price = 3.49M // Not the same as the value stored in the database
                     });
 
                 Assert.Equal(
                     UpdateConcurrencyTokenMessage,
-                    Assert.Throws<DbUpdateConcurrencyException>(
-                        () => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                        () => context.SaveChangesAsync())).Message);
             });
     }
 
     [ConditionalFact]
-    public virtual void Save_replaced_principal()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task Save_replaced_principal()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var category = context.Categories.AsNoTracking().Single();
                 var products = context.Products.AsNoTracking().Where(p => p.DependentId == category.PrincipalId).ToList();
@@ -541,12 +539,12 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 context.Remove(category);
                 context.Add(newCategory);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var category = context.Categories.Single();
-                var products = context.Products.Where(p => p.DependentId == category.PrincipalId).ToList();
+                var category = await context.Categories.SingleAsync();
+                var products = await context.Products.Where(p => p.DependentId == category.PrincipalId).ToListAsync();
 
                 Assert.Equal("New Category", category.Name);
                 Assert.Equal(2, products.Count);
@@ -690,7 +688,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 else
                 {
                     context.AddRange(entities);
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
             },
             async context =>
@@ -820,7 +818,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 else
                 {
                     context.AddRange(entities);
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
             },
             async context =>
@@ -900,14 +898,6 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
     protected abstract string UpdateConcurrencyMessage { get; }
 
     protected abstract string UpdateConcurrencyTokenMessage { get; }
-
-    protected virtual void ExecuteWithStrategyInTransaction(
-        Action<UpdatesContext> testOperation,
-        Action<UpdatesContext>? nestedTestOperation1 = null,
-        Action<UpdatesContext>? nestedTestOperation2 = null)
-        => TestHelpers.ExecuteWithStrategyInTransaction(
-            CreateContext, UseTransaction,
-            testOperation, nestedTestOperation1, nestedTestOperation2);
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<UpdatesContext, Task> testOperation,
@@ -1085,7 +1075,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             modelBuilder.Entity<LiftPaper>();
         }
 
-        protected override void Seed(UpdatesContext context)
-            => UpdatesContext.Seed(context);
+        protected override Task SeedAsync(UpdatesContext context)
+            => UpdatesContext.SeedAsync(context);
     }
 }

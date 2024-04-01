@@ -5,6 +5,8 @@ using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class MockMethodInfo(Type declaringType, Action<object[]> invoke = null) : MethodInfo
 {
     private readonly Action<object[]> _invoke = invoke;

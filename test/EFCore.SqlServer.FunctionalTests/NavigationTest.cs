@@ -5,6 +5,8 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class NavigationTest(NavigationTestFixture fixture) : IClassFixture<NavigationTestFixture>
 {
     [ConditionalFact]

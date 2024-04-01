@@ -3,21 +3,23 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture fixture) : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>(fixture)
+#nullable disable
+
+public class StoreGeneratedSqliteTest(StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture fixture)
+    : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>(fixture)
 {
-    public override void Fields_used_correctly_for_store_generated_values()
-    {
+    public override Task Fields_used_correctly_for_store_generated_values()
         // Computed columns not supported
-    }
+        => Task.CompletedTask;
 
     [ConditionalFact]
-    public void Identity_key_works_when_not_aliasing_rowid()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public Task Identity_key_works_when_not_aliasing_rowid()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var entry = context.Add(new Zach());
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
                 var id = entry.Entity.Id;
 
                 Assert.Equal(16, id?.Length ?? 0);

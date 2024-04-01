@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable ConvertToConstant.Local
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<SqlExecutorModelCustomizer>, new()
 {

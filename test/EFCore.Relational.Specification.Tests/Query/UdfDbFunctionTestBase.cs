@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : SharedStoreFixtureBase<DbContext>, new()
 {
@@ -257,6 +259,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             => FromExpression(() => GetCustomerData(customerId));
 
         #endregion
+
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -292,9 +295,9 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                         args.First(),
                         new[]
                         {
-                            new SqlConstantExpression(Expression.Constant(abc[0]), typeMapping: null),
-                            new SqlConstantExpression(Expression.Constant(abc[1]), typeMapping: null),
-                            new SqlConstantExpression(Expression.Constant(abc[2]), typeMapping: null)
+                            new SqlConstantExpression(abc[0], typeMapping: null),
+                            new SqlConstantExpression(abc[1], typeMapping: null),
+                            new SqlConstantExpression(abc[2], typeMapping: null)
                         }, // args.First().TypeMapping)
                         typeMapping: null));
 
@@ -306,15 +309,15 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                             args.First(),
                             new[]
                             {
-                                new SqlConstantExpression(Expression.Constant(abc[0]), args.First().TypeMapping),
-                                new SqlConstantExpression(Expression.Constant(abc[1]), args.First().TypeMapping),
-                                new SqlConstantExpression(Expression.Constant(abc[2]), args.First().TypeMapping)
+                                new SqlConstantExpression(abc[0], args.First().TypeMapping),
+                                new SqlConstantExpression(abc[1], args.First().TypeMapping),
+                                new SqlConstantExpression(abc[2], args.First().TypeMapping)
                             },
                             typeMapping: null),
                         new[]
                         {
-                            new SqlConstantExpression(Expression.Constant(trueFalse[0]), typeMapping: null),
-                            new SqlConstantExpression(Expression.Constant(trueFalse[1]), typeMapping: null)
+                            new SqlConstantExpression(trueFalse[0], typeMapping: null),
+                            new SqlConstantExpression(trueFalse[1], typeMapping: null)
                         },
                         typeMapping: null));
 
@@ -376,9 +379,9 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Query.Name;
 
-        protected override void Seed(DbContext context)
+        protected override async Task SeedAsync(DbContext context)
         {
-            context.Database.EnsureCreatedResiliently();
+            await context.Database.EnsureCreatedResilientlyAsync();
 
             var product1 = new Product { Name = "Product1" };
             var product2 = new Product { Name = "Product2" };

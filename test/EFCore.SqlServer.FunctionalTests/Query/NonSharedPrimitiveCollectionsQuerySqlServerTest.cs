@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 using static Expression;
 
 public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
@@ -660,7 +662,7 @@ WHERE (
                 array2.SetValue(value2, 2);
                 context.Entry(instance2).Property("SomeArray").CurrentValue = array2;
 
-                context.SaveChanges();
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();
@@ -869,6 +871,30 @@ WHERE EXISTS (
         Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
     }
 
+    [ConditionalFact]
+    public virtual async Task Infer_inline_collection_type_mapping()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>(b => b.Property<DateTime>("DateTime").HasColumnType("datetime")));
+
+        await using var context = contextFactory.CreateContext();
+
+        _ = await context.Set<TestEntity>()
+            .Where(b => new[] { new DateTime(2020, 1, 1), EF.Property<DateTime>(b, "DateTime") }[0] == new DateTime(2020, 1, 1))
+            .ToArrayAsync();
+
+        AssertSql(
+            """
+SELECT [t].[Id], [t].[DateTime], [t].[Ints]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT [v].[Value]
+    FROM (VALUES (0, CAST('2020-01-01T00:00:00.000' AS datetime)), (1, [t].[DateTime])) AS [v]([_ord], [Value])
+    ORDER BY [v].[_ord]
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = '2020-01-01T00:00:00.000'
+""");
+    }
+
     #endregion Type mapping inference
 
     [ConditionalFact]
@@ -878,8 +904,8 @@ WHERE EXISTS (
             onModelCreating: mb => mb.Entity<Context32976.Principal>(),
             seed: context =>
             {
-                context.Add(new Context32976.Principal { Ints = [2, 3, 4]});
-                context.SaveChanges();
+                context.Add(new Context32976.Principal { Ints = [2, 3, 4] });
+                return context.SaveChangesAsync();
             });
 
         await using var context = contextFactory.CreateContext();

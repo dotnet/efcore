@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocQuerySplittingQuerySqliteTest : AdHocQuerySplittingQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory

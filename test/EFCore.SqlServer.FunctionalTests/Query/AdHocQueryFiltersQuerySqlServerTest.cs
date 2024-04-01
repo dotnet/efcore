@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class AdHocQueryFiltersQuerySqlServerTest : AdHocQueryFiltersQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
@@ -13,14 +15,14 @@ public class AdHocQueryFiltersQuerySqlServerTest : AdHocQueryFiltersQueryRelatio
     [ConditionalFact]
     public virtual async Task Query_filter_with_db_set_should_not_block_other_filters()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.Factions.ToList();
 
         Assert.Empty(query);
 
         AssertSql(
-"""
+            """
 SELECT [f].[Id], [f].[Name]
 FROM [Factions] AS [f]
 WHERE EXISTS (
@@ -33,14 +35,14 @@ WHERE EXISTS (
     [ConditionalFact]
     public virtual async Task Keyless_type_used_inside_defining_query()
     {
-        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.Seed());
+        var contextFactory = await InitializeAsync<Context11803>(seed: c => c.SeedAsync());
         using var context = contextFactory.CreateContext();
         var query = context.LeadersQuery.ToList();
 
         Assert.Single(query);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Name]
 FROM (
     SELECT [l].[Name]
@@ -66,7 +68,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
                 .Entity<LeaderQuery11803>()
                 .HasNoKey()
                 .ToSqlQuery(
-"""
+                    """
 SELECT [t].[Name]
 FROM (
     SELECT [l].[Name]
@@ -77,7 +79,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 """);
         }
 
-        public void Seed()
+        public Task SeedAsync()
         {
             var f1 = new Faction11803 { Name = "Skeliege" };
             var f2 = new Faction11803 { Name = "Monsters" };
@@ -93,7 +95,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
             Factions.AddRange(f1, f2, f3, f4, f5);
             Leaders.AddRange(l11, l12, l13, l14);
 
-            SaveChanges();
+            return SaveChangesAsync();
         }
 
         public class Faction11803
@@ -124,7 +126,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
         await base.Query_filter_with_contains_evaluates_correctly();
 
         AssertSql(
-"""
+            """
 @__ef_filter___ids_0='[1,7]' (Size = 4000)
 
 SELECT [e].[Id], [e].[Name]
@@ -141,7 +143,7 @@ WHERE [e].[Id] NOT IN (
         await base.MultiContext_query_filter_test();
 
         AssertSql(
-"""
+            """
 @__ef_filter__Tenant_0='0'
 
 SELECT [b].[Id], [b].[SomeValue]
@@ -171,7 +173,7 @@ WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
         await base.Weak_entities_with_query_filter_subquery_flattening();
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
@@ -207,15 +209,15 @@ WHERE [e].[Id] = 1
         await base.Self_reference_in_query_filter_works();
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntitiesWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)
 """,
-                //
-                """
+            //
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntitiesReferencingEntityWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
@@ -232,15 +234,15 @@ WHERE EXISTS (
         await base.Invoke_inside_query_filter_gets_correctly_evaluated_during_translation();
 
         AssertSql(
-"""
+            """
 @__ef_filter__p_0='1'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
 WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0
 """,
-                //
-                """
+            //
+            """
 @__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
@@ -254,7 +256,7 @@ WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_fi
         await base.Query_filter_with_null_constant();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[UserDeleteId]
 FROM [People] AS [p]
 LEFT JOIN [User18759] AS [u] ON [p].[UserDeleteId] = [u].[Id]
@@ -267,7 +269,7 @@ WHERE [u].[Id] IS NOT NULL
         await base.GroupJoin_SelectMany_gets_flattened();
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerId], [c].[CustomerMembershipId]
 FROM [CustomerFilters] AS [c]
 WHERE (
@@ -276,8 +278,8 @@ WHERE (
     LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
     WHERE [c1].[Id] IS NOT NULL AND [c0].[Id] = [c].[CustomerId]) > 0
 """,
-                //
-                """
+            //
+            """
 SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
     ELSE N''

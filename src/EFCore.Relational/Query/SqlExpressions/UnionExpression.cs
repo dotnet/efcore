@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class UnionExpression : SetOperationBase
 {
+    private static ConstructorInfo? _quotingConstructor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="UnionExpression" /> class.
     /// </summary>
@@ -76,6 +78,17 @@ public class UnionExpression : SetOperationBase
     /// <inheritdoc />
     public override UnionExpression WithAlias(string newAlias)
         => new(newAlias, Source1, Source2, IsDistinct);
+
+    /// <inheritdoc />
+    public override Expression Quote()
+        => New(
+            _quotingConstructor ??= typeof(UnionExpression).GetConstructor(
+                [typeof(string), typeof(SelectExpression), typeof(SelectExpression), typeof(bool), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            Constant(Alias, typeof(string)),
+            Source1.Quote(),
+            Source2.Quote(),
+            Constant(IsDistinct),
+            RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

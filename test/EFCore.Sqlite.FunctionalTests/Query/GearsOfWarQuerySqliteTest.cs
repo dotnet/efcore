@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<GearsOfWarQuerySqliteFixture>
 {
     public GearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
@@ -19,6 +21,17 @@ public class GearsOfWarQuerySqliteTest : GearsOfWarQueryRelationalTestBase<Gears
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    public override async Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        await base.Non_string_concat_uses_appropriate_type_mapping(async);
+
+        AssertSql(
+"""
+SELECT "m"."Duration"
+FROM "Missions" AS "m"
+""");
+    }
 
     public override async Task Where_datetimeoffset_date_component(bool async)
     {

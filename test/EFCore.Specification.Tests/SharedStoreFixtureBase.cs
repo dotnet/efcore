@@ -4,12 +4,12 @@
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposable, IAsyncLifetime
+public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IAsyncLifetime
     where TContext : DbContext
 {
     protected virtual Type ContextType { get; } = typeof(TContext);
 
-    private IServiceProvider _serviceProvider;
+    private IServiceProvider? _serviceProvider;
 
     public IServiceProvider ServiceProvider
         => _serviceProvider
@@ -19,7 +19,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
 
-    private TestStore _testStore;
+    private TestStore? _testStore;
 
     public TestStore TestStore
         => _testStore
@@ -29,20 +29,20 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected virtual bool UsePooling
         => true;
 
-    private object _contextFactory;
+    private object? _contextFactory;
 
     private object ContextFactory
         => _contextFactory ??= ServiceProvider
             .GetRequiredService(typeof(IDbContextFactory<>).MakeGenericType(ContextType));
 
-    private ListLoggerFactory _listLoggerFactory;
+    private ListLoggerFactory? _listLoggerFactory;
 
     public ListLoggerFactory ListLoggerFactory
         => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-    private MethodInfo _createDbContext;
+    private MethodInfo? _createDbContext;
 
-    public virtual Task InitializeAsync()
+    public virtual async Task InitializeAsync()
     {
         _testStore = TestStoreFactory.GetOrCreate(StoreName);
 
@@ -67,14 +67,12 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
 
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
-        TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), Clean);
-
-        return Task.CompletedTask;
+        await TestStore.InitializeAsync(ServiceProvider, CreateContext, c => SeedAsync((TContext)c), CleanAsync);
     }
 
     public virtual TContext CreateContext()
         => UsePooling
-            ? (TContext)_createDbContext.Invoke(ContextFactory, null)
+            ? (TContext)_createDbContext!.Invoke(ContextFactory, null)!
             : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
     public DbContextOptions CreateOptions()
@@ -91,14 +89,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     protected virtual bool ShouldLogCategory(string logCategory)
         => false;
 
-    public virtual void Reseed()
-    {
-        using var context = CreateContext();
-        TestStore.Clean(context);
-        Clean(context);
-        Seed(context);
-    }
-
     public virtual async Task ReseedAsync()
     {
         using var context = CreateContext();
@@ -107,15 +97,8 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
         await SeedAsync(context);
     }
 
-    protected virtual void Seed(TContext context)
-    {
-    }
-
     protected virtual Task SeedAsync(TContext context)
-    {
-        Seed(context);
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 
     protected virtual void Clean(DbContext context)
     {
@@ -125,11 +108,6 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     {
         Clean(context);
         return Task.CompletedTask;
-    }
-
-    // Called after DisposeAsync
-    public virtual void Dispose()
-    {
     }
 
     public virtual Task DisposeAsync()

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class SqliteValueGenerationScenariosTest
 {
     [ConditionalFact]

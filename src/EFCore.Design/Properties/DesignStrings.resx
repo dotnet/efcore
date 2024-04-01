@@ -160,7 +160,7 @@
     <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
   </data>
   <data name="CompiledModelGenerated" xml:space="preserve">
-    <value>Successfully generated a compiled model, to use it call '{optionsCall}'. Run this command again when the model is modified.</value>
+    <value>Successfully generated a compiled model, it will be discovered automatically, but you can also call '{optionsCall}'. Run this command again when the model is modified.</value>
   </data>
   <data name="CompiledModelQueryFilter" xml:space="preserve">
     <value>The entity type '{entityType}' has a query filter configured. Compiled model can't be generated, because query filters are not supported.</value>

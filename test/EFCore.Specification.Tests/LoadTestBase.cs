@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : LoadTestBase<TFixture>.LoadFixtureBase
 {
@@ -6057,7 +6059,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
             modelBuilder.Entity<RequiredChildView>().HasNoKey();
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override Task SeedAsync(PoolableDbContext context)
         {
             context.Add(
                 new Parent
@@ -6111,7 +6113,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
             context.Add(
                 new SimpleProduct { Deposit = new Deposit() });
 
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 }

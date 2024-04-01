@@ -337,9 +337,9 @@ public interface ICSharpHelper
     ///     Translates a node representing a statement into source code that would produce it.
     /// </summary>
     /// <param name="node">The node to be translated.</param>
+    /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <param name="constantReplacements">Collection of translations for statically known instances.</param>
     /// <param name="memberAccessReplacements">Collection of translations for non-public member accesses.</param>
-    /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <returns>Source code that would produce <paramref name="node" />.</returns>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -349,17 +349,17 @@ public interface ICSharpHelper
     /// </remarks>
     [EntityFrameworkInternal]
     string Statement(Expression node,
-        Dictionary<object, string>? constantReplacements,
-        Dictionary<MemberAccess, string>? memberAccessReplacements,
-        ISet<string> collectedNamespaces);
+        ISet<string> collectedNamespaces,
+        IReadOnlyDictionary<object, string>? constantReplacements = null,
+        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements = null);
 
     /// <summary>
     ///     Translates a node representing an expression into source code that would produce it.
     /// </summary>
     /// <param name="node">The node to be translated.</param>
+    /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <param name="constantReplacements">Collection of translations for statically known instances.</param>
     /// <param name="memberAccessReplacements">Collection of translations for non-public member accesses.</param>
-    /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <returns>Source code that would produce  <paramref name="node" />.</returns>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -369,7 +369,7 @@ public interface ICSharpHelper
     /// </remarks>
     [EntityFrameworkInternal]
     string Expression(Expression node,
-        Dictionary<object, string>? constantReplacements,
-        Dictionary<MemberAccess, string>? memberAccessReplacements,
-        ISet<string> collectedNamespaces);
+        ISet<string> collectedNamespaces,
+        IReadOnlyDictionary<object, string>? constantReplacements = null,
+        IReadOnlyDictionary<MemberAccess, string>? memberAccessReplacements = null);
 }

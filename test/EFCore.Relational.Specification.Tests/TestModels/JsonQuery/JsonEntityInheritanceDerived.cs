@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
+#nullable disable
+
 public class JsonEntityInheritanceDerived : JsonEntityInheritanceBase
 {
     public double Fraction { get; set; }

@@ -2,10 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
+
+#nullable disable
 
 public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ApiConsistencyTestBase<TFixture>.ApiConsistencyFixtureBase, new()
@@ -1006,6 +1009,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                where ns.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
                    && !ns.EndsWith(".Internal", StringComparison.Ordinal)
                    && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
+                   && it.GetCustomAttribute<ExperimentalAttribute>() is null
                    && (it.GetConstructors().Length != 1
                        || it.GetConstructors()[0].GetParameters().Length == 0
                        || (it.GetConstructors()[0].GetParameters()[0].Name != "dependencies"

@@ -6,6 +6,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
+#nullable disable
+
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class UseCultureAttribute(string culture, string uiCulture) : BeforeAfterTestAttribute
 {

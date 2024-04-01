@@ -91,33 +91,28 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     /// <inheritdoc />
     public virtual ITable? FindTable(string name, string? schema)
-        => Tables.TryGetValue((name, schema), out var table)
-            ? table
-            : null;
+        => Tables.GetValueOrDefault((name, schema));
+
+    // TODO: Confirm that this makes sense
+    /// <inheritdoc />
+    public virtual TableBase? FindDefaultTable(string name)
+        => DefaultTables.GetValueOrDefault(name);
 
     /// <inheritdoc />
     public virtual IView? FindView(string name, string? schema)
-        => Views.TryGetValue((name, schema), out var view)
-            ? view
-            : null;
+        => Views.GetValueOrDefault((name, schema));
 
     /// <inheritdoc />
     public virtual ISqlQuery? FindQuery(string name)
-        => Queries.TryGetValue(name, out var query)
-            ? query
-            : null;
+        => Queries.GetValueOrDefault(name);
 
     /// <inheritdoc />
     public virtual IStoreFunction? FindFunction(string name, string? schema, IReadOnlyList<string> parameters)
-        => Functions.TryGetValue((name, schema, parameters), out var function)
-            ? function
-            : null;
+        => Functions.GetValueOrDefault((name, schema, parameters));
 
     /// <inheritdoc />
     public virtual IStoreStoredProcedure? FindStoredProcedure(string name, string? schema)
-        => StoredProcedures.TryGetValue((name, schema), out var storedProcedure)
-            ? storedProcedure
-            : null;
+        => StoredProcedures.GetValueOrDefault((name, schema));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

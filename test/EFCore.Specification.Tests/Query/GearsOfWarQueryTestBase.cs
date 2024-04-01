@@ -22,6 +22,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {
@@ -8517,6 +8519,18 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         await AssertQuery(
             async,
             ss => ss.Set<Weapon>().Where(x => keys.Contains(ammoTypes.Contains(x.AmmunitionType) ? key : key)));
+    }
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))] // Issue #33330
+    public virtual Task Non_string_concat_uses_appropriate_type_mapping(bool async)
+    {
+        var interval = TimeSpan.FromTicks(10);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Select(e => e.Duration + interval));
     }
 
     protected GearsOfWarContext CreateContext()

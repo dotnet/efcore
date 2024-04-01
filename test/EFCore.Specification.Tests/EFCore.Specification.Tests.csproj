@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Shared test suite for Entity Framework Core database providers.</Description>
@@ -7,6 +7,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
+    <IsShipping>true</IsShipping>
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <!-- HACK: Work around dotnet/arcade#13798 -->
@@ -51,7 +52,7 @@
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Abstractions\EFCore.Abstractions.csproj" />
-    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\..\src\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\..\src\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>

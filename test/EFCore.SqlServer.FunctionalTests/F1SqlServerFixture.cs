@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
 {
     protected override string StoreName

@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class EntitySplittingSqliteTest(ITestOutputHelper testOutputHelper) : EntitySplittingTestBase(testOutputHelper)
 {
     protected override ITestStoreFactory TestStoreFactory

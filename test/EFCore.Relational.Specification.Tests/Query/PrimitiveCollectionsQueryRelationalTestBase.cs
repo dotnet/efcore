@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixture) : PrimitiveCollectionsQueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
@@ -40,5 +42,13 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixt
             () => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async))).Message;
 
         Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
+    }
+
+    public override async Task Project_inline_collection_with_Concat(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Project_inline_collection_with_Concat(async))).Message;
+
+        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
 }

@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
     TemporalOwnedQuerySqlServerTest.TemporalOwnedQuerySqlServerFixture>
@@ -14,9 +16,6 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
     {
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
@@ -1969,13 +1968,13 @@ GROUP BY [o].[Id]
             modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
         }
 
-        protected override void Seed(PoolableDbContext context)
+        protected override async Task SeedAsync(PoolableDbContext context)
         {
-            base.Seed(context);
+            await base.SeedAsync(context);
 
             ChangesDate = new DateTime(2010, 1, 1);
 
-            var ownedPeople = context.Set<OwnedPerson>().AsTracking().ToList();
+            var ownedPeople = await context.Set<OwnedPerson>().AsTracking().ToListAsync();
             foreach (var ownedPerson in ownedPeople)
             {
                 ownedPerson["Name"] = "Modified" + ownedPerson["Name"];
@@ -1991,7 +1990,7 @@ GROUP BY [o].[Id]
                 }
             }
 
-            var stars = context.Set<Star>().AsTracking().ToList();
+            var stars = await context.Set<Star>().AsTracking().ToListAsync();
             foreach (var star in stars)
             {
                 star.Name = "Modified" + star.Name;
@@ -2004,22 +2003,22 @@ GROUP BY [o].[Id]
                 }
             }
 
-            var planets = context.Set<Planet>().AsTracking().ToList();
+            var planets = await context.Set<Planet>().AsTracking().ToListAsync();
             foreach (var planet in planets)
             {
                 planet.Name = "Modified" + planet.Name;
             }
 
-            var moons = context.Set<Moon>().AsTracking().ToList();
+            var moons = await context.Set<Moon>().AsTracking().ToListAsync();
             foreach (var moon in moons)
             {
                 moon.Diameter += 1000;
             }
 
-            var finks = context.Set<Fink>().AsTracking().ToList();
+            var finks = await context.Set<Fink>().AsTracking().ToListAsync();
             context.Set<Fink>().RemoveRange(finks);
 
-            var bartons = context.Set<Barton>().Include(x => x.Throned).AsTracking().ToList();
+            var bartons = await context.Set<Barton>().Include(x => x.Throned).AsTracking().ToListAsync();
             foreach (var barton in bartons)
             {
                 barton.Simple = "Modified" + barton.Simple;
@@ -2029,7 +2028,7 @@ GROUP BY [o].[Id]
                 }
             }
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             var tableNames = new List<string>
             {
@@ -2046,14 +2045,17 @@ GROUP BY [o].[Id]
 
             foreach (var tableName in tableNames)
             {
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
+                await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+                await context.Database.ExecuteSqlRawAsync($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
 
-                context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
-                context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
+                await context.Database.ExecuteSqlRawAsync(
+                    $"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
+                await context.Database.ExecuteSqlRawAsync(
+                    $"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-                context.Database.ExecuteSqlRaw(
+                await context.Database.ExecuteSqlRawAsync(
+                    $"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
+                await context.Database.ExecuteSqlRawAsync(
                     $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
         }

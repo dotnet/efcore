@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqliteFixture>
 {
     // ReSharper disable once UnusedParameter.Local

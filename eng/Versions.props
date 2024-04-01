@@ -2,7 +2,7 @@
   <PropertyGroup Label="Version settings">
     <VersionPrefix>9.0.0</VersionPrefix>
     <PreReleaseVersionLabel>preview</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>3</PreReleaseVersionIteration>
+    <PreReleaseVersionIteration>4</PreReleaseVersionIteration>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
     <!--
@@ -28,14 +28,14 @@
     <SystemTextJsonVersion>9.0.0-preview.3.24126.1</SystemTextJsonVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24151.5</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24179.6</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
-    <MicrosoftBuildFrameworkVersion>17.0.0</MicrosoftBuildFrameworkVersion>
-    <MicrosoftBuildTasksCoreVersion>17.0.0</MicrosoftBuildTasksCoreVersion>
-    <MicrosoftBuildUtilitiesCoreVersion>17.0.0</MicrosoftBuildUtilitiesCoreVersion>
+    <MicrosoftBuildFrameworkVersion>17.9.5</MicrosoftBuildFrameworkVersion>
+    <MicrosoftBuildTasksCoreVersion>17.9.5</MicrosoftBuildTasksCoreVersion>
+    <MicrosoftBuildUtilitiesCoreVersion>17.9.5</MicrosoftBuildUtilitiesCoreVersion>
     <!-- NB: This version affects Visual Studio compatibility. See https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
     <MicrosoftCodeAnalysisVersion>4.8.0</MicrosoftCodeAnalysisVersion>
-    <MicrosoftCodeAnalysisTestingVersion>1.1.2-beta1.23578.3</MicrosoftCodeAnalysisTestingVersion>
+    <MicrosoftCodeAnalysisTestingVersion>1.1.2-beta1.24121.1</MicrosoftCodeAnalysisTestingVersion>
   </PropertyGroup>
 </Project>

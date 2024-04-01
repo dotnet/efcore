@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixture> : NorthwindAggregateOperatorsQueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -49,13 +51,9 @@ public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixtur
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Average_no_data_subquery(async))).Message);
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
             fixture,
             RewriteExpectedQueryExpression,
-            RewriteServerQueryExpression,
-            canExecuteQueryString: CanExecuteQueryString);
+            RewriteServerQueryExpression);
 }

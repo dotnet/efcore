@@ -68,7 +68,7 @@ public class DbContextServices : IDbContextServices
             _inOnModelCreating = true;
 
             var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
-            var modelFromOptions = CoreOptions?.Model;
+            var modelFromOptions = CoreOptions?.Model ?? FindCompiledModel(_currentContext!.Context.GetType());
 
             var modelVersion = modelFromOptions?.GetProductVersion();
             if (modelVersion != null)
@@ -88,12 +88,44 @@ public class DbContextServices : IDbContextServices
                 || (designTime && modelFromOptions is not Metadata.Internal.Model)
                     ? RuntimeFeature.IsDynamicCodeSupported
                         ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
                     : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, designTime, dependencies.ValidationLogger);
         }
         finally
         {
             _inOnModelCreating = false;
+        }
+
+        static IModel? FindCompiledModel(Type contextType)
+        {
+            var contextAssembly = contextType.Assembly;
+            IModel? model = null;
+            foreach (var modelAttribute in contextAssembly.GetCustomAttributes<DbContextModelAttribute>())
+            {
+                if (modelAttribute.ContextType != contextType)
+                {
+                    continue;
+                }
+
+                var modelType = modelAttribute.ModelType;
+
+                var instanceProperty = modelType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                if (instanceProperty == null
+                    || instanceProperty.PropertyType != typeof(IModel))
+                {
+                    throw new InvalidOperationException(CoreStrings.CompiledModelMissingInstance(modelType.DisplayName()));
+                }
+
+                if (model != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.CompiledModelDuplicateAttribute(
+                        contextAssembly.FullName, contextType.DisplayName()));
+                }
+
+                model = (IModel)instanceProperty.GetValue(null)!;
+            }
+
+            return model;
         }
     }
 

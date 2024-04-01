@@ -5,6 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
+#nullable disable
+
 public class MonsterContext<
     TCustomer, TBarcode, TIncorrectScan, TBarcodeDetail, TComplaint, TResolution, TLogin, TSuspiciousActivity,
     TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
@@ -386,7 +388,7 @@ public class MonsterContext<
                 .HasForeignKey(e => e.ProductId));
     }
 
-    public override void SeedUsingFKs()
+    public override Task SeedUsingFKs()
     {
         var customer0 = Add(
             new TCustomer { Name = "Eeky Bear" }).Entity;
@@ -882,10 +884,10 @@ public class MonsterContext<
                 ExpirationDate = new DateTime(2018, 9, 19)
             }).Entity;
 
-        SaveChanges();
+        return SaveChangesAsync();
     }
 
-    public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs)
+    public override Task SeedUsingNavigations(bool dependentNavs, bool principalNavs)
     {
         var customer0 = Add(
             new TCustomer { Name = "Eeky Bear" }).Entity;
@@ -1515,10 +1517,10 @@ public class MonsterContext<
             driver2.License = license2;
         }
 
-        SaveChanges();
+        return SaveChangesAsync();
     }
 
-    public override void SeedUsingNavigationsWithDeferredAdd()
+    public override Task SeedUsingNavigationsWithDeferredAdd()
     {
         var toAdd = new List<object>[4];
 
@@ -1982,7 +1984,7 @@ public class MonsterContext<
             Add(entity);
         }
 
-        SaveChanges();
+        return SaveChangesAsync();
     }
 }
 

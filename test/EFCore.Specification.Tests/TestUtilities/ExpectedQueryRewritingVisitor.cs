@@ -3,16 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>> shadowPropertyMappings = null) : ExpressionVisitor
+public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>>? shadowPropertyMappings = null) : ExpressionVisitor
 {
     private static readonly MethodInfo _maybeDefaultIfEmpty
-        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.MaybeDefaultIfEmpty));
+        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.MaybeDefaultIfEmpty))!;
 
     private static readonly MethodInfo _maybeMethod
-        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.Maybe));
+        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.Maybe))!;
 
     private static readonly MethodInfo _getShadowPropertyValueMethodInfo
-        = typeof(ExpectedQueryRewritingVisitor).GetMethod(nameof(GetShadowPropertyValue));
+        = typeof(ExpectedQueryRewritingVisitor).GetMethod(nameof(GetShadowPropertyValue))!;
 
     private static readonly MethodInfo _maybeScalarNullableMethod;
     private static readonly MethodInfo _maybeScalarNonNullableMethod;
@@ -166,7 +166,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
     }
 
     public static TResult GetShadowPropertyValue<TEntity, TResult>(TEntity entity, Func<object, object> shadowPropertyAccessor)
-        => (TResult)shadowPropertyAccessor(entity);
+        => (TResult)shadowPropertyAccessor(entity!);
 
     private Expression TryConvertEFPropertyToMemberAccess(Expression expression)
     {
@@ -175,7 +175,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
         {
             var caller = RemoveConvertToObject(methodCallExpression.Arguments[0]);
             var propertyName = (methodCallExpression.Arguments[1] as ConstantExpression)?.Value as string
-                ?? Expression.Lambda<Func<string>>(methodCallExpression.Arguments[1]).Compile().Invoke();
+                ?? Expression.Lambda<Func<string?>>(methodCallExpression.Arguments[1]).Compile().Invoke();
 
             if (propertyName != null)
             {
@@ -237,7 +237,7 @@ public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<objec
 
             var maybeMethodCall = Expression.Call(methodInfo, instance, maybeLambda);
 
-            return memberExpression.Member.DeclaringType.IsNullableType()
+            return memberExpression.Member.DeclaringType!.IsNullableType()
                 && memberExpression.Member.Name == "HasValue"
                     ? Expression.Coalesce(maybeMethodCall, Expression.Constant(false))
                     : maybeMethodCall;

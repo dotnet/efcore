@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTestBase<
     QueryFilterFuncletizationSqliteTest.QueryFilterFuncletizationSqliteFixture>
 {

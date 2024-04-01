@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqliteTest.BuiltInDataTypesSqliteFixture>
 {
     public BuiltInDataTypesSqliteTest(BuiltInDataTypesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
@@ -1626,9 +1628,9 @@ FROM "ObjectBackedDataTypes" AS "o"
         Assert.Equal(expectedResults, results);
     }
 
-    public override void Object_to_string_conversion()
+    public override async Task Object_to_string_conversion()
     {
-        base.Object_to_string_conversion();
+        await base.Object_to_string_conversion();
 
         AssertSql(
             """

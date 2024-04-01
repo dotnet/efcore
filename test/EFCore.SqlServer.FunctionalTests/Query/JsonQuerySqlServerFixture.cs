@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class JsonQuerySqlServerFixture : JsonQueryFixtureBase
 {
     protected override ITestStoreFactory TestStoreFactory

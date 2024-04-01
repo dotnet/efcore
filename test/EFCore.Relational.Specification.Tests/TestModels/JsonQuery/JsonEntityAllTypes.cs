@@ -7,6 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
+#nullable disable
+
 public class JsonEntityAllTypes
 {
     private List<long> _testInt64CollectionX = [];

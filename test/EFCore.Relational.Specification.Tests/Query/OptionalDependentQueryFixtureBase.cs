@@ -5,7 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>, IQueryFixtureBase, ITestSqlLoggerFactory
+#nullable disable
+
+public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase<OptionalDependentContext>,
+    IQueryFixtureBase,
+    ITestSqlLoggerFactory
 {
     private OptionalDependentData _expectedData;
 
@@ -130,8 +134,8 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected override void Seed(OptionalDependentContext context)
-        => OptionalDependentContext.Seed(context);
+    protected override Task SeedAsync(OptionalDependentContext context)
+        => OptionalDependentContext.SeedAsync(context);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

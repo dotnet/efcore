@@ -3,8 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,44 +72,4 @@ public static class TypeBaseExtensions
         return type.FindComplexProperty(name)
             ?? throw new InvalidOperationException(CoreStrings.ComplexPropertyNotFound(type.DisplayName(), name));
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IEnumerable<IProperty> GetAllPropertiesInHierarchy(this ITypeBase structuralType)
-        => structuralType switch
-        {
-            IEntityType entityType => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetDeclaredProperties()),
-            IComplexType complexType => complexType.GetDeclaredProperties(),
-            _ => throw new UnreachableException()
-        };
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IEnumerable<IProperty> GetAllFlattenedPropertiesInHierarchy(this ITypeBase structuralType)
-        => structuralType switch
-        {
-            IEntityType entityType => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetFlattenedDeclaredProperties()),
-            IComplexType complexType => complexType.GetFlattenedDeclaredProperties(),
-            _ => throw new UnreachableException()
-        };
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IEnumerable<INavigation> GetAllNavigationsInHierarchy(this IEntityType entityType)
-        => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-            .SelectMany(t => t.GetDeclaredNavigations());
 }

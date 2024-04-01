@@ -9,6 +9,8 @@
 // ReSharper disable MethodHasAsyncOverload
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFixture>
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {
@@ -75,10 +77,10 @@ public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFix
     {
         public DbSet<Product> Products { get; set; }
 
-        public static void Seed(ConcurrencyDetectorDbContext context)
+        public static Task SeedAsync(ConcurrencyDetectorDbContext context)
         {
             context.Products.Add(new Product { Id = 1, Name = "Unicorn Party Pack" });
-            context.SaveChanges();
+            return context.SaveChangesAsync();
         }
     }
 
@@ -96,8 +98,8 @@ public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFix
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<Product>().Property(p => p.Id).ValueGeneratedNever();
 
-        protected override void Seed(ConcurrencyDetectorDbContext context)
-            => ConcurrencyDetectorDbContext.Seed(context);
+        protected override Task SeedAsync(ConcurrencyDetectorDbContext context)
+            => ConcurrencyDetectorDbContext.SeedAsync(context);
     }
 
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };

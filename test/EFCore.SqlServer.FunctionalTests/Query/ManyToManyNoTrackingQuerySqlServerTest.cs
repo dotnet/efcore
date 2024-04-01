@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class ManyToManyNoTrackingQuerySqlServerTest
     : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqlServerFixture>
 {
@@ -12,9 +14,6 @@ public class ManyToManyNoTrackingQuerySqlServerTest
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
-
-    protected override bool CanExecuteQueryString
-        => true;
 
     public override async Task Skip_navigation_all(bool async)
     {

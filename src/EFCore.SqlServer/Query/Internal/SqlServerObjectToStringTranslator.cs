@@ -40,6 +40,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
         };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,9 +48,10 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerObjectToStringTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqlServerObjectToStringTranslator(ISqlExpressionFactory sqlExpressionFactory, IRelationalTypeMappingSource typeMappingSource)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
+        _typeMappingSource = typeMappingSource;
     }
 
     /// <summary>
@@ -88,7 +90,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(true)),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     },
-                    _sqlExpressionFactory.Constant(null));
+                    _sqlExpressionFactory.Constant(null, typeof(string)));
             }
 
             return _sqlExpressionFactory.Case(
@@ -107,7 +109,8 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                 new[] { _sqlExpressionFactory.Fragment(storeType), instance },
                 nullable: true,
                 argumentsPropagateNullability: new[] { false, true },
-                typeof(string))
+                typeof(string),
+                _typeMappingSource.GetMapping(storeType))
             : null;
     }
 }

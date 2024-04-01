@@ -3,146 +3,148 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class KeysWithConvertersCosmosTest(KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture fixture) : KeysWithConvertersTestBase<KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture>(fixture)
 {
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_struct_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_struct_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_struct_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_struct_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_class_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_class_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_class_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
+    public override Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_required_dependents();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_comparable_struct_binary_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_comparable_struct_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_comparable_struct_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_binary_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_generic_comparable_struct_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_struct_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_struct_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_binary_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_struct_binary_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_struct_binary_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_struct_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_struct_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_struct_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_structural_struct_binary_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
-    public override void Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_structural_struct_binary_key_and_required_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#26239")]
-    public override void Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents();
 
     [ConditionalFact(Skip = "Issue=#26239")]
-    public override void Can_insert_and_read_back_with_class_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_class_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_class_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#26239")]
-    public override void Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_bare_class_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#26239")]
-    public override void Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents_with_shadow_FK()
+    public override Task Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents_with_shadow_FK();
 
     [ConditionalFact(Skip = "Issue=#26239")]
-    public override void Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
+    public override Task Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents();
 
     public class KeysWithConvertersCosmosFixture : KeysWithConvertersFixtureBase

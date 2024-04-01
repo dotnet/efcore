@@ -10,26 +10,26 @@ public class InMemoryTestStore(string name = null, bool shared = true) : TestSto
     public static InMemoryTestStore GetOrCreate(string name)
         => new(name);
 
-    public static InMemoryTestStore GetOrCreateInitialized(string name)
-        => new InMemoryTestStore(name).InitializeInMemory(null, (Func<DbContext>)null, null);
+    public static Task<InMemoryTestStore> GetOrCreateInitializedAsync(string name)
+        => new InMemoryTestStore(name).InitializeInMemoryAsync(null, (Func<DbContext>)null, null);
 
     public static InMemoryTestStore Create(string name)
         => new(name, shared: false);
 
-    public static InMemoryTestStore CreateInitialized(string name)
-        => new InMemoryTestStore(name, shared: false).InitializeInMemory(null, (Func<DbContext>)null, null);
+    public static Task<InMemoryTestStore> CreateInitializedAsync(string name)
+        => new InMemoryTestStore(name, shared: false).InitializeInMemoryAsync(null, (Func<DbContext>)null, null);
 
-    public InMemoryTestStore InitializeInMemory(
+    public async Task<InMemoryTestStore> InitializeInMemoryAsync(
         IServiceProvider serviceProvider,
         Func<DbContext> createContext,
-        Action<DbContext> seed)
-        => (InMemoryTestStore)Initialize(serviceProvider, createContext, seed);
+        Func<DbContext, Task> seed)
+        => (InMemoryTestStore)await InitializeAsync(serviceProvider, createContext, seed);
 
-    public InMemoryTestStore InitializeInMemory(
+    public async Task<InMemoryTestStore> InitializeInMemoryAsync(
         IServiceProvider serviceProvider,
         Func<InMemoryTestStore, DbContext> createContext,
-        Action<DbContext> seed)
-        => (InMemoryTestStore)Initialize(serviceProvider, () => createContext(this), seed);
+        Func<DbContext, Task> seed)
+        => (InMemoryTestStore)await InitializeAsync(serviceProvider, () => createContext(this), seed);
 
     protected override TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
         => serviceProvider == null
@@ -39,9 +39,9 @@ public class InMemoryTestStore(string name = null, bool shared = true) : TestSto
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => builder.UseInMemoryDatabase(Name);
 
-    public override void Clean(DbContext context)
+    public override Task CleanAsync(DbContext context)
     {
         context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
-        context.Database.EnsureCreated();
+        return context.Database.EnsureCreatedAsync();
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<
     NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
@@ -273,7 +275,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln(CAST("o"."Discount" AS
             """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
-WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discount" AS REAL)) < 0.0
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discount" AS REAL)) < -1.0
 """);
     }
 
@@ -570,7 +572,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln("o"."Discount") < 0
             """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
-WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < 0
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < -1
 """);
     }
 
@@ -1475,6 +1477,30 @@ WHERE "c"."Region" IS NOT NULL AND "c"."Region" <> ''
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL AND date("o"."OrderDate") = '1996-09-16'
+""");
+    }
+
+    public override async Task Select_ToString_IndexOf(bool async)
+    {
+        await base.Select_ToString_IndexOf(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
+FROM "Orders" AS "o"
+WHERE instr(CAST("o"."OrderID" AS TEXT), '123') - 1 = -1
+""");
+    }
+
+    public override async Task Select_IndexOf_ToString(bool async)
+    {
+        await base.Select_IndexOf_ToString(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
+FROM "Orders" AS "o"
+WHERE instr('123', CAST("o"."OrderID" AS TEXT)) - 1 = -1
 """);
     }
 

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
@@ -21,6 +22,24 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
     private readonly SqlAliasManager _sqlAliasManager;
     private readonly bool _areJsonFunctionsSupported;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal] // https://www.sqlite.org/json1.html#jeach
+    public const string JsonEachKeyColumnName = "key";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal] // https://www.sqlite.org/json1.html#jeach
+    public const string JsonEachValueColumnName = "value";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -238,12 +257,12 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var selectExpression = new SelectExpression(
             [jsonEachExpression],
             new ColumnExpression(
-                "value",
+                JsonEachValueColumnName,
                 tableAlias,
                 elementClrType.UnwrapNullableType(),
                 elementTypeMapping,
                 isElementNullable ?? elementClrType.IsNullableType()),
-            identifier: [(new ColumnExpression("key", tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            identifier: [(new ColumnExpression(JsonEachKeyColumnName, tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
             _sqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -262,7 +281,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             new OrderingExpression(
                 selectExpression.CreateColumnExpression(
                     jsonEachExpression,
-                    "key",
+                    JsonEachKeyColumnName,
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
                     columnNullable: false),
@@ -324,7 +343,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var selectExpression = CreateSelect(
             jsonQueryExpression,
             jsonEachExpression,
-            "key",
+            JsonEachKeyColumnName,
             typeof(int),
             _typeMappingSource.FindMapping(typeof(int))!);
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -333,7 +352,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             new OrderingExpression(
                 selectExpression.CreateColumnExpression(
                     jsonEachExpression,
-                    "key",
+                    JsonEachKeyColumnName,
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
                     columnNullable: false),
@@ -342,7 +361,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var propertyJsonScalarExpression = new Dictionary<ProjectionMember, Expression>();
 
         var jsonColumn = selectExpression.CreateColumnExpression(
-            jsonEachExpression, "value", typeof(string), _typeMappingSource.FindMapping(typeof(string))); // TODO: nullable?
+            jsonEachExpression, JsonEachValueColumnName, typeof(string), _typeMappingSource.FindMapping(typeof(string))); // TODO: nullable?
 
         var containerColumnName = entityType.GetContainerColumnName();
         Check.DebugAssert(containerColumnName is not null, "JsonQueryExpression to entity type without a container column name");
@@ -351,7 +370,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // (SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each(c."JsonColumn", '$.Something.SomeCollection')
 
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
-        foreach (var property in entityType.GetAllPropertiesInHierarchy())
+        foreach (var property in entityType.GetPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
@@ -369,7 +388,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             }
         }
 
-        foreach (var navigation in jsonQueryExpression.EntityType.GetAllNavigationsInHierarchy()
+        foreach (var navigation in jsonQueryExpression.EntityType.GetNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()
@@ -402,7 +421,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var newOuterSelectExpression = CreateSelect(
             jsonQueryExpression,
             subquery,
-            "key",
+            JsonEachKeyColumnName,
             typeof(int),
             _typeMappingSource.FindMapping(typeof(int))!);
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -411,7 +430,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             new OrderingExpression(
                 selectExpression.CreateColumnExpression(
                     subquery,
-                    "key",
+                    JsonEachKeyColumnName,
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
                     columnNullable: false),
@@ -452,7 +471,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,
-                Orderings: [{ Expression: ColumnExpression { Name: "key" } orderingColumn, IsAscending: true }],
+                Orderings: [{ Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn, IsAscending: true }],
                 Limit: null,
                 Offset: null
             } selectExpression
@@ -511,7 +530,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 Orderings:
                 [
                     {
-                        Expression: ColumnExpression { Name: "key" } orderingColumn,
+                        Expression: ColumnExpression { Name: JsonEachKeyColumnName } orderingColumn,
                         IsAscending: true
                     }
                 ]
@@ -523,7 +542,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             => selectExpression.Tables.FirstOrDefault(t => t.Alias == orderingColumn.TableAlias)?.UnwrapJoin() is TableExpressionBase table
                 && (table is JsonEachExpression
                     || (table is SelectExpression subquery
-                        && subquery.Projection.FirstOrDefault(p => p.Alias == "key")?.Expression is ColumnExpression projectedColumn
+                        && subquery.Projection.FirstOrDefault(p => p.Alias == JsonEachKeyColumnName)?.Expression is ColumnExpression
+                            projectedColumn
                         && IsJsonEachKeyColumn(subquery, projectedColumn)));
     }
 
@@ -533,141 +553,17 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             ?? expression.Type;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression ApplyInferredTypeMappings(
-        Expression expression,
-        IReadOnlyDictionary<(string, string), RelationalTypeMapping?> inferredTypeMappings)
-        => new SqliteInferredTypeMappingApplier(
-            RelationalDependencies.Model, _typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected class SqliteInferredTypeMappingApplier : RelationalInferredTypeMappingApplier
-    {
-        private readonly IRelationalTypeMappingSource _typeMappingSource;
-        private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
-        private Dictionary<string, RelationalTypeMapping>? _currentSelectInferredTypeMappings;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public SqliteInferredTypeMappingApplier(
-            IModel model,
-            IRelationalTypeMappingSource typeMappingSource,
-            SqliteSqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<(string, string), RelationalTypeMapping?> inferredTypeMappings)
-            : base(model, sqlExpressionFactory, inferredTypeMappings)
-        {
-            (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitExtension(Expression expression)
-        {
-            switch (expression)
-            {
-                case JsonEachExpression jsonEachExpression
-                    when TryGetInferredTypeMapping(jsonEachExpression.Alias, "value", out var typeMapping):
-                    return ApplyTypeMappingsOnJsonEachExpression(jsonEachExpression, typeMapping);
-
-                // Above, we applied the type mapping to the parameter that json_each accepts as an argument.
-                // But the inferred type mapping also needs to be applied as a SQL conversion on the column projections coming out of the
-                // SelectExpression containing the json_each call. So we set state to know about json_each tables and their type mappings
-                // in the immediate SelectExpression, and continue visiting down (see ColumnExpression visitation below).
-                case SelectExpression selectExpression:
-                {
-                    Dictionary<string, RelationalTypeMapping>? previousSelectInferredTypeMappings = null;
-
-                    foreach (var table in selectExpression.Tables)
-                    {
-                        if (table is TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true } jsonEachExpression
-                            && TryGetInferredTypeMapping(jsonEachExpression.Alias, "value", out var inferredTypeMapping))
-                        {
-                            if (previousSelectInferredTypeMappings is null)
-                            {
-                                previousSelectInferredTypeMappings = _currentSelectInferredTypeMappings;
-                                _currentSelectInferredTypeMappings = new Dictionary<string, RelationalTypeMapping>();
-                            }
-
-                            _currentSelectInferredTypeMappings![jsonEachExpression.Alias] = inferredTypeMapping;
-                        }
-                    }
-
-                    var visited = base.VisitExtension(expression);
-
-                    _currentSelectInferredTypeMappings = previousSelectInferredTypeMappings;
-
-                    return visited;
-                }
-
-                // Note that we match also ColumnExpressions which already have a type mapping, i.e. coming out of column collections (as
-                // opposed to parameter collections, where the type mapping needs to be inferred). This is in order to apply SQL conversion
-                // logic later in the process, see note in TranslateCollection.
-                case ColumnExpression { Name: "value" } columnExpression
-                    when _currentSelectInferredTypeMappings?.TryGetValue(columnExpression.TableAlias, out var inferredTypeMapping) is true:
-                    return ApplyJsonSqlConversion(
-                        columnExpression.ApplyTypeMapping(inferredTypeMapping),
-                        _sqlExpressionFactory,
-                        inferredTypeMapping,
-                        columnExpression.IsNullable);
-
-                default:
-                    return base.VisitExtension(expression);
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual JsonEachExpression ApplyTypeMappingsOnJsonEachExpression(
-            JsonEachExpression jsonEachExpression,
-            RelationalTypeMapping inferredTypeMapping)
-        {
-            // Constant queryables are translated to VALUES, no need for JSON.
-            // Column queryables have their type mapping from the model, so we don't ever need to apply an inferred mapping on them.
-            if (jsonEachExpression.Arguments[0] is not SqlParameterExpression parameterExpression)
-            {
-                return jsonEachExpression;
-            }
-
-            if (_typeMappingSource.FindMapping(parameterExpression.Type, Model, inferredTypeMapping) is not SqliteStringTypeMapping
-                parameterTypeMapping)
-            {
-                throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");
-            }
-
-            Check.DebugAssert(parameterTypeMapping.ElementTypeMapping != null, "Collection type mapping missing element mapping.");
-
-            return jsonEachExpression.Update(
-                parameterExpression.ApplyTypeMapping(parameterTypeMapping),
-                jsonEachExpression.Path);
-        }
-    }
-
-    /// <summary>
     ///     Wraps the given expression with any SQL logic necessary to convert a value coming out of a JSON document into the relational value
     ///     represented by the given type mapping.
     /// </summary>
-    private static SqlExpression ApplyJsonSqlConversion(
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    public static SqlExpression ApplyJsonSqlConversion(
         SqlExpression expression,
         SqliteSqlExpressionFactory sqlExpressionFactory,
         RelationalTypeMapping typeMapping,

@@ -49,6 +49,7 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
             return true;
         }
 
+#pragma warning disable CS0162 // Unreachable code detected
         if (ErrorNumberDebugMode
             && exception is SqlException sqlException)
         {
@@ -61,6 +62,7 @@ public class TestSqlServerRetryingExecutionStrategy : SqlServerRetryingExecution
             message += Environment.NewLine;
             throw new InvalidOperationException(message + exception, exception);
         }
+#pragma warning restore CS0162 // Unreachable code detected
 
         return exception is InvalidOperationException { Message: "Internal .Net Framework Data Provider error 6." };
     }

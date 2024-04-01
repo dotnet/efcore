@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+namespace Microsoft.EntityFrameworkCore.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlAliasManagerFactory : ISqlAliasManagerFactory
+public static class EntityTypeExtensions
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,6 +19,6 @@ public class SqlAliasManagerFactory : ISqlAliasManagerFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlAliasManager Create()
-        => new();
+    public static bool IsAdHoc(this IEntityType entityType)
+        => ((bool?)entityType.FindRuntimeAnnotationValue(CoreAnnotationNames.AdHocModel)) ?? false;
 }

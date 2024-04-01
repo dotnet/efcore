@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
+#nullable disable
+
 public class CosmosTestStoreFactory : ITestStoreFactory
 {
     public static CosmosTestStoreFactory Instance { get; } = new();

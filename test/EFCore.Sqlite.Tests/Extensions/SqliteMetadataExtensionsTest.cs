@@ -29,6 +29,6 @@ public class SqliteMetadataExtensionsTest
     private class Customer
     {
         public int Id { get; set; }
-        public string Geometry { get; set; }
+        public string? Geometry { get; set; }
     }
 }

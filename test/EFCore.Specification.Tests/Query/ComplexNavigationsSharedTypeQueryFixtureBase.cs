@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
 {
     protected override string StoreName
@@ -233,8 +235,8 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
             .IsRequired(false);
     }
 
-    protected override void Seed(ComplexNavigationsContext context)
-        => ComplexNavigationsData.Seed(context, tableSplitting: true);
+    protected override Task SeedAsync(ComplexNavigationsContext context)
+        => ComplexNavigationsData.SeedAsync(context, tableSplitting: true);
 
     private class ComplexNavigationsWeakSetExtractor(DbContext context) : ISetSource
     {

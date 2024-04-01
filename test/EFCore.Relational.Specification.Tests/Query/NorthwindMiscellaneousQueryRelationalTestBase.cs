@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : NorthwindMiscellaneousQueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
@@ -64,10 +66,7 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : 
     public override Task Random_next_is_not_funcletized_6(bool async)
         => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
 
-    protected virtual bool CanExecuteQueryString
-        => false;
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
-            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);
 }

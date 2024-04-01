@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public abstract class InterceptionTestBase
 {
     protected InterceptionTestBase(InterceptionFixtureBase fixture)
@@ -48,29 +50,29 @@ public abstract class InterceptionTestBase
         }
     }
 
-    protected (DbContext, TInterceptor) CreateContext<TInterceptor>(bool inject = false)
+    protected async Task<(DbContext, TInterceptor)> CreateContextAsync<TInterceptor>(bool inject = false)
         where TInterceptor : class, IInterceptor, new()
     {
         var interceptor = new TInterceptor();
 
-        var context = inject ? CreateContext(null, interceptor) : CreateContext(interceptor);
+        var context = inject ? await CreateContextAsync(null, interceptor) : await CreateContextAsync(interceptor);
 
         return (context, interceptor);
     }
 
-    public UniverseContext CreateContext(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
-        => Seed(
+    public Task<UniverseContext> CreateContextAsync(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
+        => SeedAsync(
             new UniverseContext(
                 Fixture.CreateOptions(
                     new[] { appInterceptor }, injectedInterceptors)));
 
-    public UniverseContext CreateContext(
+    public Task<UniverseContext> CreateContextAsync(
         IEnumerable<IInterceptor> appInterceptors,
         IEnumerable<IInterceptor> injectedInterceptors = null)
-        => Seed(new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>())));
+        => SeedAsync(new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>())));
 
-    public virtual UniverseContext Seed(UniverseContext context)
-        => context;
+    public virtual Task<UniverseContext> SeedAsync(UniverseContext context)
+        => Task.FromResult(context);
 
     public interface ITestDiagnosticListener : IDisposable
     {

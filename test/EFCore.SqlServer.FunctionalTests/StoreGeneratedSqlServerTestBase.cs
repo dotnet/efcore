@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -299,11 +298,11 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
     }
 
     [ConditionalFact]
-    public virtual void Insert_update_and_delete_with_long_to_decimal_conversion()
+    public virtual Task Insert_update_and_delete_with_long_to_decimal_conversion()
     {
         var id1 = 0L;
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var principal1 = context.Add(
                     new LongToDecimalPrincipal
@@ -314,7 +313,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                         RequiredDependents = { new LongToDecimalDependentRequired(), new LongToDecimalDependentRequired() }
                     }).Entity;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 id1 = principal1.Id;
                 Assert.NotEqual(0L, id1);
@@ -338,14 +337,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId);
                 }
-            },
-            context =>
+            }, async context =>
             {
-                var principal1 = context.Set<LongToDecimalPrincipal>()
+                var principal1 = await context.Set<LongToDecimalPrincipal>()
                     .Include(e => e.Dependents)
                     .Include(e => e.OptionalDependents)
                     .Include(e => e.RequiredDependents)
-                    .Single();
+                    .SingleAsync();
 
                 Assert.Equal(principal1.Id, id1);
                 foreach (var dependent in principal1.Dependents)
@@ -370,21 +368,20 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                 principal1.OptionalDependents.Remove(principal1.OptionalDependents.First());
                 principal1.RequiredDependents.Remove(principal1.RequiredDependents.First());
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var dependents1 = context.Set<LongToDecimalDependentShadow>().Include(e => e.Principal).ToList();
+                var dependents1 = await context.Set<LongToDecimalDependentShadow>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, dependents1.Count);
                 Assert.Null(
                     context.Entry(dependents1.Single(e => e.Principal == null))
                         .Property<long?>("PrincipalId").CurrentValue);
 
-                var optionalDependents1 = context.Set<LongToDecimalDependentOptional>().Include(e => e.Principal).ToList();
+                var optionalDependents1 = await context.Set<LongToDecimalDependentOptional>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, optionalDependents1.Count);
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
-                var requiredDependents1 = context.Set<LongToDecimalDependentRequired>().Include(e => e.Principal).ToList();
+                var requiredDependents1 = await context.Set<LongToDecimalDependentRequired>().Include(e => e.Principal).ToListAsync();
                 Assert.Single(requiredDependents1);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
@@ -392,24 +389,23 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                 context.Remove(requiredDependents1.Single());
                 context.Remove(requiredDependents1.Single().Principal);
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                Assert.Equal(1, context.Set<LongToDecimalDependentShadow>().Count());
-                Assert.Equal(1, context.Set<LongToDecimalDependentOptional>().Count());
-                Assert.Equal(0, context.Set<LongToDecimalDependentRequired>().Count());
+                Assert.Equal(1, await context.Set<LongToDecimalDependentShadow>().CountAsync());
+                Assert.Equal(1, await context.Set<LongToDecimalDependentOptional>().CountAsync());
+                Assert.Equal(0, await context.Set<LongToDecimalDependentRequired>().CountAsync());
             });
     }
 
     [ConditionalFact]
-    public virtual void Insert_update_and_delete_with_wrapped_int_key_using_hi_lo()
+    public virtual Task Insert_update_and_delete_with_wrapped_int_key_using_hi_lo()
     {
         var id1 = 0;
         var id2 = 0;
         var id3 = 0;
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var principal1 = context.Add(
                     new WrappedIntHiLoClassPrincipal
@@ -450,7 +446,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                         }
                     }).Entity;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 id1 = principal1.Id.Value;
                 Assert.NotEqual(0, id1);
@@ -520,14 +516,13 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId.Value);
                 }
-            },
-            context =>
+            }, async context =>
             {
-                var principal1 = context.Set<WrappedIntHiLoClassPrincipal>()
+                var principal1 = await context.Set<WrappedIntHiLoClassPrincipal>()
                     .Include(e => e.Dependents)
                     .Include(e => e.OptionalDependents)
                     .Include(e => e.RequiredDependents)
-                    .Single();
+                    .SingleAsync();
 
                 Assert.Equal(principal1.Id.Value, id1);
                 foreach (var dependent in principal1.Dependents)
@@ -548,11 +543,11 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                     Assert.Equal(id1, dependent.PrincipalId.Value);
                 }
 
-                var principal2 = context.Set<WrappedIntHiLoStructPrincipal>()
+                var principal2 = await context.Set<WrappedIntHiLoStructPrincipal>()
                     .Include(e => e.Dependents)
                     .Include(e => e.OptionalDependents)
                     .Include(e => e.RequiredDependents)
-                    .Single();
+                    .SingleAsync();
 
                 Assert.Equal(principal2.Id.Value, id2);
                 foreach (var dependent in principal2.Dependents)
@@ -573,11 +568,11 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                     Assert.Equal(id2, dependent.PrincipalId.Value);
                 }
 
-                var principal3 = context.Set<WrappedIntHiLoRecordPrincipal>()
+                var principal3 = await context.Set<WrappedIntHiLoRecordPrincipal>()
                     .Include(e => e.Dependents)
                     .Include(e => e.OptionalDependents)
                     .Include(e => e.RequiredDependents)
-                    .Single();
+                    .SingleAsync();
 
                 Assert.Equal(principal3.Id.Value, id3);
                 foreach (var dependent in principal3.Dependents)
@@ -610,47 +605,50 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                 principal2.RequiredDependents.Remove(principal2.RequiredDependents.First());
                 principal3.RequiredDependents.Remove(principal3.RequiredDependents.First());
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var dependents1 = context.Set<WrappedIntHiLoClassDependentShadow>().Include(e => e.Principal).ToList();
+                var dependents1 = await context.Set<WrappedIntHiLoClassDependentShadow>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, dependents1.Count);
                 Assert.Null(
                     context.Entry(dependents1.Single(e => e.Principal == null))
                         .Property<WrappedIntHiLoKeyClass?>("PrincipalId").CurrentValue);
 
-                var optionalDependents1 = context.Set<WrappedIntHiLoClassDependentOptional>().Include(e => e.Principal).ToList();
+                var optionalDependents1 = await context.Set<WrappedIntHiLoClassDependentOptional>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, optionalDependents1.Count);
                 Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
 
-                var requiredDependents1 = context.Set<WrappedIntHiLoClassDependentRequired>().Include(e => e.Principal).ToList();
+                var requiredDependents1 = await context.Set<WrappedIntHiLoClassDependentRequired>().Include(e => e.Principal).ToListAsync();
                 Assert.Single(requiredDependents1);
 
-                var dependents2 = context.Set<WrappedIntHiLoStructDependentShadow>().Include(e => e.Principal).ToList();
+                var dependents2 = await context.Set<WrappedIntHiLoStructDependentShadow>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, dependents2.Count);
                 Assert.Null(
                     context.Entry(dependents2.Single(e => e.Principal == null))
                         .Property<WrappedIntHiLoKeyStruct?>("PrincipalId").CurrentValue);
 
-                var optionalDependents2 = context.Set<WrappedIntHiLoStructDependentOptional>().Include(e => e.Principal).ToList();
+                var optionalDependents2 =
+                    await context.Set<WrappedIntHiLoStructDependentOptional>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, optionalDependents2.Count);
                 Assert.Null(optionalDependents2.Single(e => e.Principal == null).PrincipalId);
 
-                var requiredDependents2 = context.Set<WrappedIntHiLoStructDependentRequired>().Include(e => e.Principal).ToList();
+                var requiredDependents2 =
+                    await context.Set<WrappedIntHiLoStructDependentRequired>().Include(e => e.Principal).ToListAsync();
                 Assert.Single(requiredDependents2);
 
-                var dependents3 = context.Set<WrappedIntHiLoRecordDependentShadow>().Include(e => e.Principal).ToList();
+                var dependents3 = await context.Set<WrappedIntHiLoRecordDependentShadow>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, dependents3.Count);
                 Assert.Null(
                     context.Entry(dependents3.Single(e => e.Principal == null))
                         .Property<WrappedIntHiLoKeyRecord?>("PrincipalId").CurrentValue);
 
-                var optionalDependents3 = context.Set<WrappedIntHiLoRecordDependentOptional>().Include(e => e.Principal).ToList();
+                var optionalDependents3 =
+                    await context.Set<WrappedIntHiLoRecordDependentOptional>().Include(e => e.Principal).ToListAsync();
                 Assert.Equal(2, optionalDependents3.Count);
                 Assert.Null(optionalDependents3.Single(e => e.Principal == null).PrincipalId);
 
-                var requiredDependents3 = context.Set<WrappedIntHiLoRecordDependentRequired>().Include(e => e.Principal).ToList();
+                var requiredDependents3 =
+                    await context.Set<WrappedIntHiLoRecordDependentRequired>().Include(e => e.Principal).ToListAsync();
                 Assert.Single(requiredDependents3);
 
                 context.Remove(dependents1.Single(e => e.Principal != null));
@@ -668,21 +666,20 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                 context.Remove(requiredDependents3.Single());
                 context.Remove(requiredDependents3.Single().Principal);
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                Assert.Equal(1, context.Set<WrappedIntHiLoClassDependentShadow>().Count());
-                Assert.Equal(1, context.Set<WrappedIntHiLoStructDependentShadow>().Count());
-                Assert.Equal(1, context.Set<WrappedIntHiLoRecordDependentShadow>().Count());
+                Assert.Equal(1, await context.Set<WrappedIntHiLoClassDependentShadow>().CountAsync());
+                Assert.Equal(1, await context.Set<WrappedIntHiLoStructDependentShadow>().CountAsync());
+                Assert.Equal(1, await context.Set<WrappedIntHiLoRecordDependentShadow>().CountAsync());
 
-                Assert.Equal(1, context.Set<WrappedIntHiLoClassDependentOptional>().Count());
-                Assert.Equal(1, context.Set<WrappedIntHiLoStructDependentOptional>().Count());
-                Assert.Equal(1, context.Set<WrappedIntHiLoRecordDependentOptional>().Count());
+                Assert.Equal(1, await context.Set<WrappedIntHiLoClassDependentOptional>().CountAsync());
+                Assert.Equal(1, await context.Set<WrappedIntHiLoStructDependentOptional>().CountAsync());
+                Assert.Equal(1, await context.Set<WrappedIntHiLoRecordDependentOptional>().CountAsync());
 
-                Assert.Equal(0, context.Set<WrappedIntHiLoClassDependentRequired>().Count());
-                Assert.Equal(0, context.Set<WrappedIntHiLoStructDependentRequired>().Count());
-                Assert.Equal(0, context.Set<WrappedIntHiLoRecordDependentRequired>().Count());
+                Assert.Equal(0, await context.Set<WrappedIntHiLoClassDependentRequired>().CountAsync());
+                Assert.Equal(0, await context.Set<WrappedIntHiLoStructDependentRequired>().CountAsync());
+                Assert.Equal(0, await context.Set<WrappedIntHiLoRecordDependentRequired>().CountAsync());
             });
     }
 
@@ -690,7 +687,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
         => facade.UseTransaction(transaction.GetDbTransaction());
 
     [ConditionalFact]
-    public virtual void Exception_in_SaveChanges_causes_store_values_to_be_reverted()
+    public virtual async Task Exception_in_SaveChanges_causes_store_values_to_be_reverted()
     {
         var entities = new List<Darwin>();
         for (var i = 0; i < 100; i++)
@@ -726,8 +723,8 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
 
         for (var i = 0; i < 2; i++)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     context.AddRange(entities);
 
@@ -759,7 +756,7 @@ public abstract class StoreGeneratedSqlServerTestBase<TFixture> : StoreGenerated
                     // inner exception for details.
                     // SqlException : Cannot insert explicit value for identity column in table
                     // 'Blog' when IDENTITY_INSERT is set to OFF.
-                    var updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    var updateException = await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
                     Assert.Single(updateException.Entries);
 
                     foreach (var entity in entities.Take(100))

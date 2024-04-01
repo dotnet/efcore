@@ -4,8 +4,6 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class ModelAsserter

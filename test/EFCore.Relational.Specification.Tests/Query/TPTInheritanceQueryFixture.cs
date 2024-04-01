@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 public abstract class TPTInheritanceQueryFixture : InheritanceQueryFixtureBase, ITestSqlLoggerFactory
 {
     protected override string StoreName

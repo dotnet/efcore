@@ -4,6 +4,8 @@
 #pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore;
 
+#nullable disable
+
 public class ProxyGraphUpdatesSqliteTest
 {
     public abstract class ProxyGraphUpdatesSqliteTestBase<TFixture> : ProxyGraphUpdatesTestBase<TFixture>
@@ -27,7 +29,8 @@ public class ProxyGraphUpdatesSqliteTest
         }
     }
 
-    public class LazyLoading(LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqliteFixture fixture) : ProxyGraphUpdatesSqliteTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqliteFixture>(fixture)
+    public class LazyLoading(LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqliteFixture fixture)
+        : ProxyGraphUpdatesSqliteTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingSqliteFixture>(fixture)
     {
         protected override bool DoesLazyLoading
             => true;
@@ -48,13 +51,12 @@ public class ProxyGraphUpdatesSqliteTest
         }
     }
 
-    public class ChangeTracking(ChangeTracking.ProxyGraphUpdatesWithChangeTrackingSqliteFixture fixture) : ProxyGraphUpdatesSqliteTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingSqliteFixture>(fixture)
+    public class ChangeTracking(ChangeTracking.ProxyGraphUpdatesWithChangeTrackingSqliteFixture fixture)
+        : ProxyGraphUpdatesSqliteTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingSqliteFixture>(fixture)
     {
-
         // Needs lazy loading
-        public override void Save_two_entity_cycle_with_lazy_loading()
-        {
-        }
+        public override Task Save_two_entity_cycle_with_lazy_loading()
+            => Task.CompletedTask;
 
         protected override bool DoesLazyLoading
             => false;
@@ -75,8 +77,10 @@ public class ProxyGraphUpdatesSqliteTest
         }
     }
 
-    public class ChangeTrackingAndLazyLoading(ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture fixture) : ProxyGraphUpdatesSqliteTestBase<
-        ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture>(fixture)
+    public class ChangeTrackingAndLazyLoading(
+        ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture fixture)
+        : ProxyGraphUpdatesSqliteTestBase<
+            ChangeTrackingAndLazyLoading.ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture>(fixture)
     {
         protected override bool DoesLazyLoading
             => true;

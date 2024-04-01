@@ -249,6 +249,6 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
             );
     }
 
-    protected override void Seed(F1Context context)
-        => F1Context.Seed(context);
+    protected override Task SeedAsync(F1Context context)
+        => F1Context.SeedAsync(context);
 }

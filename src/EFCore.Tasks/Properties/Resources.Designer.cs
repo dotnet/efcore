@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254
+        ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254
         /// </summary>
         public static string NETCoreApp1StartupProject(object? startupProject, object? targetFrameworkVersion)
             => string.Format(
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject, targetFrameworkVersion);
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781
+        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781
         /// </summary>
         public static string NETStandardStartupProject(object? startupProject)
             => string.Format(
@@ -36,7 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 startupProject);
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.
+        ///     Startup project '{startupProject}' cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using --startup-project.
+        /// </summary>
+        public static string NotExecutableStartupProject(object? startupProject)
+            => string.Format(
+                GetString("NotExecutableStartupProject", nameof(startupProject)),
+                startupProject);
+
+        /// <summary>
+        ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.
         /// </summary>
         public static string UnsupportedFramework(object? startupProject, object? targetFramework)
             => string.Format(

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
-///     A stateful manager for SQL aliases, capable of generate uniquified table aliases and rewriting them in post-processing.
+///     A stateful manager for SQL aliases, capable of generating uniquified table aliases and rewriting them in post-processing.
 ///     An instance of <see cref="SqlAliasManager" /> is valid for a single query compilation, and is owned by
 ///     <see cref="RelationalQueryCompilationContext" />.
 /// </summary>
@@ -22,7 +22,10 @@ public class SqlAliasManager
     ///     Generates an alias based on the given <paramref name="name" />.
     ///     All aliases produced by a given instance of <see cref="SqlAliasManager" /> are unique.
     /// </summary>
-    /// <param name="name">A name (e.g. of a table) to use as the starting point for the aliasA base for the alias; a number postfix will be appended to it as necessary.</param>
+    /// <param name="name">
+    ///     A name (e.g. of a table) to use as the starting point for the aliasA base for the alias; a number postfix will be appended to it
+    ///     as necessary.
+    /// </param>
     /// <returns>A fully unique alias within the context of this translation process.</returns>
     public virtual string GenerateTableAlias(string name)
     {
@@ -61,7 +64,14 @@ public class SqlAliasManager
     {
         // To post-process (finalize) table aliases in the tree, we visit it to see which aliases are actually in use.
         // We then remap those alias, e.g. closing any gaps caused by tables getting pruned, etc.
-        // Finally, we revisit the tree in order to apply the remappings.
+        // Finally, we revisit the tree in order to apply the remapped aliases.
+
+        // Note that in principle, new aliases shouldn't get generated after postprocessing occurs (we should ideally check against that).
+        // But we have cases where aliases may get generated in the 2nd part of the query pipeline (specifically in
+        // SqlNullabilityProcessor), which runs after postprocessing. We could move alias postprocessing to there, but that would move
+        // that work to a perf-sensitive part of the query pipeline, and it's purely optional (the only downside of the current situation
+        // is that the aliases have gaps).
+
         var tableAliases = TableAliasCollector.Collect(expression);
 
         var aliasRewritingMap = RemapTableAliases(tableAliases);
@@ -75,7 +85,14 @@ public class SqlAliasManager
     ///     Given the list of table aliases currently in use in the SQL tree, produces a remapping for aliases within that list.
     ///     Can be used to e.g. close gaps for tables which have been pruned, etc.
     /// </summary>
-    public virtual Dictionary<string, string>? RemapTableAliases(IReadOnlySet<string> usedAliases)
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    protected virtual Dictionary<string, string>? RemapTableAliases(IReadOnlySet<string> usedAliases)
     {
         // Aliases consist of a single character, followed by a counter for uniquification.
         // We construct process the collected aliases above into a bitmap that represents, for each alias char, which numbers have been

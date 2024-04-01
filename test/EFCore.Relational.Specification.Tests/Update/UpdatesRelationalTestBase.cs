@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
+#nullable disable
+
 public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFixture>
     where TFixture : UpdatesRelationalTestBase<TFixture>.UpdatesRelationalFixture
 {
@@ -15,11 +17,11 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
     }
 
     [ConditionalFact]
-    public virtual void SaveChanges_works_for_entities_also_mapped_to_view()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task SaveChanges_works_for_entities_also_mapped_to_view()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var category = context.Categories.Single();
+                var category = await context.Categories.SingleAsync();
 
                 context.Add(
                     new ProductTableWithView
@@ -38,23 +40,22 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
                         DependentId = category.Id
                     });
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var viewProduct = context.Set<ProductTableWithView>().Single();
-                var tableProduct = context.Set<ProductTableView>().Single();
+                var viewProduct = await context.Set<ProductTableWithView>().SingleAsync();
+                var tableProduct = await context.Set<ProductTableView>().SingleAsync();
 
                 Assert.Equal("Pear Cider", tableProduct.Name);
                 Assert.Equal("Pear Cobler", viewProduct.Name);
             });
 
     [ConditionalFact]
-    public virtual void SaveChanges_throws_for_entities_only_mapped_to_view()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    public virtual Task SaveChanges_throws_for_entities_only_mapped_to_view()
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var category = context.Categories.Single();
+                var category = await context.Categories.SingleAsync();
                 context.Add(
                     new ProductTableView
                     {
@@ -66,66 +67,62 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
 
                 Assert.Equal(
                     RelationalStrings.ReadonlyEntitySaved(nameof(ProductTableView)),
-                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
             });
 
     [ConditionalFact]
-    public virtual void Save_with_shared_foreign_key()
+    public virtual Task Save_with_shared_foreign_key()
     {
         Guid productId = default;
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
                 var product = new ProductWithBytes();
                 context.Add(product);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 productId = product.Id;
-            },
-            context =>
+            }, async context =>
             {
-                var product = context.ProductWithBytes.Find(productId)!;
+                var product = (await context.ProductWithBytes.FindAsync(productId))!;
                 var category = new SpecialCategory { PrincipalId = 777 };
                 var productCategory = new ProductCategory { Category = category };
                 product.ProductCategories = new List<ProductCategory> { productCategory };
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 Assert.True(category.Id > 0);
                 Assert.Equal(category.Id, productCategory.CategoryId);
-            },
-            context =>
+            }, async context =>
             {
-                var product = context.Set<ProductBase>()
+                var product = await context.Set<ProductBase>()
                     .Include(p => ((ProductWithBytes)p).ProductCategories)
                     .Include(p => ((Product)p).ProductCategories)
                     .OfType<ProductWithBytes>()
-                    .Single();
+                    .SingleAsync();
                 var productCategory = product.ProductCategories.Single();
-                Assert.Equal(productCategory.CategoryId, context.Set<ProductCategory>().Single().CategoryId);
-                Assert.Equal(productCategory.CategoryId, context.Set<SpecialCategory>().Single(c => c.PrincipalId == 777).Id);
+                Assert.Equal(productCategory.CategoryId, (await context.Set<ProductCategory>().SingleAsync()).CategoryId);
+                Assert.Equal(productCategory.CategoryId, (await context.Set<SpecialCategory>().SingleAsync(c => c.PrincipalId == 777)).Id);
             });
     }
 
     [ConditionalFact]
-    public virtual void Can_use_shared_columns_with_conversion()
-        => ExecuteWithStrategyInTransaction(
+    public virtual Task Can_use_shared_columns_with_conversion()
+        => ExecuteWithStrategyInTransactionAsync(
             context =>
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
-                    Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
                 };
 
                 context.Add(person);
 
-                context.SaveChanges();
-            },
-            context =>
+                return context.SaveChangesAsync();
+            }, async context =>
             {
-                var person = context.Set<Person>().Single();
+                var person = await context.Set<Person>().SingleAsync();
                 person.Address = new Address
                 {
                     Country = Country.Türkiye,
@@ -133,11 +130,11 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
                     ZipCode = 42100
                 };
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
-            context =>
+            async context =>
             {
-                var person = context.Set<Person>().Single();
+                var person = await context.Set<Person>().SingleAsync();
 
                 Assert.Equal(Country.Türkiye, person.Address!.Country);
                 Assert.Equal("Konya", person.Address.City);
@@ -147,36 +144,34 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             });
 
     [ConditionalFact]
-    public virtual void Swap_filtered_unique_index_values()
+    public virtual Task Swap_filtered_unique_index_values()
     {
         var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
         var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var product1 = context.Products.Find(productId1)!;
-                var product2 = context.Products.Find(productId2)!;
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
 
                 product2.Name = null;
                 product2.Price = product1.Price;
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var product1 = context.Products.Find(productId1)!;
-                var product2 = context.Products.Find(productId2)!;
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
 
                 product2.Name = product1.Name;
                 product1.Name = null;
 
-                context.SaveChanges();
-            },
-            context =>
+                await context.SaveChangesAsync();
+            }, async context =>
             {
-                var product1 = context.Products.Find(productId1)!;
-                var product2 = context.Products.Find(productId2)!;
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
 
                 Assert.Equal(1.49M, product1.Price);
                 Assert.Null(product1.Name);
@@ -186,20 +181,20 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
     }
 
     [ConditionalFact]
-    public virtual void Update_non_indexed_values()
+    public virtual Task Update_non_indexed_values()
     {
         var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
         var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
-        ExecuteWithStrategyInTransaction(
-            context =>
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var product1 = context.Products.Find(productId1)!;
-                var product2 = context.Products.Find(productId2)!;
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
 
                 product2.Price = product1.Price;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             },
             context =>
             {
@@ -219,12 +214,11 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
                 context.Attach(product1).Property(p => p.DependentId).IsModified = true;
                 context.Attach(product2).Property(p => p.DependentId).IsModified = true;
 
-                context.SaveChanges();
-            },
-            context =>
+                return context.SaveChangesAsync();
+            }, async context =>
             {
-                var product1 = context.Products.Find(productId1)!;
-                var product2 = context.Products.Find(productId2)!;
+                var product1 = (await context.Products.FindAsync(productId1))!;
+                var product2 = (await context.Products.FindAsync(productId2))!;
 
                 Assert.Equal(1.49M, product1.Price);
                 Assert.Null(product1.DependentId);
