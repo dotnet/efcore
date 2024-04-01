@@ -156,6 +156,11 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     public virtual LambdaExpression EqualsExpression { get; }
 
     /// <summary>
+    ///     The object comparison expression.
+    /// </summary>
+    public abstract LambdaExpression ObjectEqualsExpression { get; }
+
+    /// <summary>
     ///     The hash code expression.
     /// </summary>
     public virtual LambdaExpression HashCodeExpression { get; }
@@ -305,6 +310,12 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
                 ? new DefaultValueComparer<T>(favorStructuralComparisons)
                 : new ValueComparer<T>(favorStructuralComparisons);
     }
+
+    /// <summary>
+    ///     The expression representing construction of this object.
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public abstract Expression ConstructorExpression { get; }
 
     // PublicMethods is required to preserve e.g. GetHashCode
     internal class DefaultValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T> : ValueComparer<T>

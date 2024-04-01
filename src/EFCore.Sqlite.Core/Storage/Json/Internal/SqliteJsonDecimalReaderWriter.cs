@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -20,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 public sealed class SqliteJsonDecimalReaderWriter : JsonValueReaderWriter<decimal>
 {
     private const string DecimalFormatConst = "{0:0.0###########################}";
+
+    private static readonly PropertyInfo InstanceProperty = typeof(SqliteJsonDecimalReaderWriter).GetProperty(nameof(Instance))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,4 +53,7 @@ public sealed class SqliteJsonDecimalReaderWriter : JsonValueReaderWriter<decima
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, decimal value)
         => writer.WriteStringValue(string.Format(CultureInfo.InvariantCulture, DecimalFormatConst, value));
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
 }

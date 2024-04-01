@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -51,4 +53,7 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     public virtual bool InAggregateFunction { get; set; }
+
+    /// <inheritdoc />
+    public override bool SupportsPrecompiledQuery => true;
 }

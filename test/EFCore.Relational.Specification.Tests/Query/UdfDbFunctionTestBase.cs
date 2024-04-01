@@ -1158,7 +1158,8 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                     where c.Id == customerId
                     select new
                     {
-                        c.LastName, OrderCount = context.StarValueInstance(starCount, context.CustomerOrderCountInstance(customerId))
+                        c.LastName,
+                        OrderCount = context.StarValueInstance(starCount, context.CustomerOrderCountInstance(customerId))
                     }).Single();
 
         Assert.Equal("Three", cust.LastName);
@@ -1592,7 +1593,8 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                 () => (from c in context.Customers
                        select new
                        {
-                           c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
+                           c.Id,
+                           Prods = context.GetTopTwoSellingProducts().ToList(),
                        }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
@@ -1607,7 +1609,8 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             var query = (from c in context.Customers
                          select new
                          {
-                             c.Id, Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
+                             c.Id,
+                             Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
                          }).ToList();
         }
     }
@@ -1734,7 +1737,8 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                 () => (from c in context.Customers
                        select new
                        {
-                           c.Id, Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
+                           c.Id,
+                           Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
                        }).ToList()).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);

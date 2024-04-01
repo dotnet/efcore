@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -18,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 /// </remarks>
 public sealed class SqliteJsonGuidReaderWriter : JsonValueReaderWriter<Guid>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(SqliteJsonGuidReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -47,4 +50,7 @@ public sealed class SqliteJsonGuidReaderWriter : JsonValueReaderWriter<Guid>
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
         => writer.WriteStringValue(value.ToString().ToUpperInvariant());
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
 }

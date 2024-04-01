@@ -275,7 +275,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     {
         var entity = new Context32939.Entity32939
         {
-            Empty = new Context32939.JsonEmpty32939(), FieldOnly = new Context32939.JsonFieldOnly32939()
+            Empty = new Context32939.JsonEmpty32939(),
+            FieldOnly = new Context32939.JsonFieldOnly32939()
         };
 
         ctx.Entities.Add(entity);

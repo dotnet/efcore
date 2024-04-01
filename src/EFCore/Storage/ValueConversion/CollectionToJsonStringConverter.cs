@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -10,6 +11,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </summary>
 public class CollectionToJsonStringConverter<TElement> : ValueConverter<IEnumerable<TElement>, string>
 {
+    private static readonly MethodInfo ToJsonStringMethod
+        = typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.ToJsonString), [typeof(object)])!;
+
+    private static readonly MethodInfo FromJsonStringMethod
+        = typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.FromJsonString), [typeof(string), typeof(object)])!;
+
     /// <summary>
     ///     Creates a new instance of this converter.
     /// </summary>
@@ -19,10 +26,37 @@ public class CollectionToJsonStringConverter<TElement> : ValueConverter<IEnumera
     /// <param name="collectionJsonReaderWriter">The reader/writer to use.</param>
     public CollectionToJsonStringConverter(JsonValueReaderWriter collectionJsonReaderWriter)
         : base(
-            v => collectionJsonReaderWriter.ToJsonString(v),
-            v => (IEnumerable<TElement>)collectionJsonReaderWriter.FromJsonString(v, null))
+            ToJsonString(collectionJsonReaderWriter),
+            FromJsonString(collectionJsonReaderWriter))
     {
         JsonReaderWriter = collectionJsonReaderWriter;
+    }
+
+    private static Expression<Func<IEnumerable<TElement>, string>> ToJsonString(JsonValueReaderWriter collectionJsonReaderWriter)
+    {
+        var prm = Parameter(typeof(IEnumerable<TElement>), "v");
+
+        return  Lambda<Func<IEnumerable<TElement>, string>>(
+            Call(
+                collectionJsonReaderWriter.ConstructorExpression,
+                ToJsonStringMethod,
+                prm),
+            prm);
+    }
+
+    private static Expression<Func<string, IEnumerable<TElement>>> FromJsonString(JsonValueReaderWriter collectionJsonReaderWriter)
+    {
+        var prm = Parameter(typeof(string), "v");
+
+        return Lambda<Func<string, IEnumerable<TElement>>>(
+            Convert(
+                Call(
+                    collectionJsonReaderWriter.ConstructorExpression,
+                    FromJsonStringMethod,
+                    prm,
+                    Constant(null, typeof(object))),
+                typeof(IEnumerable<TElement>)),
+            prm);
     }
 
     /// <summary>

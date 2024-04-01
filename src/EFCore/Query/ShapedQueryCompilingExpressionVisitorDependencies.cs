@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -51,12 +52,22 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
         IEntityMaterializerSource entityMaterializerSource,
         ITypeMappingSource typeMappingSource,
         IMemoryCache memoryCache,
-        ICoreSingletonOptions coreSingletonOptions)
+        ICoreSingletonOptions coreSingletonOptions,
+        IModel model,
+        ILiftableConstantFactory liftableConstantFactory,
+        IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger,
+        IEnumerable<ISingletonInterceptor> singletonInterceptors,
+        IDbContextServices contextServices)
     {
         EntityMaterializerSource = entityMaterializerSource;
         TypeMappingSource = typeMappingSource;
         MemoryCache = memoryCache;
         CoreSingletonOptions = coreSingletonOptions;
+        Model = model;
+        LiftableConstantFactory = liftableConstantFactory;
+        QueryLogger = queryLogger;
+        SingletonInterceptors = singletonInterceptors;
+        ContextServices = contextServices;
     }
 
     /// <summary>
@@ -78,4 +89,29 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     ///     Core singleton options.
     /// </summary>
     public ICoreSingletonOptions CoreSingletonOptions { get; init; }
+
+    /// <summary>
+    ///     The model.
+    /// </summary>
+    public IModel Model { get; init; }
+
+    /// <summary>
+    ///     The liftable constant factory.
+    /// </summary>
+    public ILiftableConstantFactory LiftableConstantFactory { get; init; }
+
+    /// <summary>
+    ///     The query logger.
+    /// </summary>
+    public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; init; }
+
+    /// <summary>
+    ///     Registered singleton interceptors.
+    /// </summary>
+    public IEnumerable<ISingletonInterceptor> SingletonInterceptors { get; init; }
+
+    /// <summary>
+    /// TODO
+    /// </summary>
+    public IDbContextServices ContextServices { get; init; }
 }
