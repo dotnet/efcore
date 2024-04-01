@@ -5,6 +5,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
+using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -38,6 +39,9 @@ public class ValueComparer
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
     private Func<T, T>? _snapshot;
+    private LambdaExpression? _objectEqualsExpression;
+    private static readonly PropertyInfo StructuralComparisonsStructuralEqualityComparerProperty =
+        typeof(StructuralComparisons).GetProperty(nameof(StructuralComparisons.StructuralEqualityComparer))!;
 
     /// <summary>
     ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
@@ -96,19 +100,19 @@ public class ValueComparer
     protected static Expression<Func<T?, T?, bool>> CreateDefaultEqualsExpression()
     {
         var type = typeof(T);
-        var param1 = Expression.Parameter(type, "v1");
-        var param2 = Expression.Parameter(type, "v2");
+        var param1 = Parameter(type, "v1");
+        var param2 = Parameter(type, "v2");
 
         // We exclude multi-dimensional arrays even though they're IStructuralEquatable because of
         // https://github.com/dotnet/runtime/issues/66472
         if (typeof(IStructuralEquatable).IsAssignableFrom(type))
         {
-            return Expression.Lambda<Func<T?, T?, bool>>(
-                Expression.Call(
-                    Expression.Constant(StructuralComparisons.StructuralEqualityComparer, typeof(IEqualityComparer)),
+            return Lambda<Func<T?, T?, bool>>(
+                Call(
+                    Property(null, StructuralComparisonsStructuralEqualityComparerProperty),
                     EqualityComparerEqualsMethod,
-                    Expression.Convert(param1, typeof(object)),
-                    Expression.Convert(param2, typeof(object))
+                    Convert(param1, typeof(object)),
+                    Convert(param2, typeof(object))
                 ),
                 param1, param2);
         }
@@ -121,8 +125,8 @@ public class ValueComparer
             || unwrappedType == typeof(decimal)
             || unwrappedType == typeof(object))
         {
-            return Expression.Lambda<Func<T?, T?, bool>>(
-                Expression.Equal(param1, param2),
+            return Lambda<Func<T?, T?, bool>>(
+                Equal(param1, param2),
                 param1, param2);
         }
 
@@ -135,18 +139,18 @@ public class ValueComparer
 
         if (typedEquals != null)
         {
-            return Expression.Lambda<Func<T?, T?, bool>>(
+            return Lambda<Func<T?, T?, bool>>(
                 type.IsNullableType()
-                    ? Expression.OrElse(
-                        Expression.AndAlso(
-                            Expression.Equal(param1, Expression.Constant(null, type)),
-                            Expression.Equal(param2, Expression.Constant(null, type))),
-                        Expression.AndAlso(
-                            Expression.AndAlso(
-                                Expression.NotEqual(param1, Expression.Constant(null, type)),
-                                Expression.NotEqual(param2, Expression.Constant(null, type))),
-                            Expression.Call(param1, typedEquals, param2)))
-                    : Expression.Call(param1, typedEquals, param2),
+                    ? OrElse(
+                        AndAlso(
+                            Equal(param1, Constant(null, type)),
+                            Equal(param2, Constant(null, type))),
+                        AndAlso(
+                            AndAlso(
+                                NotEqual(param1, Constant(null, type)),
+                                NotEqual(param2, Constant(null, type))),
+                            Call(param1, typedEquals, param2)))
+                    : Call(param1, typedEquals, param2),
                 param1, param2);
         }
 
@@ -165,10 +169,10 @@ public class ValueComparer
             type = type.BaseType;
         }
 
-        return Expression.Lambda<Func<T?, T?, bool>>(
+        return Lambda<Func<T?, T?, bool>>(
             typedEquals == null
                 ? ExpressionExtensions.CreateEqualsExpression(param1, param2)
-                : Expression.Call(typedEquals, param1, param2),
+                : Call(typedEquals, param1, param2),
             param1, param2);
     }
 
@@ -185,9 +189,9 @@ public class ValueComparer
             return v => v;
         }
 
-        var sourceParameter = Expression.Parameter(typeof(T), "source");
-        return Expression.Lambda<Func<T, T>>(
-            Expression.Call(
+        var sourceParameter = Parameter(typeof(T), "source");
+        return Lambda<Func<T, T>>(
+            Call(
                 EnumerableMethods.ToArray.MakeGenericMethod(typeof(T).GetElementType()!),
                 sourceParameter),
             sourceParameter);
@@ -204,16 +208,16 @@ public class ValueComparer
     {
         var type = typeof(T);
         var unwrappedType = type.UnwrapNullableType();
-        var param = Expression.Parameter(type, "v");
+        var param = Parameter(type, "v");
 
         if (favorStructuralComparisons
             && typeof(IStructuralEquatable).IsAssignableFrom(type))
         {
-            return Expression.Lambda<Func<T, int>>(
-                Expression.Call(
-                    Expression.Constant(StructuralComparisons.StructuralEqualityComparer, typeof(IEqualityComparer)),
+            return Lambda<Func<T, int>>(
+                Call(
+                    Property(null, StructuralComparisonsStructuralEqualityComparerProperty),
                     EqualityComparerHashCodeMethod,
-                    Expression.Convert(param, typeof(object))
+                    Convert(param, typeof(object))
                 ),
                 param);
         }
@@ -228,10 +232,10 @@ public class ValueComparer
                 || unwrappedType == typeof(ushort)
                 || unwrappedType == typeof(sbyte)
                 || unwrappedType == typeof(char)
-                    ? (Expression)Expression.Convert(param, typeof(int))
-                    : Expression.Call(param, ObjectGetHashCodeMethod);
+                    ? (Expression)Convert(param, typeof(int))
+                    : Call(param, ObjectGetHashCodeMethod);
 
-        return Expression.Lambda<Func<T, int>>(expression, param);
+        return Lambda<Func<T, int>>(expression, param);
     }
 
     /// <summary>
@@ -246,6 +250,34 @@ public class ValueComparer
         var v2Null = right == null;
 
         return v1Null || v2Null ? v1Null && v2Null : Equals((T?)left, (T?)right);
+    }
+
+    /// <inheritdoc />
+    public override LambdaExpression ObjectEqualsExpression
+    {
+        get
+        {
+            if (_objectEqualsExpression == null)
+            {
+                var left = Parameter(typeof(object), "left");
+                var right = Parameter(typeof(object), "right");
+
+                _objectEqualsExpression = Lambda<Func<object?, object?, bool>>(
+                    Condition(
+                        Equal(left, Constant(null)),
+                        Equal(right, Constant(null)),
+                        AndAlso(
+                            NotEqual(right, Constant(null)),
+                            Invoke(
+                                EqualsExpression,
+                                Convert(left, typeof(T)),
+                                Convert(right, typeof(T))))),
+                    left,
+                    right);
+            }
+
+            return _objectEqualsExpression;
+        }
     }
 
     /// <summary>

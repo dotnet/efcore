@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -50,4 +51,10 @@ public sealed class SqliteJsonDateTimeReaderWriter : JsonValueReaderWriter<DateT
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
         => writer.WriteStringValue(string.Format(CultureInfo.InvariantCulture, DateTimeFormatConst, value));
+
+    private readonly Expression<Func<SqliteJsonDateTimeReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

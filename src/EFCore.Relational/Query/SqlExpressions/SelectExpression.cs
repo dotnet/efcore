@@ -2098,68 +2098,68 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
                 var type = structuralProjection1.StructuralType;
 
-                    foreach (var property in type.GetPropertiesInHierarchy())
+                foreach (var property in type.GetPropertiesInHierarchy())
+                {
+                    var column1 = structuralProjection1.BindProperty(property);
+                    var column2 = structuralProjection2.BindProperty(property);
+                    var alias = GenerateUniqueColumnAlias(column1.Name);
+                    var innerProjection = new ProjectionExpression(column1, alias);
+                    select1._projection.Add(innerProjection);
+                    select2._projection.Add(new ProjectionExpression(column2, alias));
+                    var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias);
+                    if (column1.IsNullable
+                        || column2.IsNullable)
                     {
-                        var column1 = structuralProjection1.BindProperty(property);
-                        var column2 = structuralProjection2.BindProperty(property);
-                        var alias = GenerateUniqueColumnAlias(column1.Name);
-                        var innerProjection = new ProjectionExpression(column1, alias);
-                        select1._projection.Add(innerProjection);
-                        select2._projection.Add(new ProjectionExpression(column2, alias));
-                        var outerColumn = CreateColumnExpression(innerProjection, setOperationAlias);
-                        if (column1.IsNullable
-                            || column2.IsNullable)
-                        {
-                            outerColumn = outerColumn.MakeNullable();
-                        }
-
-                        propertyExpressions[property] = outerColumn;
-
-                        // Lift up any identifier columns to the set operation result (the outer).
-                        // This is typically the entity primary key columns, but can also be all of a complex type's properties if Distinct
-                        // was previously called.
-                        if (outerIdentifiers.Length > 0)
-                        {
-                            var index = select1._identifier.FindIndex(e => e.Column.Equals(column1));
-                            if (index != -1)
-                            {
-                                if (select2._identifier[index].Column.Equals(column2))
-                                {
-                                    outerIdentifiers[index] = outerColumn;
-                                }
-                                else
-                                {
-                                    // If select1 matched but select2 did not then we erase all identifiers
-                                    // TODO: We could make this little more robust by allow the indexes to be different. See issue#24475
-                                    // i.e. Identifier ordering being different.
-                                    outerIdentifiers = [];
-                                }
-                            }
-                            // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
-                            // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
-                            // the same as with a non-structural type projection.
-                            else if (projection1.StructuralType is IComplexType)
-                            {
-                                var outerTypeMapping = column1.TypeMapping ?? column1.TypeMapping;
-                                if (outerTypeMapping == null)
-                                {
-                                    throw new InvalidOperationException(
-                                        RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
-                                }
-
-                                otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
-                            }
-                        }
+                        outerColumn = outerColumn.MakeNullable();
                     }
 
-                    foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(type))
+                    propertyExpressions[property] = outerColumn;
+
+                    // Lift up any identifier columns to the set operation result (the outer).
+                    // This is typically the entity primary key columns, but can also be all of a complex type's properties if Distinct
+                    // was previously called.
+                    if (outerIdentifiers.Length > 0)
                     {
-                        var complexPropertyShaper1 = structuralProjection1.BindComplexProperty(complexProperty);
+                        var index = select1._identifier.FindIndex(e => e.Column.Equals(column1));
+                        if (index != -1)
+                        {
+                            if (select2._identifier[index].Column.Equals(column2))
+                            {
+                                outerIdentifiers[index] = outerColumn;
+                            }
+                            else
+                            {
+                                // If select1 matched but select2 did not then we erase all identifiers
+                                // TODO: We could make this little more robust by allow the indexes to be different. See issue#24475
+                                // i.e. Identifier ordering being different.
+                                outerIdentifiers = [];
+                            }
+                        }
+                        // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
+                        // all its columns to the "otherExpressions" list (i.e. columns not part of a an entity primary key). This is
+                        // the same as with a non-structural type projection.
+                        else if (projection1.StructuralType is IComplexType)
+                        {
+                            var outerTypeMapping = column1.TypeMapping ?? column1.TypeMapping;
+                            if (outerTypeMapping == null)
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
+                            }
+
+                            otherExpressions.Add((outerColumn, outerTypeMapping.KeyComparer));
+                        }
+                    }
+                }
+
+                foreach (var complexProperty in GetAllComplexPropertiesInHierarchy(type))
+                {
+                    var complexPropertyShaper1 = structuralProjection1.BindComplexProperty(complexProperty);
                     var complexPropertyShaper2 = structuralProjection2.BindComplexProperty(complexProperty);
 
                     var resultComplexProjection = ProcessStructuralType(
                         (StructuralTypeProjectionExpression)complexPropertyShaper1.ValueBufferExpression,
-                            (StructuralTypeProjectionExpression)complexPropertyShaper2.ValueBufferExpression);
+                        (StructuralTypeProjectionExpression)complexPropertyShaper2.ValueBufferExpression);
 
                     var resultComplexShaper = new RelationalStructuralTypeShaperExpression(
                         complexProperty.ComplexType,

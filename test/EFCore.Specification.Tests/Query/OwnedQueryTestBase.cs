@@ -25,7 +25,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             await context.AddAsync(
                 new HeliumBalloon
                 {
-                    Id = Guid.NewGuid().ToString(), Gas = new Helium(),
+                    Id = Guid.NewGuid().ToString(),
+                    Gas = new Helium(),
                 });
 
             await context.AddAsync(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -122,4 +123,12 @@ public class JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TE
 
     JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
         => _elementReaderWriter;
+
+    private readonly ConstructorInfo _constructorInfo =
+        typeof(JsonCollectionOfNullableStructsReaderWriter<TConcreteCollection, TElement>).GetConstructor([typeof(JsonValueReaderWriter<TElement>)])!;
+
+    /// <inheritdoc />
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public override Expression ConstructorExpression =>
+        Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
 }

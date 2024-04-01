@@ -695,9 +695,19 @@ WHERE (
 
     #endregion
 
-    [ConditionalFact]
-    public override Task Column_with_custom_converter()
-        => base.Column_with_custom_converter();
+    public override async Task Column_with_custom_converter()
+    {
+        await base.Column_with_custom_converter();
+
+        AssertSql(
+"""
+@__ints_0='1,2,3' (Size = 4000)
+
+SELECT TOP(2) [t].[Id], [t].[Ints]
+FROM [TestEntity] AS [t]
+WHERE [t].[Ints] = @__ints_0
+""");
+    }
 
     public override async Task Parameter_with_inferred_value_converter()
     {

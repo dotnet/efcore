@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -45,4 +46,14 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
 
     ValueConverter IJsonConvertedValueReaderWriter.Converter
         => _converter;
+
+    private readonly ConstructorInfo _constructorInfo = typeof(JsonConvertedValueReaderWriter<TModel, TProvider>).GetConstructor([typeof(JsonValueReaderWriter<TProvider>), typeof(ValueConverter)])!;
+
+    /// <inheritdoc />
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public override Expression ConstructorExpression =>
+        Expression.New(
+            _constructorInfo,
+            ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
+            ((IJsonConvertedValueReaderWriter)this).Converter.ConstructorExpression);
 }

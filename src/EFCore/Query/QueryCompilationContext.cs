@@ -56,7 +56,8 @@ public class QueryCompilationContext
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
     private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
 
-    private readonly ExpressionPrinter _expressionPrinter;
+    private readonly ExpressionPrinter _expressionPrinter = new();
+    private readonly RuntimeParameterConstantLifter _runtimeParameterConstantLifter;
 
     private Dictionary<string, LambdaExpression>? _runtimeParameters;
 
@@ -82,8 +83,7 @@ public class QueryCompilationContext
         _queryableMethodTranslatingExpressionVisitorFactory = dependencies.QueryableMethodTranslatingExpressionVisitorFactory;
         _queryTranslationPostprocessorFactory = dependencies.QueryTranslationPostprocessorFactory;
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
-
-        _expressionPrinter = new ExpressionPrinter();
+        _runtimeParameterConstantLifter = new(dependencies.LiftableConstantFactory);
     }
 
     /// <summary>
@@ -149,12 +149,44 @@ public class QueryCompilationContext
         => Tags.Add(tag);
 
     /// <summary>
+    ///     A value indicating whether the provider supports precompiled query. Default value is <see langword="false" />. Providers that do support this feature should opt-in by setting this value to <see langword="true" />.
+    /// </summary>
+    public virtual bool SupportsPrecompiledQuery => false;
+
+    /// <summary>
     ///     Creates the query executor func which gives results for this query.
     /// </summary>
     /// <typeparam name="TResult">The result type of this query.</typeparam>
     /// <param name="query">The query to generate executor for.</param>
     /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
     public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
+    {
+        var queryExecutorExpression = CreateQueryExecutorExpression<TResult>(query);
+
+        // The materializer expression tree has liftable constant nodes, pointing to various constants that should be the same instances
+        // across invocations of the query.
+        // In normal mode, these nodes should simply be evaluated, and a ConstantExpression to those instances embedded directly in the
+        // tree (for precompiled queries we generate C# code for resolving those instances instead).
+        var queryExecutorAfterLiftingExpression = 
+            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(queryExecutorExpression, SupportsPrecompiledQuery);
+
+        try
+        {
+            return queryExecutorAfterLiftingExpression.Compile();
+        }
+        finally
+        {
+            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
+        }
+    }
+
+    /// <summary>
+    ///     Creates the query executor func which gives results for this query.
+    /// </summary>
+    /// <typeparam name="TResult">The result type of this query.</typeparam>
+    /// <param name="query">The query to generate executor for.</param>
+    /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
+    public virtual Expression<Func<QueryContext, TResult>> CreateQueryExecutorExpression<TResult>(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
         query = queryAndEventData.Query;
@@ -176,14 +208,7 @@ public class QueryCompilationContext
             query,
             QueryContextParameter);
 
-        try
-        {
-            return queryExecutorExpression.Compile();
-        }
-        finally
-        {
-            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
-        }
+        return queryExecutorExpression;
     }
 
     /// <summary>
@@ -193,6 +218,14 @@ public class QueryCompilationContext
     /// </summary>
     public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
     {
+        var valueExtractorBody = valueExtractor.Body;
+        if (SupportsPrecompiledQuery)
+        {
+            valueExtractorBody = _runtimeParameterConstantLifter.Visit(valueExtractorBody);
+        }
+       
+        valueExtractor = Expression.Lambda(valueExtractorBody, valueExtractor.Parameters);
+
         if (valueExtractor.Parameters.Count != 1
             || valueExtractor.Parameters[0] != QueryContextParameter)
         {
@@ -229,5 +262,51 @@ public class QueryCompilationContext
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;
+    }
+
+    private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
+    {
+        private readonly static MethodInfo ComplexPropertyListElementAddMethod = typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
+
+        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        {
+            switch (constantExpression.Value)
+            {
+                case IProperty property:
+                {
+                    return liftableConstantFactory.CreateLiftableConstant(
+                        constantExpression.Value,
+                        LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForProperty(property),
+                        property.Name + "Property",
+                        typeof(IProperty));
+                }
+
+                case List<IComplexProperty> complexPropertyChain:
+                {
+                    var elementInitExpressions = new ElementInit[complexPropertyChain.Count];
+                    var prm = Expression.Parameter(typeof(MaterializerLiftableConstantContext));
+
+                    for (var i = 0; i < complexPropertyChain.Count; i++)
+                    {
+                        var complexType = complexPropertyChain[i].ComplexType;
+                        var complexTypeExpression = LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(complexType, prm);
+                        elementInitExpressions[i] = Expression.ElementInit(
+                            ComplexPropertyListElementAddMethod,
+                            Expression.Property(complexTypeExpression, nameof(IComplexType.ComplexProperty)));
+                    }
+
+                    return liftableConstantFactory.CreateLiftableConstant(
+                        constantExpression.Value,
+                        Expression.Lambda<Func<MaterializerLiftableConstantContext, object>>(
+                            Expression.ListInit(Expression.New(typeof(List<IComplexProperty>)), elementInitExpressions),
+                            prm),
+                        "ComplexPropertyChain",
+                        constantExpression.Type);
+                }
+
+                default:
+                    return base.VisitConstant(constantExpression);
+            }
+        }
     }
 }

@@ -177,9 +177,16 @@ public class BufferedDataReaderTest
             columnType = typeof(object);
         }
 
+        var getFieldValueMethod = typeof(DbDataReader).GetMethod(nameof(DbDataReader.GetFieldValue)).MakeGenericMethod(columnType);
+        var prm = Expression.Parameter(typeof(DbDataReader), "r");
+        var getFieldValueLambda = Expression.Lambda(
+            Expression.Call(prm, getFieldValueMethod, Expression.Constant(0)),
+            prm,
+            Expression.Parameter(typeof(int[]), "_"));
+
         var columns = new[]
         {
-            ReaderColumn.Create(columnType, true, null, null, (Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
+            ReaderColumn.Create(columnType, true, null, null, getFieldValueLambda)
         };
 
         var bufferedReader = new BufferedDataReader(reader, false);

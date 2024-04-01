@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
@@ -26,4 +27,10 @@ public sealed class JsonGuidReaderWriter : JsonValueReaderWriter<Guid>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
         => writer.WriteStringValue(value);
+
+    private readonly Expression<Func<JsonGuidReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

@@ -333,12 +333,12 @@ namespace TestNamespace
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<bool, string>(
                     (bool v) => (string)(v ? "B" : "A"),
-                    (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)'B'),
+                    (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)"B".ToUpperInvariant()[0]),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<bool, string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<bool, string>(
                         (bool v) => (string)(v ? "B" : "A"),
-                        (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)'B')));
+                        (string v) => !string.IsNullOrEmpty(v) && (int)v.ToUpperInvariant()[0] == (int)"B".ToUpperInvariant()[0])));
             boolToStringConverterProperty.SetSentinelFromProviderValue("A");
             boolToStringConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             boolToStringConverterProperty.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_BoolToStringConverterProperty", "TestNamespace") });

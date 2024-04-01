@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
@@ -27,4 +28,10 @@ public sealed class JsonUnsignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TEnum value)
         => writer.WriteNumberValue((ulong)Convert.ChangeType(value, typeof(ulong))!);
+
+    private readonly Expression<Func<JsonUnsignedEnumReaderWriter<TEnum>>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }
