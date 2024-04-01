@@ -1041,6 +1041,7 @@ WHERE (c[""Discriminator""] = ""Customer"")
 """);
     }
 
+    [ConditionalTheory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
     public override async Task OrderBy_Distinct(bool async)
     {
         await base.OrderBy_Distinct(async);
