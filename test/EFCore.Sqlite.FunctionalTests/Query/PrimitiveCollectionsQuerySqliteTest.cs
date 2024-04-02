@@ -210,6 +210,20 @@ WHERE "p"."Int" IN (999, @__i_0, "p"."Id", "p"."Id" + "p"."Int")
 """);
     }
 
+    public override async Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
+    {
+        await base.Inline_collection_List_Contains_with_mixed_value_types(async);
+
+        AssertSql(
+            """
+@__i_0='11'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" IN (999, @__i_0, "p"."Id", "p"."Id" + "p"."Int")
+""");
+    }
+
     public override async Task Inline_collection_Contains_as_Any_with_predicate(bool async)
     {
         await base.Inline_collection_Contains_as_Any_with_predicate(async);
@@ -246,9 +260,33 @@ WHERE min(30, "p"."Int") = 30
 """);
     }
 
+    public override async Task Inline_collection_List_Min_with_two_values(bool async)
+    {
+        await base.Inline_collection_List_Min_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE min(30, "p"."Int") = 30
+""");
+    }
+
     public override async Task Inline_collection_Max_with_two_values(bool async)
     {
         await base.Inline_collection_Max_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE max(30, "p"."Int") = 30
+""");
+    }
+
+    public override async Task Inline_collection_List_Max_with_two_values(bool async)
+    {
+        await base.Inline_collection_List_Max_with_two_values(async);
 
         AssertSql(
             """
@@ -272,9 +310,37 @@ WHERE min(30, "p"."Int", @__i_0) = 25
 """);
     }
 
+    public override async Task Inline_collection_List_Min_with_three_values(bool async)
+    {
+        await base.Inline_collection_List_Min_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='25'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE min(30, "p"."Int", @__i_0) = 25
+""");
+    }
+
     public override async Task Inline_collection_Max_with_three_values(bool async)
     {
         await base.Inline_collection_Max_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='35'
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE max(30, "p"."Int", @__i_0) = 35
+""");
+    }
+
+    public override async Task Inline_collection_List_Max_with_three_values(bool async)
+    {
+        await base.Inline_collection_List_Max_with_three_values(async);
 
         AssertSql(
             """
@@ -788,6 +854,40 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT "v"."Value"
     FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, 2), (2, 3)) AS "v"
+    ORDER BY "v"."_ord"
+    LIMIT 1 OFFSET "p"."Int") = 1
+""");
+    }
+
+    public override async Task Inline_collection_value_index_Column(bool async)
+    {
+        // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
+        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_value_index_Column(async));
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "v"."Value"
+    FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, "p"."Int"), (2, 3)) AS "v"
+    ORDER BY "v"."_ord"
+    LIMIT 1 OFFSET "p"."Int") = 1
+""");
+    }
+
+    public override async Task Inline_collection_List_value_index_Column(bool async)
+    {
+        // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
+        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_List_value_index_Column(async));
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "v"."Value"
+    FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, "p"."Int"), (2, 3)) AS "v"
     ORDER BY "v"."_ord"
     LIMIT 1 OFFSET "p"."Int") = 1
 """);

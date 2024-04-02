@@ -216,6 +216,20 @@ WHERE [p].[Int] IN (999, @__i_0, [p].[Id], [p].[Id] + [p].[Int])
 """);
     }
 
+    public override async Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
+    {
+        await base.Inline_collection_List_Contains_with_mixed_value_types(async);
+
+        AssertSql(
+            """
+@__i_0='11'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (999, @__i_0, [p].[Id], [p].[Id] + [p].[Int])
+""");
+    }
+
     public override async Task Inline_collection_Contains_as_Any_with_predicate(bool async)
     {
         await base.Inline_collection_Contains_as_Any_with_predicate(async);
@@ -254,9 +268,37 @@ WHERE (
 """);
     }
 
+    public override async Task Inline_collection_List_Min_with_two_values(bool async)
+    {
+        await base.Inline_collection_List_Min_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
+""");
+    }
+
     public override async Task Inline_collection_Max_with_two_values(bool async)
     {
         await base.Inline_collection_Max_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
+""");
+    }
+
+    public override async Task Inline_collection_List_Max_with_two_values(bool async)
+    {
+        await base.Inline_collection_List_Max_with_two_values(async);
 
         AssertSql(
             """
@@ -284,9 +326,41 @@ WHERE (
 """);
     }
 
+    public override async Task Inline_collection_List_Min_with_three_values(bool async)
+    {
+        await base.Inline_collection_List_Min_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='25'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 25
+""");
+    }
+
     public override async Task Inline_collection_Max_with_three_values(bool async)
     {
         await base.Inline_collection_Max_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='35'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 35
+""");
+    }
+
+    public override async Task Inline_collection_List_Max_with_three_values(bool async)
+    {
+        await base.Inline_collection_List_Max_with_three_values(async);
 
         AssertSql(
             """
@@ -559,6 +633,38 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT [v].[Value]
     FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [v]([_ord], [Value])
+    ORDER BY [v].[_ord]
+    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+""");
+    }
+
+    public override async Task Inline_collection_value_index_Column(bool async)
+    {
+        await base.Inline_collection_value_index_Column(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT [v].[Value]
+    FROM (VALUES (0, CAST(1 AS int)), (1, [p].[Int]), (2, 3)) AS [v]([_ord], [Value])
+    ORDER BY [v].[_ord]
+    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+""");
+    }
+
+    public override async Task Inline_collection_List_value_index_Column(bool async)
+    {
+        await base.Inline_collection_List_value_index_Column(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT [v].[Value]
+    FROM (VALUES (0, CAST(1 AS int)), (1, [p].[Int]), (2, 3)) AS [v]([_ord], [Value])
     ORDER BY [v].[_ord]
     OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
 """);
