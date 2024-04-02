@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -852,9 +851,7 @@ public static class SqlServerPropertyExtensions
     public static void SetValueGenerationStrategy(
         this IMutableProperty property,
         SqlServerValueGenerationStrategy? value)
-        => property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.ValueGenerationStrategy,
-            CheckValueGenerationStrategy(property, value));
+        => property.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
 
     /// <summary>
     ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
@@ -868,9 +865,7 @@ public static class SqlServerPropertyExtensions
         SqlServerValueGenerationStrategy? value,
         bool fromDataAnnotation = false)
         => (SqlServerValueGenerationStrategy?)property.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.ValueGenerationStrategy,
-            CheckValueGenerationStrategy(property, value),
-            fromDataAnnotation)?.Value;
+            SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
@@ -909,9 +904,7 @@ public static class SqlServerPropertyExtensions
     public static void SetValueGenerationStrategy(
         this IMutableRelationalPropertyOverrides overrides,
         SqlServerValueGenerationStrategy? value)
-        => overrides.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.ValueGenerationStrategy,
-            CheckValueGenerationStrategy(overrides.Property, value));
+        => overrides.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
 
     /// <summary>
     ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for the property for a particular table.
@@ -925,39 +918,8 @@ public static class SqlServerPropertyExtensions
         SqlServerValueGenerationStrategy? value,
         bool fromDataAnnotation = false)
         => (SqlServerValueGenerationStrategy?)overrides.SetOrRemoveAnnotation(
-            SqlServerAnnotationNames.ValueGenerationStrategy,
-            CheckValueGenerationStrategy(overrides.Property, value),
-            fromDataAnnotation)?.Value;
+            SqlServerAnnotationNames.ValueGenerationStrategy, value, fromDataAnnotation)?.Value;
 
-    private static SqlServerValueGenerationStrategy? CheckValueGenerationStrategy(
-        IReadOnlyProperty property,
-        SqlServerValueGenerationStrategy? value)
-    {
-        if (value == null)
-        {
-            return null;
-        }
-
-        var propertyType = property.ClrType;
-
-        if (value == SqlServerValueGenerationStrategy.IdentityColumn
-            && !IsCompatibleWithValueGeneration(property))
-        {
-            throw new ArgumentException(
-                SqlServerStrings.IdentityBadType(
-                    property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
-        }
-
-        if (value is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
-            && !IsCompatibleWithValueGeneration(property))
-        {
-            throw new ArgumentException(
-                SqlServerStrings.SequenceBadType(
-                    property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
-        }
-
-        return value;
-    }
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the <see cref="SqlServerValueGenerationStrategy" />.
