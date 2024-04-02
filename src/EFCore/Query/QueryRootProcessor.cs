@@ -121,8 +121,7 @@ public class QueryRootProcessor : ExpressionVisitor
     }
 
     /// <summary>
-    ///     Determines whether a <see cref="ConstantExpression" /> should be converted to a <see cref="InlineQueryRootExpression" />.
-    ///     This handles cases inline expressions whose elements are all constants.
+    ///     Determines whether a <see cref="NewArrayExpression" /> should be converted to a <see cref="InlineQueryRootExpression" />.
     /// </summary>
     /// <param name="newArrayExpression">The new array expression that's a candidate for conversion to a query root.</param>
     protected virtual bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
