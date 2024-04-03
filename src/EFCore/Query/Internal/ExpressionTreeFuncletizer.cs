@@ -1322,7 +1322,9 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     if (visitedArguments is not null && visitedInitializersArguments is null)
                     {
                         visitedInitializersArguments = new IReadOnlyList<Expression>[initializers.Count];
-                        for (var j = 0; j < i; j++)
+                        // we need to fill complete array - not only up to i
+                        // because next iteration will access visitedInitializersArguments
+                        for (var j = 0; j < initializers.Count; j++)
                         {
                             visitedInitializersArguments[j] = initializers[j].Arguments;
                         }
