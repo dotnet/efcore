@@ -73,6 +73,55 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Throws_for_identity_on_bad_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Animal>(
+            b =>
+            {
+                b.Property(e => e.Name).UseIdentityColumn();
+            });
+
+        VerifyError(
+            SqlServerStrings.IdentityBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_for_sequence_on_bad_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Animal>(
+            b =>
+            {
+                b.Property(e => e.Name).UseSequence();
+            });
+
+        VerifyError(
+            SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
+            modelBuilder);
+    }
+
+
+    [ConditionalFact]
+    public virtual void Throws_for_sequence_HiLo_on_bad_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Animal>(
+            b =>
+            {
+                b.Property(e => e.Name).UseHiLo();
+            });
+
+        VerifyError(
+            SqlServerStrings.SequenceBadType(nameof(LivingBeing.Name), nameof(Animal), "string"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_for_duplicate_column_names_within_hierarchy_with_identity()
     {
         var modelBuilder = CreateConventionModelBuilder();

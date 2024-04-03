@@ -135,6 +135,39 @@ public class SqlServerModelValidator : RelationalModelValidator
         }
     }
 
+    /// <inheritdoc/>
+    protected override void ValidateTypeMappings(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidateTypeMappings(model, logger);
+
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetFlattenedDeclaredProperties())
+            {
+                var strategy = property.GetValueGenerationStrategy();
+                var propertyType = property.ClrType;
+
+                if (strategy == SqlServerValueGenerationStrategy.IdentityColumn
+                    && !SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(property))
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.IdentityBadType(
+                            property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
+                }
+
+                if (strategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
+                    && !SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(property))
+                {
+                    throw new InvalidOperationException(
+                        SqlServerStrings.SequenceBadType(
+                            property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
+                }
+            }
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
