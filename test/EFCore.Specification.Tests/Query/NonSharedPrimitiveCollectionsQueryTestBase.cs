@@ -96,13 +96,6 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     private enum MyEnum { Label1, Label2 }
 
     [ConditionalFact]
-    public virtual async Task Array_of_array_is_not_supported()
-    {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => TestArray([1, 2, 3], new[] { 4, 5, 6 }));
-        Assert.Equal(CoreStrings.PropertyNotMapped("int[][]", "TestEntity", "SomeArray"), exception.Message);
-    }
-
-    [ConditionalFact]
     public virtual async Task Multidimensional_array_is_not_supported()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(

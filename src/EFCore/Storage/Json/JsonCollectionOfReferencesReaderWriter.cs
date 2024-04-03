@@ -1,39 +1,44 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
 /// <summary>
-///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitives nullable value types.
+///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are reference types. />.
 /// </summary>
-/// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteCollection, TElement> :
-    JsonValueReaderWriter<IEnumerable<TElement?>>,
+public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElement> :
+    JsonValueReaderWriter<object>,
     ICompositeJsonValueReaderWriter
-    where TElement : struct
-    where TCollection : IEnumerable<TElement?>
+    where TElement : class?
 {
-    private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
+    private readonly JsonValueReaderWriter _elementReaderWriter;
+
+    private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
+
+    private static readonly bool IsReadOnly = IsArray
+        || (typeof(TConcreteCollection).IsGenericType
+            && typeof(TConcreteCollection).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
     /// <summary>
     ///     Creates a new instance of this collection reader/writer, using the given reader/writer for its elements.
     /// </summary>
     /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
-    public JsonNullableStructCollectionReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
+    public JsonCollectionOfReferencesReaderWriter(JsonValueReaderWriter elementReaderWriter)
     {
         _elementReaderWriter = elementReaderWriter;
     }
 
     /// <inheritdoc />
-    public override IEnumerable<TElement?> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+    public override object FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
     {
         IList<TElement?> collection;
-        if (typeof(TCollection).IsArray)
+        if (IsReadOnly)
         {
             collection = new List<TElement?>();
         }
@@ -45,11 +50,6 @@ public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteColl
         {
             collection = (IList<TElement?>)existingObject;
             collection.Clear();
-        }
-
-        if (manager.CurrentReader.TokenType == JsonTokenType.None)
-        {
-            manager.MoveNext();
         }
 
         var tokenType = manager.CurrentReader.TokenType;
@@ -70,18 +70,18 @@ public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteColl
                 case JsonTokenType.Number:
                 case JsonTokenType.True:
                 case JsonTokenType.False:
-                    collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
+                case JsonTokenType.StartArray:
+                    collection.Add((TElement)_elementReaderWriter.FromJson(ref manager));
                     break;
                 case JsonTokenType.Null:
-                    collection.Add(null);
+                    collection.Add(default);
                     break;
-                case JsonTokenType.EndArray:
                 case JsonTokenType.Comment:
+                case JsonTokenType.EndArray:
                     break;
                 case JsonTokenType.None: // Explicitly listing all states that we throw for
                 case JsonTokenType.StartObject:
                 case JsonTokenType.EndObject:
-                case JsonTokenType.StartArray:
                 case JsonTokenType.PropertyName:
                 default:
                     throw new InvalidOperationException(
@@ -89,22 +89,29 @@ public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteColl
             }
         }
 
-        return typeof(TCollection).IsArray ? collection.ToArray() : collection;
+        return IsReadOnly
+            ? IsArray
+                ? collection.ToArray()
+                : (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteCollection), [collection])!
+            : collection;
     }
 
     /// <inheritdoc />
-    public override void ToJsonTyped(Utf8JsonWriter writer, IEnumerable<TElement?> value)
+    public override void ToJsonTyped(Utf8JsonWriter writer, object? value)
     {
         writer.WriteStartArray();
-        foreach (var element in value)
+        if (value != null)
         {
-            if (element.HasValue)
+            foreach (var element in (IEnumerable<object?>)value)
             {
-                _elementReaderWriter.ToJsonTyped(writer, element.Value);
-            }
-            else
-            {
-                writer.WriteNullValue();
+                if (element == null)
+                {
+                    writer.WriteNullValue();
+                }
+                else
+                {
+                    _elementReaderWriter.ToJson(writer, element);
+                }
             }
         }
 

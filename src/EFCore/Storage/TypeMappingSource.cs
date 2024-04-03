@@ -100,61 +100,67 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 var (mappingInfo, providerClrType, customConverter, elementMapping) = k;
 
                 var sourceType = mappingInfo.ClrType;
-                var mapping = providerClrType == null
-                    || providerClrType == mappingInfo.ClrType
-                        ? self.FindMapping(mappingInfo)
-                        : null;
+                CoreTypeMapping? mapping = null;
 
-                if (mapping == null)
+                if (providerClrType == null
+                    || providerClrType == mappingInfo.ClrType)
                 {
-                    if (elementMapping == null
-                        || customConverter != null)
+                    mapping = self.FindMapping(mappingInfo);
+                }
+
+                if (mapping == null
+                    && sourceType != null)
+                {
+                    if (elementMapping == null)
                     {
-                        if (sourceType != null)
+                        mapping = WithConverter();
+                    }
+
+                    mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping)
+                        ?? WithConverter();
+                }
+
+
+                CoreTypeMapping? WithConverter()
+                {
+                    foreach (var converterInfo in self.Dependencies
+                                 .ValueConverterSelector
+                                 .Select(sourceType, providerClrType))
+                    {
+                        var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
+                        mapping = self.FindMapping(mappingInfoUsed);
+
+                        if (mapping == null
+                            && providerClrType != null)
                         {
-                            foreach (var converterInfo in self.Dependencies
+                            foreach (var secondConverterInfo in self.Dependencies
                                          .ValueConverterSelector
-                                         .Select(sourceType, providerClrType))
+                                         .Select(providerClrType))
                             {
-                                var mappingInfoUsed = mappingInfo.WithConverter(converterInfo);
-                                mapping = self.FindMapping(mappingInfoUsed);
-
-                                if (mapping == null
-                                    && providerClrType != null)
-                                {
-                                    foreach (var secondConverterInfo in self.Dependencies
-                                                 .ValueConverterSelector
-                                                 .Select(providerClrType))
-                                    {
-                                        mapping = self.FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
-
-                                        if (mapping != null)
-                                        {
-                                            mapping = mapping.WithComposedConverter(
-                                                secondConverterInfo.Create(),
-                                                jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
-                                            break;
-                                        }
-                                    }
-                                }
+                                mapping = self.FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
                                 if (mapping != null)
                                 {
                                     mapping = mapping.WithComposedConverter(
-                                        converterInfo.Create(),
-                                        jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                                        secondConverterInfo.Create(),
+                                        jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
                                     break;
                                 }
                             }
+                        }
 
-                            mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                        if (mapping != null)
+                        {
+                            mapping = mapping.WithComposedConverter(
+                                converterInfo.Create(),
+                                jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
+                            break;
                         }
                     }
-                    else if (sourceType != null)
-                    {
-                        mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
-                    }
+
+                    return mapping;
                 }
+
 
                 if (mapping != null
                     && customConverter != null)

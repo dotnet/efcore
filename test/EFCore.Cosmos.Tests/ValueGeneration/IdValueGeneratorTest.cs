@@ -29,7 +29,6 @@ public class IdValueGeneratorTest
             Create(new IntClassEntity { Id = new IntClass(2) }),
             Create(new IntStructEntity { Id = new IntStruct(1) }),
             Create(new IntStructEntity { Id = new IntStruct(2) }),
-            Create(new BytesStructEntity { Id = new BytesStruct(null) }),
             Create(new BytesStructEntity { Id = new BytesStruct([]) }),
             Create(new BytesStructEntity { Id = new BytesStruct([1]) }),
             Create(new BytesStructEntity { Id = new BytesStruct([2, 2]) }),

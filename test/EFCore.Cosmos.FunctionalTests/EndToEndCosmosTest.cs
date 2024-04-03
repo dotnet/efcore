@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -794,23 +793,18 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         // See #25343
         await Can_add_update_delete_with_collection(
             [
-                EntityType.Base,
-                EntityType.Derived,
-                EntityType.Derived
+                Discriminator.Base,
+                Discriminator.Derived,
+                Discriminator.Derived
             ],
             c =>
             {
                 c.Collection.Clear();
-                c.Collection.Add(EntityType.Base);
+                c.Collection.Add(Discriminator.Base);
             },
-            new List<EntityType> { EntityType.Base },
-            modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<EntityType>>>(
-                c =>
-                    c.Property(s => s.Collection)
-                        .HasConversion(
-                            m => m.Select(v => (int)v).ToList(), p => p.Select(v => (EntityType)v).ToList(),
-                            new ListComparer<EntityType, List<EntityType>>(
-                                ValueComparer.CreateDefault(typeof(EntityType), false), readOnly: false))));
+            new List<Discriminator> { Discriminator.Base },
+            modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<Discriminator>>>(
+                c => c.PrimitiveCollection(s => s.Collection)));
 
         await Can_add_update_delete_with_collection(
             [1f, 2],
@@ -866,6 +860,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 c.Collection.Add([3]);
             },
             new List<List<short>> { new() { 3 } });
+
         await Can_add_update_delete_with_collection<IList<byte?[]>>(
             new List<byte?[]>(),
             c =>
@@ -874,13 +869,16 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 c.Collection.Add(null);
             },
             new List<byte?[]> { new byte?[] { 3, null }, null });
-        await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
-            new Dictionary<string, string>[] { new() { { "1", null } } },
-            c =>
-            {
-                var dictionary = c.Collection[0]["3"] = "2";
-            },
-            new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } });
+
+        // TODO: Dictionary mapping Issue #29825
+        // await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
+        //     new Dictionary<string, string>[] { new() { { "1", null } } },
+        //     c =>
+        //     {
+        //         var dictionary = c.Collection[0]["3"] = "2";
+        //     },
+        //     new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } },
+        //     onModelBuilder: b => b.Entity<CustomerWithCollection<IReadOnlyList<Dictionary<string, string>>>>().PrimitiveCollection(e => e.Collection));
 
         await Can_add_update_delete_with_collection(
             [[1f], [2]],
@@ -898,22 +896,24 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new[] { new decimal?[] { 1, 3 } });
 
-        await Can_add_update_delete_with_collection(
-            new Dictionary<string, List<int>> { { "1", [1] } },
-            c =>
-            {
-                c.Collection["2"] = [3];
-            },
-            new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
+        // TODO: Dictionary mapping Issue #29825
+        // await Can_add_update_delete_with_collection(
+        //     new Dictionary<string, List<int>> { { "1", [1] } },
+        //     c =>
+        //     {
+        //         c.Collection["2"] = [3];
+        //     },
+        //     new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
 
-        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
-            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
-            c =>
-            {
-                c.Collection.Clear();
-                c.Collection["2"] = null;
-            },
-            new SortedDictionary<string, long?[]> { { "2", null } });
+        // TODO: Dictionary mapping Issue #29825
+        // await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+        //     new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+        //     c =>
+        //     {
+        //         c.Collection.Clear();
+        //         c.Collection["2"] = null;
+        //     },
+        //     new SortedDictionary<string, long?[]> { { "2", null } });
 
         await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
             ImmutableDictionary<string, Dictionary<string, short?>>.Empty
@@ -1863,7 +1863,7 @@ OFFSET 0 LIMIT 1
                 {
                     b.Entity<NonStringDiscriminator>()
                         .HasDiscriminator(m => m.Discriminator)
-                        .HasValue(EntityType.Base);
+                        .HasValue(Discriminator.Base);
                 }
                 else
                 {
@@ -1912,7 +1912,7 @@ OFFSET 0 LIMIT 1
         ListLoggerFactory.Clear();
         Assert.Equal(
             baseEntity, await context.Set<NonStringDiscriminator>()
-                .Where(e => e.Discriminator == EntityType.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
+                .Where(e => e.Discriminator == Discriminator.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
 
         if (useDiscriminator)
         {
@@ -2001,10 +2001,10 @@ OFFSET 0 LIMIT 1
     private class NonStringDiscriminator
     {
         public int Id { get; set; }
-        public EntityType Discriminator { get; set; }
+        public Discriminator Discriminator { get; set; }
     }
 
-    private enum EntityType
+    private enum Discriminator
     {
         Base,
         Derived

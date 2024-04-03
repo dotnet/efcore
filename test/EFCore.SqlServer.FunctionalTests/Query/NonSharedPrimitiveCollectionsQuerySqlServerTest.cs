@@ -303,10 +303,6 @@ WHERE (
     }
 
     [ConditionalFact]
-    public override Task Array_of_array_is_not_supported()
-        => base.Array_of_array_is_not_supported();
-
-    [ConditionalFact]
     public override Task Multidimensional_array_is_not_supported()
         => base.Multidimensional_array_is_not_supported();
 

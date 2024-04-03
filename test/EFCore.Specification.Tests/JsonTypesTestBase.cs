@@ -258,8 +258,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     [InlineData("00000000-0000-0000-0000-000000000000", """{"Prop":"00000000-0000-0000-0000-000000000000"}""")]
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", """{"Prop":"ffffffff-ffff-ffff-ffff-ffffffffffff"}""")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
-    public virtual Task Can_read_write_GUID_JSON_values(Guid value, string json)
-        => Can_read_and_write_JSON_value<GuidType, Guid>(nameof(GuidType.Guid), value, json);
+    public virtual Task Can_read_write_GUID_JSON_values(string value, string json)
+        => Can_read_and_write_JSON_value<GuidType, Guid>(nameof(GuidType.Guid), new Guid(value), json);
 
     protected class GuidType
     {
@@ -1748,7 +1748,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_short_JSON_values()
-        => Can_read_and_write_JSON_value<Int16CollectionType, List<short>>(
+        => Can_read_and_write_JSON_value<Int16CollectionType, IReadOnlyCollection<short>>(
             nameof(Int16CollectionType.Int16),
             [
                 short.MinValue,
@@ -1760,24 +1760,24 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     protected class Int16CollectionType
     {
-        public IList<short> Int16 { get; set; } = null!;
+        public IReadOnlyCollection<short> Int16 { get; set; } = null!;
     }
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_int_JSON_values()
-        => Can_read_and_write_JSON_value<Int32CollectionType, List<int>>(
+        => Can_read_and_write_JSON_value<Int32CollectionType, ReadOnlyCollection<int>>(
             nameof(Int32CollectionType.Int32),
-            [
+            new ReadOnlyCollection<int>([
                 int.MinValue,
                 0,
                 int.MaxValue
-            ],
+            ]),
             """{"Prop":[-2147483648,0,2147483647]}""",
             mappedCollection: true);
 
     protected class Int32CollectionType
     {
-        public List<int> Int32 { get; set; } = null!;
+        public ReadOnlyCollection<int> Int32 { get; set; } = null!;
     }
 
     [ConditionalFact]
@@ -1900,8 +1900,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public double[] Double { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_decimal_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""")]
+    public virtual Task Can_read_write_collection_of_decimal_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
             nameof(DecimalCollectionType.Decimal),
             [
@@ -1909,7 +1910,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 0,
                 decimal.MaxValue
             ],
-            """{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""",
+            expected,
             mappedCollection: true);
 
     protected class DecimalCollectionType
@@ -1936,7 +1937,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_TimeOnly_JSON_values()
-        => Can_read_and_write_JSON_value<TimeOnlyCollectionType, List<TimeOnly>>(
+        => Can_read_and_write_JSON_value<TimeOnlyCollectionType, IReadOnlyCollection<TimeOnly>>(
             nameof(TimeOnlyCollectionType.TimeOnly),
             [
                 TimeOnly.MinValue,
@@ -1949,11 +1950,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     protected class TimeOnlyCollectionType
     {
-        public IList<TimeOnly> TimeOnly { get; set; } = null!;
+        public IReadOnlyCollection<TimeOnly> TimeOnly { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_DateTime_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["0001-01-01T00:00:00","2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    public virtual Task Can_read_write_collection_of_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
             nameof(DateTimeCollectionType.DateTime),
             [
@@ -1961,7 +1963,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
             ],
-            """{"Prop":["0001-01-01T00:00:00","2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""",
+            expected,
             mappedCollection: true);
 
     protected class DateTimeCollectionType
@@ -1969,8 +1971,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public IList<DateTime> DateTime { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_DateTimeOffset_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
+    public virtual Task Can_read_write_collection_of_DateTimeOffset_JSON_values(string expected)
         => Can_read_and_write_JSON_value<DateTimeOffsetCollectionType, List<DateTimeOffset>>(
             nameof(DateTimeOffsetCollectionType.DateTimeOffset),
             [
@@ -1980,7 +1983,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
             ],
-            """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""",
+            expected,
             mappedCollection: true);
 
     protected class DateTimeOffsetCollectionType
@@ -2035,8 +2038,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public IList<char> Character { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_GUID_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
+    public virtual Task Can_read_write_collection_of_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
             nameof(GuidCollectionType.Guid),
             [
@@ -2044,7 +2048,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
             ],
-            """{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""",
+            expected,
             mappedCollection: true);
 
     protected class GuidCollectionType
@@ -2054,7 +2058,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_string_JSON_values()
-        => Can_read_and_write_JSON_value<StringCollectionType, List<string>>(
+        => Can_read_and_write_JSON_value<StringCollectionType, IReadOnlyCollection<string>>(
             nameof(StringCollectionType.String),
             [
                 "MinValue",
@@ -2066,11 +2070,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     protected class StringCollectionType
     {
-        public IList<string> String { get; set; } = null!;
+        public IReadOnlyCollection<string> String { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_binary_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["AAAAAQ==","/////w==","","AQIDBA=="]}""")]
+    public virtual Task Can_read_write_collection_of_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
             nameof(BytesCollectionType.Bytes),
             [
@@ -2079,7 +2084,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 [],
                 [1, 2, 3, 4]
             ],
-            """{"Prop":["AAAAAQ==","/////w==","","AQIDBA=="]}""",
+            expected,
             mappedCollection: true);
 
     protected class BytesCollectionType
@@ -2105,9 +2110,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_IP_address_JSON_values()
-        => Can_read_and_write_JSON_value<IpAddressCollectionType, List<IPAddress>>(
+        => Can_read_and_write_JSON_value<IpAddressCollectionType, ReadOnlyCollection<IPAddress>>(
             nameof(IpAddressCollectionType.IpAddress),
-            [
+            new ReadOnlyCollection<IPAddress>([
                 IPAddress.Parse("127.0.0.1"),
                 IPAddress.Parse("0.0.0.0"),
                 IPAddress.Parse("255.255.255.255"),
@@ -2115,13 +2120,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 IPAddress.Parse("::1"),
                 IPAddress.Parse("::"),
                 IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")
-            ],
+            ]),
             """{"Prop":["127.0.0.1","0.0.0.0","255.255.255.255","192.168.1.156","::1","::","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]}""",
             mappedCollection: true);
 
     protected class IpAddressCollectionType
     {
-        public List<IPAddress> IpAddress { get; set; } = null!;
+        public ReadOnlyCollection<IPAddress> IpAddress { get; set; } = null!;
     }
 
     [ConditionalFact]
@@ -2315,7 +2320,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_nullable_short_JSON_values()
-        => Can_read_and_write_JSON_value<NullableInt16CollectionType, List<short?>>(
+        => Can_read_and_write_JSON_value<NullableInt16CollectionType, IReadOnlyCollection<short?>>(
             nameof(NullableInt16CollectionType.Int16),
             [
                 short.MinValue,
@@ -2328,7 +2333,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     protected class NullableInt16CollectionType
     {
-        public IList<short?> Int16 { get; set; } = null!;
+        public IReadOnlyCollection<short?> Int16 { get; set; } = null!;
     }
 
     [ConditionalFact]
@@ -2351,20 +2356,21 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_nullable_long_JSON_values()
-        => Can_read_and_write_JSON_value<NullableInt64CollectionType, List<long?>>(
+        => Can_read_and_write_JSON_value<NullableInt64CollectionType, ReadOnlyCollection<long?>>(
             nameof(NullableInt64CollectionType.Int64),
+            new ReadOnlyCollection<long?>(
             [
                 long.MinValue,
                 0,
                 long.MaxValue,
                 null
-            ],
+            ]),
             """{"Prop":[-9223372036854775808,0,9223372036854775807,null]}""",
             mappedCollection: true);
 
     protected class NullableInt64CollectionType
     {
-        public IList<long?> Int64 { get; set; } = null!;
+        public ReadOnlyCollection<long?> Int64 { get; set; } = null!;
     }
 
     [ConditionalFact]
@@ -2475,8 +2481,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public double?[] Double { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_decimal_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[-79228162514264337593543950335,0,null,79228162514264337593543950335]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_decimal_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
             nameof(NullableDecimalCollectionType.Decimal),
             [
@@ -2485,7 +2492,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 null,
                 decimal.MaxValue
             ],
-            """{"Prop":[-79228162514264337593543950335,0,null,79228162514264337593543950335]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableDecimalCollectionType
@@ -2526,11 +2533,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     protected class NullableTimeOnlyCollectionType
     {
-        public IList<TimeOnly?> TimeOnly { get; set; } = null!;
+        public IReadOnlyList<TimeOnly?> TimeOnly { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_DateTime_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_DateTime_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),
             [
@@ -2539,7 +2547,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
             ],
-            """{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableDateTimeCollectionType
@@ -2547,8 +2555,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public IList<DateTime?> DateTime { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetCollectionType, List<DateTimeOffset?>>(
             nameof(NullableDateTimeOffsetCollectionType.DateTimeOffset),
             [
@@ -2559,12 +2568,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
             ],
-            """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableDateTimeOffsetCollectionType
     {
-        public IList<DateTimeOffset?> DateTimeOffset { get; set; } = null!;
+        public IReadOnlyList<DateTimeOffset?> DateTimeOffset { get; set; } = null!;
     }
 
     [ConditionalFact]
@@ -2587,19 +2596,20 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
     [ConditionalFact]
     public virtual Task Can_read_write_collection_of_nullable_bool_JSON_values()
-        => Can_read_and_write_JSON_value<NullableBooleanCollectionType, List<bool?>>(
+        => Can_read_and_write_JSON_value<NullableBooleanCollectionType, ReadOnlyCollection<bool?>>(
             nameof(NullableBooleanCollectionType.Boolean),
+            new ReadOnlyCollection<bool?>(
             [
                 false,
                 null,
                 true
-            ],
+            ]),
             """{"Prop":[false,null,true]}""",
             mappedCollection: true);
 
     protected class NullableBooleanCollectionType
     {
-        public IList<bool?> Boolean { get; set; } = null!;
+        public ReadOnlyCollection<bool?> Boolean { get; set; } = null!;
     }
 
     [ConditionalFact]
@@ -2620,8 +2630,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public IList<char?> Character { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_GUID_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_GUID_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
             nameof(NullableGuidCollectionType.Guid),
             [
@@ -2630,7 +2641,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
             ],
-            """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableGuidCollectionType
@@ -2656,8 +2667,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public IList<string> String { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_nullable_binary_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["AAAAAQ==",null,"/////w==","","AQIDBA=="]}""")]
+    public virtual Task Can_read_write_collection_of_nullable_binary_JSON_values(string expected)
         => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
             nameof(NullableBytesCollectionType.Bytes),
             [
@@ -2667,7 +2679,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 [],
                 [1, 2, 3, 4]
             ],
-            """{"Prop":["AAAAAQ==",null,"/////w==","","AQIDBA=="]}""",
+            expected,
             mappedCollection: true);
 
     protected class NullableBytesCollectionType
@@ -3377,8 +3389,9 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         public byte[] BinaryAsJson { get; set; } = null!;
     }
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""")]
+    public virtual Task Can_read_write_collection_of_decimal_with_precision_and_scale_JSON_values(string expected)
         => Can_read_and_write_JSON_collection_value<DecimalCollectionType, List<decimal>>(
             b => b.ElementType().HasPrecision(12, 6),
             nameof(DecimalCollectionType.Decimal),
@@ -3387,11 +3400,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 0,
                 decimal.MaxValue
             ],
-            """{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""",
+            expected,
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.Precision, 12 }, { CoreAnnotationNames.Scale, 6 } });
 
-    [ConditionalFact]
-    public virtual Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values()
+    [ConditionalTheory]
+    [InlineData("""{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD+OIEqL6JjHwarevQ==","/////////////////////w=="]}""")]
+    public virtual Task Can_read_write_collection_of_Guid_converted_to_bytes_JSON_values(string expected)
         => Can_read_and_write_JSON_collection_value<GuidCollectionType, List<Guid>>(
             b => b.ElementType().HasConversion<byte[]>(),
             nameof(GuidCollectionType.Guid),
@@ -3400,8 +3414,430 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
             ],
-            """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD+OIEqL6JjHwarevQ==","/////////////////////w=="]}""",
+            expected,
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ProviderClrType, typeof(byte[]) } });
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_int_JSON_values()
+        => Can_read_and_write_JSON_value<Int32ArrayListType, List<int[]?>>(
+            nameof(Int32ArrayListType.Prop),
+            new List<int[]?>
+            {
+                new[] { int.MinValue, 0, int.MaxValue },
+                Array.Empty<int>(),
+                null,
+                new[] { 77 }
+            },
+            """{"Prop":[[-2147483648,0,2147483647],[],null,[77]]}""",
+            mappedCollection: true);
+
+    protected class Int32ArrayListType
+    {
+        public List<int[]?> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_nullable_int_JSON_values()
+        => Can_read_and_write_JSON_value<NullableInt32ArrayListType, List<int?[]?>>(
+            nameof(NullableInt32ArrayListType.Prop),
+            new List<int?[]?>
+            {
+                new int?[] { int.MinValue, null, int.MaxValue },
+                Array.Empty<int?>(),
+                null,
+                new int?[] { 77 }
+            },
+            """{"Prop":[[-2147483648,null,2147483647],[],null,[77]]}""",
+            mappedCollection: true);
+
+    protected class NullableInt32ArrayListType
+    {
+        public List<int?[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_string_JSON_values()
+        => Can_read_and_write_JSON_value<StringArrayListType, List<string[]>>(
+            nameof(StringArrayListType.Prop),
+            new List<string[]>
+            {
+                new[] { "X", "Y", "" },
+                Array.Empty<string>(),
+                new[] { "77" }
+            },
+            """{"Prop":[["X","Y",""],[],["77"]]}""",
+            mappedCollection: true);
+
+    protected class StringArrayListType
+    {
+        public List<string[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_IPAddress_JSON_values()
+        => Can_read_and_write_JSON_value<IpAddressArrayListType, ObservableCollection<IPAddress[]>>(
+            nameof(IpAddressArrayListType.Prop),
+            new ObservableCollection<IPAddress[]>
+            {
+                new[] { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") },
+                Array.Empty<IPAddress>(),
+                new[] { new IPAddress(0) }
+            },
+            """{"Prop":[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"],[],["0.0.0.0"]]}""",
+            mappedCollection: true);
+
+    protected class IpAddressArrayListType
+    {
+        public ObservableCollection<IPAddress[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_ulong_JSON_values()
+        => Can_read_and_write_JSON_value<ULongArrayListType, List<ulong[]>>(
+            nameof(ULongArrayListType.Prop),
+            new List<ulong[]>
+            {
+                new[] { ulong.MinValue, 1UL, ulong.MaxValue },
+                Array.Empty<ulong>(),
+                new[] { 77UL }
+            },
+            """{"Prop":[[0,1,18446744073709551615],[],[77]]}""",
+            mappedCollection: true);
+
+    protected class ULongArrayListType
+    {
+        public List<ulong[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_nullable_ulong_JSON_values()
+        => Can_read_and_write_JSON_value<NullableULongArrayListType, List<ulong?[]>>(
+            nameof(NullableULongArrayListType.Prop),
+            new List<ulong?[]>
+            {
+                new ulong?[] { ulong.MinValue, null, ulong.MaxValue },
+                Array.Empty<ulong?>(),
+                new ulong?[] { 77UL }
+            },
+            """{"Prop":[[0,null,18446744073709551615],[],[77]]}""",
+            mappedCollection: true);
+
+    protected class NullableULongArrayListType
+    {
+        public List<ulong?[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[["AAEC","AQ==","TQ=="],[],["Tg=="]]}""")]
+    public virtual Task Can_read_write_list_of_array_of_binary_JSON_values(string expected)
+        => Can_read_and_write_JSON_value<BinaryArrayListType, IEnumerable<byte[][]>>(
+            nameof(BinaryArrayListType.Prop),
+            new List<byte[][]>
+            {
+                new[] { new byte[] { 0, 1, 2 }, [1], [77] },
+                Array.Empty<byte[]>(),
+                new[] { new byte[] { 78 } }
+            },
+            expected,
+            mappedCollection: true);
+
+    protected class BinaryArrayListType
+    {
+        public IEnumerable<byte[][]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    public virtual Task Can_read_write_list_of_array_of_GUID_JSON_values(string expected)
+        => Can_read_and_write_JSON_value<GuidArrayListType, List<Guid[]>>(
+            nameof(GuidArrayListType.Prop),
+            new List<Guid[]>
+            {
+                new[] { new Guid("00000000-0000-0000-0000-000000000000"), new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
+                Array.Empty<Guid>(),
+                new[] { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
+            },
+            expected,
+            mappedCollection: true);
+
+    protected class GuidArrayListType
+    {
+        public List<Guid[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    public virtual Task Can_read_write_list_of_array_of_nullable_GUID_JSON_values(string expected)
+        => Can_read_and_write_JSON_value<NullableGuidArrayListType, List<Guid?[]>>(
+            nameof(NullableGuidArrayListType.Prop),
+            new List<Guid?[]>
+            {
+                new Guid?[] { new Guid("00000000-0000-0000-0000-000000000000"), null, new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
+                Array.Empty<Guid?>(),
+                new Guid?[] { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
+            },
+            expected,
+            mappedCollection: true);
+
+    protected class NullableGuidArrayListType
+    {
+        public List<Guid?[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_list_of_int_JSON_values()
+        => Can_read_and_write_JSON_value<Int32ListArrayType, IList<int>[]>(
+            nameof(Int32ListArrayType.Prop),
+            new List<int>[]
+            {
+                new() { int.MinValue, 0, int.MaxValue },
+                new(),
+                new() { 77 }
+            },
+            """{"Prop":[[-2147483648,0,2147483647],[],[77]]}""",
+            mappedCollection: true);
+
+    protected class Int32ListArrayType
+    {
+        public IList<int>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_list_of_string_JSON_values()
+        => Can_read_and_write_JSON_value<StringListArrayType, List<string>[]>(
+            nameof(StringListArrayType.Prop),
+            new List<string>[]
+            {
+                new() { "X", "Y", "" },
+                new(),
+                new() { "77" }
+            },
+            """{"Prop":[["X","Y",""],[],["77"]]}""",
+            mappedCollection: true);
+
+    protected class StringListArrayType
+    {
+        public List<string>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_list_of_IPAddress_JSON_values()
+        => Can_read_and_write_JSON_value<IpAddressListArrayType, Collection<IPAddress>[]>(
+            nameof(IpAddressListArrayType.Prop),
+            new Collection<IPAddress>[]
+            {
+                new() { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") },
+                new(),
+                new() { new IPAddress(0) }
+            },
+            """{"Prop":[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"],[],["0.0.0.0"]]}""",
+            mappedCollection: true);
+
+    protected class IpAddressListArrayType
+    {
+        public Collection<IPAddress>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_list_of_ulong_JSON_values()
+        => Can_read_and_write_JSON_value<ULongListArrayType, List<ulong>[]>(
+            nameof(ULongListArrayType.Prop),
+            new List<ulong>[]
+            {
+                new() { ulong.MinValue, 1UL, ulong.MaxValue },
+                new(),
+                new() { 77UL }
+            },
+            """{"Prop":[[0,1,18446744073709551615],[],[77]]}""",
+            mappedCollection: true);
+
+    protected class ULongListArrayType
+    {
+        public List<ulong>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[["AAEC","AQ==","TQ=="],[],["Tg=="]]}""")]
+    public virtual Task Can_read_write_array_of_list_of_binary_JSON_values(string expected)
+        => Can_read_and_write_JSON_value<BinaryListArrayType, List<byte[]>[]>(
+            nameof(BinaryListArrayType.Prop),
+            new List<byte[]>[]
+            {
+                new() { new byte[] { 0, 1, 2 }, new byte[] { 1 }, new byte[] { 77 } },
+                new(),
+                new() { new byte[] { 78 } }
+            },
+            expected,
+            mappedCollection: true);
+
+    protected class BinaryListArrayType
+    {
+        public List<byte[]>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd"],[],["ffffffff-ffff-ffff-ffff-ffffffffffff"]]}""")]
+    public virtual Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
+        => Can_read_and_write_JSON_value<GuidListArrayType, ICollection<Guid>[]>(
+            nameof(GuidListArrayType.Prop),
+            new List<Guid>[]
+            {
+                new() { new Guid("00000000-0000-0000-0000-000000000000"), new Guid("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD") },
+                new(),
+                new() { new Guid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") }
+            },
+            expected,
+            mappedCollection: true);
+
+    protected class GuidListArrayType
+    {
+        public ICollection<Guid>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_list_of_list_of_int_JSON_values()
+        => Can_read_and_write_JSON_value<Int32ListListListType, List<List<List<int>>>>(
+            nameof(Int32ListListListType.Prop),
+            new List<List<List<int>>>
+            {
+                new() { new () { int.MinValue, 0, int.MaxValue }, new() { 77 } },
+                new(),
+                new() { new () { 1, 2 }, new(), new() { 78, 79 } }
+            },
+            """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
+            mappedCollection: true);
+
+    protected class Int32ListListListType
+    {
+        public List<List<List<int>>> Prop { get; set; } = null!;
+    }
+
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_array_of_array_of_int_JSON_values()
+        => Can_read_and_write_JSON_value<Int32ArrayArrayArrayType, int[][][]>(
+            nameof(Int32ArrayArrayArrayType.Prop),
+            [
+                [[int.MinValue, 0, int.MaxValue], [77]],
+                [],
+                [[1, 2], Array.Empty<int>(), [78, 79]]
+            ],
+            """{"Prop":[[[-2147483648,0,2147483647],[77]],[],[[1,2],[],[78,79]]]}""",
+            mappedCollection: true);
+
+    protected class Int32ArrayArrayArrayType
+    {
+        public int[][][] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_list_of_string_JSON_values()
+        => Can_read_and_write_JSON_value<StringListArrayListType, List<List<string>[]>>(
+            nameof(StringListArrayListType.Prop),
+            new List<List<string>[]>
+            {
+                new List<string>[] { new () { "int.MinValue", "", "int.MaxValue" }, new() { "77" } },
+                Array.Empty<List<string>>(),
+                new List<string>[] { new () { "1", "2" }, new(), new() { "78", "79" } }
+            },
+            """{"Prop":[[["int.MinValue","","int.MaxValue"],["77"]],[],[["1","2"],[],["78","79"]]]}""",
+            mappedCollection: true);
+
+    protected class StringListArrayListType
+    {
+        public List<List<string>[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_list_of_array_of_string_JSON_values()
+        => Can_read_and_write_JSON_value<StringArrayListArrayType, List<string[]>[]>(
+            nameof(StringArrayListArrayType.Prop),
+            new List<string[]>[]
+            {
+                new() { new[] { "int.MinValue", "", "int.MaxValue" }, new[] { "77" } },
+                new(),
+                new() { new[] { "1", "2" }, Array.Empty<string>(), new[] { "78", "79" } }
+            },
+            """{"Prop":[[["int.MinValue","","int.MaxValue"],["77"]],[],[["1","2"],[],["78","79"]]]}""",
+            mappedCollection: true);
+
+    protected class StringArrayListArrayType
+    {
+        public List<string[]>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_array_of_list_of_array_of_IPAddress_JSON_values()
+        => Can_read_and_write_JSON_value<IpAddressArrayListArrayType, List<IPAddress[]>[]>(
+            nameof(IpAddressArrayListArrayType.Prop),
+            new List<IPAddress[]>[]
+            {
+                new() { new[] { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") } },
+                new(),
+                new() { new[] { new IPAddress(0) } }
+            },
+            """{"Prop":[[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]],[],[["0.0.0.0"]]]}""",
+            mappedCollection: true);
+
+    protected class IpAddressArrayListArrayType
+    {
+        public List<IPAddress[]>[] Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_list_of_IPAddress_JSON_values()
+        => Can_read_and_write_JSON_value<IpAddressListArrayListType, List<List<IPAddress>[]>>(
+            nameof(IpAddressListArrayListType.Prop),
+            new List<List<IPAddress>[]>
+            {
+                new List<IPAddress>[] { new() { IPAddress.Parse("127.0.0.1"), IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577") } },
+                Array.Empty<List<IPAddress>>(),
+                new List<IPAddress>[] { new() { new IPAddress(0) } }
+            },
+            """{"Prop":[[["127.0.0.1","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]],[],[["0.0.0.0"]]]}""",
+            mappedCollection: true);
+
+    protected class IpAddressListArrayListType
+    {
+        public List<List<IPAddress>[]> Prop { get; set; } = null!;
+    }
+
+    [ConditionalFact]
+    public virtual Task Can_read_write_list_of_array_of_list_of_ulong_JSON_values()
+        => Can_read_and_write_JSON_value<ULongListArrayListType, List<List<ulong[]>>>(
+            nameof(ULongListArrayListType.Prop),
+            new List<List<ulong[]>>
+            {
+                new() { new[] { ulong.MinValue, 1UL, ulong.MaxValue } },
+                new(),
+                new() { new[] { 77UL } }
+            },
+            """{"Prop":[[[0,1,18446744073709551615]],[],[[77]]]}""",
+            mappedCollection: true);
+
+    protected class ULongListArrayListType
+    {
+        public List<List<ulong[]>> Prop { get; set; } = null!;
+    }
+
+    [ConditionalTheory]
+    [InlineData("""{"Prop":[[[["AAEC","AQ==","TQ=="]],[],[[],[]]],[],[[[]],[["AAEC","AQ==","TQ=="]]]]}""")]
+    public virtual Task Can_read_write_list_of_array_of_list_of_array_of_binary_JSON_values(string expected)
+        => Can_read_and_write_JSON_value<BinaryListArrayArrayListType, List<List<byte[][]>[]>>(
+            nameof(BinaryListArrayArrayListType.Prop),
+            new List<List<byte[][]>[]>
+            {
+                new List<byte[][]>[] { new() { new byte[][] { new byte[] { 0, 1, 2 }, [1], [77] } }, new(), new() { new byte[][] { }, Array.Empty<byte[]>() } },
+                Array.Empty<List<byte[][]>>(),
+                new List<byte[][]>[] { new() { new byte[][] { } }, new() { new byte[][] { new byte[] { 0, 1, 2 }, [1], [77] } } },
+            },
+            expected,
+            mappedCollection: true);
+
+    protected class BinaryListArrayArrayListType
+    {
+        public List<List<byte[][]>[]> Prop { get; set; } = null!;
+    }
 
     protected virtual async Task Can_read_and_write_JSON_value<TEntity, TModel>(
         string propertyName,
@@ -3521,7 +3957,6 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
             Assert.Equal(typeof(TModel).GetSequenceType(), element.ClrType);
             Assert.Same(property, element.CollectionProperty);
-            Assert.Null(element.FindTypeMapping()!.ElementTypeMapping);
 
             bool elementNullable;
             if (element.ClrType.IsValueType)

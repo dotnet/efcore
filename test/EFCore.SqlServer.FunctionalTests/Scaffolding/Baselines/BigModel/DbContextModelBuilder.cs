@@ -185,6 +185,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Bool", boolColumnBase);
             var boolArrayColumnBase = new ColumnBase<ColumnMappingBase>("BoolArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BoolArray", boolArrayColumnBase);
+            var boolNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("BoolNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BoolNestedCollection", boolNestedCollectionColumnBase);
             var boolToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("BoolToStringConverterProperty", "nvarchar(1)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BoolToStringConverterProperty", boolToStringConverterPropertyColumnBase);
             var boolToTwoValuesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("BoolToTwoValuesConverterProperty", "tinyint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -195,6 +197,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Bytes", bytesColumnBase);
             var bytesArrayColumnBase = new ColumnBase<ColumnMappingBase>("BytesArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BytesArray", bytesArrayColumnBase);
+            var bytesNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("BytesNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BytesNestedCollection", bytesNestedCollectionColumnBase);
             var bytesToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("BytesToStringConverterProperty", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("BytesToStringConverterProperty", bytesToStringConverterPropertyColumnBase);
             var castingConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("CastingConverterProperty", "decimal(18,2)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -203,6 +207,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Char", charColumnBase);
             var charArrayColumnBase = new ColumnBase<ColumnMappingBase>("CharArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("CharArray", charArrayColumnBase);
+            var charNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("CharNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("CharNestedCollection", charNestedCollectionColumnBase);
             var charToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("CharToStringConverterProperty", "nchar(1)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("CharToStringConverterProperty", charToStringConverterPropertyColumnBase);
             var dateOnlyColumnBase = new ColumnBase<ColumnMappingBase>("DateOnly", "date", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -267,6 +273,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum32AsStringCollection", enum32AsStringCollectionColumnBase);
             var enum32CollectionColumnBase = new ColumnBase<ColumnMappingBase>("Enum32Collection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum32Collection", enum32CollectionColumnBase);
+            var enum32NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("Enum32NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum32NestedCollection", enum32NestedCollectionColumnBase);
             var enum64ColumnBase = new ColumnBase<ColumnMappingBase>("Enum64", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum64", enum64ColumnBase);
             var enum64ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Enum64Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -291,6 +299,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum8AsStringCollection", enum8AsStringCollectionColumnBase);
             var enum8CollectionColumnBase = new ColumnBase<ColumnMappingBase>("Enum8Collection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum8Collection", enum8CollectionColumnBase);
+            var enum8NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("Enum8NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Enum8NestedCollection", enum8NestedCollectionColumnBase);
             var enumToNumberConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("EnumToNumberConverterProperty", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("EnumToNumberConverterProperty", enumToNumberConverterPropertyColumnBase);
             var enumToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("EnumToStringConverterProperty", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -331,6 +341,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("EnumU64AsStringCollection", enumU64AsStringCollectionColumnBase);
             var enumU64CollectionColumnBase = new ColumnBase<ColumnMappingBase>("EnumU64Collection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("EnumU64Collection", enumU64CollectionColumnBase);
+            var enumU64NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("EnumU64NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("EnumU64NestedCollection", enumU64NestedCollectionColumnBase);
             var enumU8ColumnBase = new ColumnBase<ColumnMappingBase>("EnumU8", "tinyint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("EnumU8", enumU8ColumnBase);
             var enumU8ArrayColumnBase = new ColumnBase<ColumnMappingBase>("EnumU8Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -351,6 +363,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Guid", guidColumnBase);
             var guidArrayColumnBase = new ColumnBase<ColumnMappingBase>("GuidArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("GuidArray", guidArrayColumnBase);
+            var guidNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("GuidNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("GuidNestedCollection", guidNestedCollectionColumnBase);
             var guidToBytesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("GuidToBytesConverterProperty", "varbinary(16)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("GuidToBytesConverterProperty", guidToBytesConverterPropertyColumnBase);
             var guidToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("GuidToStringConverterProperty", "nvarchar(36)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -373,14 +387,20 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int32", int32ColumnBase);
             var int32ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Int32Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int32Array", int32ArrayColumnBase);
+            var int32NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("Int32NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int32NestedCollection", int32NestedCollectionColumnBase);
             var int64ColumnBase = new ColumnBase<ColumnMappingBase>("Int64", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int64", int64ColumnBase);
             var int64ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Int64Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int64Array", int64ArrayColumnBase);
+            var int64NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("Int64NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int64NestedCollection", int64NestedCollectionColumnBase);
             var int8ColumnBase = new ColumnBase<ColumnMappingBase>("Int8", "smallint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int8", int8ColumnBase);
             var int8ArrayColumnBase = new ColumnBase<ColumnMappingBase>("Int8Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int8Array", int8ArrayColumnBase);
+            var int8NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("Int8NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Int8NestedCollection", int8NestedCollectionColumnBase);
             var intNumberToBytesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("IntNumberToBytesConverterProperty", "varbinary(4)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("IntNumberToBytesConverterProperty", intNumberToBytesConverterPropertyColumnBase);
             var intNumberToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("IntNumberToStringConverterProperty", "nvarchar(64)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -404,6 +424,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableBytes", nullableBytesColumnBase);
             var nullableBytesArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullableBytesArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableBytesArray", nullableBytesArrayColumnBase);
+            var nullableBytesNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableBytesNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableBytesNestedCollection", nullableBytesNestedCollectionColumnBase);
             var nullableCharColumnBase = new ColumnBase<ColumnMappingBase>("NullableChar", "nvarchar(1)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -475,6 +497,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnum32AsStringCollection", nullableEnum32AsStringCollectionColumnBase);
             var nullableEnum32CollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnum32Collection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnum32Collection", nullableEnum32CollectionColumnBase);
+            var nullableEnum32NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnum32NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnum32NestedCollection", nullableEnum32NestedCollectionColumnBase);
             var nullableEnum64ColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnum64", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -511,6 +535,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnum8AsStringCollection", nullableEnum8AsStringCollectionColumnBase);
             var nullableEnum8CollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnum8Collection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnum8Collection", nullableEnum8CollectionColumnBase);
+            var nullableEnum8NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnum8NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnum8NestedCollection", nullableEnum8NestedCollectionColumnBase);
             var nullableEnumU16ColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnumU16", "int", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -565,6 +591,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnumU64AsStringCollection", nullableEnumU64AsStringCollectionColumnBase);
             var nullableEnumU64CollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnumU64Collection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnumU64Collection", nullableEnumU64CollectionColumnBase);
+            var nullableEnumU64NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnumU64NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableEnumU64NestedCollection", nullableEnumU64NestedCollectionColumnBase);
             var nullableEnumU8ColumnBase = new ColumnBase<ColumnMappingBase>("NullableEnumU8", "tinyint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -597,6 +625,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableGuid", nullableGuidColumnBase);
             var nullableGuidArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullableGuidArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableGuidArray", nullableGuidArrayColumnBase);
+            var nullableGuidNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableGuidNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableGuidNestedCollection", nullableGuidNestedCollectionColumnBase);
             var nullableIPAddressColumnBase = new ColumnBase<ColumnMappingBase>("NullableIPAddress", "nvarchar(45)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -618,6 +648,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableInt32", nullableInt32ColumnBase);
             var nullableInt32ArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullableInt32Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableInt32Array", nullableInt32ArrayColumnBase);
+            var nullableInt32NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableInt32NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableInt32NestedCollection", nullableInt32NestedCollectionColumnBase);
             var nullableInt64ColumnBase = new ColumnBase<ColumnMappingBase>("NullableInt64", "bigint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -625,6 +657,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableInt64", nullableInt64ColumnBase);
             var nullableInt64ArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullableInt64Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableInt64Array", nullableInt64ArrayColumnBase);
+            var nullableInt64NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableInt64NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableInt64NestedCollection", nullableInt64NestedCollectionColumnBase);
             var nullableInt8ColumnBase = new ColumnBase<ColumnMappingBase>("NullableInt8", "smallint", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -639,6 +673,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullablePhysicalAddress", nullablePhysicalAddressColumnBase);
             var nullablePhysicalAddressArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullablePhysicalAddressArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullablePhysicalAddressArray", nullablePhysicalAddressArrayColumnBase);
+            var nullablePhysicalAddressNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullablePhysicalAddressNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullablePhysicalAddressNestedCollection", nullablePhysicalAddressNestedCollectionColumnBase);
             var nullableStringColumnBase = new ColumnBase<ColumnMappingBase>("NullableString", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -646,6 +682,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableString", nullableStringColumnBase);
             var nullableStringArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullableStringArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableStringArray", nullableStringArrayColumnBase);
+            var nullableStringNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableStringNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableStringNestedCollection", nullableStringNestedCollectionColumnBase);
             var nullableTimeOnlyColumnBase = new ColumnBase<ColumnMappingBase>("NullableTimeOnly", "time", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -688,6 +726,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableUInt8", nullableUInt8ColumnBase);
             var nullableUInt8ArrayColumnBase = new ColumnBase<ColumnMappingBase>("NullableUInt8Array", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableUInt8Array", nullableUInt8ArrayColumnBase);
+            var nullableUInt8NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("NullableUInt8NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("NullableUInt8NestedCollection", nullableUInt8NestedCollectionColumnBase);
             var nullableUriColumnBase = new ColumnBase<ColumnMappingBase>("NullableUri", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
             {
                 IsNullable = true
@@ -707,6 +747,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("String", stringColumnBase);
             var stringArrayColumnBase = new ColumnBase<ColumnMappingBase>("StringArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("StringArray", stringArrayColumnBase);
+            var stringNestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("StringNestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("StringNestedCollection", stringNestedCollectionColumnBase);
             var stringToBoolConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("StringToBoolConverterProperty", "bit", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("StringToBoolConverterProperty", stringToBoolConverterPropertyColumnBase);
             var stringToBytesConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("StringToBytesConverterProperty", "varbinary(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase)
@@ -770,6 +812,8 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("UInt8", uInt8ColumnBase);
             var uInt8ArrayColumnBase = new ColumnBase<ColumnMappingBase>("UInt8Array", "varbinary(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("UInt8Array", uInt8ArrayColumnBase);
+            var uInt8NestedCollectionColumnBase = new ColumnBase<ColumnMappingBase>("UInt8NestedCollection", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("UInt8NestedCollection", uInt8NestedCollectionColumnBase);
             var uriColumnBase = new ColumnBase<ColumnMappingBase>("Uri", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Uri", uriColumnBase);
             var uriArrayColumnBase = new ColumnBase<ColumnMappingBase>("UriArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
@@ -783,15 +827,18 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase0, manyTypes.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolColumnBase, manyTypes.FindProperty("Bool")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolArrayColumnBase, manyTypes.FindProperty("BoolArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolNestedCollectionColumnBase, manyTypes.FindProperty("BoolNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolToStringConverterPropertyColumnBase, manyTypes.FindProperty("BoolToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolToTwoValuesConverterPropertyColumnBase, manyTypes.FindProperty("BoolToTwoValuesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)boolToZeroOneConverterPropertyColumnBase, manyTypes.FindProperty("BoolToZeroOneConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)bytesColumnBase, manyTypes.FindProperty("Bytes")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)bytesArrayColumnBase, manyTypes.FindProperty("BytesArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)bytesNestedCollectionColumnBase, manyTypes.FindProperty("BytesNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)bytesToStringConverterPropertyColumnBase, manyTypes.FindProperty("BytesToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)castingConverterPropertyColumnBase, manyTypes.FindProperty("CastingConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)charColumnBase, manyTypes.FindProperty("Char")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)charArrayColumnBase, manyTypes.FindProperty("CharArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)charNestedCollectionColumnBase, manyTypes.FindProperty("CharNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)charToStringConverterPropertyColumnBase, manyTypes.FindProperty("CharToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)dateOnlyColumnBase, manyTypes.FindProperty("DateOnly")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)dateOnlyArrayColumnBase, manyTypes.FindProperty("DateOnlyArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -824,6 +871,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum32AsStringArrayColumnBase, manyTypes.FindProperty("Enum32AsStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum32AsStringCollectionColumnBase, manyTypes.FindProperty("Enum32AsStringCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum32CollectionColumnBase, manyTypes.FindProperty("Enum32Collection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum32NestedCollectionColumnBase, manyTypes.FindProperty("Enum32NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum64ColumnBase, manyTypes.FindProperty("Enum64")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum64ArrayColumnBase, manyTypes.FindProperty("Enum64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum64AsStringColumnBase, manyTypes.FindProperty("Enum64AsString")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -836,6 +884,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum8AsStringArrayColumnBase, manyTypes.FindProperty("Enum8AsStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum8AsStringCollectionColumnBase, manyTypes.FindProperty("Enum8AsStringCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum8CollectionColumnBase, manyTypes.FindProperty("Enum8Collection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enum8NestedCollectionColumnBase, manyTypes.FindProperty("Enum8NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumToNumberConverterPropertyColumnBase, manyTypes.FindProperty("EnumToNumberConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumToStringConverterPropertyColumnBase, manyTypes.FindProperty("EnumToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU16ColumnBase, manyTypes.FindProperty("EnumU16")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -856,6 +905,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU64AsStringArrayColumnBase, manyTypes.FindProperty("EnumU64AsStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU64AsStringCollectionColumnBase, manyTypes.FindProperty("EnumU64AsStringCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU64CollectionColumnBase, manyTypes.FindProperty("EnumU64Collection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU64NestedCollectionColumnBase, manyTypes.FindProperty("EnumU64NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU8ColumnBase, manyTypes.FindProperty("EnumU8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU8ArrayColumnBase, manyTypes.FindProperty("EnumU8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)enumU8AsStringColumnBase, manyTypes.FindProperty("EnumU8AsString")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -866,6 +916,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)floatArrayColumnBase, manyTypes.FindProperty("FloatArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)guidColumnBase, manyTypes.FindProperty("Guid")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)guidArrayColumnBase, manyTypes.FindProperty("GuidArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)guidNestedCollectionColumnBase, manyTypes.FindProperty("GuidNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)guidToBytesConverterPropertyColumnBase, manyTypes.FindProperty("GuidToBytesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)guidToStringConverterPropertyColumnBase, manyTypes.FindProperty("GuidToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)iPAddressColumnBase, manyTypes.FindProperty("IPAddress")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -876,10 +927,13 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int16ArrayColumnBase, manyTypes.FindProperty("Int16Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int32ColumnBase, manyTypes.FindProperty("Int32")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int32ArrayColumnBase, manyTypes.FindProperty("Int32Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int32NestedCollectionColumnBase, manyTypes.FindProperty("Int32NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int64ColumnBase, manyTypes.FindProperty("Int64")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int64ArrayColumnBase, manyTypes.FindProperty("Int64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int64NestedCollectionColumnBase, manyTypes.FindProperty("Int64NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int8ColumnBase, manyTypes.FindProperty("Int8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int8ArrayColumnBase, manyTypes.FindProperty("Int8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)int8NestedCollectionColumnBase, manyTypes.FindProperty("Int8NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)intNumberToBytesConverterPropertyColumnBase, manyTypes.FindProperty("IntNumberToBytesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)intNumberToStringConverterPropertyColumnBase, manyTypes.FindProperty("IntNumberToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullIntToNullStringConverterPropertyColumnBase, manyTypes.FindProperty("NullIntToNullStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -887,6 +941,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableBoolArrayColumnBase, manyTypes.FindProperty("NullableBoolArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableBytesColumnBase, manyTypes.FindProperty("NullableBytes")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableBytesArrayColumnBase, manyTypes.FindProperty("NullableBytesArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableBytesNestedCollectionColumnBase, manyTypes.FindProperty("NullableBytesNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableCharColumnBase, manyTypes.FindProperty("NullableChar")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableCharArrayColumnBase, manyTypes.FindProperty("NullableCharArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableDateOnlyColumnBase, manyTypes.FindProperty("NullableDateOnly")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -909,6 +964,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum32AsStringArrayColumnBase, manyTypes.FindProperty("NullableEnum32AsStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum32AsStringCollectionColumnBase, manyTypes.FindProperty("NullableEnum32AsStringCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum32CollectionColumnBase, manyTypes.FindProperty("NullableEnum32Collection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum32NestedCollectionColumnBase, manyTypes.FindProperty("NullableEnum32NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum64ColumnBase, manyTypes.FindProperty("NullableEnum64")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum64ArrayColumnBase, manyTypes.FindProperty("NullableEnum64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum64AsStringColumnBase, manyTypes.FindProperty("NullableEnum64AsString")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -921,6 +977,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum8AsStringArrayColumnBase, manyTypes.FindProperty("NullableEnum8AsStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum8AsStringCollectionColumnBase, manyTypes.FindProperty("NullableEnum8AsStringCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum8CollectionColumnBase, manyTypes.FindProperty("NullableEnum8Collection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnum8NestedCollectionColumnBase, manyTypes.FindProperty("NullableEnum8NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU16ColumnBase, manyTypes.FindProperty("NullableEnumU16")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU16ArrayColumnBase, manyTypes.FindProperty("NullableEnumU16Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU16AsStringColumnBase, manyTypes.FindProperty("NullableEnumU16AsString")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -939,6 +996,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU64AsStringArrayColumnBase, manyTypes.FindProperty("NullableEnumU64AsStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU64AsStringCollectionColumnBase, manyTypes.FindProperty("NullableEnumU64AsStringCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU64CollectionColumnBase, manyTypes.FindProperty("NullableEnumU64Collection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU64NestedCollectionColumnBase, manyTypes.FindProperty("NullableEnumU64NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU8ColumnBase, manyTypes.FindProperty("NullableEnumU8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU8ArrayColumnBase, manyTypes.FindProperty("NullableEnumU8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableEnumU8AsStringColumnBase, manyTypes.FindProperty("NullableEnumU8AsString")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -949,20 +1007,25 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableFloatArrayColumnBase, manyTypes.FindProperty("NullableFloatArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableGuidColumnBase, manyTypes.FindProperty("NullableGuid")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableGuidArrayColumnBase, manyTypes.FindProperty("NullableGuidArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableGuidNestedCollectionColumnBase, manyTypes.FindProperty("NullableGuidNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableIPAddressColumnBase, manyTypes.FindProperty("NullableIPAddress")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableIPAddressArrayColumnBase, manyTypes.FindProperty("NullableIPAddressArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt16ColumnBase, manyTypes.FindProperty("NullableInt16")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt16ArrayColumnBase, manyTypes.FindProperty("NullableInt16Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt32ColumnBase, manyTypes.FindProperty("NullableInt32")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt32ArrayColumnBase, manyTypes.FindProperty("NullableInt32Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt32NestedCollectionColumnBase, manyTypes.FindProperty("NullableInt32NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt64ColumnBase, manyTypes.FindProperty("NullableInt64")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt64ArrayColumnBase, manyTypes.FindProperty("NullableInt64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt64NestedCollectionColumnBase, manyTypes.FindProperty("NullableInt64NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt8ColumnBase, manyTypes.FindProperty("NullableInt8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableInt8ArrayColumnBase, manyTypes.FindProperty("NullableInt8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullablePhysicalAddressColumnBase, manyTypes.FindProperty("NullablePhysicalAddress")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullablePhysicalAddressArrayColumnBase, manyTypes.FindProperty("NullablePhysicalAddressArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullablePhysicalAddressNestedCollectionColumnBase, manyTypes.FindProperty("NullablePhysicalAddressNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableStringColumnBase, manyTypes.FindProperty("NullableString")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableStringArrayColumnBase, manyTypes.FindProperty("NullableStringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableStringNestedCollectionColumnBase, manyTypes.FindProperty("NullableStringNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableTimeOnlyColumnBase, manyTypes.FindProperty("NullableTimeOnly")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableTimeOnlyArrayColumnBase, manyTypes.FindProperty("NullableTimeOnlyArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableTimeSpanColumnBase, manyTypes.FindProperty("NullableTimeSpan")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -975,6 +1038,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableUInt64ArrayColumnBase, manyTypes.FindProperty("NullableUInt64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableUInt8ColumnBase, manyTypes.FindProperty("NullableUInt8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableUInt8ArrayColumnBase, manyTypes.FindProperty("NullableUInt8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableUInt8NestedCollectionColumnBase, manyTypes.FindProperty("NullableUInt8NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableUriColumnBase, manyTypes.FindProperty("NullableUri")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)nullableUriArrayColumnBase, manyTypes.FindProperty("NullableUriArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)physicalAddressColumnBase, manyTypes.FindProperty("PhysicalAddress")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -983,6 +1047,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)physicalAddressToStringConverterPropertyColumnBase, manyTypes.FindProperty("PhysicalAddressToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringColumnBase, manyTypes.FindProperty("String")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringArrayColumnBase, manyTypes.FindProperty("StringArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringNestedCollectionColumnBase, manyTypes.FindProperty("StringNestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringToBoolConverterPropertyColumnBase, manyTypes.FindProperty("StringToBoolConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringToBytesConverterPropertyColumnBase, manyTypes.FindProperty("StringToBytesConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)stringToCharConverterPropertyColumnBase, manyTypes.FindProperty("StringToCharConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -1013,6 +1078,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt64ArrayColumnBase, manyTypes.FindProperty("UInt64Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt8ColumnBase, manyTypes.FindProperty("UInt8")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt8ArrayColumnBase, manyTypes.FindProperty("UInt8Array")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uInt8NestedCollectionColumnBase, manyTypes.FindProperty("UInt8NestedCollection")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriColumnBase, manyTypes.FindProperty("Uri")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriArrayColumnBase, manyTypes.FindProperty("UriArray")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)uriToStringConverterPropertyColumnBase, manyTypes.FindProperty("UriToStringConverterProperty")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesMappingBase);
@@ -1026,6 +1092,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Bool", boolColumn);
             var boolArrayColumn = new Column("BoolArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("BoolArray", boolArrayColumn);
+            var boolNestedCollectionColumn = new Column("BoolNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("BoolNestedCollection", boolNestedCollectionColumn);
             var boolToStringConverterPropertyColumn = new Column("BoolToStringConverterProperty", "nvarchar(1)", manyTypesTable);
             manyTypesTable.Columns.Add("BoolToStringConverterProperty", boolToStringConverterPropertyColumn);
             var boolToTwoValuesConverterPropertyColumn = new Column("BoolToTwoValuesConverterProperty", "tinyint", manyTypesTable);
@@ -1036,6 +1104,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Bytes", bytesColumn);
             var bytesArrayColumn = new Column("BytesArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("BytesArray", bytesArrayColumn);
+            var bytesNestedCollectionColumn = new Column("BytesNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("BytesNestedCollection", bytesNestedCollectionColumn);
             var bytesToStringConverterPropertyColumn = new Column("BytesToStringConverterProperty", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("BytesToStringConverterProperty", bytesToStringConverterPropertyColumn);
             var castingConverterPropertyColumn = new Column("CastingConverterProperty", "decimal(18,2)", manyTypesTable);
@@ -1044,6 +1114,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Char", charColumn);
             var charArrayColumn = new Column("CharArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("CharArray", charArrayColumn);
+            var charNestedCollectionColumn = new Column("CharNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("CharNestedCollection", charNestedCollectionColumn);
             var charToStringConverterPropertyColumn = new Column("CharToStringConverterProperty", "nchar(1)", manyTypesTable);
             manyTypesTable.Columns.Add("CharToStringConverterProperty", charToStringConverterPropertyColumn);
             var dateOnlyColumn = new Column("DateOnly", "date", manyTypesTable);
@@ -1108,6 +1180,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Enum32AsStringCollection", enum32AsStringCollectionColumn);
             var enum32CollectionColumn = new Column("Enum32Collection", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Enum32Collection", enum32CollectionColumn);
+            var enum32NestedCollectionColumn = new Column("Enum32NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("Enum32NestedCollection", enum32NestedCollectionColumn);
             var enum64Column = new Column("Enum64", "bigint", manyTypesTable);
             manyTypesTable.Columns.Add("Enum64", enum64Column);
             var enum64ArrayColumn = new Column("Enum64Array", "nvarchar(max)", manyTypesTable);
@@ -1132,6 +1206,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Enum8AsStringCollection", enum8AsStringCollectionColumn);
             var enum8CollectionColumn = new Column("Enum8Collection", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Enum8Collection", enum8CollectionColumn);
+            var enum8NestedCollectionColumn = new Column("Enum8NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("Enum8NestedCollection", enum8NestedCollectionColumn);
             var enumToNumberConverterPropertyColumn = new Column("EnumToNumberConverterProperty", "int", manyTypesTable);
             manyTypesTable.Columns.Add("EnumToNumberConverterProperty", enumToNumberConverterPropertyColumn);
             var enumToStringConverterPropertyColumn = new Column("EnumToStringConverterProperty", "nvarchar(max)", manyTypesTable);
@@ -1172,6 +1248,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("EnumU64AsStringCollection", enumU64AsStringCollectionColumn);
             var enumU64CollectionColumn = new Column("EnumU64Collection", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("EnumU64Collection", enumU64CollectionColumn);
+            var enumU64NestedCollectionColumn = new Column("EnumU64NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("EnumU64NestedCollection", enumU64NestedCollectionColumn);
             var enumU8Column = new Column("EnumU8", "tinyint", manyTypesTable);
             manyTypesTable.Columns.Add("EnumU8", enumU8Column);
             var enumU8ArrayColumn = new Column("EnumU8Array", "nvarchar(max)", manyTypesTable);
@@ -1192,6 +1270,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Guid", guidColumn);
             var guidArrayColumn = new Column("GuidArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("GuidArray", guidArrayColumn);
+            var guidNestedCollectionColumn = new Column("GuidNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("GuidNestedCollection", guidNestedCollectionColumn);
             var guidToBytesConverterPropertyColumn = new Column("GuidToBytesConverterProperty", "varbinary(16)", manyTypesTable);
             manyTypesTable.Columns.Add("GuidToBytesConverterProperty", guidToBytesConverterPropertyColumn);
             var guidToStringConverterPropertyColumn = new Column("GuidToStringConverterProperty", "nvarchar(36)", manyTypesTable);
@@ -1212,14 +1292,20 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Int32", int32Column);
             var int32ArrayColumn = new Column("Int32Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Int32Array", int32ArrayColumn);
+            var int32NestedCollectionColumn = new Column("Int32NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("Int32NestedCollection", int32NestedCollectionColumn);
             var int64Column = new Column("Int64", "bigint", manyTypesTable);
             manyTypesTable.Columns.Add("Int64", int64Column);
             var int64ArrayColumn = new Column("Int64Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Int64Array", int64ArrayColumn);
+            var int64NestedCollectionColumn = new Column("Int64NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("Int64NestedCollection", int64NestedCollectionColumn);
             var int8Column = new Column("Int8", "smallint", manyTypesTable);
             manyTypesTable.Columns.Add("Int8", int8Column);
             var int8ArrayColumn = new Column("Int8Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Int8Array", int8ArrayColumn);
+            var int8NestedCollectionColumn = new Column("Int8NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("Int8NestedCollection", int8NestedCollectionColumn);
             var intNumberToBytesConverterPropertyColumn = new Column("IntNumberToBytesConverterProperty", "varbinary(4)", manyTypesTable);
             manyTypesTable.Columns.Add("IntNumberToBytesConverterProperty", intNumberToBytesConverterPropertyColumn);
             var intNumberToStringConverterPropertyColumn = new Column("IntNumberToStringConverterProperty", "nvarchar(64)", manyTypesTable);
@@ -1243,6 +1329,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableBytes", nullableBytesColumn);
             var nullableBytesArrayColumn = new Column("NullableBytesArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableBytesArray", nullableBytesArrayColumn);
+            var nullableBytesNestedCollectionColumn = new Column("NullableBytesNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableBytesNestedCollection", nullableBytesNestedCollectionColumn);
             var nullableCharColumn = new Column("NullableChar", "nvarchar(1)", manyTypesTable)
             {
                 IsNullable = true
@@ -1314,6 +1402,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableEnum32AsStringCollection", nullableEnum32AsStringCollectionColumn);
             var nullableEnum32CollectionColumn = new Column("NullableEnum32Collection", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableEnum32Collection", nullableEnum32CollectionColumn);
+            var nullableEnum32NestedCollectionColumn = new Column("NullableEnum32NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableEnum32NestedCollection", nullableEnum32NestedCollectionColumn);
             var nullableEnum64Column = new Column("NullableEnum64", "bigint", manyTypesTable)
             {
                 IsNullable = true
@@ -1350,6 +1440,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableEnum8AsStringCollection", nullableEnum8AsStringCollectionColumn);
             var nullableEnum8CollectionColumn = new Column("NullableEnum8Collection", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableEnum8Collection", nullableEnum8CollectionColumn);
+            var nullableEnum8NestedCollectionColumn = new Column("NullableEnum8NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableEnum8NestedCollection", nullableEnum8NestedCollectionColumn);
             var nullableEnumU16Column = new Column("NullableEnumU16", "int", manyTypesTable)
             {
                 IsNullable = true
@@ -1404,6 +1496,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableEnumU64AsStringCollection", nullableEnumU64AsStringCollectionColumn);
             var nullableEnumU64CollectionColumn = new Column("NullableEnumU64Collection", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableEnumU64Collection", nullableEnumU64CollectionColumn);
+            var nullableEnumU64NestedCollectionColumn = new Column("NullableEnumU64NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableEnumU64NestedCollection", nullableEnumU64NestedCollectionColumn);
             var nullableEnumU8Column = new Column("NullableEnumU8", "tinyint", manyTypesTable)
             {
                 IsNullable = true
@@ -1436,6 +1530,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableGuid", nullableGuidColumn);
             var nullableGuidArrayColumn = new Column("NullableGuidArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableGuidArray", nullableGuidArrayColumn);
+            var nullableGuidNestedCollectionColumn = new Column("NullableGuidNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableGuidNestedCollection", nullableGuidNestedCollectionColumn);
             var nullableIPAddressColumn = new Column("NullableIPAddress", "nvarchar(45)", manyTypesTable)
             {
                 IsNullable = true
@@ -1457,6 +1553,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableInt32", nullableInt32Column);
             var nullableInt32ArrayColumn = new Column("NullableInt32Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableInt32Array", nullableInt32ArrayColumn);
+            var nullableInt32NestedCollectionColumn = new Column("NullableInt32NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableInt32NestedCollection", nullableInt32NestedCollectionColumn);
             var nullableInt64Column = new Column("NullableInt64", "bigint", manyTypesTable)
             {
                 IsNullable = true
@@ -1464,6 +1562,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableInt64", nullableInt64Column);
             var nullableInt64ArrayColumn = new Column("NullableInt64Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableInt64Array", nullableInt64ArrayColumn);
+            var nullableInt64NestedCollectionColumn = new Column("NullableInt64NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableInt64NestedCollection", nullableInt64NestedCollectionColumn);
             var nullableInt8Column = new Column("NullableInt8", "smallint", manyTypesTable)
             {
                 IsNullable = true
@@ -1478,6 +1578,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullablePhysicalAddress", nullablePhysicalAddressColumn);
             var nullablePhysicalAddressArrayColumn = new Column("NullablePhysicalAddressArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullablePhysicalAddressArray", nullablePhysicalAddressArrayColumn);
+            var nullablePhysicalAddressNestedCollectionColumn = new Column("NullablePhysicalAddressNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullablePhysicalAddressNestedCollection", nullablePhysicalAddressNestedCollectionColumn);
             var nullableStringColumn = new Column("NullableString", "nvarchar(max)", manyTypesTable)
             {
                 IsNullable = true
@@ -1485,6 +1587,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableString", nullableStringColumn);
             var nullableStringArrayColumn = new Column("NullableStringArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableStringArray", nullableStringArrayColumn);
+            var nullableStringNestedCollectionColumn = new Column("NullableStringNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableStringNestedCollection", nullableStringNestedCollectionColumn);
             var nullableTimeOnlyColumn = new Column("NullableTimeOnly", "time", manyTypesTable)
             {
                 IsNullable = true
@@ -1527,6 +1631,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("NullableUInt8", nullableUInt8Column);
             var nullableUInt8ArrayColumn = new Column("NullableUInt8Array", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("NullableUInt8Array", nullableUInt8ArrayColumn);
+            var nullableUInt8NestedCollectionColumn = new Column("NullableUInt8NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("NullableUInt8NestedCollection", nullableUInt8NestedCollectionColumn);
             var nullableUriColumn = new Column("NullableUri", "nvarchar(max)", manyTypesTable)
             {
                 IsNullable = true
@@ -1546,6 +1652,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("String", stringColumn);
             var stringArrayColumn = new Column("StringArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("StringArray", stringArrayColumn);
+            var stringNestedCollectionColumn = new Column("StringNestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("StringNestedCollection", stringNestedCollectionColumn);
             var stringToBoolConverterPropertyColumn = new Column("StringToBoolConverterProperty", "bit", manyTypesTable);
             manyTypesTable.Columns.Add("StringToBoolConverterProperty", stringToBoolConverterPropertyColumn);
             var stringToBytesConverterPropertyColumn = new Column("StringToBytesConverterProperty", "varbinary(max)", manyTypesTable)
@@ -1609,6 +1717,8 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("UInt8", uInt8Column);
             var uInt8ArrayColumn = new Column("UInt8Array", "varbinary(max)", manyTypesTable);
             manyTypesTable.Columns.Add("UInt8Array", uInt8ArrayColumn);
+            var uInt8NestedCollectionColumn = new Column("UInt8NestedCollection", "nvarchar(max)", manyTypesTable);
+            manyTypesTable.Columns.Add("UInt8NestedCollection", uInt8NestedCollectionColumn);
             var uriColumn = new Column("Uri", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("Uri", uriColumn);
             var uriArrayColumn = new Column("UriArray", "nvarchar(max)", manyTypesTable);
@@ -1630,15 +1740,18 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(idColumn0, manyTypes.FindProperty("Id")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolColumn, manyTypes.FindProperty("Bool")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolArrayColumn, manyTypes.FindProperty("BoolArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(boolNestedCollectionColumn, manyTypes.FindProperty("BoolNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolToStringConverterPropertyColumn, manyTypes.FindProperty("BoolToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolToTwoValuesConverterPropertyColumn, manyTypes.FindProperty("BoolToTwoValuesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(boolToZeroOneConverterPropertyColumn, manyTypes.FindProperty("BoolToZeroOneConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(bytesColumn, manyTypes.FindProperty("Bytes")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(bytesArrayColumn, manyTypes.FindProperty("BytesArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(bytesNestedCollectionColumn, manyTypes.FindProperty("BytesNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(bytesToStringConverterPropertyColumn, manyTypes.FindProperty("BytesToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(castingConverterPropertyColumn, manyTypes.FindProperty("CastingConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(charColumn, manyTypes.FindProperty("Char")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(charArrayColumn, manyTypes.FindProperty("CharArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(charNestedCollectionColumn, manyTypes.FindProperty("CharNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(charToStringConverterPropertyColumn, manyTypes.FindProperty("CharToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(dateOnlyColumn, manyTypes.FindProperty("DateOnly")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(dateOnlyArrayColumn, manyTypes.FindProperty("DateOnlyArray")!, manyTypesTableMapping);
@@ -1671,6 +1784,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(enum32AsStringArrayColumn, manyTypes.FindProperty("Enum32AsStringArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum32AsStringCollectionColumn, manyTypes.FindProperty("Enum32AsStringCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum32CollectionColumn, manyTypes.FindProperty("Enum32Collection")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(enum32NestedCollectionColumn, manyTypes.FindProperty("Enum32NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum64Column, manyTypes.FindProperty("Enum64")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum64ArrayColumn, manyTypes.FindProperty("Enum64Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum64AsStringColumn, manyTypes.FindProperty("Enum64AsString")!, manyTypesTableMapping);
@@ -1683,6 +1797,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(enum8AsStringArrayColumn, manyTypes.FindProperty("Enum8AsStringArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum8AsStringCollectionColumn, manyTypes.FindProperty("Enum8AsStringCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enum8CollectionColumn, manyTypes.FindProperty("Enum8Collection")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(enum8NestedCollectionColumn, manyTypes.FindProperty("Enum8NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumToNumberConverterPropertyColumn, manyTypes.FindProperty("EnumToNumberConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumToStringConverterPropertyColumn, manyTypes.FindProperty("EnumToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumU16Column, manyTypes.FindProperty("EnumU16")!, manyTypesTableMapping);
@@ -1703,6 +1818,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(enumU64AsStringArrayColumn, manyTypes.FindProperty("EnumU64AsStringArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumU64AsStringCollectionColumn, manyTypes.FindProperty("EnumU64AsStringCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumU64CollectionColumn, manyTypes.FindProperty("EnumU64Collection")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(enumU64NestedCollectionColumn, manyTypes.FindProperty("EnumU64NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumU8Column, manyTypes.FindProperty("EnumU8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumU8ArrayColumn, manyTypes.FindProperty("EnumU8Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(enumU8AsStringColumn, manyTypes.FindProperty("EnumU8AsString")!, manyTypesTableMapping);
@@ -1713,6 +1829,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(floatArrayColumn, manyTypes.FindProperty("FloatArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(guidColumn, manyTypes.FindProperty("Guid")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(guidArrayColumn, manyTypes.FindProperty("GuidArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(guidNestedCollectionColumn, manyTypes.FindProperty("GuidNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(guidToBytesConverterPropertyColumn, manyTypes.FindProperty("GuidToBytesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(guidToStringConverterPropertyColumn, manyTypes.FindProperty("GuidToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(iPAddressColumn, manyTypes.FindProperty("IPAddress")!, manyTypesTableMapping);
@@ -1723,10 +1840,13 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(int16ArrayColumn, manyTypes.FindProperty("Int16Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int32Column, manyTypes.FindProperty("Int32")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int32ArrayColumn, manyTypes.FindProperty("Int32Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(int32NestedCollectionColumn, manyTypes.FindProperty("Int32NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int64Column, manyTypes.FindProperty("Int64")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int64ArrayColumn, manyTypes.FindProperty("Int64Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(int64NestedCollectionColumn, manyTypes.FindProperty("Int64NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int8Column, manyTypes.FindProperty("Int8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(int8ArrayColumn, manyTypes.FindProperty("Int8Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(int8NestedCollectionColumn, manyTypes.FindProperty("Int8NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(intNumberToBytesConverterPropertyColumn, manyTypes.FindProperty("IntNumberToBytesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(intNumberToStringConverterPropertyColumn, manyTypes.FindProperty("IntNumberToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullIntToNullStringConverterPropertyColumn, manyTypes.FindProperty("NullIntToNullStringConverterProperty")!, manyTypesTableMapping);
@@ -1734,6 +1854,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(nullableBoolArrayColumn, manyTypes.FindProperty("NullableBoolArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableBytesColumn, manyTypes.FindProperty("NullableBytes")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableBytesArrayColumn, manyTypes.FindProperty("NullableBytesArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableBytesNestedCollectionColumn, manyTypes.FindProperty("NullableBytesNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableCharColumn, manyTypes.FindProperty("NullableChar")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableCharArrayColumn, manyTypes.FindProperty("NullableCharArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableDateOnlyColumn, manyTypes.FindProperty("NullableDateOnly")!, manyTypesTableMapping);
@@ -1756,6 +1877,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(nullableEnum32AsStringArrayColumn, manyTypes.FindProperty("NullableEnum32AsStringArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum32AsStringCollectionColumn, manyTypes.FindProperty("NullableEnum32AsStringCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum32CollectionColumn, manyTypes.FindProperty("NullableEnum32Collection")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableEnum32NestedCollectionColumn, manyTypes.FindProperty("NullableEnum32NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum64Column, manyTypes.FindProperty("NullableEnum64")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum64ArrayColumn, manyTypes.FindProperty("NullableEnum64Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum64AsStringColumn, manyTypes.FindProperty("NullableEnum64AsString")!, manyTypesTableMapping);
@@ -1768,6 +1890,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(nullableEnum8AsStringArrayColumn, manyTypes.FindProperty("NullableEnum8AsStringArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum8AsStringCollectionColumn, manyTypes.FindProperty("NullableEnum8AsStringCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnum8CollectionColumn, manyTypes.FindProperty("NullableEnum8Collection")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableEnum8NestedCollectionColumn, manyTypes.FindProperty("NullableEnum8NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU16Column, manyTypes.FindProperty("NullableEnumU16")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU16ArrayColumn, manyTypes.FindProperty("NullableEnumU16Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU16AsStringColumn, manyTypes.FindProperty("NullableEnumU16AsString")!, manyTypesTableMapping);
@@ -1786,6 +1909,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(nullableEnumU64AsStringArrayColumn, manyTypes.FindProperty("NullableEnumU64AsStringArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU64AsStringCollectionColumn, manyTypes.FindProperty("NullableEnumU64AsStringCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU64CollectionColumn, manyTypes.FindProperty("NullableEnumU64Collection")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableEnumU64NestedCollectionColumn, manyTypes.FindProperty("NullableEnumU64NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU8Column, manyTypes.FindProperty("NullableEnumU8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU8ArrayColumn, manyTypes.FindProperty("NullableEnumU8Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableEnumU8AsStringColumn, manyTypes.FindProperty("NullableEnumU8AsString")!, manyTypesTableMapping);
@@ -1796,20 +1920,25 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(nullableFloatArrayColumn, manyTypes.FindProperty("NullableFloatArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableGuidColumn, manyTypes.FindProperty("NullableGuid")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableGuidArrayColumn, manyTypes.FindProperty("NullableGuidArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableGuidNestedCollectionColumn, manyTypes.FindProperty("NullableGuidNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableIPAddressColumn, manyTypes.FindProperty("NullableIPAddress")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableIPAddressArrayColumn, manyTypes.FindProperty("NullableIPAddressArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt16Column, manyTypes.FindProperty("NullableInt16")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt16ArrayColumn, manyTypes.FindProperty("NullableInt16Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt32Column, manyTypes.FindProperty("NullableInt32")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt32ArrayColumn, manyTypes.FindProperty("NullableInt32Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableInt32NestedCollectionColumn, manyTypes.FindProperty("NullableInt32NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt64Column, manyTypes.FindProperty("NullableInt64")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt64ArrayColumn, manyTypes.FindProperty("NullableInt64Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableInt64NestedCollectionColumn, manyTypes.FindProperty("NullableInt64NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt8Column, manyTypes.FindProperty("NullableInt8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableInt8ArrayColumn, manyTypes.FindProperty("NullableInt8Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullablePhysicalAddressColumn, manyTypes.FindProperty("NullablePhysicalAddress")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullablePhysicalAddressArrayColumn, manyTypes.FindProperty("NullablePhysicalAddressArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullablePhysicalAddressNestedCollectionColumn, manyTypes.FindProperty("NullablePhysicalAddressNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableStringColumn, manyTypes.FindProperty("NullableString")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableStringArrayColumn, manyTypes.FindProperty("NullableStringArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableStringNestedCollectionColumn, manyTypes.FindProperty("NullableStringNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableTimeOnlyColumn, manyTypes.FindProperty("NullableTimeOnly")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableTimeOnlyArrayColumn, manyTypes.FindProperty("NullableTimeOnlyArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableTimeSpanColumn, manyTypes.FindProperty("NullableTimeSpan")!, manyTypesTableMapping);
@@ -1822,6 +1951,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(nullableUInt64ArrayColumn, manyTypes.FindProperty("NullableUInt64Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableUInt8Column, manyTypes.FindProperty("NullableUInt8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableUInt8ArrayColumn, manyTypes.FindProperty("NullableUInt8Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(nullableUInt8NestedCollectionColumn, manyTypes.FindProperty("NullableUInt8NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableUriColumn, manyTypes.FindProperty("NullableUri")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(nullableUriArrayColumn, manyTypes.FindProperty("NullableUriArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(physicalAddressColumn, manyTypes.FindProperty("PhysicalAddress")!, manyTypesTableMapping);
@@ -1830,6 +1960,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(physicalAddressToStringConverterPropertyColumn, manyTypes.FindProperty("PhysicalAddressToStringConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringColumn, manyTypes.FindProperty("String")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringArrayColumn, manyTypes.FindProperty("StringArray")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(stringNestedCollectionColumn, manyTypes.FindProperty("StringNestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringToBoolConverterPropertyColumn, manyTypes.FindProperty("StringToBoolConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringToBytesConverterPropertyColumn, manyTypes.FindProperty("StringToBytesConverterProperty")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(stringToCharConverterPropertyColumn, manyTypes.FindProperty("StringToCharConverterProperty")!, manyTypesTableMapping);
@@ -1860,6 +1991,7 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(uInt64ArrayColumn, manyTypes.FindProperty("UInt64Array")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uInt8Column, manyTypes.FindProperty("UInt8")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uInt8ArrayColumn, manyTypes.FindProperty("UInt8Array")!, manyTypesTableMapping);
+            RelationalModel.CreateColumnMapping(uInt8NestedCollectionColumn, manyTypes.FindProperty("UInt8NestedCollection")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriColumn, manyTypes.FindProperty("Uri")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriArrayColumn, manyTypes.FindProperty("UriArray")!, manyTypesTableMapping);
             RelationalModel.CreateColumnMapping(uriToStringConverterPropertyColumn, manyTypes.FindProperty("UriToStringConverterProperty")!, manyTypesTableMapping);

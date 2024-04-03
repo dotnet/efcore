@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Dynamic;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -812,6 +813,9 @@ public abstract partial class ModelBuilderTest
 
         [ConditionalFact]
         public virtual void Properties_can_have_provider_type_set()
+            => Properties_can_have_provider_type_set<byte[]>();
+
+        protected virtual void Properties_can_have_provider_type_set<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -822,7 +826,7 @@ public abstract partial class ModelBuilderTest
                     b.Property(e => e.Down).HasConversion<byte[]>();
                     b.Property<int>("Charm").HasConversion<long, CustomValueComparer<int>>();
                     b.Property<string>("Strange").HasConversion<byte[]>(
-                        new CustomValueComparer<string>(), new CustomValueComparer<byte[]>());
+                        new CustomValueComparer<string>(), new CustomValueComparer<TBytes>());
                     b.Property<string>("Strange").HasConversion(null);
                     b.Property<string>("Top").HasConversion<string>(new CustomValueComparer<string>());
                 });
@@ -837,7 +841,7 @@ public abstract partial class ModelBuilderTest
             var down = entityType.FindProperty("Down")!;
             Assert.Same(typeof(byte[]), down.GetProviderClrType());
             Assert.True(down.GetValueComparer()?.IsDefault());
-            Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
+            Assert.True(down.GetProviderValueComparer() is ValueComparer<TBytes>);
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.Same(typeof(long), charm.GetProviderClrType());
@@ -880,6 +884,9 @@ public abstract partial class ModelBuilderTest
 
         [ConditionalFact]
         public virtual void Properties_can_have_non_generic_value_converter_set()
+            => Properties_can_have_non_generic_value_converter_set<byte[]>();
+
+        protected virtual void Properties_can_have_non_generic_value_converter_set<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -904,7 +911,7 @@ public abstract partial class ModelBuilderTest
             var down = entityType.FindProperty("Down")!;
             Assert.Same(stringConverter, down.GetValueConverter());
             Assert.True(down.GetValueComparer()?.IsDefault());
-            Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
+            Assert.True(down.GetProviderValueComparer() is ValueComparer<TBytes>);
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.Same(intConverter, charm.GetValueConverter());
@@ -916,6 +923,9 @@ public abstract partial class ModelBuilderTest
 
         [ConditionalFact]
         public virtual void Properties_can_have_custom_type_value_converter_type_set()
+            => Properties_can_have_custom_type_value_converter_type_set<byte[]>();
+
+        protected virtual void Properties_can_have_custom_type_value_converter_type_set<TBytes>()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -924,7 +934,7 @@ public abstract partial class ModelBuilderTest
                 {
                     b.Property(e => e.Up).HasConversion<int, CustomValueComparer<int>>();
                     b.Property(e => e.Down)
-                        .HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>, CustomValueComparer<byte[]>>();
+                        .HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>, CustomValueComparer<TBytes>>();
                     b.Property<int>("Charm").HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
                     b.Property<string>("Strange").HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
                     b.Property<string>("Strange").HasConversion(null, null);
@@ -942,7 +952,7 @@ public abstract partial class ModelBuilderTest
             var down = entityType.FindProperty("Down")!;
             Assert.IsType<UTF8StringToBytesConverter>(down.GetValueConverter());
             Assert.IsType<CustomValueComparer<string>>(down.GetValueComparer());
-            Assert.IsType<CustomValueComparer<byte[]>>(down.GetProviderValueComparer());
+            Assert.True(down.GetProviderValueComparer() is ValueComparer<TBytes>);
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
@@ -955,7 +965,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(strange.GetProviderValueComparer()?.IsDefault());
         }
 
-        private class UTF8StringToBytesConverter : StringToBytesConverter
+        protected class UTF8StringToBytesConverter : StringToBytesConverter
         {
             public UTF8StringToBytesConverter()
                 : base(Encoding.UTF8)
@@ -963,7 +973,7 @@ public abstract partial class ModelBuilderTest
             }
         }
 
-        private class CustomValueComparer<T> : ValueComparer<T>
+        protected class CustomValueComparer<T> : ValueComparer<T>
         {
             public CustomValueComparer()
                 : base(false)
@@ -2857,6 +2867,21 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Nested_primitive_collection_are_discovered_by_convention()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Alpha>();
+            modelBuilder.Entity<Gamma>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Empty(
+                model.FindEntityType(typeof(Gamma))!.GetProperties()
+                    .Where(p => p.Name == "PrivateCollection"));
+        }
+
+        [ConditionalFact]
         protected virtual void Mapping_for_primitive_collection_ignores_ignored_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3035,7 +3060,6 @@ public abstract partial class ModelBuilderTest
             Assert.NotNull(property.FieldInfo);
             Assert.NotNull(property.GetElementType());
             var keys = entity.GetKeys();
-            Assert.Equal(3, keys.Count());
             Assert.Single(keys.Where(k => k.Properties.All(p => p == property)));
         }
 
@@ -3049,8 +3073,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var properties = model.FindEntityType(typeof(EntityWithFields))!.GetProperties();
-            var property = Assert.Single(properties);
-            Assert.Equal(nameof(EntityWithFields.CollectionId), property.Name);
+            var property = properties.Single(e => e.Name == nameof(EntityWithFields.CollectionId));
             Assert.Null(property.PropertyInfo);
             Assert.NotNull(property.FieldInfo);
             Assert.NotNull(property.GetElementType());
@@ -3111,11 +3134,8 @@ public abstract partial class ModelBuilderTest
                     b.PrimitiveCollection(e => e.Up).ElementType().IsRequired();
                     b.PrimitiveCollection(e => e.Down).ElementType().IsRequired(false);
                     b.PrimitiveCollection<List<int?>>("Charm").ElementType().IsRequired();
-                    ;
                     b.PrimitiveCollection<List<string?>>("Strange").ElementType().IsRequired();
-                    ;
-                    b.PrimitiveCollection<List<string>>("Stranger").ElementType().IsRequired();
-                    ; // Still optional since no NRT metadata available
+                    b.PrimitiveCollection<List<string>>("Stranger").ElementType().IsRequired(); // Still optional since no NRT metadata available
                 });
 
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(CollectionQuarks))!;

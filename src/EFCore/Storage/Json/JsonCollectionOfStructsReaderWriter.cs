@@ -1,48 +1,55 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
 /// <summary>
-///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not <see cref="Nullable" />.
+///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not reference types and not
+///     <see cref="Nullable" />.
 /// </summary>
-/// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TElement> :
-    JsonValueReaderWriter<IEnumerable<TElement?>>,
+public class JsonCollectionOfStructsReaderWriter<TConcreteCollection, TElement> :
+    JsonValueReaderWriter<IEnumerable<TElement>>,
     ICompositeJsonValueReaderWriter
-    where TCollection : IEnumerable<TElement?>
+    where TElement : struct
 {
     private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
+
+    private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
+
+    private static readonly bool IsReadOnly = IsArray
+        || (typeof(TConcreteCollection).IsGenericType
+            && typeof(TConcreteCollection).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
     /// <summary>
     ///     Creates a new instance of this collection reader/writer, using the given reader/writer for its elements.
     /// </summary>
     /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
-    public JsonCollectionReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
+    public JsonCollectionOfStructsReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
     {
         _elementReaderWriter = elementReaderWriter;
     }
 
     /// <inheritdoc />
-    public override IEnumerable<TElement?> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+    public override IEnumerable<TElement> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
     {
-        IList<TElement?> collection;
-        if (typeof(TCollection).IsArray)
+        IList<TElement> collection;
+        if (IsReadOnly)
         {
-            collection = new List<TElement?>();
+            collection = new List<TElement>();
         }
         else if (existingObject == null)
         {
-            collection = (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
+            collection = (IList<TElement>)Activator.CreateInstance<TConcreteCollection>()!;
         }
         else
         {
-            collection = (IList<TElement?>)existingObject;
+            collection = (IList<TElement>)existingObject;
             collection.Clear();
         }
 
@@ -83,23 +90,20 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
             }
         }
 
-        return typeof(TCollection).IsArray ? collection.ToArray() : collection;
+        return IsReadOnly
+            ? IsArray
+                ? collection.ToArray()
+                : (IList<TElement>)Activator.CreateInstance(typeof(TConcreteCollection), [collection])!
+            : collection;
     }
 
     /// <inheritdoc />
-    public override void ToJsonTyped(Utf8JsonWriter writer, IEnumerable<TElement?> value)
+    public override void ToJsonTyped(Utf8JsonWriter writer, IEnumerable<TElement> value)
     {
         writer.WriteStartArray();
         foreach (var element in value)
         {
-            if (element == null)
-            {
-                writer.WriteNullValue();
-            }
-            else
-            {
-                _elementReaderWriter.ToJsonTyped(writer, element);
-            }
+            _elementReaderWriter.ToJsonTyped(writer, element);
         }
 
         writer.WriteEndArray();

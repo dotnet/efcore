@@ -719,12 +719,12 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithIntConverter = JsonEnum.Two,
             TestNullableEnumWithConverterThatHandlesNulls = JsonEnum.Three,
             TestDefaultStringCollection = ["S1", "\"S2\"", "S3"],
-            TestMaxLengthStringCollection =
+            TestMaxLengthStringCollection = new ReadOnlyCollection<string>(
             [
                 "S1",
                 "S2",
                 "S3"
-            ],
+            ]),
             TestBooleanCollection = new[] { true, false },
             TestCharacterCollection =
             [
@@ -793,7 +793,19 @@ public class JsonQueryData : ISetSource
                 JsonEnum.Three,
                 (JsonEnum)(-7)
             ],
-            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)]
+            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
+            TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
+            TestMaxLengthStringCollectionCollection = [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+            TestBooleanCollectionCollection = [[true], null, [true, false]],
+            TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
+            TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
+            TestInt16CollectionCollection = [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue]],
+            TestInt32CollectionCollection = [[int.MinValue, 0, int.MaxValue], null, [int.MinValue, 0, int.MaxValue]],
+            TestInt64CollectionCollection = [[long.MinValue, 0, long.MaxValue], null, [long.MinValue, 0, long.MaxValue]],
+            TestSingleCollectionCollection = [[-1.234F, 0.0F, -1.234F], null, [-1.234F, 0.0F, -1.234F]],
+            TestNullableInt32CollectionCollection = [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue]],
+            TestNullableEnumCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+            TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
         };
 
         var r2 = new JsonOwnedAllTypes
@@ -826,12 +838,12 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithIntConverter = null,
             TestNullableEnumWithConverterThatHandlesNulls = null,
             TestDefaultStringCollection = ["S1", "\"S2\"", "S3"],
-            TestMaxLengthStringCollection =
+            TestMaxLengthStringCollection = new ReadOnlyCollection<string>(
             [
                 "S1",
                 "S2",
                 "S3"
-            ],
+            ]),
             TestBooleanCollection = new[] { true, false },
             TestCharacterCollection =
             [
@@ -895,7 +907,19 @@ public class JsonQueryData : ISetSource
                 JsonEnum.Three,
                 (JsonEnum)(-7)
             ],
-            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)]
+            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
+            TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
+            TestMaxLengthStringCollectionCollection = [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+            TestBooleanCollectionCollection = [[true], null, [true, false]],
+            TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
+            TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
+            TestInt16CollectionCollection = [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue]],
+            TestInt32CollectionCollection = [[int.MinValue, 0, int.MaxValue], null, [int.MinValue, 0, int.MaxValue]],
+            TestInt64CollectionCollection = [[long.MinValue, 0, long.MaxValue], null, [long.MinValue, 0, long.MaxValue]],
+            TestSingleCollectionCollection = [[-1.234F, 0.0F, -1.234F], null, [-1.234F, 0.0F, -1.234F]],
+            TestNullableInt32CollectionCollection = [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue]],
+            TestNullableEnumCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+            TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
         };
 
         var c1 = new JsonOwnedAllTypes
@@ -928,12 +952,12 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithIntConverter = JsonEnum.Three,
             TestNullableEnumWithConverterThatHandlesNulls = JsonEnum.Two,
             TestDefaultStringCollection = ["S1", "\"S2\"", "S3"],
-            TestMaxLengthStringCollection =
+            TestMaxLengthStringCollection = new ReadOnlyCollection<string>(
             [
                 "S1",
                 "S2",
                 "S3"
-            ],
+            ]),
             TestBooleanCollection = new[] { true, false },
             TestCharacterCollection =
             [
@@ -997,7 +1021,19 @@ public class JsonQueryData : ISetSource
                 JsonEnum.Three,
                 (JsonEnum)(-7)
             },
-            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)]
+            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
+            TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
+            TestMaxLengthStringCollectionCollection = [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+            TestBooleanCollectionCollection = [[true], null, [true, false]],
+            TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
+            TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
+            TestInt16CollectionCollection = [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue]],
+            TestInt32CollectionCollection = [[int.MinValue, 0, int.MaxValue], null, [int.MinValue, 0, int.MaxValue]],
+            TestInt64CollectionCollection = [[long.MinValue, 0, long.MaxValue], null, [long.MinValue, 0, long.MaxValue]],
+            TestSingleCollectionCollection = [[-1.234F, 0.0F, -1.234F], null, [-1.234F, 0.0F, -1.234F]],
+            TestNullableInt32CollectionCollection = [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue]],
+            TestNullableEnumCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+            TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
         };
 
         var c2 = new JsonOwnedAllTypes
@@ -1030,12 +1066,12 @@ public class JsonQueryData : ISetSource
             TestNullableEnumWithIntConverter = null,
             TestNullableEnumWithConverterThatHandlesNulls = null,
             TestDefaultStringCollection = ["S1", "\"S2\"", "S3"],
-            TestMaxLengthStringCollection =
+            TestMaxLengthStringCollection = new ReadOnlyCollection<string>(
             [
                 "S1",
                 "S2",
                 "S3"
-            ],
+            ]),
             TestBooleanCollection = new[] { true, false },
             TestCharacterCollection =
             [
@@ -1099,7 +1135,19 @@ public class JsonQueryData : ISetSource
                 JsonEnum.Three,
                 (JsonEnum)(-7)
             },
-            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)]
+            TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
+            TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
+            TestMaxLengthStringCollectionCollection = [new ReadOnlyCollection<string>(["S11", "S12", "S13"]), null, new ReadOnlyCollection<string>(["S21", null, "S23"])],
+            TestBooleanCollectionCollection = [[true], null, [true, false]],
+            TestCharacterCollectionCollection = [['A', 'B', 'C'], null, ['D', 'E', 'F']],
+            TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
+            TestInt16CollectionCollection = [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue]],
+            TestInt32CollectionCollection = [[int.MinValue, 0, int.MaxValue], null, [int.MinValue, 0, int.MaxValue]],
+            TestInt64CollectionCollection = [[long.MinValue, 0, long.MaxValue], null, [long.MinValue, 0, long.MaxValue]],
+            TestSingleCollectionCollection = [[-1.234F, 0.0F, -1.234F], null, [-1.234F, 0.0F, -1.234F]],
+            TestNullableInt32CollectionCollection = [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue]],
+            TestNullableEnumCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+            TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
         };
 
         return new List<JsonEntityAllTypes>
@@ -1129,15 +1177,15 @@ public class JsonQueryData : ISetSource
                     new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
                 TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
                 TestDecimalCollection = [-1234567890.01M],
-                TestGuidCollection = [new("12345678-1234-4321-7777-987654321000")],
+                TestGuidCollection = new ReadOnlyCollection<Guid>([new("12345678-1234-4321-7777-987654321000")]),
                 TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
                 TestInt32Collection = [int.MinValue, 0, int.MaxValue],
-                TestInt64Collection =
+                TestInt64Collection = new ReadOnlyCollection<long>(
                 [
                     long.MinValue,
                     0,
                     long.MaxValue
-                ],
+                ]),
                 TestSignedByteCollection = [sbyte.MinValue, (sbyte)0, sbyte.MaxValue],
                 TestSingleCollection =
                 [
@@ -1184,7 +1232,19 @@ public class JsonQueryData : ISetSource
                     JsonEnum.Three,
                     (JsonEnum)(-7)
                 ],
-                TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)]
+                TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
+                TestDefaultStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
+                TestMaxLengthStringCollectionCollection = [["S11", "S12", "S13"], null, ["S21", null, "S23"]],
+                TestBooleanCollectionCollection = [[true], null, [true, false]],
+                TestCharacterCollectionCollection = [new ReadOnlyCollection<char>(['A', 'B', 'C']), null, new ReadOnlyCollection<char>(['D', 'E', 'F'])],
+                TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
+                TestInt16CollectionCollection = [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue]],
+                TestInt32CollectionCollection = [[int.MinValue, 0, int.MaxValue], null, [int.MinValue, 0, int.MaxValue]],
+                TestInt64CollectionCollection = [[long.MinValue, 0, long.MaxValue], null, [long.MinValue, 0, long.MaxValue]],
+                TestSingleCollectionCollection = [[-1.234F, 0.0F, -1.234F], null, [-1.234F, 0.0F, -1.234F]],
+                TestNullableInt32CollectionCollection = [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue]],
+                TestNullableEnumCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+                TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
             },
             new()
             {
@@ -1211,15 +1271,15 @@ public class JsonQueryData : ISetSource
                     new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
                 TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
                 TestDecimalCollection = [-1234567890.01M],
-                TestGuidCollection = [new("12345678-1234-4321-7777-987654321000")],
+                TestGuidCollection = new ReadOnlyCollection<Guid>([new("12345678-1234-4321-7777-987654321000")]),
                 TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
                 TestInt32Collection = [int.MinValue, 0, int.MaxValue],
-                TestInt64Collection =
+                TestInt64Collection = new ReadOnlyCollection<long>(
                 [
                     long.MinValue,
                     0,
                     long.MaxValue
-                ],
+                ]),
                 TestSignedByteCollection = [sbyte.MinValue, (sbyte)0, sbyte.MaxValue],
                 TestSingleCollection =
                 [
@@ -1266,7 +1326,19 @@ public class JsonQueryData : ISetSource
                     JsonEnum.Three,
                     (JsonEnum)(-7)
                 ],
-                TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)]
+                TestNullableEnumWithConverterThatHandlesNullsCollection = [JsonEnum.One, null, (JsonEnum)(-7)],
+                TestDefaultStringCollectionCollection = [["S11B", "S12B", "S13B"], null, ["S21B", null, "S23B"]],
+                TestMaxLengthStringCollectionCollection = [["S11B", "S12B", "S13B"], null, ["S21B", null, "S23B"]],
+                TestBooleanCollectionCollection = [[true], null, [true, false]],
+                TestCharacterCollectionCollection = [new ReadOnlyCollection<char>(['A', 'B', 'C']), null, new ReadOnlyCollection<char>(['D', 'E', 'F'])],
+                TestDoubleCollectionCollection = [[-1.23456789, -1.23456789], null, [1.23456789]],
+                TestInt16CollectionCollection = [[short.MinValue, 0, short.MaxValue], null, [short.MinValue, 0, short.MaxValue]],
+                TestInt32CollectionCollection = [[int.MinValue, 0, int.MaxValue], null, [int.MinValue, 0, int.MaxValue]],
+                TestInt64CollectionCollection = [[long.MinValue, 0, long.MaxValue], null, [long.MinValue, 0, long.MaxValue]],
+                TestSingleCollectionCollection = [[-1.234F, 0.0F, -1.234F], null, [-1.234F, 0.0F, -1.234F]],
+                TestNullableInt32CollectionCollection = [null, [int.MinValue, null, int.MaxValue, null], null, [int.MinValue, 0, int.MaxValue]],
+                TestNullableEnumCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+                TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
             }
         };
     }

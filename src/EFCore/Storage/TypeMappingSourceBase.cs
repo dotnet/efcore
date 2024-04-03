@@ -152,7 +152,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         {
             elementMapping ??= FindMapping(elementType);
 
-            if (elementMapping is { ElementTypeMapping: null, JsonValueReaderWriter: not null })
+            if (elementMapping is { JsonValueReaderWriter: not null })
             {
                 var elementReader = elementMapping.JsonValueReaderWriter!;
 
@@ -168,17 +168,19 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                 collectionReaderWriter = mappingInfo.JsonValueReaderWriter
                     ?? (JsonValueReaderWriter?)Activator.CreateInstance(
                         (elementType.IsNullableValueType()
-                            ? typeof(JsonNullableStructCollectionReaderWriter<,,>)
-                            : typeof(JsonCollectionReaderWriter<,,>))
-                        .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
+                            ? typeof(JsonCollectionOfNullableStructsReaderWriter<,>)
+                            : elementType.IsValueType
+                                ? typeof(JsonCollectionOfStructsReaderWriter<,>)
+                                : typeof(JsonCollectionOfReferencesReaderWriter<,>))
+                        .MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType()),
                         elementReader);
 
                 elementComparer = (ValueComparer?)Activator.CreateInstance(
                     elementType.IsNullableValueType()
-                        ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                        : elementMapping.Comparer.Type.IsAssignableFrom(elementType)
-                            ? typeof(ListComparer<>).MakeGenericType(elementType)
-                            : typeof(ObjectListComparer<>).MakeGenericType(elementType),
+                        ? typeof(ListOfNullableValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType())
+                        : elementType.IsValueType
+                            ? typeof(ListOfValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType)
+                            : typeof(ListOfReferenceTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType),
                     elementMapping.Comparer.ToNullableComparer(elementType)!);
 
                 return true;
