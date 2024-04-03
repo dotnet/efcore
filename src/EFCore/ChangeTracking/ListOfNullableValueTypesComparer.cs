@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This comparer should be used for nullable value types. Use <see cref="NullableValueTypeListComparer{TConcreteCollection,TElement}" /> for reference
+///         This comparer should be used for nullable value types. Use <see cref="ListOfNullableValueTypesComparer{TConcreteCollection,TElement}" /> for reference
 ///         types and non-nullable value types.
 ///     </para>
 ///     <para>
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public sealed class NullableValueTypeListComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement?>>
+public sealed class ListOfNullableValueTypesComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement?>>
     where TElement : struct
 {
     private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
@@ -33,7 +33,7 @@ public sealed class NullableValueTypeListComparer<TConcreteCollection, TElement>
     ///     Creates a new instance of the list comparer.
     /// </summary>
     /// <param name="elementComparer">The comparer to use for comparing elements.</param>
-    public NullableValueTypeListComparer(ValueComparer elementComparer)
+    public ListOfNullableValueTypesComparer(ValueComparer elementComparer)
         : base(
             (a, b) => Compare(a, b, (ValueComparer<TElement?>)elementComparer),
             o => GetHashCode(o, (ValueComparer<TElement?>)elementComparer),

@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Collections.ObjectModel;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -11,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This comparer should be used for reference types and non-nullable value types. Use
-///         <see cref="NullableValueTypeListComparer{TConcreteCollection, TElement}" /> for nullable value types.
+///         This comparer should be used when the element of the comparer is typed as <see cref="object" />.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public sealed class ListComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement>>
-    where TElement : struct
+public sealed class ListOfReferenceTypesComparer<TConcreteCollection, TElement> : ValueComparer<object>
+    where TElement : class
 {
     private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
 
@@ -33,11 +33,11 @@ public sealed class ListComparer<TConcreteCollection, TElement> : ValueComparer<
     ///     Creates a new instance of the list comparer.
     /// </summary>
     /// <param name="elementComparer">The comparer to use for comparing elements.</param>
-    public ListComparer(ValueComparer elementComparer)
+    public ListOfReferenceTypesComparer(ValueComparer elementComparer)
         : base(
-            (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
-            o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
-            source => Snapshot(source, (ValueComparer<TElement>)elementComparer))
+            (a, b) => Compare(a, b, elementComparer),
+            o => GetHashCode((IEnumerable)o, elementComparer),
+            source => Snapshot(source, elementComparer))
     {
         ElementComparer = elementComparer;
     }
@@ -47,7 +47,7 @@ public sealed class ListComparer<TConcreteCollection, TElement> : ValueComparer<
     /// </summary>
     public ValueComparer ElementComparer { get; }
 
-    private static bool Compare(IEnumerable<TElement>? a, IEnumerable<TElement>? b, ValueComparer<TElement> elementComparer)
+    private static bool Compare(object? a, object? b, ValueComparer elementComparer)
     {
         if (ReferenceEquals(a, b))
         {
@@ -64,7 +64,7 @@ public sealed class ListComparer<TConcreteCollection, TElement> : ValueComparer<
             return false;
         }
 
-        if (a is IList<TElement> aList && b is IList<TElement> bList)
+        if (a is IList<TElement?> aList && b is IList<TElement?> bList)
         {
             if (aList.Count != bList.Count)
             {
@@ -74,6 +74,21 @@ public sealed class ListComparer<TConcreteCollection, TElement> : ValueComparer<
             for (var i = 0; i < aList.Count; i++)
             {
                 var (el1, el2) = (aList[i], bList[i]);
+                if (el1 is null)
+                {
+                    if (el2 is null)
+                    {
+                        continue;
+                    }
+
+                    return false;
+                }
+
+                if (el2 is null)
+                {
+                    return false;
+                }
+
                 if (!elementComparer.Equals(el1, el2))
                 {
                     return false;
@@ -89,49 +104,49 @@ public sealed class ListComparer<TConcreteCollection, TElement> : ValueComparer<
                 typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
     }
 
-    private static int GetHashCode(IEnumerable<TElement> source, ValueComparer<TElement> elementComparer)
+    private static int GetHashCode(IEnumerable source, ValueComparer elementComparer)
     {
         var hash = new HashCode();
 
         foreach (var el in source)
         {
-            hash.Add(elementComparer.GetHashCode(el));
+            hash.Add(el == null ? 0 : elementComparer.GetHashCode(el));
         }
 
         return hash.ToHashCode();
     }
 
-    private static IList<TElement> Snapshot(IEnumerable<TElement> source, ValueComparer<TElement> elementComparer)
+    private static IList<TElement?> Snapshot(object source, ValueComparer elementComparer)
     {
-        if (source is not IList<TElement> sourceList)
+        if (source is not IList<TElement?> sourceList)
         {
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
+                    typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
         }
 
         if (IsArray)
         {
-            var snapshot = new TElement[sourceList.Count];
+            var snapshot = new TElement?[sourceList.Count];
             for (var i = 0; i < sourceList.Count; i++)
             {
                 var instance = sourceList[i];
-                snapshot[i] = elementComparer.Snapshot(instance);
+                snapshot[i] = instance == null ? null : (TElement?)elementComparer.Snapshot(instance);
             }
 
             return snapshot;
         }
         else
         {
-            var snapshot = IsReadOnly ? new List<TElement>() : (IList<TElement>)Activator.CreateInstance<TConcreteCollection>()!;
+            var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
             foreach (var e in sourceList)
             {
-                snapshot.Add(elementComparer.Snapshot(e));
+                snapshot.Add(e == null ? null : (TElement?)elementComparer.Snapshot(e));
             }
 
             return IsReadOnly
-                ? (IList<TElement>)Activator.CreateInstance(typeof(TConcreteCollection), [snapshot])!
+                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteCollection), [snapshot])!
                 : snapshot;
         }
     }

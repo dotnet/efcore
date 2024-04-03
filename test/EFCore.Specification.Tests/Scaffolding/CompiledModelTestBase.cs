@@ -1035,6 +1035,32 @@ namespace TestNamespace
         public EnumU32?[] NullableEnumU32AsStringArray { get; set; } = null!;
         public EnumU64?[] NullableEnumU64AsStringArray { get; set; } = null!;
 
+        public bool[][] BoolNestedCollection { get; set; } = null!;
+        public List<byte[]> UInt8NestedCollection { get; set; } = null!;
+        public sbyte[][][] Int8NestedCollection { get; set; } = null!;
+        public int[][] Int32NestedCollection { get; set; } = null!;
+        public IList<long[]>[] Int64NestedCollection { get; set; } = null!;
+        public char[][] CharNestedCollection { get; set; } = null!;
+        public ICollection<Guid[][]> GuidNestedCollection { get; set; } = null!;
+        public string[][] StringNestedCollection { get; set; } = null!;
+        public byte[][][] BytesNestedCollection { get; set; } = null!;
+
+        public byte?[][] NullableUInt8NestedCollection { get; set; } = null!;
+        public int?[][] NullableInt32NestedCollection { get; set; } = null!;
+        public List<long?[][]> NullableInt64NestedCollection { get; set; } = null!;
+        public Guid?[][] NullableGuidNestedCollection { get; set; } = null!;
+        public string?[][] NullableStringNestedCollection { get; set; } = null!;
+        public byte[]?[][] NullableBytesNestedCollection { get; set; } = null!;
+        public IEnumerable<PhysicalAddress?[][]> NullablePhysicalAddressNestedCollection { get; set; } = null!;
+
+        public Enum8[][] Enum8NestedCollection { get; set; } = null!;
+        public List<Enum32>[][] Enum32NestedCollection { get; set; } = null!;
+        public EnumU64[][] EnumU64NestedCollection { get; set; } = null!;
+
+        public Enum8?[][] NullableEnum8NestedCollection { get; set; } = null!;
+        public Enum32?[][][] NullableEnum32NestedCollection { get; set; } = null!;
+        public EnumU64?[][] NullableEnumU64NestedCollection { get; set; } = null!;
+
         public bool BoolToStringConverterProperty { get; set; }
         public bool BoolToTwoValuesConverterProperty { get; set; }
         public bool BoolToZeroOneConverterProperty { get; set; }

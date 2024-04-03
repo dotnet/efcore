@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
 public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElement> :
-    JsonValueReaderWriter<object?>,
+    JsonValueReaderWriter<object>,
     ICompositeJsonValueReaderWriter
     where TElement : class?
 {
@@ -70,6 +70,7 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
                 case JsonTokenType.Number:
                 case JsonTokenType.True:
                 case JsonTokenType.False:
+                case JsonTokenType.StartArray:
                     collection.Add((TElement)_elementReaderWriter.FromJson(ref manager));
                     break;
                 case JsonTokenType.Null:
@@ -77,9 +78,6 @@ public class JsonCollectionOfReferencesReaderWriter<TConcreteCollection, TElemen
                     break;
                 case JsonTokenType.Comment:
                 case JsonTokenType.EndArray:
-                    break;
-                case JsonTokenType.StartArray:
-                    collection.Add((TElement)_elementReaderWriter.FromJson(ref manager));
                     break;
                 case JsonTokenType.None: // Explicitly listing all states that we throw for
                 case JsonTokenType.StartObject:

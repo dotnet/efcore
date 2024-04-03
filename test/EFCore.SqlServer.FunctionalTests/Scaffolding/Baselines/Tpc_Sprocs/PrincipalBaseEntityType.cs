@@ -382,11 +382,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (IPAddress v) => v.GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (IPAddress v) => v.GetHashCode(),
                     (IPAddress v) => v)),
@@ -398,14 +398,14 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
                             (IPAddress v) => v.ToString(),
                             (string v) => IPAddress.Parse(v))))),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
@@ -467,11 +467,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
                     (string v) => v)),
@@ -483,10 +483,10 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
@@ -536,11 +536,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
                     (string v) => v)),
@@ -552,10 +552,10 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
@@ -605,11 +605,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (IPAddress v) => v.GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (IPAddress v) => v.GetHashCode(),
                     (IPAddress v) => v)),
@@ -621,14 +621,14 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
                             (IPAddress v) => v.ToString(),
                             (string v) => IPAddress.Parse(v))))),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
@@ -690,11 +690,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
                     (DateTime v) => v.GetHashCode(),
                     (DateTime v) => v)),
-                keyComparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
                     (DateTime v) => v.GetHashCode(),
                     (DateTime v) => v)),
@@ -706,10 +706,10 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance),
                 elementMapping: SqlServerDateTimeTypeMapping.Default.Clone(
                     comparer: new ValueComparer<DateTime>(
@@ -754,11 +754,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
@@ -770,10 +770,10 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: SqlServerByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -818,11 +818,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
@@ -834,10 +834,10 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: SqlServerByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -882,11 +882,11 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<short>(new ValueComparer<short>(
+                comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
-                keyComparer: new ListComparer<short>(new ValueComparer<short>(
+                keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
@@ -898,10 +898,10 @@ namespace TestNamespace
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance),
                 elementMapping: SqlServerShortTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
@@ -1043,7 +1043,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, Nullable<long>, Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum2.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum2.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), source.GetCurrentValue<Nullable<long>>(principalDerivedId) == null ? null : ((ValueComparer<Nullable<long>>)principalDerivedId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalDerivedId)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
+                    return (ISnapshot)new Snapshot<Nullable<long>, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, Nullable<long>, Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum2.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum2.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), source.GetCurrentValue<Nullable<long>>(principalDerivedId) == null ? null : ((ValueComparer<Nullable<long>>)principalDerivedId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalDerivedId)), (object)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<object>)refTypeArray.GetValueComparer()).Snapshot((object)source.GetCurrentValue<IPAddress[]>(refTypeArray)), (object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : (IEnumerable<string>)((ValueComparer<object>)refTypeEnumerable.GetValueComparer()).Snapshot((object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (object)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<object>)refTypeIList.GetValueComparer()).Snapshot((object)source.GetCurrentValue<IList<string>>(refTypeIList)), (object)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<object>)refTypeList.GetValueComparer()).Snapshot((object)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 () => (ISnapshot)new Snapshot<CompiledModelTestBase.AnEnum, Nullable<long>, Nullable<long>>(((ValueComparer<CompiledModelTestBase.AnEnum>)enum1.GetValueComparer()).Snapshot(default(CompiledModelTestBase.AnEnum)), default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(default(Nullable<long>)), default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)principalDerivedId.GetValueComparer()).Snapshot(default(Nullable<long>))));

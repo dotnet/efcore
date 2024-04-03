@@ -966,7 +966,7 @@ public class CollectionComparerTest
     [ConditionalFact]
     public void List_comparer_throws_when_used_with_non_list()
     {
-        var comparer = new ObjectListComparer<List<string>, string>(new ValueComparer<string>(favorStructuralComparisons: false));
+        var comparer = new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(favorStructuralComparisons: false));
 
         Assert.Equal(
             CoreStrings.BadListType("HashSet<string>", "IList<string>"),
@@ -984,7 +984,7 @@ public class CollectionComparerTest
     [ConditionalFact]
     public void Nullable_list_comparer_throws_when_used_with_non_list()
     {
-        var comparer = new NullableValueTypeListComparer<List<int?>, int>(new ValueComparer<int?>(favorStructuralComparisons: false));
+        var comparer = new ListOfNullableValueTypesComparer<List<int?>, int>(new ValueComparer<int?>(favorStructuralComparisons: false));
 
         Assert.Equal(
             CoreStrings.BadListType("HashSet<int?>", "IList<int?>"),

@@ -177,10 +177,10 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
 
                 elementComparer = (ValueComparer?)Activator.CreateInstance(
                     elementType.IsNullableValueType()
-                        ? typeof(NullableValueTypeListComparer<,>).MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType())
+                        ? typeof(ListOfNullableValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType.UnwrapNullableType())
                         : elementType.IsValueType
-                            ? typeof(ListComparer<,>).MakeGenericType(typeToInstantiate, elementType)
-                            : typeof(ObjectListComparer<,>).MakeGenericType(typeToInstantiate, elementType),
+                            ? typeof(ListOfValueTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType)
+                            : typeof(ListOfReferenceTypesComparer<,>).MakeGenericType(typeToInstantiate, elementType),
                     elementMapping.Comparer.ToNullableComparer(elementType)!);
 
                 return true;

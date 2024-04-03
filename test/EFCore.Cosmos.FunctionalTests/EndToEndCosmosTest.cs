@@ -870,6 +870,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new List<byte?[]> { new byte?[] { 3, null }, null });
 
+        // TODO: Dictionary mapping Issue #29825
         // await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
         //     new Dictionary<string, string>[] { new() { { "1", null } } },
         //     c =>
@@ -895,6 +896,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new[] { new decimal?[] { 1, 3 } });
 
+        // TODO: Dictionary mapping Issue #29825
         // await Can_add_update_delete_with_collection(
         //     new Dictionary<string, List<int>> { { "1", [1] } },
         //     c =>
@@ -903,6 +905,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         //     },
         //     new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
 
+        // TODO: Dictionary mapping Issue #29825
         // await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
         //     new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
         //     c =>
