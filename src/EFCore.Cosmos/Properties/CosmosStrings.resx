@@ -120,6 +120,9 @@
   <data name="AnalyticalTTLMismatch" xml:space="preserve">
     <value>The time to live for analytical store was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same time to live for analytical store.</value>
   </data>
+  <data name="BadResponse" xml:space="preserve">
+    <value>The Azure Cosmos DB operation failed with error code '{error}'.</value>
+  </data>
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>

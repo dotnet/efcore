@@ -32,6 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
+        ///     The Azure Cosmos DB operation failed with error code '{error}'.
+        /// </summary>
+        public static string BadResponse(object? errorCode)
+            => string.Format(
+                GetString("BadResponse", nameof(errorCode)),
+                errorCode);
+
+        /// <summary>
         ///     The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.
         /// </summary>
         public static string CanConnectNotSupported

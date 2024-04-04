@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -201,23 +202,28 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         CancellationToken cancellationToken = default)
     {
         var (parameters, wrapper) = parametersTuple;
-        using var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerStreamAsync(
+        var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
                 new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
                 {
                     PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
                     DefaultTimeToLive = parameters.DefaultTimeToLive,
                     AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds
                 },
-                parameters.Throughput,
+                throughput: parameters.Throughput?.Throughput,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
-        if (response.StatusCode == HttpStatusCode.Conflict)
+
+        if (response.StatusCode == HttpStatusCode.Created)
         {
-            return false;
+            return true;
         }
 
-        response.EnsureSuccessStatusCode();
-        return response.StatusCode == HttpStatusCode.Created;
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            throw new InvalidOperationException(CosmosStrings.BadResponse(response.StatusCode));
+        }
+
+        return false;
     }
 
     /// <summary>
