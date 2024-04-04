@@ -37,7 +37,7 @@ public sealed partial class InternalEntityEntry
             Check.DebugAssert(!IsEmpty, "relationship snapshot is empty");
             Check.DebugAssert(
                 propertyBase is not INavigation { IsCollection: true },
-                $"property {propertyBase} is is not reference navigation");
+                $"property {propertyBase} is not reference navigation");
 
             _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
         }

@@ -465,7 +465,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         => WithOption(e => e.WithRootApplicationServiceProvider(rootServiceProvider));
 
     /// <summary>
-    ///     Resolves the root <see cref="IServiceProvider" /> from from the scoped application service provider. The root provider can
+    ///     Resolves the root <see cref="IServiceProvider" /> from the scoped application service provider. The root provider can
     ///     be used to obtain singleton application services from singleton internal services.
     /// </summary>
     /// <remarks>
