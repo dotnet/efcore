@@ -7,13 +7,6 @@ using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
-    internal enum InsertionBehavior
-    {
-        None = 0,
-        OverwriteExisting = 1,
-        ThrowOnExisting = 2
-    }
-
     /// <summary>
     /// Represents an ordered collection of keys and values with the same performance as <see cref="Dictionary{TKey, TValue}"/> with O(1) lookups and adds but with O(n) inserts and removes.
     /// </summary>
@@ -896,6 +889,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 _index = 0;
                 _current = default;
             }
+        }
+
+        private enum InsertionBehavior
+        {
+            None = 0,
+            OverwriteExisting = 1,
+            ThrowOnExisting = 2
         }
     }
 }

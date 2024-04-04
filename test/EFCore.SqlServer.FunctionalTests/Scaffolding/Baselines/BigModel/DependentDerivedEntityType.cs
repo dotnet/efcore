@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -16,7 +17,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TestNamespace
 {
-    internal partial class DependentDerivedEntityType
+    [EntityFrameworkInternal]
+    public partial class DependentDerivedEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -37,17 +39,17 @@ namespace TestNamespace
                 maxLength: 20,
                 unicode: false);
             data.SetGetter(
-                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity) => ReadData(entity),
-                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity) => ReadData(entity) == null,
-                (CompiledModelTestBase.DependentDerived<Nullable<byte>> instance) => ReadData(instance),
-                (CompiledModelTestBase.DependentDerived<Nullable<byte>> instance) => ReadData(instance) == null);
+                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity),
+                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity) == null,
+                (CompiledModelTestBase.DependentDerived<Nullable<byte>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(instance),
+                (CompiledModelTestBase.DependentDerived<Nullable<byte>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(instance) == null);
             data.SetSetter(
-                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity, string value) => WriteData(entity, value));
+                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity) = value);
             data.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity, string value) => WriteData(entity, value));
+                (CompiledModelTestBase.DependentDerived<Nullable<byte>> entity, string value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(entity) = value);
             data.SetAccessors(
-                (InternalEntityEntry entry) => ReadData((CompiledModelTestBase.DependentDerived<Nullable<byte>>)entry.Entity),
-                (InternalEntityEntry entry) => ReadData((CompiledModelTestBase.DependentDerived<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data((CompiledModelTestBase.DependentDerived<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data((CompiledModelTestBase.DependentDerived<Nullable<byte>>)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(data, 4),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<string>(data),
                 (ValueBuffer valueBuffer) => valueBuffer[4]);
@@ -77,6 +79,7 @@ namespace TestNamespace
                     dbType: System.Data.DbType.AnsiStringFixedLength));
             data.AddAnnotation("Relational:IsFixedLength", true);
             data.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            data.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DependentDerivedEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data", "TestNamespace") });
 
             var money = runtimeEntityType.AddProperty(
                 "Money",
@@ -139,7 +142,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentDerived<Nullable<byte>>)source.Entity;
-                    return (ISnapshot)new Snapshot<long, Guid, object>(((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)principalAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseEntityType.ReadPrincipal(entity));
+                    return (ISnapshot)new Snapshot<long, Guid, object>(((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)principalAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 6,
@@ -162,12 +165,6 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Data>k__BackingField")]
-        extern static ref string GetData(CompiledModelTestBase.DependentDerived<byte?> @this);
-
-        public static string ReadData(CompiledModelTestBase.DependentDerived<byte?> @this)
-            => GetData(@this);
-
-        public static void WriteData(CompiledModelTestBase.DependentDerived<byte?> @this, string value)
-            => GetData(@this) = value;
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(CompiledModelTestBase.DependentDerived<byte?> @this);
     }
 }

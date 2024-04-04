@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -18,7 +19,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace TestNamespace
 {
-    internal partial class SelfReferentialEntityEntityType
+    [EntityFrameworkInternal]
+    public partial class SelfReferentialEntityEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -38,17 +40,17 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
             id.SetGetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => ReadId(entity),
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => ReadId(entity) == 0L,
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => ReadId(instance),
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => ReadId(instance) == 0L);
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity),
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity) == 0L,
+                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(instance),
+                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(instance) == 0L);
             id.SetSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, long value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity, long value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity) = value);
             id.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, long value) => WriteId(entity, value));
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity, long value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(entity) = value);
             id.SetAccessors(
-                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : entry.FlaggedAsTemporary(0) && ReadId((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity) == 0L ? entry.ReadTemporaryValue<long>(0) : ReadId((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
-                (InternalEntityEntry entry) => ReadId((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : entry.FlaggedAsTemporary(0) && UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity) == 0L ? entry.ReadTemporaryValue<long>(0) : UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(id, 0),
                 (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long>(id, 0),
                 (ValueBuffer valueBuffer) => valueBuffer[0]);
@@ -74,6 +76,7 @@ namespace TestNamespace
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(id));
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("SelfReferentialEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id", "TestNamespace") });
 
             var collection = runtimeEntityType.AddProperty(
                 "Collection",
@@ -83,17 +86,17 @@ namespace TestNamespace
                 nullable: true,
                 valueConverter: new CompiledModelInMemoryTest.SelfReferentialPropertyValueConverter());
             collection.SetGetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => ReadCollection(entity),
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => ReadCollection(entity) == null,
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => ReadCollection(instance),
-                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => ReadCollection(instance) == null);
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity),
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity) == null,
+                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(instance),
+                (CompiledModelInMemoryTest.SelfReferentialEntity instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(instance) == null);
             collection.SetSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => WriteCollection(entity, value));
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity) = value);
             collection.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.SelfReferentialEntity entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => WriteCollection(entity, value));
+                (CompiledModelInMemoryTest.SelfReferentialEntity entity, CompiledModelInMemoryTest.SelfReferentialProperty value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(entity) = value);
             collection.SetAccessors(
-                (InternalEntityEntry entry) => ReadCollection((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
-                (InternalEntityEntry entry) => ReadCollection((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection((CompiledModelInMemoryTest.SelfReferentialEntity)entry.Entity),
                 (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection, 1),
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection),
                 (ValueBuffer valueBuffer) => valueBuffer[1]);
@@ -124,6 +127,7 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
                         (CompiledModelInMemoryTest.SelfReferentialProperty v) => null,
                         (string v) => null)));
+            collection.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("SelfReferentialEntityEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection", "TestNamespace") });
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -171,21 +175,9 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        extern static ref long GetId(CompiledModelInMemoryTest.SelfReferentialEntity @this);
-
-        public static long ReadId(CompiledModelInMemoryTest.SelfReferentialEntity @this)
-            => GetId(@this);
-
-        public static void WriteId(CompiledModelInMemoryTest.SelfReferentialEntity @this, long value)
-            => GetId(@this) = value;
+        public static extern ref long UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Id(CompiledModelInMemoryTest.SelfReferentialEntity @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Collection>k__BackingField")]
-        extern static ref CompiledModelInMemoryTest.SelfReferentialProperty GetCollection(CompiledModelInMemoryTest.SelfReferentialEntity @this);
-
-        public static CompiledModelInMemoryTest.SelfReferentialProperty ReadCollection(CompiledModelInMemoryTest.SelfReferentialEntity @this)
-            => GetCollection(@this);
-
-        public static void WriteCollection(CompiledModelInMemoryTest.SelfReferentialEntity @this, CompiledModelInMemoryTest.SelfReferentialProperty value)
-            => GetCollection(@this) = value;
+        public static extern ref CompiledModelInMemoryTest.SelfReferentialProperty UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_SelfReferentialEntity_Collection(CompiledModelInMemoryTest.SelfReferentialEntity @this);
     }
 }
