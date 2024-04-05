@@ -27,11 +27,11 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
     }
 
     /// <summary>
-    ///     Indicates that a <see cref="NewArrayExpression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
+    ///     Indicates that a <see cref="Expression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
     ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslateInlineQueryRoot" /> for
     ///     translation to a SQL <see cref="ValuesExpression" />.
     /// </summary>
-    protected override bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
+    protected override bool ShouldConvertToInlineQueryRoot(Expression expression)
         => true;
 
     /// <summary>

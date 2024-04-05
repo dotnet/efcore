@@ -140,6 +140,17 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
+    {
+        var i = 11;
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 999, i, c.Id, c.Id + c.Int }.Contains(c.Int)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Inline_collection_Contains_as_Any_with_predicate(bool async)
         => AssertQuery(
             async,
@@ -161,10 +172,24 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Inline_collection_List_Min_with_two_values(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 30, c.Int }.Min() == 30));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Inline_collection_Max_with_two_values(bool async)
         => await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int }.Max() == 30));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Inline_collection_List_Max_with_two_values(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 30, c.Int }.Max() == 30));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -179,6 +204,17 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Inline_collection_List_Min_with_three_values(bool async)
+    {
+        var i = 25;
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 30, c.Int, i }.Min() == 25));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Inline_collection_Max_with_three_values(bool async)
     {
         var i = 35;
@@ -186,6 +222,17 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.Int, i }.Max() == 35));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Inline_collection_List_Max_with_three_values(bool async)
+    {
+        var i = 35;
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 30, c.Int, i }.Max() == 35));
     }
 
     [ConditionalTheory]
@@ -482,6 +529,22 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 1, 2, 3 }[c.Int] == 1),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new[] { 1, 2, 3 }[c.Int] : -1) == 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_value_index_Column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 1, c.Int, 3 }[c.Int] == 1),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new[] { 1, c.Int, 3 }[c.Int] : -1) == 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_List_value_index_Column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 1, c.Int, 3 }[c.Int] == 1),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new List<int>() { 1, c.Int, 3 }[c.Int] : -1) == 1));
 
     // The JsonScalarExpression (ints[c.Int]) should get inferred from the column on the other side (c.Int), and that should propagate to
     // ints
