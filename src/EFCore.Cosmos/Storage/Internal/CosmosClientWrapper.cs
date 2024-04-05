@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -213,17 +212,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-        if (response.StatusCode == HttpStatusCode.Created)
-        {
-            return true;
-        }
-
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            throw new InvalidOperationException(CosmosStrings.BadResponse(response.StatusCode));
-        }
-
-        return false;
+        return response.StatusCode == HttpStatusCode.Created;
     }
 
     /// <summary>
