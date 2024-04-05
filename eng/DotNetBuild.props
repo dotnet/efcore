@@ -1,0 +1,10 @@
+<!-- Whenever altering this or other DotNetBuild files, please include @dotnet/source-build-internal as a reviewer. -->
+
+<Project>
+
+    <PropertyGroup>
+      <GitHubRepositoryName>efcore</GitHubRepositoryName>
+      <SourceBuildManagedOnly>true</SourceBuildManagedOnly>
+    </PropertyGroup>
+
+</Project>
