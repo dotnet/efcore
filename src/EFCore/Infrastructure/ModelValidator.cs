@@ -437,7 +437,7 @@ public class ModelValidator : IModelValidator
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
-                if (key.Properties.Any(p => p.IsImplicitlyCreated())
+                if (key.Properties.Any(p => p.IsShadowProperty())
                     && ConfigurationSource.Convention.Overrides(key.GetConfigurationSource())
                     && !key.IsPrimaryKey())
                 {
@@ -1275,7 +1275,8 @@ public class ModelValidator : IModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                if (property.IsImplicitlyCreated())
+                if (property.IsShadowProperty()
+                    && property.GetConfigurationSource() == ConfigurationSource.Convention)
                 {
                     var uniquifiedAnnotation = property.FindAnnotation(CoreAnnotationNames.PreUniquificationName);
                     if (uniquifiedAnnotation != null

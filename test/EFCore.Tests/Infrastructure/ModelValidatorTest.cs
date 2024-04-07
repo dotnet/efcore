@@ -382,6 +382,21 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                 .GenerateMessage("A", "Key"), modelBuilder, LogLevel.Debug);
     }
 
+    [ConditionalFact] // Issue #33484
+    public virtual void Does_not_log_for_shadow_property_when_creating_indexer_property()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = (IConventionModel)modelBuilder.Model;
+
+        var entityType = model.AddEntityType("Bag", typeof(Dictionary<string, object>))!;
+        entityType.SetIsKeyless(true);
+        entityType.AddIndexerProperty("Foo", typeof(int));
+
+        VerifyLogDoesNotContain(
+            CoreResources.LogShadowPropertyCreated(new TestLogger<TestLoggingDefinitions>())
+                .GenerateMessage("Bag (Dictionary<string, object>)", "Foo"), modelBuilder);
+    }
+
     [ConditionalFact]
     public virtual void Warns_on_uniquified_shadow_key_due_to_wrong_type()
     {
