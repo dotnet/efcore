@@ -812,12 +812,45 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                 AssertEqual(e.Complex?.Two, a.Complex?.Two);
             });
 
+    #region GroupBy
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_over_property_in_nested_complex_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(x => x.ShippingAddress.Country.Code).Select(g => new { Code = g.Key, Count = g.Count() }),
+            elementSorter: g => g.Code);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_over_complex_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(x => x.ShippingAddress).Select(g => new { Address = g.Key, Count = g.Count() }),
+            elementSorter: g => g.Address.ZipCode,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Address, a.Address);
+                Assert.Equal(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_over_nested_complex_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(x => x.ShippingAddress.Country).Select(g => new { Country = g.Key, Count = g.Count() }),
+            elementSorter: g => g.Country.Code);
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Entity_with_complex_type_with_group_by_and_first(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().GroupBy(x => x.Id).Select(x => x.First()));
+
+    #endregion GroupBy
 
     protected DbContext CreateContext()
         => Fixture.CreateContext();
