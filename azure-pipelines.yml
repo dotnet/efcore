@@ -2,17 +2,6 @@
 # See https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/?view=azure-pipelines for details
 #
 
-schedules:
-- cron: 0 9 * * 1
-  displayName: "Run CodeQL3000 weekly, Monday at 2:00 AM PDT"
-  branches:
-    include:
-    - release/2.1
-    - release/6.0
-    - release/7.0
-    - main
-  always: true
-
 parameters:
 # Parameter below is ignored in public builds.
 #
