@@ -1759,6 +1759,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                         projection.DiscriminatorExpression, groupByTerms, groupByAliases, name: DiscriminatorColumnAlias);
                 }
 
+                foreach (var complexProperty in projection.StructuralType.GetComplexProperties())
+                {
+                    PopulateGroupByTerms(projection.BindComplexProperty(complexProperty), groupByTerms, groupByAliases, name: null);
+                }
+
                 break;
 
             default:

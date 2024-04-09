@@ -51,7 +51,7 @@ public class ComplexTypeData : ISetSource
             AddressLine1 = "804 S. Lakeshore Road",
             ZipCode = 38654,
             Country = new Country { FullName = "United States", Code = "US" },
-            Tags = new List<string> { "foo", "bar" }
+            Tags = ["foo", "bar"]
         };
 
         var customer1 = new Customer
@@ -71,19 +71,14 @@ public class ComplexTypeData : ISetSource
                 AddressLine1 = "72 Hickory Rd.",
                 ZipCode = 07728,
                 Country = new Country { FullName = "Germany", Code = "DE" },
-                Tags = new List<string> { "baz" }
+                Tags = ["baz"]
             },
             BillingAddress = new Address
             {
                 AddressLine1 = "79 Main St.",
                 ZipCode = 29293,
                 Country = new Country { FullName = "Germany", Code = "DE" },
-                Tags = new List<string>
-                {
-                    "a1",
-                    "a2",
-                    "a3"
-                }
+                Tags = ["a1", "a2", "a3"]
             }
         };
 
@@ -92,7 +87,7 @@ public class ComplexTypeData : ISetSource
             AddressLine1 = "79 Main St.",
             ZipCode = 29293,
             Country = new Country { FullName = "Germany", Code = "DE" },
-            Tags = new List<string> { "foo", "moo" }
+            Tags = ["foo", "moo"]
         };
 
         var customer3 = new Customer
@@ -103,12 +98,7 @@ public class ComplexTypeData : ISetSource
             BillingAddress = address3
         };
 
-        return new List<Customer>
-        {
-            customer1,
-            customer2,
-            customer3
-        };
+        return [customer1, customer2, customer3];
     }
 
     private static IReadOnlyList<CustomerGroup> CreateCustomerGroups(IReadOnlyList<Customer> customers)
@@ -134,12 +124,7 @@ public class ComplexTypeData : ISetSource
             OptionalCustomer = null
         };
 
-        return new List<CustomerGroup>
-        {
-            group1,
-            group2,
-            group3
-        };
+        return [group1, group2, group3];
     }
 
     private static IReadOnlyList<ValuedCustomer> CreateValuedCustomers()
@@ -192,12 +177,7 @@ public class ComplexTypeData : ISetSource
             BillingAddress = address3
         };
 
-        return new List<ValuedCustomer>
-        {
-            customer1,
-            customer2,
-            customer3
-        };
+        return [customer1, customer2, customer3];
     }
 
     private static IReadOnlyList<ValuedCustomerGroup> CreateValuedCustomerGroups(IReadOnlyList<ValuedCustomer> customers)
@@ -223,12 +203,7 @@ public class ComplexTypeData : ISetSource
             OptionalCustomer = null
         };
 
-        return new List<ValuedCustomerGroup>
-        {
-            group1,
-            group2,
-            group3
-        };
+        return [group1, group2, group3];
     }
 
     public static Task SeedAsync(PoolableDbContext context)

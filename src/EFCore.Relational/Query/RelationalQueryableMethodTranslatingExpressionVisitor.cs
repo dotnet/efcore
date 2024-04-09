@@ -735,20 +735,23 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         var remappedKeySelector = RemapLambdaBody(source, keySelector);
         var translatedKey = TranslateGroupingKey(remappedKeySelector);
-        if (translatedKey == null)
+        switch (translatedKey)
         {
-            // This could be group by entity type
-            if (remappedKeySelector is not StructuralTypeShaperExpression
+            // Special handling for GroupBy over entity type: get the entity projection expression out.
+            // For GroupBy over a complex type, we already get the projection expression out.
+            case StructuralTypeShaperExpression { StructuralType: IEntityType } shaper:
+                if (shaper.ValueBufferExpression is not ProjectionBindingExpression pbe)
                 {
-                    ValueBufferExpression: ProjectionBindingExpression pbe
-                } shaper)
-            {
-                // ValueBufferExpression can be JsonQuery, ProjectionBindingExpression, EntityProjection
-                // We only allow ProjectionBindingExpression which represents a regular entity
-                return null;
-            }
+                    // ValueBufferExpression can be JsonQuery, ProjectionBindingExpression, EntityProjection
+                    // We only allow ProjectionBindingExpression which represents a regular entity
+                    return null;
+                }
 
-            translatedKey = shaper.Update(((SelectExpression)pbe.QueryExpression).GetProjection(pbe));
+                translatedKey = shaper.Update(((SelectExpression)pbe.QueryExpression).GetProjection(pbe));
+                break;
+
+            case null:
+                return null;
         }
 
         if (elementSelector != null)
@@ -823,7 +826,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 return memberInitExpression.Update(updatedNewExpression, newBindings);
 
             default:
-                var translation = TranslateExpression(expression);
+                var translation = TranslateProjection(expression);
                 if (translation == null)
                 {
                     return null;
@@ -1313,6 +1316,21 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected virtual SqlExpression? TranslateExpression(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var translation = _sqlTranslator.Translate(expression, applyDefaultTypeMapping);
+
+        if (translation is null)
+        {
+            if (_sqlTranslator.TranslationErrorDetails != null)
+            {
+                AddTranslationErrorDetails(_sqlTranslator.TranslationErrorDetails);
+            }
+        }
+
+        return translation;
+    }
+
+    private Expression? TranslateProjection(Expression expression, bool applyDefaultTypeMapping = true)
+    {
+        var translation = _sqlTranslator.TranslateProjection(expression, applyDefaultTypeMapping);
 
         if (translation is null)
         {

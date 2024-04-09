@@ -1014,12 +1014,50 @@ LIMIT @__p_0
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Same_complex_type_projected_twice_with_pushdown_as_part_of_another_projection(async))).Message);
 
+    #region GroupBy
+
+    public override async Task GroupBy_over_property_in_nested_complex_type(bool async)
+    {
+        await base.GroupBy_over_property_in_nested_complex_type(async);
+
+        AssertSql(
+            """
+SELECT "c"."ShippingAddress_Country_Code" AS "Code", COUNT(*) AS "Count"
+FROM "Customer" AS "c"
+GROUP BY "c"."ShippingAddress_Country_Code"
+""");
+    }
+
+    public override async Task GroupBy_over_complex_type(bool async)
+    {
+        await base.GroupBy_over_complex_type(async);
+
+        AssertSql(
+            """
+SELECT "c"."ShippingAddress_AddressLine1", "c"."ShippingAddress_AddressLine2", "c"."ShippingAddress_Tags", "c"."ShippingAddress_ZipCode", "c"."ShippingAddress_Country_Code", "c"."ShippingAddress_Country_FullName", COUNT(*) AS "Count"
+FROM "Customer" AS "c"
+GROUP BY "c"."ShippingAddress_AddressLine1", "c"."ShippingAddress_AddressLine2", "c"."ShippingAddress_Tags", "c"."ShippingAddress_ZipCode", "c"."ShippingAddress_Country_Code", "c"."ShippingAddress_Country_FullName"
+""");
+    }
+
+    public override async Task GroupBy_over_nested_complex_type(bool async)
+    {
+        await base.GroupBy_over_nested_complex_type(async);
+
+        AssertSql(
+            """
+SELECT "c"."ShippingAddress_Country_Code", "c"."ShippingAddress_Country_FullName", COUNT(*) AS "Count"
+FROM "Customer" AS "c"
+GROUP BY "c"."ShippingAddress_Country_Code", "c"."ShippingAddress_Country_FullName"
+""");
+    }
+
     public override async Task Entity_with_complex_type_with_group_by_and_first(bool async)
     {
         await base.Entity_with_complex_type_with_group_by_and_first(async);
 
         AssertSql(
-"""
+            """
 SELECT "c3"."Id", "c3"."Name", "c3"."BillingAddress_AddressLine1", "c3"."BillingAddress_AddressLine2", "c3"."BillingAddress_Tags", "c3"."BillingAddress_ZipCode", "c3"."BillingAddress_Country_Code", "c3"."BillingAddress_Country_FullName", "c3"."ShippingAddress_AddressLine1", "c3"."ShippingAddress_AddressLine2", "c3"."ShippingAddress_Tags", "c3"."ShippingAddress_ZipCode", "c3"."ShippingAddress_Country_Code", "c3"."ShippingAddress_Country_FullName"
 FROM (
     SELECT "c"."Id"
@@ -1036,6 +1074,8 @@ LEFT JOIN (
 ) AS "c3" ON "c1"."Id" = "c3"."Id"
 """);
     }
+
+    #endregion GroupBy
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
