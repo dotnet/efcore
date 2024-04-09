@@ -239,12 +239,10 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
     }
 
 #if DEBUG
-
     // TODO: issue #33482 - we should properly deal with NTS types rather than disabling them here
     // especially using such a crude method
-    // for ValueComparer, we only need it for ListOf(...)Comparer, see issue #33383
     protected override Expression VisitMember(MemberExpression memberExpression)
-        => memberExpression is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" or "ValueComparer" }
+        => memberExpression is { Expression: ConstantExpression, Type.Name: "SqlServerBytesReader" or "GaiaGeoReader" }
             ? memberExpression
             : base.VisitMember(memberExpression);
 

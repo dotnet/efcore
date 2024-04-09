@@ -365,4 +365,10 @@ public class ValueComparer
     /// </remarks>
     public new virtual Expression<Func<T, T>> SnapshotExpression
         => (Expression<Func<T, T>>)base.SnapshotExpression;
+
+    private readonly ConstructorInfo _constructorInfo
+        = typeof(ValueComparer<T>).GetConstructor([typeof(Expression<Func<T?, T?, bool>>), typeof(Expression<Func<T, int>>)])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => New(_constructorInfo, EqualsExpression, HashCodeExpression);
 }

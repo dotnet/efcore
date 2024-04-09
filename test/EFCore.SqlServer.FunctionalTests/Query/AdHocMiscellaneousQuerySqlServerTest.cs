@@ -2405,4 +2405,70 @@ WHERE CASE
 END = N'COUNTRY'
 """);
     }
+
+    [ConditionalFact]
+    public void MyRepro()
+    {
+        using (var ctx = new MyContext())
+        {
+            ctx.Database.EnsureDeleted();
+            ctx.Database.EnsureCreated();
+
+            var e = new MyEntity { Reference = new MyJson { TestNullableEnumWithIntConverterCollectionCollection = [[null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null] } };
+            ctx.Entities.Add(e);
+            ctx.SaveChanges();
+        }
+
+        using (var ctx = new MyContext())
+        {
+            var entity = ctx.Entities.Single();
+            entity.Reference.TestNullableEnumWithIntConverterCollectionCollection[0][1][1] = JsonEnum.Two;
+
+            ctx.SaveChanges();
+        }
+
+        using (var ctx = new MyContext())
+        {
+            var entity = ctx.Entities.Single();
+            Assert.Equal(
+                [[null, [JsonEnum.One, JsonEnum.Two, JsonEnum.Three, (JsonEnum)(-7)], null, [JsonEnum.One, null, JsonEnum.Three, (JsonEnum)(-7)]], null],
+                entity.Reference.TestNullableEnumWithIntConverterCollectionCollection);
+        }
+    }
+
+    public class MyContext : DbContext
+    {
+        public DbSet<MyEntity> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MyEntity>().OwnsOne(x => x.Reference).ToJson();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Repro;Trusted_Connection=True;MultipleActiveResultSets=true");
+        }
+    }
+
+
+
+    public class MyEntity
+    {
+        public int Id { get; set; }
+
+        public MyJson Reference { get; set; }
+    }
+
+    public class MyJson
+    { 
+        public JsonEnum?[][][] TestNullableEnumWithIntConverterCollectionCollection { get; set; } = [[[JsonEnum.Three]]];
+    }
+
+    public enum JsonEnum
+    {
+        One,
+        Two,
+        Three,
+    }
 }
