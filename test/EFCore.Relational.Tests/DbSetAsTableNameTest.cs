@@ -107,6 +107,15 @@ public abstract class DbSetAsTableNameTest
         Assert.Equal("YummyMarmite", GetTableName<Marmite>(context));
     }
 
+    [ConditionalFact]
+    public virtual void DbSet_long_name_properly_truncated()
+    {
+        using var context = CreateContext();
+        var maxLength = context.Model.GetMaxIdentifierLength();
+        var realLength = GetTableName<ReallyLongName>(context).Length;
+        Assert.True(realLength <= maxLength);
+    }
+
     protected abstract string GetTableName<TEntity>(DbContext context);
 
     protected abstract string GetTableName<TEntity>(DbContext context, string entityTypeName);
@@ -124,6 +133,7 @@ public abstract class DbSetAsTableNameTest
         public DbSet<WheatThin> WheatThins { get; set; }
         public DbSet<Marmite> Food { get; set; }
         public DbSet<Marmite> Beverage { get; set; }
+        public DbSet<ReallyLongName> ReallyLongNames12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 { get; set; }
 
         public DbSet<BothEntity> Bovrils
             => Set<BothEntity>("Bovril");
@@ -211,6 +221,11 @@ public abstract class DbSetAsTableNameTest
     }
 
     protected class VeggieEntity
+    {
+        public int Id { get; set; }
+    }
+
+    protected class ReallyLongName
     {
         public int Id { get; set; }
     }
