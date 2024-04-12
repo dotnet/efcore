@@ -14,6 +14,8 @@
 
   <!-- These are package versions that should not be overridden or updated by automation. -->
   <PropertyGroup Label="Package Versions: Pinned">
+
+<!-- 2.2.0-preview1-34785 testing testing -->
     <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.41</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.1.23</MicrosoftExtensionsCachingMemoryPackageVersion>
     <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.1.1</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
