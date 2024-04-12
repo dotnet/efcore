@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -2068,11 +2069,18 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
+                    .Append(chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..])
+                    .Append('_');
 
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                foreach (var complexProperty in chainExpression.ComplexPropertyChain)
+                {
+                    parameterNameBuilder.Append(complexProperty.Name).Append('_');
+                }
+
+                parameterNameBuilder.Append(property.Name);
+
+                return _queryCompilationContext.RegisterRuntimeParameter(parameterNameBuilder.ToString(), lambda);
             }
 
             case MemberInitExpression memberInitExpression
