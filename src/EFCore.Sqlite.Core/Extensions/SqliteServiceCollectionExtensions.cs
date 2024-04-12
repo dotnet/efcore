@@ -105,6 +105,7 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
             .TryAdd<IHistoryRepository, SqliteHistoryRepository>()
             .TryAdd<IRelationalQueryStringFactory, SqliteQueryStringFactory>()
+            .TryAdd<IQueryCompilationContextFactory, SqliteQueryCompilationContextFactory>()
             .TryAdd<IMethodCallTranslatorProvider, SqliteMethodCallTranslatorProvider>()
             .TryAdd<IAggregateMethodCallTranslatorProvider, SqliteAggregateMethodCallTranslatorProvider>()
             .TryAdd<IMemberTranslatorProvider, SqliteMemberTranslatorProvider>()

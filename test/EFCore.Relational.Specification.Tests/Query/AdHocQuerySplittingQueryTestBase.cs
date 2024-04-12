@@ -249,7 +249,8 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
                         .Select(
                             c => new Context25225.CollectionViewModel
                             {
-                                Id = c.Id, ParentId = c.ParentId,
+                                Id = c.Id,
+                                ParentId = c.ParentId,
                             })
                         .ToArray()
                 });

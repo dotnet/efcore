@@ -63,6 +63,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(ISqlAliasManagerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IRelationalLiftableConstantFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IRelationalSqlTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -189,6 +190,9 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
         TryAdd<IAdHocMapper, RelationalAdHocMapper>();
         TryAdd<ISqlAliasManagerFactory, SqlAliasManagerFactory>();
+        TryAdd<ILiftableConstantFactory>(p => p.GetRequiredService<IRelationalLiftableConstantFactory>());
+        TryAdd<IRelationalLiftableConstantFactory, RelationalLiftableConstantFactory>();
+        TryAdd<ILiftableConstantProcessor, RelationalLiftableConstantProcessor>();
 
         ServiceCollectionMap.GetInfrastructure()
             .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -204,6 +208,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
             .AddDependencySingleton<RelationalModelDependencies>()
             .AddDependencySingleton<RelationalModelRuntimeInitializerDependencies>()
+            .AddDependencySingleton<RelationalLiftableConstantExpressionDependencies>()
             .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
             .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
             .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

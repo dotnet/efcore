@@ -29,15 +29,24 @@ public sealed class ListOfReferenceTypesComparer<TConcreteCollection, TElement> 
         || (typeof(TConcreteCollection).IsGenericType
             && typeof(TConcreteCollection).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
+    private static readonly MethodInfo CompareMethod = typeof(ListOfReferenceTypesComparer<TConcreteCollection, TElement>).GetMethod(
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(object), typeof(ValueComparer)])!;
+
+    private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfReferenceTypesComparer<TConcreteCollection, TElement>).GetMethod(
+        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable), typeof(ValueComparer)])!;
+
+    private static readonly MethodInfo SnapshotMethod = typeof(ListOfReferenceTypesComparer<TConcreteCollection, TElement>).GetMethod(
+        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(object), typeof(ValueComparer)])!;
+
     /// <summary>
     ///     Creates a new instance of the list comparer.
     /// </summary>
     /// <param name="elementComparer">The comparer to use for comparing elements.</param>
     public ListOfReferenceTypesComparer(ValueComparer elementComparer)
         : base(
-            (a, b) => Compare(a, b, elementComparer),
-            o => GetHashCode((IEnumerable)o, elementComparer),
-            source => Snapshot(source, elementComparer))
+            CompareLambda(elementComparer),
+            GetHashCodeLambda(elementComparer),
+            SnapshotLambda(elementComparer))
     {
         ElementComparer = elementComparer;
     }
@@ -46,6 +55,50 @@ public sealed class ListOfReferenceTypesComparer<TConcreteCollection, TElement> 
     ///     The comparer to use for comparing elements.
     /// </summary>
     public ValueComparer ElementComparer { get; }
+
+    private static Expression<Func<object?, object?, bool>> CompareLambda(ValueComparer elementComparer)
+    {
+        var prm1 = Expression.Parameter(typeof(object), "a");
+        var prm2 = Expression.Parameter(typeof(object), "b");
+
+        // (a, b) => Compare(a, b, elementComparer)
+        return Expression.Lambda<Func<object?, object?, bool>>(
+            Expression.Call(
+                CompareMethod,
+                prm1,
+                prm2,
+                elementComparer.ConstructorExpression),
+            prm1,
+            prm2);
+    }
+
+    private static Expression<Func<object, int>> GetHashCodeLambda(ValueComparer elementComparer)
+    {
+        var prm = Expression.Parameter(typeof(object), "o");
+
+        //o => GetHashCode((IEnumerable)o, elementComparer)
+        return Expression.Lambda<Func<object, int>>(
+            Expression.Call(
+                GetHashCodeMethod,
+                Expression.Convert(
+                    prm,
+                    typeof(IEnumerable)),
+                elementComparer.ConstructorExpression),
+            prm);
+    }
+
+    private static Expression<Func<object, object>> SnapshotLambda(ValueComparer elementComparer)
+    {
+        var prm = Expression.Parameter(typeof(object), "source");
+
+        //source => Snapshot(source, elementComparer)
+        return Expression.Lambda<Func<object, object>>(
+            Expression.Call(
+                SnapshotMethod,
+                prm,
+                elementComparer.ConstructorExpression),
+            prm);
+    }
 
     private static bool Compare(object? a, object? b, ValueComparer elementComparer)
     {

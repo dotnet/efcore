@@ -238,15 +238,18 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             Contacts.AddRange(
                 new ServiceOperatorContact
                 {
-                    UserName = "service.operator@esoterix.co.uk", ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
+                    UserName = "service.operator@esoterix.co.uk",
+                    ServiceOperator = ServiceOperators.OrderBy(o => o.Id).First()
                 },
                 new EmployerContact
                 {
-                    UserName = "uwe@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
+                    UserName = "uwe@esoterix.co.uk",
+                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                 },
                 new EmployerContact
                 {
-                    UserName = "hp@esoterix.co.uk", Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
+                    UserName = "hp@esoterix.co.uk",
+                    Employer = Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                 },
                 new Contact { UserName = "noroles@esoterix.co.uk" });
 
@@ -1637,7 +1640,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                 o => o.OrderId,
                 (o, g) => new
                 {
-                    Key = o, IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                    Key = o,
+                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
                 })
             .OrderBy(e => e.Key);
 
@@ -1896,7 +1900,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                     into tg
                     select new
                     {
-                        A = tg.Key, B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        A = tg.Key,
+                        B = context.Tables.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
                     };
 
         var orders = async
@@ -2162,7 +2167,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
                             CountryId = m.Company.CountryId,
                             Country = new Context31961.CountryDto()
                             {
-                                Id = m.Company.Country.Id, CountryName = m.Company.Country.CountryName,
+                                Id = m.Company.Country.Id,
+                                CountryName = m.Company.Country.CountryName,
                             },
                         }
                         : null,

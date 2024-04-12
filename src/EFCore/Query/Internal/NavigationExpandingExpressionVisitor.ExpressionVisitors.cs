@@ -501,7 +501,7 @@ public partial class NavigationExpandingExpressionVisitor
     private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
     {
         private static readonly MethodInfo FetchJoinEntityMethodInfo =
-            typeof(IncludeExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity))!;
+            typeof(NavigationExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity))!;
 
         private readonly bool _queryStateManager;
         private readonly bool _ignoreAutoIncludes;
@@ -891,11 +891,6 @@ public partial class NavigationExpandingExpressionVisitor
 
             return result;
         }
-
-#pragma warning disable IDE0060 // Remove unused parameter
-        private static TTarget FetchJoinEntity<TJoin, TTarget>(TJoin joinEntity, TTarget targetEntity)
-            => targetEntity;
-#pragma warning restore IDE0060 // Remove unused parameter
 
         private static Expression RemapFilterExpressionForJoinEntity(
             ParameterExpression filterParameter,
@@ -1383,4 +1378,14 @@ public partial class NavigationExpandingExpressionVisitor
             public IEntityType? EntityType { get; }
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static TTarget FetchJoinEntity<TJoin, TTarget>(TJoin joinEntity, TTarget targetEntity)
+        => targetEntity;
 }

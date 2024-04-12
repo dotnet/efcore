@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 
@@ -11,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </summary>
 public sealed class JsonTimeOnlyReaderWriter : JsonValueReaderWriter<TimeOnly>
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(JsonTimeOnlyReaderWriter).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -27,4 +30,7 @@ public sealed class JsonTimeOnlyReaderWriter : JsonValueReaderWriter<TimeOnly>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TimeOnly value)
         => writer.WriteStringValue(value.ToString("o", CultureInfo.InvariantCulture));
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
 }
