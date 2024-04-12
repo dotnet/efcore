@@ -507,7 +507,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Property? FindProperty(string name)
-        => FindDeclaredProperty(Check.NotEmpty(name, nameof(name))) ?? _baseType?.FindProperty(name);
+        => FindDeclaredProperty(Check.NotEmpty(name)) ?? _baseType?.FindProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -516,7 +516,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Property? FindDeclaredProperty(string name)
-        => _properties.TryGetValue(Check.NotEmpty(name, nameof(name)), out var property)
+        => _properties.TryGetValue(Check.NotEmpty(name), out var property)
             ? property
             : null;
 
@@ -947,7 +947,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ComplexProperty? FindComplexProperty(string name)
-        => FindDeclaredComplexProperty(Check.NotEmpty(name, nameof(name))) ?? BaseType?.FindComplexProperty(name);
+        => FindDeclaredComplexProperty(Check.NotEmpty(name)) ?? BaseType?.FindComplexProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -956,7 +956,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ComplexProperty? FindDeclaredComplexProperty(string name)
-        => _complexProperties.TryGetValue(Check.NotEmpty(name, nameof(name)), out var property)
+        => _complexProperties.TryGetValue(Check.NotEmpty(name), out var property)
             ? property
             : null;
 
@@ -1240,7 +1240,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource(string name)
-        => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+        => _ignoredMembers.TryGetValue(Check.NotEmpty(name), out var ignoredConfigurationSource)
             ? ignoredConfigurationSource
             : null;
 

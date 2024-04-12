@@ -1262,7 +1262,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        return SetEntityState(Check.NotNull(entity), EntityState.Added);
     }
 
     /// <summary>
@@ -1303,7 +1303,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -1354,7 +1354,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        return SetEntityState(Check.NotNull(entity), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -1400,7 +1400,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        return SetEntityState(Check.NotNull(entity), EntityState.Modified);
     }
 
     /// <summary>
@@ -1489,7 +1489,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        return SetEntityState(Check.NotNull(entity), EntityState.Added);
     }
 
     /// <summary>
@@ -1531,7 +1531,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -1580,7 +1580,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        return SetEntityState(Check.NotNull(entity), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -1624,7 +1624,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        return SetEntityState(Check.NotNull(entity), EntityState.Modified);
     }
 
     /// <summary>
@@ -1875,7 +1875,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+        SetEntityStates(Check.NotNull(entities), EntityState.Added);
     }
 
     /// <summary>
@@ -1965,7 +1965,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        SetEntityStates(Check.NotNull(entities), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -2007,7 +2007,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        SetEntityStates(Check.NotNull(entities), EntityState.Modified);
     }
 
     /// <summary>

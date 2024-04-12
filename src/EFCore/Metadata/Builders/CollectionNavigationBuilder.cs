@@ -120,7 +120,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
             DeclaringEntityType,
             RelatedEntityType,
             WithOneBuilder(
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                Check.NullButNotEmpty(navigationName)).Metadata);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

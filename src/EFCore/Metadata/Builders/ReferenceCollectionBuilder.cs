@@ -93,7 +93,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ReferenceCollectionBuilder HasForeignKey(params string[] foreignKeyPropertyNames)
         => new(
-            HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+            HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames)),
             this,
             foreignKeySet: true);
 
@@ -127,7 +127,7 @@ public class ReferenceCollectionBuilder : RelationshipBuilderBase
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ReferenceCollectionBuilder HasPrincipalKey(params string[] keyPropertyNames)
         => new(
-            HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+            HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames)),
             this,
             principalKeySet: true);
 

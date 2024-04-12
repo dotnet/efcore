@@ -49,7 +49,7 @@ public static class SqlServerPropertyExtensions
     public static void SetHiLoSequenceName(this IMutableProperty property, string? name)
         => property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name to use for the hi-lo sequence.
@@ -64,7 +64,7 @@ public static class SqlServerPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -108,7 +108,7 @@ public static class SqlServerPropertyExtensions
     public static void SetHiLoSequenceSchema(this IMutableProperty property, string? schema)
         => property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceSchema,
-            Check.NullButNotEmpty(schema, nameof(schema)));
+            Check.NullButNotEmpty(schema));
 
     /// <summary>
     ///     Sets the schema to use for the hi-lo sequence.
@@ -123,7 +123,7 @@ public static class SqlServerPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceSchema,
-            Check.NullButNotEmpty(schema, nameof(schema)),
+            Check.NullButNotEmpty(schema),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -221,7 +221,7 @@ public static class SqlServerPropertyExtensions
     public static void SetSequenceName(this IMutableProperty property, string? name)
         => property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name to use for the key value generation sequence.
@@ -236,7 +236,7 @@ public static class SqlServerPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -280,7 +280,7 @@ public static class SqlServerPropertyExtensions
     public static void SetSequenceSchema(this IMutableProperty property, string? schema)
         => property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceSchema,
-            Check.NullButNotEmpty(schema, nameof(schema)));
+            Check.NullButNotEmpty(schema));
 
     /// <summary>
     ///     Sets the schema to use for the key value generation sequence.
@@ -295,7 +295,7 @@ public static class SqlServerPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceSchema,
-            Check.NullButNotEmpty(schema, nameof(schema)),
+            Check.NullButNotEmpty(schema),
             fromDataAnnotation)?.Value;
 
     /// <summary>

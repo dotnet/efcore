@@ -94,7 +94,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <param name="assemblyName">The name of the assembly.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder MigrationsAssembly(string? assemblyName)
-        => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
+        => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName)));
 
     /// <summary>
     ///     Configures the assembly where migrations are maintained for this context.
@@ -157,7 +157,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     public virtual TBuilder ExecutionStrategy(
         Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
         => WithOption(
-            e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
+            e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy)));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder

@@ -80,7 +80,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// <param name="model">The model to be used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder UseModel(IModel model)
-        => WithOption(e => e.WithModel(Check.NotNull(model, nameof(model))));
+        => WithOption(e => e.WithModel(Check.NotNull(model)));
 
     /// <summary>
     ///     Sets the <see cref="ILoggerFactory" /> that will be used to create <see cref="ILogger" /> instances

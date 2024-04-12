@@ -99,7 +99,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     RuntimeModelDependencies? ModelDependencies
     {
         get => (RuntimeModelDependencies?)FindRuntimeAnnotationValue(CoreAnnotationNames.ModelDependencies);
-        set => SetRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, Check.NotNull(value, nameof(value)));
+        set => SetRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, Check.NotNull(value));
     }
 
     /// <summary>

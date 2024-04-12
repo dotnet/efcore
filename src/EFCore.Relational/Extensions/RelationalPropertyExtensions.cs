@@ -288,7 +288,7 @@ public static class RelationalPropertyExtensions
     public static void SetColumnName(this IMutableProperty property, string? name)
         => property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the column to which the property is mapped.
@@ -303,7 +303,7 @@ public static class RelationalPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -485,7 +485,7 @@ public static class RelationalPropertyExtensions
     public static void SetColumnType(this IMutableProperty property, string? value)
         => property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnType,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the database type of the column to which the property is mapped.
@@ -500,7 +500,7 @@ public static class RelationalPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnType,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -1997,7 +1997,7 @@ public static class RelationalPropertyExtensions
     public static void SetJsonPropertyName(this IMutableProperty property, string? name)
         => property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given property of an entity mapped to a JSON column.
@@ -2012,7 +2012,7 @@ public static class RelationalPropertyExtensions
         bool fromDataAnnotation = false)
         => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.JsonPropertyName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>

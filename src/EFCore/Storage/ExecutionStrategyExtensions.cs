@@ -776,7 +776,7 @@ public static class ExecutionStrategyExtensions
         Func<DbContext, IDbContextTransaction> beginTransaction)
         => strategy.Execute(
             new ExecutionState<TState, TResult>(
-                Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
+                Check.NotNull(operation), Check.NotNull(verifySucceeded), state),
             (c, s) =>
             {
                 Check.NotNull(beginTransaction);
@@ -833,7 +833,7 @@ public static class ExecutionStrategyExtensions
         CancellationToken cancellationToken = default)
         => strategy.ExecuteAsync(
             new ExecutionStateAsync<TState, TResult>(
-                Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
+                Check.NotNull(operation), Check.NotNull(verifySucceeded), state),
             async (c, s, ct) =>
             {
                 Check.NotNull(beginTransaction);

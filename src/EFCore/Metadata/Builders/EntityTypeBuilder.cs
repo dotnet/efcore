@@ -90,7 +90,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyNames">The names of the properties that make up the primary key.</param>
     /// <returns>An object that can be used to configure the primary key.</returns>
     public virtual KeyBuilder HasKey(params string[] propertyNames)
-        => new(Builder.PrimaryKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+        => new(Builder.PrimaryKey(Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -100,7 +100,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyNames">The names of the properties that make up the key.</param>
     /// <returns>An object that can be used to configure the key.</returns>
     public virtual KeyBuilder HasAlternateKey(params string[] propertyNames)
-        => new(Builder.HasKey(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+        => new(Builder.HasKey(Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures the entity type to have no keys. It will only be usable for queries.
@@ -126,7 +126,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PropertyBuilder Property(string propertyName)
         => new(
             Builder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -147,7 +147,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.Property(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -166,8 +166,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PropertyBuilder Property(Type propertyType, string propertyName)
         => new(
             Builder.Property(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -184,7 +184,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
         => new(
             Builder.PrimitiveCollection(
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -205,7 +205,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.PrimitiveCollection(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -225,8 +225,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
         => new(
             Builder.PrimitiveCollection(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -245,7 +245,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.IndexerProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.
@@ -268,7 +268,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         return new PropertyBuilder(
             Builder.IndexerProperty(
                 propertyType,
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -286,7 +286,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.ComplexProperty(
                 propertyType: null,
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -309,7 +309,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.ComplexProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -335,8 +335,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         => new(
             Builder.ComplexProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -357,8 +357,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     public virtual ComplexPropertyBuilder ComplexProperty(Type propertyType, string propertyName)
         => new(
             Builder.ComplexProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -384,9 +384,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string complexTypeName)
         => new(
             Builder.ComplexProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -525,7 +525,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="navigationName">The name of the navigation property to be configured.</param>
     /// <returns>An object that can be used to configure the navigation property.</returns>
     public virtual NavigationBuilder Navigation(string navigationName)
-        => new(Builder.Navigation(Check.NotEmpty(navigationName, nameof(navigationName))));
+        => new(Builder.Navigation(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -563,7 +563,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyNames">The names of the properties that make up the index.</param>
     /// <returns>An object that can be used to configure the index.</returns>
     public virtual IndexBuilder HasIndex(params string[] propertyNames)
-        => new(Builder.HasIndex(Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+        => new(Builder.HasIndex(Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures an index on the specified properties and with the given name.
@@ -578,8 +578,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string name)
         => new(
             Builder.HasIndex(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)),
-                Check.NotEmpty(name, nameof(name)),
+                Check.NotEmpty(propertyNames),
+                Check.NotEmpty(name),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -608,8 +608,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string ownedTypeName,
         string navigationName)
         => OwnsOneBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName)),
+            Check.NotEmpty(navigationName));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -639,8 +639,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
         => OwnsOneBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), ownedType),
+            Check.NotEmpty(navigationName));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -672,7 +672,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
 
         return OwnsOneBuilder(
             new TypeIdentity(ownedType, (Model)Metadata.Model),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            Check.NotEmpty(navigationName));
     }
 
     /// <summary>
@@ -826,8 +826,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string ownedTypeName,
         string navigationName)
         => OwnsManyBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName))),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName)),
+            Check.NotEmpty(navigationName));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -860,8 +860,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotNull(ownedType);
 
         return OwnsManyBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), ownedType),
+            Check.NotEmpty(navigationName));
     }
 
     /// <summary>
@@ -894,7 +894,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
 
         return OwnsManyBuilder(
             new TypeIdentity(ownedType, (Model)Metadata.Model),
-            Check.NotEmpty(navigationName, nameof(navigationName)));
+            Check.NotEmpty(navigationName));
     }
 
     /// <summary>

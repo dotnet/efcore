@@ -175,7 +175,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     otherwise <see langword="false" />.
     /// </returns>
     bool IsStrictlyDerivedFrom(IReadOnlyTypeBase baseType)
-        => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
+        => this != Check.NotNull(baseType) && baseType.IsAssignableFrom(this);
 
     /// <summary>
     ///     Gets the property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
@@ -196,7 +196,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <param name="memberInfo">The member on the class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyProperty? FindProperty(MemberInfo memberInfo)
-        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+        => (Check.NotNull(memberInfo) as PropertyInfo)?.IsIndexerProperty() == true
             ? null
             : FindProperty(memberInfo.GetSimpleMemberName());
 
@@ -286,7 +286,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <param name="memberInfo">The member on the class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     IReadOnlyComplexProperty? FindComplexProperty(MemberInfo memberInfo)
-        => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
+        => (Check.NotNull(memberInfo) as PropertyInfo)?.IsIndexerProperty() == true
             ? null
             : FindComplexProperty(memberInfo.GetSimpleMemberName());
 

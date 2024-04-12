@@ -32,7 +32,7 @@ public static class RelationalModelExtensions
     public static void SetDefaultSchema(this IMutableModel model, string? value)
         => model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.DefaultSchema,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the default schema.
@@ -47,7 +47,7 @@ public static class RelationalModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.DefaultSchema,
-            Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation)?.Value;
+            Check.NullButNotEmpty(value), fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for the default schema.
@@ -133,7 +133,7 @@ public static class RelationalModelExtensions
         string name,
         string? schema = null)
         => Sequence.FindSequence(
-            model, Check.NotEmpty(name, nameof(name)), Check.NullButNotEmpty(schema, nameof(schema)));
+            model, Check.NotEmpty(name), Check.NullButNotEmpty(schema));
 
     /// <summary>
     ///     Finds a sequence with the given name.
@@ -286,7 +286,7 @@ public static class RelationalModelExtensions
     /// <param name="method">The <see cref="MethodInfo" /> for the method that is mapped to the function.</param>
     /// <returns>The function or <see langword="null" /> if the method is not mapped.</returns>
     public static IReadOnlyDbFunction? FindDbFunction(this IReadOnlyModel model, MethodInfo method)
-        => DbFunction.FindDbFunction(model, Check.NotNull(method, nameof(method)));
+        => DbFunction.FindDbFunction(model, Check.NotNull(method));
 
     /// <summary>
     ///     Finds a function that is mapped to the method represented by the given <see cref="MethodInfo" />.
@@ -322,7 +322,7 @@ public static class RelationalModelExtensions
     /// <param name="name">The model name of the function.</param>
     /// <returns>The function or <see langword="null" /> if the method is not mapped.</returns>
     public static IReadOnlyDbFunction? FindDbFunction(this IReadOnlyModel model, string name)
-        => DbFunction.FindDbFunction(model, Check.NotNull(name, nameof(name)));
+        => DbFunction.FindDbFunction(model, Check.NotNull(name));
 
     /// <summary>
     ///     Finds a function that is mapped to the method represented by the given name.
@@ -359,7 +359,7 @@ public static class RelationalModelExtensions
     /// <returns>The new <see cref="IMutableDbFunction" />.</returns>
     public static IMutableDbFunction AddDbFunction(this IMutableModel model, MethodInfo methodInfo)
         => DbFunction.AddDbFunction(
-            model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
+            model, Check.NotNull(methodInfo), ConfigurationSource.Explicit);
 
     /// <summary>
     ///     Creates a function mapped to the given method.
@@ -373,7 +373,7 @@ public static class RelationalModelExtensions
         MethodInfo methodInfo,
         bool fromDataAnnotation = false)
         => DbFunction.AddDbFunction(
-            (IMutableModel)model, Check.NotNull(methodInfo, nameof(methodInfo)),
+            (IMutableModel)model, Check.NotNull(methodInfo),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -388,7 +388,7 @@ public static class RelationalModelExtensions
         string name,
         Type returnType)
         => DbFunction.AddDbFunction(
-            model, Check.NotNull(name, nameof(name)), returnType, ConfigurationSource.Explicit);
+            model, Check.NotNull(name), returnType, ConfigurationSource.Explicit);
 
     /// <summary>
     ///     Creates a function.
@@ -405,7 +405,7 @@ public static class RelationalModelExtensions
         bool fromDataAnnotation = false)
         => DbFunction.AddDbFunction(
             (IMutableModel)model,
-            Check.NotNull(name, nameof(name)),
+            Check.NotNull(name),
             returnType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -417,7 +417,7 @@ public static class RelationalModelExtensions
     /// <param name="method">The <see cref="MethodInfo" /> for the method that is mapped to the function.</param>
     /// <returns>The removed function or <see langword="null" /> if the method is not mapped.</returns>
     public static IMutableDbFunction? RemoveDbFunction(this IMutableModel model, MethodInfo method)
-        => DbFunction.RemoveDbFunction(model, Check.NotNull(method, nameof(method)));
+        => DbFunction.RemoveDbFunction(model, Check.NotNull(method));
 
     /// <summary>
     ///     Removes the function that is mapped to the method represented by the given
@@ -437,7 +437,7 @@ public static class RelationalModelExtensions
     /// <param name="name">The model name of the function.</param>
     /// <returns>The removed function or <see langword="null" /> if the method is not mapped.</returns>
     public static IMutableDbFunction? RemoveDbFunction(this IMutableModel model, string name)
-        => DbFunction.RemoveDbFunction(model, Check.NotNull(name, nameof(name)));
+        => DbFunction.RemoveDbFunction(model, Check.NotNull(name));
 
     /// <summary>
     ///     Removes the function that is mapped to the method represented by the given
@@ -499,7 +499,7 @@ public static class RelationalModelExtensions
     public static void SetCollation(this IMutableModel model, string? value)
         => model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Collation,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the database collation.
@@ -511,7 +511,7 @@ public static class RelationalModelExtensions
     public static string? SetCollation(this IConventionModel model, string? value, bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Collation,
-            Check.NullButNotEmpty(value, nameof(value)), fromDataAnnotation)?.Value;
+            Check.NullButNotEmpty(value), fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the configuration source for the collation.

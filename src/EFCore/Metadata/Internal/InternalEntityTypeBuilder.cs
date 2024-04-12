@@ -2522,7 +2522,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool? targetIsPrincipal = null)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationName),
             null,
             targetIsPrincipal,
@@ -2540,7 +2540,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool? targetIsPrincipal = null)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationMember),
             null,
             targetIsPrincipal,
@@ -2559,7 +2559,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool setTargetAsPrincipal = false)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigationName),
             MemberIdentity.Create(inverseNavigationName),
             setTargetAsPrincipal ? true : null,
@@ -2578,7 +2578,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         ConfigurationSource configurationSource,
         bool setTargetAsPrincipal = false)
         => HasRelationship(
-            Check.NotNull(targetEntityType, nameof(targetEntityType)),
+            Check.NotNull(targetEntityType),
             MemberIdentity.Create(navigation),
             MemberIdentity.Create(inverseNavigation),
             setTargetAsPrincipal ? true : null,
@@ -4387,7 +4387,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual DiscriminatorBuilder? HasDiscriminator(MemberInfo memberInfo, ConfigurationSource configurationSource)
         => CanSetDiscriminator(
-            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
+            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(), configurationSource)
             ? DiscriminatorBuilder(
                 Metadata.GetRootType().Builder.Property(
                     memberInfo, configurationSource),
@@ -5553,7 +5553,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            name: null, Check.NotNull(type, nameof(type)),
+            name: null, Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5565,7 +5565,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(string name, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), type: null,
+            Check.NotEmpty(name), type: null,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5577,7 +5577,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     IConventionDiscriminatorBuilder? IConventionEntityTypeBuilder.HasDiscriminator(string name, Type type, bool fromDataAnnotation)
         => HasDiscriminator(
-            Check.NotEmpty(name, nameof(name)), Check.NotNull(type, nameof(type)),
+            Check.NotEmpty(name), Check.NotNull(type),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -5646,7 +5646,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     [DebuggerStepThrough]
     bool IConventionEntityTypeBuilder.CanSetDiscriminator(MemberInfo memberInfo, bool fromDataAnnotation)
         => CanSetDiscriminator(
-            Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName(), memberInfo.GetMemberType(),
+            Check.NotNull(memberInfo).GetSimpleMemberName(), memberInfo.GetMemberType(),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

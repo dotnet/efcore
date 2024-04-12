@@ -817,7 +817,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Key? FindDeclaredKey(IReadOnlyList<IReadOnlyProperty> properties)
-        => _keys.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var key)
+        => _keys.TryGetValue(Check.NotEmpty(properties), out var key)
             ? key
             : null;
 
@@ -1520,7 +1520,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Navigation? FindNavigation(MemberInfo memberInfo)
-        => (Navigation?)((IReadOnlyEntityType)this).FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => (Navigation?)((IReadOnlyEntityType)this).FindNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1529,7 +1529,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Navigation? FindDeclaredNavigation(string name)
-        => _navigations.TryGetValue(Check.NotEmpty(name, nameof(name)), out var navigation)
+        => _navigations.TryGetValue(Check.NotEmpty(name), out var navigation)
             ? navigation
             : null;
 
@@ -1711,7 +1711,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SkipNavigation? FindSkipNavigation(MemberInfo memberInfo)
-        => FindSkipNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+        => FindSkipNavigation(Check.NotNull(memberInfo).GetSimpleMemberName());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1720,7 +1720,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SkipNavigation? FindDeclaredSkipNavigation(string name)
-        => _skipNavigations.TryGetValue(Check.NotEmpty(name, nameof(name)), out var navigation)
+        => _skipNavigations.TryGetValue(Check.NotEmpty(name), out var navigation)
             ? navigation
             : null;
 
@@ -2084,7 +2084,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? FindDeclaredIndex(IReadOnlyList<IReadOnlyProperty> properties)
-        => _unnamedIndexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var index)
+        => _unnamedIndexes.TryGetValue(Check.NotEmpty(properties), out var index)
             ? index
             : null;
 
@@ -2095,7 +2095,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? FindDeclaredIndex(string name)
-        => _namedIndexes.TryGetValue(Check.NotEmpty(name, nameof(name)), out var index)
+        => _namedIndexes.TryGetValue(Check.NotEmpty(name), out var index)
             ? index
             : null;
 
@@ -2121,7 +2121,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         => DirectlyDerivedTypes.Count == 0
             ? Enumerable.Empty<Index>()
             : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
-                .Select(et => et.FindDeclaredIndex(Check.NotEmpty(name, nameof(name))))
+                .Select(et => et.FindDeclaredIndex(Check.NotEmpty(name)))
                 .Where(i => i != null);
 
     /// <summary>
@@ -2143,8 +2143,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<Index> FindIndexesInHierarchy(string name)
         => DirectlyDerivedTypes.Count == 0
-            ? ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name))))
-            : ToEnumerable(FindIndex(Check.NotEmpty(name, nameof(name)))).Concat(FindDerivedIndexes(name));
+            ? ToEnumerable(FindIndex(Check.NotEmpty(name)))
+            : ToEnumerable(FindIndex(Check.NotEmpty(name))).Concat(FindDerivedIndexes(name));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2437,7 +2437,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ServiceProperty? FindServiceProperty(string name)
-        => FindDeclaredServiceProperty(Check.NotEmpty(name, nameof(name))) ?? BaseType?.FindServiceProperty(name);
+        => FindDeclaredServiceProperty(Check.NotEmpty(name)) ?? BaseType?.FindServiceProperty(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2455,7 +2455,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ServiceProperty? FindDeclaredServiceProperty(string name)
-        => _serviceProperties.TryGetValue(Check.NotEmpty(name, nameof(name)), out var property)
+        => _serviceProperties.TryGetValue(Check.NotEmpty(name), out var property)
             ? property
             : null;
 

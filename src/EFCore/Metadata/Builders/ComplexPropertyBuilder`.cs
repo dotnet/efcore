@@ -97,7 +97,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     public virtual ComplexTypePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
         => new(
             TypeBuilder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)!
+                    Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!
                 .Metadata);
 
     /// <summary>
@@ -113,7 +113,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         Expression<Func<TComplex, TProperty>> propertyExpression)
         => new(
             TypeBuilder.PrimitiveCollection(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)!
+                    Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!
                 .Metadata);
 
     /// <summary>
@@ -238,7 +238,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         Expression<Func<TComplex, TProperty?>> propertyExpression)
         => new(
             TypeBuilder.ComplexProperty(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                Check.NotNull(propertyExpression).GetMemberAccess(),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -266,8 +266,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         string complexTypeName)
         => new(
             TypeBuilder.ComplexProperty(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotNull(propertyExpression).GetMemberAccess(),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -341,7 +341,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </param>
     public virtual ComplexPropertyBuilder<TComplex> Ignore(Expression<Func<TComplex, object?>> propertyExpression)
         => (ComplexPropertyBuilder<TComplex>)base.Ignore(
-            Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().GetSimpleMemberName());
+            Check.NotNull(propertyExpression).GetMemberAccess().GetSimpleMemberName());
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties

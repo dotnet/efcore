@@ -510,7 +510,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual string? AddIgnored(
         Type type,
         ConfigurationSource configurationSource)
-        => AddIgnored(GetDisplayName(Check.NotNull(type, nameof(type))), type, configurationSource);
+        => AddIgnored(GetDisplayName(Check.NotNull(type)), type, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -521,7 +521,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual string? AddIgnored(
         string name,
         ConfigurationSource configurationSource)
-        => AddIgnored(Check.NotNull(name, nameof(name)), null, configurationSource);
+        => AddIgnored(Check.NotNull(name), null, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -574,7 +574,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
-        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name), out var ignoredConfigurationSource)
             ? ignoredConfigurationSource
             : null;
 

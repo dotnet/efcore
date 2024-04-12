@@ -60,7 +60,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -105,7 +105,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.HiLoSequenceSchema,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -150,7 +150,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceNameSuffix,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -195,7 +195,7 @@ public static class SqlServerModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             SqlServerAnnotationNames.SequenceSchema,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>

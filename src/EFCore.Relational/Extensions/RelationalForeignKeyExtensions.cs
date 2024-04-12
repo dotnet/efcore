@@ -101,7 +101,7 @@ public static class RelationalForeignKeyExtensions
     public static void SetConstraintName(this IMutableForeignKey foreignKey, string? value)
         => foreignKey.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the foreign key constraint name.
@@ -116,7 +116,7 @@ public static class RelationalForeignKeyExtensions
         bool fromDataAnnotation = false)
         => (string?)foreignKey.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>

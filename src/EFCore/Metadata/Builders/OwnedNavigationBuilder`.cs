@@ -58,7 +58,7 @@ public class OwnedNavigationBuilder<
     public virtual KeyBuilder<TDependentEntity> HasKey(Expression<Func<TDependentEntity, object?>> keyExpression)
         => new(
             DependentEntityType.Builder.PrimaryKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(keyExpression).GetMemberAccessList(), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Sets the properties that make up the primary key for this owned entity type.
@@ -68,7 +68,7 @@ public class OwnedNavigationBuilder<
     public new virtual KeyBuilder<TDependentEntity> HasKey(params string[] propertyNames)
         => new(
             DependentEntityType.Builder.PrimaryKey(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the owned entity type.
@@ -92,7 +92,7 @@ public class OwnedNavigationBuilder<
         => UpdateBuilder(
             () => new PropertyBuilder<TProperty>(
                 DependentEntityType.Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                    Check.NotNull(propertyExpression).GetMemberAccess(),
                     ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
@@ -117,7 +117,7 @@ public class OwnedNavigationBuilder<
         => UpdateBuilder(
             () => new PrimitiveCollectionBuilder<TProperty>(
                 DependentEntityType.Builder.PrimitiveCollection(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                    Check.NotNull(propertyExpression).GetMemberAccess(),
                     ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
@@ -136,7 +136,7 @@ public class OwnedNavigationBuilder<
         where TNavigation : class
         => new(
             DependentEntityType.Builder.Navigation(
-                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+                Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property
@@ -154,7 +154,7 @@ public class OwnedNavigationBuilder<
         where TNavigation : class
         => new(
             DependentEntityType.Builder.Navigation(
-                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+                Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -176,7 +176,7 @@ public class OwnedNavigationBuilder<
         Expression<Func<TDependentEntity, object?>> propertyExpression)
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
             base.Ignore(
-                Check.NotNull(propertyExpression, nameof(propertyExpression))
+                Check.NotNull(propertyExpression)
                     .GetMemberAccess().GetSimpleMemberName());
 
     /// <summary>
@@ -197,7 +197,7 @@ public class OwnedNavigationBuilder<
     public virtual IndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
         => new(
             DependentEntityType.Builder.HasIndex(
-                    Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(), ConfigurationSource.Explicit)!
+                    Check.NotNull(indexExpression).GetMemberAccessList(), ConfigurationSource.Explicit)!
                 .Metadata);
 
     /// <summary>
@@ -209,7 +209,7 @@ public class OwnedNavigationBuilder<
     public new virtual IndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames)
         => new(
             DependentEntityType.Builder.HasIndex(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures the relationship to the owner.
@@ -290,7 +290,7 @@ public class OwnedNavigationBuilder<
         where TNewDependentEntity : class
         => OwnsOneBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -322,8 +322,8 @@ public class OwnedNavigationBuilder<
             string navigationName)
         where TNewDependentEntity : class
         => OwnsOneBuilder<TNewDependentEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TNewDependentEntity)),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), typeof(TNewDependentEntity)),
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -355,7 +355,7 @@ public class OwnedNavigationBuilder<
         where TNewDependentEntity : class
         => OwnsOneBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -388,8 +388,8 @@ public class OwnedNavigationBuilder<
             Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
         where TNewDependentEntity : class
         => OwnsOneBuilder<TNewDependentEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TNewDependentEntity)),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), typeof(TNewDependentEntity)),
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -694,7 +694,7 @@ public class OwnedNavigationBuilder<
         where TNewDependentEntity : class
         => OwnsManyBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -725,8 +725,8 @@ public class OwnedNavigationBuilder<
             string navigationName)
         where TNewDependentEntity : class
         => OwnsManyBuilder<TNewDependentEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TNewDependentEntity)),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), typeof(TNewDependentEntity)),
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -757,7 +757,7 @@ public class OwnedNavigationBuilder<
         where TNewDependentEntity : class
         => OwnsManyBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -789,8 +789,8 @@ public class OwnedNavigationBuilder<
             Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression)
         where TNewDependentEntity : class
         => OwnsManyBuilder<TNewDependentEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TNewDependentEntity)),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), typeof(TNewDependentEntity)),
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.

@@ -160,7 +160,7 @@ public class ComplexPropertyBuilder :
     public virtual ComplexTypePropertyBuilder Property(string propertyName)
         => new(
             TypeBuilder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -181,7 +181,7 @@ public class ComplexPropertyBuilder :
         => new(
             TypeBuilder.Property(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -200,8 +200,8 @@ public class ComplexPropertyBuilder :
     public virtual ComplexTypePropertyBuilder Property(Type propertyType, string propertyName)
         => new(
             TypeBuilder.Property(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -217,7 +217,7 @@ public class ComplexPropertyBuilder :
     public virtual ComplexTypePrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
         => new(
             TypeBuilder.PrimitiveCollection(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -238,7 +238,7 @@ public class ComplexPropertyBuilder :
         => new(
             TypeBuilder.PrimitiveCollection(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -257,8 +257,8 @@ public class ComplexPropertyBuilder :
     public virtual ComplexTypePrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
         => new(
             TypeBuilder.PrimitiveCollection(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -277,7 +277,7 @@ public class ComplexPropertyBuilder :
         => new(
             TypeBuilder.IndexerProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the complex type.
@@ -300,7 +300,7 @@ public class ComplexPropertyBuilder :
         return new ComplexTypePropertyBuilder(
             TypeBuilder.IndexerProperty(
                 propertyType,
-                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyName), ConfigurationSource.Explicit)!.Metadata);
     }
 
     /// <summary>
@@ -318,7 +318,7 @@ public class ComplexPropertyBuilder :
         => new(
             TypeBuilder.ComplexProperty(
                 propertyType: null,
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -341,7 +341,7 @@ public class ComplexPropertyBuilder :
         => new(
             TypeBuilder.ComplexProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -365,8 +365,8 @@ public class ComplexPropertyBuilder :
         => new(
             TypeBuilder.ComplexProperty(
                 typeof(TProperty),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -387,8 +387,8 @@ public class ComplexPropertyBuilder :
     public virtual ComplexPropertyBuilder ComplexProperty(Type propertyType, string propertyName)
         => new(
             TypeBuilder.ComplexProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -411,9 +411,9 @@ public class ComplexPropertyBuilder :
     public virtual ComplexPropertyBuilder ComplexProperty(Type propertyType, string propertyName, string complexTypeName)
         => new(
             TypeBuilder.ComplexProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                Check.NotNull(propertyType),
+                Check.NotEmpty(propertyName),
+                Check.NotEmpty(complexTypeName),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
