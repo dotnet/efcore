@@ -24,7 +24,7 @@ public sealed class DbContextModelAttribute : Attribute
     /// <param name="modelType">The compiled model.</param>
     public DbContextModelAttribute(Type contextType, Type modelType)
     {
-        Check.NotNull(contextType, nameof(contextType));
+        Check.NotNull(contextType);
 
         ContextType = contextType;
         ModelType = modelType;

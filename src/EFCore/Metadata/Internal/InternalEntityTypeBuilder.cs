@@ -2190,7 +2190,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         string name,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         if (properties == null)
         {
@@ -2361,8 +2361,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<string> propertyNames,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(principalEntityTypeName);
+        Check.NotEmpty(propertyNames);
 
         var principalTypeBuilder = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
         var principalKey = principalTypeBuilder?.Metadata.FindPrimaryKey();
@@ -2388,8 +2388,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key principalKey,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(principalEntityTypeName);
+        Check.NotEmpty(propertyNames);
 
         var principalTypeBuilder = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
         return principalTypeBuilder == null
@@ -2412,8 +2412,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<MemberInfo> clrMembers,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalClrType, nameof(principalClrType));
-        Check.NotEmpty(clrMembers, nameof(clrMembers));
+        Check.NotNull(principalClrType);
+        Check.NotEmpty(clrMembers);
 
         var principalTypeBuilder = ModelBuilder.Entity(
             principalClrType, configurationSource, shouldBeOwned: Metadata.IsInOwnershipPath(principalClrType) ? null : false);
@@ -2438,8 +2438,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         Key principalKey,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(principalClrType, nameof(principalClrType));
-        Check.NotEmpty(clrMembers, nameof(clrMembers));
+        Check.NotNull(principalClrType);
+        Check.NotEmpty(clrMembers);
 
         var principalTypeBuilder = ModelBuilder.Entity(
             principalClrType, configurationSource, shouldBeOwned: Metadata.IsInOwnershipPath(principalClrType) ? null : false);
@@ -4848,7 +4848,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<IConventionProperty> properties,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var key = Metadata.FindDeclaredKey(properties);
         return key != null
@@ -4968,7 +4968,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IReadOnlyList<IConventionProperty> properties,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var index = Metadata.FindDeclaredIndex(properties);
         return index != null
@@ -5315,9 +5315,9 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         IConventionEntityType principalEntityType,
         bool fromDataAnnotation)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.NotNull(principalKey, nameof(principalKey));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.NotEmpty(properties);
+        Check.NotNull(principalKey);
+        Check.NotNull(principalEntityType);
 
         var foreignKey = Metadata.FindDeclaredForeignKey(properties, principalKey, principalEntityType);
         return foreignKey != null

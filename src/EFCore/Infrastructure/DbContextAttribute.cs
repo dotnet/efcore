@@ -20,7 +20,7 @@ public sealed class DbContextAttribute : Attribute
     /// <param name="contextType">The associated context.</param>
     public DbContextAttribute(Type contextType)
     {
-        Check.NotNull(contextType, nameof(contextType));
+        Check.NotNull(contextType);
 
         ContextType = contextType;
     }

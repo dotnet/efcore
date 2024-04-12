@@ -774,7 +774,7 @@ public static class RelationalEntityTypeExtensions
         this IReadOnlyEntityType entityType,
         string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return CheckConstraint.FindCheckConstraint(entityType, name);
     }
@@ -834,8 +834,8 @@ public static class RelationalEntityTypeExtensions
         string name,
         string sql)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(sql, nameof(sql));
+        Check.NotEmpty(name);
+        Check.NotEmpty(sql);
 
         return new CheckConstraint(entityType, name, sql, ConfigurationSource.Explicit);
     }
@@ -855,8 +855,8 @@ public static class RelationalEntityTypeExtensions
         string sql,
         bool fromDataAnnotation = false)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(sql, nameof(sql));
+        Check.NotEmpty(name);
+        Check.NotEmpty(sql);
 
         return new CheckConstraint(
             (IMutableEntityType)entityType, name, sql,

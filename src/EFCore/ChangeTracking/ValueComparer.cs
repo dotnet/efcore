@@ -107,9 +107,9 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         LambdaExpression hashCodeExpression,
         LambdaExpression snapshotExpression)
     {
-        Check.NotNull(equalsExpression, nameof(equalsExpression));
-        Check.NotNull(hashCodeExpression, nameof(hashCodeExpression));
-        Check.NotNull(snapshotExpression, nameof(snapshotExpression));
+        Check.NotNull(equalsExpression);
+        Check.NotNull(hashCodeExpression);
+        Check.NotNull(snapshotExpression);
 
         EqualsExpression = equalsExpression;
         HashCodeExpression = hashCodeExpression;
@@ -182,8 +182,8 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         Expression leftExpression,
         Expression rightExpression)
     {
-        Check.NotNull(leftExpression, nameof(leftExpression));
-        Check.NotNull(rightExpression, nameof(rightExpression));
+        Check.NotNull(leftExpression);
+        Check.NotNull(rightExpression);
 
         var original1 = EqualsExpression.Parameters[0];
         var original2 = EqualsExpression.Parameters[1];
@@ -201,7 +201,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// <returns>The body of the lambda with the parameter replaced.</returns>
     public virtual Expression ExtractHashCodeBody(Expression expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return ReplacingExpressionVisitor.Replace(
             HashCodeExpression.Parameters[0],
@@ -217,7 +217,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// <returns>The body of the lambda with the parameter replaced.</returns>
     public virtual Expression ExtractSnapshotBody(Expression expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return ReplacingExpressionVisitor.Replace(
             SnapshotExpression.Parameters[0],

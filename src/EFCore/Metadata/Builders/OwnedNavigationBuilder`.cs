@@ -227,7 +227,7 @@ public class OwnedNavigationBuilder<
     public new virtual OwnershipBuilder<TOwnerEntity, TDependentEntity> WithOwner(
         string? ownerReference = null)
     {
-        Check.NullButNotEmpty(ownerReference, nameof(ownerReference));
+        Check.NullButNotEmpty(ownerReference);
 
         return new OwnershipBuilder<TOwnerEntity, TDependentEntity>(
             PrincipalEntityType,
@@ -421,8 +421,8 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TNewDependentEntity>(
@@ -555,9 +555,9 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TNewDependentEntity>(
@@ -596,8 +596,8 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TNewDependentEntity>(
@@ -639,9 +639,9 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TNewDependentEntity>(
@@ -821,8 +821,8 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         using (DependentEntityType.Model.DelayConventions())
         {
@@ -954,9 +954,9 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         using (DependentEntityType.Model.DelayConventions())
         {
@@ -997,8 +997,8 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         using (DependentEntityType.Model.DelayConventions())
         {
@@ -1042,9 +1042,9 @@ public class OwnedNavigationBuilder<
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         using (DependentEntityType.Model.DelayConventions())
         {
@@ -1197,7 +1197,7 @@ public class OwnedNavigationBuilder<
     /// <returns>An object that can be used to configure the model data.</returns>
     public virtual DataBuilder<TDependentEntity> HasData(params TDependentEntity[] data)
     {
-        Check.NotNull(data, nameof(data));
+        Check.NotNull(data);
 
         DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
@@ -1213,7 +1213,7 @@ public class OwnedNavigationBuilder<
     /// <returns>An object that can be used to configure the model data.</returns>
     public virtual DataBuilder<TDependentEntity> HasData(IEnumerable<TDependentEntity> data)
     {
-        Check.NotNull(data, nameof(data));
+        Check.NotNull(data);
 
         DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 

@@ -43,7 +43,7 @@ public abstract class PropertyAttributeConventionBase<TAttribute> :
         IConventionPropertyBuilder propertyBuilder,
         IConventionContext<IConventionPropertyBuilder> context)
     {
-        Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+        Check.NotNull(propertyBuilder);
 
         var memberInfo = propertyBuilder.Metadata.GetIdentifyingMemberInfo();
         if (memberInfo == null)
@@ -96,7 +96,7 @@ public abstract class PropertyAttributeConventionBase<TAttribute> :
         IConventionComplexPropertyBuilder propertyBuilder,
         IConventionContext<IConventionComplexPropertyBuilder> context)
     {
-        Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+        Check.NotNull(propertyBuilder);
 
         var memberInfo = propertyBuilder.Metadata.GetIdentifyingMemberInfo();
         if (memberInfo == null)

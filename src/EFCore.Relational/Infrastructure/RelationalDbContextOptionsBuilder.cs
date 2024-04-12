@@ -118,8 +118,8 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder MigrationsHistoryTable(string tableName, string? schema = null)
     {
-        Check.NotEmpty(tableName, nameof(tableName));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NotEmpty(tableName);
+        Check.NullButNotEmpty(schema);
 
         return WithOption(e => (TExtension)e.WithMigrationsHistoryTableName(tableName).WithMigrationsHistoryTableSchema(schema));
     }

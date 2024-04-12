@@ -67,7 +67,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
     IEntityType? FindRuntimeEntityType(Type? type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         while (type != null)
         {

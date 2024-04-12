@@ -293,7 +293,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         Expression<Func<TComplex, TProperty?>> propertyExpression,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyExpression));
 
@@ -324,7 +324,7 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyExpression, complexTypeName));
 

@@ -836,7 +836,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         ConfigurationSource configurationSource,
         bool canOverrideSameSource = true)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
         Check.DebugAssert(property.DeclaringType == Metadata, "property.DeclaringEntityType != Metadata");
 
         var currentConfigurationSource = property.GetConfigurationSource();
@@ -1239,7 +1239,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     public virtual bool IsIgnored(string name, ConfigurationSource? configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return configurationSource != ConfigurationSource.Explicit
             && !configurationSource.OverridesStrictly(Metadata.FindIgnoredConfigurationSource(name));

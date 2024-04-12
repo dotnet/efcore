@@ -228,7 +228,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <returns>The property.</returns>
     IReadOnlyProperty GetProperty(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var property = FindProperty(name);
         return property == null

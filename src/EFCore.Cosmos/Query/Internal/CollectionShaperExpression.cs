@@ -23,8 +23,8 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
         INavigationBase? navigation,
         Type elementType)
     {
-        Check.NotNull(projection, nameof(projection));
-        Check.NotNull(innerShaper, nameof(innerShaper));
+        Check.NotNull(projection);
+        Check.NotNull(innerShaper);
 
         Projection = projection;
         InnerShaper = innerShaper;
@@ -90,7 +90,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        Check.NotNull(visitor, nameof(visitor));
+        Check.NotNull(visitor);
 
         var projection = visitor.Visit(Projection);
         var innerShaper = visitor.Visit(InnerShaper);
@@ -108,8 +108,8 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
         Expression projection,
         Expression innerShaper)
     {
-        Check.NotNull(projection, nameof(projection));
-        Check.NotNull(innerShaper, nameof(innerShaper));
+        Check.NotNull(projection);
+        Check.NotNull(innerShaper);
 
         return projection != Projection || innerShaper != InnerShaper
             ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
@@ -124,7 +124,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     /// </summary>
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+        Check.NotNull(expressionPrinter);
 
         expressionPrinter.AppendLine("CollectionShaper:");
         using (expressionPrinter.Indent())

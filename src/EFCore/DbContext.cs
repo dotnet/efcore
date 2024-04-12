@@ -109,7 +109,7 @@ public class DbContext :
         "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
     public DbContext(DbContextOptions options)
     {
-        Check.NotNull(options, nameof(options));
+        Check.NotNull(options);
 
         if (!options.ContextType.IsAssignableFrom(GetType()))
         {
@@ -1156,7 +1156,7 @@ public class DbContext :
     public virtual EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
         where TEntity : class
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1189,7 +1189,7 @@ public class DbContext :
     /// <returns>The entry for the given entity.</returns>
     public virtual EntityEntry Entry(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1434,7 +1434,7 @@ public class DbContext :
     public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
         where TEntity : class
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1656,7 +1656,7 @@ public class DbContext :
     /// </returns>
     public virtual EntityEntry Remove(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -2034,7 +2034,7 @@ public class DbContext :
     /// <param name="entities">The entities to remove.</param>
     public virtual void RemoveRange(IEnumerable<object> entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
         CheckDisposed();
 
         var stateManager = DbContextDependencies.StateManager;
@@ -2258,7 +2258,7 @@ public class DbContext :
     /// <returns>An <see cref="IQueryable{T}" /> representing the query.</returns>
     public virtual IQueryable<TResult> FromExpression<TResult>(Expression<Func<IQueryable<TResult>>> expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return DbContextDependencies.QueryProvider.CreateQuery<TResult>(expression.Body);
     }

@@ -183,7 +183,7 @@ public static class RelationalIndexExtensions
     /// <returns>The index found, or <see langword="null" /> if none was found.</returns>
     public static IReadOnlyIndex? FindSharedObjectRootIndex(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
 
         var indexName = index.GetDatabaseName(storeObject);
         var rootIndex = index;

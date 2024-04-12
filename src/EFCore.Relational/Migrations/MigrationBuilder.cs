@@ -88,8 +88,8 @@ public class MigrationBuilder
         int? scale = null,
         bool? stored = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
 
         var operation = new AddColumnOperation
         {
@@ -191,10 +191,10 @@ public class MigrationBuilder
         ReferentialAction onUpdate = ReferentialAction.NoAction,
         ReferentialAction onDelete = ReferentialAction.NoAction)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
-        Check.NotEmpty(columns, nameof(columns));
-        Check.NotEmpty(principalTable, nameof(principalTable));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
+        Check.NotEmpty(columns);
+        Check.NotEmpty(principalTable);
 
         var operation = new AddForeignKeyOperation
         {
@@ -252,9 +252,9 @@ public class MigrationBuilder
         string[] columns,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
-        Check.NotEmpty(columns, nameof(columns));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
+        Check.NotEmpty(columns);
 
         var operation = new AddPrimaryKeyOperation
         {
@@ -307,9 +307,9 @@ public class MigrationBuilder
         string[] columns,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
-        Check.NotEmpty(columns, nameof(columns));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
+        Check.NotEmpty(columns);
 
         var operation = new AddUniqueConstraintOperation
         {
@@ -439,8 +439,8 @@ public class MigrationBuilder
         bool? stored = null,
         bool? oldStored = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
 
         var operation = new AlterColumnOperation
         {
@@ -543,7 +543,7 @@ public class MigrationBuilder
         bool oldCached = true,
         int? oldCacheSize = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new AlterSequenceOperation
         {
@@ -587,7 +587,7 @@ public class MigrationBuilder
         string? comment = null,
         string? oldComment = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new AlterTableOperation
         {
@@ -662,9 +662,9 @@ public class MigrationBuilder
         string? filter = null,
         bool[]? descending = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
-        Check.NotEmpty(columns, nameof(columns));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
+        Check.NotEmpty(columns);
 
         var operation = new CreateIndexOperation
         {
@@ -693,7 +693,7 @@ public class MigrationBuilder
     public virtual OperationBuilder<EnsureSchemaOperation> EnsureSchema(
         string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new EnsureSchemaOperation { Name = name };
         Operations.Add(operation);
@@ -757,7 +757,7 @@ public class MigrationBuilder
         bool cached = true,
         int? cacheSize = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new CreateSequenceOperation
         {
@@ -819,7 +819,7 @@ public class MigrationBuilder
         string sql,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new AddCheckConstraintOperation
         {
@@ -857,8 +857,8 @@ public class MigrationBuilder
         Action<CreateTableBuilder<TColumns>>? constraints = null,
         string? comment = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(columns, nameof(columns));
+        Check.NotEmpty(name);
+        Check.NotNull(columns);
 
         var createTableOperation = new CreateTableOperation
         {
@@ -902,8 +902,8 @@ public class MigrationBuilder
         string table,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
 
         var operation = new DropColumnOperation
         {
@@ -931,8 +931,8 @@ public class MigrationBuilder
         string table,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
 
         var operation = new DropForeignKeyOperation
         {
@@ -960,7 +960,7 @@ public class MigrationBuilder
         string? table = null,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new DropIndexOperation
         {
@@ -988,8 +988,8 @@ public class MigrationBuilder
         string table,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
 
         var operation = new DropPrimaryKeyOperation
         {
@@ -1013,7 +1013,7 @@ public class MigrationBuilder
     public virtual OperationBuilder<DropSchemaOperation> DropSchema(
         string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new DropSchemaOperation { Name = name };
         Operations.Add(operation);
@@ -1034,7 +1034,7 @@ public class MigrationBuilder
         string name,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new DropSequenceOperation { Schema = schema, Name = name };
         Operations.Add(operation);
@@ -1057,7 +1057,7 @@ public class MigrationBuilder
         string table,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new DropCheckConstraintOperation
         {
@@ -1083,7 +1083,7 @@ public class MigrationBuilder
         string name,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new DropTableOperation { Schema = schema, Name = name };
         Operations.Add(operation);
@@ -1106,8 +1106,8 @@ public class MigrationBuilder
         string table,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
 
         var operation = new DropUniqueConstraintOperation
         {
@@ -1137,9 +1137,9 @@ public class MigrationBuilder
         string newName,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(table, nameof(table));
-        Check.NotEmpty(newName, nameof(newName));
+        Check.NotEmpty(name);
+        Check.NotEmpty(table);
+        Check.NotEmpty(newName);
 
         var operation = new RenameColumnOperation
         {
@@ -1170,8 +1170,8 @@ public class MigrationBuilder
         string? table = null,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotEmpty(newName, nameof(newName));
+        Check.NotEmpty(name);
+        Check.NotEmpty(newName);
 
         var operation = new RenameIndexOperation
         {
@@ -1203,7 +1203,7 @@ public class MigrationBuilder
         string? newName = null,
         string? newSchema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new RenameSequenceOperation
         {
@@ -1234,7 +1234,7 @@ public class MigrationBuilder
         string? newName = null,
         string? newSchema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new RenameTableOperation
         {
@@ -1266,7 +1266,7 @@ public class MigrationBuilder
         long? startValue = null,
         string? schema = null)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var operation = new RestartSequenceOperation
         {
@@ -1294,7 +1294,7 @@ public class MigrationBuilder
         string sql,
         bool suppressTransaction = false)
     {
-        Check.NotEmpty(sql, nameof(sql));
+        Check.NotEmpty(sql);
 
         var operation = new SqlOperation { Sql = sql, SuppressTransaction = suppressTransaction };
         Operations.Add(operation);
@@ -1473,7 +1473,7 @@ public class MigrationBuilder
         object?[,] values,
         string? schema = null)
     {
-        Check.NotEmpty(columnTypes, nameof(columnTypes));
+        Check.NotEmpty(columnTypes);
 
         return InsertDataInternal(table, columns, columnTypes, values, schema);
     }
@@ -1485,9 +1485,9 @@ public class MigrationBuilder
         object?[,] values,
         string? schema)
     {
-        Check.NotEmpty(table, nameof(table));
-        Check.NotNull(columns, nameof(columns));
-        Check.NotNull(values, nameof(values));
+        Check.NotEmpty(table);
+        Check.NotNull(columns);
+        Check.NotNull(values);
 
         var operation = new InsertDataOperation
         {
@@ -1694,7 +1694,7 @@ public class MigrationBuilder
         object?[,] keyValues,
         string? schema = null)
     {
-        Check.NotEmpty(keyColumnTypes, nameof(keyColumnTypes));
+        Check.NotEmpty(keyColumnTypes);
 
         return DeleteDataInternal(table, keyColumns, keyColumnTypes, keyValues, schema);
     }
@@ -1706,9 +1706,9 @@ public class MigrationBuilder
         object?[,] keyValues,
         string? schema)
     {
-        Check.NotEmpty(table, nameof(table));
-        Check.NotNull(keyColumns, nameof(keyColumns));
-        Check.NotNull(keyValues, nameof(keyValues));
+        Check.NotEmpty(table);
+        Check.NotNull(keyColumns);
+        Check.NotNull(keyValues);
 
         var operation = new DeleteDataOperation
         {
@@ -2028,8 +2028,8 @@ public class MigrationBuilder
         object?[,] values,
         string? schema = null)
     {
-        Check.NotEmpty(keyColumnTypes, nameof(keyColumnTypes));
-        Check.NotEmpty(columnTypes, nameof(columnTypes));
+        Check.NotEmpty(keyColumnTypes);
+        Check.NotEmpty(columnTypes);
 
         return UpdateDataInternal(table, keyColumns, keyColumnTypes, keyValues, columns, columnTypes, values, schema);
     }
@@ -2044,11 +2044,11 @@ public class MigrationBuilder
         object?[,] values,
         string? schema)
     {
-        Check.NotEmpty(table, nameof(table));
-        Check.NotNull(keyColumns, nameof(keyColumns));
-        Check.NotNull(keyValues, nameof(keyValues));
-        Check.NotNull(columns, nameof(columns));
-        Check.NotNull(values, nameof(values));
+        Check.NotEmpty(table);
+        Check.NotNull(keyColumns);
+        Check.NotNull(keyValues);
+        Check.NotNull(columns);
+        Check.NotNull(values);
 
         var operation = new UpdateDataOperation
         {

@@ -33,8 +33,8 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         string? name = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         var property = propertyBuilder.Metadata;
 
@@ -94,8 +94,8 @@ public static class SqlServerComplexTypePropertyBuilderExtensions
         string? name = null,
         string? schema = null)
     {
-        Check.NullButNotEmpty(name, nameof(name));
-        Check.NullButNotEmpty(schema, nameof(schema));
+        Check.NullButNotEmpty(name);
+        Check.NullButNotEmpty(schema);
 
         var property = propertyBuilder.Metadata;
 

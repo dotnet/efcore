@@ -235,7 +235,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override EntityEntry<TEntity> Remove(TEntity entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
 
         var entry = EntryWithoutDetectChanges(entity);
 
@@ -316,7 +316,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override void RemoveRange(params TEntity[] entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
 
         var stateManager = _context.GetDependencies().StateManager;
 
@@ -396,7 +396,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override void RemoveRange(IEnumerable<TEntity> entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
 
         var stateManager = _context.GetDependencies().StateManager;
 
@@ -436,7 +436,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     /// </summary>
     public override EntityEntry<TEntity> Entry(TEntity entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
 
         var entry = EntryWithoutDetectChanges(entity);
 

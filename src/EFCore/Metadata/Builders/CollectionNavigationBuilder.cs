@@ -246,7 +246,7 @@ public class CollectionNavigationBuilder : IInfrastructure<IConventionForeignKey
     [EntityFrameworkInternal]
     protected virtual IMutableSkipNavigation WithLeftManyNavigation(string? inverseName)
     {
-        Check.NullButNotEmpty(inverseName, nameof(inverseName));
+        Check.NullButNotEmpty(inverseName);
 
         if (SkipNavigation != null)
         {

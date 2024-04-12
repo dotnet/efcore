@@ -231,7 +231,7 @@ public static class SqlServerEntityTypeBuilderExtensions
         string name,
         bool fromDataAnnotation = false)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName, name, fromDataAnnotation);
     }

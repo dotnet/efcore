@@ -140,7 +140,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual MemberEntry Member(IPropertyBase propertyBase)
     {
-        Check.NotNull(propertyBase, nameof(propertyBase));
+        Check.NotNull(propertyBase);
 
         return propertyBase switch
         {
@@ -166,7 +166,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual MemberEntry Member(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var property = InternalEntry.EntityType.FindProperty(propertyName);
         if (property != null)
@@ -215,7 +215,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual NavigationEntry Navigation(INavigationBase navigationBase)
     {
-        Check.NotNull(navigationBase, nameof(navigationBase));
+        Check.NotNull(navigationBase);
 
         return navigationBase.IsCollection
             ? new CollectionEntry(InternalEntry, navigationBase)
@@ -234,7 +234,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual NavigationEntry Navigation(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
             ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
@@ -293,7 +293,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new PropertyEntry(InternalEntry, property);
     }
@@ -309,7 +309,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry Property(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new PropertyEntry(InternalEntry, Metadata.GetProperty(propertyName));
     }
@@ -336,7 +336,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(IComplexProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         return new ComplexPropertyEntry(InternalEntry, property);
     }
@@ -352,7 +352,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry ComplexProperty(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ComplexPropertyEntry(InternalEntry, Metadata.GetComplexProperty(propertyName));
     }
@@ -382,7 +382,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual ReferenceEntry Reference(INavigationBase navigation)
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
 
         return new ReferenceEntry(InternalEntry, (INavigation)navigation);
     }
@@ -402,7 +402,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual ReferenceEntry Reference(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ReferenceEntry(InternalEntry, propertyName);
     }
@@ -435,7 +435,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual CollectionEntry Collection(INavigationBase navigation)
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
 
         return new CollectionEntry(InternalEntry, navigation);
     }
@@ -456,7 +456,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     /// </returns>
     public virtual CollectionEntry Collection(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new CollectionEntry(InternalEntry, propertyName);
     }

@@ -127,7 +127,7 @@ public class ForeignKeyAttributeConvention :
         IConventionForeignKeyBuilder relationshipBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
     {
-        Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+        Check.NotNull(relationshipBuilder);
 
         var newRelationshipBuilder = UpdateRelationshipBuilder(relationshipBuilder, context);
         if (newRelationshipBuilder != null)
@@ -145,7 +145,7 @@ public class ForeignKeyAttributeConvention :
         IConventionNavigationBuilder navigationBuilder,
         IConventionContext<IConventionNavigationBuilder> context)
     {
-        Check.NotNull(navigationBuilder, nameof(navigationBuilder));
+        Check.NotNull(navigationBuilder);
 
         var onDependent = navigationBuilder.Metadata.IsOnDependent;
         var newRelationshipBuilder = UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);

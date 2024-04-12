@@ -29,7 +29,7 @@ public static class InMemoryEntityTypeBuilderExtensions
         this EntityTypeBuilder entityTypeBuilder,
         LambdaExpression? query)
     {
-        Check.NotNull(query, nameof(query));
+        Check.NotNull(query);
 
         entityTypeBuilder.Metadata.SetInMemoryQuery(query);
 
@@ -51,7 +51,7 @@ public static class InMemoryEntityTypeBuilderExtensions
         Expression<Func<IQueryable<TEntity>>> query)
         where TEntity : class
     {
-        Check.NotNull(query, nameof(query));
+        Check.NotNull(query);
 
         entityTypeBuilder.Metadata.SetInMemoryQuery(query);
 

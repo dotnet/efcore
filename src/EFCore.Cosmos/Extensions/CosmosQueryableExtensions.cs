@@ -37,7 +37,7 @@ public static class CosmosQueryableExtensions
         [NotParameterized] string partitionKey)
         where TEntity : class
     {
-        Check.NotNull(partitionKey, nameof(partitionKey));
+        Check.NotNull(partitionKey);
 
         return
             source.Provider is EntityQueryProvider
@@ -82,8 +82,8 @@ public static class CosmosQueryableExtensions
         params object[] parameters)
         where TEntity : class
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotEmpty(sql);
+        Check.NotNull(parameters);
 
         var queryableSource = (IQueryable)source;
         var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;

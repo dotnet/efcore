@@ -216,7 +216,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         return AddDbContextPool<TContextService, TContextImplementation>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
     }
@@ -333,7 +333,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
 
@@ -973,7 +973,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
     }
@@ -1024,7 +1024,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
     {
-        Check.NotNull(optionsAction, nameof(optionsAction));
+        Check.NotNull(optionsAction);
 
         AddPoolingOptions<TContext>(serviceCollection, optionsAction, poolSize);
 

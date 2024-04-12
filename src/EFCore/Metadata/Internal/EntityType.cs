@@ -654,8 +654,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Key? FindPrimaryKey(IReadOnlyList<Property>? properties)
     {
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotEmpty(properties, nameof(properties));
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(properties);
 
         if (BaseType != null)
         {
@@ -715,8 +715,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         IReadOnlyList<Property> properties,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.HasNoNulls(properties, nameof(properties));
+        Check.NotEmpty(properties);
+        Check.HasNoNulls(properties);
         EnsureMutable();
 
         if (BaseType != null)
@@ -795,8 +795,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Key? FindKey(IReadOnlyList<IReadOnlyProperty> properties)
     {
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotEmpty(properties, nameof(properties));
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(properties);
 
         return FindDeclaredKey(properties) ?? BaseType?.FindKey(properties);
     }
@@ -829,7 +829,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Key? RemoveKey(IReadOnlyList<IReadOnlyProperty> properties)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var wrongEntityTypeProperty = properties.FirstOrDefault(p => !((EntityType)p.DeclaringType).IsAssignableFrom(this));
         if (wrongEntityTypeProperty != null)
@@ -853,7 +853,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Key? RemoveKey(Key key)
     {
-        Check.NotNull(key, nameof(key));
+        Check.NotNull(key);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -945,10 +945,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         ConfigurationSource? componentConfigurationSource,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotNull(principalKey, nameof(principalKey));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.NotEmpty(properties);
+        Check.HasNoNulls(properties);
+        Check.NotNull(principalKey);
+        Check.NotNull(principalEntityType);
         EnsureMutable();
 
         var foreignKey = new ForeignKey(
@@ -1059,8 +1059,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<ForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
     {
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotEmpty(properties, nameof(properties));
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(properties);
 
         return BaseType != null
             ? _foreignKeys.Count == 0
@@ -1093,10 +1093,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
     {
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotEmpty(properties, nameof(properties));
-        Check.NotNull(principalKey, nameof(principalKey));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(properties);
+        Check.NotNull(principalKey);
+        Check.NotNull(principalEntityType);
 
         return FindDeclaredForeignKey(properties, principalKey, principalEntityType)
             ?? BaseType?.FindForeignKey(properties, principalKey, principalEntityType);
@@ -1181,7 +1181,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<ForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         return _foreignKeys.Count == 0
             ? Enumerable.Empty<ForeignKey>()
@@ -1199,9 +1199,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.NotNull(principalKey, nameof(principalKey));
-        Check.NotNull(principalEntityType, nameof(principalEntityType));
+        Check.NotEmpty(properties);
+        Check.NotNull(principalKey);
+        Check.NotNull(principalEntityType);
 
         if (_foreignKeys.Count == 0)
         {
@@ -1286,7 +1286,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         IReadOnlyKey principalKey,
         IReadOnlyEntityType principalEntityType)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var foreignKey = FindDeclaredForeignKey(properties, principalKey, principalEntityType);
         return foreignKey == null
@@ -1302,7 +1302,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual ForeignKey? RemoveForeignKey(ForeignKey foreignKey)
     {
-        Check.NotNull(foreignKey, nameof(foreignKey));
+        Check.NotNull(foreignKey);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -1404,8 +1404,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         ForeignKey foreignKey,
         bool pointsToPrincipal)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(foreignKey, nameof(foreignKey));
+        Check.NotEmpty(name);
+        Check.NotNull(foreignKey);
 
         return AddNavigation(new MemberIdentity(name), foreignKey, pointsToPrincipal);
     }
@@ -1421,8 +1421,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         ForeignKey foreignKey,
         bool pointsToPrincipal)
     {
-        Check.NotNull(navigationMember, nameof(navigationMember));
-        Check.NotNull(foreignKey, nameof(foreignKey));
+        Check.NotNull(navigationMember);
+        Check.NotNull(foreignKey);
 
         return AddNavigation(new MemberIdentity(navigationMember), foreignKey, pointsToPrincipal);
     }
@@ -1561,7 +1561,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<Navigation> FindDerivedNavigations(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return DirectlyDerivedTypes.Count == 0
             ? Enumerable.Empty<Navigation>()
@@ -1588,7 +1588,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Navigation? RemoveNavigation(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
         EnsureMutable();
 
         var navigation = FindDeclaredNavigation(name);
@@ -1628,8 +1628,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         bool onDependent,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(targetEntityType, nameof(targetEntityType));
+        Check.NotEmpty(name);
+        Check.NotNull(targetEntityType);
         EnsureMutable();
 
         var duplicateProperty = FindMembersInHierarchy(name).FirstOrDefault();
@@ -1699,7 +1699,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual SkipNavigation? FindSkipNavigation(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return FindDeclaredSkipNavigation(name) ?? BaseType?.FindSkipNavigation(name);
     }
@@ -1752,7 +1752,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<SkipNavigation> FindDerivedSkipNavigations(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         return DirectlyDerivedTypes.Count == 0
             ? Enumerable.Empty<SkipNavigation>()
@@ -1790,7 +1790,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual SkipNavigation? RemoveSkipNavigation(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var navigation = FindDeclaredSkipNavigation(name);
         return navigation == null ? null : RemoveSkipNavigation(navigation);
@@ -1804,7 +1804,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual SkipNavigation? RemoveSkipNavigation(SkipNavigation navigation)
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -1925,8 +1925,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         IReadOnlyList<Property> properties,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.HasNoNulls(properties, nameof(properties));
+        Check.NotEmpty(properties);
+        Check.HasNoNulls(properties);
         EnsureMutable();
 
         CheckIndexProperties(properties);
@@ -1957,9 +1957,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         string name,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(properties, nameof(properties));
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(properties);
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(name);
         EnsureMutable();
 
         CheckIndexProperties(properties);
@@ -2036,8 +2036,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Index? FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
     {
-        Check.HasNoNulls(properties, nameof(properties));
-        Check.NotEmpty(properties, nameof(properties));
+        Check.HasNoNulls(properties);
+        Check.NotEmpty(properties);
 
         return FindDeclaredIndex(properties) ?? BaseType?.FindIndex(properties);
     }
@@ -2050,7 +2050,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Index? FindIndex(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return FindDeclaredIndex(name) ?? BaseType?.FindIndex(name);
     }
@@ -2154,7 +2154,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Index? RemoveIndex(IReadOnlyList<IReadOnlyProperty> properties)
     {
-        Check.NotEmpty(properties, nameof(properties));
+        Check.NotEmpty(properties);
 
         var index = FindDeclaredIndex(properties);
         return index == null
@@ -2170,7 +2170,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Index? RemoveIndex(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var index = FindDeclaredIndex(name);
         return index == null
@@ -2186,7 +2186,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Index? RemoveIndex(Index index)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -2402,7 +2402,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         // ReSharper disable once MethodOverloadWithOptionalParameter
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(memberInfo, nameof(memberInfo));
+        Check.NotNull(memberInfo);
         EnsureMutable();
 
         var name = memberInfo.GetSimpleMemberName();
@@ -2467,7 +2467,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual IEnumerable<ServiceProperty> FindDerivedServiceProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return DirectlyDerivedTypes.Count == 0
             ? Enumerable.Empty<ServiceProperty>()
@@ -2506,7 +2506,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual ServiceProperty? RemoveServiceProperty(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var property = FindServiceProperty(name);
         return property == null
@@ -2522,7 +2522,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual ServiceProperty RemoveServiceProperty(ServiceProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -2599,7 +2599,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         string modelName,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(modelName, nameof(modelName));
+        Check.NotEmpty(modelName);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
@@ -2625,7 +2625,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Trigger? FindDeclaredTrigger(string modelName)
     {
-        Check.NotEmpty(modelName, nameof(modelName));
+        Check.NotEmpty(modelName);
 
         return _triggers.TryGetValue(modelName, out var trigger)
             ? trigger
@@ -2649,7 +2649,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Trigger? RemoveTrigger(string modelName)
     {
-        Check.NotEmpty(modelName, nameof(modelName));
+        Check.NotEmpty(modelName);
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 

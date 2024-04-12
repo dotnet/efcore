@@ -102,8 +102,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
     // ReSharper disable once AssignNullToNotNullAttribute
     public virtual void Load(object entity, [CallerMemberName] string navigationName = "")
     {
-        Check.NotNull(entity, nameof(entity));
-        Check.NotEmpty(navigationName, nameof(navigationName));
+        Check.NotNull(entity);
+        Check.NotEmpty(navigationName);
 
         var navEntry = (entity, navigationName);
         if (_isLoading.TryAdd(navEntry, true))
@@ -145,8 +145,8 @@ public class LazyLoader : ILazyLoader, IInjectableService
         CancellationToken cancellationToken = default,
         [CallerMemberName] string navigationName = "")
     {
-        Check.NotNull(entity, nameof(entity));
-        Check.NotEmpty(navigationName, nameof(navigationName));
+        Check.NotNull(entity);
+        Check.NotEmpty(navigationName);
 
         var navEntry = (entity, navigationName);
         if (_isLoading.TryAdd(navEntry, true))

@@ -61,7 +61,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -263,7 +263,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         string propertyName)
     {
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(propertyType);
 
         return new PropertyBuilder(
             Builder.IndexerProperty(
@@ -404,7 +404,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder ComplexProperty(string propertyName, Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyName));
 
@@ -430,7 +430,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string propertyName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty<TProperty>(propertyName));
 
@@ -458,7 +458,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty<TProperty>(propertyName, complexTypeName));
 
@@ -482,7 +482,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder ComplexProperty(Type propertyType, string propertyName, Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyType, propertyName));
 
@@ -511,7 +511,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string complexTypeName,
         Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyType, propertyName, complexTypeName));
 
@@ -534,7 +534,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="propertyName">The name of the property to be removed from the entity type.</param>
     public virtual EntityTypeBuilder Ignore(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         Builder.Ignore(propertyName, ConfigurationSource.Explicit);
 
@@ -668,7 +668,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
+        Check.NotNull(ownedType);
 
         return OwnsOneBuilder(
             new TypeIdentity(ownedType, (Model)Metadata.Model),
@@ -703,9 +703,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName), navigationName));
         return this;
@@ -741,10 +741,10 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsOneBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
         return this;
@@ -778,9 +778,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
         return this;
@@ -857,7 +857,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
+        Check.NotNull(ownedType);
 
         return OwnsManyBuilder(
             new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
@@ -890,7 +890,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
+        Check.NotNull(ownedType);
 
         return OwnsManyBuilder(
             new TypeIdentity(ownedType, (Model)Metadata.Model),
@@ -925,9 +925,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName), navigationName));
         return this;
@@ -963,10 +963,10 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsManyBuilder(new TypeIdentity(ownedTypeName, ownedType), navigationName));
         return this;
@@ -1000,9 +1000,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
-        Check.NotNull(ownedType, nameof(ownedType));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(ownedType);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(OwnsManyBuilder(new TypeIdentity(ownedType, (Model)Metadata.Model), navigationName));
         return this;
@@ -1051,8 +1051,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string relatedTypeName,
         string? navigationName)
     {
-        Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(relatedTypeName);
+        Check.NullButNotEmpty(navigationName);
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
         var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
@@ -1093,8 +1093,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName = null)
     {
-        Check.NotNull(relatedType, nameof(relatedType));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotNull(relatedType);
+        Check.NullButNotEmpty(navigationName);
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
         var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
@@ -1125,7 +1125,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual ReferenceNavigationBuilder HasOne(string? navigationName)
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(navigationName);
 
         return Metadata.ClrType == Model.DefaultPropertyBagType
             ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
@@ -1192,8 +1192,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string relatedTypeName,
         string? navigationName)
     {
-        Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(relatedTypeName);
+        Check.NullButNotEmpty(navigationName);
 
         return HasMany(
             navigationName,
@@ -1218,7 +1218,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     [RequiresUnreferencedCode("Use the generic overload instead")]
     public virtual CollectionNavigationBuilder HasMany(string navigationName)
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
+        Check.NotEmpty(navigationName);
 
         var memberType = Metadata.GetNavigationMemberInfo(navigationName).GetMemberType();
         var elementType = memberType.TryGetElementType(typeof(IEnumerable<>));
@@ -1264,8 +1264,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName = null)
     {
-        Check.NotNull(relatedType, nameof(relatedType));
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NotNull(relatedType);
+        Check.NullButNotEmpty(navigationName);
 
         return HasMany(
             navigationName,
@@ -1382,7 +1382,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>An object that can be used to configure the model data.</returns>
     public virtual DataBuilder HasData(IEnumerable<object> data)
     {
-        Check.NotNull(data, nameof(data));
+        Check.NotNull(data);
 
         Builder.HasData(data, ConfigurationSource.Explicit);
 
@@ -1406,8 +1406,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         string name,
         Type type)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(type, nameof(type));
+        Check.NotEmpty(name);
+        Check.NotNull(type);
 
         return Builder.HasDiscriminator(name, type, ConfigurationSource.Explicit)!;
     }
@@ -1420,7 +1420,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>A builder that allows the discriminator property to be configured.</returns>
     public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string name)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         return new DiscriminatorBuilder<TDiscriminator>(
             Builder.HasDiscriminator(name, typeof(TDiscriminator), ConfigurationSource.Explicit)!);

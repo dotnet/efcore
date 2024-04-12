@@ -79,7 +79,7 @@ public class ComplexPropertyBuilder :
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexPropertyBuilder HasPropertyAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         PropertyBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -95,7 +95,7 @@ public class ComplexPropertyBuilder :
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexPropertyBuilder HasTypeAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         TypeBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -139,7 +139,7 @@ public class ComplexPropertyBuilder :
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexPropertyBuilder HasField(string fieldName)
     {
-        Check.NotEmpty(fieldName, nameof(fieldName));
+        Check.NotEmpty(fieldName);
 
         PropertyBuilder.HasField(fieldName, ConfigurationSource.Explicit);
 
@@ -295,7 +295,7 @@ public class ComplexPropertyBuilder :
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         string propertyName)
     {
-        Check.NotNull(propertyType, nameof(propertyType));
+        Check.NotNull(propertyType);
 
         return new ComplexTypePropertyBuilder(
             TypeBuilder.IndexerProperty(
@@ -431,7 +431,7 @@ public class ComplexPropertyBuilder :
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexPropertyBuilder ComplexProperty(string propertyName, Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyName));
 
@@ -457,7 +457,7 @@ public class ComplexPropertyBuilder :
         string propertyName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty<TProperty>(propertyName));
 
@@ -485,7 +485,7 @@ public class ComplexPropertyBuilder :
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty<TProperty>(propertyName, complexTypeName));
 
@@ -512,7 +512,7 @@ public class ComplexPropertyBuilder :
         string propertyName,
         Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyType, propertyName));
 
@@ -541,7 +541,7 @@ public class ComplexPropertyBuilder :
         string complexTypeName,
         Action<ComplexPropertyBuilder> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyType, propertyName, complexTypeName));
 
@@ -555,7 +555,7 @@ public class ComplexPropertyBuilder :
     /// <param name="propertyName">The name of the property to be removed from the complex type.</param>
     public virtual ComplexPropertyBuilder Ignore(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         TypeBuilder.Ignore(propertyName, ConfigurationSource.Explicit);
 

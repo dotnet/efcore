@@ -176,7 +176,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </returns>
     bool IsAssignableFrom(IReadOnlyEntityType derivedType)
     {
-        Check.NotNull(derivedType, nameof(derivedType));
+        Check.NotNull(derivedType);
 
         if (derivedType == this)
         {
@@ -214,7 +214,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </returns>
     IReadOnlyEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
     {
-        Check.NotNull(otherEntityType, nameof(otherEntityType));
+        Check.NotNull(otherEntityType);
 
         var leastDerived = LeastDerivedType(otherEntityType);
         if (leastDerived != null)

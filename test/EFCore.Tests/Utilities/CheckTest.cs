@@ -10,7 +10,7 @@ public class CheckTest
     [ConditionalFact]
     public void Not_null_throws_when_arg_is_null()
         // ReSharper disable once NotResolvedInText
-        => Assert.Throws<ArgumentNullException>(() => Check.NotNull<string>(null, "foo"));
+        => Assert.Throws<ArgumentNullException>(() => Check.NotNull<string>(null));
 
     [ConditionalFact]
     public void Not_null_throws_when_arg_name_empty()
@@ -32,12 +32,12 @@ public class CheckTest
     [ConditionalFact]
     public void Generic_Not_empty_throws_when_arg_is_empty()
         // ReSharper disable once NotResolvedInText
-        => Assert.Throws<ArgumentException>(() => Check.NotEmpty(Array.Empty<string>(), "foo"));
+        => Assert.Throws<ArgumentException>(() => Check.NotEmpty(Array.Empty<string>()));
 
     [ConditionalFact]
     public void Generic_Not_empty_throws_when_arg_is_null()
         // ReSharper disable once NotResolvedInText
-        => Assert.Throws<ArgumentNullException>(() => Check.NotEmpty<object>(null, "foo"));
+        => Assert.Throws<ArgumentNullException>(() => Check.NotEmpty<object>(null));
 
     [ConditionalFact]
     public void Generic_Not_empty_throws_when_arg_name_empty()
