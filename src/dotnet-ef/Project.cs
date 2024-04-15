@@ -58,7 +58,7 @@ internal class Project
                    "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
         {
             efTargets = new byte[input.Length];
-            input.Read(efTargets);
+            input.ReadExactly(efTargets);
         }
 
         var efTargetsPath = Path.Combine(
