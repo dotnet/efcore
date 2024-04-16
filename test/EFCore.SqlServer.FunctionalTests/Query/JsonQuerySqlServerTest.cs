@@ -2297,6 +2297,19 @@ WHERE CAST(JSON_VALUE([j].[Reference], '$.TestByte') AS tinyint) <> CAST(3 AS ti
 """);
     }
 
+    public override async Task Json_predicate_on_byte_array(bool async)
+    {
+        await base.Json_predicate_on_byte_array(async);
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[TestBooleanCollection], [j].[TestBooleanCollectionCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestCharacterCollectionCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDefaultStringCollectionCollection], [j].[TestDoubleCollection], [j].[TestDoubleCollectionCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt16CollectionCollection], [j].[TestInt32Collection], [j].[TestInt32CollectionCollection], [j].[TestInt64Collection], [j].[TestInt64CollectionCollection], [j].[TestMaxLengthStringCollection], [j].[TestMaxLengthStringCollectionCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumCollectionCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableEnumWithIntConverterCollectionCollection], [j].[TestNullableInt32Collection], [j].[TestNullableInt32CollectionCollection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestSingleCollectionCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+OUTER APPLY OPENJSON([j].[Reference]) WITH ([TestByteArray] varbinary(max) '$.TestByteArray') AS [t]
+WHERE [t].[TestByteArray] <> 0x010203 OR [t].[TestByteArray] IS NULL
+""");
+    }
+
     public override async Task Json_predicate_on_character(bool async)
     {
         await base.Json_predicate_on_character(async);

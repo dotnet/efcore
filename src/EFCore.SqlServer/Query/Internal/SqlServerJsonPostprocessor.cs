@@ -10,11 +10,14 @@ using ColumnInfo = Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.SqlSer
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
-///     Converts <see cref="SqlServerOpenJsonExpression" /> expressions with WITH (the default) to OPENJSON without WITH under the following
-///     conditions:
-///     * When an ordering still exists on the [key] column, i.e. when the ordering of the original JSON array needs to be preserved
-///       (e.g. limit/offset).
-///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
+///     Performs various post-processing rewriting to account for SQL Server JSON quirks.
+///     1. Converts <see cref="SqlServerOpenJsonExpression" /> expressions with WITH (the default) to OPENJSON without WITH under the
+///        following conditions:
+///         * When an ordering still exists on the [key] column, i.e. when the ordering of the original JSON array needs to be preserved
+///           (e.g. limit/offset).
+///         * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
+///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
+///        which needs to be base64-decoded).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,11 +25,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class SqlServerJsonPostprocessor : ExpressionVisitor
+public sealed class SqlServerJsonPostprocessor(
+    IRelationalTypeMappingSource typeMappingSource,
+    ISqlExpressionFactory sqlExpressionFactory,
+    SqlAliasManager sqlAliasManager)
+    : ExpressionVisitor
 {
-    private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
+    private readonly List<OuterApplyExpression> _openjsonOuterAppliesToAdd = new();
     private readonly Dictionary<(string, string), ColumnInfo> _columnsToRewrite = new();
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
@@ -37,20 +42,7 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerJsonPostprocessor(
-        IRelationalTypeMappingSource typeMappingSource,
-        ISqlExpressionFactory sqlExpressionFactory)
-    {
-        (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Expression Process(Expression expression)
+    public Expression Process(Expression expression)
     {
         _columnsToRewrite.Clear();
 
@@ -129,39 +121,60 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
                     }
                 }
 
+                var result = selectExpression;
+
                 // In the common case, we do not have to rewrite any OPENJSON tables.
                 if (columnsToRewrite is null)
                 {
                     Check.DebugAssert(newTables is null, "newTables must be null if columnsToRewrite is null");
-                    return base.Visit(selectExpression);
+
+                    result = (SelectExpression)base.Visit(result);
+                }
+                else
+                {
+                    if (newTables is not null)
+                    {
+                        result = selectExpression.Update(
+                            selectExpression.Projection,
+                            newTables,
+                            selectExpression.Predicate,
+                            selectExpression.GroupBy,
+                            selectExpression.Having,
+                            selectExpression.Orderings,
+                            selectExpression.Limit,
+                            selectExpression.Offset);
+                    }
+
+                    // when we mark columns for rewrite we don't yet have the updated SelectExpression, so we store the info in temporary dictionary
+                    // and now that we have created new SelectExpression we add it to the proper dictionary that we will use for rewrite
+                    foreach (var columnToRewrite in columnsToRewrite)
+                    {
+                        _columnsToRewrite.Add(columnToRewrite.Key, columnToRewrite.Value);
+                    }
+
+                    // Record the OPENJSON expression and its projected column(s), along with the store type we just removed from the WITH
+                    // clause. Then visit the select expression, adding a cast around the matching ColumnExpressions.
+                    result = (SelectExpression)base.Visit(result);
+
+                    foreach (var columnsToRewriteKey in columnsToRewrite.Keys)
+                    {
+                        _columnsToRewrite.Remove(columnsToRewriteKey);
+                    }
                 }
 
-                var newSelectExpression = newTables is not null
-                    ? selectExpression.Update(
-                        selectExpression.Projection,
-                        newTables,
-                        selectExpression.Predicate,
-                        selectExpression.GroupBy,
-                        selectExpression.Having,
-                        selectExpression.Orderings,
-                        selectExpression.Limit,
-                        selectExpression.Offset)
-                    : selectExpression;
-
-                // when we mark columns for rewrite we don't yet have the updated SelectExpression, so we store the info in temporary dictionary
-                // and now that we have created new SelectExpression we add it to the proper dictionary that we will use for rewrite
-                foreach (var columnToRewrite in columnsToRewrite)
+                if (_openjsonOuterAppliesToAdd.Count > 0)
                 {
-                    _columnsToRewrite.Add(columnToRewrite.Key, columnToRewrite.Value);
-                }
+                    result = result.Update(
+                        result.Projection,
+                        [.. result.Tables, .. _openjsonOuterAppliesToAdd],
+                        result.Predicate,
+                        result.GroupBy,
+                        result.Having,
+                        result.Orderings,
+                        result.Limit,
+                        result.Offset);
 
-                // Record the OPENJSON expression and its projected column(s), along with the store type we just removed from the WITH
-                // clause. Then visit the select expression, adding a cast around the matching ColumnExpressions.
-                var result = base.Visit(newSelectExpression);
-
-                foreach (var columnsToRewriteKey in columnsToRewrite.Keys)
-                {
-                    _columnsToRewrite.Remove(columnsToRewriteKey);
+                    _openjsonOuterAppliesToAdd.Clear();
                 }
 
                 return result;
@@ -196,6 +209,31 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
                 return new JsonScalarExpression(
                     rewrittenColumn, path, jsonScalarExpression.Type, jsonScalarExpression.TypeMapping,
                     jsonScalarExpression.IsNullable);
+            }
+
+            // Some SQL Server types cannot be reliably parsed with JSON_VALUE(): binary/varbinary are encoded in base64 in the JSON,
+            // but JSON_VALUE() returns a string and there's no SQL Server function to parse base64. However, OPENJSON/WITH does do base64
+            // decoding.
+            // So here we identify problematic JsonScalarExpressions (which translate to JSON_VALUE), and transform them to OUTER APPLY:
+            // JSON_VALUE([b].[Json], '$.Foo.Bar') -> CROSS APPLY OPENJSON([b].[Json]) WITH ([Bar] int '$.Foo.Bar') AS [b].
+            case JsonScalarExpression { TypeMapping.StoreTypeNameBase: "varbinary" or "binary" } jsonScalar:
+            {
+                var name = jsonScalar.Path.LastOrDefault(ps => ps.PropertyName is not null).PropertyName
+                           ?? (jsonScalar.Json as ColumnExpression)?.Name
+                           ?? "Json";
+
+                var tableAlias = sqlAliasManager.GenerateTableAlias(name);
+                var join =
+                    new OuterApplyExpression(
+                        new SqlServerOpenJsonExpression(
+                            tableAlias, jsonScalar.Json, path: null,
+                            columnInfos: [new(name, jsonScalar.TypeMapping, jsonScalar.Path)]));
+
+                // We record the new OUTER APPLY in _openWithOuterAppliesToAdd (it gets added after visiting the SelectExpression above),
+                // and return a ColumnExpression referencing that new OUTER APPLY.
+                _openjsonOuterAppliesToAdd.Add(join);
+                return new ColumnExpression(name, tableAlias, jsonScalar.Type, jsonScalar.TypeMapping,
+                    jsonScalar.IsNullable);
             }
 
             default:
@@ -240,9 +278,9 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
                 // nvarchar(max); add a CAST to convert.
                 if (columnInfo.TypeMapping.StoreType != "nvarchar(max)")
                 {
-                    _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)");
+                    _nvarcharMaxTypeMapping ??= typeMappingSource.FindMapping("nvarchar(max)");
 
-                    rewrittenColumn = _sqlExpressionFactory.Convert(
+                    rewrittenColumn = sqlExpressionFactory.Convert(
                         rewrittenColumn,
                         columnExpression.Type,
                         columnInfo.TypeMapping);
