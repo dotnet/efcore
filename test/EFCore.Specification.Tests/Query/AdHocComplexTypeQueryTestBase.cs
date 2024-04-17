@@ -10,9 +10,34 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
     #region 33449
 
     [ConditionalFact]
-    public virtual Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
+    public virtual async Task Complex_type_equals_parameter_with_nested_types_with_property_of_same_name()
     {
-        throw new NotImplementedException();
+        var contextFactory = await InitializeAsync<Context33449>(
+            seed: context =>
+            {
+                context.AddRange(
+                    new Context33449.EntityType
+                    {
+                        ComplexContainer = new()
+                        {
+                            Id = 1,
+                            Containee1 = new() { Id = 2 },
+                            Containee2 = new() { Id = 3 }
+                        }
+                    });
+                context.SaveChanges();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var container = new Context33449.ComplexContainer
+        {
+            Id = 1,
+            Containee1 = new() { Id = 2 },
+            Containee2 = new() { Id = 3 }
+        };
+
+        _ = await context.Set<Context33449.EntityType>().Where(b => b.ComplexContainer == container).SingleAsync();
     }
 
     private class Context33449(DbContextOptions options) : DbContext(options)
@@ -20,8 +45,9 @@ public abstract class AdHocComplexTypeQueryTestBase : NonSharedModelTestBase
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<EntityType>().ComplexProperty(b => b.ComplexContainer, x =>
             {
-                x.ComplexProperty(c => c.Containee1);
-                x.ComplexProperty(c => c.Containee2);
+                x.IsRequired();
+                x.ComplexProperty(c => c.Containee1).IsRequired();
+                x.ComplexProperty(c => c.Containee2).IsRequired();
             });
 
         public class EntityType
