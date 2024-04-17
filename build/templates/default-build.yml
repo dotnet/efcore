@@ -69,16 +69,27 @@ jobs:
     ${{ if ne(parameters.poolName, '') }}:
       name: ${{ parameters.poolName }}
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'macOS')) }}:
-      vmImage: macOS-11
+      ${{ if eq(variables['System.TeamProject'], 'public') }}:
+        vmImage: macOS-11
+      ${{ if ne(variables['System.TeamProject'], 'public') }}:
+        name: Azure Pipelines
+        image: macOS-11
+        os: macOS
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
-      vmImage: ubuntu-20.04
+      ${{ if eq(variables['System.TeamProject'], 'public') }}:
+        vmImage: ubuntu-22.04
+      ${{ if ne(variables['System.TeamProject'], 'public') }}:
+        name: NetCore1ESPool-Svc-Internal
+        demands: ImageOverride -equals 1es-ubuntu-2204
+        os: linux
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Windows')) }}:
       ${{ if eq(variables['System.TeamProject'], 'public') }}:
         name: NetCore-Svc-Public
         demands: ImageOverride -equals 1es-windows-2019-open
       ${{ if ne(variables['System.TeamProject'], 'public') }}:
         name: NetCore1ESPool-Svc-Internal
-        demands: ImageOverride -equals 1es-windows-2019
+        image: 1es-windows-2019
+        os: windows
   variables:
     AgentOsName: ${{ parameters.agentOs }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
@@ -105,12 +116,13 @@ jobs:
         command: custom
         arguments: 'locals all -clear'
   - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.agentOs, 'Windows'), eq(parameters.codeSign, 'true')) }}:
-    - task: MicroBuildSigningPlugin@1
+    - task: MicroBuildSigningPlugin@2
       displayName: Install MicroBuild Signing plugin
       condition: and(succeeded(), in(variables['_SignType'], 'test', 'real'))
       inputs:
         signType: $(_SignType)
         zipSources: false
+        feedSource: https://dnceng.pkgs.visualstudio.com/_packaging/MicroBuildToolset/nuget/v3/index.json
   - ${{ parameters.beforeBuild }}
   - ${{ if eq(parameters.buildSteps, '') }}:
     - ${{ if eq(parameters.agentOs, 'Windows') }}:
@@ -130,12 +142,24 @@ jobs:
       testRunner: vstest
       testResultsFiles: 'artifacts/logs/**/*.trx'
       mergeTestResults: true
-  - ${{ if eq(parameters.artifacts.publish, 'true') }}:
+  - ${{ if and(ne(variables['System.TeamProject'], 'internal'), eq(parameters.artifacts.publish, 'true')) }}:
     - task: PublishBuildArtifacts@1
       displayName: Upload artifacts
       condition: eq(variables['system.pullrequest.isfork'], false)
       inputs:
         pathtoPublish: ${{ parameters.artifacts.path }}
+        ${{ if eq(parameters.artifacts.name, '') }}:
+          artifactName: artifacts-$(AgentOsName)-$(BuildConfiguration)
+        ${{ if ne(parameters.artifacts.name, '') }}:
+          artifactName: ${{ parameters.artifacts.name }}
+        artifactType: Container
+        parallel: true
+  - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.artifacts.publish, 'true')) }}:
+    - task: 1ES.PublishPipelineArtifact@1
+      displayName: Upload artifacts
+      condition: eq(variables['system.pullrequest.isfork'], false)
+      inputs:
+        path: ${{ parameters.artifacts.path }}
         ${{ if eq(parameters.artifacts.name, '') }}:
           artifactName: artifacts-$(AgentOsName)-$(BuildConfiguration)
         ${{ if ne(parameters.artifacts.name, '') }}:
