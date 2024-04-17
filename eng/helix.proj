@@ -21,7 +21,7 @@
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
-    <MSSQL_SA_PASSWORD>Password12!</MSSQL_SA_PASSWORD>
+    <MSSQL_SA_PASSWORD>PLACEHOLDER</MSSQL_SA_PASSWORD>
   </PropertyGroup>
 
   <ItemGroup>
