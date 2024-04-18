@@ -156,10 +156,29 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
 
     /// <inheritdoc />
     public override StructuralTypeShaperExpression MakeNullable(bool nullable = true)
-        => IsNullable != nullable
-            // Marking nullable requires re-computation of Discriminator condition
-            ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, true)
-            : this;
+    {
+        if (IsNullable == nullable)
+        {
+            return this;
+        }
+
+        var newValueBufferExpression = ValueBufferExpression;
+        if (StructuralType is IComplexType
+            && ValueBufferExpression is StructuralTypeProjectionExpression structuralTypeProjectionExpression)
+        {
+            // for complex types we also need to go inside and mark all properties there as nullable
+            // so that when they get extracted during apply projection, they have correct nullabilities
+            // for entity types (containing complex types) we are ok - if the pushdown already happened we iterate over all complex shaper
+            // and call MakeNullable, so we get here. If pushdown hasn't happened yet (so the complex cache is not populated yet)
+            // it's enough to mark shaper itself as nullable - when we eventually create shapers for the complex types
+            // in GenerateComplexPropertyShaperExpression, we generate the columns as nullable if the shaper itself is nullable
+            // see issue #33547 for more details
+            newValueBufferExpression = structuralTypeProjectionExpression.MakeNullable();
+        }
+
+        // Marking nullable requires re-computation of Discriminator condition
+        return new RelationalStructuralTypeShaperExpression(StructuralType, newValueBufferExpression, true);
+    }
 
     /// <inheritdoc />
     public override StructuralTypeShaperExpression Update(Expression valueBufferExpression)
