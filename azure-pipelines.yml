@@ -43,6 +43,10 @@ extends:
           agentOs: Windows
           codeSign: true
           configuration: Release
+          artifacts:
+            publish: true
+            name: packages
+            path: 'artifacts/build/'
       - template: build/templates/default-build.yml@self
         parameters:
           agentOs: macOS
