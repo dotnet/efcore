@@ -33,7 +33,7 @@
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.9.2</MicrosoftNETTestSdkPackageVersion>
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
-    <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
+    <OracleManagedDataAccessPackageVersion>12.2.20230118</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
     <SQLitePCLRawBundleGreenPackageVersion>1.1.15</SQLitePCLRawBundleGreenPackageVersion>
     <SQLitePCLRawBundleSqlcipherPackageVersion>1.1.14</SQLitePCLRawBundleSqlcipherPackageVersion>
@@ -41,8 +41,8 @@
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.5.0</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.5.3</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <SystemDataSqlClientPackageVersion>4.8.6</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.7.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemInteractiveAsyncPackageVersion>3.1.1</SystemInteractiveAsyncPackageVersion>
     <XunitAnalyzersPackageVersion>0.10.0</XunitAnalyzersPackageVersion>
     <XunitAssertPackageVersion>2.4.1</XunitAssertPackageVersion>

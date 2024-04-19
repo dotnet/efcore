@@ -1,7 +1,3 @@
-#
-# See https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/?view=azure-pipelines for details
-#
-
 parameters:
 # Parameter below is ignored in public builds.
 #
@@ -11,10 +7,6 @@ parameters:
   default: false
   displayName: Run CodeQL3000 tasks
   type: boolean
-
-variables:
-- name: runCodeQL3000
-  value: ${{ and(ne(variables['System.TeamProject'], 'public'), or(eq(variables['Build.Reason'], 'Schedule'), and(eq(variables['Build.Reason'], 'Manual'), eq(parameters.runCodeQL3000, 'true')))) }}
 
 # Only run CI builds for these branches
 trigger:
@@ -34,46 +26,19 @@ jobs:
 - template: build/templates/default-build.yml
   parameters:
     agentOs: Windows
-    codeSign: ${{ ne(variables.runCodeQL3000, 'true') }}
+    codeSign: true
     configuration: Release
-    ${{ if eq(variables.runCodeQL3000, 'true') }}:
-      variables:
-        # Security analysis is included in normal runs. Disable its auto-injection.
-        skipNugetSecurityAnalysis: true
-        # Do not let CodeQL3000 Extension gate scan frequency.
-        Codeql.Cadence: 0
-        # Enable CodeQL3000 unconditionally so it may be run on any branch.
-        Codeql.Enabled: true
-        # Ignore test and infrastructure code.
-        Codeql.SourceRoot: src
-        # CodeQL3000 needs this plumbed along as a variable to enable TSA.
-        Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
-        # Default expects tsaoptions.json under SourceRoot.
-        Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
-      beforeBuild:
-      - task: CodeQL3000Init@0
-        displayName: CodeQL Initialize
-      - script: "echo ##vso[build.addbuildtag]CodeQL3000"
-        displayName: 'Set CI CodeQL3000 tag'
-        condition: ne(variables.CODEQL_DIST,'')
-      # Note packages are produced, just not signed, verified, or uploaded. No way to turn off production.
-      buildArgs: /p:UseSharedCompilation=false /p:SkipTests=true /p:DisableCodeSigning=true /p:SkipArtifactVerification=true
-      afterBuild:
-      - task: CodeQL3000Finalize@0
-        displayName: CodeQL Finalize
-    ${{ else }}:
-      artifacts:
-        publish: true
-        name: packages
-        path: 'artifacts/build/'
+    artifacts:
+      publish: true
+      name: packages
+      path: 'artifacts/build/'
 
-- ${{ if ne(variables.runCodeQL3000, 'true') }}:
-  - template: build/templates/default-build.yml
-    parameters:
-      agentOs: macOS
-      configuration: Release
+- template: build/templates/default-build.yml
+  parameters:
+    agentOs: macOS
+    configuration: Release
 
-  - template: build/templates/default-build.yml
-    parameters:
-      agentOs: Linux
-      configuration: Release
+- template: build/templates/default-build.yml
+  parameters:
+    agentOs: Linux
+    configuration: Release
