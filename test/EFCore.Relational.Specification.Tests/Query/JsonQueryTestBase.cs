@@ -2264,6 +2264,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_byte_array(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestByteArray != new byte[] { 1, 2, 3 }),
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference.TestByteArray.SequenceEqual(new byte[] { 1, 2, 3 })));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_character(bool async)
         => AssertQuery(
             async,

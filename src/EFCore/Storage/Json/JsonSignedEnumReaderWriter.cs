@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
@@ -11,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 public sealed class JsonSignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<TEnum>
     where TEnum : struct, Enum
 {
+    private static readonly PropertyInfo InstanceProperty = typeof(JsonSignedEnumReaderWriter<TEnum>).GetProperty(nameof(Instance))!;
+
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -27,4 +30,7 @@ public sealed class JsonSignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<TE
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TEnum value)
         => writer.WriteNumberValue((long)Convert.ChangeType(value, typeof(long))!);
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
 }

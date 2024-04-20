@@ -34,6 +34,7 @@ public class JsonOwnedAllTypes
     public float TestSingle { get; set; }
     public bool TestBoolean { get; set; }
     public byte TestByte { get; set; }
+    public byte[] TestByteArray { get; set; }
     public Guid TestGuid { get; set; }
     public ushort TestUnsignedInt16 { get; set; }
     public uint TestUnsignedInt32 { get; set; }

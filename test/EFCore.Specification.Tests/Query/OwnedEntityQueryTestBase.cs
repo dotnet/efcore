@@ -363,7 +363,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         var query = context.Warehouses.Select(
             x => new Context18582.WarehouseModel
             {
-                WarehouseCode = x.WarehouseCode, DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+                WarehouseCode = x.WarehouseCode,
+                DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
             }).AsNoTracking();
 
         var result = async
@@ -750,7 +751,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         var results = await context.Contacts.Select(
                 contact => new Context22089.ContactDto
                 {
-                    Id = contact.Id, Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
+                    Id = contact.Id,
+                    Names = contact.Names.Select(name => new Context22089.NameDto()).ToArray()
                 })
             .ToListAsync();
     }

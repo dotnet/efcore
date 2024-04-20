@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -2068,11 +2069,18 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
+                    .Append(chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..])
+                    .Append('_');
 
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                foreach (var complexProperty in chainExpression.ComplexPropertyChain)
+                {
+                    parameterNameBuilder.Append(complexProperty.Name).Append('_');
+                }
+
+                parameterNameBuilder.Append(property.Name);
+
+                return _queryCompilationContext.RegisterRuntimeParameter(parameterNameBuilder.ToString(), lambda);
             }
 
             case MemberInitExpression memberInitExpression
@@ -2107,7 +2115,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             _ => throw new UnreachableException()
         };
 
-    private static T? ParameterValueExtractor<T>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static T? ParameterValueExtractor<T>(
         QueryContext context,
         string baseParameterName,
         List<IComplexProperty>? complexPropertyChain,
@@ -2131,7 +2146,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseValue);
     }
 
-    private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
         QueryContext context,
         string baseParameterName,
         IProperty property)

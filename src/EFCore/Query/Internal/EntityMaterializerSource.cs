@@ -87,8 +87,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         var constructorBinding = ModifyBindings(structuralType, structuralType.ConstructorBinding!);
         var bindingInfo = new ParameterBindingInfo(parameters, materializationContextExpression);
-        var blockExpressions = new List<Expression>();
-
         var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, entityInstanceName);
         bindingInfo.ServiceInstances.Add(instanceVariable);
 
@@ -96,6 +94,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             structuralType.GetProperties().Cast<IPropertyBase>().Where(p => !p.IsShadowProperty())
                 .Concat(structuralType.GetComplexProperties().Where(p => !p.IsShadowProperty())));
 
+        var blockExpressions = new List<Expression>();
         if (structuralType is IEntityType entityType)
         {
             var serviceProperties = entityType.GetServiceProperties().ToList();
@@ -247,7 +246,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                         InjectableServiceInjectedMethod,
                         getContext,
                         instanceVariable,
-                        Expression.Constant(bindingInfo, typeof(ParameterBindingInfo)))));
+                        Expression.Constant(bindingInfo.QueryTrackingBehavior, typeof(QueryTrackingBehavior?)),
+                        Expression.Constant(bindingInfo.StructuralType))));
         }
     }
 

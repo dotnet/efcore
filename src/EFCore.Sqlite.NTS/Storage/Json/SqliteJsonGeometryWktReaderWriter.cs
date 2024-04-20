@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using NetTopologySuite.Geometries;
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json;
 public sealed class SqliteJsonGeometryWktReaderWriter : JsonValueReaderWriter<Geometry>
 {
     private static readonly WKTReader WktReader = new();
+
+    private static readonly PropertyInfo InstanceProperty = typeof(SqliteJsonGeometryWktReaderWriter).GetProperty(nameof(Instance))!;
 
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
@@ -31,4 +34,7 @@ public sealed class SqliteJsonGeometryWktReaderWriter : JsonValueReaderWriter<Ge
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, Geometry value)
         => writer.WriteStringValue(value.ToText());
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
 }

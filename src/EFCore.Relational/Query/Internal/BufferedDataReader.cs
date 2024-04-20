@@ -836,10 +836,7 @@ public class BufferedDataReader : DbDataReader
         public object GetValue(int ordinal)
             => GetFieldValue<object>(ordinal);
 
-#pragma warning disable IDE0060 // Remove unused parameter
-        public static int GetValues(object[] values)
-#pragma warning restore IDE0060 // Remove unused parameter
-            => throw new NotSupportedException();
+        public static int GetValues(object[] values) => throw new NotSupportedException();
 
         public T GetFieldValue<T>(int ordinal)
             => (_columnTypeCases[ordinal]) switch

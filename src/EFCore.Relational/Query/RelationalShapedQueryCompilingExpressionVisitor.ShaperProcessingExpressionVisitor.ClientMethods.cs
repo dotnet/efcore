@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -11,7 +12,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
-    private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo ThrowReadValueExceptionMethod =
             typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
@@ -71,8 +79,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo InverseCollectionFixupMethod
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InverseCollectionFixup))!;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue ThrowReadValueException<TValue>(
+        [EntityFrameworkInternal]
+        public static TValue ThrowReadValueException<TValue>(
             Exception exception,
             object? value,
             Type expectedType,
@@ -122,7 +137,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 exception);
         }
 
-        private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
             TEntity entity,
             TIncludedEntity? relatedEntity,
@@ -160,7 +182,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static void InitializeIncludeCollection<TParent, TNavigationEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void InitializeIncludeCollection<TParent, TNavigationEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -201,7 +230,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             resultCoordinator.SetSingleQueryCollectionContext(collectionId, collectionMaterializationContext);
         }
 
-        private static void PopulateIncludeCollection<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateIncludeCollection<TIncludingEntity, TIncludedEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -209,9 +245,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
             Func<QueryContext, DbDataReader, object[]> outerIdentifier,
             Func<QueryContext, DbDataReader, object[]> selfIdentifier,
-            IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> parentIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> outerIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TIncludedEntity> innerShaper,
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
@@ -319,7 +355,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static void InitializeSplitIncludeCollection<TParent, TNavigationEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void InitializeSplitIncludeCollection<TParent, TNavigationEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader parentDataReader,
@@ -358,7 +401,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             resultCoordinator.SetSplitQueryCollectionContext(collectionId, splitQueryCollectionContext);
         }
 
-        private static void PopulateSplitIncludeCollection<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateSplitIncludeCollection<TIncludingEntity, TIncludedEntity>(
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
@@ -367,7 +417,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -442,7 +492,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static async Task PopulateSplitIncludeCollectionAsync<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static async Task PopulateSplitIncludeCollectionAsync<TIncludingEntity, TIncludedEntity>(
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
@@ -451,7 +508,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -538,7 +595,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static TCollection InitializeCollection<TElement, TCollection>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static TCollection InitializeCollection<TElement, TCollection>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -560,7 +624,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return (TCollection)collection;
         }
 
-        private static void PopulateCollection<TCollection, TElement, TRelatedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateCollection<TCollection, TElement, TRelatedEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -568,9 +639,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
             Func<QueryContext, DbDataReader, object[]> outerIdentifier,
             Func<QueryContext, DbDataReader, object[]> selfIdentifier,
-            IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> parentIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> outerIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TRelatedEntity> innerShaper)
             where TRelatedEntity : TElement
             where TCollection : class, ICollection<TElement>
@@ -590,8 +661,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             if (!CompareIdentifiers(
-                    outerIdentifierValueComparers,
-                    outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
+                outerIdentifierValueComparers,
+                outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
             {
                 // Outer changed so collection has ended. Materialize last element.
                 GenerateCurrentElementIfPending();
@@ -616,8 +687,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             if (collectionMaterializationContext.SelfIdentifier != null)
             {
                 if (CompareIdentifiers(
-                        selfIdentifierValueComparers,
-                        innerKey, collectionMaterializationContext.SelfIdentifier))
+                    selfIdentifierValueComparers,
+                    innerKey, collectionMaterializationContext.SelfIdentifier))
                 {
                     // repeated row for current element
                     // If it is pending materialization then it may have nested elements
@@ -673,7 +744,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static TCollection InitializeSplitCollection<TElement, TCollection>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static TCollection InitializeSplitCollection<TElement, TCollection>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader parentDataReader,
@@ -691,7 +769,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return (TCollection)collection;
         }
 
-        private static void PopulateSplitCollection<TCollection, TElement, TRelatedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateSplitCollection<TCollection, TElement, TRelatedEntity>(
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
@@ -700,7 +785,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders)
             where TRelatedEntity : TElement
@@ -770,7 +855,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             dataReaderContext.HasNext = false;
         }
 
-        private static async Task PopulateSplitCollectionAsync<TCollection, TElement, TRelatedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static async Task PopulateSplitCollectionAsync<TCollection, TElement, TRelatedEntity>(
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
@@ -779,7 +871,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TRelatedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders)
             where TRelatedEntity : TElement
@@ -861,7 +953,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             dataReaderContext.HasNext = false;
         }
 
-        private static TEntity? MaterializeJsonEntity<TEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static TEntity? MaterializeJsonEntity<TEntity>(
             QueryContext queryContext,
             object[] keyPropertyValues,
             JsonReaderData? jsonReaderData,
@@ -900,7 +999,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return result;
         }
 
-        private static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
             QueryContext queryContext,
             object[] keyPropertyValues,
             JsonReaderData? jsonReaderData,
@@ -967,7 +1073,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return result;
         }
 
-        private static void IncludeJsonEntityReference<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void IncludeJsonEntityReference<TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
             object[] keyPropertyValues,
             JsonReaderData? jsonReaderData,
@@ -991,7 +1104,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static void IncludeJsonEntityCollection<TIncludingEntity, TIncludedCollectionElement>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void IncludeJsonEntityCollection<TIncludingEntity, TIncludedCollectionElement>(
             QueryContext queryContext,
             object[] keyPropertyValues,
             JsonReaderData? jsonReaderData,
@@ -1058,7 +1178,31 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             manager.CaptureState();
         }
 
-        private static async Task TaskAwaiter(Func<Task>[] taskFactories)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static bool Any(IEnumerable source)
+        {
+            foreach (var _ in source)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static async Task TaskAwaiter(Func<Task>[] taskFactories)
         {
             for (var i = 0; i < taskFactories.Length; i++)
             {
@@ -1066,12 +1210,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
+        private static bool CompareIdentifiers(IReadOnlyList<Func<object, object, bool>> valueComparers, object[] left, object[] right)
         {
             // Ignoring size check on all for perf as they should be same unless bug in code.
             for (var i = 0; i < left.Length; i++)
             {
-                if (!valueComparers[i].Equals(left[i], right[i]))
+                if (!valueComparers[i](left[i], right[i]))
                 {
                     return false;
                 }

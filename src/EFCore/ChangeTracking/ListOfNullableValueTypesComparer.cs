@@ -29,15 +29,24 @@ public sealed class ListOfNullableValueTypesComparer<TConcreteCollection, TEleme
         || (typeof(TConcreteCollection).IsGenericType
             && typeof(TConcreteCollection).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
+    private static readonly MethodInfo CompareMethod = typeof(ListOfNullableValueTypesComparer<TConcreteCollection, TElement>).GetMethod(
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement?>), typeof(IEnumerable<TElement?>), typeof(ValueComparer<TElement?>)])!;
+
+    private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfNullableValueTypesComparer<TConcreteCollection, TElement>).GetMethod(
+        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement?>), typeof(ValueComparer<TElement?>)])!;
+
+    private static readonly MethodInfo SnapshotMethod = typeof(ListOfNullableValueTypesComparer<TConcreteCollection, TElement>).GetMethod(
+        nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement?>), typeof(ValueComparer<TElement?>)])!;
+
     /// <summary>
     ///     Creates a new instance of the list comparer.
     /// </summary>
     /// <param name="elementComparer">The comparer to use for comparing elements.</param>
     public ListOfNullableValueTypesComparer(ValueComparer elementComparer)
         : base(
-            (a, b) => Compare(a, b, (ValueComparer<TElement?>)elementComparer),
-            o => GetHashCode(o, (ValueComparer<TElement?>)elementComparer),
-            source => Snapshot(source, (ValueComparer<TElement?>)elementComparer))
+            CompareLambda(elementComparer),
+            GetHashCodeLambda(elementComparer),
+            SnapshotLambda(elementComparer))
     {
         ElementComparer = elementComparer;
     }
@@ -46,6 +55,54 @@ public sealed class ListOfNullableValueTypesComparer<TConcreteCollection, TEleme
     ///     The comparer to use for comparing elements.
     /// </summary>
     public ValueComparer ElementComparer { get; }
+
+    private static Expression<Func<IEnumerable<TElement?>?, IEnumerable<TElement?>?, bool>> CompareLambda(ValueComparer elementComparer)
+    {
+        var prm1 = Expression.Parameter(typeof(IEnumerable<TElement?>), "a");
+        var prm2 = Expression.Parameter(typeof(IEnumerable<TElement?>), "b");
+
+        //(a, b) => Compare(a, b, (ValueComparer<TElement?>)elementComparer)
+        return Expression.Lambda<Func<IEnumerable<TElement?>?, IEnumerable<TElement?>?, bool>>(
+            Expression.Call(
+                CompareMethod,
+                prm1,
+                prm2,
+                Expression.Convert(
+                    elementComparer.ConstructorExpression,
+                    typeof(ValueComparer<TElement?>))),
+            prm1,
+            prm2);
+    }
+
+    private static Expression<Func<IEnumerable<TElement?>, int>> GetHashCodeLambda(ValueComparer elementComparer)
+    {
+        var prm = Expression.Parameter(typeof(IEnumerable<TElement?>), "o");
+
+        //o => GetHashCode(o, (ValueComparer<TElement?>)elementComparer)
+        return Expression.Lambda<Func<IEnumerable<TElement?>, int>>(
+            Expression.Call(
+                GetHashCodeMethod,
+                prm,
+                Expression.Convert(
+                    elementComparer.ConstructorExpression,
+                    typeof(ValueComparer<TElement?>))),
+            prm);
+    }
+
+    private static Expression<Func<IEnumerable<TElement?>, IEnumerable<TElement?>>> SnapshotLambda(ValueComparer elementComparer)
+    {
+        var prm = Expression.Parameter(typeof(IEnumerable<TElement?>), "source");
+
+        //source => Snapshot(source, (ValueComparer<TElement?>)elementComparer)
+        return Expression.Lambda<Func<IEnumerable<TElement?>, IEnumerable<TElement?>>>(
+            Expression.Call(
+                SnapshotMethod,
+                prm,
+                Expression.Convert(
+                    elementComparer.ConstructorExpression,
+                    typeof(ValueComparer<TElement?>))),
+            prm);
+    }
 
     private static bool Compare(IEnumerable<TElement?>? a, IEnumerable<TElement?>? b, ValueComparer<TElement?> elementComparer)
     {

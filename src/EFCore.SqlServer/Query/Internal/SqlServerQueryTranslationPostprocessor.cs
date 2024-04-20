@@ -33,7 +33,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
         _jsonPostprocessor = new SqlServerJsonPostprocessor(
-            relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory);
+            relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory, queryCompilationContext.SqlAliasManager);
     }
 
     /// <summary>
