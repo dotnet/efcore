@@ -1657,7 +1657,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return _found;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (_found)

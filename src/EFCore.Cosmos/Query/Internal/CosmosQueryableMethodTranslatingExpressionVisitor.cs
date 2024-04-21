@@ -1,8 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -61,6 +60,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         _queryCompilationContext = parentVisitor._queryCompilationContext;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
+        _memberTranslatorProvider = parentVisitor._memberTranslatorProvider;
+        _methodCallTranslatorProvider = parentVisitor._methodCallTranslatorProvider;
         _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             QueryCompilationContext,
             _sqlExpressionFactory,
@@ -76,7 +77,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression Visit(Expression expression)
+    [return: NotNullIfNotNull(nameof(expression))]
+    public override Expression? Visit(Expression? expression)
     {
         if (expression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate)
@@ -95,7 +97,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                         if (ExtractPartitionKeyFromPredicate(entityType, lambdaExpression.Body, queryProperties, parameterNames))
                         {
-                            var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey().Properties;
+                            var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties;
                             var idProperty = entityType.GetProperties()
                                 .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
 
@@ -140,7 +142,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                 if (joinBinaryExpression.NodeType == ExpressionType.Equal
                     && joinBinaryExpression.Left is MethodCallExpression equalMethodCallExpression
-                    && joinBinaryExpression.Right is ParameterExpression equalParameterExpresion
+                    && joinBinaryExpression.Right is ParameterExpression { Name: string parameterName } equalParameterExpresion
                     && equalMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                 {
                     var property = entityType.FindProperty(propertyName);
@@ -150,7 +152,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     }
 
                     properties.Add(property);
-                    parameterNames.Add(equalParameterExpresion.Name);
+                    parameterNames.Add(parameterName);
                     return true;
                 }
             }
@@ -158,7 +160,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                      {
                          Method.Name: "Equals",
                          Object: null,
-                         Arguments: [MethodCallExpression equalsMethodCallExpression, ParameterExpression parameterExpresion]
+                         Arguments:
+                         [
+                             MethodCallExpression equalsMethodCallExpression,
+                             ParameterExpression { Name: string parameterName }
+                         ]
                      }
                      && equalsMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
             {
@@ -169,14 +175,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 }
 
                 properties.Add(property);
-                parameterNames.Add(parameterExpresion.Name);
+                parameterNames.Add(parameterName);
                 return true;
             }
 
             return false;
         }
 
-        static bool TryGetPartitionKeyProperty(IEntityType entityType, out IProperty partitionKeyProperty)
+        static bool TryGetPartitionKeyProperty(IEntityType entityType, out IProperty? partitionKeyProperty)
         {
             var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
             if (partitionKeyPropertyName is null)
@@ -253,7 +259,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         => null;
 
     /// <summary>
@@ -262,7 +268,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
         => null;
 
     /// <summary>
@@ -271,7 +277,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
+    protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -310,7 +316,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression? TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
         => null;
 
     /// <summary>
@@ -319,7 +325,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
+    protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
         => null;
 
     /// <summary>
@@ -328,7 +334,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateCount(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -340,11 +346,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (predicate != null)
         {
-            source = TranslateWhere(source, predicate);
-            if (source == null)
+            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
             {
                 return null;
             }
+
+            source = translatedSource;
         }
 
         var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
@@ -366,7 +373,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue)
+    protected override ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue)
         => null;
 
     /// <summary>
@@ -388,7 +395,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateElementAtOrDefault(
+    protected override ShapedQueryExpression? TranslateElementAtOrDefault(
         ShapedQueryExpression source,
         Expression index,
         bool returnDefault)
@@ -400,7 +407,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         => null;
 
     /// <summary>
@@ -409,19 +416,20 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateFirstOrDefault(
+    protected override ShapedQueryExpression? TranslateFirstOrDefault(
         ShapedQueryExpression source,
-        LambdaExpression predicate,
+        LambdaExpression? predicate,
         Type returnType,
         bool returnDefault)
     {
         if (predicate != null)
         {
-            source = TranslateWhere(source, predicate);
-            if (source == null)
+            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
             {
                 return null;
             }
+
+            source = translatedSource;
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -431,7 +439,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
 
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
+        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -444,11 +452,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateGroupBy(
+    protected override ShapedQueryExpression? TranslateGroupBy(
         ShapedQueryExpression source,
         LambdaExpression keySelector,
-        LambdaExpression elementSelector,
-        LambdaExpression resultSelector)
+        LambdaExpression? elementSelector,
+        LambdaExpression? resultSelector)
         => null;
 
     /// <summary>
@@ -457,7 +465,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateGroupJoin(
+    protected override ShapedQueryExpression? TranslateGroupJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,
@@ -471,7 +479,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression? TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
         => null;
 
     /// <summary>
@@ -480,7 +488,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateJoin(
+    protected override ShapedQueryExpression? TranslateJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,
@@ -494,24 +502,25 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateLastOrDefault(
+    protected override ShapedQueryExpression? TranslateLastOrDefault(
         ShapedQueryExpression source,
-        LambdaExpression predicate,
+        LambdaExpression? predicate,
         Type returnType,
         bool returnDefault)
     {
         if (predicate != null)
         {
-            source = TranslateWhere(source, predicate);
-            if (source == null)
+            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
             {
                 return null;
             }
+
+            source = translatedSource;
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
         selectExpression.ReverseOrderings();
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
+        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -524,7 +533,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateLeftJoin(
+    protected override ShapedQueryExpression? TranslateLeftJoin(
         ShapedQueryExpression outer,
         ShapedQueryExpression inner,
         LambdaExpression outerKeySelector,
@@ -538,7 +547,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -550,11 +559,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (predicate != null)
         {
-            source = TranslateWhere(source, predicate);
-            if (source == null)
+            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
             {
                 return null;
             }
+
+            source = translatedSource;
         }
 
         var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
@@ -575,7 +585,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateMax(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
+    protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -603,7 +613,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
+    protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -631,7 +641,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
+    protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
         if (source.ShaperExpression is StructuralTypeShaperExpression entityShaperExpression)
         {
@@ -691,7 +701,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateOrderBy(
+    protected override ShapedQueryExpression? TranslateOrderBy(
         ShapedQueryExpression source,
         LambdaExpression keySelector,
         bool ascending)
@@ -713,7 +723,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateReverse(ShapedQueryExpression source)
+    protected override ShapedQueryExpression? TranslateReverse(ShapedQueryExpression source)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.Orderings.Count == 0)
@@ -743,7 +753,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct)
         {
-            return null;
+            // TODO: The base TranslateSelect does not allow returning null (presumably because client eval should always be possible)
+            return null!;
         }
 
         var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
@@ -757,7 +768,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateSelectMany(
+    protected override ShapedQueryExpression? TranslateSelectMany(
         ShapedQueryExpression source,
         LambdaExpression collectionSelector,
         LambdaExpression resultSelector)
@@ -769,7 +780,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
+    protected override ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
         => null;
 
     /// <summary>
@@ -778,23 +789,24 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateSingleOrDefault(
+    protected override ShapedQueryExpression? TranslateSingleOrDefault(
         ShapedQueryExpression source,
-        LambdaExpression predicate,
+        LambdaExpression? predicate,
         Type returnType,
         bool returnDefault)
     {
         if (predicate != null)
         {
-            source = TranslateWhere(source, predicate);
-            if (source == null)
+            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
             {
                 return null;
             }
+
+            source = translatedSource;
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2)));
+        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -807,7 +819,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count)
+    protected override ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         var translation = TranslateExpression(count);
@@ -833,7 +845,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
         => null;
 
     /// <summary>
@@ -842,7 +854,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType)
+    protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
@@ -872,7 +884,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateTake(ShapedQueryExpression source, Expression count)
+    protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         var translation = TranslateExpression(count);
@@ -898,7 +910,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
         => null;
 
     /// <summary>
@@ -907,7 +919,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+    protected override ShapedQueryExpression? TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
     {
         var translation = TranslateLambdaExpression(source, keySelector);
         if (translation != null)
@@ -926,7 +938,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression? TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
         => null;
 
     /// <summary>
@@ -935,13 +947,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
+    protected override ShapedQueryExpression? TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
     {
-        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType } entityShaperExpression
-            && entityType.GetPartitionKeyPropertyName() != null
+        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType }
+            && entityType.GetPartitionKeyPropertyName() is string partitionKeyPropertyName
             && TryExtractPartitionKey(predicate.Body, entityType, out var newPredicate) is Expression partitionKeyValue)
         {
-            var partitionKeyProperty = entityType.GetProperty(entityType.GetPartitionKeyPropertyName());
+            var partitionKeyProperty = entityType.GetProperty(partitionKeyPropertyName);
             ((SelectExpression)source.QueryExpression).SetPartitionKey(partitionKeyProperty, partitionKeyValue);
 
             if (newPredicate == null)
@@ -962,13 +974,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         return null;
 
-        Expression TryExtractPartitionKey(Expression expression, IEntityType entityType, out Expression updatedPredicate)
+        Expression? TryExtractPartitionKey(Expression expression, IEntityType entityType, out Expression? updatedPredicate)
         {
             if (expression is BinaryExpression binaryExpression)
             {
-                partitionKeyValue = GetPartitionKeyValue(binaryExpression, entityType);
-                if (partitionKeyValue != null)
+                if (GetPartitionKeyValue(binaryExpression, entityType) is Expression pkv)
                 {
+                    partitionKeyValue = pkv;
                     updatedPredicate = null;
                     return partitionKeyValue;
                 }
@@ -995,7 +1007,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        Expression GetPartitionKeyValue(BinaryExpression binaryExpression, IEntityType entityType)
+        Expression? GetPartitionKeyValue(BinaryExpression binaryExpression, IEntityType entityType)
         {
             if (binaryExpression.NodeType == ExpressionType.Equal)
             {
@@ -1020,7 +1032,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         bool IsPartitionKeyPropertyAccess(Expression expression, IEntityType entityType)
         {
-            IProperty property = null;
+            IProperty? property = null;
             switch (expression)
             {
                 case MemberExpression memberExpression:
@@ -1042,7 +1054,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
     }
 
-    private SqlExpression TranslateExpression(Expression expression)
+    private SqlExpression? TranslateExpression(Expression expression)
     {
         var translation = _sqlTranslator.Translate(expression);
         if (translation == null && _sqlTranslator.TranslationErrorDetails != null)
@@ -1053,7 +1065,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         return translation;
     }
 
-    private SqlExpression TranslateLambdaExpression(
+    private SqlExpression? TranslateLambdaExpression(
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
     {

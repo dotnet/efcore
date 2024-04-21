@@ -20,7 +20,7 @@ internal static class ExpressionExtensions
             ? unary.Operand
             : expression);
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
     {
         convertedType = null;

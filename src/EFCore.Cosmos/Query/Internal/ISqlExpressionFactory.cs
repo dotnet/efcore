@@ -19,7 +19,7 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping);
 
     /// <summary>
@@ -28,7 +28,7 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression);
 
     /// <summary>
@@ -37,7 +37,7 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    SqlBinaryExpression MakeBinary(
+    SqlBinaryExpression? MakeBinary(
         ExpressionType operatorType,
         SqlExpression left,
         SqlExpression right,

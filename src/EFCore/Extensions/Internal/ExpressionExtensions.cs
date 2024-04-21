@@ -197,7 +197,7 @@ public static class ExpressionExtensions
             && (sqlUnaryExpression.Type == typeof(bool)
                 || sqlUnaryExpression.Type == typeof(bool?));
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     private static Expression? RemoveConvert(Expression? expression)
         => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
             ? RemoveConvert(unaryExpression.Operand)

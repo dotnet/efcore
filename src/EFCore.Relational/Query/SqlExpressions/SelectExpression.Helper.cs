@@ -35,7 +35,7 @@ public sealed partial class SelectExpression
             return _containsOuterReference;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (_containsOuterReference)
@@ -68,7 +68,7 @@ public sealed partial class SelectExpression
             _projectionMemberMappings = projectionMemberMappings;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -100,7 +100,7 @@ public sealed partial class SelectExpression
             _projectionMemberMappings = projectionMemberMappings;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -135,7 +135,7 @@ public sealed partial class SelectExpression
             _indexMap = indexMap;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression
@@ -167,11 +167,11 @@ public sealed partial class SelectExpression
         private readonly HashSet<SqlExpression> _correlatedTerms = new(ReferenceEqualityComparer.Instance);
         private bool _groupByDiscovery = subquery._groupBy.Count > 0;
 
-        [return: NotNullIfNotNull("sqlExpression")]
+        [return: NotNullIfNotNull(nameof(sqlExpression))]
         public SqlExpression? Remap(SqlExpression? sqlExpression)
             => (SqlExpression?)Visit(sqlExpression);
 
-        [return: NotNullIfNotNull("selectExpression")]
+        [return: NotNullIfNotNull(nameof(selectExpression))]
         public SelectExpression? Remap(SelectExpression? selectExpression)
         {
             var result = (SelectExpression?)Visit(selectExpression);
@@ -186,7 +186,7 @@ public sealed partial class SelectExpression
             return result;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)
@@ -230,7 +230,7 @@ public sealed partial class SelectExpression
                 _doesNotContainLocalTerms = true;
             }
 
-            [return: NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is SqlExpression sqlExpression)
@@ -325,7 +325,7 @@ public sealed partial class SelectExpression
     {
         private readonly List<object> _clientProjectionIndexMap = clientProjectionIndexMap;
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -407,7 +407,7 @@ public sealed partial class SelectExpression
     {
         private readonly Dictionary<string, string> _tableAliasMap = new();
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)

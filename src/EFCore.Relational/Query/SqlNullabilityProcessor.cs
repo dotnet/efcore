@@ -376,7 +376,7 @@ public class SqlNullabilityProcessor
     /// <param name="sqlExpression">A sql expression to visit.</param>
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     protected virtual SqlExpression? Visit(SqlExpression? sqlExpression, out bool nullable)
         => Visit(sqlExpression, allowOptimizedExpansion: false, out nullable);
 
@@ -387,11 +387,11 @@ public class SqlNullabilityProcessor
     /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     protected virtual SqlExpression? Visit(SqlExpression? sqlExpression, bool allowOptimizedExpansion, out bool nullable)
         => Visit(sqlExpression, allowOptimizedExpansion, preserveColumnNullabilityInformation: false, out nullable);
 
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     private SqlExpression? Visit(
         SqlExpression? sqlExpression,
         bool allowOptimizedExpansion,

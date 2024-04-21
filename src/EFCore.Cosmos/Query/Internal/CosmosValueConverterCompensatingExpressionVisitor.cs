@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -59,7 +61,7 @@ public class CosmosValueConverterCompensatingExpressionVisitor : ExpressionVisit
         var fromExpression = (RootReferenceExpression)Visit(selectExpression.FromExpression);
         changed |= fromExpression != selectExpression.FromExpression;
 
-        var predicate = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(selectExpression.Predicate));
+        var predicate = TryCompensateForBoolWithValueConverter((SqlExpression?)Visit(selectExpression.Predicate));
         changed |= predicate != selectExpression.Predicate;
 
         var orderings = new List<OrderingExpression>();
@@ -70,8 +72,8 @@ public class CosmosValueConverterCompensatingExpressionVisitor : ExpressionVisit
             orderings.Add(ordering.Update(orderingExpression));
         }
 
-        var limit = (SqlExpression)Visit(selectExpression.Limit);
-        var offset = (SqlExpression)Visit(selectExpression.Offset);
+        var limit = (SqlExpression?)Visit(selectExpression.Limit);
+        var offset = (SqlExpression?)Visit(selectExpression.Offset);
 
         return changed
             ? selectExpression.Update(projections, fromExpression, predicate, orderings, limit, offset)
@@ -87,30 +89,22 @@ public class CosmosValueConverterCompensatingExpressionVisitor : ExpressionVisit
         return sqlConditionalExpression.Update(test, ifTrue, ifFalse);
     }
 
-    private SqlExpression TryCompensateForBoolWithValueConverter(SqlExpression sqlExpression)
-    {
-        if (sqlExpression is KeyAccessExpression keyAccessExpression
-            && keyAccessExpression.TypeMapping!.ClrType == typeof(bool)
-            && keyAccessExpression.TypeMapping!.Converter != null)
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
+    private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
+        => sqlExpression switch
         {
-            return _sqlExpressionFactory.Equal(
-                sqlExpression,
-                _sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping));
-        }
+            KeyAccessExpression keyAccessExpression
+                when keyAccessExpression.TypeMapping!.ClrType == typeof(bool) && keyAccessExpression.TypeMapping!.Converter != null
+                => _sqlExpressionFactory.Equal(sqlExpression, _sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping)),
 
-        if (sqlExpression is SqlUnaryExpression sqlUnaryExpression)
-        {
-            return sqlUnaryExpression.Update(
-                TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand));
-        }
+            SqlUnaryExpression sqlUnaryExpression
+                => sqlUnaryExpression.Update(TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand)),
 
-        if (sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } sqlBinaryExpression)
-        {
-            return sqlBinaryExpression.Update(
-                TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),
-                TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Right));
-        }
+            SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } sqlBinaryExpression
+                => sqlBinaryExpression.Update(
+                    TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),
+                    TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Right)),
 
-        return sqlExpression;
-    }
+            _ => sqlExpression
+        };
 }

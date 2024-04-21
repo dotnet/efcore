@@ -200,7 +200,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
         }
     }
 
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     private Expression? Visit(Expression? expression, out State state)
     {
         _state = default;
@@ -215,7 +215,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         _state = default;
@@ -2092,7 +2092,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     {
         public ParameterExpression ContextParameterExpression { get; } = Parameter(contextType, "context");
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => expression?.Type != typeof(object)
                 && expression?.Type.IsAssignableFrom(contextType) == true

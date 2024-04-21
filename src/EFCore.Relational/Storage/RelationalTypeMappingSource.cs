@@ -502,7 +502,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// <param name="precision">The precision parsed from the type name, or <see langword="null" /> if none was specified.</param>
     /// <param name="scale">The scale parsed from the type name, or <see langword="null" /> if none was specified.</param>
     /// <returns>The provider-specific relational type name, with any facets removed.</returns>
-    [return: NotNullIfNotNull("storeTypeName")]
+    [return: NotNullIfNotNull(nameof(storeTypeName))]
     protected virtual string? ParseStoreTypeName(
         string? storeTypeName,
         ref bool? unicode,

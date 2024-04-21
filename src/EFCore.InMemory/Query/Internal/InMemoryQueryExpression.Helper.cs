@@ -74,7 +74,7 @@ public partial class InMemoryQueryExpression
             _projectionMemberMappings = projectionMemberMappings;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -106,7 +106,7 @@ public partial class InMemoryQueryExpression
             _projectionMemberMappings = projectionMemberMappings;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
@@ -141,7 +141,7 @@ public partial class InMemoryQueryExpression
             _indexMap = indexMap;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression
@@ -180,7 +180,7 @@ public partial class InMemoryQueryExpression
             _newQuery = newQuery;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => expression is ProjectionBindingExpression projectionBindingExpression
                 && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
@@ -194,7 +194,7 @@ public partial class InMemoryQueryExpression
 
     private sealed class CloningExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is InMemoryQueryExpression inMemoryQueryExpression)

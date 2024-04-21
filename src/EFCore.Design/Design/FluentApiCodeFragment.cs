@@ -75,7 +75,7 @@ public class FluentApiCodeFragment : IMethodCallCodeFragment
     /// </summary>
     /// <param name="call">The existing method call.</param>
     /// <returns>The new fluent API method call.</returns>
-    [return: NotNullIfNotNull("call")]
+    [return: NotNullIfNotNull(nameof(call))]
     public static FluentApiCodeFragment? From(MethodCallCodeFragment? call)
         => call is null
             ? null

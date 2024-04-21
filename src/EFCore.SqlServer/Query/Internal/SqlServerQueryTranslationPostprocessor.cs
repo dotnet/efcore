@@ -72,7 +72,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 
     private sealed class SkipWithoutOrderByInSplitQueryVerifier : ExpressionVisitor
     {
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)

@@ -1801,7 +1801,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 _annotations = annotations;
             }
 
-            [return: NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is TableExpression te)

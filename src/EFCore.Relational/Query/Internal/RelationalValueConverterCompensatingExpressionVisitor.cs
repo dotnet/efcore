@@ -104,7 +104,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
         return leftJoinExpression.Update(table, joinPredicate);
     }
 
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
     {
         if ((sqlExpression is ColumnExpression or JsonScalarExpression)

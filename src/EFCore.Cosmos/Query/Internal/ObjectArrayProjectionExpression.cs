@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable warnings
-
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -29,13 +27,10 @@ public class ObjectArrayProjectionExpression : Expression, IPrintableExpression,
         var targetType = navigation.TargetEntityType;
         Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
 
-        Name = targetType.GetContainingPropertyName();
-        if (Name == null)
-        {
-            throw new InvalidOperationException(
+        Name = targetType.GetContainingPropertyName()
+            ?? throw new InvalidOperationException(
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
-        }
 
         Navigation = navigation;
         AccessExpression = accessExpression;
@@ -145,7 +140,7 @@ public class ObjectArrayProjectionExpression : Expression, IPrintableExpression,
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
                 || obj is ObjectArrayProjectionExpression arrayProjectionExpression

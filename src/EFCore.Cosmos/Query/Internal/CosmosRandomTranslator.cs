@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -14,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosRandomTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-        nameof(DbFunctionsExtensions.Random), [typeof(DbFunctions)]);
+        nameof(DbFunctionsExtensions.Random), [typeof(DbFunctions)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -35,8 +33,8 @@ public class CosmosRandomTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Translate(
-        SqlExpression instance,
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)

@@ -219,7 +219,7 @@ public class ExpressionPrinter : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         if (expression == null)
