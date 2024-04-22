@@ -39,12 +39,12 @@ public class SqlServerStringMemberTranslator : IMemberTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (member.Name == nameof(string.Length)
-            && instance?.Type == typeof(string))
+            && member.DeclaringType == typeof(string))
         {
             return _sqlExpressionFactory.Convert(
                 _sqlExpressionFactory.Function(
                     "LEN",
-                    new[] { instance },
+                    new[] { instance! },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true },
                     typeof(long)),

@@ -1221,6 +1221,42 @@ SELECT * FROM [Customers2]
                 () => context.Database.SqlQueryRaw<Person>(NormalizeDelimitersInRawString(@"SELECT * FROM [People]"))).Message);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        using var context = CreateContext();
+        var rawQuery = NormalizeDelimitersInRawString("SELECT 'x' AS [Value] FROM [Customers]");
+        var query = context.Database.SqlQueryRaw<string>(rawQuery).Where(s => s.Length == 0);
+
+        if (async)
+        {
+            await query.LoadAsync();
+        }
+        else
+        {
+            query.Load();
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        using var context = CreateContext();
+        var rawQuery = NormalizeDelimitersInRawString("SELECT 'x' AS [Value] FROM [Customers]");
+        var query = context.Database.SqlQueryRaw<string>(rawQuery).Where(s => s.ToUpper().Length == 0);
+
+        if (async)
+        {
+            await query.LoadAsync();
+        }
+        else
+        {
+            query.Load();
+        }
+    }
+
     protected class Blog
     {
         public int Id { get; set; }

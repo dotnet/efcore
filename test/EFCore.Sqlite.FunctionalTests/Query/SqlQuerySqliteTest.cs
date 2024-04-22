@@ -79,6 +79,34 @@ WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
+    public override async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_Length(async);
+
+        AssertSql(
+            """
+SELECT "s"."Value"
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS "s"
+WHERE length("s"."Value") = 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_ToUpper_String_Length(async);
+
+        AssertSql(
+            """
+SELECT "s"."Value"
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS "s"
+WHERE length(upper("s"."Value")) = 0
+""");
+    }
+
     protected override DbParameter CreateDbParameter(string name, object value)
         => new SqliteParameter { ParameterName = name, Value = value };
 
