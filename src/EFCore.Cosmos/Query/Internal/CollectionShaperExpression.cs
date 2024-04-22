@@ -9,7 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CollectionShaperExpression : Expression, IPrintableExpression
+public class CollectionShaperExpression(
+    Expression projection,
+    Expression innerShaper,
+    INavigationBase? navigation,
+    Type elementType)
+    : Expression, IPrintableExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,20 +22,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CollectionShaperExpression(
-        Expression projection,
-        Expression innerShaper,
-        INavigationBase? navigation,
-        Type elementType)
-    {
-        Check.NotNull(projection, nameof(projection));
-        Check.NotNull(innerShaper, nameof(innerShaper));
-
-        Projection = projection;
-        InnerShaper = innerShaper;
-        Navigation = navigation;
-        ElementType = elementType;
-    }
+    public virtual Expression Projection { get; } = projection;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +30,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Projection { get; }
+    public virtual Expression InnerShaper { get; } = innerShaper;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +38,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression InnerShaper { get; }
+    public virtual INavigationBase? Navigation { get; } = navigation;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,15 +46,7 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigationBase? Navigation { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Type ElementType { get; }
+    public virtual Type ElementType { get; } = elementType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,8 +74,6 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        Check.NotNull(visitor, nameof(visitor));
-
         var projection = visitor.Visit(Projection);
         var innerShaper = visitor.Visit(InnerShaper);
 
@@ -107,14 +89,9 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     public virtual CollectionShaperExpression Update(
         Expression projection,
         Expression innerShaper)
-    {
-        Check.NotNull(projection, nameof(projection));
-        Check.NotNull(innerShaper, nameof(innerShaper));
-
-        return projection != Projection || innerShaper != InnerShaper
+        => projection != Projection || innerShaper != InnerShaper
             ? new CollectionShaperExpression(projection, innerShaper, Navigation, ElementType)
             : this;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -124,8 +101,6 @@ public class CollectionShaperExpression : Expression, IPrintableExpression
     /// </summary>
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
         expressionPrinter.AppendLine("CollectionShaper:");
         using (expressionPrinter.Indent())
         {

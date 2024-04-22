@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosMathTranslator : IMethodCallTranslator
+public class CosmosMathTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
     private static readonly Dictionary<MethodInfo, string> SupportedMethodTranslations = new()
     {
@@ -71,19 +71,6 @@ public class CosmosMathTranslator : IMethodCallTranslator
         { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), [typeof(float)])!, "DEGREES" },
     };
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public CosmosMathTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -102,9 +89,9 @@ public class CosmosMathTranslator : IMethodCallTranslator
                 ? ExpressionExtensions.InferTypeMapping(arguments[0])
                 : ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
 
-            var newArguments = arguments.Select(e => _sqlExpressionFactory.ApplyTypeMapping(e, typeMapping!));
+            var newArguments = arguments.Select(e => sqlExpressionFactory.ApplyTypeMapping(e, typeMapping!));
 
-            return _sqlExpressionFactory.Function(
+            return sqlExpressionFactory.Function(
                 sqlFunctionName,
                 newArguments,
                 method.ReturnType,

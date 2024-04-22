@@ -797,201 +797,228 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         SqlExpression? sqlObject = null;
         List<SqlExpression> scalarArguments;
 
-        if (method.Name == nameof(object.Equals)
-            && methodCallExpression.Object != null
-            && arguments.Count == 1)
+        switch (methodCallExpression)
         {
-            var left = Visit(methodCallExpression.Object);
-            var right = Visit(RemoveObjectConvert(arguments[0]));
+            case
+            {
+                Method.Name: nameof(object.Equals),
+                Object: not null,
+                Arguments.Count: 1
+            }:
+            {
+                var left = Visit(methodCallExpression.Object);
+                var right = Visit(RemoveObjectConvert(arguments[0]));
 
-            if (TryRewriteStructuralTypeEquality(
-                    ExpressionType.Equal,
-                    left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
-                    right == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : right,
-                    equalsMethod: true,
-                    out var result))
-            {
-                return result;
-            }
+                if (TryRewriteStructuralTypeEquality(
+                        ExpressionType.Equal,
+                        left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
+                        right == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : right,
+                        equalsMethod: true,
+                        out var result))
+                {
+                    return result;
+                }
 
-            if (left is SqlExpression leftSql
-                && right is SqlExpression rightSql)
-            {
-                sqlObject = leftSql;
-                scalarArguments = [rightSql];
-            }
-            else
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-        }
-        else if (method.Name == nameof(object.Equals)
-                 && methodCallExpression.Object == null
-                 && arguments.Count == 2)
-        {
-            if (arguments[0].Type == typeof(object[])
-                && arguments[0] is NewArrayExpression)
-            {
-                return Visit(
-                    ConvertObjectArrayEqualityComparison(
-                        arguments[0], arguments[1]));
-            }
-
-            var left = Visit(RemoveObjectConvert(arguments[0]));
-            var right = Visit(RemoveObjectConvert(arguments[1]));
-
-            if (TryRewriteStructuralTypeEquality(
-                    ExpressionType.Equal,
-                    left == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : left,
-                    right == QueryCompilationContext.NotTranslatedExpression ? arguments[1] : right,
-                    equalsMethod: true,
-                    out var result))
-            {
-                return result;
-            }
-
-            if (left is SqlExpression leftSql
-                && right is SqlExpression rightSql)
-            {
-                scalarArguments = [leftSql, rightSql];
-            }
-            else
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-        }
-        else if (method.IsGenericMethod
-                 && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
-        {
-            var enumerable = Visit(arguments[0]);
-            var item = Visit(arguments[1]);
-
-            if (TryRewriteContainsEntity(
-                    enumerable,
-                    item == QueryCompilationContext.NotTranslatedExpression ? arguments[1] : item, out var result))
-            {
-                return result;
-            }
-
-            if (enumerable is SqlExpression sqlEnumerable
-                && item is SqlExpression sqlItem)
-            {
-                scalarArguments = [sqlEnumerable, sqlItem];
-            }
-            else
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-        }
-        else if (arguments.Count == 1
-                 && method.IsContainsMethod())
-        {
-            var enumerable = Visit(methodCallExpression.Object);
-            var item = Visit(arguments[0]);
-
-            if (TryRewriteContainsEntity(
-                    enumerable!,
-                    item == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : item, out var result))
-            {
-                return result;
-            }
-
-            if (enumerable is SqlExpression sqlEnumerable
-                && item is SqlExpression sqlItem)
-            {
-                sqlObject = sqlEnumerable;
-                scalarArguments = [sqlItem];
-            }
-            else
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-        }
-        // Translate EF.Functions.Greatest/Least.
-        // These are here rather than in a MethodTranslator since the parameter is an array, and that's not supported in regular
-        // translation.
-        else if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions)
-                 && method.IsGenericMethod
-                 && method.GetGenericMethodDefinition() is var genericMethodDefinition
-                 && (genericMethodDefinition == LeastMethodInfo || genericMethodDefinition == GreatestMethodInfo)
-                 && methodCallExpression.Arguments[1] is NewArrayExpression newArray)
-        {
-            var values = newArray.Expressions;
-            var translatedValues = new SqlExpression[values.Count];
-
-            for (var i = 0; i < values.Count; i++)
-            {
-                var value = values[i];
-                var visitedValue = Visit(value);
-
-                if (TranslationFailed(value, visitedValue, out var translatedValue))
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    sqlObject = leftSql;
+                    scalarArguments = [rightSql];
+                }
+                else
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                translatedValues[i] = translatedValue!;
+                break;
             }
 
-            var elementClrType = newArray.Type.GetElementType()!;
-
-            if (genericMethodDefinition == LeastMethodInfo
-                && _sqlExpressionFactory.TryCreateLeast(translatedValues, elementClrType, out var leastExpression))
+            case
             {
-                return leastExpression;
-            }
-
-            if (genericMethodDefinition == GreatestMethodInfo
-                && _sqlExpressionFactory.TryCreateGreatest(translatedValues, elementClrType, out var greatestExpression))
+                Method.Name: nameof(object.Equals),
+                Object: null,
+                Arguments.Count: 2
+            }:
             {
-                return greatestExpression;
-            }
-
-            throw new UnreachableException();
-        }
-        else
-        {
-            if (method.IsStatic
-                && arguments.Count > 0
-                && method.DeclaringType == typeof(Queryable))
-            {
-                // For queryable methods, either we translate the whole aggregate or we go to subquery mode
-                // We don't try to translate component-wise it. Providers should implement in subquery translation.
-                if (TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate))
+                if (arguments[0].Type == typeof(object[])
+                    && arguments[0] is NewArrayExpression)
                 {
-                    return translatedAggregate;
+                    return Visit(
+                        ConvertObjectArrayEqualityComparison(
+                            arguments[0], arguments[1]));
                 }
 
-                goto SubqueryTranslation;
-            }
+                var left = Visit(RemoveObjectConvert(arguments[0]));
+                var right = Visit(RemoveObjectConvert(arguments[1]));
 
-            scalarArguments = [];
-            if (!TryTranslateAsEnumerableExpression(methodCallExpression.Object, out enumerableExpression)
-                && TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out sqlObject))
-            {
-                goto SubqueryTranslation;
-            }
-
-            for (var i = 0; i < arguments.Count; i++)
-            {
-                var argument = arguments[i];
-                if (TryTranslateAsEnumerableExpression(argument, out var eea))
+                if (TryRewriteStructuralTypeEquality(
+                        ExpressionType.Equal,
+                        left == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : left,
+                        right == QueryCompilationContext.NotTranslatedExpression ? arguments[1] : right,
+                        equalsMethod: true,
+                        out var result))
                 {
-                    if (enumerableExpression != null)
+                    return result;
+                }
+
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    scalarArguments = [leftSql, rightSql];
+                }
+                else
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                break;
+            }
+
+            case
+            {
+                Method:
+                {
+                    Name: nameof(Enumerable.Contains),
+                    IsGenericMethod: true
+                }
+            } when method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains):
+            {
+                var enumerable = Visit(arguments[0]);
+                var item = Visit(arguments[1]);
+
+                if (TryRewriteContainsEntity(
+                        enumerable,
+                        item == QueryCompilationContext.NotTranslatedExpression ? arguments[1] : item, out var result))
+                {
+                    return result;
+                }
+
+                if (enumerable is SqlExpression sqlEnumerable
+                    && item is SqlExpression sqlItem)
+                {
+                    scalarArguments = [sqlEnumerable, sqlItem];
+                }
+                else
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                break;
+            }
+
+            case { Arguments: [var argument] } when method.IsContainsMethod():
+            {
+                var enumerable = Visit(methodCallExpression.Object);
+                var item = Visit(argument);
+
+                if (TryRewriteContainsEntity(
+                        enumerable!,
+                        item == QueryCompilationContext.NotTranslatedExpression ? argument : item, out var result))
+                {
+                    return result;
+                }
+
+                if (enumerable is SqlExpression sqlEnumerable
+                    && item is SqlExpression sqlItem)
+                {
+                    sqlObject = sqlEnumerable;
+                    scalarArguments = [sqlItem];
+                }
+                else
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                break;
+            }
+
+            // Translate EF.Functions.Greatest/Least.
+            // These are here rather than in a MethodTranslator since the parameter is an array, and that's not supported in regular
+            // translation.
+            case
+            {
+                Method:
+                {
+                    Name: nameof(RelationalDbFunctionsExtensions.Least) or nameof(RelationalDbFunctionsExtensions.Greatest),
+                    IsGenericMethod: true
+                },
+                Arguments: [_, NewArrayExpression newArray]
+            } when method.GetGenericMethodDefinition() is var genericMethodDefinition
+            && (genericMethodDefinition == LeastMethodInfo || genericMethodDefinition == GreatestMethodInfo):
+            {
+                var values = newArray.Expressions;
+                var translatedValues = new SqlExpression[values.Count];
+
+                for (var i = 0; i < values.Count; i++)
+                {
+                    var value = values[i];
+                    var visitedValue = Visit(value);
+
+                    if (TranslationFailed(value, visitedValue, out var translatedValue))
                     {
-                        goto SubqueryTranslation;
+                        return QueryCompilationContext.NotTranslatedExpression;
                     }
 
-                    enumerableExpression = eea;
-                    continue;
+                    translatedValues[i] = translatedValue!;
                 }
 
-                var visitedArgument = Visit(argument);
-                if (TranslationFailed(argument, visitedArgument, out var sqlArgument))
+                var elementClrType = newArray.Type.GetElementType()!;
+
+                if (genericMethodDefinition == LeastMethodInfo
+                    && _sqlExpressionFactory.TryCreateLeast(translatedValues, elementClrType, out var leastExpression))
                 {
-                    goto SubqueryTranslation;
+                    return leastExpression;
                 }
 
-                scalarArguments.Add(sqlArgument!);
+                if (genericMethodDefinition == GreatestMethodInfo
+                    && _sqlExpressionFactory.TryCreateGreatest(translatedValues, elementClrType, out var greatestExpression))
+                {
+                    return greatestExpression;
+                }
+
+                throw new UnreachableException();
+            }
+
+            // For queryable methods, either we translate the whole aggregate or we go to subquery mode
+            // We don't try to translate component-wise it. Providers should implement in subquery translation.
+            case { Method.IsStatic: true, Arguments.Count: > 0 } when method.DeclaringType == typeof(Queryable):
+                return TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate)
+                    ? translatedAggregate
+                    : TranslateAsSubquery(methodCallExpression);
+
+            default:
+            {
+                scalarArguments = [];
+                if (!TryTranslateAsEnumerableExpression(methodCallExpression.Object, out enumerableExpression)
+                    && TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out sqlObject))
+                {
+                    return TranslateAsSubquery(methodCallExpression);
+                }
+
+                for (var i = 0; i < arguments.Count; i++)
+                {
+                    var argument = arguments[i];
+                    if (TryTranslateAsEnumerableExpression(argument, out var eea))
+                    {
+                        if (enumerableExpression != null)
+                        {
+                            return TranslateAsSubquery(methodCallExpression);
+                        }
+
+                        enumerableExpression = eea;
+                        continue;
+                    }
+
+                    var visitedArgument = Visit(argument);
+                    if (TranslationFailed(argument, visitedArgument, out var sqlArgument))
+                    {
+                        return TranslateAsSubquery(methodCallExpression);
+                    }
+
+                    scalarArguments.Add(sqlArgument!);
+                }
+
+                break;
             }
         }
 
@@ -1005,26 +1032,35 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return translation;
         }
 
-        if (method == StringEqualsWithStringComparison
-            || method == StringEqualsWithStringComparisonStatic)
+        var subqueryTranslation = TranslateAsSubquery(methodCallExpression);
+        if (subqueryTranslation == QueryCompilationContext.NotTranslatedExpression)
         {
-            AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-        }
-        else
-        {
-            AddTranslationErrorDetails(
-                CoreStrings.QueryUnableToTranslateMethod(
-                    method.DeclaringType?.DisplayName(),
-                    method.Name));
+            if (method == StringEqualsWithStringComparison
+                || method == StringEqualsWithStringComparisonStatic)
+            {
+                AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+            }
+            else
+            {
+                AddTranslationErrorDetails(
+                    CoreStrings.QueryUnableToTranslateMethod(
+                        method.DeclaringType?.DisplayName(),
+                        method.Name));
+            }
+
+            return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        // Subquery case
-        SubqueryTranslation:
-        var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
+        return subqueryTranslation;
 
-        return subqueryTranslation == null
-            ? QueryCompilationContext.NotTranslatedExpression
-            : Visit(subqueryTranslation);
+        Expression TranslateAsSubquery(Expression expression)
+        {
+            var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(expression);
+
+            return subqueryTranslation == null
+                ? QueryCompilationContext.NotTranslatedExpression
+                : Visit(subqueryTranslation);
+        }
     }
 
     /// <inheritdoc />

@@ -14,22 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlConstantExpression : SqlExpression
+public class SqlConstantExpression(ConstantExpression constantExpression, CoreTypeMapping? typeMapping)
+    : SqlExpression(constantExpression.Type, typeMapping)
 {
-    private readonly ConstantExpression _constantExpression;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlConstantExpression(ConstantExpression constantExpression, CoreTypeMapping? typeMapping)
-        : base(constantExpression.Type, typeMapping)
-    {
-        _constantExpression = constantExpression;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -37,7 +24,7 @@ public class SqlConstantExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object? Value
-        => _constantExpression.Value;
+        => constantExpression.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +33,7 @@ public class SqlConstantExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
-        => new SqlConstantExpression(_constantExpression, typeMapping ?? TypeMapping);
+        => new SqlConstantExpression(constantExpression, typeMapping ?? TypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
