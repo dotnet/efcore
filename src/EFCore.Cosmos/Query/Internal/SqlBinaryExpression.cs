@@ -35,12 +35,8 @@ public class SqlBinaryExpression : SqlExpression
         ExpressionType.LeftShift
     };
 
-    private static ExpressionType VerifyOperator(ExpressionType operatorType)
-        => AllowedOperators.Contains(operatorType)
-            ? operatorType
-            : throw new InvalidOperationException(
-                CosmosStrings.UnsupportedOperatorForSqlExpression(
-                    operatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
+    internal static bool IsValidOperator(ExpressionType operatorType)
+        => AllowedOperators.Contains(operatorType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,8 +52,14 @@ public class SqlBinaryExpression : SqlExpression
         CoreTypeMapping? typeMapping)
         : base(type, typeMapping)
     {
-        OperatorType = VerifyOperator(operatorType);
+        if (!IsValidOperator(operatorType))
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.UnsupportedOperatorForSqlExpression(
+                    operatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
+        }
 
+        OperatorType = operatorType;
         Left = left;
         Right = right;
     }

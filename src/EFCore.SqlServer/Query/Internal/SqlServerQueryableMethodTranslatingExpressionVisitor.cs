@@ -669,7 +669,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             _annotationApplyingFunc = annotationApplyingFunc;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => expression is TableExpression tableExpression
                 ? _annotationApplyingFunc(tableExpression)

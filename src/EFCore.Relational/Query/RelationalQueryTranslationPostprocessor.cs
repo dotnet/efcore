@@ -88,7 +88,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
 #if DEBUG
     private sealed class SelectExpressionMutableVerifyingExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)

@@ -20,12 +20,8 @@ public class SqlUnaryExpression : SqlExpression
         ExpressionType.UnaryPlus
     };
 
-    private static ExpressionType VerifyOperator(ExpressionType operatorType)
-        => AllowedOperators.Contains(operatorType)
-            ? operatorType
-            : throw new InvalidOperationException(
-                CosmosStrings.UnsupportedOperatorForSqlExpression(
-                    operatorType, typeof(SqlUnaryExpression).ShortDisplayName()));
+    internal static bool IsValidOperator(ExpressionType operatorType)
+        => AllowedOperators.Contains(operatorType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +36,14 @@ public class SqlUnaryExpression : SqlExpression
         CoreTypeMapping? typeMapping)
         : base(type, typeMapping)
     {
-        OperatorType = VerifyOperator(operatorType);
+        if (!IsValidOperator(operatorType))
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.UnsupportedOperatorForSqlExpression(
+                    operatorType, typeof(SqlUnaryExpression).ShortDisplayName()));
+        }
+
+        OperatorType = operatorType;
         Operand = operand;
     }
 

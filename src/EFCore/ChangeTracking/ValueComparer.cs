@@ -147,7 +147,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </remarks>
     /// <param name="instance">The instance.</param>
     /// <returns>The snapshot.</returns>
-    [return: NotNullIfNotNull("instance")]
+    [return: NotNullIfNotNull(nameof(instance))]
     public abstract object? Snapshot(object? instance);
 
     /// <summary>
