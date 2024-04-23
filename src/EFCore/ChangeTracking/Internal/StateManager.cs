@@ -1282,7 +1282,7 @@ public class StateManager : IStateManager
 
         try
         {
-            EntityFrameworkEventSource.Log.SavingChanges();
+            EntityFrameworkMetricsData.ReportSavingChanges();
 
             return _database.SaveChanges(entriesToSave);
         }
@@ -1306,7 +1306,7 @@ public class StateManager : IStateManager
 
         try
         {
-            EntityFrameworkEventSource.Log.SavingChanges();
+            EntityFrameworkMetricsData.ReportSavingChanges();
 
             return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
                 .ConfigureAwait(false);

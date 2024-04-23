@@ -152,7 +152,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                            EntityFrameworkMetricsData.ReportQueryExecuting();
 
                             _enumerator = _cosmosQueryContext.CosmosClient
                                 .ExecuteSqlQuery(
@@ -250,7 +250,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                            EntityFrameworkMetricsData.ReportQueryExecuting();
 
                             _enumerator = _cosmosQueryContext.CosmosClient
                                 .ExecuteSqlQueryAsync(

@@ -155,7 +155,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             {
                 if (_enumerator == null)
                 {
-                    EntityFrameworkEventSource.Log.QueryExecuting();
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
 
                     _enumerator = _innerEnumerable.GetEnumerator();
                     _queryContext.InitializeStateManager(_standAloneStateManager);

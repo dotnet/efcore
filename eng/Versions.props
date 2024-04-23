@@ -40,5 +40,6 @@
     <MicrosoftCodeAnalysisVersion>4.8.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisTestingVersion>1.1.2-beta1.24121.1</MicrosoftCodeAnalysisTestingVersion>
     <AzureIdentityVersion>1.11.3</AzureIdentityVersion>
+    <OpenTelemetryExporterInMemoryVersion>1.8.1</OpenTelemetryExporterInMemoryVersion>
   </PropertyGroup>
 </Project>
