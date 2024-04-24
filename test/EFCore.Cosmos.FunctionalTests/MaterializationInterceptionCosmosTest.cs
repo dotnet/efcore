@@ -36,14 +36,6 @@ public class MaterializationInterceptionCosmosTest :
     public override Task Intercept_query_materialization_for_empty_constructor(bool inject, bool usePooling)
         => base.Intercept_query_materialization_for_empty_constructor(inject, usePooling);
 
-
-
-    
-
-
-
-
-
     protected override ITestStoreFactory TestStoreFactory
         => CosmosTestStoreFactory.Instance;
 }
