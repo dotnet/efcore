@@ -70,15 +70,15 @@ namespace TestNamespace
             id.TypeMapping = GuidTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
-                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => ((object)v).GetHashCode(),
                     (Guid v) => v),
                 keyComparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
-                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => ((object)v).GetHashCode(),
                     (Guid v) => v),
                 providerValueComparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
-                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => ((object)v).GetHashCode(),
                     (Guid v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "uniqueidentifier"));
@@ -92,15 +92,15 @@ namespace TestNamespace
             condition.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nchar(256)",
@@ -197,15 +197,15 @@ namespace TestNamespace
             date.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nchar(256)",
@@ -217,15 +217,15 @@ namespace TestNamespace
             isDateStatic.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 keyComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 providerValueComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v));
             isDateStatic.AddAnnotation("MyGuid", new Guid("00000000-0000-0000-0000-000000000000"));
             functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+DbFunctionContext.IsDateStatic(string)"] = isDateStatic;

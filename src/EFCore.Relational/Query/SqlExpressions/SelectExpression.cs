@@ -63,18 +63,75 @@ public sealed partial class SelectExpression : TableExpressionBase
     public SelectExpression(
         string? alias,
         List<TableExpressionBase> tables,
+        SqlExpression? predicate,
+        List<SqlExpression> groupBy,
+        SqlExpression? having,
+        List<ProjectionExpression> projections,
+        bool distinct,
+        List<OrderingExpression> orderings,
+        SqlExpression? offset,
+        SqlExpression? limit,
+        ISet<string> tags,
+        IReadOnlyDictionary<string, IAnnotation>? annotations,
+        SqlAliasManager? sqlAliasManager,
+        bool isMutable)
+        : base(alias, annotations)
+    {
+        Check.DebugAssert(!(isMutable && sqlAliasManager is null), "Need SqlAliasManager when the SelectExpression is mutable");
+
+        _tables = tables;
+        Predicate = predicate;
+        _groupBy = groupBy;
+        Having = having;
+        _projection = projections;
+        IsDistinct = distinct;
+        _orderings = orderings;
+        Offset = offset;
+        Limit = limit;
+        Tags = tags;
+        IsMutable = isMutable;
+
+        _sqlAliasManager = sqlAliasManager!;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public SelectExpression(
+        string? alias,
+        IReadOnlyList<TableExpressionBase> tables,
+        SqlExpression? predicate,
+        IReadOnlyList<SqlExpression> groupBy,
+        SqlExpression? having,
+        IReadOnlyList<ProjectionExpression> projections,
+        bool distinct,
+        IReadOnlyList<OrderingExpression> orderings,
+        SqlExpression? offset,
+        SqlExpression? limit,
+        IReadOnlySet<string> tags,
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
+        : this(alias, tables.ToList(), predicate, groupBy.ToList(), having, projections.ToList(), distinct, orderings.ToList(),
+            offset, limit, tags.ToHashSet(), annotations, sqlAliasManager: null, isMutable: false)
+    {
+    }
+
+    private SelectExpression(
+        string? alias,
+        List<TableExpressionBase> tables,
         List<SqlExpression> groupBy,
         List<ProjectionExpression> projections,
         List<OrderingExpression> orderings,
         IReadOnlyDictionary<string, IAnnotation>? annotations,
         SqlAliasManager sqlAliasManager)
-        : base(alias, annotations)
+        : this(
+            alias, tables, predicate: null, groupBy: groupBy, having: null, projections: projections, distinct: false, orderings: orderings, offset: null,
+            limit: null, tags: new HashSet<string>(),
+            annotations: annotations, sqlAliasManager: sqlAliasManager, isMutable: true)
     {
-        _projection = projections;
-        _tables = tables;
-        _groupBy = groupBy;
-        _orderings = orderings;
-        _sqlAliasManager = sqlAliasManager;
     }
 
     /// <summary>
@@ -119,7 +176,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     // should have an alias manager at all, so this is temporary).
     [EntityFrameworkInternal]
     public static SelectExpression CreateImmutable(string alias, List<TableExpressionBase> tables, List<ProjectionExpression> projection)
-        => new(alias, tables, groupBy: [], projections: projection, orderings: [], annotations: null, sqlAliasManager: null!) { IsMutable = false };
+        => new(
+            alias, tables, predicate: null, groupBy: [], having: null, projections: projection, distinct: false, orderings: [],
+            offset: null, limit: null,
+            tags: new HashSet<string>(), sqlAliasManager: null, annotations: new Dictionary<string, IAnnotation>(),
+            isMutable: false);
 
     /// <summary>
     ///     The list of tags applied to this <see cref="SelectExpression" />.
@@ -3758,17 +3819,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         var limit = (SqlExpression?)cloningExpressionVisitor.Visit(Limit);
 
         var newSelectExpression = new SelectExpression(
-            alias, newTables, newGroupBy, newProjections, newOrderings, Annotations, _sqlAliasManager)
+            alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset, limit,
+            Tags, Annotations, _sqlAliasManager, IsMutable)
         {
-            Predicate = predicate,
-            Having = havingExpression,
-            Offset = offset,
-            Limit = limit,
-            IsDistinct = IsDistinct,
-            Tags = Tags,
             _projectionMapping = newProjectionMappings,
             _clientProjections = newClientProjections,
-            IsMutable = IsMutable
         };
 
         foreach (var (column, comparer) in _identifier)
@@ -4060,17 +4115,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (changed)
             {
                 var newSelectExpression = new SelectExpression(
-                    Alias, newTables, newGroupBy, newProjections, newOrderings, Annotations, _sqlAliasManager)
+                    Alias, newTables, predicate, newGroupBy, havingExpression, newProjections, IsDistinct, newOrderings, offset,
+                    limit, (IReadOnlySet<string>)Tags, Annotations)
                 {
                     _clientProjections = _clientProjections,
-                    _projectionMapping = _projectionMapping,
-                    Predicate = predicate,
-                    Having = havingExpression,
-                    Offset = offset,
-                    Limit = limit,
-                    IsDistinct = IsDistinct,
-                    Tags = Tags,
-                    IsMutable = false
+                    _projectionMapping = _projectionMapping
                 };
 
                 newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
@@ -4129,25 +4178,25 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>
-    /// <param name="projections">The <see cref="Projection" /> property of the result.</param>
     /// <param name="tables">The <see cref="Tables" /> property of the result.</param>
     /// <param name="predicate">The <see cref="Predicate" /> property of the result.</param>
     /// <param name="groupBy">The <see cref="GroupBy" /> property of the result.</param>
     /// <param name="having">The <see cref="Having" /> property of the result.</param>
+    /// <param name="projections">The <see cref="Projection" /> property of the result.</param>
     /// <param name="orderings">The <see cref="Orderings" /> property of the result.</param>
-    /// <param name="limit">The <see cref="Limit" /> property of the result.</param>
     /// <param name="offset">The <see cref="Offset" /> property of the result.</param>
+    /// <param name="limit">The <see cref="Limit" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     // This does not take internal states since when using this method SelectExpression should be finalized
     public SelectExpression Update(
-        IReadOnlyList<ProjectionExpression> projections,
         IReadOnlyList<TableExpressionBase> tables,
         SqlExpression? predicate,
         IReadOnlyList<SqlExpression> groupBy,
         SqlExpression? having,
+        IReadOnlyList<ProjectionExpression> projections,
         IReadOnlyList<OrderingExpression> orderings,
-        SqlExpression? limit,
-        SqlExpression? offset)
+        SqlExpression? offset,
+        SqlExpression? limit)
     {
         if (IsMutable)
         {
@@ -4160,8 +4209,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             && groupBy == GroupBy
             && having == Having
             && orderings == Orderings
-            && limit == Limit
-            && offset == Offset)
+            && offset == Offset
+            && limit == Limit)
         {
             return this;
         }
@@ -4173,17 +4222,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         var newSelectExpression = new SelectExpression(
-            Alias, tables.ToList(), groupBy.ToList(), projections.ToList(), orderings.ToList(), Annotations, _sqlAliasManager)
+            Alias, tables, predicate, groupBy, having, projections, IsDistinct, orderings, offset, limit,
+            (IReadOnlySet<string>)Tags, Annotations)
         {
             _projectionMapping = projectionMapping,
-            _clientProjections = _clientProjections.ToList(),
-            Predicate = predicate,
-            Having = having,
-            Offset = offset,
-            Limit = limit,
-            IsDistinct = IsDistinct,
-            Tags = Tags,
-            IsMutable = false
+            _clientProjections = _clientProjections.ToList()
         };
 
         // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
@@ -4201,17 +4244,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         Check.DebugAssert(!IsMutable, "Can't change alias on mutable SelectExpression");
 
-        return new SelectExpression(newAlias, _tables, _groupBy, _projection, _orderings, Annotations, _sqlAliasManager)
+        return new SelectExpression(
+            newAlias, _tables, Predicate, _groupBy, Having, _projection, IsDistinct, _orderings, Offset, Limit, Tags,
+            Annotations, _sqlAliasManager, isMutable: false)
         {
-            _projectionMapping = _projectionMapping,
-            _clientProjections = _clientProjections.ToList(),
-            Predicate = Predicate,
-            Having = Having,
-            Offset = Offset,
-            Limit = Limit,
-            IsDistinct = IsDistinct,
-            Tags = Tags,
-            IsMutable = false
+            _projectionMapping = _projectionMapping, _clientProjections = _clientProjections.ToList(),
         };
     }
 
@@ -4228,8 +4265,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 typeof(IReadOnlyList<ProjectionExpression>), // projections
                 typeof(bool), // distinct
                 typeof(IReadOnlyList<OrderingExpression>), // orderings
-                typeof(SqlExpression), // limit
                 typeof(SqlExpression), // offset
+                typeof(SqlExpression), // limit
                 typeof(IReadOnlySet<string>), // tags
                 typeof(IReadOnlyDictionary<string, IAnnotation>) // annotations
             ])!,
@@ -4243,8 +4280,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             NewArrayInit(typeof(ProjectionExpression), initializers: Projection.Select(p => p.Quote())),
             Constant(IsDistinct),
             NewArrayInit(typeof(OrderingExpression), initializers: Orderings.Select(o => o.Quote())),
-            RelationalExpressionQuotingUtilities.QuoteOrNull(Limit),
             RelationalExpressionQuotingUtilities.QuoteOrNull(Offset),
+            RelationalExpressionQuotingUtilities.QuoteOrNull(Limit),
             RelationalExpressionQuotingUtilities.QuoteTags(Tags),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 

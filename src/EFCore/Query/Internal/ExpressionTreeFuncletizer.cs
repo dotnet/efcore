@@ -40,6 +40,11 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private bool _calculatingPath;
 
     /// <summary>
+    ///     Indicates whether performing parameter extraction on a precompiled query.
+    /// </summary>
+    private bool _precompiledQuery;
+
+    /// <summary>
     ///     Indicates whether we should parameterize. Is false in compiled query mode, as well as when we're handling query filters from
     ///     NavigationExpandingExpressionVisitor.
     /// </summary>
@@ -94,6 +99,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     private static readonly MethodInfo ReadOnlyCollectionIndexerGetter = typeof(ReadOnlyCollection<Expression>).GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
 
+    private static readonly MethodInfo ReadOnlyElementInitCollectionIndexerGetter = typeof(ReadOnlyCollection<ElementInit>)
+        .GetProperties()
+        .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
+
     private static readonly MethodInfo ReadOnlyMemberBindingCollectionIndexerGetter = typeof(ReadOnlyCollection<MemberBinding>)
         .GetProperties()
         .Single(p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int)).GetMethod!;
@@ -140,11 +149,13 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     public virtual Expression ExtractParameters(
         Expression expression,
         IParameterValues parameterValues,
+        bool precompiledQuery,
         bool parameterize,
         bool clearParameterizedValues)
     {
         Reset(clearParameterizedValues);
         _parameterValues = parameterValues;
+        _precompiledQuery = precompiledQuery;
         _parameterize = parameterize;
         _calculatingPath = false;
 
@@ -162,6 +173,23 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     }
 
     /// <summary>
+    ///     Resets the funcletizer in preparation for multiple path calculations (i.e. for the same query). After this is called,
+    ///     <see cref="CalculatePathsToEvaluatableRoots(MethodCallExpression, int)" /> can be called multiple times, preserving state
+    ///     between calls.
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual void ResetPathCalculation()
+    {
+        Reset();
+        _calculatingPath = true;
+        _parameterize = true;
+
+        // In precompilation mode we don't actually extract parameter values; but we do need to generate the parameter names, using the
+        // same logic (and via the same code) used in parameter extraction, and that logic requires _parameterValues.
+        _parameterValues = new DummyParameterValues();
+    }
+
+    /// <summary>
     ///     Processes an expression tree, locates references to captured variables and returns information on how to extract them from
     ///     expression trees with the same shape. Used to generate C# code for query precompilation.
     /// </summary>
@@ -172,17 +200,74 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public virtual PathNode? CalculatePathsToEvaluatableRoots(MethodCallExpression linqOperatorMethodCall, int argumentIndex)
+    {
+        var argument = linqOperatorMethodCall.Arguments[argumentIndex];
+        if (argument is UnaryExpression { NodeType: ExpressionType.Quote } quote)
+        {
+            argument = quote.Operand;
+        }
+
+        var root = Visit(argument, out var state);
+
+        // If the top-most node in the tree is evaluatable, that means we have a non-lambda parameter to the LINQ operator (e.g. Skip/Take).
+        // We make sure to return a path containing the argument; note that since we're not in a lambda, the argument will always be
+        // parameterized since we're not inside a lambda (e.g. Skip/Take), except for [NotParameterized].
+        if (state.IsEvaluatable
+            && IsParameterParameterizable(linqOperatorMethodCall.Method, linqOperatorMethodCall.Method.GetParameters()[argumentIndex]))
+        {
+            _ = Evaluate(root, out var parameterName, out _);
+
+            state = new()
+            {
+                StateType = StateType.ContainsEvaluatable,
+                Path = new()
+                {
+                    ExpressionType = state.ExpressionType!,
+                    ParameterName = parameterName,
+                    Children = Array.Empty<PathNode>()
+                }
+            };
+        }
+
+        return state.Path;
+    }
+
+    /// <summary>
+    ///     Processes an expression tree, locates references to captured variables and returns information on how to extract them from
+    ///     expression trees with the same shape. Used to generate C# code for query precompilation.
+    /// </summary>
+    /// <returns>A tree representing the path to each evaluatable root node in the tree.</returns>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual PathNode? CalculatePathsToEvaluatableRoots(Expression expression)
     {
-        Reset();
-        _calculatingPath = true;
-        _parameterize = true;
+        var root = Visit(expression, out var state);
 
-        // In precompilation mode we don't actually extract parameter values; but we do need to generate the parameter names, using the
-        // same logic (and via the same code) used in parameter extraction, and that logic requires _parameterValues.
-        _parameterValues = new DummyParameterValues();
+        // If the top-most node in the tree is evaluatable, that means we have a non-lambda parameter to the LINQ operator (e.g. Skip/Take).
+        // We make sure to return a path containing the argument; note that since we're not in a lambda, the argument will always be
+        // parameterized since we're not inside a lambda (e.g. Skip/Take), except for [NotParameterized].
+        if (state.IsEvaluatable)
+        {
+            _ = Evaluate(root, out var parameterName, out _);
 
-        _ = Visit(expression, out var state);
+            state = new()
+            {
+                StateType = StateType.ContainsEvaluatable,
+                Path = new()
+                {
+                    ExpressionType = state.ExpressionType!,
+                    ParameterName = parameterName,
+                    Children = Array.Empty<PathNode>()
+                }
+            };
+        }
 
         return state.Path;
     }
@@ -798,7 +883,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     if (_calculatingPath)
                     {
-                        throw new InvalidOperationException("EF.Constant is not supported when using precompiled queries");
+                        throw new InvalidOperationException(CoreStrings.EFConstantNotSupportedInPrecompiledQueries);
                     }
 
                     var argument = Visit(methodCall.Arguments[0], out var argumentState);
@@ -888,17 +973,24 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
 
                 // To support [NotParameterized] and indexer method arguments - which force evaluation as constant - go over the parameters
                 // and modify the states as needed
-                ParameterInfo[]? parameterInfos = null;
+                ParameterInfo[]? parameters = null;
                 for (var i = 0; i < methodCall.Arguments.Count; i++)
                 {
                     var argumentState = argumentStates[i];
 
                     if (argumentState.IsEvaluatable)
                     {
-                        parameterInfos ??= methodCall.Method.GetParameters();
-                        if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() is not null
-                            || _model.IsIndexerMethod(methodCall.Method))
+                        parameters ??= methodCall.Method.GetParameters();
+                        if (!IsParameterParameterizable(methodCall.Method, parameters[i]))
                         {
+                            if (argumentState.StateType is StateType.EvaluatableWithCapturedVariable && _precompiledQuery)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.NotParameterizedAttributeWithNonConstantNotSupportedInPrecompiledQueries(
+                                        parameters[i].Name,
+                                        method.Name));
+                            }
+
                             argumentStates[i] = argumentState with
                             {
                                 StateType = StateType.EvaluatableWithoutCapturedVariable, ForceConstantization = true
@@ -1140,7 +1232,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                     // Avoid allocating for the notEvaluatableAsRootHandler closure below unless we actually end up in the evaluatable case
                     var (memberInit2, new2, newState2, bindings2, bindingStates2) = (memberInit, @new, newState, bindings, bindingStates);
                     _state = State.CreateEvaluatable(
-                        typeof(InvocationExpression),
+                        typeof(MemberInitExpression),
                         state is StateType.EvaluatableWithCapturedVariable,
                         notEvaluatableAsRootHandler: () => EvaluateChildren(memberInit2, new2, newState2, bindings2, bindingStates2));
                     break;
@@ -1299,7 +1391,7 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     children =
                     [
-                        newState.Path! with { PathFromParent = static e => Property(e, nameof(MethodCallExpression.Object)) }
+                        newState.Path! with { PathFromParent = static e => Property(e, nameof(ListInitExpression.NewExpression)) }
                     ];
                 }
 
@@ -1307,17 +1399,24 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                 {
                     var initializer = initializers[i];
 
+                    // listInit.Initializers[0].Arguments[1]
+                    var initializerIndex = i;
                     var visitedArguments = EvaluateList(
                         visitedInitializersArguments is null
                             ? initializer.Arguments
                             : visitedInitializersArguments[i],
                         initializerArgumentStates[i],
                         ref children,
-                        static i => e =>
+                        j => e =>
                             Call(
-                                Property(e, nameof(MethodCallExpression.Arguments)),
+                                Property(
+                                    Call(
+                                        Property(e, nameof(ListInitExpression.Initializers)),
+                                        ReadOnlyElementInitCollectionIndexerGetter,
+                                        arguments: [Constant(initializerIndex)]),
+                                    nameof(System.Linq.Expressions.ElementInit.Arguments)),
                                 ReadOnlyCollectionIndexerGetter,
-                                arguments: [Constant(i)]));
+                                arguments: [Constant(j)]));
 
                     if (visitedArguments is not null && visitedInitializersArguments is null)
                     {
@@ -1963,6 +2062,10 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
             && (_parameterize
                 // Don't evaluate QueryableMethods if in compiled query
                 || !(expression is MethodCallExpression { Method: var method } && method.DeclaringType == typeof(Queryable)));
+
+    private bool IsParameterParameterizable(MethodInfo method, ParameterInfo parameter)
+        => parameter.GetCustomAttribute<NotParameterizedAttribute>() is null
+            && !_model.IsIndexerMethod(method);
 
     private enum StateType
     {

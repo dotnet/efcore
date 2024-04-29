@@ -135,14 +135,14 @@ public sealed class SqlServerJsonPostprocessor(
                     if (newTables is not null)
                     {
                         result = selectExpression.Update(
-                            selectExpression.Projection,
                             newTables,
                             selectExpression.Predicate,
                             selectExpression.GroupBy,
                             selectExpression.Having,
+                            selectExpression.Projection,
                             selectExpression.Orderings,
-                            selectExpression.Limit,
-                            selectExpression.Offset);
+                            selectExpression.Offset,
+                            selectExpression.Limit);
                     }
 
                     // when we mark columns for rewrite we don't yet have the updated SelectExpression, so we store the info in temporary dictionary
@@ -165,14 +165,14 @@ public sealed class SqlServerJsonPostprocessor(
                 if (_openjsonOuterAppliesToAdd.Count > 0)
                 {
                     result = result.Update(
-                        result.Projection,
                         [.. result.Tables, .. _openjsonOuterAppliesToAdd],
                         result.Predicate,
                         result.GroupBy,
                         result.Having,
+                        result.Projection,
                         result.Orderings,
-                        result.Limit,
-                        result.Offset);
+                        result.Offset,
+                        result.Limit);
 
                     _openjsonOuterAppliesToAdd.Clear();
                 }

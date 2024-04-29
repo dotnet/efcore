@@ -71,11 +71,27 @@ public class QueryCompilationContext
     public QueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         bool async)
+        : this(dependencies, async, precompiling: false)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+    /// <param name="async">A bool value indicating whether it is for async query.</param>
+    /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    public QueryCompilationContext(
+        QueryCompilationContextDependencies dependencies,
+        bool async,
+        bool precompiling)
     {
         Dependencies = dependencies;
         IsAsync = async;
         QueryTrackingBehavior = dependencies.QueryTrackingBehavior;
         IsBuffering = ExecutionStrategy.Current?.RetriesOnFailure ?? dependencies.IsRetryingExecutionStrategy;
+        IsPrecompiling = precompiling;
         Model = dependencies.Model;
         ContextOptions = dependencies.ContextOptions;
         ContextType = dependencies.ContextType;
@@ -117,6 +133,11 @@ public class QueryCompilationContext
     ///     A value indicating whether the underlying server query needs to pre-buffer all data.
     /// </summary>
     public virtual bool IsBuffering { get; }
+
+    /// <summary>
+    ///     Indicates whether the query is being precompiled.
+    /// </summary>
+    public virtual bool IsPrecompiling { get; }
 
     /// <summary>
     ///     A value indicating whether query filters are ignored in this query.
@@ -170,7 +191,7 @@ public class QueryCompilationContext
         // across invocations of the query.
         // In normal mode, these nodes should simply be evaluated, and a ConstantExpression to those instances embedded directly in the
         // tree (for precompiled queries we generate C# code for resolving those instances instead).
-        var queryExecutorAfterLiftingExpression = 
+        var queryExecutorAfterLiftingExpression =
             (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(queryExecutorExpression, SupportsPrecompiledQuery);
 
         try
@@ -189,6 +210,7 @@ public class QueryCompilationContext
     /// <typeparam name="TResult">The result type of this query.</typeparam>
     /// <param name="query">The query to generate executor for.</param>
     /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual Expression<Func<QueryContext, TResult>> CreateQueryExecutorExpression<TResult>(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
@@ -207,11 +229,9 @@ public class QueryCompilationContext
         // wrap the query with code adding those parameters to the query context
         query = InsertRuntimeParameters(query);
 
-        var queryExecutorExpression = Expression.Lambda<Func<QueryContext, TResult>>(
+        return Expression.Lambda<Func<QueryContext, TResult>>(
             query,
             QueryContextParameter);
-
-        return queryExecutorExpression;
     }
 
     /// <summary>
@@ -226,7 +246,7 @@ public class QueryCompilationContext
         {
             valueExtractorBody = _runtimeParameterConstantLifter.Visit(valueExtractorBody);
         }
-       
+
         valueExtractor = Expression.Lambda(valueExtractorBody, valueExtractor.Parameters);
 
         if (valueExtractor.Parameters.Count != 1
