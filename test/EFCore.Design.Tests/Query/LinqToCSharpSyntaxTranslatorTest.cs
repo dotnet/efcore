@@ -1873,7 +1873,7 @@ catch (InvalidOperationException e)
 {
     LinqToCSharpSyntaxTranslatorTest.Bar();
 }
-catch (InvalidOperationException e)when (((Exception)e).Message == "foo")
+catch (InvalidOperationException e)when (e.Message == "foo")
 {
     LinqToCSharpSyntaxTranslatorTest.Baz();
 }
@@ -1904,7 +1904,7 @@ try
 {
     LinqToCSharpSyntaxTranslatorTest.Foo();
 }
-catch (InvalidOperationException e)when (((Exception)e).Message == "foo")
+catch (InvalidOperationException e)when (e.Message == "foo")
 {
     LinqToCSharpSyntaxTranslatorTest.Bar();
 }

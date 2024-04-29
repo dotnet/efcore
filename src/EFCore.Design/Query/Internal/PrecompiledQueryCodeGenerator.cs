@@ -282,7 +282,7 @@ public class PrecompiledQueryCodeGenerator
 namespace System.Runtime.CompilerServices
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    sealed class InterceptsLocationAttribute : Attribute
+    file sealed class InterceptsLocationAttribute : Attribute
     {
         public InterceptsLocationAttribute(string filePath, int line, int column) { }
     }

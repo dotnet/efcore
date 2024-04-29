@@ -1579,9 +1579,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                     // Static member
                     { Expression: null } => Generate(member.Member.DeclaringType!),
 
-                    // If the member isn't declared on the same type as the expression, (e.g. explicit interface implementation), add
-                    // a cast up to the declaring type.
-                    _ when member.Member.DeclaringType is Type declaringType && declaringType != member.Expression.Type
+                    // If the member is declared on an interface, add a cast up to it, to handle explicit interface implementation.
+                    _ when member.Member.DeclaringType is { IsInterface: true }
                         => ParenthesizedExpression(
                             CastExpression(Generate(member.Member.DeclaringType), Translate<ExpressionSyntax>(member.Expression))),
 
@@ -2055,10 +2054,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 initializer: null);
         }
 
-        if (node.Type.Namespace is not null)
-        {
-            AddNamespace(node.Type);
-        }
+        AddNamespace(node.Type);
 
         return node;
     }

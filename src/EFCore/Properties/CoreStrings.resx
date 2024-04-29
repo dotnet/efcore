@@ -1340,7 +1340,7 @@
     <value>'OnConfiguring' cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
   </data>
   <data name="PrecompiledQueryNotSupported" xml:space="preserve">
-    <value>Precompiled queries aren't supported by your EF provider.</value>
+    <value>Precompiled queries aren't supported by the current provider.</value>
   </data>
   <data name="PrimaryKeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have the [PrimaryKey] attribute since primary keys may only be declared on the root type. Move the attribute to '{rootType}', or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.</value>

@@ -468,7 +468,7 @@ public class ExpressionPrinter : ExpressionVisitor
                 break;
 
             case IQueryable queryable:
-                _stringBuilder.Append(Print(queryable.Expression));
+                Visit(queryable.Expression);
                 break;
 
             default:

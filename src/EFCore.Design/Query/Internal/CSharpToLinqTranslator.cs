@@ -91,7 +91,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     {
         if (_compilation is null)
         {
-            throw new InvalidOperationException("A compilation must be loaded.");
+            throw new InvalidOperationException(DesignStrings.CompilationMustBeLoaded);
         }
 
         Check.DebugAssert(
@@ -108,9 +108,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         }
 
         var result = Visit(node);
-
-        // TODO: Sanity check: make sure all captured variables in _capturedVariables have non-null values
-        // (i.e. have been encountered and referenced)
 
         Debug.Assert(_parameterStack.Count == 1);
         return result;
@@ -250,7 +247,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             SyntaxKind.LogicalOrExpression => OrElse(left, right),
             SyntaxKind.LogicalAndExpression => AndAlso(left, right),
 
-            // For bitwise operations over enums, we the enum to its underlying type before the bitwise operation, and then back to the
+            // For bitwise operations over enums, we cast the enum to its underlying type before the bitwise operation, and then back to the
             // enum afterwards (this is corresponds to the LINQ expression tree that the compiler generates)
             SyntaxKind.BitwiseOrExpression when left.Type.IsEnum || right.Type.IsEnum
                 => Convert(Or(Convert(left, left.Type.GetEnumUnderlyingType()), Convert(right, right.Type.GetEnumUnderlyingType())), left.Type),
@@ -334,10 +331,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                     .Select(t => t.Property)
                     .FirstOrDefault();
 
-                if (property?.GetMethod is null)
-                {
-                    throw new UnreachableException("No matching property found for ElementAccessExpressionSyntax");
-                }
+                Check.DebugAssert(property?.GetMethod is not null, "No matching property found for ElementAccessExpressionSyntax");
 
                 return Call(visitedExpression, property.GetMethod, arguments.Select(a => Visit(a.Expression)));
 
@@ -382,7 +376,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             case null:
                 throw new InvalidOperationException($"Identifier without symbol: {identifierName}");
             default:
-                throw new NotImplementedException($"IdentifierName of type {symbol.GetType().Name}: {identifierName}");
+                throw new UnreachableException($"IdentifierName of type {symbol.GetType().Name}: {identifierName}");
         }
 
         // TODO: Separate out EF Core-specific logic (EF Core would extend this visitor)
@@ -402,7 +396,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         // The Translate entry point into the translator uses Roslyn's data flow analysis to locate all captured variables, and populates
         // the _capturedVariable dictionary with them (with null values).
-        // TODO: Test closure over class member (not local variable)
         if (symbol is ILocalSymbol localSymbol && _capturedVariables.TryGetValue(localSymbol, out var memberExpression))
         {
             // The first time we see a captured variable, we create MemberExpression for it and cache it in _capturedVariables.
@@ -542,31 +535,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             // containing type (and recursively, its containing types)
             var typeTypeParameterMap = new Dictionary<string, Type>(GetTypeTypeParameters(methodSymbol.ContainingType));
 
-            IEnumerable<KeyValuePair<string, Type>> GetTypeTypeParameters(INamedTypeSymbol typeSymbol)
-            {
-                // TODO: We match Roslyn type parameters by name, not sure that's right; also for the method's generic type parameters
-
-                if (typeSymbol.ContainingType is INamedTypeSymbol containingTypeSymbol)
-                {
-                    foreach (var kvp in GetTypeTypeParameters(containingTypeSymbol))
-                    {
-                        yield return kvp;
-                    }
-                }
-
-                var type = ResolveType(typeSymbol);
-                var genericArguments = type.GetGenericArguments();
-
-                Check.DebugAssert(
-                    genericArguments.Length == typeSymbol.TypeParameters.Length,
-                    "genericArguments.Length == typeSymbol.TypeParameters.Length");
-
-                foreach (var (typeParamSymbol, typeParamType) in typeSymbol.TypeParameters.Zip(genericArguments))
-                {
-                    yield return new KeyValuePair<string, Type>(typeParamSymbol.Name, typeParamType);
-                }
-            }
-
             var definitionMethodInfos = declaringType.GetMethods()
                 .Where(m =>
                 {
@@ -703,8 +671,32 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         Check.DebugAssert(destArguments.All(a => a is not null), "arguments.All(a => a is not null)");
 
-        // TODO: Generic type arguments
         return Call(instance, methodInfo, destArguments!);
+
+        IEnumerable<KeyValuePair<string, Type>> GetTypeTypeParameters(INamedTypeSymbol typeSymbol)
+        {
+            // TODO: We match Roslyn type parameters by name, not sure that's right; also for the method's generic type parameters
+
+            if (typeSymbol.ContainingType is INamedTypeSymbol containingTypeSymbol)
+            {
+                foreach (var kvp in GetTypeTypeParameters(containingTypeSymbol))
+                {
+                    yield return kvp;
+                }
+            }
+
+            var type = ResolveType(typeSymbol);
+            var genericArguments = type.GetGenericArguments();
+
+            Check.DebugAssert(
+                genericArguments.Length == typeSymbol.TypeParameters.Length,
+                "genericArguments.Length == typeSymbol.TypeParameters.Length");
+
+            foreach (var (typeParamSymbol, typeParamType) in typeSymbol.TypeParameters.Zip(genericArguments))
+            {
+                yield return new KeyValuePair<string, Type>(typeParamSymbol.Name, typeParamType);
+            }
+        }
     }
 
     /// <summary>
@@ -846,7 +838,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
             default:
                 // Find the correct Add() method on the collection type
                 // TODO: This doesn't work if there are multiple Add() methods (contrived). Complete solution would be to find the base
-                // Type for all initializer expressions and find an Add overload of that type (or a superclass thereof)
+                // TODO: type for all initializer expressions and find an Add overload of that type (or a superclass thereof)
                 var addMethod = type.GetMethods().SingleOrDefault(m => m.Name == "Add" && m.GetParameters().Length == 1);
                 if (addMethod is null)
                 {
@@ -1175,8 +1167,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 // If we can't find the assembly, use the assembly where the user's DbContext type lives; this is primarily to support
                 // testing, where user code is in an assembly that's built as part of the the test and loaded into a specific
                 // AssemblyLoadContext (which gets unloaded later).
-
-                // TODO: Strings
                 assembly = _additionalAssembly
                     ?? throw new InvalidOperationException($"Could not load assembly for IAssemblySymbol '{assemblySymbol.Name}'");
             }

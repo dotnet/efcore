@@ -102,6 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CircularBaseClassDependency");
 
         /// <summary>
+        ///     A compilation must be loaded.
+        /// </summary>
+        public static string CompilationMustBeLoaded
+            => GetString("CompilationMustBeLoaded");
+
+        /// <summary>
         ///     The entity type '{entityType}' has a custom constructor binding. Compiled model can't be generated, because custom constructor bindings are not supported. Configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.
         /// </summary>
         public static string CompiledModelConstructorBinding(object? entityType, object? customize, object? className)

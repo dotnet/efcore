@@ -2354,7 +2354,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PoolingOptionsModified");
 
         /// <summary>
-        ///     Precompiled queries aren't supported by your EF provider.
+        ///     Precompiled queries aren't supported by the current provider.
         /// </summary>
         public static string PrecompiledQueryNotSupported
             => GetString("PrecompiledQueryNotSupported");
