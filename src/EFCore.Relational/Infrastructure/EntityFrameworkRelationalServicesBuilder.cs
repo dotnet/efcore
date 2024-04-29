@@ -152,7 +152,6 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>();
         TryAdd<IRawSqlCommandBuilder, RawSqlCommandBuilder>();
         TryAdd<ICommandBatchPreparer, CommandBatchPreparer>();
-        TryAdd<IResettableService, ICommandBatchPreparer>(p => p.GetRequiredService<ICommandBatchPreparer>());
         TryAdd<IModificationCommandFactory, ModificationCommandFactory>();
         TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
         TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();

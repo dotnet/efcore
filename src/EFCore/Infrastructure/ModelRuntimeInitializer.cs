@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -88,12 +89,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
             }
         }
 
-        if (designTime)
-        {
-            return model;
-        }
-
-        model = model.GetOrAddRuntimeAnnotationValue(
+        var finalizedModel = model.GetOrAddRuntimeAnnotationValue(
             CoreAnnotationNames.ReadOnlyModel,
             static model =>
             {
@@ -107,7 +103,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
             },
             model);
 
-        return model;
+        return designTime ? model : finalizedModel;
     }
 
     /// <summary>

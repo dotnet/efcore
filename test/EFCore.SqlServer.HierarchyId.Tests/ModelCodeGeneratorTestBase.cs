@@ -21,7 +21,7 @@ public abstract class ModelCodeGeneratorTestBase
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         buildModel(modelBuilder);
 
-        var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
+        var model = modelBuilder.FinalizeModel(designTime: true);
 
         var services = AddScaffoldingServices(CreateServices());
         var generator = services.BuildServiceProvider(validateScopes: true)
@@ -47,7 +47,7 @@ public abstract class ModelCodeGeneratorTestBase
     }
 
     protected virtual IServiceCollection AddModelServices(IServiceCollection services)
-        => services;
+        => services.AddEntityFrameworkSqlServerHierarchyId();
 
     protected virtual IServiceCollection AddScaffoldingServices(IServiceCollection services)
         => services;
