@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     public class CompiledModelInMemoryTest : CompiledModelTestBase
     {
         [ConditionalFact]
-        public virtual void Empty_model()
+        public virtual Task Empty_model()
             => Test(
                 modelBuilder => { },
                 model =>
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public class SelfReferentialProperty : List<SelfReferentialProperty>;
 
         [ConditionalFact]
-        public virtual void Throws_for_constructor_binding()
+        public virtual Task Throws_for_constructor_binding()
             => Test(
                 modelBuilder => modelBuilder.Entity(
                     "Lazy", e =>
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 expectedExceptionMessage: DesignStrings.CompiledModelConstructorBinding("Lazy", "Customize()", "LazyEntityType"));
 
         [ConditionalFact]
-        public virtual void Manual_lazy_loading()
+        public virtual Task Manual_lazy_loading()
             => Test(
                 modelBuilder => {
                     modelBuilder.Entity<LazyConstructorEntity>();
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         [ConditionalFact]
-        public virtual void Lazy_loading_proxies()
+        public virtual Task Lazy_loading_proxies()
             => Test(
                 modelBuilder => modelBuilder.Entity<LazyProxiesEntity1>(),
                 model =>
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 services => services.AddEntityFrameworkProxies());
 
         [ConditionalFact]
-        public virtual void Lazy_loading_manual()
+        public virtual Task Lazy_loading_manual()
             => Test(
                 b =>
                 {
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         [ConditionalFact]
-        public virtual void Throws_for_query_filter()
+        public virtual Task Throws_for_query_filter()
             => Test(
                 modelBuilder => modelBuilder.Entity(
                     "QueryFilter", e =>
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         [ConditionalFact]
-        public virtual void Throws_for_value_generator()
+        public virtual Task Throws_for_value_generator()
             => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity", e =>
                 {
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     "MyEntity", "Id", nameof(PropertyBuilder.HasValueGeneratorFactory)));
 
         [ConditionalFact]
-        public virtual void Custom_value_converter()
+        public virtual Task Custom_value_converter()
             => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity", e =>
                 {
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 });
 
         [ConditionalFact]
-        public virtual void Custom_value_comparer()
+        public virtual Task Custom_value_comparer()
             => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity", e =>
                 {
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         [ConditionalFact]
-        public virtual void Custom_provider_value_comparer()
+        public virtual Task Custom_provider_value_comparer()
             => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity", e =>
                 {
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 });
 
         [ConditionalFact]
-        public virtual void Custom_type_mapping()
+        public virtual Task Custom_type_mapping()
             => Test(
                 modelBuilder => modelBuilder.Entity("MyEntity", e =>
                 {
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 addDesignTimeServices: services => services.AddSingleton<ICSharpHelper, FullyQualifiedCSharpHelper>());
 
         [ConditionalFact]
-        public virtual void RelationshipCycles()
+        public virtual Task RelationshipCycles()
             => Test(
                 BuildCyclesModel,
                 AssertCyclesModel,
@@ -494,9 +494,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         // Primitive collections not supported completely
-        public override void BigModel()
-        {
-        }
+        public override Task BigModel()
+            => Task.CompletedTask;
 
         public class Scaffolding
         {
@@ -512,9 +511,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         private class FullyQualifiedCSharpHelper(ITypeMappingSource typeMappingSource) : CSharpHelper(typeMappingSource)
         {
-            protected override bool ShouldUseFullName(Type type)
-                => base.ShouldUseFullName(type);
-
             protected override bool ShouldUseFullName(string shortTypeName)
                 => base.ShouldUseFullName(shortTypeName) || shortTypeName is nameof(System.Index) or nameof(Internal);
         }

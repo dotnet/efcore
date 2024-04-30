@@ -217,7 +217,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 new TestEntity30244
                 {
                     Id = _id++,
-                    Name = "TestIssue",
+                    Title = "TestIssue",
                     Settings = { new KeyValueSetting30244("Value1", "1"), new KeyValueSetting30244("Value2", "9") }
                 });
 
@@ -305,7 +305,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 new TestEntity30244
                 {
                     Id = _id++,
-                    Name = "TestIssue",
+                    Title = "TestIssue",
                     Settings = { new KeyValueSetting30244("Value1", "1"), new KeyValueSetting30244("Value2", "9") }
                 });
 

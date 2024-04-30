@@ -62,15 +62,15 @@ namespace Scaffolding
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 keyComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
@@ -91,10 +91,10 @@ namespace Scaffolding
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.Scaffolding)source.Entity;
-                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
+                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<long>(((ValueComparer<long>)id.GetValueComparer()).Snapshot(default(long))));
+                () => (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetValueComparer()).Snapshot(default(long))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<long>(default(long)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -105,7 +105,7 @@ namespace Scaffolding
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.Scaffolding)source.Entity;
-                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
+                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 1,

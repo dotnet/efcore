@@ -199,6 +199,7 @@ public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) 
                     b.HasKey(c => c.Id);
                     b.Property(c => c.ETag).IsETagConcurrency();
                     b.OwnsMany(x => x.Children);
+                    b.HasPartitionKey(c => c.Id);
                 });
     }
 

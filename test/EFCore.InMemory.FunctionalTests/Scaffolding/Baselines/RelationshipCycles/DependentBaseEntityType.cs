@@ -64,15 +64,15 @@ namespace TestNamespace
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 keyComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 providerValueComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
@@ -93,15 +93,15 @@ namespace TestNamespace
             principalId.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 keyComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
@@ -194,10 +194,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentBase<Nullable<long>>)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, long>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<long>)principalId.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)));
+                    return (ISnapshot)new Snapshot<Nullable<long>, long>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<long>)((IProperty)principalId).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<Nullable<long>, long>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(default(Nullable<long>)), ((ValueComparer<long>)principalId.GetValueComparer()).Snapshot(default(long))));
+                () => (ISnapshot)new Snapshot<Nullable<long>, long>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetValueComparer()).Snapshot(default(Nullable<long>)), ((ValueComparer<long>)((IProperty)principalId).GetValueComparer()).Snapshot(default(long))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<Nullable<long>, long>(default(Nullable<long>), default(long)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -208,7 +208,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentBase<Nullable<long>>)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, long, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
+                    return (ISnapshot)new Snapshot<Nullable<long>, long, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<long>)((IProperty)principalId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

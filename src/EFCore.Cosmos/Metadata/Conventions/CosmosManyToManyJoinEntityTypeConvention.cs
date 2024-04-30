@@ -41,7 +41,7 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name is CosmosAnnotationNames.PartitionKeyName or CosmosAnnotationNames.ContainerName)
+        if (name is CosmosAnnotationNames.PartitionKeyNames or CosmosAnnotationNames.ContainerName)
         {
             foreach (var skipNavigation in entityTypeBuilder.Metadata.GetSkipNavigations())
             {
@@ -84,18 +84,24 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         IConventionSkipNavigation skipNavigation,
         IConventionEntityTypeBuilder joinEntityTypeBuilder)
     {
-        var principalPartitionKey = skipNavigation.DeclaringEntityType.GetPartitionKeyProperty()!;
-        var partitionKey = joinEntityTypeBuilder.Property(principalPartitionKey.ClrType, principalPartitionKey.Name)!.Metadata;
-        joinEntityTypeBuilder.HasPartitionKey(partitionKey.Name);
+        // The join entity type should belong to the same partition as the entity types on either side.
+        var principalProperties = skipNavigation.DeclaringEntityType.GetPartitionKeyProperties();
+        if (!principalProperties.Any() || principalProperties.Any(p => p is null))
+        {
+            return;
+        }
 
-        CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder, partitionKey);
-        CreateSkipNavigationForeignKey(skipNavigation.Inverse!, joinEntityTypeBuilder, partitionKey);
+        var partitionKeyProperties = principalProperties.Select(p => joinEntityTypeBuilder.Property(p!.ClrType, p.Name)!.Metadata).ToList();
+        joinEntityTypeBuilder.HasPartitionKey(partitionKeyProperties.Select(p => p.Name).ToList());
+
+        CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder, partitionKeyProperties);
+        CreateSkipNavigationForeignKey(skipNavigation.Inverse!, joinEntityTypeBuilder, partitionKeyProperties);
     }
 
     private void CreateSkipNavigationForeignKey(
         IConventionSkipNavigation skipNavigation,
         IConventionEntityTypeBuilder joinEntityTypeBuilder,
-        IConventionProperty partitionKeyProperty)
+        List<IConventionProperty> partitionKeyProperties)
     {
         if (skipNavigation.ForeignKey != null
             && !skipNavigation.Builder.CanSetForeignKey(null))
@@ -105,22 +111,19 @@ public class CosmosManyToManyJoinEntityTypeConvention :
 
         var principalKey = skipNavigation.DeclaringEntityType.FindPrimaryKey();
         if (principalKey == null
-            || principalKey.Properties.All(p => p.Name != partitionKeyProperty.Name))
+            || principalKey.Properties.All(p => !partitionKeyProperties.Select(e => e.Name).Contains(p.Name)))
         {
             CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder);
             return;
         }
 
-        if (skipNavigation.ForeignKey?.Properties.Contains(partitionKeyProperty) == true)
-        {
-            return;
-        }
-
+        // Any partition key property that already exists should be used for the FK, otherwise a new property is created.
         var dependentProperties = new IConventionProperty[principalKey.Properties.Count];
         for (var i = 0; i < principalKey.Properties.Count; i++)
         {
             var principalProperty = principalKey.Properties[i];
-            if (principalProperty.Name == partitionKeyProperty.Name)
+            var partitionKeyProperty = partitionKeyProperties.FirstOrDefault(p => p.Name == principalProperty.Name);
+            if (partitionKeyProperty != null)
             {
                 dependentProperties[i] = partitionKeyProperty;
             }
@@ -149,12 +152,12 @@ public class CosmosManyToManyJoinEntityTypeConvention :
             var joinEntityTypeBuilder = joinEntityType.Builder;
             if (ShouldSharePartitionKey(skipNavigation))
             {
-                var principalPartitionKey = skipNavigation.DeclaringEntityType.GetPartitionKeyProperty()!;
-                var partitionKey = joinEntityType.GetPartitionKeyProperty();
-                if ((partitionKey != null
-                        && (!joinEntityTypeBuilder.CanSetPartitionKey(principalPartitionKey.Name)
-                            || (skipNavigation.ForeignKey!.Properties.Contains(partitionKey)
-                                && inverseSkipNavigation.ForeignKey!.Properties.Contains(partitionKey))))
+                var principalPartitionProperties = skipNavigation.DeclaringEntityType.GetPartitionKeyProperties();
+                var partitionKeyProperties = joinEntityType.GetPartitionKeyProperties();
+                if ((partitionKeyProperties.Any()
+                        && (!joinEntityTypeBuilder.CanSetPartitionKey(principalPartitionProperties.Select(p => p!.Name).ToList())
+                            || (partitionKeyProperties.All(p => skipNavigation.ForeignKey!.Properties.Contains(p))
+                                && partitionKeyProperties.All(p => inverseSkipNavigation.ForeignKey!.Properties.Contains(p)))))
                     || !skipNavigation.Builder.CanSetForeignKey(null)
                     || !inverseSkipNavigation.Builder.CanSetForeignKey(null))
                 {
@@ -165,12 +168,12 @@ public class CosmosManyToManyJoinEntityTypeConvention :
             }
             else
             {
-                var partitionKey = joinEntityType.GetPartitionKeyProperty();
-                if (partitionKey != null
-                    && joinEntityTypeBuilder.HasPartitionKey(null) != null
-                    && ((skipNavigation.ForeignKey!.Properties.Contains(partitionKey)
+                var partitionKeyProperties = joinEntityType.GetPartitionKeyProperties();
+                if (partitionKeyProperties.Any()
+                    && joinEntityTypeBuilder.HasPartitionKey((IReadOnlyList<string>?)null) != null
+                    && ((partitionKeyProperties.Any(p => skipNavigation.ForeignKey!.Properties.Contains(p))
                             && skipNavigation.Builder.CanSetForeignKey(null))
-                        || (inverseSkipNavigation.ForeignKey!.Properties.Contains(partitionKey)
+                        || (partitionKeyProperties.Any(p => inverseSkipNavigation.ForeignKey!.Properties.Contains(p))
                             && inverseSkipNavigation.Builder.CanSetForeignKey(null))))
                 {
                     CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder);
@@ -182,7 +185,7 @@ public class CosmosManyToManyJoinEntityTypeConvention :
 
     private static bool ShouldSharePartitionKey(IConventionSkipNavigation skipNavigation)
         => skipNavigation.DeclaringEntityType.GetContainer() == skipNavigation.TargetEntityType.GetContainer()
-            && skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyName() != null
-            && skipNavigation.Inverse?.DeclaringEntityType.GetPartitionKeyPropertyName()
-            == skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyName();
+            && skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames().Any()
+            && (skipNavigation.Inverse?.DeclaringEntityType.GetPartitionKeyPropertyNames()
+                .SequenceEqual(skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyNames(), StringComparer.Ordinal) == true);
 }

@@ -34,7 +34,11 @@ public static class CosmosEventId
         ExecutedReadItem,
         ExecutedCreateItem,
         ExecutedReplaceItem,
-        ExecutedDeleteItem
+        ExecutedDeleteItem,
+
+        // Model validation events
+        NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
+
     }
 
     private static readonly string DatabasePrefix = DbLoggerCategory.Database.Name + ".";
@@ -149,4 +153,21 @@ public static class CosmosEventId
     /// </remarks>
     public static readonly EventId ExecutedDeleteItem
         = new((int)Id.ExecutedDeleteItem, CommandPrefix + Id.ExecutedDeleteItem);
+
+    private static EventId MakeValidationId(Id id)
+        => new((int)id, DbLoggerCategory.Model.Validation.Name + "." + id);
+
+    /// <summary>
+    ///     No partition key has been configured for an entity type. It is highly recommended that an appropriate partition key be defined.
+    ///     See https://aka.ms/efdocs-cosmos-partition-keys for more information.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId NoPartitionKeyDefined = MakeValidationId(Id.NoPartitionKeyDefined);
 }

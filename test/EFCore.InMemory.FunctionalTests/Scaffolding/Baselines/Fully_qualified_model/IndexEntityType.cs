@@ -62,15 +62,15 @@ namespace Scaffolding
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
-                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => ((object)v).GetHashCode(),
                     (Guid v) => v),
                 keyComparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
-                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => ((object)v).GetHashCode(),
                     (Guid v) => v),
                 providerValueComparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
-                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => ((object)v).GetHashCode(),
                     (Guid v) => v),
                 clrType: typeof(Guid),
                 jsonValueReaderWriter: JsonGuidReaderWriter.Instance);
@@ -91,10 +91,10 @@ namespace Scaffolding
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.Index)source.Entity;
-                    return (ISnapshot)new Snapshot<Guid>(((ValueComparer<Guid>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(id)));
+                    return (ISnapshot)new Snapshot<Guid>(((ValueComparer<Guid>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(id)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<Guid>(((ValueComparer<Guid>)id.GetValueComparer()).Snapshot(default(Guid))));
+                () => (ISnapshot)new Snapshot<Guid>(((ValueComparer<Guid>)((IProperty)id).GetValueComparer()).Snapshot(default(Guid))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<Guid>(default(Guid)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -105,7 +105,7 @@ namespace Scaffolding
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.Index)source.Entity;
-                    return (ISnapshot)new Snapshot<Guid>(((ValueComparer<Guid>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(id)));
+                    return (ISnapshot)new Snapshot<Guid>(((ValueComparer<Guid>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 1,

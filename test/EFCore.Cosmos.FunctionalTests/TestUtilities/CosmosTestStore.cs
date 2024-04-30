@@ -239,24 +239,35 @@ public class CosmosTestStore : TestStore
                     foreach (var containerProperties in await containerIterator.ReadNextAsync())
                     {
                         var container = database.GetContainer(containerProperties.Id);
-                        var partitionKey = containerProperties.PartitionKeyPath[1..];
+                        var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
                         var itemIterator = container.GetItemQueryIterator<JObject>(
                             new QueryDefinition("SELECT * FROM c"));
 
-                        var items = new List<(string Id, string PartitionKey)>();
+                        var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
                         while (itemIterator.HasMoreResults)
                         {
                             foreach (var item in await itemIterator.ReadNextAsync())
                             {
-                                items.Add((item["id"]!.ToString(), item[partitionKey]?.ToString()!));
+                                var partitionKeyValue = PartitionKey.None;
+                                if (partitionKeys.Count >= 1
+                                    && item[partitionKeys[0]] is not null)
+                                {
+                                    var builder = new PartitionKeyBuilder();
+                                    foreach (var partitionKey in partitionKeys)
+                                    {
+                                        builder.Add((string?)item[partitionKey]);
+                                    }
+
+                                    partitionKeyValue = builder.Build();
+                                }
+
+                                items.Add((item["id"]!.ToString(), partitionKeyValue));
                             }
                         }
 
                         foreach (var item in items)
                         {
-                            await container.DeleteItemAsync<object>(
-                                item.Id,
-                                item.PartitionKey == null ? PartitionKey.None : new PartitionKey(item.PartitionKey));
+                            await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue);
                         }
                     }
                 }

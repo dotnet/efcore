@@ -25,7 +25,7 @@ public readonly record struct ContainerProperties
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public readonly string PartitionKey;
+    public readonly IReadOnlyList<string> PartitionKeyStoreNames;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,13 +59,13 @@ public readonly record struct ContainerProperties
     /// </summary>
     public ContainerProperties(
         string containerId,
-        string partitionKey,
+        IReadOnlyList<string> partitionKeyStoreNames,
         int? analyticalTtl,
         int? defaultTtl,
         ThroughputProperties? throughput)
     {
         Id = containerId;
-        PartitionKey = partitionKey;
+        PartitionKeyStoreNames = partitionKeyStoreNames;
         AnalyticalStoreTimeToLiveInSeconds = analyticalTtl;
         DefaultTimeToLive = defaultTtl;
         Throughput = throughput;
@@ -79,13 +79,13 @@ public readonly record struct ContainerProperties
     /// </summary>
     public void Deconstruct(
         out string containerId,
-        out string partitionKey,
+        out IReadOnlyList<string> partitionKeyStoreNames,
         out int? analyticalTtl,
         out int? defaultTtl,
         out ThroughputProperties? throughput)
     {
         containerId = Id;
-        partitionKey = PartitionKey;
+        partitionKeyStoreNames = PartitionKeyStoreNames;
         analyticalTtl = AnalyticalStoreTimeToLiveInSeconds;
         defaultTtl = DefaultTimeToLive;
         throughput = Throughput;

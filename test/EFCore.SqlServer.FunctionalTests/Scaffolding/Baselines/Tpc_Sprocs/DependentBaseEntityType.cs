@@ -90,15 +90,15 @@ namespace TestNamespace
             principalId.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 keyComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 providerValueComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)));
             principalId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalId));
             principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -192,10 +192,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentBase<Nullable<byte>>)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<byte>, Nullable<long>>(source.GetCurrentValue<Nullable<byte>>(id) == null ? null : ((ValueComparer<Nullable<byte>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(id)), source.GetCurrentValue<Nullable<long>>(principalId) == null ? null : ((ValueComparer<Nullable<long>>)principalId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalId)));
+                    return (ISnapshot)new Snapshot<Nullable<byte>, Nullable<long>>(source.GetCurrentValue<Nullable<byte>>(id) == null ? null : ((ValueComparer<Nullable<byte>>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(id)), source.GetCurrentValue<Nullable<long>>(principalId) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)principalId).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalId)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<Nullable<long>>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)principalId.GetValueComparer()).Snapshot(default(Nullable<long>))));
+                () => (ISnapshot)new Snapshot<Nullable<long>>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)principalId).GetValueComparer()).Snapshot(default(Nullable<long>))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<Nullable<long>>(default(Nullable<long>)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -206,7 +206,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentBase<Nullable<byte>>)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<byte>, Nullable<long>, object>(source.GetCurrentValue<Nullable<byte>>(id) == null ? null : ((ValueComparer<Nullable<byte>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(id)), source.GetCurrentValue<Nullable<long>>(principalId) == null ? null : ((ValueComparer<Nullable<long>>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
+                    return (ISnapshot)new Snapshot<Nullable<byte>, Nullable<long>, object>(source.GetCurrentValue<Nullable<byte>>(id) == null ? null : ((ValueComparer<Nullable<byte>>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(id)), source.GetCurrentValue<Nullable<long>>(principalId) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)principalId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

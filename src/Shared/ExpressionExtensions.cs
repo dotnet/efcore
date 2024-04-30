@@ -46,7 +46,7 @@ internal static class ExpressionExtensions
             : expression;
 
     public static T GetConstantValue<T>(this Expression expression)
-        => expression switch
+        => RemoveConvert(expression) switch
         {
             ConstantExpression constantExpression => (T)constantExpression.Value!,
 #pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.

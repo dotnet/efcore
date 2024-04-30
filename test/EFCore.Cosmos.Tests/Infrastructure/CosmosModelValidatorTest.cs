@@ -141,7 +141,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>().HasPartitionKey("PartitionKey");
 
-        VerifyError(CosmosStrings.PartitionKeyMissingProperty(typeof(Order).Name, "PartitionKey"), modelBuilder);
+        VerifyError(CosmosStrings.PartitionKeyMissingProperty(nameof(Order), "PartitionKey"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -151,7 +151,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>().ToContainer("Orders");
         modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
-        VerifyError(CosmosStrings.NoPartitionKey(typeof(Customer).Name, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "", nameof(Order), "PartitionId", "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -161,7 +161,43 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
-        VerifyError(CosmosStrings.NoPartitionKey(typeof(Order).Name, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId", nameof(Order), "", "Orders"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_missing_partition_key_properties_composite_less_first()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id, c.Name });
+        modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
+
+        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id,Name", nameof(Order), "PartitionId,Id", "Orders"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_missing_partition_key_properties_composite_less_last()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId });
+        modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
+
+        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId", nameof(Order), "PartitionId,Id", "Orders"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_missing_partition_key_properties_composite_three()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
+        modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => new { c.PartitionId, c.Id });
+        modelBuilder.Entity<OrderProduct>(
+            b =>
+            {
+                b.HasKey(e => e.OrderId);
+                b.ToContainer("Orders").HasPartitionKey(c => new { c.OrderId });
+            });
+
+        VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "PartitionId,Id", nameof(OrderProduct), "OrderId", "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -176,19 +212,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             CosmosStrings.PartitionKeyStoreNameMismatch(
                 nameof(Customer.PartitionId), typeof(Customer).Name, "pk", nameof(Order.PartitionId), typeof(Order).Name,
                 nameof(Order.PartitionId)), modelBuilder);
-    }
-
-    [ConditionalFact]
-    public virtual void Detects_partition_key_of_different_type()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
-        modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
-            .Property(c => c.PartitionId).HasConversion<int>();
-
-        VerifyError(
-            CosmosStrings.PartitionKeyNonStringStoreType(
-                nameof(Customer.PartitionId), typeof(Order).Name, "int"), modelBuilder);
     }
 
     [ConditionalFact]

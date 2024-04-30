@@ -106,15 +106,15 @@ namespace TestNamespace
             data.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -135,7 +135,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentDerived<int>)source.Entity;
-                    return (ISnapshot)new Snapshot<int, string>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)data.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(data)));
+                    return (ISnapshot)new Snapshot<int, string>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)((IProperty)data).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(data)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 () => Snapshot.Empty);
@@ -149,7 +149,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.DependentDerived<int>)source.Entity;
-                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
+                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

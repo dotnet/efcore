@@ -18,7 +18,27 @@ namespace Microsoft.EntityFrameworkCore;
 public static class CosmosQueryableExtensions
 {
     internal static readonly MethodInfo WithPartitionKeyMethodInfo
-        = typeof(CosmosQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(WithPartitionKey))!;
+        = typeof(CosmosQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(WithPartitionKey))
+            .Single(mi => mi.GetParameters().Length == 3);
+
+    /// <summary>
+    ///     Specify the partition key value for partition used for the query. Required when using
+    ///     a resource token that provides permission based on a partition key for authentication.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="partitionKey">The partition key value.</param>
+    /// <returns>A new query with the set partition key.</returns>
+    public static IQueryable<TEntity> WithPartitionKey<TEntity>(
+        this IQueryable<TEntity> source,
+        [NotParameterized] string partitionKey)
+        where TEntity : class
+        => WithPartitionKey(source, partitionKey, []);
 
     /// <summary>
     ///     Specify the partition key for partition used for the query. Required when using
@@ -30,14 +50,17 @@ public static class CosmosQueryableExtensions
     /// </remarks>
     /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
     /// <param name="source">The source query.</param>
-    /// <param name="partitionKey">The partition key.</param>
+    /// <param name="partitionKeyValue">The partition key value.</param>
+    /// <param name="additionalPartitionKeyValues">Additional values for hierarchical partitions.</param>
     /// <returns>A new query with the set partition key.</returns>
     public static IQueryable<TEntity> WithPartitionKey<TEntity>(
         this IQueryable<TEntity> source,
-        [NotParameterized] string partitionKey)
+        [NotParameterized] object partitionKeyValue,
+        [NotParameterized] params object[] additionalPartitionKeyValues)
         where TEntity : class
     {
-        Check.NotNull(partitionKey, nameof(partitionKey));
+        Check.NotNull(partitionKeyValue, nameof(partitionKeyValue));
+        Check.HasNoNulls(additionalPartitionKeyValues, nameof(additionalPartitionKeyValues));
 
         return
             source.Provider is EntityQueryProvider
@@ -46,7 +69,8 @@ public static class CosmosQueryableExtensions
                         instance: null,
                         method: WithPartitionKeyMethodInfo.MakeGenericMethod(typeof(TEntity)),
                         source.Expression,
-                        Expression.Constant(partitionKey)))
+                        Expression.Constant(partitionKeyValue, typeof(object)),
+                        Expression.Constant(additionalPartitionKeyValues, typeof(object[]))))
                 : source;
     }
 

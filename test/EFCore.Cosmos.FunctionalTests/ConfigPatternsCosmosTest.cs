@@ -148,6 +148,9 @@ public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fix
 
     public class CosmosFixture : ServiceProviderFixtureBase
     {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
     }

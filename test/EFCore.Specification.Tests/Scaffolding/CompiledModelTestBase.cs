@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 public abstract class CompiledModelTestBase : NonSharedModelTestBase
 {
     [ConditionalFact]
-    public virtual void SimpleModel()
+    public virtual Task SimpleModel()
         => Test(
             modelBuilder =>
             {
@@ -80,7 +80,7 @@ namespace TestNamespace
             });
 
     [ConditionalFact]
-    public virtual void BigModel()
+    public virtual Task BigModel()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),
@@ -580,7 +580,7 @@ namespace TestNamespace
     }
 
     [ConditionalFact]
-    public virtual void ComplexTypes()
+    public virtual Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
             AssertComplexTypes,

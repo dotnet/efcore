@@ -60,7 +60,7 @@ namespace TestNamespace
             blob.TypeMapping = SqliteByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
                     (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => ((object)v).GetHashCode(),
                     (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
                     (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
@@ -82,7 +82,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.Data)source.Entity;
-                    return (ISnapshot)new Snapshot<byte[]>(source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)blob.GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(blob)));
+                    return (ISnapshot)new Snapshot<byte[]>(source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)((IProperty)blob).GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(blob)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 () => Snapshot.Empty);

@@ -213,10 +213,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity1)source.Entity;
-                    return (ISnapshot)new Snapshot<int, Nullable<int>>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Nullable<int>>(referenceNavigationId) == null ? null : ((ValueComparer<Nullable<int>>)referenceNavigationId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(referenceNavigationId)));
+                    return (ISnapshot)new Snapshot<int, Nullable<int>>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Nullable<int>>(referenceNavigationId) == null ? null : ((ValueComparer<Nullable<int>>)((IProperty)referenceNavigationId).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(referenceNavigationId)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<int, Nullable<int>>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(default(int)), default(Nullable<int>) == null ? null : ((ValueComparer<Nullable<int>>)referenceNavigationId.GetValueComparer()).Snapshot(default(Nullable<int>))));
+                () => (ISnapshot)new Snapshot<int, Nullable<int>>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(default(int)), default(Nullable<int>) == null ? null : ((ValueComparer<Nullable<int>>)((IProperty)referenceNavigationId).GetValueComparer()).Snapshot(default(Nullable<int>))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<int, Nullable<int>>(default(int), default(Nullable<int>)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -227,7 +227,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity1)source.Entity;
-                    return (ISnapshot)new Snapshot<int, Nullable<int>, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Nullable<int>>(referenceNavigationId) == null ? null : ((ValueComparer<Nullable<int>>)referenceNavigationId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(referenceNavigationId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity));
+                    return (ISnapshot)new Snapshot<int, Nullable<int>, object>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Nullable<int>>(referenceNavigationId) == null ? null : ((ValueComparer<Nullable<int>>)((IProperty)referenceNavigationId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(referenceNavigationId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

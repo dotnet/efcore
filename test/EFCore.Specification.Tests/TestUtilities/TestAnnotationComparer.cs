@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable PossibleNullReferenceException
@@ -30,11 +31,34 @@ public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<
             return y == null;
         }
 
-        return y == null
-            ? false
-            : x.Name == y.Name
+        return y != null && (x.Name == y.Name
             && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
-                || Equals(x.Value, y.Value));
+                || CompareAnnotations()));
+
+        bool CompareAnnotations()
+        {
+            if (x.Value is not string
+                && x.Value is IList xList
+                && y.Value is IList yList)
+            {
+                if (xList.Count != yList.Count)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < xList.Count; i++)
+                {
+                    if (!Equals(xList[i], yList[i]))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            return Equals(x.Value, y.Value);
+        }
     }
 
     public int GetHashCode(IAnnotation obj)

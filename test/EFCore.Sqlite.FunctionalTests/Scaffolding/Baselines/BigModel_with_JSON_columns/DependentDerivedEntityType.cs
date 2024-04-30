@@ -92,11 +92,11 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {
-                    var entity = (CompiledModelTestBase.DependentDerived<Nullable<byte>>)source.Entity;
-                    return (ISnapshot)new Snapshot<long, Guid, CompiledModelTestBase.Enum1, Nullable<byte>, string, decimal>(((ValueComparer<long>)principalId.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)principalAlternateId.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), ((ValueComparer<CompiledModelTestBase.Enum1>)enumDiscriminator.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum1>(enumDiscriminator)), source.GetCurrentValue<Nullable<byte>>(id) == null ? null : ((ValueComparer<Nullable<byte>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(id)), source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)data.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(data)), ((ValueComparer<decimal>)money.GetValueComparer()).Snapshot(source.GetCurrentValue<decimal>(money)));
+                    var entity8 = (CompiledModelTestBase.DependentDerived<Nullable<byte>>)source.Entity;
+                    return (ISnapshot)new Snapshot<long, Guid, CompiledModelTestBase.Enum1, Nullable<byte>, string, decimal>(((ValueComparer<long>)((IProperty)principalId).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)((IProperty)principalAlternateId).GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), ((ValueComparer<CompiledModelTestBase.Enum1>)((IProperty)enumDiscriminator).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum1>(enumDiscriminator)), source.GetCurrentValue<Nullable<byte>>(id) == null ? null : ((ValueComparer<Nullable<byte>>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(id)), source.GetCurrentValue<string>(data) == null ? null : ((ValueComparer<string>)((IProperty)data).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(data)), ((ValueComparer<decimal>)((IProperty)money).GetValueComparer()).Snapshot(source.GetCurrentValue<decimal>(money)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<long, Guid>(((ValueComparer<long>)principalId.GetValueComparer()).Snapshot(default(long)), ((ValueComparer<Guid>)principalAlternateId.GetValueComparer()).Snapshot(default(Guid))));
+                () => (ISnapshot)new Snapshot<long, Guid>(((ValueComparer<long>)((IProperty)principalId).GetValueComparer()).Snapshot(default(long)), ((ValueComparer<Guid>)((IProperty)principalAlternateId).GetValueComparer()).Snapshot(default(Guid))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<long, Guid>(default(long), default(Guid)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -106,8 +106,8 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 (InternalEntityEntry source) =>
                 {
-                    var entity = (CompiledModelTestBase.DependentDerived<Nullable<byte>>)source.Entity;
-                    return (ISnapshot)new Snapshot<long, Guid, object>(((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)principalAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity));
+                    var entity8 = (CompiledModelTestBase.DependentDerived<Nullable<byte>>)source.Entity;
+                    return (ISnapshot)new Snapshot<long, Guid, object>(((ValueComparer<long>)((IProperty)principalId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)((IProperty)principalAlternateId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity8));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 6,

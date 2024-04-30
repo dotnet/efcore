@@ -52,10 +52,10 @@ public class IdValueGenerator : ValueGenerator
             builder.Append('|');
         }
 
-        var partitionKey = entityType.GetPartitionKeyPropertyName();
+        var partitionKeyNames = entityType.GetPartitionKeyPropertyNames();
         foreach (var property in primaryKey.Properties)
         {
-            if (property.Name == partitionKey
+            if (partitionKeyNames.Contains(property.Name)
                 && primaryKey.Properties.Count > 1)
             {
                 continue;

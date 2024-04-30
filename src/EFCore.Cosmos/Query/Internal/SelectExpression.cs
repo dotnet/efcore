@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -19,8 +20,7 @@ public class SelectExpression : Expression
     private readonly List<ProjectionExpression> _projection = [];
     private readonly List<OrderingExpression> _orderings = [];
 
-    private ValueConverter? _partitionKeyValueConverter;
-    private Expression? _partitionKeyValue;
+    private readonly List<(Expression ValueExpression, IProperty Property)> _partitionKeyValues = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,11 +144,8 @@ public class SelectExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void SetPartitionKey(IProperty partitionKeyProperty, Expression expression)
-    {
-        _partitionKeyValueConverter = partitionKeyProperty.GetTypeMapping().Converter;
-        _partitionKeyValue = expression;
-    }
+    public virtual void AddPartitionKey(IProperty partitionKeyProperty, Expression expression)
+        => _partitionKeyValues.Add((expression, partitionKeyProperty));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,21 +153,28 @@ public class SelectExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? GetPartitionKey(IReadOnlyDictionary<string, object> parameterValues)
+    public virtual PartitionKey GetPartitionKeyValue(IReadOnlyDictionary<string, object> parameterValues)
     {
-        return _partitionKeyValue switch
+        if (!_partitionKeyValues.Any())
         {
-            ConstantExpression constantExpression
-                => GetString(_partitionKeyValueConverter, constantExpression.Value),
-            ParameterExpression parameterExpression when parameterValues.TryGetValue(parameterExpression.Name!, out var value)
-                => GetString(_partitionKeyValueConverter, value),
-            _ => null
-        };
+            return PartitionKey.None;
+        }
 
-        static string? GetString(ValueConverter? converter, object? value)
-            => converter is null
-                ? (string?)value
-                : (string?)converter.ConvertToProvider(value);
+        var builder = new PartitionKeyBuilder();
+        foreach (var tuple in _partitionKeyValues)
+        {
+            var rawKeyValue = tuple.ValueExpression switch
+            {
+                ConstantExpression constantExpression
+                    => constantExpression.Value,
+                ParameterExpression parameterExpression when parameterValues.TryGetValue(parameterExpression.Name!, out var value)
+                    => value,
+                _ => null
+            };
+            builder.Add(rawKeyValue, tuple.Property);
+        }
+
+        return builder.Build();
     }
 
     /// <summary>
