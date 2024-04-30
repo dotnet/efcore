@@ -25,7 +25,7 @@ public interface ISqlExpressionFactory
     /// <param name="sqlExpression">A SQL expression to apply type mapping.</param>
     /// <param name="typeMapping">A type mapping to apply.</param>
     /// <returns>A SQL expression with given type mapping applied.</returns>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping);
 
     /// <summary>
@@ -33,7 +33,7 @@ public interface ISqlExpressionFactory
     /// </summary>
     /// <param name="sqlExpression">A SQL Expression to apply default type mapping.</param>
     /// <returns>A SQL expression with default type mapping applied.</returns>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression);
 
     /// <summary>

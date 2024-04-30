@@ -450,7 +450,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         uncheckedNodeTypeVariant,
                         sqlLeft!,
                         sqlRight!,
-                        null)
+                        typeMapping: null)
                     ?? QueryCompilationContext.NotTranslatedExpression;
 
         Expression ProcessGetType(StructuralTypeReferenceExpression typeReference, Type comparisonType, bool match)
@@ -594,7 +594,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return type != null;
         }
 
-        static bool TryUnwrapConvertToObject(Expression expression, out Expression? operand)
+        static bool TryUnwrapConvertToObject(Expression expression, [NotNullWhen(true)] out Expression? operand)
         {
             if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } convertExpression
                 && expression.Type == typeof(object))

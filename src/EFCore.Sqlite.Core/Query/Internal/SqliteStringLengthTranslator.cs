@@ -37,11 +37,11 @@ public class SqliteStringLengthTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => instance?.Type == typeof(string)
+        => member.DeclaringType == typeof(string)
             && member.Name == nameof(string.Length)
                 ? _sqlExpressionFactory.Function(
                     "length",
-                    new[] { instance },
+                    new[] { instance! },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true },
                     returnType)

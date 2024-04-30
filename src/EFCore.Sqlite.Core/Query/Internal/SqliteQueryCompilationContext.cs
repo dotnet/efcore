@@ -22,8 +22,9 @@ public class SqliteQueryCompilationContext : RelationalQueryCompilationContext
     public SqliteQueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
-        bool async)
-        : base(dependencies, relationalDependencies, async)
+        bool async,
+        bool precompiling)
+        : base(dependencies, relationalDependencies, async, precompiling)
     {
     }
 

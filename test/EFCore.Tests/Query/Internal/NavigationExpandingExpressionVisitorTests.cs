@@ -22,19 +22,19 @@ public class NavigationExpandingExpressionVisitorTests
                 null,
                 new QueryCompilationContext(
                     new QueryCompilationContextDependencies(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        model: null,
+                        queryTranslationPreprocessorFactory: null,
+                        queryableMethodTranslatingExpressionVisitorFactory: null,
+                        queryTranslationPostprocessorFactory: null,
+                        shapedQueryCompilingExpressionVisitorFactory: null,
+                        liftableConstantFactory: null,
+                        liftableConstantProcessor: null,
                         new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
                         new CurrentDbContext(new MyDemoContext()),
-                        null,
-                        null,
+                        contextOptions: null,
+                        logger: null,
                         new TestInterceptors()
-                    ), false),
+                    ), async: false, precompiling: false),
                 null,
                 null)
         {
@@ -77,7 +77,7 @@ public class NavigationExpandingExpressionVisitorTests
     }
 
     [ConditionalFact]
-    public void Visits_extention_childrens()
+    public void Visits_extension_children()
     {
         var model = new Model();
         var e = model.AddEntityType(typeof(A), false, ConfigurationSource.Explicit);

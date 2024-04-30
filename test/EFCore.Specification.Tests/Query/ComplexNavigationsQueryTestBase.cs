@@ -3383,26 +3383,6 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Distinct_skip_without_orderby(bool async)
-        => AssertQuery(
-            async,
-            ss => from l1 in ss.Set<Level1>()
-                  where l1.Id < 3
-                  select (from l3 in ss.Set<Level3>()
-                          select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Distinct_take_without_orderby(bool async)
-        => AssertQuery(
-            async,
-            ss => from l1 in ss.Set<Level1>()
-                  where l1.Id < 3
-                  select (from l3 in ss.Set<Level3>()
-                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Let_let_contains_from_outer_let(bool async)
         => AssertQuery(
             async,

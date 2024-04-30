@@ -351,6 +351,7 @@ public interface ICSharpHelper
     /// </summary>
     /// <param name="node">The node to be translated.</param>
     /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
+    /// <param name="unsafeAccessors">Any unsafe accessors needed to access private members will be added to this dictionary.</param>
     /// <param name="constantReplacements">Collection of translations for statically known instances.</param>
     /// <param name="memberAccessReplacements">Collection of translations for non-public member accesses.</param>
     /// <returns>Source code that would produce <paramref name="node" />.</returns>
@@ -363,6 +364,7 @@ public interface ICSharpHelper
     [EntityFrameworkInternal]
     string Statement(Expression node,
         ISet<string> collectedNamespaces,
+        ISet<string> unsafeAccessors,
         IReadOnlyDictionary<object, string>? constantReplacements = null,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null);
 
@@ -371,6 +373,7 @@ public interface ICSharpHelper
     /// </summary>
     /// <param name="node">The node to be translated.</param>
     /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
+    /// <param name="unsafeAccessors">Any unsafe accessors needed to access private members will be added to this dictionary.</param>
     /// <param name="constantReplacements">Collection of translations for statically known instances.</param>
     /// <param name="memberAccessReplacements">Collection of translations for non-public member accesses.</param>
     /// <returns>Source code that would produce  <paramref name="node" />.</returns>
@@ -383,6 +386,7 @@ public interface ICSharpHelper
     [EntityFrameworkInternal]
     string Expression(Expression node,
         ISet<string> collectedNamespaces,
+        ISet<string> unsafeAccessors,
         IReadOnlyDictionary<object, string>? constantReplacements = null,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null);
 }

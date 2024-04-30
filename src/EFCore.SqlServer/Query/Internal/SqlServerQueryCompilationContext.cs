@@ -25,8 +25,9 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async,
+        bool precompiling,
         bool multipleActiveResultSetsEnabled)
-        : base(dependencies, relationalDependencies, async)
+        : base(dependencies, relationalDependencies, async, precompiling)
     {
         _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
     }

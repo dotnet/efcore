@@ -93,7 +93,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         switch (expression)
@@ -676,7 +676,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             return _containsInclude;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => _containsInclude ? expression : base.Visit(expression);
 

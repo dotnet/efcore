@@ -102,6 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CircularBaseClassDependency");
 
         /// <summary>
+        ///     A compilation must be loaded.
+        /// </summary>
+        public static string CompilationMustBeLoaded
+            => GetString("CompilationMustBeLoaded");
+
+        /// <summary>
         ///     The entity type '{entityType}' has a custom constructor binding. Compiled model can't be generated, because custom constructor bindings are not supported. Configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.
         /// </summary>
         public static string CompiledModelConstructorBinding(object? entityType, object? customize, object? className)
@@ -206,6 +212,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateMigrationName", nameof(migrationName)),
                 migrationName);
+
+        /// <summary>
+        ///     Dynamic LINQ queries are not supported when precompiling queries.
+        /// </summary>
+        public static string DynamicQueryNotSupported
+            => GetString("DynamicQueryNotSupported");
 
         /// <summary>
         ///     The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.
@@ -608,6 +620,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ProviderReturnedNullModel", nameof(providerTypeName)),
                 providerTypeName);
+
+        /// <summary>
+        ///     LINQ query comprehension syntax is currently not supported in precompiled queries.
+        /// </summary>
+        public static string QueryComprehensionSyntaxNotSupportedInPrecompiledQueries
+            => GetString("QueryComprehensionSyntaxNotSupportedInPrecompiledQueries");
 
         /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.

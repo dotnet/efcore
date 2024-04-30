@@ -785,6 +785,34 @@ FROM (
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
     }
 
+    public override async Task SqlQueryRaw_then_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_Length(async);
+
+        AssertSql(
+            """
+SELECT [s].[Value]
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS [s]
+WHERE CAST(LEN([s].[Value]) AS int) = 0
+""");
+    }
+
+    public override async Task SqlQueryRaw_then_String_ToUpper_String_Length(bool async)
+    {
+        await base.SqlQueryRaw_then_String_ToUpper_String_Length(async);
+
+        AssertSql(
+            """
+SELECT [s].[Value]
+FROM (
+    SELECT 'x' AS "Value" FROM "Customers"
+) AS [s]
+WHERE CAST(LEN(UPPER([s].[Value])) AS int) = 0
+""");
+    }
+
     protected override DbParameter CreateDbParameter(string name, object value)
         => new SqlParameter { ParameterName = name, Value = value };
 

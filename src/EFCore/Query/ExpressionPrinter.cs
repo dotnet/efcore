@@ -219,7 +219,7 @@ public class ExpressionPrinter : ExpressionVisitor
     }
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull("expression")]
+    [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
         if (expression == null)
@@ -461,13 +461,19 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitConstant(ConstantExpression constantExpression)
     {
-        if (constantExpression.Value is IPrintableExpression printable)
+        switch (constantExpression.Value)
         {
-            printable.Print(this);
-        }
-        else
-        {
-            PrintValue(constantExpression.Value);
+            case IPrintableExpression printable:
+                printable.Print(this);
+                break;
+
+            case IQueryable queryable:
+                Visit(queryable.Expression);
+                break;
+
+            default:
+                PrintValue(constantExpression.Value);
+                break;
         }
 
         return constantExpression;

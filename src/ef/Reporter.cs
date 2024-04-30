@@ -18,7 +18,7 @@ internal static class Reporter
     public static bool NoColor { get; set; }
     public static bool PrefixOutput { get; set; }
 
-    [return: NotNullIfNotNull("value")]
+    [return: NotNullIfNotNull(nameof(value))]
     public static string? Colorize(string? value, Func<string?, string> colorizeFunc)
         => NoColor ? value : colorizeFunc(value);
 

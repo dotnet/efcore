@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
@@ -20,10 +18,10 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 {
     private readonly ITypeMappingSource _typeMappingSource;
     private readonly IndentedStringBuilder _sqlBuilder = new();
-    private IReadOnlyDictionary<string, object> _parameterValues;
-    private List<SqlParameter> _sqlParameters;
+    private IReadOnlyDictionary<string, object> _parameterValues = null!;
+    private List<SqlParameter> _sqlParameters = null!;
     private bool _useValueProjection;
-    private ParameterNameGenerator _parameterNameGenerator;
+    private ParameterNameGenerator _parameterNameGenerator = null!;
 
     private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
     {
@@ -295,7 +293,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 for (var i = 0; i < constantValues.Length; i++)
                 {
                     var value = constantValues[i];
-                    substitutions[i] = GenerateConstant(value, _typeMappingSource.FindMapping(value.GetType()));
+                    var typeMapping = _typeMappingSource.FindMapping(value.GetType());
+                    Check.DebugAssert(typeMapping is not null, "Could not find type mapping for FromSql parameter");
+                    substitutions[i] = GenerateConstant(value, typeMapping);
                 }
 
                 break;
@@ -409,7 +409,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     private void GenerateList<T>(
         IReadOnlyList<T> items,
         Action<T> generationAction,
-        Action<IndentedStringBuilder> joinAction = null)
+        Action<IndentedStringBuilder>? joinAction = null)
     {
         joinAction ??= (isb => isb.Append(", "));
 
@@ -432,19 +432,20 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
+        Check.DebugAssert(sqlConstantExpression.TypeMapping is not null, "SqlConstantExpression without a type mapping");
         _sqlBuilder.Append(GenerateConstant(sqlConstantExpression.Value, sqlConstantExpression.TypeMapping));
 
         return sqlConstantExpression;
     }
 
-    private static string GenerateConstant(object value, CoreTypeMapping typeMapping)
+    private static string GenerateConstant(object? value, CoreTypeMapping typeMapping)
     {
         var jToken = GenerateJToken(value, typeMapping);
 
         return jToken is null ? "null" : jToken.ToString(Formatting.None);
     }
 
-    private static JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
+    private static JToken? GenerateJToken(object? value, CoreTypeMapping typeMapping)
     {
         if (value?.GetType().IsInteger() == true)
         {
@@ -498,6 +499,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
         if (_sqlParameters.All(sp => sp.Name != parameterName))
         {
+            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping");
             var jToken = GenerateJToken(_parameterValues[sqlParameterExpression.Name], sqlParameterExpression.TypeMapping);
             _sqlParameters.Add(new SqlParameter(parameterName, jToken));
         }

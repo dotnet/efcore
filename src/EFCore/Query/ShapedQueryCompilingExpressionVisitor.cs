@@ -230,12 +230,12 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 { Value: IEntityType entityTypeValue } => liftableConstantFactory.CreateLiftableConstant(
                     constantExpression.Value,
                     LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(entityTypeValue),
-                    entityTypeValue.Name + "EntityType",
+                    entityTypeValue.ShortName() + "EntityType",
                     constantExpression.Type),
                 { Value: IComplexType complexTypeValue } => liftableConstantFactory.CreateLiftableConstant(
                     constantExpression.Value,
                     LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(complexTypeValue),
-                    complexTypeValue.Name + "ComplexType",
+                    complexTypeValue.ShortName() + "ComplexType",
                     constantExpression.Type),
                 { Value: IProperty propertyValue } => liftableConstantFactory.CreateLiftableConstant(
                     constantExpression.Value,
@@ -501,7 +501,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                         LiftableConstantExpressionHelpers.BuildMemberAccessForEntityOrComplexType(typeBase, resolverPrm),
                                         EntityTypeFindPrimaryKeyMethod),
                                     resolverPrm),
-                                typeBase.Name + "Key",
+                                /*typeBase.Name +*/ "key",
                                 typeof(IKey))
                             : Constant(primaryKey),
                             NewArrayInit(
@@ -635,8 +635,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         Snapshot.Empty,
                         static _ => Snapshot.Empty,
                         "emptySnapshot",
-                        typeof(Snapshot))
-                    : Constant(Snapshot.Empty)));
+                        typeof(ISnapshot))
+                    : Constant(Snapshot.Empty, typeof(ISnapshot))));
 
             var returnType = typeBase.ClrType;
             var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
@@ -663,7 +663,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     ? _liftableConstantFactory.CreateLiftableConstant(
                         concreteEntityTypes[i],
                         LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(concreteEntityType),
-                        concreteEntityType.Name + (typeBase is IEntityType ? "EntityType" : "ComplexType"),
+                        concreteEntityType.ShortName() + (typeBase is IEntityType ? "EntityType" : "ComplexType"),
                         typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType))
                     : Constant(concreteEntityTypes[i], typeBase is IEntityType ? typeof(IEntityType) : typeof(IComplexType)));
             }

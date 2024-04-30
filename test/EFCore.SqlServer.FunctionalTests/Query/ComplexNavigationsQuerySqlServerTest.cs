@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -21,6 +22,61 @@ public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelat
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Distinct_skip_without_orderby(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  where l1.Id < 3
+                  select (from l3 in ss.Set<Level3>()
+                          select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [l2].[Name]
+    FROM (
+        SELECT [l1].[Id], [l1].[Name]
+        FROM (
+            SELECT DISTINCT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+            FROM [LevelThree] AS [l0]
+        ) AS [l1]
+        ORDER BY (SELECT 1)
+        OFFSET 1 ROWS
+    ) AS [l2]
+    ORDER BY [l2].[Id])
+FROM [LevelOne] AS [l]
+WHERE [l].[Id] < 3
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Distinct_take_without_orderby(bool async)
+    {
+        await AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      where l1.Id < 3
+                      select (from l3 in ss.Set<Level3>()
+                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+
+        AssertSql(
+"""
+SELECT (
+    SELECT TOP(1) [l1].[Name]
+    FROM (
+        SELECT DISTINCT TOP(1) [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+        FROM [LevelThree] AS [l0]
+    ) AS [l1]
+    ORDER BY [l1].[Id])
+FROM [LevelOne] AS [l]
+WHERE [l].[Id] < 3
+""");
+    }
 
     public override async Task Entity_equality_empty(bool async)
     {
@@ -3995,47 +4051,6 @@ END <> N'L' OR CASE
     WHEN [l0].[Id] IS NULL THEN NULL
     ELSE [l1].[Name]
 END IS NULL
-""");
-    }
-
-    public override async Task Distinct_skip_without_orderby(bool async)
-    {
-        await base.Distinct_skip_without_orderby(async);
-
-        AssertSql(
-            """
-SELECT (
-    SELECT TOP(1) [l2].[Name]
-    FROM (
-        SELECT [l1].[Id], [l1].[Name]
-        FROM (
-            SELECT DISTINCT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
-            FROM [LevelThree] AS [l0]
-        ) AS [l1]
-        ORDER BY (SELECT 1)
-        OFFSET 1 ROWS
-    ) AS [l2]
-    ORDER BY [l2].[Id])
-FROM [LevelOne] AS [l]
-WHERE [l].[Id] < 3
-""");
-    }
-
-    public override async Task Distinct_take_without_orderby(bool async)
-    {
-        await base.Distinct_take_without_orderby(async);
-
-        AssertSql(
-            """
-SELECT (
-    SELECT TOP(1) [l1].[Name]
-    FROM (
-        SELECT DISTINCT TOP(1) [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
-        FROM [LevelThree] AS [l0]
-    ) AS [l1]
-    ORDER BY [l1].[Id])
-FROM [LevelOne] AS [l]
-WHERE [l].[Id] < 3
 """);
     }
 

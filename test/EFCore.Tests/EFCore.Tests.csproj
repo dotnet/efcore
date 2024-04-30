@@ -6,6 +6,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <Nullable>disable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
+    <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precompiled query is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -71,7 +69,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Name { get; }
+    public virtual string? Name { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -117,11 +115,12 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
         if (!clientEval
             // TODO: Remove once __jObject is translated to the access root in a better fashion and
             // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
+            // TODO: We shouldn't be returning null from here
             && property.Name != StoreKeyConvention.JObjectPropertyName
-            && expression.Name.Length == 0)
+            && expression.Name?.Length is null or 0)
         {
             // Non-persisted property can't be translated
-            return null;
+            return null!;
         }
 
         return (Expression)expression;
@@ -154,10 +153,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
         }
 
         if (!clientEval
-            && expression.Name.Length == 0)
+            && expression.Name?.Length is null or 0)
         {
             // Non-persisted navigation can't be translated
-            return null;
+            // TODO: We shouldn't be returning null from here
+            return null!;
         }
 
         return (Expression)expression;
@@ -169,11 +169,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression BindMember(
+    public virtual Expression? BindMember(
         string name,
         Type entityType,
         bool clientEval,
-        out IPropertyBase propertyBase)
+        out IPropertyBase? propertyBase)
         => BindMember(MemberIdentity.Create(name), entityType, clientEval, out propertyBase);
 
     /// <summary>
@@ -182,14 +182,14 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression BindMember(
+    public virtual Expression? BindMember(
         MemberInfo memberInfo,
         Type entityType,
         bool clientEval,
-        out IPropertyBase propertyBase)
+        out IPropertyBase? propertyBase)
         => BindMember(MemberIdentity.Create(memberInfo), entityType, clientEval, out propertyBase);
 
-    private Expression BindMember(MemberIdentity member, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
+    private Expression? BindMember(MemberIdentity member, Type? entityClrType, bool clientEval, out IPropertyBase? propertyBase)
     {
         var entityType = EntityType;
         if (entityClrType != null
@@ -199,7 +199,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
         }
 
         var property = member.MemberInfo == null
-            ? entityType.FindProperty(member.Name)
+            ? entityType.FindProperty(member.Name!)
             : entityType.FindProperty(member.MemberInfo);
         if (property != null)
         {
@@ -208,7 +208,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
         }
 
         var navigation = member.MemberInfo == null
-            ? entityType.FindNavigation(member.Name)
+            ? entityType.FindNavigation(member.Name!)
             : entityType.FindNavigation(member.MemberInfo);
         if (navigation != null)
         {
@@ -254,7 +254,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
                 || obj is EntityProjectionExpression entityProjectionExpression
