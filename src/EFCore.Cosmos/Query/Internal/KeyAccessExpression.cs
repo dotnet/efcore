@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -41,9 +39,7 @@ public class KeyAccessExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-#pragma warning disable 109
     public new virtual IProperty Property { get; }
-#pragma warning restore 109
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -101,7 +97,7 @@ public class KeyAccessExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
                 || obj is KeyAccessExpression keyAccessExpression

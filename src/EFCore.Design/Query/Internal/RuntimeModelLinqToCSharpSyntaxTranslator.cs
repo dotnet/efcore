@@ -44,10 +44,11 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
-        ISet<string> collectedNamespaces)
+        ISet<string> collectedNamespaces,
+        ISet<MethodDeclarationSyntax> unsafeAccessors)
     {
         _memberAccessReplacements = memberAccessReplacements;
-        var result = TranslateStatement(node, constantReplacements, collectedNamespaces);
+        var result = TranslateStatement(node, constantReplacements, collectedNamespaces, unsafeAccessors);
         _memberAccessReplacements = null;
         return result;
     }
@@ -62,10 +63,11 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
         Expression node,
         IReadOnlyDictionary<object, string>? constantReplacements,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
-        ISet<string> collectedNamespaces)
+        ISet<string> collectedNamespaces,
+        ISet<MethodDeclarationSyntax> unsafeAccessors)
     {
         _memberAccessReplacements = memberAccessReplacements;
-        var result = TranslateExpression(node, constantReplacements, collectedNamespaces);
+        var result = TranslateExpression(node, constantReplacements, collectedNamespaces, unsafeAccessors);
         _memberAccessReplacements = null;
         return result;
     }
@@ -120,7 +122,7 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
     protected override void TranslateNonPublicMemberAssignment(MemberExpression memberExpression, Expression value, SyntaxKind assignmentKind)
     {
         var propertyInfo = memberExpression.Member as PropertyInfo;
-        var member = propertyInfo?.SetMethod! ?? memberExpression.Member;
+        var member = propertyInfo?.SetMethod ?? memberExpression.Member;
         if (_memberAccessReplacements?.TryGetValue(member, out var methodName) == true)
         {
             AddNamespace(methodName.Namespace);
@@ -134,10 +136,10 @@ public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTransl
                 Result = InvocationExpression(
                     IdentifierName(methodName.Name),
                     ArgumentList(SeparatedList(new[]
-                        {
-                            Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
-                            Argument(Translate<ExpressionSyntax>(value))
-                        })));
+                    {
+                        Argument(Translate<ExpressionSyntax>(memberExpression.Expression)),
+                        Argument(Translate<ExpressionSyntax>(value))
+                    })));
             }
             else
             {

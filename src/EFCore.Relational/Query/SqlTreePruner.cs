@@ -259,6 +259,6 @@ public class SqlTreePruner : ExpressionVisitor
         CurrentTableAlias = parentTableAlias;
 
         return select.Update(
-            projections ?? select.Projection, tables ?? select.Tables, predicate, groupBy, having, orderings, limit, offset);
+            tables ?? select.Tables, predicate, groupBy, having, projections ?? select.Projection, orderings, offset, limit);
     }
 }

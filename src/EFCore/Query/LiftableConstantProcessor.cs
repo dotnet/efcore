@@ -219,6 +219,11 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             body = convertNode.Operand;
         }
 
+        if (body.Type != liftableConstant.Type)
+        {
+            body = Expression.Convert(body, liftableConstant.Type);
+        }
+
         // Register the lifted constant; note that the name will be uniquified later
         var variableParameter = Expression.Parameter(liftableConstant.Type, liftableConstant.VariableName);
         _liftedConstants.Add(new(variableParameter, body));

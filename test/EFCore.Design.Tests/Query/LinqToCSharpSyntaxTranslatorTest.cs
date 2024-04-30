@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -16,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper)
 {
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
-
     [Theory]
     [InlineData("hello", "\"hello\"")]
     [InlineData(1, "1")]
@@ -33,9 +32,7 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
     [InlineData(true, "true")]
     [InlineData(typeof(string), "typeof(string)")]
     public void Constant_values(object constantValue, string literalRepresentation)
-        => AssertExpression(
-            Constant(constantValue),
-            literalRepresentation);
+        => AssertExpression(Constant(constantValue), literalRepresentation);
 
     [Fact]
     public void Constant_DateTime_default()
@@ -105,14 +102,6 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
             PowerAssign(Parameter(typeof(double), "d"), Constant(3.0)),
             "d = Math.Pow(d, 3D)");
 
-    [Fact]
-    public void Private_instance_field_SimpleAssign()
-        => AssertExpression(
-            Assign(
-                Field(Parameter(typeof(Blog), "blog"), "_privateField"),
-                Constant(3)),
-            """typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 3)""");
-
     [Theory]
     [InlineData(ExpressionType.AddAssign, "+=")]
     [InlineData(ExpressionType.MultiplyAssign, "*=")]
@@ -130,7 +119,14 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
                 expressionType,
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            $"""typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 3)""");
+            $"UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog__privateField_Set(blog) {op} 3",
+            unsafeAccessorsAsserter: unsafeAccessors => Assert.Equal(
+                """
+[UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_privateField")]
+private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog__privateField_Set(LinqToCSharpSyntaxTranslatorTest.Blog instance);
+""",
+                Assert.Single(unsafeAccessors),
+                ignoreLineEndingDifferences: true));
 
     [Theory]
     [InlineData(ExpressionType.AddAssign, "+=")]
@@ -149,11 +145,9 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
                 expressionType,
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(3)),
-            $"""AccessPrivateField(blog) {op} Three""",
-            new Dictionary<object, string>() { { 3, "Three" } },
-            new Dictionary<MemberInfo, QualifiedName>() {
+            $"""AccessPrivateField(blog) {op} Three""", new Dictionary<object, string>() { { 3, "Three" } }, new Dictionary<MemberInfo, QualifiedName>() {
                 { BlogPrivateField, new QualifiedName("AccessPrivateField", "") }
-                });
+            });
 
     [Theory]
     [InlineData(ExpressionType.Negate, "-i")]
@@ -192,7 +186,7 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
                 MakeUnary(expressionType, i, typeof(int))),
             $$"""
 {
-    int i;
+    int i = default;
     {{expected}};
 }
 """);
@@ -253,24 +247,63 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
             "DateTime.Now");
 
     [Fact]
+    public void Indexer_property()
+        => AssertExpression(
+            Call(
+                New(typeof(List<int>)),
+                typeof(List<int>).GetProperties().Single(
+                        p => p.GetIndexParameters() is { Length: 1 } indexParameters && indexParameters[0].ParameterType == typeof(int))
+                    .GetMethod!,
+                Constant(1)), "new List<int>()[1]");
+
+    [Fact]
     public void Private_instance_field_read()
         => AssertExpression(
-            Field(Parameter(typeof(Blog), "blog"), "_privateField"),
-            """(int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog)""");
+            Field(
+                Parameter(typeof(Blog), "blog"),
+                "_privateField"),
+            "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog__privateField_Get(blog)", unsafeAccessorsAsserter: accessors =>
+                Assert.Equal(
+                    """
+[UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_privateField")]
+private static extern int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog__privateField_Get(LinqToCSharpSyntaxTranslatorTest.Blog instance);
+""",
+                    Assert.Single(accessors),
+                    ignoreLineEndingDifferences: true));
 
     [Fact]
     public void Private_instance_field_write()
         => AssertStatement(
             Assign(
-                Field(Parameter(typeof(Blog), "blog"), "_privateField"),
+                Field(
+                    Parameter(typeof(Blog), "blog"),
+                    "_privateField"),
                 Constant(8)),
-            """typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, 8)""");
+            "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog__privateField_Set(blog) = 8", unsafeAccessorsAsserter: accessors =>
+                Assert.Equal(
+                    """
+[UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_privateField")]
+private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog__privateField_Set(LinqToCSharpSyntaxTranslatorTest.Blog instance);
+""",
+                    Assert.Single(accessors),
+                    ignoreLineEndingDifferences: true));
+
+    // TODO: Also test accessing private static fields
+    // TODO: Also test accessing private properties, instance and static
 
     [Fact]
     public void Internal_instance_field_read()
         => AssertExpression(
-            Field(Parameter(typeof(Blog), "blog"), "InternalField"),
-            """(int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("InternalField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog)""");
+            Field(
+                Parameter(typeof(Blog), "blog"),
+                "InternalField"),
+            "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_InternalField_Get(blog)", unsafeAccessorsAsserter: unsafeAccessors => Assert.Equal(
+                """
+[UnsafeAccessor(UnsafeAccessorKind.Field, Name = "InternalField")]
+private static extern int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blog_InternalField_Get(LinqToCSharpSyntaxTranslatorTest.Blog instance);
+""",
+                Assert.Single(unsafeAccessors),
+                ignoreLineEndingDifferences: true));
 
     [Fact]
     public void Not()
@@ -429,7 +462,7 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
     {
         var (translator, _) = CreateTranslator();
         var namespaces = new HashSet<string>();
-        _ = translator.TranslateExpression(Call(FooMethod), null, namespaces);
+        _ = translator.TranslateExpression(Call(FooMethod), null, namespaces, new HashSet<MethodDeclarationSyntax>());
         Assert.Collection(
             namespaces,
             ns => Assert.Equal(typeof(LinqToCSharpSyntaxTranslatorTest).Namespace, ns));
@@ -448,9 +481,9 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
                 Call(WithInOutRefParameterMethod, [inParam, outParam, refParam])),
             """
 {
-    int inParam;
-    int outParam;
-    int refParam;
+    int inParam = default;
+    int outParam = default;
+    int refParam = default;
     LinqToCSharpSyntaxTranslatorTest.WithInOutRefParameter(in inParam, out outParam, ref refParam);
 }
 """);
@@ -467,19 +500,36 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
     [Fact]
     public void Instantiation_with_required_properties_and_parameterless_constructor()
         => AssertExpression(
-            New(
-                typeof(BlogWithRequiredProperties).GetConstructor([])!),
-            """
-Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties>()
-""");
+            New(typeof(BlogWithRequiredProperties).GetConstructor([])!),
+            "UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_BlogWithRequiredProperties_Ctor()",
+            unsafeAccessorsAsserter: unsafeAccessors => Assert.Equal(
+                """
+[UnsafeAccessor(UnsafeAccessorKind.Constructor)]
+private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_BlogWithRequiredProperties_Ctor();
+""",
+                Assert.Single(unsafeAccessors),
+                ignoreLineEndingDifferences: true));
+
+//         => AssertExpression(
+//             New(typeof(BlogWithRequiredProperties).GetConstructor([])!),
+//             """
+// Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties>()
+// """);
 
     [Fact]
     public void Instantiation_with_required_properties_and_non_parameterless_constructor()
-        => Assert.Throws<NotImplementedException>(
-            () => AssertExpression(
-                New(
-                    typeof(BlogWithRequiredProperties).GetConstructor([typeof(string)])!,
-                    Constant("foo")), ""));
+        => AssertExpression(
+            New(
+                typeof(BlogWithRequiredProperties).GetConstructor([typeof(string)])!,
+                Constant("foo")),
+            """UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_BlogWithRequiredProperties_Ctor("foo")""",
+            unsafeAccessorsAsserter: unsafeAccessors => Assert.Equal(
+                """
+[UnsafeAccessor(UnsafeAccessorKind.Constructor)]
+private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProperties UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_BlogWithRequiredProperties_Ctor(string name);
+""",
+                Assert.Single(unsafeAccessors),
+                ignoreLineEndingDifferences: true));
 
     [Fact]
     public void Instantiation_with_required_properties_with_SetsRequiredMembers()
@@ -570,6 +620,17 @@ Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProper
 }
 """);
     }
+
+    [Fact]
+    public void Invocation_with_property_argument()
+        => AssertExpression(
+            Invoke(
+                Property(
+                    expression: null,
+                    typeof(LinqToCSharpSyntaxTranslatorTest).GetProperty(
+                        nameof(LambdaExpressionProperty), BindingFlags.Public | BindingFlags.Static)!),
+                Constant(8)),
+            "LinqToCSharpSyntaxTranslatorTest.LambdaExpressionProperty(8)");
 
     [Fact]
     public void Conditional_expression()
@@ -669,7 +730,7 @@ Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProper
                         Block(Assign(variable, Constant(3)))))),
             """
 {
-    int i;
+    int i = default;
     if (true)
     {
         i = 1;
@@ -788,7 +849,7 @@ Activator.CreateInstance<LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredProper
                             Constant(200))))),
             """
 {
-    int k;
+    int k = default;
     var j = 8;
     var i = j switch
     {
@@ -852,7 +913,7 @@ else
                     SwitchCase(Block(typeof(void), Assign(parameter, Constant(10))), Constant(-10)))),
             """
 {
-    int i;
+    int i = default;
     switch (7)
     {
         case -9:
@@ -886,7 +947,7 @@ else
                     SwitchCase(Assign(parameter, Constant(10)), Constant(-10)))),
             """
 {
-    int i;
+    int i = default;
     switch (7)
     {
         case -9:
@@ -918,7 +979,7 @@ else
                     SwitchCase(Assign(parameter, Constant(10)), Constant(-10)))),
             """
 {
-    int i;
+    int i = default;
     switch (7)
     {
         case -9:
@@ -1081,8 +1142,7 @@ f1 = (int i) =>
 
     [Fact]
     public void Block_with_non_standalone_expression_as_statement()
-        => AssertStatement(
-            Block(Add(Constant(1), Constant(2))),
+        => AssertStatement(Block(Add(Constant(1), Constant(2))),
             """
 {
     _ = 1 + 2;
@@ -1337,7 +1397,7 @@ new int[]
                             Constant(9))))),
             """
 {
-    int j;
+    int j = default;
     LinqToCSharpSyntaxTranslatorTest.Foo();
     j = 8;
     var i = 9;
@@ -1420,7 +1480,7 @@ new int[]
                         SwitchCase(Constant(2), Constant(9))))),
             """
 {
-    int i;
+    int i = default;
     var j = 8;
     switch (j)
     {
@@ -1474,8 +1534,8 @@ new int[]
                             Constant(200))))),
             """
 {
-    int i;
-    int k;
+    int i = default;
+    int k = default;
     var j = 8;
     switch (j)
     {
@@ -1538,7 +1598,7 @@ new int[]
                         SwitchCase(Constant(3), Parameter(typeof(Blog), "blog4"))))),
             """
 {
-    int i;
+    int i = default;
     if (blog1 == blog2)
     {
         LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(8);
@@ -1889,19 +1949,29 @@ catch
 
     // TODO: try/catch expressions
 
-    private void AssertStatement(Expression expression, string expected,
+    private void AssertStatement(
+        Expression expression,
+        string expected,
         Dictionary<object, string>? constantReplacements = null,
-        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null)
-        => AssertCore(expression, isStatement: true, expected, constantReplacements, memberAccessReplacements);
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null,
+        Action<IReadOnlySet<string>>? unsafeAccessorsAsserter = null)
+        => AssertCore(expected, isStatement: true, expression, constantReplacements, memberAccessReplacements, unsafeAccessorsAsserter);
 
-    private void AssertExpression(Expression expression, string expected,
+    private void AssertExpression(
+        Expression expression,
+        string expected,
         Dictionary<object, string>? constantReplacements = null,
-        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null)
-        => AssertCore(expression, isStatement: false, expected, constantReplacements, memberAccessReplacements);
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null,
+        Action<IReadOnlySet<string>>? unsafeAccessorsAsserter = null)
+        => AssertCore(expected, isStatement: false, expression, constantReplacements, memberAccessReplacements, unsafeAccessorsAsserter);
 
-    private void AssertCore(Expression expression, bool isStatement, string expected,
+    private void AssertCore(
+        string expected,
+        bool isStatement,
+        Expression expression,
         Dictionary<object, string>? constantReplacements,
-        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
+        Action<IReadOnlySet<string>>? unsafeAccessorsAsserter)
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -1909,14 +1979,15 @@ catch
 
         var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();
+        var unsafeAccessors = new HashSet<string>();
         var actual = isStatement
-            ? translator.Statement(expression, namespaces, constantReplacements, memberAccessReplacements)
-            : translator.Expression(expression, namespaces, constantReplacements, memberAccessReplacements);
+            ? translator.Statement(expression, namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements)
+            : translator.Expression(expression, namespaces, unsafeAccessors, constantReplacements, memberAccessReplacements);
 
         if (_outputExpressionTrees)
         {
-            _testOutputHelper.WriteLine("---- Input LINQ expression tree:");
-            _testOutputHelper.WriteLine(_expressionPrinter.PrintExpression(expression));
+            testOutputHelper.WriteLine("---- Input LINQ expression tree:");
+            testOutputHelper.WriteLine(_expressionPrinter.PrintExpression(expression));
         }
 
         // TODO: Actually compile the output C# code to make sure it's valid.
@@ -1928,16 +1999,25 @@ catch
 
             if (_outputExpressionTrees)
             {
-                _testOutputHelper.WriteLine("---- Output Roslyn syntax tree:");
-                _testOutputHelper.WriteLine(actual);
+                testOutputHelper.WriteLine("---- Output Roslyn syntax tree:");
+                testOutputHelper.WriteLine(actual);
             }
         }
         catch (EqualException)
         {
-            _testOutputHelper.WriteLine("---- Output Roslyn syntax tree:");
-            _testOutputHelper.WriteLine(actual);
+            testOutputHelper.WriteLine("---- Output Roslyn syntax tree:");
+            testOutputHelper.WriteLine(actual);
 
             throw;
+        }
+
+        if (unsafeAccessorsAsserter is null)
+        {
+            Assert.Empty(unsafeAccessors);
+        }
+        else
+        {
+            unsafeAccessorsAsserter(unsafeAccessors);
         }
     }
 
@@ -1993,6 +2073,7 @@ catch
     public static int MethodWithSixParams(int a, int b, int c, int d, int e, int f)
         => a + b + c + d + e + f;
 
+    public static Expression<Func<int, bool>> LambdaExpressionProperty => f => f > 5;
 
     private static readonly FieldInfo BlogPrivateField
         = typeof(Blog).GetField("_privateField", BindingFlags.NonPublic | BindingFlags.Instance)!;

@@ -37,11 +37,11 @@ public class CosmosStringMemberTranslator : IMemberTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (member.Name == nameof(string.Length)
-            && instance?.Type == typeof(string))
+            && member.DeclaringType == typeof(string))
         {
             return _sqlExpressionFactory.Function(
                 "LENGTH",
-                new[] { instance },
+                new[] { instance! },
                 returnType);
         }
 

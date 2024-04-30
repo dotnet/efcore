@@ -367,7 +367,7 @@ public class SqlNullabilityProcessor
 
         var limit = Visit(selectExpression.Limit, out _);
 
-        return selectExpression.Update(projections, tables, predicate, groupBy, having, orderings, limit, offset);
+        return selectExpression.Update(tables, predicate, groupBy, having, projections, orderings, offset, limit);
     }
 
     /// <summary>
@@ -376,7 +376,7 @@ public class SqlNullabilityProcessor
     /// <param name="sqlExpression">A sql expression to visit.</param>
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     protected virtual SqlExpression? Visit(SqlExpression? sqlExpression, out bool nullable)
         => Visit(sqlExpression, allowOptimizedExpansion: false, out nullable);
 
@@ -387,11 +387,11 @@ public class SqlNullabilityProcessor
     /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
     /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
     /// <returns>An optimized sql expression.</returns>
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     protected virtual SqlExpression? Visit(SqlExpression? sqlExpression, bool allowOptimizedExpansion, out bool nullable)
         => Visit(sqlExpression, allowOptimizedExpansion, preserveColumnNullabilityInformation: false, out nullable);
 
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     private SqlExpression? Visit(
         SqlExpression? sqlExpression,
         bool allowOptimizedExpansion,
@@ -670,9 +670,14 @@ public class SqlNullabilityProcessor
             var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion, out var projectionNullable);
             inExpression = inExpression.Update(
                 item, subquery.Update(
-                    [subquery.Projection[0].Update(projectionExpression)],
-                    subquery.Tables, subquery.Predicate, subquery.GroupBy, subquery.Having, subquery.Orderings, subquery.Limit,
-                    subquery.Offset));
+                    subquery.Tables,
+                    subquery.Predicate,
+                    subquery.GroupBy,
+                    subquery.Having,
+                    projections: [subquery.Projection[0].Update(projectionExpression)],
+                    subquery.Orderings,
+                    subquery.Offset,
+                    subquery.Limit));
 
             if (UseRelationalNulls)
             {
@@ -779,14 +784,14 @@ public class SqlNullabilityProcessor
 
                     // No need for a projection with EXISTS, clear it to get SELECT 1
                     subquery = subquery.Update(
-                        [],
                         subquery.Tables,
                         subquery.Predicate,
                         subquery.GroupBy,
                         subquery.Having,
+                        [],
                         subquery.Orderings,
-                        subquery.Limit,
-                        subquery.Offset);
+                        subquery.Offset,
+                        subquery.Limit);
 
                     var predicate = VisitSqlBinary(
                         _sqlExpressionFactory.Equal(subqueryProjection, item), allowOptimizedExpansion: true, out _);
@@ -2077,14 +2082,15 @@ public class SqlNullabilityProcessor
 #pragma warning restore EF1001
 
             rewrittenSelectExpression = rewrittenSelectExpression.Update(
-                projection, // TODO: We should change the project column to be non-nullable, but it's too closed down for that.
                 new[] { rewrittenCollectionTable },
                 selectExpression.Predicate,
                 selectExpression.GroupBy,
                 selectExpression.Having,
+                // TODO: We should change the project column to be non-nullable, but it's too closed down for that.
+                projection,
                 selectExpression.Orderings,
-                selectExpression.Limit,
-                selectExpression.Offset);
+                selectExpression.Offset,
+                selectExpression.Limit);
 
             return true;
         }

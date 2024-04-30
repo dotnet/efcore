@@ -131,10 +131,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(ILazyLoaderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-            {
-                typeof(IEvaluatableExpressionFilterPlugin),
-                new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)
-            },
+            { typeof(IEvaluatableExpressionFilterPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(ISingletonOptions), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(IConventionSetPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
             { typeof(ISingletonInterceptor), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },

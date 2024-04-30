@@ -472,7 +472,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     ///     An instance of <see cref="IDbContextTransaction" /> that wraps the provided transaction, or <see langword="null" />
     ///     if <paramref name="transaction" /> is <see langword="null" />.
     /// </returns>
-    [return: NotNullIfNotNull("transaction")]
+    [return: NotNullIfNotNull(nameof(transaction))]
     public virtual IDbContextTransaction? UseTransaction(DbTransaction? transaction, Guid transactionId)
     {
         if (ShouldUseTransaction(transaction))

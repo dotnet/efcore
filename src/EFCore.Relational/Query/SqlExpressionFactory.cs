@@ -30,7 +30,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     protected virtual SqlExpressionFactoryDependencies Dependencies { get; }
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
         => sqlExpression is not { TypeMapping: null }
             ? sqlExpression
@@ -41,7 +41,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
 
     /// <inheritdoc />
-    [return: NotNullIfNotNull("sqlExpression")]
+    [return: NotNullIfNotNull(nameof(sqlExpression))]
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
         => sqlExpression switch
         {
@@ -509,9 +509,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         SqlExpression operand,
         Type type,
         RelationalTypeMapping? typeMapping = null)
-        => !SqlUnaryExpression.IsValidOperator(operatorType)
-            ? null
-            : (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
+        => SqlUnaryExpression.IsValidOperator(operatorType)
+            ? (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping)
+            : null;
 
     /// <inheritdoc />
     public virtual SqlUnaryExpression IsNull(SqlExpression operand)

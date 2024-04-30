@@ -946,7 +946,7 @@ public partial class NavigationExpandingExpressionVisitor
             _applyIncludes = applyIncludes;
         }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is NavigationExpansionExpression navigationExpansionExpression)
@@ -972,7 +972,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class ReducingExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)
@@ -1046,7 +1046,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
     {
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is EntityReference entityReference)
@@ -1097,7 +1097,7 @@ public partial class NavigationExpandingExpressionVisitor
         public IReadOnlyDictionary<NavigationTreeNode, NavigationTreeNode> ClonedNodesMap
             => _clonedMap;
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             switch (expression)
@@ -1164,7 +1164,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public bool ContainsGrouping { get; private set; }
 
-        [return: NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression == _parameterExpression)

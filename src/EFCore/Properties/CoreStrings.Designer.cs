@@ -995,6 +995,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantInvoked");
 
         /// <summary>
+        ///     The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.
+        /// </summary>
+        public static string EFConstantNotSupportedInPrecompiledQueries
+            => GetString("EFConstantNotSupportedInPrecompiledQueries");
+
+        /// <summary>
         ///     The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
         /// </summary>
         public static string EFConstantWithNonEvaluatableArgument
@@ -2234,6 +2240,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     When precompiling queries, the '{parameter}' parameter of method '{method}' cannot be parameterized.
+        /// </summary>
+        public static string NotParameterizedAttributeWithNonConstantNotSupportedInPrecompiledQueries(object? parameter, object? method)
+            => string.Format(
+                GetString("NotParameterizedAttributeWithNonConstantNotSupportedInPrecompiledQueries", nameof(parameter), nameof(method)),
+                parameter, method);
+
+        /// <summary>
         ///     The given 'IQueryable' does not support generation of query strings.
         /// </summary>
         public static string NotQueryingEnumerable
@@ -2338,6 +2352,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string PoolingOptionsModified
             => GetString("PoolingOptionsModified");
+
+        /// <summary>
+        ///     Precompiled queries aren't supported by the current provider.
+        /// </summary>
+        public static string PrecompiledQueryNotSupported
+            => GetString("PrecompiledQueryNotSupported");
 
         /// <summary>
         ///     The derived type '{derivedType}' cannot have the [PrimaryKey] attribute since primary keys may only be declared on the root type. Move the attribute to '{rootType}', or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.

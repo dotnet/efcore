@@ -2020,7 +2020,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var switchCases = new List<SwitchCase>();
                     var testsCount = testExpressions.Count;
 
-                    // generate PropertyName switch-case code 
+                    // generate PropertyName switch-case code
                     if (testsCount > 0)
                     {
                         var testExpression = IfThen(
@@ -3039,7 +3039,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return _containsCollection;
             }
 
-            [return: NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (_containsCollection)

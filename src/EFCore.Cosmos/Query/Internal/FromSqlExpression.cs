@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -70,7 +68,7 @@ public class FromSqlExpression : RootReferenceExpression, IPrintableExpression
         => expressionPrinter.Append(Sql);
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
                 || obj is FromSqlExpression fromSqlExpression

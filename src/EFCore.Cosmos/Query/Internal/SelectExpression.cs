@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable warnings
-
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Container = System.ComponentModel.Container;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -21,8 +20,8 @@ public class SelectExpression : Expression
     private readonly List<ProjectionExpression> _projection = [];
     private readonly List<OrderingExpression> _orderings = [];
 
-    private ValueConverter _partitionKeyValueConverter;
-    private Expression _partitionKeyValue;
+    private ValueConverter? _partitionKeyValueConverter;
+    private Expression? _partitionKeyValue;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +31,8 @@ public class SelectExpression : Expression
     /// </summary>
     public SelectExpression(IEntityType entityType)
     {
-        Container = entityType.GetContainer();
+        // TODO: All queries should reference a non-null container ID, but GetContainer returns null for owned entities.
+        Container = entityType.GetContainer()!;
         FromExpression = new RootReferenceExpression(entityType, RootAlias);
         _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, FromExpression);
     }
@@ -45,26 +45,11 @@ public class SelectExpression : Expression
     /// </summary>
     public SelectExpression(IEntityType entityType, string sql, Expression argument)
     {
-        Container = entityType.GetContainer();
+        // TODO: All queries should reference a non-null container ID, but GetContainer returns null for owned entities.
+        Container = entityType.GetContainer()!;
         FromExpression = new FromSqlExpression(entityType, RootAlias, sql, argument);
         _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(
             entityType, new RootReferenceExpression(entityType, RootAlias));
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SelectExpression(
-        List<ProjectionExpression> projections,
-        RootReferenceExpression fromExpression,
-        List<OrderingExpression> orderings)
-    {
-        _projection = projections;
-        FromExpression = fromExpression;
-        _orderings = orderings;
     }
 
     private SelectExpression(
@@ -72,8 +57,10 @@ public class SelectExpression : Expression
         RootReferenceExpression fromExpression,
         List<OrderingExpression> orderings,
         string container)
-        : this(projections, fromExpression, orderings)
     {
+        _projection = projections;
+        FromExpression = fromExpression;
+        _orderings = orderings;
         Container = container;
     }
 
@@ -117,7 +104,7 @@ public class SelectExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Predicate { get; private set; }
+    public virtual SqlExpression? Predicate { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,7 +112,7 @@ public class SelectExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Limit { get; private set; }
+    public virtual SqlExpression? Limit { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,7 +120,7 @@ public class SelectExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Offset { get; private set; }
+    public virtual SqlExpression? Offset { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -170,21 +157,21 @@ public class SelectExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string GetPartitionKey(IReadOnlyDictionary<string, object> parameterValues)
+    public virtual string? GetPartitionKey(IReadOnlyDictionary<string, object> parameterValues)
     {
         return _partitionKeyValue switch
         {
             ConstantExpression constantExpression
                 => GetString(_partitionKeyValueConverter, constantExpression.Value),
-            ParameterExpression parameterExpression when parameterValues.TryGetValue(parameterExpression.Name, out var value)
+            ParameterExpression parameterExpression when parameterValues.TryGetValue(parameterExpression.Name!, out var value)
                 => GetString(_partitionKeyValueConverter, value),
             _ => null
         };
 
-        static string GetString(ValueConverter converter, object value)
+        static string? GetString(ValueConverter? converter, object? value)
             => converter is null
-                ? (string)value
-                : (string)converter.ConvertToProvider(value);
+                ? (string?)value
+                : (string?)converter.ConvertToProvider(value);
     }
 
     /// <summary>
@@ -254,7 +241,7 @@ public class SelectExpression : Expression
     public virtual int AddToProjection(ObjectArrayProjectionExpression objectArrayProjection)
         => AddToProjection(objectArrayProjection, null);
 
-    private int AddToProjection(Expression expression, string alias)
+    private int AddToProjection(Expression expression, string? alias)
     {
         var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(expression));
         if (existingIndex != -1)
@@ -477,7 +464,7 @@ public class SelectExpression : Expression
         var fromExpression = (RootReferenceExpression)visitor.Visit(FromExpression);
         changed |= fromExpression != FromExpression;
 
-        var predicate = (SqlExpression)visitor.Visit(Predicate);
+        var predicate = (SqlExpression?)visitor.Visit(Predicate);
         changed |= predicate != Predicate;
 
         var orderings = new List<OrderingExpression>();
@@ -488,15 +475,15 @@ public class SelectExpression : Expression
             orderings.Add(ordering.Update(orderingExpression));
         }
 
-        var offset = (SqlExpression)visitor.Visit(Offset);
+        var offset = (SqlExpression?)visitor.Visit(Offset);
         changed |= offset != Offset;
 
-        var limit = (SqlExpression)visitor.Visit(Limit);
+        var limit = (SqlExpression?)visitor.Visit(Limit);
         changed |= limit != Limit;
 
         if (changed)
         {
-            var newSelectExpression = new SelectExpression(projections, fromExpression, orderings)
+            var newSelectExpression = new SelectExpression(projections, fromExpression, orderings, Container)
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
@@ -521,7 +508,7 @@ public class SelectExpression : Expression
         List<ProjectionExpression> projections,
         RootReferenceExpression fromExpression,
         SqlExpression? predicate,
-        List<OrderingExpression>? orderings,
+        List<OrderingExpression> orderings,
         SqlExpression? limit,
         SqlExpression? offset)
     {

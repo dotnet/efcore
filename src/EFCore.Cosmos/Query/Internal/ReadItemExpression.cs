@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -75,7 +73,8 @@ public class ReadItemExpression : Expression
         IEntityType entityType,
         IDictionary<IProperty, string> propertyParameters)
     {
-        Container = entityType.GetContainer();
+        Container = entityType.GetContainer()
+            ?? throw new UnreachableException("No container ID, or trying to perform ReadItem on owned entity type");
 
         ProjectionExpression = new ProjectionExpression(
             new EntityProjectionExpression(

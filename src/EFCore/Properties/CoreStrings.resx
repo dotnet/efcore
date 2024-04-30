@@ -486,6 +486,9 @@
   <data name="EFConstantInvoked" xml:space="preserve">
     <value>The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
   </data>
+  <data name="EFConstantNotSupportedInPrecompiledQueries" xml:space="preserve">
+    <value>The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.</value>
+  </data>
   <data name="EFConstantWithNonEvaluatableArgument" xml:space="preserve">
     <value>The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
   </data>
@@ -1291,6 +1294,9 @@
   <data name="NotCollection" xml:space="preserve">
     <value>The property '{entityType}.{property}' cannot be mapped as a collection since it does not implement 'IEnumerable&lt;T&gt;'.</value>
   </data>
+  <data name="NotParameterizedAttributeWithNonConstantNotSupportedInPrecompiledQueries" xml:space="preserve">
+    <value>When precompiling queries, the '{parameter}' parameter of method '{method}' cannot be parameterized.</value>
+  </data>
   <data name="NotQueryingEnumerable" xml:space="preserve">
     <value>The given 'IQueryable' does not support generation of query strings.</value>
   </data>
@@ -1332,6 +1338,9 @@
   </data>
   <data name="PoolingOptionsModified" xml:space="preserve">
     <value>'OnConfiguring' cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
+  </data>
+  <data name="PrecompiledQueryNotSupported" xml:space="preserve">
+    <value>Precompiled queries aren't supported by the current provider.</value>
   </data>
   <data name="PrimaryKeyAttributeOnDerivedEntity" xml:space="preserve">
     <value>The derived type '{derivedType}' cannot have the [PrimaryKey] attribute since primary keys may only be declared on the root type. Move the attribute to '{rootType}', or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.</value>
