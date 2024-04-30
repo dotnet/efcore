@@ -789,19 +789,20 @@ public abstract class MigrationsSqlGeneratorTestBase
         MigrationOperation[] operation,
         MigrationsSqlGenerationOptions options)
     {
+        var services = ContextOptions != null
+            ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
+            : TestHelpers.CreateContextServices(CustomServices);
+
         IModel model = null;
         if (buildAction != null)
         {
-            var modelBuilder = TestHelpers.CreateConventionBuilder();
+            var modelBuilder = TestHelpers.CreateConventionBuilder(services);
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildAction(modelBuilder);
 
             model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
         }
 
-        var services = ContextOptions != null
-            ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
-            : TestHelpers.CreateContextServices(CustomServices);
         var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model, options);
 
         Sql = string.Join(
