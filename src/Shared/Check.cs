@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
-[DebuggerStepThrough]
+//[DebuggerStepThrough]
 internal static class Check
 {
     [ContractAnnotation("value:null => halt")]
@@ -17,16 +17,7 @@ internal static class Check
     public static T NotNull<T>(
         [NoEnumeration] [AllowNull] [NotNull] T value,
         [InvokerParameterName] [CallerArgumentExpression(nameof(value))] string parameterName = "")
-    {
-        if (value is null)
-        {
-            NotEmpty(parameterName);
-
-            throw new ArgumentNullException(parameterName);
-        }
-
-        return value;
-    }
+        => value ?? throw new ArgumentNullException(parameterName);
 
     [ContractAnnotation("value:null => halt")]
     public static IReadOnlyList<T> NotEmpty<T>(
@@ -37,9 +28,7 @@ internal static class Check
 
         if (value.Count == 0)
         {
-            NotEmpty(parameterName);
-
-            throw new ArgumentException(AbstractionsStrings.CollectionArgumentIsEmpty(parameterName));
+            throw new ArgumentException(AbstractionsStrings.CollectionArgumentIsEmpty(parameterName), parameterName);
         }
 
         return value;
@@ -52,16 +41,12 @@ internal static class Check
     {
         if (value is null)
         {
-            NotEmpty(parameterName);
-
             throw new ArgumentNullException(parameterName);
         }
 
         if (value.Trim().Length == 0)
         {
-            NotEmpty(parameterName);
-
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName));
+            throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName), parameterName);
         }
 
         return value;
@@ -73,9 +58,7 @@ internal static class Check
     {
         if (value is not null && value.Length == 0)
         {
-            NotEmpty(parameterName);
-
-            throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName));
+            throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName), parameterName);
         }
 
         return value;
@@ -90,9 +73,7 @@ internal static class Check
 
         if (value.Any(e => e == null))
         {
-            NotEmpty(parameterName);
-
-            throw new ArgumentException(parameterName);
+            throw new ArgumentException(parameterName, parameterName);
         }
 
         return value;
@@ -106,9 +87,7 @@ internal static class Check
 
         if (value.Any(s => string.IsNullOrWhiteSpace(s)))
         {
-            NotEmpty(parameterName);
-
-            throw new ArgumentException(AbstractionsStrings.CollectionArgumentHasEmptyElements(parameterName));
+            throw new ArgumentException(AbstractionsStrings.CollectionArgumentHasEmptyElements(parameterName), parameterName);
         }
 
         return value;
