@@ -134,6 +134,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                         || !foreignKey.Properties.SequenceEqual(foreignKeyProperties)))))
         {
             var batch = context.DelayConventions();
+            var newProperties = new List<IConventionProperty?>();
             using var foreignKeyReference = batch.Track(foreignKey);
             foreach (var fkProperty in foreignKey.Properties)
             {
@@ -145,15 +146,23 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
                     if (fkProperty.ClrType != newType)
                     {
-                        fkProperty.DeclaringType.Builder.Property(
-                            newType,
-                            fkProperty.Name,
-                            fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation);
+                        newProperties.Add(
+                            fkProperty.DeclaringType.Builder.Property(
+                                newType,
+                                fkProperty.Name,
+                                fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation)?.Metadata);
                     }
                 }
             }
 
             batch.Dispose();
+
+            // If the new properties didn't end up being used we need to remove them
+            foreach (var newProperty in newProperties)
+            {
+                newProperty?.DeclaringType.Builder.RemoveUnusedImplicitProperties([newProperty]);
+            }
+
             return foreignKeyReference.Object is null || !foreignKeyReference.Object.IsInModel
                 ? null
                 : foreignKeyReference.Object.Builder;

@@ -1279,7 +1279,7 @@ public abstract partial class ModelBuilding101TestBase
 
     [ConditionalFact]
     public virtual void OneToOneRequiredWithAlternateKeyTest()
-        => Assert.Throws<EqualException>(() => Model101Test()); // Issue #30346
+        => Model101Test();
 
     protected class OneToOneRequiredWithAlternateKey
     {
