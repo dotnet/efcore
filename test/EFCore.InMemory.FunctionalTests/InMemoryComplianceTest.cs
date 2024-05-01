@@ -9,6 +9,7 @@ public class InMemoryComplianceTest : ComplianceTestBase
     {
         // No in-memory tests
         typeof(ComplexTypeQueryTestBase<>),
+        typeof(AdHocComplexTypeQueryTestBase),
         typeof(PrimitiveCollectionsQueryTestBase<>),
         typeof(NonSharedPrimitiveCollectionsQueryTestBase),
         typeof(FunkyDataQueryTestBase<>),

@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -59,6 +60,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
 
     private bool _throwForNotTranslatedEfProperty;
+
+    private static readonly bool UseOldBehavior33449 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33449", out var enabled33449) && enabled33449;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
@@ -2045,11 +2049,29 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
-                var newParameterName =
-                    $"{RuntimeParameterPrefix}"
-                    + $"{chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+                if (UseOldBehavior33449)
+                {
+                    var newParameterName =
+                        $"{RuntimeParameterPrefix}"
+                        + $"{chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
-                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                    return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+                }
+                else
+                {
+                    var parameterNameBuilder = new StringBuilder(RuntimeParameterPrefix)
+                        .Append(chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..])
+                        .Append('_');
+
+                    foreach (var complexProperty in chainExpression.ComplexPropertyChain)
+                    {
+                        parameterNameBuilder.Append(complexProperty.Name).Append('_');
+                    }
+
+                    parameterNameBuilder.Append(property.Name);
+
+                    return _queryCompilationContext.RegisterRuntimeParameter(parameterNameBuilder.ToString(), lambda);
+                }
             }
 
             case MemberInitExpression memberInitExpression
