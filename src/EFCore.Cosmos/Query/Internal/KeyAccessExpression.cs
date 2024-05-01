@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class KeyAccessExpression : SqlExpression, IAccessExpression
+public class KeyAccessExpression(IProperty property, Expression accessExpression)
+    : SqlExpression(property.ClrType, property.GetTypeMapping()), IAccessExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,13 +18,7 @@ public class KeyAccessExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public KeyAccessExpression(IProperty property, Expression accessExpression)
-        : base(property.ClrType, property.GetTypeMapping())
-    {
-        Name = property.GetJsonPropertyName();
-        Property = property;
-        AccessExpression = accessExpression;
-    }
+    public virtual string Name { get; } = property.GetJsonPropertyName();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +26,7 @@ public class KeyAccessExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Name { get; }
+    public new virtual IProperty Property { get; } = property;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,15 +34,7 @@ public class KeyAccessExpression : SqlExpression, IAccessExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public new virtual IProperty Property { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Expression AccessExpression { get; }
+    public virtual Expression AccessExpression { get; } = accessExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

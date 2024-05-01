@@ -11,26 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosRegexTranslator : IMethodCallTranslator
+public class CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    : IMethodCallTranslator
 {
     private static readonly MethodInfo IsMatch =
         typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), [typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo IsMatchWithRegexOptions =
         typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), [typeof(string), typeof(string), typeof(RegexOptions)])!;
-
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public CosmosRegexTranslator(ISqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,12 +40,12 @@ public class CosmosRegexTranslator : IMethodCallTranslator
         var (input, pattern) = (arguments[0], arguments[1]);
         var typeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
         (input, pattern) = (
-            _sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
-            _sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping));
+            sqlExpressionFactory.ApplyTypeMapping(input, typeMapping),
+            sqlExpressionFactory.ApplyTypeMapping(pattern, typeMapping));
 
         if (method == IsMatch || arguments[2] is SqlConstantExpression { Value: RegexOptions.None })
         {
-            return _sqlExpressionFactory.Function("RegexMatch", new[] { input, pattern }, typeof(bool));
+            return sqlExpressionFactory.Function("RegexMatch", new[] { input, pattern }, typeof(bool));
         }
 
         if (arguments[2] is SqlConstantExpression { Value: RegexOptions regexOptions })
@@ -89,9 +77,9 @@ public class CosmosRegexTranslator : IMethodCallTranslator
             }
 
             return regexOptions == 0
-                ? _sqlExpressionFactory.Function(
+                ? sqlExpressionFactory.Function(
                     "RegexMatch",
-                    new[] { input, pattern, _sqlExpressionFactory.Constant(modifier) },
+                    new[] { input, pattern, sqlExpressionFactory.Constant(modifier) },
                     typeof(bool))
                 : null; // TODO: Report unsupported RegexOption, #26410
         }

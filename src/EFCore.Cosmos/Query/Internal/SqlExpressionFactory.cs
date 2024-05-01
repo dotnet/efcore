@@ -13,24 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlExpressionFactory : ISqlExpressionFactory
+public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel model)
+    : ISqlExpressionFactory
 {
-    private readonly ITypeMappingSource _typeMappingSource;
-    private readonly IModel _model;
-    private readonly CoreTypeMapping _boolTypeMapping;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel model)
-    {
-        _typeMappingSource = typeMappingSource;
-        _model = model;
-        _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool), model)!;
-    }
+    private readonly CoreTypeMapping _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool), model)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,7 +28,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
         => sqlExpression is not { TypeMapping: null }
             ? sqlExpression
-            : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, _model));
+            : ApplyTypeMapping(sqlExpression, typeMappingSource.FindMapping(sqlExpression.Type, model));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,8 +126,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                     // We avoid object here since the result does not get typeMapping from outside.
                     ?? (left.Type != typeof(object)
-                        ? _typeMappingSource.FindMapping(left.Type, _model)
-                        : _typeMappingSource.FindMapping(right.Type, _model));
+                        ? typeMappingSource.FindMapping(left.Type, model)
+                        : typeMappingSource.FindMapping(right.Type, model));
                 resultType = typeof(bool);
                 resultTypeMapping = _boolTypeMapping;
             }
@@ -219,7 +205,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         var item = ApplyTypeMapping(
             inExpression.Item,
-            valuesTypeMapping ?? _typeMappingSource.FindMapping(inExpression.Item.Type, _model));
+            valuesTypeMapping ?? typeMappingSource.FindMapping(inExpression.Item.Type, model));
 
         switch (inExpression)
         {

@@ -14,33 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public partial class CosmosShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
+public partial class CosmosShapedQueryCompilingExpressionVisitor(
+    ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+    CosmosQueryCompilationContext cosmosQueryCompilationContext,
+    ISqlExpressionFactory sqlExpressionFactory,
+    IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+    : ShapedQueryCompilingExpressionVisitor(dependencies, cosmosQueryCompilationContext)
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
-    private readonly Type _contextType;
-    private readonly bool _threadSafetyChecksEnabled;
-    private readonly string _partitionKeyFromExtension;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public CosmosShapedQueryCompilingExpressionVisitor(
-        ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-        CosmosQueryCompilationContext cosmosQueryCompilationContext,
-        ISqlExpressionFactory sqlExpressionFactory,
-        IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-        : base(dependencies, cosmosQueryCompilationContext)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-        _querySqlGeneratorFactory = querySqlGeneratorFactory;
-        _contextType = cosmosQueryCompilationContext.ContextType;
-        _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
-        _partitionKeyFromExtension = cosmosQueryCompilationContext.PartitionKeyFromExtension;
-    }
+    private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
+    private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
+    private readonly string _partitionKeyFromExtension = cosmosQueryCompilationContext.PartitionKeyFromExtension;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,8 +57,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor : ShapedQueryCo
                     Convert(
                         QueryCompilationContext.QueryContextParameter,
                         typeof(CosmosQueryContext)),
-                    Constant(_sqlExpressionFactory),
-                    Constant(_querySqlGeneratorFactory),
+                    Constant(sqlExpressionFactory),
+                    Constant(querySqlGeneratorFactory),
                     Constant(selectExpression),
                     Constant(shaperLambda.Compile()),
                     Constant(_contextType),

@@ -14,9 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class QuerySqlGenerator : SqlExpressionVisitor
+public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpressionVisitor
 {
-    private readonly ITypeMappingSource _typeMappingSource;
     private readonly IndentedStringBuilder _sqlBuilder = new();
     private IReadOnlyDictionary<string, object> _parameterValues = null!;
     private List<SqlParameter> _sqlParameters = null!;
@@ -56,17 +55,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         { ExpressionType.Negate, "-" },
         { ExpressionType.Not, "~" }
     };
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public QuerySqlGenerator(ITypeMappingSource typeMappingSource)
-    {
-        _typeMappingSource = typeMappingSource;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -293,7 +281,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 for (var i = 0; i < constantValues.Length; i++)
                 {
                     var value = constantValues[i];
-                    var typeMapping = _typeMappingSource.FindMapping(value.GetType());
+                    var typeMapping = typeMappingSource.FindMapping(value.GetType());
                     Check.DebugAssert(typeMapping is not null, "Could not find type mapping for FromSql parameter");
                     substitutions[i] = GenerateConstant(value, typeMapping);
                 }

@@ -9,7 +9,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlFunctionExpression : SqlExpression
+public class SqlFunctionExpression(
+        string name,
+        IEnumerable<SqlExpression> arguments,
+        Type type,
+        CoreTypeMapping? typeMapping)
+    : SqlExpression(type, typeMapping)
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,16 +22,7 @@ public class SqlFunctionExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlFunctionExpression(
-        string name,
-        IEnumerable<SqlExpression> arguments,
-        Type type,
-        CoreTypeMapping? typeMapping)
-        : base(type, typeMapping)
-    {
-        Name = name;
-        Arguments = arguments.ToList();
-    }
+    public virtual string Name { get; } = name;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,15 +30,7 @@ public class SqlFunctionExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Name { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IReadOnlyList<SqlExpression> Arguments { get; }
+    public virtual IReadOnlyList<SqlExpression> Arguments { get; } = arguments.ToList();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

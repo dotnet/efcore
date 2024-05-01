@@ -15,7 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase : ExpressionVisitor
+    private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase(
+        ParameterExpression jObjectParameter,
+        bool trackQueryResults)
+        : ExpressionVisitor
     {
         private static readonly MethodInfo GetItemMethodInfo
             = typeof(JObject).GetRuntimeProperties()
@@ -38,9 +41,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate));
 
-        private readonly ParameterExpression _jObjectParameter;
-        private readonly bool _trackQueryResults;
-
         private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
             = new Dictionary<ParameterExpression, Expression>();
 
@@ -59,14 +59,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
-
-        protected CosmosProjectionBindingRemovingExpressionVisitorBase(
-            ParameterExpression jObjectParameter,
-            bool trackQueryResults)
-        {
-            _jObjectParameter = jObjectParameter;
-            _trackQueryResults = trackQueryResults;
-        }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
@@ -115,7 +107,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                         (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                     break;
                                 case RootReferenceExpression:
-                                    innerAccessExpression = _jObjectParameter;
+                                    innerAccessExpression = jObjectParameter;
                                     break;
                                 default:
                                     throw new InvalidOperationException(
@@ -177,7 +169,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var projection = GetProjection(projectionBindingExpression);
 
                     innerExpression = Convert(
-                        CreateReadJTokenExpression(_jObjectParameter, projection.Alias),
+                        CreateReadJTokenExpression(jObjectParameter, projection.Alias),
                         typeof(JObject));
                 }
                 else
@@ -196,7 +188,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var lambda = (LambdaExpression)methodCallExpression.Arguments[1];
                 if (lambda.Body is IncludeExpression includeExpression)
                 {
-                    if (!(includeExpression.Navigation is INavigation navigation)
+                    if (includeExpression.Navigation is not INavigation navigation
                         || navigation.IsOnDependent
                         || navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                     {
@@ -225,7 +217,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var projection = GetProjection(projectionBindingExpression);
 
                     return CreateGetValueExpression(
-                        _jObjectParameter,
+                        jObjectParameter,
                         projection.Alias,
                         projectionBindingExpression.Type, (projection.Expression as SqlExpression)?.TypeMapping);
                 }
@@ -352,7 +344,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var includingClrType = navigation.DeclaringEntityType.ClrType;
             var relatedEntityClrType = navigation.TargetEntityType.ClrType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            var entityEntryVariable = _trackQueryResults
+            var entityEntryVariable = trackQueryResults
                 ? shaperBlock.Variables.Single(v => v.Type == typeof(InternalEntityEntry))
                 : (Expression)Constant(null, typeof(InternalEntityEntry));
 #pragma warning restore EF1001 // Internal EF Core API usage.
@@ -702,7 +694,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             else if (jObjectExpression is RootReferenceExpression rootReferenceExpression)
             {
                 innerExpression = CreateGetValueExpression(
-                    _jObjectParameter, rootReferenceExpression.Alias, typeof(JObject));
+                    jObjectParameter, rootReferenceExpression.Alias, typeof(JObject));
             }
             else if (jObjectExpression is ObjectAccessExpression objectAccessExpression)
             {

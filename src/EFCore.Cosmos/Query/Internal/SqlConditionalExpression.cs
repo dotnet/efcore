@@ -9,7 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlConditionalExpression : SqlExpression
+public class SqlConditionalExpression(
+    SqlExpression test,
+    SqlExpression ifTrue,
+    SqlExpression ifFalse)
+    : SqlExpression(ifTrue.Type, ifTrue.TypeMapping ?? ifFalse.TypeMapping)
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,16 +21,7 @@ public class SqlConditionalExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlConditionalExpression(
-        SqlExpression test,
-        SqlExpression ifTrue,
-        SqlExpression ifFalse)
-        : base(ifTrue.Type, ifTrue.TypeMapping ?? ifFalse.TypeMapping)
-    {
-        Test = test;
-        IfTrue = ifTrue;
-        IfFalse = ifFalse;
-    }
+    public virtual SqlExpression Test { get; } = test;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +29,7 @@ public class SqlConditionalExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression Test { get; }
+    public virtual SqlExpression IfTrue { get; } = ifTrue;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,15 +37,7 @@ public class SqlConditionalExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression IfTrue { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SqlExpression IfFalse { get; }
+    public virtual SqlExpression IfFalse { get; } = ifFalse;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,9 +64,9 @@ public class SqlConditionalExpression : SqlExpression
         SqlExpression test,
         SqlExpression ifTrue,
         SqlExpression ifFalse)
-        => test != Test || ifTrue != IfTrue || ifFalse != IfFalse
-            ? new SqlConditionalExpression(test, ifTrue, ifFalse)
-            : this;
+        => test == Test && ifTrue == IfTrue && ifFalse == IfFalse
+            ? this
+            : new SqlConditionalExpression(test, ifTrue, ifFalse);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
