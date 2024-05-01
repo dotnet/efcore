@@ -79,6 +79,9 @@ public class RelationalModelAsserter : ModelAsserter
     {
         Assert.Same(actual, actual.Model.FindDbFunction(actual.ModelName));
 
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
+
         Assert.Multiple(
             () => Assert.Equal(expected.ModelName, actual.ModelName),
             () => Assert.Equal(expected.Name, actual.Name),
@@ -101,8 +104,14 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareBackreferences: false)),
-            () => Assert.Equal(((IRuntimeDbFunction)expected).StoreFunction.SchemaQualifiedName,
-                ((IRuntimeDbFunction)actual).StoreFunction.SchemaQualifiedName),
+            () =>
+            {
+                if (isFinalized)
+                {
+                    Assert.Equal(((IRuntimeDbFunction)expected).StoreFunction.SchemaQualifiedName,
+                                    ((IRuntimeDbFunction)actual).StoreFunction.SchemaQualifiedName);
+                }
+            },
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
 
         return true;
@@ -115,6 +124,8 @@ public class RelationalModelAsserter : ModelAsserter
         IEnumerable<IAnnotation> actualAnnotations,
         bool compareBackreferences = false)
     {
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
         Assert.Multiple(
             () => Assert.Equal(expected.Name, actual.Name),
             () =>
@@ -128,8 +139,14 @@ public class RelationalModelAsserter : ModelAsserter
             () => Assert.Equal(expected.StoreType, actual.StoreType),
             () => Assert.Equal(expected.PropagatesNullability, actual.PropagatesNullability),
             () => Assert.Equal(expected.TypeMapping?.StoreType, actual.TypeMapping?.StoreType),
-            () => Assert.Equal(((IRuntimeDbFunctionParameter)expected).StoreFunctionParameter.Name,
-                ((IRuntimeDbFunctionParameter)actual).StoreFunctionParameter.Name),
+            () =>
+            {
+                if (isFinalized)
+                {
+                    Assert.Equal(((IRuntimeDbFunctionParameter)expected).StoreFunctionParameter.Name,
+                                    ((IRuntimeDbFunctionParameter)actual).StoreFunctionParameter.Name);
+                }
+            },
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
 
         return true;
@@ -182,6 +199,8 @@ public class RelationalModelAsserter : ModelAsserter
         }
 
         var designTime = expected is EntityType && actual is EntityType;
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
 
         Assert.Multiple(
             () => Assert.Equal(expected.GetDbSetName(), actual.GetDbSetName()),
@@ -244,62 +263,99 @@ public class RelationalModelAsserter : ModelAsserter
                                 compareBackreferences: false));
                 }
             },
-            () => Assert.Equal(expectedStructuralType.GetDefaultMappings().Select(x => x),
-                actualStructuralType.GetDefaultMappings(),
-                (expected, actual) =>
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetTableMappings().Select(x => x),
-                actualStructuralType.GetTableMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetDefaultMappings().Select(x => x),
+                        actualStructuralType.GetDefaultMappings(),
+                        (expected, actual) =>
+                    {
+                        Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                    });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetViewMappings().Select(x => x),
-                actualStructuralType.GetViewMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetTableMappings().Select(x => x),
+                        actualStructuralType.GetTableMappings(),
+                        (expected, actual) =>
+                    {
+                        Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                    });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetSqlQueryMappings().Select(x => x),
-                actualStructuralType.GetSqlQueryMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetViewMappings().Select(x => x),
+                        actualStructuralType.GetViewMappings(),
+                        (expected, actual) =>
+                    {
+                        Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                    });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetFunctionMappings().Select(x => x),
-                actualStructuralType.GetFunctionMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetSqlQueryMappings().Select(x => x),
+                        actualStructuralType.GetSqlQueryMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings().Select(x => x),
-                actualStructuralType.GetInsertStoredProcedureMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetFunctionMappings().Select(x => x),
+                        actualStructuralType.GetFunctionMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings().Select(x => x),
-                actualStructuralType.GetUpdateStoredProcedureMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings().Select(x => x),
+                        actualStructuralType.GetInsertStoredProcedureMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings().Select(x => x),
-                actualStructuralType.GetDeleteStoredProcedureMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings().Select(x => x),
+                        actualStructuralType.GetUpdateStoredProcedureMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }));
+                    Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings().Select(x => x),
+                        actualStructuralType.GetDeleteStoredProcedureMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            });
 
         return true;
     }
@@ -482,6 +538,9 @@ public class RelationalModelAsserter : ModelAsserter
             return true;
         }
 
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
+
         Assert.Multiple(
             () => Assert.Equal(expected.GetContainerColumnName(), actual.GetContainerColumnName()),
             () => Assert.Equal(expectedStructuralType.GetJsonPropertyName(), actualStructuralType.GetJsonPropertyName()),
@@ -513,62 +572,103 @@ public class RelationalModelAsserter : ModelAsserter
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareBackreferences: false)),
-            () => Assert.Equal(expectedStructuralType.GetDefaultMappings().Select(x => x),
-                actualStructuralType.GetDefaultMappings(),
-                (expected, actual) =>
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetTableMappings().Select(x => x),
-                actualStructuralType.GetTableMappings().Select(x => x),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetDefaultMappings().Select(x => x),
+                        actualStructuralType.GetDefaultMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetViewMappings().Select(x => x),
-                actualStructuralType.GetViewMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetTableMappings().Select(x => x),
+                        actualStructuralType.GetTableMappings().Select(x => x),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetSqlQueryMappings().Select(x => x),
-                actualStructuralType.GetSqlQueryMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetViewMappings().Select(x => x),
+                        actualStructuralType.GetViewMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetFunctionMappings().Select(x => x),
-                actualStructuralType.GetFunctionMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetSqlQueryMappings().Select(x => x),
+                        actualStructuralType.GetSqlQueryMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings().Select(x => x),
-                actualStructuralType.GetInsertStoredProcedureMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetFunctionMappings().Select(x => x),
+                        actualStructuralType.GetFunctionMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings().Select(x => x),
-                actualStructuralType.GetUpdateStoredProcedureMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetInsertStoredProcedureMappings().Select(x => x), actualStructuralType.GetInsertStoredProcedureMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings().Select(x => x),
-                actualStructuralType.GetDeleteStoredProcedureMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedStructuralType.GetUpdateStoredProcedureMappings().Select(x => x),
+                        actualStructuralType.GetUpdateStoredProcedureMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }));
+                    Assert.Equal(expectedStructuralType.GetDeleteStoredProcedureMappings().Select(x => x),
+                        actualStructuralType.GetDeleteStoredProcedureMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName); return true;
+                        });
+                }
+            });
 
         return true;
     }
@@ -595,6 +695,8 @@ public class RelationalModelAsserter : ModelAsserter
         }
 
         var designTime = expected is Property && actual is Property;
+        var isFinalized = ((expectedProperty as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actualProperty as AnnotatableBase)?.IsReadOnly ?? true);
 
         Assert.Multiple(
             () => Assert.Equal(expected.GetColumnType(), actual.GetColumnType()),
@@ -638,76 +740,119 @@ public class RelationalModelAsserter : ModelAsserter
                         actual,
                         compareMemberAnnotations ? expected.GetAnnotations() : Enumerable.Empty<IAnnotation>(),
                         compareMemberAnnotations ? actual.GetAnnotations() : Enumerable.Empty<IAnnotation>())),
-            () => Assert.Equal(expectedProperty.GetDefaultColumnMappings().Select(x => x),
-                actualProperty.GetDefaultColumnMappings(),
-                (expected, actual) =>
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetTableColumnMappings().Select(x => x),
-                actualProperty.GetTableColumnMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetDefaultColumnMappings().Select(x => x), actualProperty.GetDefaultColumnMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetViewColumnMappings().Select(x => x),
-                actualProperty.GetViewColumnMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetTableColumnMappings().Select(x => x), actualProperty.GetTableColumnMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetSqlQueryColumnMappings().Select(x => x),
-                actualProperty.GetSqlQueryColumnMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetViewColumnMappings().Select(x => x), actualProperty.GetViewColumnMappings(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetFunctionColumnMappings().Select(x => x),
-                actualProperty.GetFunctionColumnMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetSqlQueryColumnMappings().Select(x => x), actualProperty.GetSqlQueryColumnMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetInsertStoredProcedureParameterMappings().Select(x => x),
-                actualProperty.GetInsertStoredProcedureParameterMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetFunctionColumnMappings().Select(x => x), actualProperty.GetFunctionColumnMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetInsertStoredProcedureResultColumnMappings().Select(x => x),
-                actualProperty.GetInsertStoredProcedureResultColumnMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetInsertStoredProcedureParameterMappings().Select(x => x), actualProperty.GetInsertStoredProcedureParameterMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetUpdateStoredProcedureParameterMappings().Select(x => x),
-                actualProperty.GetUpdateStoredProcedureParameterMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetInsertStoredProcedureResultColumnMappings().Select(x => x), actualProperty.GetInsertStoredProcedureResultColumnMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetUpdateStoredProcedureResultColumnMappings().Select(x => x),
-                actualProperty.GetUpdateStoredProcedureResultColumnMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetUpdateStoredProcedureParameterMappings().Select(x => x), actualProperty.GetUpdateStoredProcedureParameterMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }),
-            () => Assert.Equal(expectedProperty.GetDeleteStoredProcedureParameterMappings().Select(x => x),
-                actualProperty.GetDeleteStoredProcedureParameterMappings(),
-                (expected, actual) =>
+                    Assert.Equal(expectedProperty.GetUpdateStoredProcedureResultColumnMappings().Select(x => x), actualProperty.GetUpdateStoredProcedureResultColumnMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            },
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
-                    return true;
-                }));
+                    Assert.Equal(expectedProperty.GetDeleteStoredProcedureParameterMappings().Select(x => x), actualProperty.GetDeleteStoredProcedureParameterMappings(), (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Column.Table.SchemaQualifiedName, actual.Column.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            });
 
         return true;
     }
@@ -751,15 +896,24 @@ public class RelationalModelAsserter : ModelAsserter
             return true;
         }
 
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
+
         Assert.Multiple(
             () => Assert.Equal(expected.GetConstraintName(), actual.GetConstraintName()),
-            () => Assert.Equal(expectedForeignKey.GetMappedConstraints().Select(x => x),
-                actualForeignKey.GetMappedConstraints(),
-                (expected, actual) =>
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }));
+                    Assert.Equal(expectedForeignKey.GetMappedConstraints().Select(x => x),
+                        actualForeignKey.GetMappedConstraints(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            });
 
         return true;
     }
@@ -785,16 +939,25 @@ public class RelationalModelAsserter : ModelAsserter
             return true;
         }
 
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
+
         Assert.Multiple(
             () => Assert.Equal(expected.GetDatabaseName(), actual.GetDatabaseName()),
             () => Assert.Equal(expected.GetFilter(), actual.GetFilter()),
-            () => Assert.Equal(expectedIndex.GetMappedTableIndexes().Select(x => x),
-                actualIndex.GetMappedTableIndexes(),
-                (expected, actual) =>
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }));
+                    Assert.Equal(expectedIndex.GetMappedTableIndexes().Select(x => x),
+                        actualIndex.GetMappedTableIndexes(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            });
 
         return true;
     }
@@ -820,15 +983,24 @@ public class RelationalModelAsserter : ModelAsserter
             return true;
         }
 
+        var isFinalized = ((expected as AnnotatableBase)?.IsReadOnly ?? true)
+            && ((actual as AnnotatableBase)?.IsReadOnly ?? true);
+
         Assert.Multiple(
             () => Assert.Equal(expected.GetName(), actual.GetName()),
-            () => Assert.Equal(expectedKey.GetMappedConstraints().Select(x => x),
-                actualKey.GetMappedConstraints(),
-                (expected, actual) =>
+            () =>
+            {
+                if (isFinalized)
                 {
-                    Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
-                    return true;
-                }));
+                    Assert.Equal(expectedKey.GetMappedConstraints().Select(x => x),
+                        actualKey.GetMappedConstraints(),
+                        (expected, actual) =>
+                        {
+                            Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
+                            return true;
+                        });
+                }
+            });
 
         return true;
     }

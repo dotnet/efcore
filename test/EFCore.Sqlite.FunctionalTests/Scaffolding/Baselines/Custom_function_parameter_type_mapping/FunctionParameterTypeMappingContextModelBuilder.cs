@@ -67,7 +67,7 @@ namespace TestNamespace
             functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionParameterTypeMappingContext.GetSqlFragmentStatic(string)"] = getSqlFragmentStatic;
 
             AddAnnotation("Relational:DbFunctions", functions);
-            AddRuntimeAnnotation("Relational:RelationalModel", CreateRelationalModel());
+            AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
         }
 
         private IRelationalModel CreateRelationalModel()

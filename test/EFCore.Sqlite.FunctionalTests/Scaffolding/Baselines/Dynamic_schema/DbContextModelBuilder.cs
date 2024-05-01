@@ -24,7 +24,7 @@ namespace TestNamespace
 
             DataEntityType.CreateAnnotations(data);
 
-            AddRuntimeAnnotation("Relational:RelationalModel", CreateRelationalModel());
+            AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
         }
 
         private IRelationalModel CreateRelationalModel()

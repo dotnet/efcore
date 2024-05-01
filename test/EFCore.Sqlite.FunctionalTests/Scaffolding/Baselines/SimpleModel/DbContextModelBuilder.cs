@@ -24,7 +24,7 @@ namespace TestNamespace
 
             DependentDerivedEntityType.CreateAnnotations(dependentDerived);
 
-            AddRuntimeAnnotation("Relational:RelationalModel", CreateRelationalModel());
+            AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
         }
 
         private IRelationalModel CreateRelationalModel()

@@ -185,9 +185,14 @@ public static class RelationalAnnotationNames
     public const string TptMappingStrategy = "TPT";
 
     /// <summary>
-    ///     The name for database model annotation.
+    ///     The name for relational model annotation.
     /// </summary>
     public const string RelationalModel = Prefix + "RelationalModel";
+
+    /// <summary>
+    ///     The name for relational model factory annotation.
+    /// </summary>
+    public const string RelationalModelFactory = Prefix + "RelationalModelFactory";
 
     /// <summary>
     ///     The name for default mappings annotations.
@@ -362,7 +367,7 @@ public static class RelationalAnnotationNames
         Comment,
         Collation,
         DefaultSchema,
-        Name,        
+        Name,
         #pragma warning disable CS0618 // Type or member is obsolete
         SequencePrefix,
         #pragma warning restore CS0618 // Type or member is obsolete
@@ -376,6 +381,7 @@ public static class RelationalAnnotationNames
         IsTableExcludedFromMigrations,
         MappingStrategy,
         RelationalModel,
+        RelationalModelFactory,
         DefaultMappings,
         DefaultColumnMappings,
         TableMappings,

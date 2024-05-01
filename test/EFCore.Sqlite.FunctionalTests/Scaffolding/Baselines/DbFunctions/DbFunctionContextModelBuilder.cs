@@ -184,7 +184,7 @@ namespace TestNamespace
             functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+DbFunctionContext.IsDateStatic(string)"] = isDateStatic;
 
             AddAnnotation("Relational:DbFunctions", functions);
-            AddRuntimeAnnotation("Relational:RelationalModel", CreateRelationalModel());
+            AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
         }
 
         private IRelationalModel CreateRelationalModel()
