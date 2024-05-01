@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -42,7 +43,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 b.Ignore(o => o.Products);
             });
 
-        VerifyError(CosmosStrings.NoIdProperty(typeof(Order).Name), modelBuilder);
+        VerifyError(CosmosStrings.NoIdProperty(nameof(Order)), modelBuilder);
     }
 
     [ConditionalFact]
@@ -61,7 +62,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 b.Ignore(o => o.Products);
             });
 
-        VerifyError(CosmosStrings.NoIdKey(typeof(Order).Name, "id"), modelBuilder);
+        VerifyError(CosmosStrings.NoIdKey(nameof(Order), "id"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -81,7 +82,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 b.Ignore(o => o.Products);
             });
 
-        VerifyError(CosmosStrings.IdNonStringStoreType("id", typeof(Order).Name, "int"), modelBuilder);
+        VerifyError(CosmosStrings.IdNonStringStoreType("id", nameof(Order), "int"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -131,7 +132,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
                 b.Ignore(o => o.Products);
             });
 
-        VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), modelBuilder);
+        VerifyError(CosmosStrings.NoPartitionKeyKey(nameof(Order), nameof(Order.PartitionId), "id"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -210,8 +211,32 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(
             CosmosStrings.PartitionKeyStoreNameMismatch(
-                nameof(Customer.PartitionId), typeof(Customer).Name, "pk", nameof(Order.PartitionId), typeof(Order).Name,
+                nameof(Customer.PartitionId), nameof(Customer), "pk", nameof(Order.PartitionId), nameof(Order),
                 nameof(Order.PartitionId)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_partition_key_of_different_type()
+    {
+        var modelBuilder = TestHelpers.CreateConventionBuilder(
+            CreateModelLogger(),
+            CreateValidationLogger(),
+            configurationBuilder => configurationBuilder.RemoveAllConventions());
+
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.ToContainer("Orders");
+                b.Property(e => e.Id).HasConversion<string>().ToJsonProperty("id");
+                b.Ignore(e => e.Name);
+                b.Ignore(e => e.PartitionId);
+                b.Ignore(e => e.Orders);
+                b.Property<JObject>("foo");
+                b.HasPartitionKey("foo");
+                b.HasKey(e => e.Id);
+            });
+
+        VerifyError(CosmosStrings.PartitionKeyBadStoreType("foo", nameof(Customer), "JObject"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -223,7 +248,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Order>().ToContainer("Orders")
             .HasAnalyticalStoreTimeToLive(60);
 
-        VerifyError(CosmosStrings.AnalyticalTTLMismatch(-1, typeof(Customer).Name, typeof(Order).Name, 60, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.AnalyticalTTLMismatch(-1, nameof(Customer), nameof(Order), 60, "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -235,7 +260,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Order>().ToContainer("Orders")
             .HasDefaultTimeToLive(60);
 
-        VerifyError(CosmosStrings.DefaultTTLMismatch(100, typeof(Customer).Name, typeof(Order).Name, 60, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.DefaultTTLMismatch(100, nameof(Customer), nameof(Order), 60, "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -247,7 +272,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Order>().ToContainer("Orders")
             .HasAutoscaleThroughput(60);
 
-        VerifyError(CosmosStrings.ThroughputMismatch(200, typeof(Customer).Name, typeof(Order).Name, 60, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.ThroughputMismatch(200, nameof(Customer), nameof(Order), 60, "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -259,7 +284,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Order>().ToContainer("Orders")
             .HasAutoscaleThroughput(200);
 
-        VerifyError(CosmosStrings.ThroughputTypeMismatch(typeof(Customer).Name, typeof(Order).Name, "Orders"), modelBuilder);
+        VerifyError(CosmosStrings.ThroughputTypeMismatch(nameof(Customer), nameof(Order), "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -276,7 +301,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(
             CosmosStrings.JsonPropertyCollision(
-                nameof(Order.PartitionId), nameof(Order.Id), typeof(Order).Name, "Details"), modelBuilder);
+                nameof(Order.PartitionId), nameof(Order.Id), nameof(Order), "Details"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -293,7 +318,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
 
         VerifyError(
             CosmosStrings.JsonPropertyCollision(
-                nameof(Order.OrderDetails), nameof(Order.PartitionId), typeof(Order).Name, "Details"), modelBuilder);
+                nameof(Order.OrderDetails), nameof(Order.PartitionId), nameof(Order), "Details"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -340,7 +365,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
-        VerifyError(CoreStrings.NoDiscriminatorValue(typeof(Customer).Name), modelBuilder);
+        VerifyError(CoreStrings.NoDiscriminatorValue(nameof(Customer)), modelBuilder);
     }
 
     [ConditionalFact]
@@ -351,7 +376,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Order>().ToContainer("Orders").HasDiscriminator().HasValue("type");
 
         VerifyError(
-            CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), modelBuilder);
+            CosmosStrings.DuplicateDiscriminatorValue(nameof(Order), "type", nameof(Customer), "Orders"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -373,7 +398,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .Property<string>("_not_etag")
             .IsConcurrencyToken();
 
-        VerifyError(CosmosStrings.NonETagConcurrencyToken(typeof(Customer).Name, "_not_etag"), modelBuilder);
+        VerifyError(CosmosStrings.NonETagConcurrencyToken(nameof(Customer), "_not_etag"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -385,7 +410,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .Property<int>("_etag")
             .IsConcurrencyToken();
 
-        VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", typeof(Customer).Name, "int"), modelBuilder);
+        VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", nameof(Customer), "int"), modelBuilder);
     }
 
     protected override TestHelpers TestHelpers
