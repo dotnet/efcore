@@ -656,6 +656,14 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual IStoreFunction? StoreFunction => _storeFunction;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public override string ToString()
         => ((IDbFunction)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
@@ -766,11 +774,22 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
 
     /// <inheritdoc />
     IStoreFunction IDbFunction.StoreFunction
-        => _storeFunction!; // Relational model creation ensures StoreFunction is populated
+    {
+        get
+        {
+            ((IModel)Model).EnsureRelationalModel();
+            return _storeFunction!; // Relational model creation ensures StoreFunction is populated
+        }
+    }
 
     IStoreFunction IRuntimeDbFunction.StoreFunction
     {
-        get => _storeFunction!;
+        get
+        {
+            ((IModel)Model).EnsureRelationalModel();
+            return _storeFunction!;
+        }
+
         set => _storeFunction = value;
     }
 }

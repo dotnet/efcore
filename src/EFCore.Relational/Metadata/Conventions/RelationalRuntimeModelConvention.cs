@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -49,12 +50,28 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
 
         if (runtime)
         {
-            annotations[RelationalAnnotationNames.RelationalModel] =
-                RelationalModel.Create(
-                    runtimeModel,
-                    RelationalDependencies.RelationalAnnotationProvider,
-                    (IRelationalTypeMappingSource)Dependencies.TypeMappingSource,
-                    designTime: false);
+            var annotationProvider = RelationalDependencies.RelationalAnnotationProvider;
+            var typeMappingSource = (IRelationalTypeMappingSource)Dependencies.TypeMappingSource;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if ((bool?)model[CoreAnnotationNames.AdHocModel] ?? false)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            {
+                annotations[RelationalAnnotationNames.RelationalModel] =
+                    RelationalModel.Create(
+                        runtimeModel,
+                        annotationProvider,
+                        typeMappingSource,
+                        designTime: false);
+            }
+            else
+            {
+                annotations[RelationalAnnotationNames.RelationalModelFactory] =
+                    () => RelationalModel.Create(
+                        runtimeModel,
+                        annotationProvider,
+                        typeMappingSource,
+                        designTime: false);
+            }
         }
         else
         {

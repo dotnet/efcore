@@ -36,29 +36,26 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         if (parameters.IsRuntime)
         {
             annotations.Remove(RelationalAnnotationNames.ModelDependencies);
+            annotations.Remove(RelationalAnnotationNames.RelationalModel);
+            annotations.Remove(RelationalAnnotationNames.RelationalModelFactory);
 
-            if (annotations.TryGetAndRemove(
-                    RelationalAnnotationNames.RelationalModel,
-                    out RelationalModel relationalModel))
-            {
-                GenerateSimpleAnnotation(RelationalAnnotationNames.RelationalModel, "CreateRelationalModel()", parameters);
+            GenerateSimpleAnnotation(RelationalAnnotationNames.RelationalModelFactory, "() => CreateRelationalModel()", parameters);
 
-                var methodBuilder = new IndentedStringBuilder();
-                var newScope = new BidirectionalDictionary<string, object>();
-                Create(
-                    relationalModel, parameters with
-                    {
-                        MainBuilder = parameters.MethodBuilder,
-                        MethodBuilder = methodBuilder,
-                        ScopeObjects = newScope,
-                        ScopeVariables = newScope.Inverse
-                    });
-
-                var methods = methodBuilder.ToString();
-                if (!string.IsNullOrEmpty(methods))
+            var methodBuilder = new IndentedStringBuilder();
+            var newScope = new BidirectionalDictionary<string, object>();
+            Create(
+                model.GetRelationalModel(), parameters with
                 {
-                    parameters.MethodBuilder.AppendLines(methods);
-                }
+                    MainBuilder = parameters.MethodBuilder,
+                    MethodBuilder = methodBuilder,
+                    ScopeObjects = newScope,
+                    ScopeVariables = newScope.Inverse
+                });
+
+            var methods = methodBuilder.ToString();
+            if (!string.IsNullOrEmpty(methods))
+            {
+                parameters.MethodBuilder.AppendLines(methods);
             }
         }
         else
