@@ -23,7 +23,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 {
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
-    private readonly string _partitionKeyFromExtension = cosmosQueryCompilationContext.PartitionKeyFromExtension;
+
+    private readonly PartitionKey _partitionKeyValueFromExtension = cosmosQueryCompilationContext.PartitionKeyValueFromExtension
+        ?? PartitionKey.None;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +64,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                     Constant(selectExpression),
                     Constant(shaperLambda.Compile()),
                     Constant(_contextType),
-                    Constant(_partitionKeyFromExtension, typeof(string)),
+                    Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
                     Constant(
                         QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
                     Constant(_threadSafetyChecksEnabled));

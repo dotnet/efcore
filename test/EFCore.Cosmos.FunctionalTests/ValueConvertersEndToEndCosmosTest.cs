@@ -13,6 +13,9 @@ public class ValueConvertersEndToEndCosmosTest(ValueConvertersEndToEndCosmosTest
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);

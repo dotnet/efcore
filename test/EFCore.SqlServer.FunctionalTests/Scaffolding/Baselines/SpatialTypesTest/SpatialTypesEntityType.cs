@@ -110,10 +110,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelRelationalTestBase.SpatialTypes)source.Entity;
-                    return (ISnapshot)new Snapshot<int, Point>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Point>(point) == null ? null : ((ValueComparer<Point>)point.GetValueComparer()).Snapshot(source.GetCurrentValue<Point>(point)));
+                    return (ISnapshot)new Snapshot<int, Point>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<Point>(point) == null ? null : ((ValueComparer<Point>)((IProperty)point).GetValueComparer()).Snapshot(source.GetCurrentValue<Point>(point)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<int, Point>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(default(int)), default(Point) == null ? null : ((ValueComparer<Point>)point.GetValueComparer()).Snapshot(default(Point))));
+                () => (ISnapshot)new Snapshot<int, Point>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(default(int)), default(Point) == null ? null : ((ValueComparer<Point>)((IProperty)point).GetValueComparer()).Snapshot(default(Point))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<int, Point>(default(int), default(Point)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -124,7 +124,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelRelationalTestBase.SpatialTypes)source.Entity;
-                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
+                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

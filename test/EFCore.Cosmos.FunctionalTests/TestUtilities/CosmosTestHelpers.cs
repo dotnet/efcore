@@ -33,6 +33,8 @@ public class CosmosTestHelpers : TestHelpers
             CosmosResources.LogSyncNotSupported(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(),
             "CosmosEventId.SyncNotSupported");
 
+    public override LoggingDefinitions LoggingDefinitions { get; } = new CosmosLoggingDefinitions();
+
     public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
     {
         try

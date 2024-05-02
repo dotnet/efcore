@@ -72,18 +72,19 @@ namespace TestNamespace
             id.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 keyComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 providerValueComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id", "TestNamespace") });
 
             var discriminator = runtimeEntityType.AddProperty(
                 "Discriminator",
@@ -100,15 +101,15 @@ namespace TestNamespace
             discriminator.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(55)",
@@ -146,11 +147,11 @@ namespace TestNamespace
             enum1.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                     (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AnEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                     (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AnEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -166,6 +167,7 @@ namespace TestNamespace
                         (int value) => (CompiledModelTestBase.AnEnum)value)));
             enum1.SetSentinelFromProviderValue(0);
             enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            enum1.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1", "TestNamespace") });
 
             var enum2 = runtimeEntityType.AddProperty(
                 "Enum2",
@@ -197,11 +199,11 @@ namespace TestNamespace
             enum2.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                     (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                     (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                     (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                     (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -216,6 +218,7 @@ namespace TestNamespace
                         (CompiledModelTestBase.AnEnum value) => (int)value,
                         (int value) => (CompiledModelTestBase.AnEnum)value)));
             enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            enum2.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2", "TestNamespace") });
 
             var flagsEnum1 = runtimeEntityType.AddProperty(
                 "FlagsEnum1",
@@ -246,11 +249,11 @@ namespace TestNamespace
             flagsEnum1.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -266,6 +269,7 @@ namespace TestNamespace
                         (int value) => (CompiledModelTestBase.AFlagsEnum)value)));
             flagsEnum1.SetSentinelFromProviderValue(0);
             flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            flagsEnum1.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1", "TestNamespace") });
 
             var flagsEnum2 = runtimeEntityType.AddProperty(
                 "FlagsEnum2",
@@ -296,11 +300,11 @@ namespace TestNamespace
             flagsEnum2.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -316,6 +320,7 @@ namespace TestNamespace
                         (int value) => (CompiledModelTestBase.AFlagsEnum)value)));
             flagsEnum2.SetSentinelFromProviderValue(0);
             flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            flagsEnum2.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2", "TestNamespace") });
 
             var principalBaseId = runtimeEntityType.AddProperty(
                 "PrincipalBaseId",
@@ -330,15 +335,15 @@ namespace TestNamespace
             principalBaseId.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 keyComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 providerValueComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)));
             principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalBaseId));
             principalBaseId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -371,47 +376,47 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v))))),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     keyComparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(45)",
@@ -419,14 +424,15 @@ namespace TestNamespace
                         unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<IPAddress, string>(
-                        (IPAddress v) => v.ToString(),
+                        (IPAddress v) => ((object)v).ToString(),
                         (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))));
             refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            refTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray", "TestNamespace") });
 
             var refTypeEnumerable = runtimeEntityType.AddProperty(
                 "RefTypeEnumerable",
@@ -456,39 +462,39 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     keyComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
@@ -496,6 +502,7 @@ namespace TestNamespace
                         dbType: System.Data.DbType.String),
                     storeTypePostfix: StoreTypePostfix.None));
             refTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            refTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable", "TestNamespace") });
 
             var refTypeIList = runtimeEntityType.AddProperty(
                 "RefTypeIList",
@@ -525,39 +532,39 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     keyComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
@@ -565,6 +572,7 @@ namespace TestNamespace
                         dbType: System.Data.DbType.String),
                     storeTypePostfix: StoreTypePostfix.None));
             refTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            refTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList", "TestNamespace") });
 
             var refTypeList = runtimeEntityType.AddProperty(
                 "RefTypeList",
@@ -594,47 +602,47 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v))))),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     keyComparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(45)",
@@ -642,14 +650,15 @@ namespace TestNamespace
                         unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<IPAddress, string>(
-                        (IPAddress v) => v.ToString(),
+                        (IPAddress v) => ((object)v).ToString(),
                         (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))));
             refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            refTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList", "TestNamespace") });
 
             var valueTypeArray = runtimeEntityType.AddProperty(
                 "ValueTypeArray",
@@ -679,41 +688,42 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => ((object)v).GetHashCode(),
                     (DateTime v) => v)),
-                keyComparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => ((object)v).GetHashCode(),
                     (DateTime v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance),
                 elementMapping: SqlServerDateTimeTypeMapping.Default.Clone(
                     comparer: new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v),
                     keyComparer: new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v),
                     providerValueComparer: new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v)));
             valueTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            valueTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray", "TestNamespace") });
 
             var valueTypeEnumerable = runtimeEntityType.AddProperty(
                 "ValueTypeEnumerable",
@@ -743,26 +753,26 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: SqlServerByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -778,6 +788,7 @@ namespace TestNamespace
                         (byte v) => (int)v,
                         (byte v) => v)));
             valueTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            valueTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable", "TestNamespace") });
 
             var valueTypeIList = runtimeEntityType.AddProperty(
                 "ValueTypeIList",
@@ -807,26 +818,26 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: SqlServerByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -842,6 +853,7 @@ namespace TestNamespace
                         (byte v) => (int)v,
                         (byte v) => v)));
             valueTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            valueTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList", "TestNamespace") });
 
             var valueTypeList = runtimeEntityType.AddProperty(
                 "ValueTypeList",
@@ -871,26 +883,26 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<short>(new ValueComparer<short>(
+                comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
-                keyComparer: new ListComparer<short>(new ValueComparer<short>(
+                keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
                     unicode: true,
                     dbType: System.Data.DbType.String),
-                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance)),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance),
                 elementMapping: SqlServerShortTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
@@ -906,6 +918,7 @@ namespace TestNamespace
                         (short v) => (int)v,
                         (short v) => v)));
             valueTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            valueTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList", "TestNamespace") });
 
             OwnedComplexProperty.Create(runtimeEntityType);
             var key = runtimeEntityType.AddKey(
@@ -1003,15 +1016,15 @@ namespace TestNamespace
                 details.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     keyComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "varchar(64)",
@@ -1022,6 +1035,7 @@ namespace TestNamespace
                 details.AddAnnotation("Relational:ColumnName", "Deets");
                 details.AddAnnotation("Relational:ColumnType", "varchar");
                 details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                details.AddRuntimeAnnotation("UnsafeAccessors", new[] { ((string)null, (string)null), ((string)null, (string)null), ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__details", "TestNamespace") });
 
                 var number = complexType.AddProperty(
                     "Number",
@@ -1072,6 +1086,7 @@ namespace TestNamespace
                         (int v) => v,
                         (int v) => v));
                 number.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                number.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Number", "TestNamespace") });
 
                 var refTypeArray = complexType.AddProperty(
                     "RefTypeArray",
@@ -1109,47 +1124,47 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 refTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                    comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v)),
-                    keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                    keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                    converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
                             new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v))))),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                    jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
                             new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v)))),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v),
                         keyComparer: new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(45)",
@@ -1157,14 +1172,15 @@ namespace TestNamespace
                             unicode: true,
                             dbType: System.Data.DbType.String),
                         converter: new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
                             new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v)))));
                 refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                refTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray", "TestNamespace") });
 
                 var refTypeEnumerable = complexType.AddProperty(
                     "RefTypeEnumerable",
@@ -1202,39 +1218,39 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 refTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<string>(new ValueComparer<string>(
+                    comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v)),
-                    keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                    keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                    converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                         JsonStringReaderWriter.Instance)),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                    jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                         JsonStringReaderWriter.Instance),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         keyComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
@@ -1242,6 +1258,7 @@ namespace TestNamespace
                             dbType: System.Data.DbType.String),
                         storeTypePostfix: StoreTypePostfix.None));
                 refTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                refTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable", "TestNamespace") });
 
                 var refTypeIList = complexType.AddProperty(
                     "RefTypeIList",
@@ -1279,39 +1296,39 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 refTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<string>(new ValueComparer<string>(
+                    comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v)),
-                    keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                    keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                    converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                         JsonStringReaderWriter.Instance)),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                    jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                         JsonStringReaderWriter.Instance),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         keyComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
@@ -1319,6 +1336,7 @@ namespace TestNamespace
                             dbType: System.Data.DbType.String),
                         storeTypePostfix: StoreTypePostfix.None));
                 refTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                refTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList", "TestNamespace") });
 
                 var refTypeList = complexType.AddProperty(
                     "RefTypeList",
@@ -1356,47 +1374,47 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 refTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                    comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v)),
-                    keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                    keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                    converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
                             new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v))))),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                    jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                         new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
                             new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v)))),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
                         comparer: new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v),
                         keyComparer: new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(45)",
@@ -1404,14 +1422,15 @@ namespace TestNamespace
                             unicode: true,
                             dbType: System.Data.DbType.String),
                         converter: new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)),
                         jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                             JsonStringReaderWriter.Instance,
                             new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v)))));
                 refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                refTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList", "TestNamespace") });
 
                 var valueTypeArray = complexType.AddProperty(
                     "ValueTypeArray",
@@ -1449,41 +1468,42 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 valueTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                    comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v)),
-                    keyComparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                    keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                    converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                         JsonDateTimeReaderWriter.Instance)),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                    jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                         JsonDateTimeReaderWriter.Instance),
                     elementMapping: SqlServerDateTimeTypeMapping.Default.Clone(
                         comparer: new ValueComparer<DateTime>(
                             (DateTime v1, DateTime v2) => v1.Equals(v2),
-                            (DateTime v) => v.GetHashCode(),
+                            (DateTime v) => ((object)v).GetHashCode(),
                             (DateTime v) => v),
                         keyComparer: new ValueComparer<DateTime>(
                             (DateTime v1, DateTime v2) => v1.Equals(v2),
-                            (DateTime v) => v.GetHashCode(),
+                            (DateTime v) => ((object)v).GetHashCode(),
                             (DateTime v) => v),
                         providerValueComparer: new ValueComparer<DateTime>(
                             (DateTime v1, DateTime v2) => v1.Equals(v2),
-                            (DateTime v) => v.GetHashCode(),
+                            (DateTime v) => ((object)v).GetHashCode(),
                             (DateTime v) => v)));
                 valueTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                valueTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray", "TestNamespace") });
 
                 var valueTypeEnumerable = complexType.AddProperty(
                     "ValueTypeEnumerable",
@@ -1521,26 +1541,26 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                    comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         (byte v1, byte v2) => v1 == v2,
                         (byte v) => (int)v,
                         (byte v) => v)),
-                    keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                    keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         (byte v1, byte v2) => v1 == v2,
                         (byte v) => (int)v,
                         (byte v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                    converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                         JsonByteReaderWriter.Instance)),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                    jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                         JsonByteReaderWriter.Instance),
                     elementMapping: SqlServerByteTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
@@ -1556,6 +1576,7 @@ namespace TestNamespace
                             (byte v) => (int)v,
                             (byte v) => v)));
                 valueTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                valueTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeEnumerable", "TestNamespace") });
 
                 var valueTypeIList = complexType.AddProperty(
                     "ValueTypeIList",
@@ -1593,26 +1614,26 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                    comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         (byte v1, byte v2) => v1 == v2,
                         (byte v) => (int)v,
                         (byte v) => v)),
-                    keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                    keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                         (byte v1, byte v2) => v1 == v2,
                         (byte v) => (int)v,
                         (byte v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                    converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                         JsonByteReaderWriter.Instance)),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                    jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                         JsonByteReaderWriter.Instance),
                     elementMapping: SqlServerByteTypeMapping.Default.Clone(
                         comparer: new ValueComparer<byte>(
@@ -1628,6 +1649,7 @@ namespace TestNamespace
                             (byte v) => (int)v,
                             (byte v) => v)));
                 valueTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                valueTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_ValueTypeIList", "TestNamespace") });
 
                 var valueTypeList = complexType.AddProperty(
                     "ValueTypeList",
@@ -1665,26 +1687,26 @@ namespace TestNamespace
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
                 valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListComparer<short>(new ValueComparer<short>(
+                    comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         (short v1, short v2) => v1 == v2,
                         (short v) => (int)v,
                         (short v) => v)),
-                    keyComparer: new ListComparer<short>(new ValueComparer<short>(
+                    keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                         (short v1, short v2) => v1 == v2,
                         (short v) => (int)v,
                         (short v) => v)),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
                         unicode: true,
                         dbType: System.Data.DbType.String),
-                    converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                    converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                         JsonInt16ReaderWriter.Instance)),
                     storeTypePostfix: StoreTypePostfix.None,
-                    jsonValueReaderWriter: new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                    jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                         JsonInt16ReaderWriter.Instance),
                     elementMapping: SqlServerShortTypeMapping.Default.Clone(
                         comparer: new ValueComparer<short>(
@@ -1700,6 +1722,7 @@ namespace TestNamespace
                             (short v) => (int)v,
                             (short v) => v)));
                 valueTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                valueTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeList", "TestNamespace") });
 
                 PrincipalComplexProperty.Create(complexType);
                 complexType.AddAnnotation("go", "brr");
@@ -1710,6 +1733,7 @@ namespace TestNamespace
                 complexType.AddAnnotation("Relational:ViewName", "PrincipalBaseView");
                 complexType.AddAnnotation("Relational:ViewSchema", null);
                 complexProperty.AddAnnotation("goo", "ber");
+                complexProperty.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField", "TestNamespace") });
                 return complexProperty;
             }
 
@@ -1794,15 +1818,15 @@ namespace TestNamespace
                     alternateId.TypeMapping = GuidTypeMapping.Default.Clone(
                         comparer: new ValueComparer<Guid>(
                             (Guid v1, Guid v2) => v1 == v2,
-                            (Guid v) => v.GetHashCode(),
+                            (Guid v) => ((object)v).GetHashCode(),
                             (Guid v) => v),
                         keyComparer: new ValueComparer<Guid>(
                             (Guid v1, Guid v2) => v1 == v2,
-                            (Guid v) => v.GetHashCode(),
+                            (Guid v) => ((object)v).GetHashCode(),
                             (Guid v) => v),
                         providerValueComparer: new ValueComparer<Guid>(
                             (Guid v1, Guid v2) => v1 == v2,
-                            (Guid v) => v.GetHashCode(),
+                            (Guid v) => ((object)v).GetHashCode(),
                             (Guid v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "uniqueidentifier"));
@@ -1847,11 +1871,11 @@ namespace TestNamespace
                     enum1.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                             (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                            (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                            (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             (CompiledModelTestBase.AnEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                             (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                            (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                            (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                             (CompiledModelTestBase.AnEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
                             (int v1, int v2) => v1 == v2,
@@ -1867,6 +1891,7 @@ namespace TestNamespace
                                 (int value) => (CompiledModelTestBase.AnEnum)value)));
                     enum1.SetSentinelFromProviderValue(0);
                     enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    enum1.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum1", "TestNamespace") });
 
                     var enum2 = complexType.AddProperty(
                         "Enum2",
@@ -1908,11 +1933,11 @@ namespace TestNamespace
                     enum2.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                             (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                            (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                            (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                             (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                             (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                            (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                            (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                             (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                         providerValueComparer: new ValueComparer<int>(
                             (int v1, int v2) => v1 == v2,
@@ -1927,6 +1952,7 @@ namespace TestNamespace
                                 (CompiledModelTestBase.AnEnum value) => (int)value,
                                 (int value) => (CompiledModelTestBase.AnEnum)value)));
                     enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    enum2.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Enum2", "TestNamespace") });
 
                     var flagsEnum1 = complexType.AddProperty(
                         "FlagsEnum1",
@@ -1967,11 +1993,11 @@ namespace TestNamespace
                     flagsEnum1.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                             (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                            (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                            (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                             (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                            (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                            (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
                             (int v1, int v2) => v1 == v2,
@@ -1987,6 +2013,7 @@ namespace TestNamespace
                                 (int value) => (CompiledModelTestBase.AFlagsEnum)value)));
                     flagsEnum1.SetSentinelFromProviderValue(0);
                     flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    flagsEnum1.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum1", "TestNamespace") });
 
                     var flagsEnum2 = complexType.AddProperty(
                         "FlagsEnum2",
@@ -2027,11 +2054,11 @@ namespace TestNamespace
                     flagsEnum2.TypeMapping = IntTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                             (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                            (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                            (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             (CompiledModelTestBase.AFlagsEnum v) => v),
                         keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                             (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                            (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                            (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                             (CompiledModelTestBase.AFlagsEnum v) => v),
                         providerValueComparer: new ValueComparer<int>(
                             (int v1, int v2) => v1 == v2,
@@ -2047,6 +2074,7 @@ namespace TestNamespace
                                 (int value) => (CompiledModelTestBase.AFlagsEnum)value)));
                     flagsEnum2.SetSentinelFromProviderValue(0);
                     flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    flagsEnum2.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_FlagsEnum2", "TestNamespace") });
 
                     var id = complexType.AddProperty(
                         "Id",
@@ -2088,17 +2116,18 @@ namespace TestNamespace
                     id.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                         comparer: new ValueComparer<long?>(
                             (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                            (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                            (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                             (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                         keyComparer: new ValueComparer<long?>(
                             (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                            (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                            (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                             (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                         providerValueComparer: new ValueComparer<long?>(
                             (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                            (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                            (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                             (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)));
                     id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Id", "TestNamespace") });
 
                     var refTypeArray = complexType.AddProperty(
                         "RefTypeArray",
@@ -2138,47 +2167,47 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     refTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                        comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v)),
-                        keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                        keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                        converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                             new JsonConvertedValueReaderWriter<IPAddress, string>(
                                 JsonStringReaderWriter.Instance,
                                 new ValueConverter<IPAddress, string>(
-                                    (IPAddress v) => v.ToString(),
+                                    (IPAddress v) => ((object)v).ToString(),
                                     (string v) => IPAddress.Parse(v))))),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                        jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                             new JsonConvertedValueReaderWriter<IPAddress, string>(
                                 JsonStringReaderWriter.Instance,
                                 new ValueConverter<IPAddress, string>(
-                                    (IPAddress v) => v.ToString(),
+                                    (IPAddress v) => ((object)v).ToString(),
                                     (string v) => IPAddress.Parse(v)))),
                         elementMapping: SqlServerStringTypeMapping.Default.Clone(
                             comparer: new ValueComparer<IPAddress>(
                                 (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                                (IPAddress v) => v.GetHashCode(),
+                                (IPAddress v) => ((object)v).GetHashCode(),
                                 (IPAddress v) => v),
                             keyComparer: new ValueComparer<IPAddress>(
                                 (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                                (IPAddress v) => v.GetHashCode(),
+                                (IPAddress v) => ((object)v).GetHashCode(),
                                 (IPAddress v) => v),
                             providerValueComparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             mappingInfo: new RelationalTypeMappingInfo(
                                 storeTypeName: "nvarchar(45)",
@@ -2186,14 +2215,15 @@ namespace TestNamespace
                                 unicode: true,
                                 dbType: System.Data.DbType.String),
                             converter: new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v)),
                             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                                 JsonStringReaderWriter.Instance,
                                 new ValueConverter<IPAddress, string>(
-                                    (IPAddress v) => v.ToString(),
+                                    (IPAddress v) => ((object)v).ToString(),
                                     (string v) => IPAddress.Parse(v)))));
                     refTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    refTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray", "TestNamespace") });
 
                     var refTypeEnumerable = complexType.AddProperty(
                         "RefTypeEnumerable",
@@ -2233,39 +2263,39 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     refTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<string>(new ValueComparer<string>(
+                        comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v)),
-                        keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                        keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                        converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                             JsonStringReaderWriter.Instance)),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                        jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                             JsonStringReaderWriter.Instance),
                         elementMapping: SqlServerStringTypeMapping.Default.Clone(
                             comparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             keyComparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             providerValueComparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             mappingInfo: new RelationalTypeMappingInfo(
                                 storeTypeName: "nvarchar(max)",
@@ -2273,6 +2303,7 @@ namespace TestNamespace
                                 dbType: System.Data.DbType.String),
                             storeTypePostfix: StoreTypePostfix.None));
                     refTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    refTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeEnumerable", "TestNamespace") });
 
                     var refTypeIList = complexType.AddProperty(
                         "RefTypeIList",
@@ -2312,39 +2343,39 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     refTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<string>(new ValueComparer<string>(
+                        comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v)),
-                        keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                        keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                        converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                             JsonStringReaderWriter.Instance)),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                        jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                             JsonStringReaderWriter.Instance),
                         elementMapping: SqlServerStringTypeMapping.Default.Clone(
                             comparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             keyComparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             providerValueComparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             mappingInfo: new RelationalTypeMappingInfo(
                                 storeTypeName: "nvarchar(max)",
@@ -2352,6 +2383,7 @@ namespace TestNamespace
                                 dbType: System.Data.DbType.String),
                             storeTypePostfix: StoreTypePostfix.None));
                     refTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    refTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeIList", "TestNamespace") });
 
                     var refTypeList = complexType.AddProperty(
                         "RefTypeList",
@@ -2391,47 +2423,47 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     refTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                        comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v)),
-                        keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                        keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                            (IPAddress v) => v.GetHashCode(),
+                            (IPAddress v) => ((object)v).GetHashCode(),
                             (IPAddress v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                        converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                             new JsonConvertedValueReaderWriter<IPAddress, string>(
                                 JsonStringReaderWriter.Instance,
                                 new ValueConverter<IPAddress, string>(
-                                    (IPAddress v) => v.ToString(),
+                                    (IPAddress v) => ((object)v).ToString(),
                                     (string v) => IPAddress.Parse(v))))),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                        jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                             new JsonConvertedValueReaderWriter<IPAddress, string>(
                                 JsonStringReaderWriter.Instance,
                                 new ValueConverter<IPAddress, string>(
-                                    (IPAddress v) => v.ToString(),
+                                    (IPAddress v) => ((object)v).ToString(),
                                     (string v) => IPAddress.Parse(v)))),
                         elementMapping: SqlServerStringTypeMapping.Default.Clone(
                             comparer: new ValueComparer<IPAddress>(
                                 (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                                (IPAddress v) => v.GetHashCode(),
+                                (IPAddress v) => ((object)v).GetHashCode(),
                                 (IPAddress v) => v),
                             keyComparer: new ValueComparer<IPAddress>(
                                 (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                                (IPAddress v) => v.GetHashCode(),
+                                (IPAddress v) => ((object)v).GetHashCode(),
                                 (IPAddress v) => v),
                             providerValueComparer: new ValueComparer<string>(
                                 (string v1, string v2) => v1 == v2,
-                                (string v) => v.GetHashCode(),
+                                (string v) => ((object)v).GetHashCode(),
                                 (string v) => v),
                             mappingInfo: new RelationalTypeMappingInfo(
                                 storeTypeName: "nvarchar(45)",
@@ -2439,14 +2471,15 @@ namespace TestNamespace
                                 unicode: true,
                                 dbType: System.Data.DbType.String),
                             converter: new ValueConverter<IPAddress, string>(
-                                (IPAddress v) => v.ToString(),
+                                (IPAddress v) => ((object)v).ToString(),
                                 (string v) => IPAddress.Parse(v)),
                             jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                                 JsonStringReaderWriter.Instance,
                                 new ValueConverter<IPAddress, string>(
-                                    (IPAddress v) => v.ToString(),
+                                    (IPAddress v) => ((object)v).ToString(),
                                     (string v) => IPAddress.Parse(v)))));
                     refTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    refTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList", "TestNamespace") });
 
                     var valueTypeArray = complexType.AddProperty(
                         "ValueTypeArray",
@@ -2486,41 +2519,42 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                        comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                             (DateTime v1, DateTime v2) => v1.Equals(v2),
-                            (DateTime v) => v.GetHashCode(),
+                            (DateTime v) => ((object)v).GetHashCode(),
                             (DateTime v) => v)),
-                        keyComparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                        keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                             (DateTime v1, DateTime v2) => v1.Equals(v2),
-                            (DateTime v) => v.GetHashCode(),
+                            (DateTime v) => ((object)v).GetHashCode(),
                             (DateTime v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                        converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                             JsonDateTimeReaderWriter.Instance)),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                        jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                             JsonDateTimeReaderWriter.Instance),
                         elementMapping: SqlServerDateTimeTypeMapping.Default.Clone(
                             comparer: new ValueComparer<DateTime>(
                                 (DateTime v1, DateTime v2) => v1.Equals(v2),
-                                (DateTime v) => v.GetHashCode(),
+                                (DateTime v) => ((object)v).GetHashCode(),
                                 (DateTime v) => v),
                             keyComparer: new ValueComparer<DateTime>(
                                 (DateTime v1, DateTime v2) => v1.Equals(v2),
-                                (DateTime v) => v.GetHashCode(),
+                                (DateTime v) => ((object)v).GetHashCode(),
                                 (DateTime v) => v),
                             providerValueComparer: new ValueComparer<DateTime>(
                                 (DateTime v1, DateTime v2) => v1.Equals(v2),
-                                (DateTime v) => v.GetHashCode(),
+                                (DateTime v) => ((object)v).GetHashCode(),
                                 (DateTime v) => v)));
                     valueTypeArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    valueTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeArray", "TestNamespace") });
 
                     var valueTypeEnumerable = complexType.AddProperty(
                         "ValueTypeEnumerable",
@@ -2560,26 +2594,26 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeEnumerable.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                        comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             (byte v1, byte v2) => v1 == v2,
                             (byte v) => (int)v,
                             (byte v) => v)),
-                        keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                        keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             (byte v1, byte v2) => v1 == v2,
                             (byte v) => (int)v,
                             (byte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                        converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                             JsonByteReaderWriter.Instance)),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                        jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                             JsonByteReaderWriter.Instance),
                         elementMapping: SqlServerByteTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
@@ -2595,6 +2629,7 @@ namespace TestNamespace
                                 (byte v) => (int)v,
                                 (byte v) => v)));
                     valueTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    valueTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeEnumerable", "TestNamespace") });
 
                     var valueTypeIList = complexType.AddProperty(
                         "ValueTypeIList",
@@ -2634,26 +2669,26 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeIList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                        comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             (byte v1, byte v2) => v1 == v2,
                             (byte v) => (int)v,
                             (byte v) => v)),
-                        keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                        keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                             (byte v1, byte v2) => v1 == v2,
                             (byte v) => (int)v,
                             (byte v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                        converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                             JsonByteReaderWriter.Instance)),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                        jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                             JsonByteReaderWriter.Instance),
                         elementMapping: SqlServerByteTypeMapping.Default.Clone(
                             comparer: new ValueComparer<byte>(
@@ -2669,6 +2704,7 @@ namespace TestNamespace
                                 (byte v) => (int)v,
                                 (byte v) => v)));
                     valueTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    valueTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeIList", "TestNamespace") });
 
                     var valueTypeList = complexType.AddProperty(
                         "ValueTypeList",
@@ -2708,26 +2744,26 @@ namespace TestNamespace
                         relationshipIndex: -1,
                         storeGenerationIndex: -1);
                     valueTypeList.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListComparer<short>(new ValueComparer<short>(
+                        comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             (short v1, short v2) => v1 == v2,
                             (short v) => (int)v,
                             (short v) => v)),
-                        keyComparer: new ListComparer<short>(new ValueComparer<short>(
+                        keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                             (short v1, short v2) => v1 == v2,
                             (short v) => (int)v,
                             (short v) => v)),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
-                            (string v) => v.GetHashCode(),
+                            (string v) => ((object)v).GetHashCode(),
                             (string v) => v),
                         mappingInfo: new RelationalTypeMappingInfo(
                             storeTypeName: "nvarchar(max)",
                             unicode: true,
                             dbType: System.Data.DbType.String),
-                        converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                        converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                             JsonInt16ReaderWriter.Instance)),
                         storeTypePostfix: StoreTypePostfix.None,
-                        jsonValueReaderWriter: new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                        jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                             JsonInt16ReaderWriter.Instance),
                         elementMapping: SqlServerShortTypeMapping.Default.Clone(
                             comparer: new ValueComparer<short>(
@@ -2743,6 +2779,7 @@ namespace TestNamespace
                                 (short v) => (int)v,
                                 (short v) => v)));
                     valueTypeList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+                    valueTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.Principal.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList", "TestNamespace") });
 
                     complexType.AddAnnotation("Relational:FunctionName", "PrincipalBaseTvf");
                     complexType.AddAnnotation("Relational:Schema", null);
@@ -2750,6 +2787,7 @@ namespace TestNamespace
                     complexType.AddAnnotation("Relational:TableName", "PrincipalBase");
                     complexType.AddAnnotation("Relational:ViewName", "PrincipalBaseView");
                     complexType.AddAnnotation("Relational:ViewSchema", null);
+                    complexProperty.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.Owned.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType_Principal", "TestNamespace") });
                     return complexProperty;
                 }
 
@@ -2923,12 +2961,12 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    var liftedArg = (ISnapshot)new Snapshot<Nullable<long>, string, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, Guid, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)discriminator.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum2.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum2.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)), source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)details.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(details)), ((ValueComparer<int>)number.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(number)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray0) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray0.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray0)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable0.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList0) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList0.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList0)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList0) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList0.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList0)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray0) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray0.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray0)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable0.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList0) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList0.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList0)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList0) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList0.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList0)), ((ValueComparer<Guid>)alternateId.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum10.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum20) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum20.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum20)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum10.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum20.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)));
+                    var liftedArg = (ISnapshot)new Snapshot<Nullable<long>, string, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, Guid, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)((IProperty)discriminator).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), ((ValueComparer<CompiledModelTestBase.AnEnum>)((IProperty)enum1).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)((IProperty)enum2).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)((IProperty)flagsEnum1).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)((IProperty)flagsEnum2).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)principalBaseId).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), (object)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<object>)((IProperty)refTypeArray).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IPAddress[]>(refTypeArray)), (object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : (IEnumerable<string>)((ValueComparer<object>)((IProperty)refTypeEnumerable).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (object)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<object>)((IProperty)refTypeIList).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IList<string>>(refTypeIList)), (object)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<object>)((IProperty)refTypeList).GetValueComparer()).Snapshot((object)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)((IProperty)valueTypeArray).GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeEnumerable).GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeIList).GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)((IProperty)valueTypeList).GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)), source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)((IProperty)details).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(details)), ((ValueComparer<int>)((IProperty)number).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(number)), (object)source.GetCurrentValue<IPAddress[]>(refTypeArray0) == null ? null : (IPAddress[])((ValueComparer<object>)((IProperty)refTypeArray0).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IPAddress[]>(refTypeArray0)), (object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0) == null ? null : (IEnumerable<string>)((ValueComparer<object>)((IProperty)refTypeEnumerable0).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0)), (object)source.GetCurrentValue<IList<string>>(refTypeIList0) == null ? null : (IList<string>)((ValueComparer<object>)((IProperty)refTypeIList0).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IList<string>>(refTypeIList0)), (object)source.GetCurrentValue<List<IPAddress>>(refTypeList0) == null ? null : (List<IPAddress>)((ValueComparer<object>)((IProperty)refTypeList0).GetValueComparer()).Snapshot((object)source.GetCurrentValue<List<IPAddress>>(refTypeList0)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray0) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)((IProperty)valueTypeArray0).GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray0)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeEnumerable0).GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList0) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeIList0).GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList0)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList0) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)((IProperty)valueTypeList0).GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList0)), ((ValueComparer<Guid>)((IProperty)alternateId).GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)((IProperty)enum10).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum20) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)((IProperty)enum20).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum20)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)((IProperty)flagsEnum10).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)((IProperty)flagsEnum20).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)));
                     var entity0 = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    return (ISnapshot)new MultiSnapshot(new ISnapshot[] { liftedArg, (ISnapshot)new Snapshot<Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id0) == null ? null : ((ValueComparer<Nullable<long>>)id0.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id0)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray1) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray1.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray1)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable1.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList1) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList1.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList1)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList1) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList1.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList1)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray1) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray1.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray1)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable1.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList1) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList1.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList1)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList1) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList1.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList1))) });
+                    return (ISnapshot)new MultiSnapshot(new ISnapshot[] { liftedArg, (ISnapshot)new Snapshot<Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id0) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id0).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id0)), (object)source.GetCurrentValue<IPAddress[]>(refTypeArray1) == null ? null : (IPAddress[])((ValueComparer<object>)((IProperty)refTypeArray1).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IPAddress[]>(refTypeArray1)), (object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1) == null ? null : (IEnumerable<string>)((ValueComparer<object>)((IProperty)refTypeEnumerable1).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1)), (object)source.GetCurrentValue<IList<string>>(refTypeIList1) == null ? null : (IList<string>)((ValueComparer<object>)((IProperty)refTypeIList1).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IList<string>>(refTypeIList1)), (object)source.GetCurrentValue<List<IPAddress>>(refTypeList1) == null ? null : (List<IPAddress>)((ValueComparer<object>)((IProperty)refTypeList1).GetValueComparer()).Snapshot((object)source.GetCurrentValue<List<IPAddress>>(refTypeList1)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray1) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)((IProperty)valueTypeArray1).GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray1)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeEnumerable1).GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList1) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeIList1).GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList1)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList1) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)((IProperty)valueTypeList1).GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList1))) });
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, string>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(default(Nullable<long>)), default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(default(Nullable<long>)), default(string) == null ? null : ((ValueComparer<string>)details.GetValueComparer()).Snapshot(default(string))));
+                () => (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, string>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetValueComparer()).Snapshot(default(Nullable<long>)), default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)principalBaseId).GetValueComparer()).Snapshot(default(Nullable<long>)), default(string) == null ? null : ((ValueComparer<string>)((IProperty)details).GetValueComparer()).Snapshot(default(string))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, string>(default(Nullable<long>), default(Nullable<long>), default(string)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -2938,8 +2976,8 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 (InternalEntityEntry source) =>
                 {
-                    var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity)));
+                    var entity1 = (CompiledModelTestBase.PrincipalBase)source.Entity;
+                    return (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)principalBaseId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity1)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 39,

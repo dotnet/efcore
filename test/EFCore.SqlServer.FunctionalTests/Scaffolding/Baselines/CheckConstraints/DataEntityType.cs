@@ -89,7 +89,7 @@ namespace TestNamespace
             blob.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
                     (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => ((object)v).GetHashCode(),
                     (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
                     (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
@@ -120,10 +120,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.Data)source.Entity;
-                    return (ISnapshot)new Snapshot<int, byte[]>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)blob.GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(blob)));
+                    return (ISnapshot)new Snapshot<int, byte[]>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)((IProperty)blob).GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(blob)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<int>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(default(int))));
+                () => (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(default(int))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<int>(default(int)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -134,7 +134,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.Data)source.Entity;
-                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
+                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

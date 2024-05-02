@@ -78,23 +78,19 @@ public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
         Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetKeyValueComparer());
         Assert.IsType<CustomValueComparer<Point>>(pointProperty.GetProviderValueComparer());
         Assert.Null(pointProperty[CoreAnnotationNames.PropertyAccessMode]);
-
     }
 
     //Sprocs not supported
-    public override void ComplexTypes()
-    {
-    }
+    public override Task ComplexTypes()
+        => Task.CompletedTask;
 
     //Not supported
-    public override void Sequences()
-    {
-    }
+    public override Task Sequences()
+        => Task.CompletedTask;
 
     //Sprocs not supported
-    public override void Tpc_Sprocs()
-    {
-    }
+    public override Task Tpc_Sprocs()
+        => Task.CompletedTask;
 
     protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;
     protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;

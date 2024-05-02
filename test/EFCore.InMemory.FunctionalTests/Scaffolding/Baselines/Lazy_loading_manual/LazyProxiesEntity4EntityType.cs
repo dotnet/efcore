@@ -111,15 +111,15 @@ namespace TestNamespace
             content.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -182,15 +182,15 @@ namespace TestNamespace
             title.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -304,10 +304,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity4)source.Entity;
-                    return (ISnapshot)new Snapshot<int, string, int, string>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(content) == null ? null : ((ValueComparer<string>)content.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(content)), ((ValueComparer<int>)referenceNavigationId.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(referenceNavigationId)), source.GetCurrentValue<string>(title) == null ? null : ((ValueComparer<string>)title.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(title)));
+                    return (ISnapshot)new Snapshot<int, string, int, string>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(content) == null ? null : ((ValueComparer<string>)((IProperty)content).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(content)), ((ValueComparer<int>)((IProperty)referenceNavigationId).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(referenceNavigationId)), source.GetCurrentValue<string>(title) == null ? null : ((ValueComparer<string>)((IProperty)title).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(title)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<int>(((ValueComparer<int>)referenceNavigationId.GetValueComparer()).Snapshot(default(int))));
+                () => (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)referenceNavigationId).GetValueComparer()).Snapshot(default(int))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<int>(default(int)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -318,7 +318,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity4)source.Entity;
-                    return (ISnapshot)new Snapshot<int, int, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), ((ValueComparer<int>)referenceNavigationId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(referenceNavigationId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity4__referenceNavigation(entity));
+                    return (ISnapshot)new Snapshot<int, int, object>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), ((ValueComparer<int>)((IProperty)referenceNavigationId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(referenceNavigationId)), UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity4__referenceNavigation(entity));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 4,

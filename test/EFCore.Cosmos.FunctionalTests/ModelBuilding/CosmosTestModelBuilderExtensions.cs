@@ -18,8 +18,8 @@ public static class CosmosTestModelBuilderExtensions
                 genericBuilder.Instance.HasPartitionKey(propertyExpression);
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                var memberInfo = propertyExpression.GetMemberAccess();
-                nonGenericBuilder.Instance.HasPartitionKey(memberInfo.Name);
+                var names = propertyExpression.GetMemberAccessList().Select(e => e.GetSimpleMemberName()).ToList();
+                nonGenericBuilder.Instance.HasPartitionKey(names.FirstOrDefault(), names.Count > 1 ? names.Skip(1).ToArray() : []);
                 break;
         }
 
@@ -28,16 +28,17 @@ public static class CosmosTestModelBuilderExtensions
 
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasPartitionKey<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        string name)
+        string name,
+        params string[] additionalPropertyNames)
         where TEntity : class
     {
         switch (builder)
         {
             case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.HasPartitionKey(name);
+                genericBuilder.Instance.HasPartitionKey(name, additionalPropertyNames);
                 break;
             case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.HasPartitionKey(name);
+                nonGenericBuilder.Instance.HasPartitionKey(name, additionalPropertyNames);
                 break;
         }
 

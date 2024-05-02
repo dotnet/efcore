@@ -37,7 +37,7 @@ public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTe
         [DatabaseGenerated((DatabaseGeneratedOption.None))]
         public int Id { get; set; }
 
-        public string? Name { get; set; }
+        public string? Title { get; set; }
         public List<KeyValueSetting30244> Settings { get; } = [];
     }
 

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 public class CompiledModelCosmosTest : CompiledModelTestBase
 {
     [ConditionalFact]
-    public virtual void Basic_cosmos_model()
+    public virtual Task Basic_cosmos_model()
         => Test(
             modelBuilder =>
             {
@@ -147,14 +147,12 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
             });
 
     // Primitive collections not supported yet
-    public override void BigModel()
-    {
-    }
+    public override Task BigModel()
+        => Task.CompletedTask;
 
     // Primitive collections not supported yet
-    public override void ComplexTypes()
-    {
-    }
+    public override Task ComplexTypes()
+        => Task.CompletedTask;
 
     protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
     protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
@@ -166,4 +164,34 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
         build.References.Add(BuildReference.ByName("Newtonsoft.Json"));
         return build;
     }
+
+    protected override Task<(TContext?, IModel?)> Test<TContext>(
+        Action<ModelBuilder>? onModelCreating = null,
+        Action<IModel>? assertModel = null,
+        Func<TContext, Task>? useContext = null,
+        Action<DbContextOptionsBuilder>? onConfiguring = null,
+        CompiledModelCodeGenerationOptions? options = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null,
+        Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
+        IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
+        Action<Assembly>? assertAssembly = null,
+        string? expectedExceptionMessage = null,
+        [CallerMemberName] string testName = "")
+        where TContext : class
+        => base.Test(
+            onModelCreating,
+            assertModel,
+            useContext,
+            b =>
+            {
+                onConfiguring?.Invoke(b);
+                b.ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+            },
+            options,
+            addServices,
+            addDesignTimeServices,
+            additionalSourceFiles,
+            assertAssembly,
+            expectedExceptionMessage,
+            testName);
 }

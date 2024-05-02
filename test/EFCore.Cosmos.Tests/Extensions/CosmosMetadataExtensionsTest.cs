@@ -41,6 +41,32 @@ public class CosmosMetadataExtensionsTest
         var entityType = modelBuilder
             .Entity<Customer>().Metadata;
 
+        Assert.Empty(entityType.GetPartitionKeyPropertyNames());
+
+        ((IConventionEntityType)entityType).SetPartitionKeyPropertyNames(["pk"]);
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
+        Assert.Equal(
+            ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
+
+        entityType.SetPartitionKeyPropertyNames(["pk"]);
+        Assert.Equal("pk", entityType.GetPartitionKeyPropertyNames().Single());
+        Assert.Equal(
+            ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
+
+        entityType.SetPartitionKeyPropertyNames(null);
+        Assert.Empty(entityType.GetPartitionKeyPropertyNames());
+        Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
+    }
+
+    [ConditionalFact]
+    public void Can_get_and_set_partition_key_name_obsolete()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        var entityType = modelBuilder
+            .Entity<Customer>().Metadata;
+
+#pragma warning disable CS0618 // Type or member is obsolete
         Assert.Null(entityType.GetPartitionKeyPropertyName());
 
         ((IConventionEntityType)entityType).SetPartitionKeyPropertyName("pk");
@@ -56,9 +82,35 @@ public class CosmosMetadataExtensionsTest
         entityType.SetPartitionKeyPropertyName(null);
         Assert.Null(entityType.GetPartitionKeyPropertyName());
         Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [ConditionalFact]
+    public void Can_get_and_set_hierarchical_partition_key_name()
+    {
+        var modelBuilder = CreateModelBuilder();
+
+        var entityType = modelBuilder
+            .Entity<Customer>().Metadata;
+
+        Assert.Empty(entityType.GetPartitionKeyPropertyNames());
+
+        ((IConventionEntityType)entityType).SetPartitionKeyPropertyNames(["pk1", "pk2", "pk3"]);
+        Assert.Equal(["pk1", "pk2", "pk3"], entityType.GetPartitionKeyPropertyNames());
+        Assert.Equal(
+            ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
+
+        entityType.SetPartitionKeyPropertyNames(["pk1", "pk2", "pk3"]);
+        Assert.Equal(["pk1", "pk2", "pk3"], entityType.GetPartitionKeyPropertyNames());
+        Assert.Equal(
+            ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
+
+        entityType.SetPartitionKeyPropertyNames(null);
+        Assert.Empty(entityType.GetPartitionKeyPropertyNames());
+        Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNamesConfigurationSource());
+    }
+
+     [ConditionalFact]
     public void Can_get_and_set_etag_name()
     {
         var modelBuilder = CreateModelBuilder();

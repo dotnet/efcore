@@ -92,6 +92,9 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
     }

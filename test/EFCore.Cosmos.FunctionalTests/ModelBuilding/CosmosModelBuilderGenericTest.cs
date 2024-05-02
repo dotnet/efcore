@@ -93,6 +93,59 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Hierarchical_partition_key_is_added_to_the_keys()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(b => new { b.Title, b.Name });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.Title), nameof(Customer.Name) },
+                entity.GetPartitionKeyProperties().Select(p => p.Name));
+            Assert.Equal(
+                new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.Title), nameof(Customer.Name) },
+                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
+
+            var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName)!;
+            Assert.Single(idProperty.GetContainingKeys());
+            Assert.NotNull(idProperty.GetValueGeneratorFactory());
+        }
+
+        [ConditionalFact]
+        public virtual void Three_level_hierarchical_partition_key_is_added_to_the_keys()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(b => new { b.Title, b.Name, b.AlternateKey })
+                .Property(b => b.AlternateKey).HasConversion<string>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.Title), nameof(Customer.Name), nameof(Customer.AlternateKey) },
+                entity.GetPartitionKeyProperties().Select(p => p.Name));
+            Assert.Equal(
+                new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.Title), nameof(Customer.Name), nameof(Customer.AlternateKey) },
+                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
+
+            var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName)!;
+            Assert.Single(idProperty.GetContainingKeys());
+            Assert.NotNull(idProperty.GetValueGeneratorFactory());
+        }
+
+        [ConditionalFact]
         public virtual void Partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
         {
             var modelBuilder = CreateModelBuilder();
@@ -113,6 +166,45 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.Equal(
                 new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
+                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
+        }
+
+        [ConditionalFact]
+        public virtual void Hierarchical_partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().HasKey(StoreKeyConvention.DefaultIdPropertyName);
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.AlternateKey,
+                        b.Name,
+                        b.Title
+                    })
+                .Property(b => b.AlternateKey).HasConversion<string>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title) },
+                entity.GetPartitionKeyProperties().Select(p => p.Name));
+            Assert.Equal(
+                new[] { StoreKeyConvention.DefaultIdPropertyName },
+                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Equal(
+                new[]
+                {
+                    StoreKeyConvention.DefaultIdPropertyName,
+                    nameof(Customer.AlternateKey),
+                    nameof(Customer.Name),
+                    nameof(Customer.Title)
+                },
                 entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
         }
 
@@ -214,6 +306,140 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_hierarchical_partition_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().HasKey(
+                nameof(Customer.AlternateKey),
+                nameof(Customer.Name),
+                nameof(Customer.Title),
+                StoreKeyConvention.DefaultIdPropertyName);
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.AlternateKey,
+                        b.Name,
+                        b.Title
+                    })
+                .Property(b => b.AlternateKey).HasConversion<string>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title) },
+                entity.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(
+                new[]
+                {
+                    nameof(Customer.AlternateKey),
+                    nameof(Customer.Name),
+                    nameof(Customer.Title),
+                    StoreKeyConvention.DefaultIdPropertyName
+                },
+                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+        }
+
+        [ConditionalFact]
+        public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_hierarchical_partition_key_in_different_order()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().HasKey(
+                nameof(Customer.Title),
+                nameof(Customer.Name),
+                nameof(Customer.AlternateKey),
+                StoreKeyConvention.DefaultIdPropertyName);
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.AlternateKey,
+                        b.Name,
+                        b.Title
+                    })
+                .Property(b => b.AlternateKey).HasConversion<string>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.AlternateKey), nameof(Customer.Name), nameof(Customer.Title) },
+                entity.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(
+                new[]
+                {
+                    nameof(Customer.Title),
+                    nameof(Customer.Name),
+                    nameof(Customer.AlternateKey),
+                    StoreKeyConvention.DefaultIdPropertyName
+                },
+                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+        }
+
+        [ConditionalFact]
+        public virtual void Hierarchical_partition_key_is_added_to_the_alternate_key_if_primary_key_contains_part_of_partition_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().HasKey(
+                nameof(Customer.Title),
+                nameof(Customer.AlternateKey),
+                StoreKeyConvention.DefaultIdPropertyName);
+
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(
+                    b => new
+                    {
+                        b.Title,
+                        b.AlternateKey,
+                        b.Name
+                    })
+                .Property(b => b.AlternateKey).HasConversion<string>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.Title), nameof(Customer.AlternateKey), nameof(Customer.Name) },
+                entity.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(
+                new[]
+                {
+                    nameof(Customer.Title),
+                    nameof(Customer.AlternateKey),
+                    StoreKeyConvention.DefaultIdPropertyName
+                },
+                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                new[]
+                {
+                    StoreKeyConvention.DefaultIdPropertyName,
+                    nameof(Customer.Title),
+                    nameof(Customer.AlternateKey),
+                    nameof(Customer.Name)
+                },
+                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
+        }
+
+        [ConditionalFact]
         public virtual void No_alternate_key_is_created_if_id_is_partition_key()
         {
             var modelBuilder = CreateModelBuilder();
@@ -231,6 +457,28 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
             Assert.Equal(
                 new[] { nameof(Customer.AlternateKey) },
+                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+        }
+
+        [ConditionalFact]
+        public virtual void No_alternate_key_is_created_if_id_is_hierarchical_partition_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>().HasKey(e => new { e.Name, e.AlternateKey, e.Title });
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(b => new { b.Name, b.AlternateKey, b.Title })
+                .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.Name), nameof(Customer.AlternateKey), nameof(Customer.Title) },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
         }
@@ -277,177 +525,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
-      Notes (List<string>) Element type: string Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
-        }
-
-        [ConditionalFact]
-        public virtual void Partition_key_is_added_to_the_keys()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>()
-                .Ignore(b => b.Details)
-                .Ignore(b => b.Orders)
-                .HasPartitionKey(b => b.AlternateKey)
-                .Property(b => b.AlternateKey).HasConversion<string>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Equal(
-                new[] { nameof(Customer.Id), nameof(Customer.AlternateKey) },
-                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Equal(
-                new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
-                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
-
-            var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName)!;
-            Assert.Single(idProperty.GetContainingKeys());
-            Assert.NotNull(idProperty.GetValueGeneratorFactory());
-        }
-
-        [ConditionalFact]
-        public virtual void Partition_key_is_added_to_the_alternate_key_if_primary_key_contains_id()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>().HasKey(StoreKeyConvention.DefaultIdPropertyName);
-            modelBuilder.Entity<Customer>()
-                .Ignore(b => b.Details)
-                .Ignore(b => b.Orders)
-                .HasPartitionKey(b => b.AlternateKey)
-                .Property(b => b.AlternateKey).HasConversion<string>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Equal(
-                new[] { StoreKeyConvention.DefaultIdPropertyName },
-                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Equal(
-                new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.AlternateKey) },
-                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
-        }
-
-        [ConditionalFact]
-        public virtual void No_id_property_created_if_another_property_mapped_to_id()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>()
-                .Property(c => c.Name)
-                .ToJsonProperty(StoreKeyConvention.IdPropertyJsonName);
-            modelBuilder.Entity<Customer>()
-                .Ignore(b => b.Details)
-                .Ignore(b => b.Orders);
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
-            Assert.Single(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
-
-            var idProperty = entity.GetDeclaredProperties()
-                .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
-            Assert.Single(idProperty.GetContainingKeys());
-            Assert.NotNull(idProperty.GetValueGeneratorFactory());
-        }
-
-        [ConditionalFact]
-        public virtual void No_id_property_created_if_another_property_mapped_to_id_in_pk()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>()
-                .Property(c => c.Name)
-                .ToJsonProperty(StoreKeyConvention.IdPropertyJsonName);
-            modelBuilder.Entity<Customer>()
-                .Ignore(c => c.Details)
-                .Ignore(c => c.Orders)
-                .HasKey(c => c.Name);
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
-
-            var idProperty = entity.GetDeclaredProperties()
-                .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
-            Assert.Single(idProperty.GetContainingKeys());
-            Assert.Null(idProperty.GetValueGeneratorFactory());
-        }
-
-        [ConditionalFact]
-        public virtual void No_alternate_key_is_created_if_primary_key_contains_id()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>().HasKey(StoreKeyConvention.DefaultIdPropertyName);
-            modelBuilder.Entity<Customer>()
-                .Ignore(b => b.Details)
-                .Ignore(b => b.Orders);
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Equal(
-                new[] { StoreKeyConvention.DefaultIdPropertyName },
-                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
-
-            var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName)!;
-            Assert.Single(idProperty.GetContainingKeys());
-            Assert.Null(idProperty.GetValueGeneratorFactory());
-        }
-
-        [ConditionalFact]
-        public virtual void No_alternate_key_is_created_if_primary_key_contains_id_and_partition_key()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName);
-            modelBuilder.Entity<Customer>()
-                .Ignore(b => b.Details)
-                .Ignore(b => b.Orders)
-                .HasPartitionKey(b => b.AlternateKey)
-                .Property(b => b.AlternateKey).HasConversion<string>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Equal(
-                new[] { nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName },
-                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
-        }
-
-        [ConditionalFact]
-        public virtual void No_alternate_key_is_created_if_id_is_partition_key()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey));
-            modelBuilder.Entity<Customer>()
-                .Ignore(b => b.Details)
-                .Ignore(b => b.Orders)
-                .HasPartitionKey(b => b.AlternateKey)
-                .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
-
-            var model = modelBuilder.FinalizeModel();
-
-            var entity = model.FindEntityType(typeof(Customer))!;
-
-            Assert.Equal(
-                new[] { nameof(Customer.AlternateKey) },
-                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+      Notes (List<string>) Element type: string Required
+      Title (string) Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
@@ -586,8 +665,76 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
             Assert.Equal(6, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
-            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
+            Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_shared_type_as_join_entity_with_hierarchical_partition_keys()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<OneToManyNavPrincipal>();
+            modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>(
+                mb =>
+                {
+                    mb.Property<string>("PartitionId1");
+                    mb.Property<string>("PartitionId2");
+                    mb.Property<string>("PartitionId3");
+                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+                });
+
+            modelBuilder.Entity<NavDependent>(
+                mb =>
+                {
+                    mb.Property<string>("PartitionId1");
+                    mb.Property<string>("PartitionId2");
+                    mb.Property<string>("PartitionId3");
+                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+                });
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>()
+                .HasMany(e => e.Dependents)
+                .WithMany(e => e.ManyToManyPrincipals)
+                .UsingEntity<Dictionary<string, object>>(
+                    "JoinType",
+                    e => e.HasOne<NavDependent>().WithMany().HasAnnotation("Right", "Foo"),
+                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasAnnotation("Left", "Bar"));
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>()
+                .HasMany(e => e.Dependents)
+                .WithMany(e => e.ManyToManyPrincipals)
+                .UsingEntity<Dictionary<string, object>>(
+                    "JoinType",
+                    e => e.HasOne<NavDependent>().WithMany().HasForeignKey("DependentId", "PartitionId1", "PartitionId2", "PartitionId3"),
+                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey("PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3"),
+                    e => e.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3"));
+
+            var model = modelBuilder.FinalizeModel();
+
+            var joinType = model.FindEntityType("JoinType")!;
+            Assert.NotNull(joinType);
+            Assert.Collection(joinType.GetForeignKeys(),
+                fk => Assert.Equal("Foo", fk["Right"]),
+                fk => Assert.Equal("Bar", fk["Left"]));
+
+            Assert.Equal(
+                new[] { "PartitionId1", "PartitionId2", "PartitionId3" },
+                joinType.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(
+                new[] { "DependentId", "PrincipalId", "PartitionId1", "PartitionId2", "PartitionId3" },
+                joinType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                new[] { "__id", "PartitionId1", "PartitionId2", "PartitionId3" },
+                joinType.GetKeys().Single(k => k != joinType.FindPrimaryKey()).Properties.Select(p => p.Name));
         }
 
         [ConditionalFact]
@@ -625,8 +772,67 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
             Assert.Equal(6, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
-            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
+            Assert.Equal(["PartitionId"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("PartitionId", joinType.FindPrimaryKey()!.Properties.Last().Name);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_implicit_join_entity_with_hierarchical_partition_keys()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<OneToManyNavPrincipal>();
+            modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>(
+                mb =>
+                {
+                    mb.Ignore(e => e.Dependents);
+                    mb.Property<string>("PartitionId1");
+                    mb.Property<string>("PartitionId2");
+                    mb.Property<string>("PartitionId3");
+                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+                });
+
+            modelBuilder.Entity<NavDependent>(
+                mb =>
+                {
+                    mb.Property<string>("PartitionId1");
+                    mb.Property<string>("PartitionId2");
+                    mb.Property<string>("PartitionId3");
+                    mb.HasPartitionKey("PartitionId1", "PartitionId2", "PartitionId3");
+                });
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>()
+                .HasMany(e => e.Dependents)
+                .WithMany(e => e.ManyToManyPrincipals);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var joinType = model.FindEntityType("ManyToManyNavPrincipalNavDependent");
+            Assert.NotNull(joinType);
+
+            Assert.Equal(
+                new[] { "PartitionId1", "PartitionId2", "PartitionId3" },
+                joinType.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(
+                new[] { "Id", "Id1", "PartitionId1", "PartitionId2", "PartitionId3" },
+                joinType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(
+                new[] { "__id", "PartitionId1", "PartitionId2", "PartitionId3" },
+                joinType.GetKeys().Single(k => k != joinType.FindPrimaryKey()).Properties.Select(p => p.Name));
+
+
+            Assert.Equal(2, joinType.GetForeignKeys().Count());
+            Assert.Equal(5, joinType.FindPrimaryKey()!.Properties.Count);
+            Assert.Equal(8, joinType.GetProperties().Count());
+            Assert.Equal("DbContext", joinType.GetContainer());
         }
 
         [ConditionalFact]
@@ -673,8 +879,12 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
             Assert.Equal(6, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
-            Assert.Equal("Partition2Id", joinType.GetPartitionKeyPropertyName());
+            Assert.Equal(["Partition2Id"], joinType.GetPartitionKeyPropertyNames());
             Assert.Equal("Partition2Id", joinType.FindPrimaryKey()!.Properties.Last().Name);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.Equal("Partition2Id", joinType.GetPartitionKeyPropertyName());
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         public override void Join_type_is_automatically_configured_by_convention()

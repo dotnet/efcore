@@ -545,6 +545,7 @@ public class KeysWithConvertersCosmosTest(KeysWithConvertersCosmosTest.KeysWithC
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning)));
+            => base.AddOptions(builder.ConfigureWarnings(
+                w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning, CosmosEventId.NoPartitionKeyDefined)));
     }
 }

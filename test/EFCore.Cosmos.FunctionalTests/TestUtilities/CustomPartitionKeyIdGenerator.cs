@@ -29,10 +29,10 @@ public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
             builder.Append("-");
         }
 
-        var partitionKey = entityType.GetPartitionKeyPropertyName();
+        var partitionKeyNames = entityType.GetPartitionKeyPropertyNames();
         foreach (var property in primaryKey.Properties)
         {
-            if (property.Name == partitionKey
+            if (partitionKeyNames.Contains(property.Name)
                 || property.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)
             {
                 continue;

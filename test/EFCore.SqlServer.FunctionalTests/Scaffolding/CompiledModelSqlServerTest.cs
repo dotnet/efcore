@@ -339,7 +339,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
     }
 
     [ConditionalFact]
-    public virtual void Key_HiLo_sequence()
+    public virtual Task Key_HiLo_sequence()
         => Test(
             modelBuilder => {
                 modelBuilder.Entity<Data>(
@@ -370,7 +370,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             });
 
     [ConditionalFact]
-    public virtual void Key_sequence()
+    public virtual Task Key_sequence()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(
                 eb =>
@@ -400,7 +400,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
 
     [ConditionalFact]
     [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
-    public virtual void SpatialTypesTest()
+    public virtual Task SpatialTypesTest()
         => Test(
             modelBuilder => modelBuilder.Entity<SpatialTypes>(
                 eb =>

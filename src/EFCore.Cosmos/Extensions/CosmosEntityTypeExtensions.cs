@@ -119,18 +119,18 @@ public static class CosmosEntityTypeExtensions
     /// </summary>
     /// <param name="entityType">The entity type to get the partition key property name for.</param>
     /// <returns>The name of the partition key property.</returns>
+    [Obsolete("Use SetPartitionKeyPropertyNames")]
     public static string? GetPartitionKeyPropertyName(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.PartitionKeyName] as string;
+        => entityType.GetPartitionKeyPropertyNames().FirstOrDefault();
 
     /// <summary>
     ///     Sets the name of the property that is used to store the partition key key.
     /// </summary>
     /// <param name="entityType">The entity type to set the partition key property name for.</param>
     /// <param name="name">The name to set.</param>
+    [Obsolete("Use SetPartitionKeyPropertyNames")]
     public static void SetPartitionKeyPropertyName(this IMutableEntityType entityType, string? name)
-        => entityType.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.PartitionKeyName,
-            Check.NullButNotEmpty(name, nameof(name)));
+        => entityType.SetPartitionKeyPropertyNames(name == null ? null : [name]);
 
     /// <summary>
     ///     Sets the name of the property that is used to store the partition key.
@@ -138,75 +138,131 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to set the partition key property name for.</param>
     /// <param name="name">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    [Obsolete("Use SetPartitionKeyPropertyNames")]
     public static string? SetPartitionKeyPropertyName(
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => (string?)entityType.SetOrRemoveAnnotation(
-            CosmosAnnotationNames.PartitionKeyName,
-            Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation)?.Value;
+        => entityType.SetPartitionKeyPropertyNames(name is null ? null : [name], fromDataAnnotation)?.FirstOrDefault();
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the partition key.
     /// </summary>
     /// <param name="entityType">The entity type to find configuration source for.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for the partition key property.</returns>
+    [Obsolete("Use GetPartitionKeyPropertyNamesConfigurationSource")]
     public static ConfigurationSource? GetPartitionKeyPropertyNameConfigurationSource(this IConventionEntityType entityType)
-        => entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyName)
+        => entityType.GetPartitionKeyPropertyNamesConfigurationSource();
+
+    /// <summary>
+    ///     Returns the property that is used to store the partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the partition key property for.</param>
+    /// <returns>The name of the partition key property.</returns>
+    [Obsolete("Use GetPartitionKeyProperties")]
+    public static IReadOnlyProperty? GetPartitionKeyProperty(this IReadOnlyEntityType entityType)
+        => entityType.GetPartitionKeyProperties().FirstOrDefault();
+
+    /// <summary>
+    ///     Returns the property that is used to store the partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the partition key property for.</param>
+    /// <returns>The name of the partition key property.</returns>
+    [Obsolete("Use GetPartitionKeyProperties")]
+    public static IMutableProperty? GetPartitionKeyProperty(this IMutableEntityType entityType)
+        => entityType.GetPartitionKeyProperties().FirstOrDefault();
+
+    /// <summary>
+    ///     Returns the property that is used to store the partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the partition key property for.</param>
+    /// <returns>The name of the partition key property.</returns>
+    [Obsolete("Use GetPartitionKeyProperties")]
+    public static IConventionProperty? GetPartitionKeyProperty(this IConventionEntityType entityType)
+        => entityType.GetPartitionKeyProperties().FirstOrDefault();
+
+    /// <summary>
+    ///     Returns the property that is used to store the partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the partition key property for.</param>
+    /// <returns>The name of the partition key property.</returns>
+    [Obsolete("Use GetPartitionKeyProperties")]
+    public static IProperty? GetPartitionKeyProperty(this IEntityType entityType)
+        => entityType.GetPartitionKeyProperties().FirstOrDefault();
+
+    /// <summary>
+    ///     Returns the names of the properties that are used to store the hierarchical partition key, if any.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The names of the partition key properties, or <see langword="null"/> if not set.</returns>
+    public static IReadOnlyList<string> GetPartitionKeyPropertyNames(this IReadOnlyEntityType entityType)
+        => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string> ?? Array.Empty<string>();
+
+    /// <summary>
+    ///     Sets the names of the properties that are used to store the hierarchical partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="names">The names to set, or <see langword="null"/> to clear all names.</param>
+    public static void SetPartitionKeyPropertyNames(this IMutableEntityType entityType, IReadOnlyList<string>? names)
+        => entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.PartitionKeyNames, names is null ? names : Check.HasNoEmptyElements(names, nameof(names)));
+
+    /// <summary>
+    ///     Sets the names of the properties that are used to store the hierarchical partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to set the partition key property name for.</param>
+    /// <param name="names">The names to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static IReadOnlyList<string>? SetPartitionKeyPropertyNames(
+        this IConventionEntityType entityType,
+        IReadOnlyList<string>? names,
+        bool fromDataAnnotation = false)
+        => (IReadOnlyList<string>?)entityType
+            .SetOrRemoveAnnotation(
+                CosmosAnnotationNames.PartitionKeyNames,
+                names is null ? names : Check.HasNoEmptyElements(names, nameof(names)),
+                fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the properties that are used to store the hierarchical partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the partition key properties.</returns>
+    public static ConfigurationSource? GetPartitionKeyPropertyNamesConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyNames)
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Returns the property that is used to store the partition key.
+    ///     Returns the the properties that are used to store the hierarchical partition key.
     /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    public static IReadOnlyProperty? GetPartitionKeyProperty(this IReadOnlyEntityType entityType)
-    {
-        var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-        return partitionKeyPropertyName == null
-            ? null
-            : entityType.FindProperty(partitionKeyPropertyName);
-    }
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The hierarchical partition key properties.</returns>
+    public static IReadOnlyList<IReadOnlyProperty?> GetPartitionKeyProperties(this IReadOnlyEntityType entityType)
+        => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the property that is used to store the partition key.
+    ///     Returns the the properties that are used to store the hierarchical partition key.
     /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    public static IMutableProperty? GetPartitionKeyProperty(this IMutableEntityType entityType)
-    {
-        var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-        return partitionKeyPropertyName == null
-            ? null
-            : entityType.FindProperty(partitionKeyPropertyName);
-    }
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The hierarchical partition key properties.</returns>
+    public static IReadOnlyList<IMutableProperty?> GetPartitionKeyProperties(this IMutableEntityType entityType)
+        => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the property that is used to store the partition key.
+    ///     Returns the the properties that are used to store the hierarchical partition key.
     /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    public static IConventionProperty? GetPartitionKeyProperty(this IConventionEntityType entityType)
-    {
-        var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-        return partitionKeyPropertyName == null
-            ? null
-            : entityType.FindProperty(partitionKeyPropertyName);
-    }
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The hierarchical partition key properties.</returns>
+    public static IReadOnlyList<IConventionProperty?> GetPartitionKeyProperties(this IConventionEntityType entityType)
+        => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
-    ///     Returns the property that is used to store the partition key.
+    ///     Returns the the properties that are used to store the hierarchical partition key.
     /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    public static IProperty? GetPartitionKeyProperty(this IEntityType entityType)
-    {
-        var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-        return partitionKeyPropertyName == null
-            ? null
-            : entityType.FindProperty(partitionKeyPropertyName);
-    }
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The hierarchical partition key properties.</returns>
+    public static IReadOnlyList<IProperty> GetPartitionKeyProperties(this IEntityType entityType)
+        => entityType.GetPartitionKeyPropertyNames().Select(n => entityType.FindProperty(n)!).ToList();
 
     /// <summary>
     ///     Returns the name of the property that is used to store the ETag.

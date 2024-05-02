@@ -63,15 +63,15 @@ namespace TestNamespace
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 keyComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
@@ -109,15 +109,15 @@ namespace TestNamespace
             collection.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>(
                     (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => v.GetHashCode(),
+                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
                     (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
                 keyComparer: new ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>(
                     (CompiledModelInMemoryTest.SelfReferentialProperty v1, CompiledModelInMemoryTest.SelfReferentialProperty v2) => object.Equals(v1, v2),
-                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => v.GetHashCode(),
+                    (CompiledModelInMemoryTest.SelfReferentialProperty v) => ((object)v).GetHashCode(),
                     (CompiledModelInMemoryTest.SelfReferentialProperty v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 converter: new ValueConverter<CompiledModelInMemoryTest.SelfReferentialProperty, string>(
                     (CompiledModelInMemoryTest.SelfReferentialProperty v) => null,
@@ -144,10 +144,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.SelfReferentialEntity)source.Entity;
-                    return (ISnapshot)new Snapshot<long, CompiledModelInMemoryTest.SelfReferentialProperty>(((ValueComparer<long>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(id)), source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection) == null ? null : ((ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>)collection.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection)));
+                    return (ISnapshot)new Snapshot<long, CompiledModelInMemoryTest.SelfReferentialProperty>(((ValueComparer<long>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(id)), source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection) == null ? null : ((ValueComparer<CompiledModelInMemoryTest.SelfReferentialProperty>)((IProperty)collection).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelInMemoryTest.SelfReferentialProperty>(collection)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<long>(((ValueComparer<long>)id.GetValueComparer()).Snapshot(default(long))));
+                () => (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetValueComparer()).Snapshot(default(long))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<long>(default(long)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -158,7 +158,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.SelfReferentialEntity)source.Entity;
-                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
+                    return (ISnapshot)new Snapshot<long>(((ValueComparer<long>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics;
@@ -12,8 +13,12 @@ public class CosmosEventIdTest : EventIdTestBase
     [ConditionalFact]
     public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
     {
+        var model = new Model();
+        var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention);
+
         var fakeFactories = new Dictionary<Type, Func<object>>
         {
+            { typeof(IEntityType), () => entityType },
             {
                 typeof(CosmosSqlQuery), () => new CosmosSqlQuery(
                     "Some SQL...",
