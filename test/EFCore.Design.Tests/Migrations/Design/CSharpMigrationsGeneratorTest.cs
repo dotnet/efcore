@@ -135,14 +135,7 @@ public partial class CSharpMigrationsGeneratorTest
             },
             {
                 CoreAnnotationNames.DiscriminatorValue, ("MyDiscriminatorValue",
-                    _toTable
-                    + ";"
-                    + _nl
-                    + _nl
-                    + "entityTypeBuilder.HasDiscriminator"
-                    + "()."
-                    + nameof(DiscriminatorBuilder.HasValue)
-                    + @"(""MyDiscriminatorValue"")")
+                    _toTable)
             },
             {
                 RelationalAnnotationNames.Comment, ("My Comment",
