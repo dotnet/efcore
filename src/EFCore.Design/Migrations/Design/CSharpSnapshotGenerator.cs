@@ -906,65 +906,68 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 ?? discriminatorValueAnnotation?.Value)
             != null)
         {
-            stringBuilder
-                .AppendLine()
-                .Append(entityTypeBuilderName)
-                .Append('.')
-                .Append("HasDiscriminator");
-
             var discriminatorProperty = entityType.FindDiscriminatorProperty();
-            if (discriminatorPropertyAnnotation?.Value != null
-                && discriminatorProperty != null)
-            {
-                var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
-                        .MakeNullable(discriminatorProperty.IsNullable)
-                    ?? discriminatorProperty.ClrType;
-                stringBuilder
-                    .Append('<')
-                    .Append(Code.Reference(propertyClrType))
-                    .Append(">(")
-                    .Append(Code.Literal(discriminatorProperty.Name))
-                    .Append(')');
-            }
-            else
+            if (discriminatorProperty != null)
             {
                 stringBuilder
-                    .Append("()");
-            }
-
-            if (discriminatorMappingCompleteAnnotation?.Value != null)
-            {
-                var value = (bool)discriminatorMappingCompleteAnnotation.Value;
-
-                stringBuilder
+                    .AppendLine()
+                    .Append(entityTypeBuilderName)
                     .Append('.')
-                    .Append("IsComplete")
-                    .Append('(')
-                    .Append(Code.Literal(value))
-                    .Append(')');
-            }
+                    .Append("HasDiscriminator");
 
-            if (discriminatorValueAnnotation?.Value != null)
-            {
-                var value = discriminatorValueAnnotation.Value;
-                if (discriminatorProperty != null)
+                if (discriminatorProperty.DeclaringType == entityType
+                    && discriminatorProperty.Name != "Discriminator")
                 {
-                    var valueConverter = FindValueConverter(discriminatorProperty);
-                    if (valueConverter != null)
-                    {
-                        value = valueConverter.ConvertToProvider(value);
-                    }
+                    var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
+                            .MakeNullable(discriminatorProperty.IsNullable)
+                        ?? discriminatorProperty.ClrType;
+                    stringBuilder
+                        .Append('<')
+                        .Append(Code.Reference(propertyClrType))
+                        .Append(">(")
+                        .Append(Code.Literal(discriminatorProperty.Name))
+                        .Append(')');
+                }
+                else
+                {
+                    stringBuilder
+                        .Append("()");
                 }
 
-                stringBuilder
-                    .Append('.')
-                    .Append("HasValue")
-                    .Append('(')
-                    .Append(Code.UnknownLiteral(value))
-                    .Append(')');
-            }
+                if (discriminatorMappingCompleteAnnotation?.Value != null)
+                {
+                    var value = (bool)discriminatorMappingCompleteAnnotation.Value;
 
-            stringBuilder.AppendLine(";");
+                    stringBuilder
+                        .Append('.')
+                        .Append("IsComplete")
+                        .Append('(')
+                        .Append(Code.Literal(value))
+                        .Append(')');
+                }
+
+                if (discriminatorValueAnnotation?.Value != null)
+                {
+                    var value = discriminatorValueAnnotation.Value;
+                    if (discriminatorProperty != null)
+                    {
+                        var valueConverter = FindValueConverter(discriminatorProperty);
+                        if (valueConverter != null)
+                        {
+                            value = valueConverter.ConvertToProvider(value);
+                        }
+                    }
+
+                    stringBuilder
+                        .Append('.')
+                        .Append("HasValue")
+                        .Append('(')
+                        .Append(Code.UnknownLiteral(value))
+                        .Append(')');
+                }
+
+                stringBuilder.AppendLine(";");
+            }
         }
 
         GenerateAnnotations(entityTypeBuilderName, entityType, stringBuilder, annotations, inChainedCall: false);
