@@ -1850,7 +1850,7 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<ConflictingId>();
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue #33600 - flaky test")]
     [InlineData(true)]
     [InlineData(false)]
     public async Task Can_have_non_string_property_named_Discriminator(bool useDiscriminator)
