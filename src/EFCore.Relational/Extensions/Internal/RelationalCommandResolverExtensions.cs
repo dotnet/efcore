@@ -1,9 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public interface IParameterValues
+public static class RelationalCommandResolverExtensions
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,13 +20,13 @@ public interface IParameterValues
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IReadOnlyDictionary<string, object?> ParameterValues { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    void AddParameter(string name, object? value);
+    public static IRelationalCommand RentAndPopulateRelationalCommand(
+        this RelationalCommandResolver relationalCommandResolver,
+        RelationalQueryContext queryContext)
+    {
+        var relationalCommandTemplate = relationalCommandResolver(queryContext.ParameterValues);
+        var relationalCommand = queryContext.Connection.RentCommand();
+        relationalCommand.PopulateFrom(relationalCommandTemplate);
+        return relationalCommand;
+    }
 }

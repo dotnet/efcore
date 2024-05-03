@@ -24,9 +24,10 @@ public class RelationalLiftableConstantProcessor : LiftableConstantProcessor
     /// </summary>
     public RelationalLiftableConstantProcessor(
         ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-        RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
+        RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
+        RelationalCommandBuilderDependencies commandBuilderDependencies)
         : base(dependencies)
-        => _relationalMaterializerLiftableConstantContext = new(dependencies, relationalDependencies);
+        => _relationalMaterializerLiftableConstantContext = new(dependencies, relationalDependencies, commandBuilderDependencies);
 
     /// <inheritdoc/>
     protected override ConstantExpression InlineConstant(LiftableConstantExpression liftableConstant)

@@ -22,7 +22,7 @@ public static class SplitQueryingEnumerable
     /// </summary>
     public static SplitQueryingEnumerable<T> Create<T>(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> shaper,
         Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
@@ -33,7 +33,7 @@ public static class SplitQueryingEnumerable
         bool threadSafetyChecksEnabled)
         => new(
             relationalQueryContext,
-            relationalCommandCache,
+            relationalCommandResolver,
             readerColumns,
             shaper,
             relatedDataLoaders,
@@ -53,7 +53,7 @@ public static class SplitQueryingEnumerable
 public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
 {
     private readonly RelationalQueryContext _relationalQueryContext;
-    private readonly RelationalCommandCache _relationalCommandCache;
+    private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _shaper;
     private readonly Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? _relatedDataLoaders;
@@ -72,7 +72,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
     /// </summary>
     public SplitQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> shaper,
         Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
@@ -83,7 +83,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         bool threadSafetyChecksEnabled)
     {
         _relationalQueryContext = relationalQueryContext;
-        _relationalCommandCache = relationalCommandCache;
+        _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
         _shaper = shaper;
         _relatedDataLoaders = relatedDataLoaders;
@@ -133,8 +133,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbCommand CreateDbCommand()
-        => _relationalCommandCache
-            .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
+        => _relationalCommandResolver(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
                 new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
@@ -162,7 +161,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
     private sealed class Enumerator : IEnumerator<T>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _shaper;
         private readonly Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? _relatedDataLoaders;
@@ -181,7 +180,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         public Enumerator(SplitQueryingEnumerable<T> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _shaper = queryingEnumerable._shaper;
             _relatedDataLoaders = queryingEnumerable._relatedDataLoaders;
@@ -263,7 +262,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             EntityFrameworkEventSource.Log.QueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
                 new RelationalCommandParameterObject(
@@ -313,7 +312,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
     private sealed class AsyncEnumerator : IAsyncEnumerator<T>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> _shaper;
         private readonly Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? _relatedDataLoaders;
@@ -333,7 +332,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         public AsyncEnumerator(SplitQueryingEnumerable<T> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _shaper = queryingEnumerable._shaper;
             _relatedDataLoaders = queryingEnumerable._relatedDataLoadersAsync;
@@ -418,7 +417,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             EntityFrameworkEventSource.Log.QueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(

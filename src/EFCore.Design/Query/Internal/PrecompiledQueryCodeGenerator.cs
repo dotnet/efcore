@@ -851,7 +851,10 @@ namespace System.Runtime.CompilerServices
             .IncrementIndent()
             .AppendLine("var relationalModel = dbContext.Model.GetRelationalModel();")
             .AppendLine("var relationalTypeMappingSource = dbContext.GetService<IRelationalTypeMappingSource>();")
-            .AppendLine("var materializerLiftableConstantContext = new RelationalMaterializerLiftableConstantContext(dbContext.GetService<ShapedQueryCompilingExpressionVisitorDependencies>(), dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>());");
+            .AppendLine("var materializerLiftableConstantContext = new RelationalMaterializerLiftableConstantContext(")
+            .AppendLine("    dbContext.GetService<ShapedQueryCompilingExpressionVisitorDependencies>(),")
+            .AppendLine("    dbContext.GetService<RelationalShapedQueryCompilingExpressionVisitorDependencies>(),")
+            .AppendLine("    dbContext.GetService<RelationalCommandBuilderDependencies>());");
 
         HashSet<string> variableNames = ["relationalModel", "relationalTypeMappingSource", "materializerLiftableConstantContext"];
 

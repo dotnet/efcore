@@ -1,7 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -22,13 +22,30 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
     /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
     /// <param name="async">A bool value indicating whether it is for async query.</param>
+    public RelationalQueryCompilationContext(
+        QueryCompilationContextDependencies dependencies,
+        RelationalQueryCompilationContextDependencies relationalDependencies,
+        bool async)
+        : this(dependencies, relationalDependencies, async, precompiling: false, nonNullableReferenceTypeParameters: null)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="RelationalQueryCompilationContext" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+    /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
+    /// <param name="async">A bool value indicating whether it is for async query.</param>
     /// <param name="precompiling">Indicates whether the query is being precompiled.</param>
+    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types.</param>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public RelationalQueryCompilationContext(
         QueryCompilationContextDependencies dependencies,
         RelationalQueryCompilationContextDependencies relationalDependencies,
         bool async,
-        bool precompiling)
-        : base(dependencies, async, precompiling)
+        bool precompiling,
+        IReadOnlySet<string>? nonNullableReferenceTypeParameters)
+        : base(dependencies, async, precompiling, nonNullableReferenceTypeParameters)
     {
         RelationalDependencies = relationalDependencies;
         QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;
