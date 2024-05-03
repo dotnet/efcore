@@ -240,6 +240,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 path);
 
         /// <summary>
+        ///     File '{filename}' not found.
+        /// </summary>
+        public static string FileNotFound(object? filename)
+            => string.Format(
+                GetString("FileNotFound", nameof(filename)),
+                filename);
+
+        /// <summary>
         ///     The target framework.
         /// </summary>
         public static string FrameworkDescription

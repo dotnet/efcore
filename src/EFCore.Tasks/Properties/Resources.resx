@@ -121,10 +121,10 @@
     <value>Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254</value>
   </data>
   <data name="NETStandardStartupProject" xml:space="preserve">
-    <value>Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781</value>
+    <value>Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using &lt;EFStartupProject&gt; property; or, update this project to cross-target .NET Core. For more information on using the Entity Framework Tools with .NET Standard projects, see https://go.microsoft.com/fwlink/?linkid=2034781</value>
   </data>
   <data name="NotExecutableStartupProject" xml:space="preserve">
-    <value>Startup project '{startupProject}' cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using --startup-project.</value>
+    <value>Startup project '{startupProject}' cannot be executed directly. To use the Entity Framework Core Tools with this project, add an executable project targeting .NET Core that references this project, and set it as the startup project using &lt;EFStartupProject&gt; property.</value>
   </data>
   <data name="UnsupportedFramework" xml:space="preserve">
     <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>

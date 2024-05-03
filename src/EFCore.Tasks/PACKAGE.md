@@ -8,6 +8,8 @@ Install the package into your project, set `<EFOptimizeContext Condition="'$(Con
 
 If the startup project is different from the current project it needs to be specified: `<EFStartupProject>..\Startup\Startup.csproj</EFStartupProject>`
 
+The startup project must also reference the `Microsoft.EntityFrameworkCore.Tasks` package.
+
 ## Getting started with EF Core
 
 See [Getting started with EF Core](https://learn.microsoft.com/ef/core/get-started/overview/install) for more information about EF NuGet packages, including which to install when getting started.
