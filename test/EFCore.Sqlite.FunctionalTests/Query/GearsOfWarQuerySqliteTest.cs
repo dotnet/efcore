@@ -2276,18 +2276,6 @@ INNER JOIN "Weapons" AS "w1" ON "w0"."Id" = "w1"."Id"
 """);
     }
 
-    public override async Task Enum_ToString_is_client_eval(bool async)
-    {
-        await base.Enum_ToString_is_client_eval(async);
-
-        AssertSql(
-            """
-SELECT "g"."Rank"
-FROM "Gears" AS "g"
-ORDER BY "g"."SquadId", "g"."Nickname"
-""");
-    }
-
     public override async Task Include_with_join_collection2(bool async)
     {
         await base.Include_with_join_collection2(async);

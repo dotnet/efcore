@@ -5382,24 +5382,6 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Enum_ToString_is_client_eval(bool async)
-    {
-        await base.Enum_ToString_is_client_eval(async);
-
-        AssertSql(
-            """
-SELECT [t].[Rank]
-FROM (
-    SELECT [g].[Nickname], [g].[SquadId], [g].[Rank]
-    FROM [Gears] AS [g]
-    UNION ALL
-    SELECT [o].[Nickname], [o].[SquadId], [o].[Rank]
-    FROM [Officers] AS [o]
-) AS [t]
-ORDER BY [t].[SquadId], [t].[Nickname]
-""");
-    }
-
     public override async Task Correlated_collections_naked_navigation_with_ToList(bool async)
     {
         await base.Correlated_collections_naked_navigation_with_ToList(async);

@@ -3987,18 +3987,6 @@ LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSqu
 """);
     }
 
-    public override async Task Enum_ToString_is_client_eval(bool async)
-    {
-        await base.Enum_ToString_is_client_eval(async);
-
-        AssertSql(
-            """
-SELECT [g].[Rank]
-FROM [Gears] AS [g]
-ORDER BY [g].[SquadId], [g].[Nickname]
-""");
-    }
-
     public override async Task ToString_string_property_projection(bool async)
     {
         await base.ToString_string_property_projection(async);
@@ -4036,6 +4024,52 @@ SELECT CASE
     ELSE NULL
 END
 FROM [Factions] AS [f]
+""");
+    }
+
+    public override async Task ToString_enum_property_projection(bool async)
+    {
+        await base.ToString_enum_property_projection(async);
+
+        AssertSql(
+            """
+SELECT (CAST [g].[Rank] AS nvarchar(max))
+FROM [Gears] AS [g]
+""");
+    }
+
+    public override async Task ToString_nullable_enum_property_projection(bool async)
+    {
+        await base.ToString_nullable_enum_property_projection(async);
+
+        AssertSql(
+            """
+SELECT (CAST [w].[AmmunitionType] AS nvarchar(max))
+FROM [Weapons] AS [w]
+""");
+    }
+
+    public override async Task ToString_enum_contains(bool async)
+    {
+        await base.ToString_enum_contains(async);
+
+        AssertSql(
+            """
+SELECT [g].[Nickname]
+FROM [Gears] AS [g]
+WHERE CHARINDEX(N'Cor', CAST([g].[Rank] AS nvarchar(max))) > 0
+""");
+    }
+
+    public override async Task ToString_nullable_enum_contains(bool async)
+    {
+        await base.ToString_nullable_enum_contains(async);
+
+        AssertSql(
+            """
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+WHERE CHARINDEX(N'Car', CAST([w].[AmmunitionType] AS nvarchar(max))) > 0
 """);
     }
 

@@ -4296,18 +4296,6 @@ ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name]
 """);
     }
 
-    public override async Task Enum_ToString_is_client_eval(bool async)
-    {
-        await base.Enum_ToString_is_client_eval(async);
-
-        AssertSql(
-            """
-SELECT [g].[Rank]
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-ORDER BY [g].[SquadId], [g].[Nickname]
-""");
-    }
-
     public override async Task Include_with_nested_navigation_in_order_by(bool async)
     {
         await base.Include_with_nested_navigation_in_order_by(async);

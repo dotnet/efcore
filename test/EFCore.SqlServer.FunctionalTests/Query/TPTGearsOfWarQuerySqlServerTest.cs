@@ -4717,18 +4717,6 @@ LEFT JOIN (
 """);
     }
 
-    public override async Task Enum_ToString_is_client_eval(bool async)
-    {
-        await base.Enum_ToString_is_client_eval(async);
-
-        AssertSql(
-            """
-SELECT [g].[Rank]
-FROM [Gears] AS [g]
-ORDER BY [g].[SquadId], [g].[Nickname]
-""");
-    }
-
     public override async Task Correlated_collections_naked_navigation_with_ToList(bool async)
     {
         await base.Correlated_collections_naked_navigation_with_ToList(async);
