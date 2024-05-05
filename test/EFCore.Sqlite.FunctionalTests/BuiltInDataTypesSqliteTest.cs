@@ -862,10 +862,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .Where(e => e.PartitionId == 200)
             .GroupBy(_ => true);
 
-        Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Min(e => e.TestNullableDecimal)).ToList()).Message);
+        Assert.Equal(2.000000000000001m, query.Select(g => g.Min(e => e.TestNullableDecimal)).Single());
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), typeof(DateTimeOffset).ShortDisplayName()),
@@ -915,10 +912,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .Where(e => e.PartitionId == 201)
             .GroupBy(_ => true);
 
-        Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => query.Select(g => g.Max(e => e.TestNullableDecimal)).ToList()).Message);
+        Assert.Equal(10.000000000000001m, query.Select(g => g.Max(e => e.TestNullableDecimal)).Single());
 
         Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), typeof(DateTimeOffset).ShortDisplayName()),
