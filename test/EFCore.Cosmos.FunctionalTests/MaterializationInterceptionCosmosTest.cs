@@ -57,6 +57,10 @@ public class MaterializationInterceptionCosmosTest :
     public override Task Intercept_query_materialization_for_empty_constructor(bool inject, bool usePooling)
         => base.Intercept_query_materialization_for_empty_constructor(inject, usePooling);
 
+    [ConditionalTheory(Skip = "Issue #33600 - flaky test")]
+    public override Task Intercept_query_materialization_for_full_constructor(bool inject, bool usePooling)
+        => base.Intercept_query_materialization_for_full_constructor(inject, usePooling);
+
     protected override ITestStoreFactory TestStoreFactory
         => CosmosTestStoreFactory.Instance;
 }
