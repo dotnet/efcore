@@ -361,6 +361,81 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
         // TimeSpan. Issue #18844.
         => AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_property(bool async)
+    {
+        // TimeOnly/DateOnly is not supported. Issue #25103.
+        await AssertTranslationFailed(() => base.Where_TimeOnly_FromDateTime_compared_to_property(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_parameter(bool async)
+    {
+        // TimeOnly/DateOnly is not supported. Issue #25103.
+        await AssertTranslationFailed(() => base.Where_TimeOnly_FromDateTime_compared_to_parameter(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_constant(bool async)
+    {
+        // TimeOnly/DateOnly is not supported. Issue #25103.
+        await AssertTranslationFailed(() => base.Where_TimeOnly_FromDateTime_compared_to_constant(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_TimeOnly_FromTimeSpan_compared_to_property(bool async)
+    {
+        // TimeOnly/DateOnly is not supported. Issue #25103.
+        await AssertTranslationFailed(() => base.Where_TimeOnly_FromTimeSpan_compared_to_property(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_TimeOnly_FromTimeSpan_compared_to_parameter(bool async)
+    {
+        // TimeOnly/DateOnly is not supported. Issue #25103.
+        await AssertTranslationFailed(() => base.Where_TimeOnly_FromTimeSpan_compared_to_parameter(async));
+
+        AssertSql();
+    }
+
+    public override async Task Order_by_TimeOnly_FromTimeSpan(bool async)
+    {
+        // TimeOnly/DateOnly is not supported. Issue #25103.
+        await AssertTranslationFailed(() => base.Order_by_TimeOnly_FromTimeSpan(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_DateOnly_FromDateTime_compared_to_property(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT "t"."Id" AS "TagId", "m"."Id" AS "MissionId"
+FROM "Tags" AS "t"
+CROSS JOIN "Missions" AS "m"
+WHERE date("t"."IssueDate") > "m"."Date"
+""");
+    }
+
+    public override async Task Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
+
+        AssertSql(
+"""
+@__prm_0='10/11/0002' (DbType = Date)
+
+SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
+FROM "Tags" AS "t"
+WHERE date("t"."IssueDate") IN (@__prm_0, '0015-03-07')
+""");
+    }
+
     public override async Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
     {
         var message = (await Assert.ThrowsAsync<SqliteException>(
