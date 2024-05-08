@@ -431,6 +431,111 @@ END = CAST(1 AS bit)
         AssertSql();
     }
 
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_property(bool async)
+    {
+        await base.Where_TimeOnly_FromDateTime_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
+FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
+CROSS JOIN [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE CAST([t].[IssueDate] AS time) = [m].[Time]
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_parameter(bool async)
+    {
+        await base.Where_TimeOnly_FromDateTime_compared_to_parameter(async);
+
+        AssertSql(
+"""
+@__time_0='02:00' (DbType = Time)
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
+LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
+WHERE [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL AND CAST(DATEADD(hour, CAST(CAST([g].[SquadId] AS float) AS int), [t].[IssueDate]) AS time) = @__time_0
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_constant(bool async)
+    {
+        await base.Where_TimeOnly_FromDateTime_compared_to_constant(async);
+
+        AssertSql(
+"""
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
+WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int), [t].[IssueDate]) AS time) > '09:00:00'
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromTimeSpan_compared_to_property(bool async)
+    {
+        await base.Where_TimeOnly_FromTimeSpan_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE CAST([m].[Duration] AS time) < [m].[Time]
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromTimeSpan_compared_to_parameter(bool async)
+    {
+        await base.Where_TimeOnly_FromTimeSpan_compared_to_parameter(async);
+
+        AssertSql(
+"""
+@__time_0='01:02' (DbType = Time)
+
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE CAST([m].[Duration] AS time) = @__time_0
+""");
+    }
+
+    public override async Task Order_by_TimeOnly_FromTimeSpan(bool async)
+    {
+        await base.Order_by_TimeOnly_FromTimeSpan(async);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+ORDER BY CAST([m].[Duration] AS time)
+""");
+    }
+
+    public override async Task Where_DateOnly_FromDateTime_compared_to_property(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
+FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
+CROSS JOIN [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE CAST([t].[IssueDate] AS date) > [m].[Date]
+""");
+    }
+
+    public override async Task Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
+
+        AssertSql(
+"""
+@__prm_0='10/11/0002' (DbType = Date)
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note], [t].[PeriodEnd], [t].[PeriodStart]
+FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
+WHERE CAST([t].[IssueDate] AS date) IN (@__prm_0, '0015-03-07')
+""");
+    }
+
     public override async Task Basic_query_gears(bool async)
     {
         await base.Basic_query_gears(async);

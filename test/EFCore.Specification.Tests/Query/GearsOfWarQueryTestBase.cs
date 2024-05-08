@@ -7913,6 +7913,83 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromDateTime_compared_to_property(bool async)
+        => AssertQuery(
+            async,
+            ss => from t in ss.Set<CogTag>()
+                  from m in ss.Set<Mission>()
+                  where TimeOnly.FromDateTime(t.IssueDate) == m.Time
+                  select new { TagId = t.Id, MissionId = m.Id },
+            elementSorter: e => (e.TagId, e.MissionId));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromDateTime_compared_to_parameter(bool async)
+    {
+        var time = new TimeOnly(2, 0, 0);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Where(x => x.Gear != null && TimeOnly.FromDateTime(x.IssueDate.AddHours(x.Gear.SquadId)) == time));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromDateTime_compared_to_constant(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Where(x => TimeOnly.FromDateTime(x.IssueDate.AddHours(x.Note.Length)) > new TimeOnly(9, 0, 0)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromTimeSpan_compared_to_property(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(x => TimeOnly.FromTimeSpan(x.Duration) < x.Time));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_FromTimeSpan_compared_to_parameter(bool async)
+    {
+        var time = new TimeOnly(1, 2, 3);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(x => TimeOnly.FromTimeSpan(x.Duration) == time));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Order_by_TimeOnly_FromTimeSpan(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().OrderBy(x => TimeOnly.FromTimeSpan(x.Duration)),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_DateOnly_FromDateTime_compared_to_property(bool async)
+        => AssertQuery(
+            async,
+            ss => from t in ss.Set<CogTag>()
+                  from m in ss.Set<Mission>()
+                  where DateOnly.FromDateTime(t.IssueDate) > m.Date
+                  select new { TagId = t.Id, MissionId = m.Id },
+            elementSorter: e => (e.TagId, e.MissionId));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(bool async)
+    {
+        var prm = new DateOnly(2, 10, 11);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<CogTag>().Where(x => new[] { prm, new DateOnly(15, 3, 7) }.Contains(DateOnly.FromDateTime(x.IssueDate))));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_query_gears(bool async)
         => AssertQuery(
             async,
