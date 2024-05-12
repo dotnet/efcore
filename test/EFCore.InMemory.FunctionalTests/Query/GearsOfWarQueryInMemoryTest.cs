@@ -139,4 +139,20 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
 
     public override Task Subquery_inside_Take_argument(bool async)
         => Task.CompletedTask;
+
+    public override Task ToString_nullable_enum_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType.ToString()),
+            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType != null ? w.AmmunitionType.ToString() : null));
+
+    public override Task ToString_nullable_enum_contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString().Contains("Cart")).Select(g => g.Name));
+
+    public override Task ToString_enum_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Select(g => g.Rank.ToString()));
 }

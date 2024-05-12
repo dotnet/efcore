@@ -491,7 +491,7 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%Y', "m"."Date") AS INTEGER) = 1990
 """);
@@ -503,7 +503,7 @@ WHERE CAST(strftime('%Y', "m"."Date") AS INTEGER) = 1990
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%m', "m"."Date") AS INTEGER) = 11
 """);
@@ -515,7 +515,7 @@ WHERE CAST(strftime('%m', "m"."Date") AS INTEGER) = 11
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%d', "m"."Date") AS INTEGER) = 10
 """);
@@ -527,7 +527,7 @@ WHERE CAST(strftime('%d', "m"."Date") AS INTEGER) = 10
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%j', "m"."Date") AS INTEGER) = 314
 """);
@@ -539,7 +539,7 @@ WHERE CAST(strftime('%j', "m"."Date") AS INTEGER) = 314
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%w', "m"."Date") AS INTEGER) = 6
 """);
@@ -551,7 +551,7 @@ WHERE CAST(strftime('%w', "m"."Date") AS INTEGER) = 6
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' years') = '1993-11-10'
 """);
@@ -567,7 +567,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' years') = '1993-11-10'
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%Y', "m"."Date", CAST(3 AS TEXT) || ' years') AS INTEGER) = 1993
 """);
@@ -583,7 +583,7 @@ WHERE CAST(strftime('%Y', "m"."Date", CAST(3 AS TEXT) || ' years') AS INTEGER) =
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months') = '1994-02-10'
 """);
@@ -595,7 +595,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months'
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' months') = '1991-02-10'
 """);
@@ -607,7 +607,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' months') = '1991-02-10'
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' days') = '1990-11-13'
 """);
@@ -2276,18 +2276,6 @@ INNER JOIN "Weapons" AS "w1" ON "w0"."Id" = "w1"."Id"
 """);
     }
 
-    public override async Task Enum_ToString_is_client_eval(bool async)
-    {
-        await base.Enum_ToString_is_client_eval(async);
-
-        AssertSql(
-            """
-SELECT "g"."Rank"
-FROM "Gears" AS "g"
-ORDER BY "g"."SquadId", "g"."Nickname"
-""");
-    }
-
     public override async Task Include_with_join_collection2(bool async)
     {
         await base.Include_with_join_collection2(async);
@@ -3359,6 +3347,52 @@ FROM "Squads" AS "s"
 LEFT JOIN "Gears" AS "g" ON "s"."Id" = "g"."SquadId"
 WHERE "s"."Id" < 20
 ORDER BY "s"."Id", "g"."Nickname"
+""");
+    }
+
+    public override async Task ToString_enum_property_projection(bool async)
+    {
+        await base.ToString_enum_property_projection(async);
+
+        AssertSql(
+"""
+SELECT CAST("g"."Rank" AS TEXT)
+FROM "Gears" AS "g"
+""");
+    }
+
+    public override async Task ToString_nullable_enum_property_projection(bool async)
+    {
+        await base.ToString_nullable_enum_property_projection(async);
+
+        AssertSql(
+"""
+SELECT CAST("w"."AmmunitionType" AS TEXT)
+FROM "Weapons" AS "w"
+""");
+    }
+
+    public override async Task ToString_enum_contains(bool async)
+    {
+        await base.ToString_enum_contains(async);
+
+        AssertSql(
+"""
+SELECT "m"."CodeName"
+FROM "Missions" AS "m"
+WHERE instr(CAST("m"."Difficulty" AS TEXT), 'Med') > 0
+""");
+    }
+
+    public override async Task ToString_nullable_enum_contains(bool async)
+    {
+        await base.ToString_nullable_enum_contains(async);
+
+        AssertSql(
+"""
+SELECT "w"."Name"
+FROM "Weapons" AS "w"
+WHERE "w"."AmmunitionType" IS NOT NULL AND instr(CAST("w"."AmmunitionType" AS TEXT), '1') > 0
 """);
     }
 
@@ -6486,7 +6520,7 @@ ORDER BY "t"."Rank"
 
         AssertSql(
             """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Difficulty", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE "m"."Rating" IS NULL
 """);

@@ -91,6 +91,37 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_enum_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Select(g => g.Rank.ToString()),
+            ss => ss.Set<Gear>().Select(g => ((int)g.Rank).ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_nullable_enum_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType.ToString()),
+            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType != null ? ((int)w.AmmunitionType).ToString() : null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_enum_contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(g => g.Difficulty.ToString().Contains("Med")).Select(g => g.CodeName));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_nullable_enum_contains(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType.ToString().Contains("1")).Select(g => g.Name),
+            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType != null && ((int?)w.AmmunitionType).ToString().Contains("1")).Select(g => g.Name));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner.Weapons)));
@@ -3117,16 +3148,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                     cg =>
                         new { Prop = cg.Gear != null ? cg.Gear.HasSoulPatch : false }),
             e => e.Prop);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Enum_ToString_is_client_eval(bool async)
-        => AssertQuery(
-            async,
-            ss =>
-                ss.Set<Gear>().OrderBy(g => g.SquadId)
-                    .ThenBy(g => g.Nickname)
-                    .Select(g => g.Rank.ToString()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

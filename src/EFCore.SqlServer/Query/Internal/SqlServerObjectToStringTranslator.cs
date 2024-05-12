@@ -101,6 +101,11 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Constant(true.ToString()));
         }
 
+        if (instance.Type.IsEnum)
+        {
+            return _sqlExpressionFactory.Convert(instance, typeof(string));
+        }
+
         return TypeMapping.TryGetValue(instance.Type, out var storeType)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",

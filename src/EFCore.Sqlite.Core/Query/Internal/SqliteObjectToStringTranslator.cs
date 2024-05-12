@@ -98,7 +98,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Constant(true.ToString()));
         }
 
-        return TypeMapping.Contains(instance.Type)
+        return TypeMapping.Contains(instance.Type)|| instance.Type.IsEnum
             ? _sqlExpressionFactory.Convert(instance, typeof(string))
             : null;
     }
