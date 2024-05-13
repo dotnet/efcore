@@ -92,7 +92,7 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
         var targetFramework = new FrameworkName(TargetFrameworkMoniker);
         if (targetFramework.Identifier == ".NETStandard")
         {
-            Log.LogError(Resources.NETStandardStartupProject(startupAssemblyName));            
+            Log.LogError(Resources.NETStandardStartupProject(startupAssemblyName));
             return false;
         }
 

@@ -208,11 +208,13 @@ public class DbContextOperations
     /// </summary>
     public virtual DbContext CreateContext(string? contextType)
     {
-        var factory = FindContextType(contextType).Value;
+        var contextPair = FindContextType(contextType);
+        var factory = contextPair.Value;
         try
         {
             var context = factory();
-            _reporter.WriteVerbose(DesignStrings.UseContext(context.GetType().ShortDisplayName()));
+            contextType = context.GetType().ShortDisplayName();
+            _reporter.WriteVerbose(DesignStrings.UseContext(contextType));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
             loggerFactory.AddProvider(new OperationLoggerProvider(_reporter));
@@ -226,7 +228,8 @@ public class DbContextOperations
                 ex = ex.InnerException!;
             }
 
-            throw new OperationException(DesignStrings.CannotCreateContextInstance(contextType, ex.Message), ex);
+            throw new OperationException(DesignStrings.CannotCreateContextInstance(
+                contextType ?? contextPair.Key.GetType().ShortDisplayName(), ex.Message), ex);
         }
     }
 

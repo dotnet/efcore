@@ -88,7 +88,9 @@ public class DbContextServices : IDbContextServices
                 || (designTime && modelFromOptions is not Metadata.Internal.Model)
                     ? RuntimeFeature.IsDynamicCodeSupported
                         ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
+                        : designTime
+                            ? throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
+                            : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)
                     : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, designTime, dependencies.ValidationLogger);
         }
         finally

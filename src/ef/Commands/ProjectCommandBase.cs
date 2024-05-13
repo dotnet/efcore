@@ -62,6 +62,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 throw new CommandException(Resources.MissingOption(Assembly.LongName));
             }
+
+            if (!File.Exists(Assembly.Value()))
+            {
+                throw new CommandException(Resources.FileNotFound(Assembly.Value()));
+            }
+
+            if (StartupAssembly!.HasValue() && !File.Exists(StartupAssembly.Value()))
+            {
+                throw new CommandException(Resources.FileNotFound(StartupAssembly.Value()));
+            }
         }
 
         protected IOperationExecutor CreateExecutor(string[] remainingArguments)

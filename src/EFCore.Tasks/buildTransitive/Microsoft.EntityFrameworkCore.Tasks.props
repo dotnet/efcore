@@ -4,17 +4,9 @@
     <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' == 'core'">net8.0</_TaskTargetFramework>
     <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' != 'core'">net472</_TaskTargetFramework>
     <_EFCustomTasksAssembly>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), '..\tasks\$(_TaskTargetFramework)\$(MSBuildThisFileName).dll'))</_EFCustomTasksAssembly>
+    <EFOptimizeContext Condition="'$(EFOptimizeContext)'==''">false</EFOptimizeContext>
+    <EFStartupProject Condition="'$(EFStartupProject)'==''">$(MSBuildProjectFullPath)</EFStartupProject>
   </PropertyGroup>
 
-  <UsingTask TaskName="$(MSBuildThisFileName).OptimizeContext" AssemblyFile="$(_EFCustomTasksAssembly)"/>
-
-  <PropertyGroup>
-    <EFOptimizeContext Condition="'$(EFOptimizeContext)' == ''">false</EFOptimizeContext>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(EFTargetLanguage)' == ''">
-    <EFTargetLanguage Condition="'$(MSBuildProjectExtension)' == '.csproj'">C#</EFTargetLanguage>
-    <EFTargetLanguage Condition="'$(MSBuildProjectExtension)' == '.vbproj'">VB</EFTargetLanguage>
-    <EFTargetLanguage Condition="'$(MSBuildProjectExtension)' == '.fsproj'">F#</EFTargetLanguage>
-  </PropertyGroup>
+  <UsingTask TaskName="$(MSBuildThisFileName).OptimizeDbContext" AssemblyFile="$(_EFCustomTasksAssembly)"/>
 </Project>

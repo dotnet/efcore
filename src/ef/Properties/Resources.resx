@@ -219,6 +219,9 @@
   <data name="FileExists" xml:space="preserve">
     <value>The file already exists: {path}. Use --force flag to overwrite it.</value>
   </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File '{filename}' not found.</value>
+  </data>
   <data name="FrameworkDescription" xml:space="preserve">
     <value>The target framework.</value>
   </data>

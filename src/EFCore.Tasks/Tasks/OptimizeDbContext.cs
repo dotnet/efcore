@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Tasks;
 /// <summary>
 ///     Generates files that contain tailored code for some runtime services.
 /// </summary>
-public class OptimizeContext : OperationTaskBase
+public class OptimizeDbContext : OperationTaskBase
 {
     /// <summary>
     ///     The name of the target DbContext.
