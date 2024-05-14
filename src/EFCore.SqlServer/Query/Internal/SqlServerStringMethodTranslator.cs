@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -61,6 +62,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
         = typeof(string).GetRuntimeMethod(nameof(string.Trim), [typeof(char[])])!;
 
+    private static readonly MethodInfo TrimStartMethodInfoWithCharArg
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char)])!;
+
+    private static readonly MethodInfo TrimEndMethodInfoWithCharArg
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char)])!;
+
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
             m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -73,15 +80,19 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, ISqlServerSingletonOptions sqlServerSingletonOptions)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
+
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -182,7 +193,6 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
             if (TrimStartMethodInfoWithoutArgs.Equals(method)
                 || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
-                    // SqlServer LTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
             {
                 return _sqlExpressionFactory.Function(
@@ -194,9 +204,35 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
+            if (TrimStartMethodInfoWithCharArg.Equals(method)
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
+            {
+                return _sqlExpressionFactory.Function(
+                    "LTRIM",
+                    new[] { instance, arguments[0] },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
+                    instance.Type,
+                    instance.TypeMapping);
+            }
+
+            if (TrimStartMethodInfoWithCharArrayArg.Equals(method)
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
+            {
+                var firstArgumentValue = (arguments[0] as SqlConstantExpression)?.Value as char[];
+                var firstArgument = _sqlExpressionFactory.Constant(new string(firstArgumentValue), instance.TypeMapping);
+
+                return _sqlExpressionFactory.Function(
+                    "LTRIM",
+                    new[] { instance, firstArgument },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
+                    instance.Type,
+                    instance.TypeMapping);
+            }
+
             if (TrimEndMethodInfoWithoutArgs.Equals(method)
                 || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
-                    // SqlServer RTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
             {
                 return _sqlExpressionFactory.Function(
@@ -204,6 +240,34 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     new[] { instance },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true },
+                    instance.Type,
+                    instance.TypeMapping);
+            }
+
+
+            if (TrimEndMethodInfoWithCharArg.Equals(method)
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
+            {
+                return _sqlExpressionFactory.Function(
+                    "RTRIM",
+                    new[] { instance, arguments[0] },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
+                    instance.Type,
+                    instance.TypeMapping);
+            }
+
+            if (TrimEndMethodInfoWithCharArrayArg.Equals(method)
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
+            {
+                var firstArgumentValue = (arguments[0] as SqlConstantExpression)?.Value as char[];
+                var firstArgument = _sqlExpressionFactory.Constant(new string(firstArgumentValue), instance.TypeMapping);
+
+                return _sqlExpressionFactory.Function(
+                    "RTRIM",
+                    new[] { instance, firstArgument },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
                     instance.Type,
                     instance.TypeMapping);
             }
