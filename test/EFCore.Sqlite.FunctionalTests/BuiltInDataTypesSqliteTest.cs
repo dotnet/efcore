@@ -966,7 +966,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
     }
 
     [ConditionalFact]
-    public virtual void Cant_query_Sum_of_converted_types()
+    public virtual void Can_query_Sum_of_converted_types()
     {
         using var context = CreateContext();
         context.Add(
@@ -988,11 +988,10 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => context.Set<BuiltInDataTypes>()
-                    .Where(e => e.PartitionId == 203)
-                    .Sum(e => e.TestDecimal)).Message);
+            2.000000000000002m,
+            context.Set<BuiltInDataTypes>()
+                .Where(e => e.PartitionId == 203)
+                .Sum(e => e.TestDecimal));
     }
 
     [ConditionalFact]

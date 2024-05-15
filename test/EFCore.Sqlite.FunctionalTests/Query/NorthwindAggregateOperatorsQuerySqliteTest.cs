@@ -20,18 +20,26 @@ public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOper
     }
 
     public override async Task Sum_with_division_on_decimal(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Sum_with_division_on_decimal(async)))
-            .Message);
+    {
+        await base.Sum_with_division_on_decimal(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(ef_sum(ef_divide(CAST("o"."Quantity" AS TEXT), '2.09')), '0.0')
+FROM "Order Details" AS "o"
+""");
+    }
 
     public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Sum_with_division_on_decimal_no_significant_digits(async)))
-            .Message);
+    {
+        await base.Sum_with_division_on_decimal_no_significant_digits(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(ef_sum(ef_divide(CAST("o"."Quantity" AS TEXT), '2.0')), '0.0')
+FROM "Order Details" AS "o"
+""");
+    }
 
     public override async Task Average_with_division_on_decimal(bool async)
         => Assert.Equal(
@@ -203,16 +211,20 @@ FROM "Customers" AS "c"
 """);
     }
 
+    public override async Task Type_casting_inside_sum(bool async)
+    {
+        await base.Type_casting_inside_sum(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(ef_sum(CAST("o"."Discount" AS TEXT)), '0.0')
+FROM "Order Details" AS "o"
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
-
-    public override async Task Type_casting_inside_sum(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Type_casting_inside_sum(async)))
-            .Message);
 }

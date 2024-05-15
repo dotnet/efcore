@@ -59,10 +59,22 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
             () => base.GroupBy_aggregate_from_multiple_query_in_same_projection_3(async));
 
     public override async Task Odata_groupby_empty_key(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                () => base.Odata_groupby_empty_key(async))).Message);
+    {
+        await base.Odata_groupby_empty_key(async);
+
+        AssertSql(
+            """
+SELECT 'TotalAmount' AS "Name", COALESCE(ef_sum(CAST("o0"."OrderID" AS TEXT)), '0.0') AS "Value"
+FROM (
+    SELECT "o"."OrderID", 1 AS "Key"
+    FROM "Orders" AS "o"
+) AS "o0"
+GROUP BY "o0"."Key"
+""");
+    }
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
     private static async Task AssertApplyNotSupported(Func<Task> query)
         => Assert.Equal(
