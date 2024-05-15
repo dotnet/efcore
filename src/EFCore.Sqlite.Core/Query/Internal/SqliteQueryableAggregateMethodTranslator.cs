@@ -1,4 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -114,4 +114,21 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
         => expression.TypeMapping?.Converter?.ProviderClrType
             ?? expression.TypeMapping?.ClrType
             ?? expression.Type;
+
+    private SqlExpression CombineTerms(EnumerableExpression enumerableExpression, SqlExpression sqlExpression)
+    {
+        if (enumerableExpression.Predicate != null)
+        {
+            sqlExpression = _sqlExpressionFactory.Case(
+                new List<CaseWhenClause> { new(enumerableExpression.Predicate, sqlExpression) },
+                elseResult: null);
+        }
+
+        if (enumerableExpression.IsDistinct)
+        {
+            sqlExpression = new DistinctExpression(sqlExpression);
+        }
+
+        return sqlExpression;
+    }
 }
