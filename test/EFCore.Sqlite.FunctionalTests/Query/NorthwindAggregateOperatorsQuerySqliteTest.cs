@@ -42,32 +42,76 @@ FROM "Order Details" AS "o"
     }
 
     public override async Task Average_with_division_on_decimal(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_with_division_on_decimal(async)))
-            .Message);
+    {
+        await base.Average_with_division_on_decimal(async);
+
+        AssertSql(
+            """
+SELECT ef_avg(ef_divide(CAST("o"."Quantity" AS TEXT), '2.09'))
+FROM "Order Details" AS "o"
+""");
+    }
 
     public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_with_division_on_decimal_no_significant_digits(async)))
-            .Message);
+    {
+        await base.Average_with_division_on_decimal_no_significant_digits(async);
+
+        AssertSql(
+            """
+SELECT ef_avg(ef_divide(CAST("o"."Quantity" AS TEXT), '2.0'))
+FROM "Order Details" AS "o"
+""");
+    }
+
+
 
     public override async Task Average_over_max_subquery_is_client_eval(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_over_max_subquery_is_client_eval(async)))
-            .Message);
+    {
+        await base.Average_over_max_subquery_is_client_eval(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT ef_avg(CAST((
+    SELECT AVG(CAST(5 + (
+        SELECT MAX("o0"."ProductID")
+        FROM "Order Details" AS "o0"
+        WHERE "o"."OrderID" = "o0"."OrderID") AS REAL))
+    FROM "Orders" AS "o"
+    WHERE "c0"."CustomerID" = "o"."CustomerID") AS TEXT))
+FROM (
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."CustomerID"
+    LIMIT @__p_0
+) AS "c0"
+""");
+    }
 
     public override async Task Average_over_nested_subquery_is_client_eval(bool async)
-        => Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
-            (await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await base.Average_over_nested_subquery_is_client_eval(async)))
-            .Message);
+    {
+        await base.Average_over_nested_subquery_is_client_eval(async);
+
+        AssertSql(
+            """
+@__p_0='3'
+
+SELECT ef_avg(CAST((
+    SELECT AVG(5.0 + (
+        SELECT AVG(CAST("o0"."ProductID" AS REAL))
+        FROM "Order Details" AS "o0"
+        WHERE "o"."OrderID" = "o0"."OrderID"))
+    FROM "Orders" AS "o"
+    WHERE "c0"."CustomerID" = "o"."CustomerID") AS TEXT))
+FROM (
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."CustomerID"
+    LIMIT @__p_0
+) AS "c0"
+""");
+    }
 
     public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         => Assert.Equal(
