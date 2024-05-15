@@ -54,9 +54,14 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     var averageArgumentType = GetProviderType(averageSqlExpression);
                     if (averageArgumentType == typeof(decimal))
                     {
-                        throw new NotSupportedException(
-                            SqliteStrings.AggregateOperationNotSupported(
-                                nameof(Queryable.Average), averageArgumentType.ShortDisplayName()));
+                        averageSqlExpression = CombineTerms(source, averageSqlExpression);
+                        return _sqlExpressionFactory.Function(
+                            "ef_avg",
+                            [averageSqlExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: [false],
+                            averageSqlExpression.Type,
+                            averageSqlExpression.TypeMapping);
                     }
 
                     break;
