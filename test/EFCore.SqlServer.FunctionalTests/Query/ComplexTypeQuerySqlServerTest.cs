@@ -1260,6 +1260,72 @@ LEFT JOIN (
 """);
     }
 
+    public override async Task Projecting_property_of_complex_type_using_left_join_with_pushdown(bool async)
+    {
+        await base.Projecting_property_of_complex_type_using_left_join_with_pushdown(async);
+
+        AssertSql(
+"""
+SELECT [t].[BillingAddress_ZipCode]
+FROM [CustomerGroup] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[BillingAddress_ZipCode]
+    FROM [Customer] AS [c0]
+    WHERE [c0].[Id] > 5
+) AS [t] ON [c].[Id] = [t].[Id]
+""");
+    }
+
+    public override async Task Projecting_complex_from_optional_navigation_using_conditional(bool async)
+    {
+        await base.Projecting_complex_from_optional_navigation_using_conditional(async);
+
+        AssertSql(
+"""
+@__p_0='20'
+
+SELECT [t0].[ShippingAddress_ZipCode]
+FROM (
+    SELECT DISTINCT [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
+    FROM (
+        SELECT TOP(@__p_0) [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+        FROM [CustomerGroup] AS [c]
+        LEFT JOIN [Customer] AS [c0] ON [c].[OptionalCustomerId] = [c0].[Id]
+        ORDER BY [c0].[ShippingAddress_ZipCode]
+    ) AS [t]
+) AS [t0]
+""");
+    }
+
+    public override async Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
+    {
+        await base.Project_entity_with_complex_type_pushdown_and_then_left_join(async);
+
+        AssertSql(
+"""
+@__p_0='20'
+@__p_1='30'
+
+SELECT [t0].[BillingAddress_ZipCode] AS [Zip1], [t1].[ShippingAddress_ZipCode] AS [Zip2]
+FROM (
+    SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
+    FROM (
+        SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+        FROM [Customer] AS [c]
+        ORDER BY [c].[Id]
+    ) AS [t]
+) AS [t0]
+LEFT JOIN (
+    SELECT DISTINCT [t2].[Id], [t2].[Name], [t2].[BillingAddress_AddressLine1], [t2].[BillingAddress_AddressLine2], [t2].[BillingAddress_ZipCode], [t2].[BillingAddress_Country_Code], [t2].[BillingAddress_Country_FullName], [t2].[ShippingAddress_AddressLine1], [t2].[ShippingAddress_AddressLine2], [t2].[ShippingAddress_ZipCode], [t2].[ShippingAddress_Country_Code], [t2].[ShippingAddress_Country_FullName]
+    FROM (
+        SELECT TOP(@__p_1) [c0].[Id], [c0].[Name], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_ZipCode], [c0].[BillingAddress_Country_Code], [c0].[BillingAddress_Country_FullName], [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+        FROM [Customer] AS [c0]
+        ORDER BY [c0].[Id] DESC
+    ) AS [t2]
+) AS [t1] ON [t0].[Id] = [t1].[Id]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

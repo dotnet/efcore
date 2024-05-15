@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpression
 {
+    private static readonly bool UseOldBehavior33547 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33547", out var enabled33547) && enabled33547;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalStructuralTypeShaperExpression" /> class.
     /// </summary>
@@ -163,7 +166,8 @@ public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpr
         }
 
         var newValueBufferExpression = ValueBufferExpression;
-        if (StructuralType is IComplexType
+        if (!UseOldBehavior33547
+            && StructuralType is IComplexType
             && ValueBufferExpression is StructuralTypeProjectionExpression structuralTypeProjectionExpression)
         {
             // for complex types we also need to go inside and mark all properties there as nullable
