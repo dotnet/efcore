@@ -142,6 +142,14 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 name: "ef_negate",
                 (decimal? m) => -m,
                 isDeterministic: true);
+
+            sqliteConnection.CreateAggregate(
+                "ef_sum",
+                seed: null,
+                (decimal? sum, decimal? value) => value is null
+                    ? sum
+                    : sum is null ? value : sum.Value + value.Value,
+                isDeterministic: true);
         }
         else
         {

@@ -84,6 +84,30 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         return regexpExpression.Update(match, pattern);
     }
 
+    /// <inheritdoc/>
+    protected override SqlExpression VisitSqlFunction(
+        SqlFunctionExpression sqlFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        var result = base.VisitSqlFunction(sqlFunctionExpression, allowOptimizedExpansion, out nullable);
+
+        if (result is SqlFunctionExpression resultFunctionExpression
+            && resultFunctionExpression.IsBuiltIn
+            && string.Equals(resultFunctionExpression.Name, "ef_sum", StringComparison.OrdinalIgnoreCase))
+        {
+            nullable = false;
+
+            var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+            return sqlExpressionFactory.Coalesce(
+                result,
+                sqlExpressionFactory.Constant(0, resultFunctionExpression.TypeMapping),
+                resultFunctionExpression.TypeMapping);
+        }
+
+        return result;
+    }
+
 #pragma warning disable EF1001
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -100,8 +100,14 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                     var sumArgumentType = GetProviderType(sumSqlExpression);
                     if (sumArgumentType == typeof(decimal))
                     {
-                        throw new NotSupportedException(
-                            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), sumArgumentType.ShortDisplayName()));
+                        sumSqlExpression = CombineTerms(source, sumSqlExpression);
+                        return _sqlExpressionFactory.Function(
+                            "ef_sum",
+                            [sumSqlExpression],
+                            nullable: true,
+                            argumentsPropagateNullability: [false],
+                            sumSqlExpression.Type,
+                            sumSqlExpression.TypeMapping);
                     }
 
                     break;
