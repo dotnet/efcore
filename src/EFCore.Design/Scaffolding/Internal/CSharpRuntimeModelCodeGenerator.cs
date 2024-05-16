@@ -2267,7 +2267,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
             var runtimeType = (IRuntimeEntityType)entityType;
 
-            // TODO
             var unsafeAccessors = new HashSet<string>();
 
             var originalValuesFactory = OriginalValuesFactoryFactory.Instance.CreateExpression(runtimeType);
@@ -2333,6 +2332,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .DecrementIndent();
 
             CreateAnnotations(entityType, _annotationCodeGenerator.Generate, parameters);
+
+            // TODO: Output any additional unsafe accessors
+            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled");
 
             mainBuilder
                 .AppendLine()

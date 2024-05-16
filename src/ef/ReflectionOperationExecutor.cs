@@ -21,6 +21,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
     public ReflectionOperationExecutor(
         string assembly,
         string? startupAssembly,
+        string? project,
         string? projectDir,
         string? dataDirectory,
         string? rootNamespace,
@@ -28,7 +29,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
         bool nullable,
         string[] remainingArguments,
         IOperationReportHandler reportHandler)
-        : base(assembly, startupAssembly, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
+        : base(assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
     {
         var reporter = new OperationReporter(reportHandler);
         var configurationFile = (startupAssembly ?? assembly) + ".config";
@@ -63,6 +64,7 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
             {
                 { "targetName", AssemblyFileName },
                 { "startupTargetName", StartupAssemblyFileName },
+                { "project", Project },
                 { "projectDir", ProjectDirectory },
                 { "rootNamespace", RootNamespace },
                 { "language", Language },

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text.Json;
@@ -79,7 +80,9 @@ internal class RootCommand : CommandBase
         if (!_noBuild!.HasValue())
         {
             Reporter.WriteInformation(Resources.BuildStarted);
-            startupProject.Build();
+            var skipOptimization = _args!.Count > 2
+                && _args[0] == "dbcontext" && _args[1] == "optimize" && !_args.Any(a => a == "--no-scaffold");
+            startupProject.Build(skipOptimization ? new[] { "/p:EFOptimizeContext=false" } : null);
             Reporter.WriteInformation(Resources.BuildSucceeded);
         }
 

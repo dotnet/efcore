@@ -19,6 +19,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     protected string AssemblyFileName { get; set; }
     protected string StartupAssemblyFileName { get; set; }
     protected string ProjectDirectory { get; }
+    protected string Project { get; }
     protected string RootNamespace { get; }
     protected string? Language { get; }
     protected bool Nullable { get; }
@@ -27,6 +28,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     protected OperationExecutorBase(
         string assembly,
         string? startupAssembly,
+        string? project,
         string? projectDir,
         string? rootNamespace,
         string? language,
@@ -43,6 +45,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
             Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(startupAssembly ?? assembly)!));
 
         RootNamespace = rootNamespace ?? AssemblyFileName;
+        Project = project ?? "";
         ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
         Language = language;
         Nullable = nullable;
@@ -140,7 +143,8 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     public IEnumerable<IDictionary> GetContextTypes()
         => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
-    public IEnumerable<string> OptimizeContext(string? outputDir, string? modelNamespace, string? contextType, string? suffix)
+    public IEnumerable<string> OptimizeContext(
+        string? outputDir, string? modelNamespace, string? contextType, string? suffix, bool scaffoldModel, bool precompileQueries)
         => InvokeOperation<IEnumerable<string>>(
             "OptimizeContext",
             new Dictionary<string, object?>
@@ -148,7 +152,9 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["outputDir"] = outputDir,
                 ["modelNamespace"] = modelNamespace,
                 ["contextType"] = contextType,
-                ["suffix"] = suffix
+                ["suffix"] = suffix,
+                ["scaffoldModel"] = scaffoldModel,
+                ["precompileQueries"] = precompileQueries
             });
 
     public IDictionary ScaffoldContext(

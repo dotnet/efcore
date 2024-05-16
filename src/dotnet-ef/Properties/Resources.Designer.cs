@@ -290,6 +290,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationToDescription");
 
         /// <summary>
+        ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
+        /// </summary>
+        public static string MissingConditionalOption(object? requiredOption, object? conditionalOption)
+            => string.Format(
+                GetString("MissingConditionalOption", nameof(requiredOption), nameof(conditionalOption)),
+                requiredOption, conditionalOption);
+
+        /// <summary>
         ///     More than one project was found in the current working directory. Use the --project option.
         /// </summary>
         public static string MultipleProjects
@@ -370,6 +378,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 projectDir);
 
         /// <summary>
+        ///     Don't generate a compiled model.
+        /// </summary>
+        public static string NoScaffoldDescription
+            => GetString("NoScaffoldDescription");
+
+        /// <summary>
         ///     Don't generate SQL transaction statements.
         /// </summary>
         public static string NoTransactionsDescription
@@ -386,6 +400,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
+
+        /// <summary>
+        ///     Generate precompiled queries.
+        /// </summary>
+        public static string PrecompileQueriesDescription
+            => GetString("PrecompileQueriesDescription");
 
         /// <summary>
         ///     Prefix output with level.

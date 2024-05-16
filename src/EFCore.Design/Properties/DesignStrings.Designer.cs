@@ -102,6 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("CircularBaseClassDependency");
 
         /// <summary>
+        ///     Compilation failed with errors:
+        /// </summary>
+        public static string CompilationErrors
+            => GetString("CompilationErrors");
+
+        /// <summary>
         ///     A compilation must be loaded.
         /// </summary>
         public static string CompilationMustBeLoaded
@@ -168,6 +174,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string ConnectionDescription
             => GetString("ConnectionDescription");
+
+        /// <summary>
+        ///     Your target project '{assembly}' doesn't match the assembly containing '{contextType}' - '{contextAssembly}'. This is not recommended as it will cause the compiled model to not be discovered automatically.
+        ///     Consider changing your target project to the DbContext project by using the Package Manager Console's Default project drop-down list, by executing "dotnet ef" from the directory containing the DbContext project or by supplying it with the '--project' option.
+        /// </summary>
+        public static string ContextAssemblyMismatch(object? assembly, object? contextType, object? contextAssembly)
+            => string.Format(
+                GetString("ContextAssemblyMismatch", nameof(assembly), nameof(contextType), nameof(contextAssembly)),
+                assembly, contextType, contextAssembly);
 
         /// <summary>
         ///     The context class name '{contextClassName}' is not a valid C# identifier.
@@ -462,6 +477,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
+        ///     Could not find symbol for anonymous object creation initializer:
+        /// </summary>
+        public static string NoAnonymousSymbol
+            => GetString("NoAnonymousSymbol");
+
+        /// <summary>
         ///     Don't colorize output.
         /// </summary>
         public static string NoColorDescription
@@ -628,6 +649,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("QueryComprehensionSyntaxNotSupportedInPrecompiledQueries");
 
         /// <summary>
+        ///     Query precompilation failed with errors:
+        /// </summary>
+        public static string QueryPrecompilationErrors
+            => GetString("QueryPrecompilationErrors");
+
+        /// <summary>
         ///     No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.
         /// </summary>
         public static string ReadOnlyFiles(object? outputDirectoryName, object? readOnlyFiles)
@@ -714,6 +741,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("UnableToScaffoldIndexMissingProperty", nameof(indexName), nameof(columnNames)),
                 indexName, columnNames);
+
+        /// <summary>
+        ///     The project '{project}' does not support compilation.
+        /// </summary>
+        public static string UncompilableProject(object? project)
+            => string.Format(
+                GetString("UncompilableProject", nameof(project)),
+                project);
 
         /// <summary>
         ///     Unhandled enum value '{enumValue}'.

@@ -114,7 +114,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
                 generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
-                    compilation, syntaxGenerator, dbContext, precompilationErrors, additionalAssembly: assembly);
+                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: null, precompilationErrors, additionalAssembly: assembly);
 
                 if (errorAsserter is null)
                 {

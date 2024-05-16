@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public AppDomainOperationExecutor(
             string assembly,
             string? startupAssembly,
+            string? project,
             string? projectDir,
             string? dataDirectory,
             string? rootNamespace,
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool nullable,
             string[] remainingArguments,
             IOperationReportHandler reportHandler)
-            : base(assembly, startupAssembly, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
+            : base(assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, remainingArguments, reportHandler)
         {
             var info = new AppDomainSetup { ApplicationBase = AppBasePath };
 
@@ -77,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     {
                         { "targetName", AssemblyFileName },
                         { "startupTargetName", StartupAssemblyFileName },
+                        { "project", Project },
                         { "projectDir", ProjectDirectory },
                         { "rootNamespace", RootNamespace },
                         { "language", Language },

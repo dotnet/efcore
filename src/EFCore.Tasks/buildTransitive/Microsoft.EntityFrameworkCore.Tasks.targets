@@ -17,7 +17,7 @@
   <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
   <Target Name="_EFGenerateFiles"
           AfterTargets="Build"
-          Condition="Exists($(EFProjectsToOptimizePath))">
+          Condition="Exists($(EFProjectsToOptimizePath)) And '$(_InEFGenerateFiles)'!='true'">
     <ItemGroup>
       <_EFProjectsToOptimizeFiles Include="$(EFProjectsToOptimizePath)*.*" />
     </ItemGroup>
@@ -38,7 +38,7 @@
     <MSBuild Projects="@(_EFProjectsToOptimize)"
              Targets="OptimizeDbContext"
              BuildInParallel="true"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);EFOptimizeContext=false;EFStartupAssembly=$(_AssemblyFullName)" />
+             Properties="Configuration=$(Configuration);Platform=$(Platform);EFStartupAssembly=$(_AssemblyFullName)" />
 
     <ItemGroup>
       <_EFProjectsToOptimize Remove="$(MSBuildProjectFullPath)" />
@@ -49,7 +49,7 @@
              Targets="Build"
              BuildInParallel="true"
              Condition="@(_EFProjectsToOptimize->Count()) &gt; 0"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);EFOptimizeContext=false" />
+             Properties="Configuration=$(Configuration);Platform=$(Platform);_InEFGenerateFiles=true" />
   </Target>
 
   <Target Name="OptimizeDbContext"
@@ -90,7 +90,7 @@
     <WriteLinesToFile File="$(EFGeneratedSourcesFile)" Lines="$(_EFGeneratedFiles)"/>
   </Target>
 
-  <!-- Read the previously generated files if the files weren't regenerated -->
+  <!-- Read the previously generated files -->
   <Target Name="_EFReadGeneratedFilesList"
           BeforeTargets="_EFProcessGeneratedFiles;_EFCleanupGeneratedFiles"
           Condition="'$(EFOptimizeContext)'=='true' And Exists($(EFGeneratedSourcesFile))">
@@ -115,7 +115,7 @@
        This target has the same Inputs and Outputs as CoreCompile to run only if CoreCompile isn't going to be skipped -->
   <Target Name="_EFPrepareForCompile"
           DependsOnTargets="_EFProcessGeneratedFiles"
-          Condition="'$(EFOptimizeContext)'=='true'"
+          Condition="'$(EFOptimizeContext)'=='true' And '$(_InEFGenerateFiles)'!='true'"
           Inputs="$(MSBuildAllProjects);
                   @(Compile);
                   @(_CoreCompileResourceInputs);

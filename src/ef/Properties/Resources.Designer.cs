@@ -382,6 +382,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 arg);
 
         /// <summary>
+        ///     Option '--{requiredOption}' must be specified if '--{conditionalOption}' is used.
+        /// </summary>
+        public static string MissingConditionalOption(object? requiredOption, object? conditionalOption)
+            => string.Format(
+                GetString("MissingConditionalOption", nameof(requiredOption), nameof(conditionalOption)),
+                requiredOption, conditionalOption);
+
+        /// <summary>
         ///     Missing required option '--{option}'.
         /// </summary>
         public static string MissingOption(object? option)
@@ -426,6 +434,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NoPluralizeDescription");
 
         /// <summary>
+        ///     Don't generate a compiled model.
+        /// </summary>
+        public static string NoScaffoldDescription
+            => GetString("NoScaffoldDescription");
+
+        /// <summary>
         ///     Don't generate SQL transaction statements.
         /// </summary>
         public static string NoTransactionsDescription
@@ -468,6 +482,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string PendingUnknown
             => GetString("PendingUnknown");
+
+        /// <summary>
+        ///     Generate precompiled queries.
+        /// </summary>
+        public static string PrecompileQueriesDescription
+            => GetString("PrecompileQueriesDescription");
 
         /// <summary>
         ///     Prefix output with level.

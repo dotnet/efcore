@@ -30,6 +30,7 @@ public class DbContextOperationsTest
             new TestOperationReporter(),
             assembly,
             assembly,
+            project: "",
             projectDir: "",
             rootNamespace: null,
             language: "C#",
@@ -46,6 +47,7 @@ public class DbContextOperationsTest
             new TestOperationReporter(),
             assembly,
             assembly,
+            project: "",
             projectDir: "",
             rootNamespace: null,
             language: "C#",
@@ -164,6 +166,7 @@ public class DbContextOperationsTest
             new TestOperationReporter(),
             assembly,
             assembly,
+            project: "",
             projectDir: "",
             rootNamespace: null,
             language: "C#",
@@ -176,8 +179,7 @@ public class DbContextOperationsTest
         => new(
             new ServiceCollection()
                 .AddDbContext<TestContext>(
-                    b =>
-                        configureProvider(b.EnableServiceProviderCaching(false)))
+                    b => configureProvider(b.EnableServiceProviderCaching(false)))
                 .BuildServiceProvider(validateScopes: true));
 
     private class TestContext : DbContext

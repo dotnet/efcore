@@ -1,8 +1,19 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.IO;
+using System.Text;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.MSBuild;
+using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Design;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -17,6 +28,7 @@ public class DbContextOperations
     private readonly IOperationReporter _reporter;
     private readonly Assembly _assembly;
     private readonly Assembly _startupAssembly;
+    private readonly string _project;
     private readonly string _projectDir;
     private readonly string? _rootNamespace;
     private readonly string? _language;
@@ -35,6 +47,7 @@ public class DbContextOperations
         IOperationReporter reporter,
         Assembly assembly,
         Assembly startupAssembly,
+        string project,
         string projectDir,
         string? rootNamespace,
         string? language,
@@ -44,6 +57,7 @@ public class DbContextOperations
             reporter,
             assembly,
             startupAssembly,
+            project,
             projectDir,
             rootNamespace,
             language,
@@ -63,6 +77,7 @@ public class DbContextOperations
         IOperationReporter reporter,
         Assembly assembly,
         Assembly startupAssembly,
+        string project,
         string projectDir,
         string? rootNamespace,
         string? language,
@@ -73,6 +88,7 @@ public class DbContextOperations
         _reporter = reporter;
         _assembly = assembly;
         _startupAssembly = startupAssembly;
+        _project = project;
         _projectDir = projectDir;
         _rootNamespace = rootNamespace;
         _language = language;
@@ -117,13 +133,44 @@ public class DbContextOperations
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<string> Optimize(string? outputDir, string? modelNamespace, string? contextTypeName, string? suffix)
+    public virtual IReadOnlyList<string> Optimize(
+        string? outputDir, string? modelNamespace, string? contextTypeName, string? suffix, bool scaffoldModel, bool precompileQueries)
     {
         using var context = CreateContext(contextTypeName);
         var contextType = context.GetType();
-
         var services = _servicesBuilder.Build(context);
-        var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
+
+        IReadOnlyList<string> generatedFiles = [];
+        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null;
+
+        if (scaffoldModel)
+        {
+            generatedFiles = ScaffoldCompiledModel(outputDir, modelNamespace, context, suffix, services);
+            if (precompileQueries)
+            {
+                memberAccessReplacements = ((IRuntimeModel)context.GetService<IDesignTimeModel>().Model).GetUnsafeAccessors();
+            }
+        }
+
+        if (precompileQueries)
+        {
+            generatedFiles = generatedFiles.Concat(PrecompileQueries(
+                outputDir, context, suffix, services, memberAccessReplacements ?? ((IRuntimeModel)context.Model).GetUnsafeAccessors()))
+                .ToList();
+        }
+
+        return generatedFiles;
+    }
+
+    private IReadOnlyList<string> ScaffoldCompiledModel(
+        string? outputDir, string? modelNamespace, DbContext context, string? suffix, IServiceProvider services)
+    {
+        var contextType = context.GetType();
+        if (contextType.Assembly != _assembly)
+        {
+            _reporter.WriteWarning(DesignStrings.ContextAssemblyMismatch(
+                _assembly.GetName().Name, contextType.ShortDisplayName(), contextType.Assembly.GetName().Name));
+        }
 
         if (outputDir == null)
         {
@@ -138,6 +185,8 @@ public class DbContextOperations
         }
 
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+
+        var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
 
         var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
@@ -168,6 +217,82 @@ public class DbContextOperations
         }
 
         return scaffoldedFiles;
+    }
+
+    private IReadOnlyList<string> PrecompileQueries(string? outputDir, DbContext context, string? suffix, IServiceProvider services, IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
+    {
+        outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
+
+        MSBuildLocator.RegisterDefaults();
+        // TODO: pass through properties
+        var workspace = MSBuildWorkspace.Create();
+        workspace.LoadMetadataForReferencedProjects = true;
+        var project = workspace.OpenProjectAsync(_project).GetAwaiter().GetResult();
+        if (!project.SupportsCompilation)
+        {
+            throw new NotSupportedException(DesignStrings.UncompilableProject(_project));
+        }
+        var compilation = project.GetCompilationAsync().GetAwaiter().GetResult()!;
+        var errorDiagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errorDiagnostics.Any())
+        {
+            var errorBuilder = new StringBuilder();
+            errorBuilder.AppendLine(DesignStrings.CompilationErrors);
+            foreach (var diagnostic in errorDiagnostics)
+            {
+                errorBuilder.AppendLine(diagnostic.ToString());
+            }
+
+            throw new InvalidOperationException(errorBuilder.ToString());
+        }
+
+        var syntaxGenerator = SyntaxGenerator.GetGenerator(
+            workspace, _language == "VB" ? LanguageNames.VisualBasic : _language ?? LanguageNames.CSharp);
+
+        var precompiledQueryCodeGenerator = services.GetRequiredService<IPrecompiledQueryCodeGeneratorSelector>().Select(_language);
+
+        var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
+        var generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
+            compilation, syntaxGenerator, context, memberAccessReplacements, precompilationErrors, assembly: _assembly, suffix);
+
+        if (precompilationErrors.Count > 0)
+        {
+            var errorBuilder = new StringBuilder();
+            errorBuilder.AppendLine(DesignStrings.QueryPrecompilationErrors);
+            foreach (var error in precompilationErrors)
+            {
+                errorBuilder.AppendLine(error.ToString());
+            }
+
+            throw new InvalidOperationException(errorBuilder.ToString());
+        }
+
+        Directory.CreateDirectory(outputDir);
+        var writtenFiles = new List<string>();
+        foreach (var generatedFile in generatedFiles)
+        {
+            var finalText = FormatCode(project, generatedFile).GetAwaiter().GetResult();
+            var outputFilePath = Path.Combine(outputDir, generatedFile.Path);
+            File.WriteAllText(outputFilePath, finalText.ToString());
+            writtenFiles.Add(outputFilePath);
+        }
+
+        return writtenFiles;
+
+        static async Task<object> FormatCode(Project project, PrecompiledQueryCodeGenerator.GeneratedInterceptorFile generatedFile)
+        {
+            var document = project.AddDocument("_EfGeneratedInterceptors.cs", generatedFile.Code);
+
+            // Run the simplifier to e.g. get rid of unneeded parentheses
+            var syntaxRootFoo = (await document.GetSyntaxRootAsync().ConfigureAwait(false))!;
+            var annotatedDocument = document.WithSyntaxRoot(syntaxRootFoo.WithAdditionalAnnotations(Simplifier.Annotation));
+            document = await Simplifier.ReduceAsync(annotatedDocument, optionSet: null).ConfigureAwait(false);
+            document = await Formatter.FormatAsync(document, options: null).ConfigureAwait(false);
+
+            var finalSyntaxTree = (await document.GetSyntaxTreeAsync().ConfigureAwait(false))!;
+            var finalText = await finalSyntaxTree.GetTextAsync().ConfigureAwait(false);
+            return finalText;
+        }
     }
 
     private string? GetNamespaceFromOutputPath(string directoryPath)
@@ -208,6 +333,7 @@ public class DbContextOperations
     /// </summary>
     public virtual DbContext CreateContext(string? contextType)
     {
+        EF.IsDesignTime = true;
         var contextPair = FindContextType(contextType);
         var factory = contextPair.Value;
         try

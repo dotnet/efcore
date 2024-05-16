@@ -89,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     return new AppDomainOperationExecutor(
                         Assembly!.Value()!,
                         StartupAssembly!.Value(),
+                        Project!.Value(),
                         _projectDir!.Value(),
                         _dataDir!.Value(),
                         _rootNamespace!.Value(),
@@ -127,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 return new ReflectionOperationExecutor(
                     Assembly!.Value()!,
                     StartupAssembly!.Value(),
+                    Project!.Value(),
                     _projectDir!.Value(),
                     _dataDir!.Value(),
                     _rootNamespace!.Value(),
