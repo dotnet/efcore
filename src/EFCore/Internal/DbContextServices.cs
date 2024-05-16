@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 
@@ -84,14 +85,22 @@ public class DbContextServices : IDbContextServices
                 }
             }
 
-            return modelFromOptions == null
-                || (designTime && modelFromOptions is not Metadata.Internal.Model)
-                    ? RuntimeFeature.IsDynamicCodeSupported
-                        ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
-                        : designTime
-                            ? throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
-                            : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)
-                    : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, designTime, dependencies.ValidationLogger);
+            if (modelFromOptions == null
+                || (designTime && !(modelFromOptions is Model)))
+            {
+                return RuntimeFeature.IsDynamicCodeSupported
+                            ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
+                            : designTime
+                                ? throw new InvalidOperationException(CoreStrings.NativeAotDesignTimeModel)
+                                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+            }
+
+            var designTimeModel = dependencies.ModelRuntimeInitializer.Initialize(
+                modelFromOptions, designTime: modelFromOptions is Model, dependencies.ValidationLogger);
+
+            var runtimeModel = (IModel)designTimeModel.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
+
+            return designTime ? designTimeModel : runtimeModel;
         }
         finally
         {
