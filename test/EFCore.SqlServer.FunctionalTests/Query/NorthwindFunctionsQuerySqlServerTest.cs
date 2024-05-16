@@ -2540,6 +2540,7 @@ WHERE LTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimStart_with_char_argument_in_predicate(bool async)
     {
         await base.TrimStart_with_char_argument_in_predicate(async);
@@ -2552,6 +2553,7 @@ WHERE LTRIM([c].[ContactTitle], N'O') = N'wner'
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
     {
         await base.TrimStart_with_char_array_argument_in_predicate(async);
@@ -2576,6 +2578,7 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
     {
         await  base.TrimEnd_with_char_argument_in_predicate(async);
@@ -2588,6 +2591,7 @@ WHERE RTRIM([c].[ContactTitle], N'r') = N'Owne'
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
     {
         await base.TrimEnd_with_char_array_argument_in_predicate(async);
