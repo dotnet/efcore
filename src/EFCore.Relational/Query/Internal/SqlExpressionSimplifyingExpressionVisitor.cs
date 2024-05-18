@@ -146,6 +146,16 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
 
         return operatorType switch
         {
+            // CompareTo(a, b) == 0 -> a == b
+            // CompareTo(a, b) == 1 -> a > b
+            // CompareTo(a, b) = -1 -> a < b
+            ExpressionType.Equal => (SqlExpression)Visit(
+                intValue switch
+                {
+                    0 => _sqlExpressionFactory.Equal(testLeft, testRight),
+                    1 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
+                    _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
+                }),
             // CompareTo(a, b) != 0 -> a != b
             // CompareTo(a, b) != 1 -> a <= b
             // CompareTo(a, b) != -1 -> a >= b
@@ -225,7 +235,8 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
             && IsCompareTo(caseComponent)
             && sqlConstantComponent.Value is int intValue and > -2 and < 2
             && sqlBinaryExpression.OperatorType
-                is ExpressionType.NotEqual
+                is ExpressionType.Equal
+                or ExpressionType.NotEqual
                 or ExpressionType.GreaterThan
                 or ExpressionType.GreaterThanOrEqual
                 or ExpressionType.LessThan
