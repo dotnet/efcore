@@ -213,23 +213,6 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
             sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
         var caseComponent = sqlBinaryExpression.Left as CaseExpression ?? sqlBinaryExpression.Right as CaseExpression;
 
-        // generic CASE statement comparison optimization:
-        // (CASE
-        //  WHEN condition1 THEN result1
-        //  WHEN condition2 THEN result2
-        //  WHEN ...
-        //  WHEN conditionN THEN resultN) == result1 -> condition1
-        if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
-            && sqlConstantComponent?.Value is not null
-            && caseComponent is { Operand: null, ElseResult: null })
-        {
-            var matchingCaseBlock = caseComponent.WhenClauses.FirstOrDefault(wc => sqlConstantComponent.Equals(wc.Result));
-            if (matchingCaseBlock != null)
-            {
-                return Visit(matchingCaseBlock.Test);
-            }
-        }
-
         // CompareTo specific optimizations
         if (sqlConstantComponent != null
             && IsCompareTo(caseComponent)
