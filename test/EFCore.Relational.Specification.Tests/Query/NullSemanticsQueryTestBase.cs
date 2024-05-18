@@ -1722,6 +1722,62 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_second_filter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 2)
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_first_or_third_filter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 3)
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_second_select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 2),
+            assertOrder: true
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_first_or_third_select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 3),
+            assertOrder: true
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task False_compared_to_negated_is_null(bool async)
         => AssertQuery(
             async,
