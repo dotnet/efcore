@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Translators;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.Translators;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,10 +11,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
+public class SqlServerDateOnlyMemberTranslator : IMemberTranslator
 {
-    private readonly List<IMemberTranslator> _plugins = [];
-    private readonly List<IMemberTranslator> _translators = [];
+    private static readonly Dictionary<string, string> DatePartMapping
+        = new()
+        {
+            { nameof(DateOnly.Year), "year" },
+            { nameof(DateOnly.Month), "month" },
+            { nameof(DateOnly.DayOfYear), "dayofyear" },
+            { nameof(DateOnly.Day), "day" }
+        };
+
+    private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,16 +30,9 @@ public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosMemberTranslatorProvider(
-        ISqlExpressionFactory sqlExpressionFactory,
-        IEnumerable<IMemberTranslatorPlugin> plugins)
+    public SqlServerDateOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
-        _plugins.AddRange(plugins.SelectMany(p => p.Translators));
-        _translators.AddRange(
-        [
-            new CosmosStringMemberTranslator(sqlExpressionFactory),
-            new CosmosDateTimeMemberTranslator(sqlExpressionFactory)
-        ]);
+        _sqlExpressionFactory = sqlExpressionFactory;
     }
 
     /// <summary>
@@ -45,15 +46,12 @@ public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => _plugins.Concat(_translators)
-            .Select(t => t.Translate(instance, member, returnType, logger)).FirstOrDefault(t => t != null);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual void AddTranslators(IEnumerable<IMemberTranslator> translators)
-        => _translators.InsertRange(0, translators);
+        => member.DeclaringType == typeof(DateOnly) && DatePartMapping.TryGetValue(member.Name, out var datePart)
+            ? _sqlExpressionFactory.Function(
+                "DATEPART",
+                new[] { _sqlExpressionFactory.Fragment(datePart), instance! },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true },
+                returnType)
+            : null;
 }

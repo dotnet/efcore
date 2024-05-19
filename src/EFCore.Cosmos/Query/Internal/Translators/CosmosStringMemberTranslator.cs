@@ -1,9 +1,7 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal.Translators;
-
-namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Translators;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteMemberTranslatorProvider : RelationalMemberTranslatorProvider
+public class CosmosStringMemberTranslator(ISqlExpressionFactory sqlExpressionFactory) : IMemberTranslator
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,16 +17,21 @@ public class SqliteMemberTranslatorProvider : RelationalMemberTranslatorProvider
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
-        : base(dependencies)
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
+        MemberInfo member,
+        Type returnType,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        var sqlExpressionFactory = (SqliteSqlExpressionFactory)dependencies.SqlExpressionFactory;
+        if (member.Name == nameof(string.Length)
+            && member.DeclaringType == typeof(string))
+        {
+            return sqlExpressionFactory.Function(
+                "LENGTH",
+                new[] { instance! },
+                returnType);
+        }
 
-        AddTranslators(
-        [
-            new SqliteDateTimeMemberTranslator(sqlExpressionFactory),
-            new SqliteStringLengthTranslator(sqlExpressionFactory),
-            new SqliteDateOnlyMemberTranslator(sqlExpressionFactory)
-        ]);
+        return null;
     }
 }
