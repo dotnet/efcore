@@ -35,10 +35,10 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
         IReadOnlyDictionary<string, object?> parametersValues,
         out bool canCache)
     {
-        var optimizedQueryExpression = base.Optimize(queryExpression, parametersValues, out canCache);
+        var optimizedQueryExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
+            .Process(queryExpression, parametersValues, out var canCache2);
 
-        optimizedQueryExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
-            .Process(optimizedQueryExpression, parametersValues, out var canCache2);
+        optimizedQueryExpression = base.Optimize(optimizedQueryExpression, parametersValues, out canCache);
 
         canCache &= canCache2;
 
