@@ -3,7 +3,12 @@
 
 // Skip the entire assembly if cannot connect to CosmosDb
 
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+
 [assembly: CosmosDbConfiguredCondition]
 
 // Waiting on Task causes deadlocks when run in parallel
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
+
+// Cosmos doesn't support sync I/O
+[assembly: SkipSyncTests]

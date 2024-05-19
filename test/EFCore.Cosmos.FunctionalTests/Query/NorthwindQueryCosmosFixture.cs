@@ -22,12 +22,6 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
     protected override bool ShouldLogCategory(string logCategory)
         => logCategory == DbLoggerCategory.Query.Name;
 
-    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
-
-    public void NoSyncTest(Action testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(testCode);
-
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder.ConfigureWarnings(
             w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));

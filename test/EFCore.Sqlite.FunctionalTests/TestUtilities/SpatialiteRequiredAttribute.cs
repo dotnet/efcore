@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -17,7 +18,7 @@ public sealed class SpatialiteRequiredAttribute : Attribute, ITestCondition
                 return SpatialiteLoader.TryLoad(connection);
             });
 
-    public ValueTask<bool> IsMetAsync()
+    public ValueTask<bool> IsMetAsync(XunitTestCase testCase)
         => new(_loaded.Value);
 
     public string SkipReason

@@ -26,440 +26,374 @@ public class NorthwindAggregateOperatorsQueryCosmosTest
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    public override Task Average_over_default_returns_default(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_over_default_returns_default(a);
+    public override async Task Average_over_default_returns_default(bool async)
+    {
+        await base.Average_over_default_returns_default(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG((c["OrderID"] - 10248)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10248))
 """);
-            });
+    }
 
-    public override Task Contains_over_keyless_entity_throws(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                // The `First()` query is always executed synchronously. The outer query does not translate.
-                if (!a)
-                {
-                    // Aggregates. Issue #16146.
-                    await base.Contains_over_keyless_entity_throws(a);
+    public override async Task Contains_over_keyless_entity_throws(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await base.Contains_over_keyless_entity_throws(async);
 
-                    AssertSql(
-                        """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 OFFSET 0 LIMIT 1
 """);
-                }
-            });
+    }
 
-    public override Task Contains_with_local_non_primitive_list_closure_mix(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_non_primitive_list_closure_mix(a);
+    public override async Task Contains_with_local_non_primitive_list_closure_mix(bool async)
+    {
+        await base.Contains_with_local_non_primitive_list_closure_mix(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_non_primitive_list_inline_closure_mix(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_non_primitive_list_inline_closure_mix(a);
+    public override async Task Contains_with_local_non_primitive_list_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_non_primitive_list_inline_closure_mix(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Count_on_projection_with_client_eval(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Count_on_projection_with_client_eval(a);
+    public override async Task Count_on_projection_with_client_eval(bool async)
+    {
+        await base.Count_on_projection_with_client_eval(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """,
-                    //
-                    """
+            //
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """,
-                    //
-                    """
+            //
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task First(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.First(a);
+    public override async Task First(bool async)
+    {
+        await base.First(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["ContactName"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Max_over_default_returns_default(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Max_over_default_returns_default(a);
+    public override async Task Max_over_default_returns_default(bool async)
+    {
+        await base.Max_over_default_returns_default(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX((c["OrderID"] - 10248)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10248))
 """);
-            });
+    }
 
-    public override Task Min_over_default_returns_default(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Min_over_default_returns_default(a);
+    public override async Task Min_over_default_returns_default(bool async)
+    {
+        await base.Min_over_default_returns_default(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN((c["OrderID"] - 10248)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10248))
 """);
-            });
+    }
 
-    public override Task Sum_over_empty_returns_zero(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_over_empty_returns_zero(a);
+    public override async Task Sum_over_empty_returns_zero(bool async)
+    {
+        await base.Sum_over_empty_returns_zero(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 42))
 """);
-            });
+    }
 
-    public override Task First_Predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.First_Predicate(a);
+    public override async Task First_Predicate(bool async)
+    {
+        await base.First_Predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
     public override async Task Single_Throws(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.Single_Throws(async);
+        await base.Single_Throws(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 OFFSET 0 LIMIT 2
 """);
-        }
     }
 
-    public override Task Where_First(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_First(a);
+    public override async Task Where_First(bool async)
+    {
+        await base.Where_First(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Where_Single(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_Single(a);
+    public override async Task Where_Single(bool async)
+    {
+        await base.Where_Single(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 2
 """);
-            });
+    }
 
-    public override Task FirstOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.FirstOrDefault(a);
+    public override async Task FirstOrDefault(bool async)
+    {
+        await base.FirstOrDefault(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["ContactName"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Array_cast_to_IEnumerable_Contains_with_constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Array_cast_to_IEnumerable_Contains_with_constant(a);
+    public override async Task Array_cast_to_IEnumerable_Contains_with_constant(bool async)
+    {
+        await base.Array_cast_to_IEnumerable_Contains_with_constant(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI", "WRONG"))
 """);
-            });
+    }
 
-    public override Task FirstOrDefault_Predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.FirstOrDefault_Predicate(a);
+    public override async Task FirstOrDefault_Predicate(bool async)
+    {
+        await base.FirstOrDefault_Predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task SingleOrDefault_Predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.SingleOrDefault_Predicate(a);
+    public override async Task SingleOrDefault_Predicate(bool async)
+    {
+        await base.SingleOrDefault_Predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 2
 """);
-            });
+    }
 
     public override async Task SingleOrDefault_Throws(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.SingleOrDefault_Throws(async);
+        await base.SingleOrDefault_Throws(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 OFFSET 0 LIMIT 2
 """);
-        }
     }
 
-    public override Task Where_FirstOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_FirstOrDefault(a);
+    public override async Task Where_FirstOrDefault(bool async)
+    {
+        await base.Where_FirstOrDefault(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"]
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Where_SingleOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_SingleOrDefault(a);
+    public override async Task Where_SingleOrDefault(bool async)
+    {
+        await base.Where_SingleOrDefault(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 2
 """);
-            });
+    }
 
     public override async Task Select_All(bool async)
     {
-        // Always throws sync-not-support for sync.
-        if (async)
-        {
-            // Contains over subquery. Issue #17246.
-            await AssertTranslationFailed(() => base.Select_All(async));
+        // Contains over subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_All(async));
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
-    public override Task Sum_with_no_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_no_arg(a);
+    public override async Task Sum_with_no_arg(bool async)
+    {
+        await base.Sum_with_no_arg(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Sum_with_no_data_cast_to_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_no_data_cast_to_nullable(a);
+    public override async Task Sum_with_no_data_cast_to_nullable(bool async)
+    {
+        await base.Sum_with_no_data_cast_to_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 0))
 """);
-            });
+    }
 
-    public override Task Sum_with_binary_expression(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_binary_expression(a);
+    public override async Task Sum_with_binary_expression(bool async)
+    {
+        await base.Sum_with_binary_expression(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM((c["OrderID"] * 2)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Sum_with_no_arg_empty(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_no_arg_empty(a);
+    public override async Task Sum_with_no_arg_empty(bool async)
+    {
+        await base.Sum_with_no_arg_empty(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 42))
 """);
-            });
+    }
 
-    public override Task Sum_with_no_data_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_no_data_nullable(a);
+    public override async Task Sum_with_no_data_nullable(bool async)
+    {
+        await base.Sum_with_no_data_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["SupplierID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Product")
 """);
-            });
+    }
 
-    public override Task Sum_with_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_arg(a);
+    public override async Task Sum_with_arg(bool async)
+    {
+        await base.Sum_with_arg(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Sum_with_arg_expression(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_arg_expression(a);
+    public override async Task Sum_with_arg_expression(bool async)
+    {
+        await base.Sum_with_arg_expression(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM((c["OrderID"] + c["OrderID"])) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
     public override async Task Sum_with_division_on_decimal(bool async)
     {
@@ -478,19 +412,17 @@ WHERE (c["Discriminator"] = "Order")
         AssertSql();
     }
 
-    public override Task Sum_with_coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_with_coalesce(a);
+    public override async Task Sum_with_coalesce(bool async)
+    {
+        await base.Sum_with_coalesce(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
-            });
+    }
 
     public override async Task Sum_over_subquery_is_client_eval(bool async)
     {
@@ -516,19 +448,17 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
         AssertSql();
     }
 
-    public override Task Sum_on_float_column(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Sum_on_float_column(a);
+    public override async Task Sum_on_float_column(bool async)
+    {
+        await base.Sum_on_float_column(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(c["Discount"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "OrderDetail") AND (c["ProductID"] = 1))
 """);
-            });
+    }
 
     public override async Task Sum_on_float_column_in_subquery(bool async)
     {
@@ -540,78 +470,62 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["ProductID"] = 1))
 
     public override async Task Average_no_data(bool async)
     {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await base.Average_no_data(async);
+        await base.Average_no_data(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT AVG(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 """);
-        }
     }
 
-    public override Task Average_no_data_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_no_data_nullable(a);
+    public override async Task Average_no_data_nullable(bool async)
+    {
+        await base.Average_no_data_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG(c["SupplierID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["SupplierID"] = -1))
 """);
-            });
+    }
 
-    public override Task Average_no_data_cast_to_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_no_data_cast_to_nullable(a);
+    public override async Task Average_no_data_cast_to_nullable(bool async)
+    {
+        await base.Average_no_data_cast_to_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 """);
-            });
+    }
 
     public override async Task Min_no_data(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.Min_no_data(async);
+        await base.Min_no_data(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT MIN(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 """);
-        }
     }
 
     public override async Task Max_no_data(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await base.Max_no_data(async);
+        await base.Max_no_data(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT MAX(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 """);
-        }
     }
 
     public override async Task Average_no_data_subquery(bool async)
@@ -630,33 +544,29 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
         AssertSql();
     }
 
-    public override Task Max_no_data_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Max_no_data_nullable(a);
+    public override async Task Max_no_data_nullable(bool async)
+    {
+        await base.Max_no_data_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX(c["SupplierID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["SupplierID"] = -1))
 """);
-            });
+    }
 
-    public override Task Max_no_data_cast_to_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Max_no_data_cast_to_nullable(a);
+    public override async Task Max_no_data_cast_to_nullable(bool async)
+    {
+        await base.Max_no_data_cast_to_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 """);
-            });
+    }
 
     public override async Task Min_no_data_subquery(bool async)
     {
@@ -668,65 +578,53 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 
     public override async Task Average_with_no_arg(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_no_arg(async));
+        // Average truncates. Issue #26378.
+        await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_no_arg(async));
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT AVG(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-        }
     }
 
-    public override Task Average_with_binary_expression(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_with_binary_expression(a);
+    public override async Task Average_with_binary_expression(bool async)
+    {
+        await base.Average_with_binary_expression(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG((c["OrderID"] * 2)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
     public override async Task Average_with_arg(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Average truncates. Issue #26378.
-            await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_arg(async));
+        // Average truncates. Issue #26378.
+        await Assert.ThrowsAsync<EqualException>(async () => await base.Average_with_arg(async));
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 SELECT AVG(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-        }
     }
 
-    public override Task Average_with_arg_expression(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_with_arg_expression(a);
+    public override async Task Average_with_arg_expression(bool async)
+    {
+        await base.Average_with_arg_expression(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG((c["OrderID"] + c["OrderID"])) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
     public override async Task Average_with_division_on_decimal(bool async)
     {
@@ -745,19 +643,17 @@ WHERE (c["Discriminator"] = "Order")
         AssertSql();
     }
 
-    public override Task Average_with_coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_with_coalesce(a);
+    public override async Task Average_with_coalesce(bool async)
+    {
+        await base.Average_with_coalesce(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
-            });
+    }
 
     public override async Task Average_over_subquery_is_client_eval(bool async)
     {
@@ -783,19 +679,17 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
         AssertSql();
     }
 
-    public override Task Average_on_float_column(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Average_on_float_column(a);
+    public override async Task Average_on_float_column(bool async)
+    {
+        await base.Average_on_float_column(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG(c["Discount"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "OrderDetail") AND (c["ProductID"] = 1))
 """);
-            });
+    }
 
     public override async Task Average_on_float_column_in_subquery(bool async)
     {
@@ -813,75 +707,65 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["ProductID"] = 1))
         AssertSql();
     }
 
-    public override Task Min_with_no_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Min_with_no_arg(a);
+    public override async Task Min_with_no_arg(bool async)
+    {
+        await base.Min_with_no_arg(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Min_with_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Min_with_arg(a);
+    public override async Task Min_with_arg(bool async)
+    {
+        await base.Min_with_arg(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Min_no_data_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Min_no_data_nullable(a);
+    public override async Task Min_no_data_nullable(bool async)
+    {
+        await base.Min_no_data_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN(c["SupplierID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["SupplierID"] = -1))
 """);
-            });
+    }
 
-    public override Task Min_no_data_cast_to_nullable(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Min_no_data_cast_to_nullable(a);
+    public override async Task Min_no_data_cast_to_nullable(bool async)
+    {
+        await base.Min_no_data_cast_to_nullable(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = -1))
 """);
-            });
+    }
 
-    public override Task Min_with_coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Min_with_coalesce(a);
+    public override async Task Min_with_coalesce(bool async)
+    {
+        await base.Min_with_coalesce(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
-            });
+    }
 
     public override async Task Min_over_subquery_is_client_eval(bool async)
     {
@@ -907,47 +791,41 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
         AssertSql();
     }
 
-    public override Task Max_with_no_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Max_with_no_arg(a);
+    public override async Task Max_with_no_arg(bool async)
+    {
+        await base.Max_with_no_arg(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Max_with_arg(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Max_with_arg(a);
+    public override async Task Max_with_arg(bool async)
+    {
+        await base.Max_with_arg(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX(c["OrderID"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Max_with_coalesce(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Max_with_coalesce(a);
+    public override async Task Max_with_coalesce(bool async)
+    {
+        await base.Max_with_coalesce(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX(((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
-            });
+    }
 
     public override async Task Max_over_subquery_is_client_eval(bool async)
     {
@@ -973,103 +851,89 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
         AssertSql();
     }
 
-    public override Task Count_with_no_predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Count_with_no_predicate(a);
+    public override async Task Count_with_no_predicate(bool async)
+    {
+        await base.Count_with_no_predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Count_with_predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Count_with_predicate(a);
+    public override async Task Count_with_predicate(bool async)
+    {
+        await base.Count_with_predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Count_with_order_by(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Count_with_order_by(a);
+    public override async Task Count_with_order_by(bool async)
+    {
+        await base.Count_with_order_by(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
-            });
+    }
 
-    public override Task Where_OrderBy_Count(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_OrderBy_Count(a);
+    public override async Task Where_OrderBy_Count(bool async)
+    {
+        await base.Where_OrderBy_Count(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
-            });
+    }
 
-    public override Task OrderBy_Where_Count(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.OrderBy_Where_Count(a);
+    public override async Task OrderBy_Where_Count(bool async)
+    {
+        await base.OrderBy_Where_Count(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
-            });
+    }
 
-    public override Task OrderBy_Count_with_predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.OrderBy_Count_with_predicate(a);
+    public override async Task OrderBy_Count_with_predicate(bool async)
+    {
+        await base.OrderBy_Count_with_predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
-            });
+    }
 
-    public override Task OrderBy_Where_Count_with_predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.OrderBy_Where_Count_with_predicate(a);
+    public override async Task OrderBy_Where_Count_with_predicate(bool async)
+    {
+        await base.OrderBy_Where_Count_with_predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (((c["Discriminator"] = "Order") AND (c["OrderID"] > 10)) AND (c["CustomerID"] != "ALFKI"))
 """);
-            });
+    }
 
     public override async Task Where_OrderBy_Count_client_eval(bool async)
     {
@@ -1138,14 +1002,11 @@ WHERE (((c["Discriminator"] = "Order") AND (c["OrderID"] > 10)) AND (c["Customer
 
     public override async Task OrderBy_client_Take(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_client_Take(async));
+        await Assert.ThrowsAsync<CosmosException>(
+            async () => await base.OrderBy_client_Take(async));
 
-            AssertSql(
-                """
+        AssertSql(
+            """
 @__p_0='10'
 
 SELECT c
@@ -1154,53 +1015,46 @@ WHERE (c["Discriminator"] = "Employee")
 ORDER BY 42
 OFFSET 0 LIMIT @__p_0
 """);
-        }
     }
 
-    public override Task Distinct(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Distinct(a);
+    public override async Task Distinct(bool async)
+    {
+        await base.Distinct(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT DISTINCT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "Fails on CI #27688")]
-    public override Task Distinct_Scalar(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Distinct_Scalar(a);
+    public override async Task Distinct_Scalar(bool async)
+    {
+        await base.Distinct_Scalar(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT DISTINCT c[""City""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "Fails on emulator https://github.com/Azure/azure-cosmos-dotnet-v3/issues/4339")]
-    public override Task OrderBy_Distinct(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.OrderBy_Distinct(a);
+    public override async Task OrderBy_Distinct(bool async)
+    {
+        await base.OrderBy_Distinct(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT DISTINCT c["City"]
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
 """);
-            });
+    }
 
     public override async Task Distinct_OrderBy(bool async)
         // Subquery pushdown. Issue #16156.
@@ -1240,20 +1094,18 @@ ORDER BY c["CustomerID"]
         AssertSql();
     }
 
-    public override Task Single_Predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Single_Predicate(a);
+    public override async Task Single_Predicate(bool async)
+    {
+        await base.Single_Predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 2
 """);
-            });
+    }
 
     public override async Task FirstOrDefault_inside_subquery_gets_server_evaluated(bool async)
     {
@@ -1279,131 +1131,115 @@ OFFSET 0 LIMIT 2
         AssertSql();
     }
 
-    public override Task Last(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Last(a);
+    public override async Task Last(bool async)
+    {
+        await base.Last(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["ContactName"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Last_when_no_order_by(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Last_when_no_order_by(a);
+    public override async Task Last_when_no_order_by(bool async)
+    {
+        await base.Last_when_no_order_by(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task LastOrDefault_when_no_order_by(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.LastOrDefault_when_no_order_by(a);
+    public override async Task LastOrDefault_when_no_order_by(bool async)
+    {
+        await base.LastOrDefault_when_no_order_by(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Last_Predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Last_Predicate(a);
+    public override async Task Last_Predicate(bool async)
+    {
+        await base.Last_Predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Where_Last(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_Last(a);
+    public override async Task Where_Last(bool async)
+    {
+        await base.Where_Last(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task LastOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.LastOrDefault(a);
+    public override async Task LastOrDefault(bool async)
+    {
+        await base.LastOrDefault(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["ContactName"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task LastOrDefault_Predicate(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.LastOrDefault_Predicate(a);
+    public override async Task LastOrDefault_Predicate(bool async)
+    {
+        await base.LastOrDefault_Predicate(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
-    public override Task Where_LastOrDefault(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_LastOrDefault(a);
+    public override async Task Where_LastOrDefault(bool async)
+    {
+        await base.Where_LastOrDefault(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 ORDER BY c["ContactName"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
     public override async Task Contains_with_subquery(bool async)
     {
@@ -1413,25 +1249,23 @@ OFFSET 0 LIMIT 1
         AssertSql();
     }
 
-    public override Task Contains_with_local_array_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_array_closure(a);
+    public override async Task Contains_with_local_array_closure(bool async)
+    {
+        await base.Contains_with_local_array_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
 """);
-            });
+    }
 
     public override async Task Contains_with_subquery_and_local_array_closure(bool async)
     {
@@ -1441,184 +1275,162 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
         AssertSql();
     }
 
-    public override Task Contains_with_local_uint_array_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_uint_array_closure(a);
+    public override async Task Contains_with_local_uint_array_closure(bool async)
+    {
+        await base.Contains_with_local_uint_array_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND c["EmployeeID"] IN (0, 1))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND c["EmployeeID"] IN (0))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_nullable_uint_array_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_nullable_uint_array_closure(a);
+    public override async Task Contains_with_local_nullable_uint_array_closure(bool async)
+    {
+        await base.Contains_with_local_nullable_uint_array_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND c["EmployeeID"] IN (0, 1))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND c["EmployeeID"] IN (0))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_array_inline(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_array_inline(a);
+    public override async Task Contains_with_local_array_inline(bool async)
+    {
+        await base.Contains_with_local_array_inline(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_list_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_list_closure(a);
+    public override async Task Contains_with_local_list_closure(bool async)
+    {
+        await base.Contains_with_local_list_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_object_list_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_object_list_closure(a);
+    public override async Task Contains_with_local_object_list_closure(bool async)
+    {
+        await base.Contains_with_local_object_list_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_list_closure_all_null(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_list_closure_all_null(a);
+    public override async Task Contains_with_local_list_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_list_closure_all_null(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_list_inline(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_list_inline(a);
+    public override async Task Contains_with_local_list_inline(bool async)
+    {
+        await base.Contains_with_local_list_inline(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_list_inline_closure_mix(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_list_inline_closure_mix(a);
+    public override async Task Contains_with_local_list_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_list_inline_closure_mix(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_enumerable_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_enumerable_closure(a);
-                AssertSql(
-                    """
+    public override async Task Contains_with_local_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_enumerable_closure(async);
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_object_enumerable_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_object_enumerable_closure(a);
+    public override async Task Contains_with_local_object_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_object_enumerable_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_enumerable_closure_all_null(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_enumerable_closure_all_null(a);
+    public override async Task Contains_with_local_enumerable_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_enumerable_closure_all_null(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (true = false))
 """
-                );
-            });
+        );
+    }
 
     public override async Task Contains_with_local_enumerable_inline(bool async)
     {
@@ -1640,291 +1452,255 @@ WHERE ((c["Discriminator"] = "Customer") AND (true = false))
         AssertSql();
     }
 
-    public override Task Contains_with_local_ordered_enumerable_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_ordered_enumerable_closure(a);
+    public override async Task Contains_with_local_ordered_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
 //
-                    """
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_object_ordered_enumerable_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_object_ordered_enumerable_closure(a);
+    public override async Task Contains_with_local_object_ordered_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_object_ordered_enumerable_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_ordered_enumerable_closure_all_null(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_ordered_enumerable_closure_all_null(a);
+    public override async Task Contains_with_local_ordered_enumerable_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_closure_all_null(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_ordered_enumerable_inline(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_ordered_enumerable_inline(a);
+    public override async Task Contains_with_local_ordered_enumerable_inline(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_inline(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_ordered_enumerable_inline_closure_mix(a);
+    public override async Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_inline_closure_mix(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
 //
-                    """
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_read_only_collection_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_read_only_collection_closure(a);
+    public override async Task Contains_with_local_read_only_collection_closure(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
 //
-                    """
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_object_read_only_collection_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_object_read_only_collection_closure(a);
+    public override async Task Contains_with_local_object_read_only_collection_closure(bool async)
+    {
+        await base.Contains_with_local_object_read_only_collection_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_ordered_read_only_collection_all_null(a);
+    public override async Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
+    {
+        await base.Contains_with_local_ordered_read_only_collection_all_null(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_read_only_collection_inline(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_read_only_collection_inline(a);
+    public override async Task Contains_with_local_read_only_collection_inline(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_inline(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_read_only_collection_inline_closure_mix(a);
+    public override async Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_inline_closure_mix(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
 """,
 //
-                    """
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
 """
-                );
-            });
+        );
+    }
 
-    public override Task Contains_with_local_collection_false(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_false(a);
+    public override async Task Contains_with_local_collection_false(bool async)
+    {
+        await base.Contains_with_local_collection_false(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI"))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_complex_predicate_and(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_complex_predicate_and(a);
+    public override async Task Contains_with_local_collection_complex_predicate_and(bool async)
+    {
+        await base.Contains_with_local_collection_complex_predicate_and(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") OR (c["CustomerID"] = "ABCDE")) AND c["CustomerID"] IN ("ABCDE", "ALFKI")))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_complex_predicate_or(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_complex_predicate_or(a);
+    public override async Task Contains_with_local_collection_complex_predicate_or(bool async)
+    {
+        await base.Contains_with_local_collection_complex_predicate_or(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ABCDE", "ALFKI") OR ((c["CustomerID"] = "ALFKI") OR (c["CustomerID"] = "ABCDE"))))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_complex_predicate_not_matching_ins1(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_complex_predicate_not_matching_ins1(a);
+    public override async Task Contains_with_local_collection_complex_predicate_not_matching_ins1(bool async)
+    {
+        await base.Contains_with_local_collection_complex_predicate_not_matching_ins1(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") OR (c["CustomerID"] = "ABCDE")) OR c["CustomerID"] NOT IN ("ABCDE", "ALFKI")))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_complex_predicate_not_matching_ins2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_complex_predicate_not_matching_ins2(a);
+    public override async Task Contains_with_local_collection_complex_predicate_not_matching_ins2(bool async)
+    {
+        await base.Contains_with_local_collection_complex_predicate_not_matching_ins2(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ABCDE", "ALFKI") AND ((c["CustomerID"] != "ALFKI") AND (c["CustomerID"] != "ABCDE"))))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_sql_injection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_sql_injection(a);
+    public override async Task Contains_with_local_collection_sql_injection(bool async)
+    {
+        await base.Contains_with_local_collection_sql_injection(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --") OR ((c["CustomerID"] = "ALFKI") OR (c["CustomerID"] = "ABCDE"))))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_empty_closure(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_empty_closure(a);
+    public override async Task Contains_with_local_collection_empty_closure(bool async)
+    {
+        await base.Contains_with_local_collection_empty_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (true = false))
 """);
-            });
+    }
 
-    public override Task Contains_with_local_collection_empty_inline(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_local_collection_empty_inline(a);
+    public override async Task Contains_with_local_collection_empty_inline(bool async)
+    {
+        await base.Contains_with_local_collection_empty_inline(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND NOT((true = false)))
 """);
-            });
+    }
 
     public override async Task Contains_top_level(bool async)
     {
@@ -1977,15 +1753,11 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT((true = false)))
 
     public override async Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            // Aggregate selecting non-mapped type. Issue #20677.
-            await Assert.ThrowsAsync<KeyNotFoundException>(
-                async () => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
+        // Aggregate selecting non-mapped type. Issue #20677.
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            async () => await base.Max_with_non_matching_types_in_projection_introduces_explicit_cast(async));
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
@@ -1999,16 +1771,12 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT((true = false)))
 
     public override async Task OrderBy_Take_Last_gives_correct_result(bool async)
     {
-        // Always throws sync-not-support for sync.
-        if (async)
-        {
-            Assert.Equal(
-                CosmosStrings.ReverseAfterSkipTakeNotSupported,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () => await base.OrderBy_Take_Last_gives_correct_result(async))).Message);
+        Assert.Equal(
+            CosmosStrings.ReverseAfterSkipTakeNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                async () => await base.OrderBy_Take_Last_gives_correct_result(async))).Message);
 
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override async Task OrderBy_Skip_Last_gives_correct_result(bool async)
@@ -2023,17 +1791,16 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT((true = false)))
 
     public override async Task Contains_over_entityType_should_rewrite_to_identity_equality(bool async)
     {
-        // Inner query is always sync.
-        if (!async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    // Contains over subquery. Issue #17246.
-                    await base.Contains_over_entityType_should_rewrite_to_identity_equality(a);
-                }
-            );
-        }
+        // Contains over subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.Contains_over_entityType_should_rewrite_to_identity_equality(async));
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10248))
+OFFSET 0 LIMIT 2
+""");
     }
 
     public override async Task List_Contains_over_entityType_should_rewrite_to_identity_equality(bool async)
@@ -2044,117 +1811,101 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT((true = false)))
         AssertSql();
     }
 
-    public override Task List_Contains_with_constant_list(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.List_Contains_with_constant_list(a);
+    public override async Task List_Contains_with_constant_list(bool async)
+    {
+        await base.List_Contains_with_constant_list(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task List_Contains_with_parameter_list(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.List_Contains_with_parameter_list(a);
+    public override async Task List_Contains_with_parameter_list(bool async)
+    {
+        await base.List_Contains_with_parameter_list(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Contains_with_parameter_list_value_type_id(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_parameter_list_value_type_id(a);
+    public override async Task Contains_with_parameter_list_value_type_id(bool async)
+    {
+        await base.Contains_with_parameter_list_value_type_id(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
 """);
-            });
+    }
 
-    public override Task Contains_with_constant_list_value_type_id(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_with_constant_list_value_type_id(a);
+    public override async Task Contains_with_constant_list_value_type_id(bool async)
+    {
+        await base.Contains_with_constant_list_value_type_id(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
 """);
-            });
+    }
 
-    public override Task IImmutableSet_Contains_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IImmutableSet_Contains_with_parameter(a);
+    public override async Task IImmutableSet_Contains_with_parameter(bool async)
+    {
+        await base.IImmutableSet_Contains_with_parameter(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 """);
-            });
+    }
 
-    public override Task IReadOnlySet_Contains_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.IReadOnlySet_Contains_with_parameter(a);
+    public override async Task IReadOnlySet_Contains_with_parameter(bool async)
+    {
+        await base.IReadOnlySet_Contains_with_parameter(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 """);
-            });
+    }
 
-    public override Task HashSet_Contains_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.HashSet_Contains_with_parameter(a);
+    public override async Task HashSet_Contains_with_parameter(bool async)
+    {
+        await base.HashSet_Contains_with_parameter(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 """);
-            });
+    }
 
-    public override Task ImmutableHashSet_Contains_with_parameter(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.ImmutableHashSet_Contains_with_parameter(a);
+    public override async Task ImmutableHashSet_Contains_with_parameter(bool async)
+    {
+        await base.ImmutableHashSet_Contains_with_parameter(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 """);
-            });
+    }
 
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
     {
@@ -2172,171 +1923,149 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
         AssertSql();
     }
 
-    public override Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(a);
+    public override async Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
+    {
+        await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT LEFT(c["CustomerID"], 1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
-    public override Task Project_constant_Sum(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Project_constant_Sum(a);
+    public override async Task Project_constant_Sum(bool async)
+    {
+        await base.Project_constant_Sum(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Employee")
 """);
-            });
+    }
 
-    public override Task Where_subquery_any_equals_operator(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_any_equals_operator(a);
+    public override async Task Where_subquery_any_equals_operator(bool async)
+    {
+        await base.Where_subquery_any_equals_operator(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_any_equals(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_any_equals(a);
+    public override async Task Where_subquery_any_equals(bool async)
+    {
+        await base.Where_subquery_any_equals(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_any_equals_static(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_any_equals_static(a);
+    public override async Task Where_subquery_any_equals_static(bool async)
+    {
+        await base.Where_subquery_any_equals_static(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_where_any(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_where_any(a);
+    public override async Task Where_subquery_where_any(bool async)
+    {
+        await base.Where_subquery_where_any(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_all_not_equals_operator(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_all_not_equals_operator(a);
+    public override async Task Where_subquery_all_not_equals_operator(bool async)
+    {
+        await base.Where_subquery_all_not_equals_operator(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_all_not_equals(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_all_not_equals(a);
+    public override async Task Where_subquery_all_not_equals(bool async)
+    {
+        await base.Where_subquery_all_not_equals(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_all_not_equals_static(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_all_not_equals_static(a);
+    public override async Task Where_subquery_all_not_equals_static(bool async)
+    {
+        await base.Where_subquery_all_not_equals_static(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Where_subquery_where_all(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_subquery_where_all(a);
+    public override async Task Where_subquery_where_all(bool async)
+    {
+        await base.Where_subquery_where_all(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """,
-                    //
-                    """
+            //
+            """
 SELECT c
 FROM root c
 WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
-            });
+    }
 
-    public override Task Cast_to_same_Type_Count_works(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Cast_to_same_Type_Count_works(a);
+    public override async Task Cast_to_same_Type_Count_works(bool async)
+    {
+        await base.Cast_to_same_Type_Count_works(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
     public override async Task Cast_before_aggregate_is_preserved(bool async)
     {
@@ -2532,141 +2261,127 @@ WHERE (c["Discriminator"] = "Customer")
         AssertSql();
     }
 
-    public override Task Contains_inside_Average_without_GroupBy(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_inside_Average_without_GroupBy(a);
+    public override async Task Contains_inside_Average_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Average_without_GroupBy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT AVG((c["City"] IN ("London", "Berlin") ? 1.0 : 0.0)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
-    public override Task Contains_inside_Sum_without_GroupBy(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_inside_Sum_without_GroupBy(a);
+    public override async Task Contains_inside_Sum_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Sum_without_GroupBy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT SUM((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
-    public override Task Contains_inside_Count_without_GroupBy(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_inside_Count_without_GroupBy(a);
+    public override async Task Contains_inside_Count_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Count_without_GroupBy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["City"] IN ("London", "Berlin"))
 """);
-            });
+    }
 
-    public override Task Contains_inside_LongCount_without_GroupBy(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_inside_LongCount_without_GroupBy(a);
+    public override async Task Contains_inside_LongCount_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_LongCount_without_GroupBy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["City"] IN ("London", "Berlin"))
 """);
-            });
+    }
 
-    public override Task Contains_inside_Max_without_GroupBy(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_inside_Max_without_GroupBy(a);
+    public override async Task Contains_inside_Max_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Max_without_GroupBy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MAX((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
-    public override Task Contains_inside_Min_without_GroupBy(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Contains_inside_Min_without_GroupBy(a);
+    public override async Task Contains_inside_Min_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Min_without_GroupBy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT MIN((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
-            });
+    }
 
-    public override Task Return_type_of_singular_operator_is_preserved(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Return_type_of_singular_operator_is_preserved(a);
+    public override async Task Return_type_of_singular_operator_is_preserved(bool async)
+    {
+        await base.Return_type_of_singular_operator_is_preserved(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["CustomerID"], c["City"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 1
 """,
-                    //
-                    """
+            //
+            """
 SELECT c["CustomerID"], c["City"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 1
 """,
-                    //
-                    """
+            //
+            """
 SELECT c["CustomerID"], c["City"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 2
 """,
-                    //
-                    """
+            //
+            """
 SELECT c["CustomerID"], c["City"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 OFFSET 0 LIMIT 2
 """,
-                    //
-                    """
+            //
+            """
 SELECT c["CustomerID"], c["City"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 ORDER BY c["CustomerID"] DESC
 OFFSET 0 LIMIT 1
 """,
-                    //
-                    """
+            //
+            """
 SELECT c["CustomerID"], c["City"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 ORDER BY c["CustomerID"] DESC
 OFFSET 0 LIMIT 1
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "Issue #20677")]
     public override async Task Type_casting_inside_sum(bool async)
