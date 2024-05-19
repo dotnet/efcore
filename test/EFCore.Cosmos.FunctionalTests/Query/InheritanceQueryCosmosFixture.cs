@@ -19,9 +19,6 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
     public override bool EnableComplexTypes
         => false;
 
-    public Task NoSyncTest(bool async, Func<bool, Task> testCode)
-        => CosmosTestHelpers.Instance.NoSyncTest(async, testCode);
-
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder.ConfigureWarnings(
             w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning, CosmosEventId.NoPartitionKeyDefined)));

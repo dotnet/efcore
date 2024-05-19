@@ -35,12 +35,12 @@ public class CosmosTestHelpers : TestHelpers
 
     public override LoggingDefinitions LoggingDefinitions { get; } = new CosmosLoggingDefinitions();
 
-    public async Task NoSyncTest(bool async, Func<bool, Task> testCode)
+    public async Task AssertSyncNotSupported(Func<Task> testCode)
     {
         try
         {
-            await testCode(async);
-            Assert.True(async);
+            await testCode();
+            Assert.Fail("Sync code did not fail.");
         }
         catch (InvalidOperationException e)
         {
@@ -48,8 +48,6 @@ public class CosmosTestHelpers : TestHelpers
             {
                 throw;
             }
-
-            Assert.False(async);
         }
         catch (DbUpdateException e)
         {
@@ -57,12 +55,10 @@ public class CosmosTestHelpers : TestHelpers
             {
                 throw;
             }
-
-            Assert.False(async);
         }
     }
 
-    public void NoSyncTest(Action testCode)
+    public void AssertSyncNotSupported(Action testCode)
     {
         try
         {
