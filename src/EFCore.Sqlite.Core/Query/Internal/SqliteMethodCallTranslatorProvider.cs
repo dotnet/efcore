@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal.Translators;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
 /// <summary>
@@ -23,20 +25,19 @@ public class SqliteMethodCallTranslatorProvider : RelationalMethodCallTranslator
         var sqlExpressionFactory = (SqliteSqlExpressionFactory)dependencies.SqlExpressionFactory;
 
         AddTranslators(
-            new IMethodCallTranslator[]
-            {
-                new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
-                new SqliteCharMethodTranslator(sqlExpressionFactory),
-                new SqliteDateOnlyMethodTranslator(sqlExpressionFactory),
-                new SqliteDateTimeMethodTranslator(sqlExpressionFactory),
-                new SqliteGlobMethodTranslator(sqlExpressionFactory),
-                new SqliteHexMethodTranslator(sqlExpressionFactory),
-                new SqliteMathTranslator(sqlExpressionFactory),
-                new SqliteObjectToStringTranslator(sqlExpressionFactory),
-                new SqliteRandomTranslator(sqlExpressionFactory),
-                new SqliteRegexMethodTranslator(sqlExpressionFactory),
-                new SqliteStringMethodTranslator(sqlExpressionFactory),
-                new SqliteSubstrMethodTranslator(sqlExpressionFactory)
-            });
+        [
+            new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
+            new SqliteCharMethodTranslator(sqlExpressionFactory),
+            new SqliteDateOnlyMethodTranslator(sqlExpressionFactory),
+            new SqliteDateTimeMethodTranslator(sqlExpressionFactory),
+            new SqliteGlobMethodTranslator(sqlExpressionFactory),
+            new SqliteHexMethodTranslator(sqlExpressionFactory),
+            new SqliteMathTranslator(sqlExpressionFactory),
+            new SqliteObjectToStringTranslator(sqlExpressionFactory),
+            new SqliteRandomTranslator(sqlExpressionFactory),
+            new SqliteRegexMethodTranslator(sqlExpressionFactory),
+            new SqliteStringMethodTranslator(sqlExpressionFactory),
+            new SqliteSubstrMethodTranslator(sqlExpressionFactory)
+        ]);
     }
 }

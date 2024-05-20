@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal.Translators;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -21,9 +22,7 @@ public class RelationalMemberTranslatorProvider : IMemberTranslatorProvider
         Dependencies = dependencies;
 
         _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
-        _translators
-            .AddRange(
-                new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
+        _translators.AddRange([new NullableMemberTranslator(dependencies.SqlExpressionFactory)]);
     }
 
     /// <summary>

@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.Translators;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -24,11 +26,10 @@ public class SqlServerAggregateMethodCallTranslatorProvider : RelationalAggregat
         var typeMappingSource = dependencies.RelationalTypeMappingSource;
 
         AddTranslators(
-            new IAggregateMethodCallTranslator[]
-            {
-                new SqlServerLongCountMethodTranslator(sqlExpressionFactory),
-                new SqlServerStatisticsAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerStringAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
-            });
+        [
+            new SqlServerLongCountMethodTranslator(sqlExpressionFactory),
+            new SqlServerStatisticsAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerStringAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
+        ]);
     }
 }

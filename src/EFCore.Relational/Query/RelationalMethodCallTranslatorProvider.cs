@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal.Translators;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -26,19 +27,18 @@ public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvi
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         _translators.AddRange(
-            new IMethodCallTranslator[]
-            {
-                new EqualsTranslator(sqlExpressionFactory),
-                new StringMethodTranslator(sqlExpressionFactory),
-                new CollateTranslator(),
-                new ContainsTranslator(sqlExpressionFactory),
-                new LikeTranslator(sqlExpressionFactory),
-                new EnumHasFlagTranslator(sqlExpressionFactory),
-                new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                new ComparisonTranslator(sqlExpressionFactory),
-                new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
-                new RandomTranslator(sqlExpressionFactory)
-            });
+        [
+            new EqualsTranslator(sqlExpressionFactory),
+            new StringMethodTranslator(sqlExpressionFactory),
+            new CollateTranslator(),
+            new ContainsTranslator(sqlExpressionFactory),
+            new LikeTranslator(sqlExpressionFactory),
+            new EnumHasFlagTranslator(sqlExpressionFactory),
+            new GetValueOrDefaultTranslator(sqlExpressionFactory),
+            new ComparisonTranslator(sqlExpressionFactory),
+            new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
+            new RandomTranslator(sqlExpressionFactory)
+        ]);
         _sqlExpressionFactory = sqlExpressionFactory;
     }
 

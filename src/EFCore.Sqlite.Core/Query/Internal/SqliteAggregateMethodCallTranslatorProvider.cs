@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal.Translators;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
 /// <summary>
@@ -23,10 +25,9 @@ public class SqliteAggregateMethodCallTranslatorProvider : RelationalAggregateMe
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         AddTranslators(
-            new IAggregateMethodCallTranslator[]
-            {
-                new SqliteQueryableAggregateMethodTranslator(sqlExpressionFactory),
-                new SqliteStringAggregateMethodTranslator(sqlExpressionFactory)
-            });
+        [
+            new SqliteQueryableAggregateMethodTranslator(sqlExpressionFactory),
+            new SqliteStringAggregateMethodTranslator(sqlExpressionFactory)
+        ]);
     }
 }
