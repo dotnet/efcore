@@ -4107,10 +4107,7 @@ INNER JOIN (
         FROM [LevelTwo] AS [l0]
     ) AS [l1]
     GROUP BY [l1].[Key]
-) AS [l2] ON [l].[Id] = [l2].[Key] AND CAST(1 AS bit) = CASE
-    WHEN [l2].[Sum] > 10 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+) AS [l2] ON [l].[Id] = [l2].[Key] AND [l2].[Sum] > 10
 """);
     }
 

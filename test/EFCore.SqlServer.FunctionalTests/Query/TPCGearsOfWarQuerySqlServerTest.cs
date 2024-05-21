@@ -1319,7 +1319,7 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u]
-WHERE [u].[LeaderNickname] = N'Marcus' AND [u].[LeaderNickname] IS NOT NULL
+WHERE [u].[LeaderNickname] = N'Marcus'
 """);
     }
 
@@ -1391,10 +1391,7 @@ FROM (
 WHERE CASE
     WHEN [u].[LeaderNickname] IS NULL THEN NULL
     ELSE CAST(LEN([u].[LeaderNickname]) AS int)
-END = 5 AND CASE
-    WHEN [u].[LeaderNickname] IS NULL THEN NULL
-    ELSE CAST(LEN([u].[LeaderNickname]) AS int)
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -1416,10 +1413,7 @@ FROM (
 WHERE CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
     ELSE NULL
-END = 5 AND CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
-    ELSE NULL
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -1441,10 +1435,7 @@ FROM (
 WHERE CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
     ELSE NULL
-END = 5 AND CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
-    ELSE NULL
-END IS NOT NULL
+END = 5
 """);
     }
 

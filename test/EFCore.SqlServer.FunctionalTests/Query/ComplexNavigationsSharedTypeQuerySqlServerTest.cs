@@ -920,10 +920,7 @@ INNER JOIN (
         WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [s]
     GROUP BY [s].[Key]
-) AS [s1] ON [l].[Id] = [s1].[Key] AND CAST(1 AS bit) = CASE
-    WHEN [s1].[Sum] > 10 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+) AS [s1] ON [l].[Id] = [s1].[Key] AND [s1].[Sum] > 10
 """);
     }
 
