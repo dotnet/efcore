@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Translators;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -25,12 +27,11 @@ public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
         IEnumerable<IMemberTranslatorPlugin> plugins)
     {
         _plugins.AddRange(plugins.SelectMany(p => p.Translators));
-        _translators
-            .AddRange(
-                new IMemberTranslator[]
-                {
-                    new CosmosStringMemberTranslator(sqlExpressionFactory), new CosmosDateTimeMemberTranslator(sqlExpressionFactory)
-                });
+        _translators.AddRange(
+        [
+            new CosmosStringMemberTranslator(sqlExpressionFactory),
+            new CosmosDateTimeMemberTranslator(sqlExpressionFactory)
+        ]);
     }
 
     /// <summary>

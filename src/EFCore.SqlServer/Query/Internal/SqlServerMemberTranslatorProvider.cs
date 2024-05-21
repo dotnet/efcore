@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.Translators;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -25,13 +27,12 @@ public class SqlServerMemberTranslatorProvider : RelationalMemberTranslatorProvi
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         AddTranslators(
-            new IMemberTranslator[]
-            {
-                new SqlServerDateOnlyMemberTranslator(sqlExpressionFactory),
-                new SqlServerDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerStringMemberTranslator(sqlExpressionFactory),
-                new SqlServerTimeSpanMemberTranslator(sqlExpressionFactory),
-                new SqlServerTimeOnlyMemberTranslator(sqlExpressionFactory)
-            });
+        [
+            new SqlServerDateOnlyMemberTranslator(sqlExpressionFactory),
+            new SqlServerDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerStringMemberTranslator(sqlExpressionFactory),
+            new SqlServerTimeSpanMemberTranslator(sqlExpressionFactory),
+            new SqlServerTimeOnlyMemberTranslator(sqlExpressionFactory)
+        ]);
     }
 }

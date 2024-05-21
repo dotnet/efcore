@@ -28,7 +28,7 @@
     <SystemTextJsonVersion>9.0.0-preview.5.24262.2</SystemTextJsonVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24260.2</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.24266.1</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftBuildFrameworkVersion>17.9.5</MicrosoftBuildFrameworkVersion>
