@@ -113,6 +113,78 @@ WHERE NOT EXISTS (
 """);
     }
 
+    public override async Task CaseWhen_equal_to_second_filter(bool async)
+    {
+        await base.CaseWhen_equal_to_second_filter(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE CASE
+    WHEN "e"."StringA" = 'Foo' THEN 3
+    WHEN "e"."StringB" = 'Foo' THEN 2
+    WHEN "e"."StringC" = 'Foo' THEN 3
+END = 2
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_first_or_third_filter(bool async)
+    {
+        await base.CaseWhen_equal_to_first_or_third_filter(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE CASE
+    WHEN "e"."StringA" = 'Foo' THEN 3
+    WHEN "e"."StringB" = 'Foo' THEN 2
+    WHEN "e"."StringC" = 'Foo' THEN 3
+END = 3
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_second_select(bool async)
+    {
+        await base.CaseWhen_equal_to_second_select(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN "e"."StringA" = 'Foo' THEN 3
+    WHEN "e"."StringB" = 'Foo' THEN 2
+    WHEN "e"."StringC" = 'Foo' THEN 3
+END = 2 AND CASE
+    WHEN "e"."StringA" = 'Foo' THEN 3
+    WHEN "e"."StringB" = 'Foo' THEN 2
+    WHEN "e"."StringC" = 'Foo' THEN 3
+END IS NOT NULL
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_first_or_third_select(bool async)
+    {
+        await base.CaseWhen_equal_to_first_or_third_select(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN "e"."StringA" = 'Foo' THEN 3
+    WHEN "e"."StringB" = 'Foo' THEN 2
+    WHEN "e"."StringC" = 'Foo' THEN 3
+END = 3 AND CASE
+    WHEN "e"."StringA" = 'Foo' THEN 3
+    WHEN "e"."StringB" = 'Foo' THEN 2
+    WHEN "e"."StringC" = 'Foo' THEN 3
+END IS NOT NULL
+FROM "Entities1" AS "e"
+ORDER BY "e"."Id"
+""");
+    }
+
     public override async Task Bool_equal_nullable_bool_HasValue(bool async)
     {
         await base.Bool_equal_nullable_bool_HasValue(async);
