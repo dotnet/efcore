@@ -12,13 +12,12 @@ public class JsonOwnedCustomNameRoot
     [JsonPropertyName("CustomName")]
     public string Name { get; set; }
 
-    [JsonPropertyName("CustomNumber")]
     public int Number { get; set; }
 
     [JsonPropertyName("CustomEnum")]
     public JsonEnum Enum { get; set; }
 
-    [JsonPropertyName("CustomOwnedReferenceBranch")]
+    [JsonPropertyName("Custom#OwnedReferenceBranch`-=[]\\;',./~!@#$%^&*()_+{}|:\"<>?独角兽π獨角獸")]
     public JsonOwnedCustomNameBranch OwnedReferenceBranch { get; set; }
 
     [JsonPropertyName("CustomOwnedCollectionBranch")]

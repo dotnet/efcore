@@ -413,6 +413,39 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
             message);
     }
 
+    public override async Task Custom_naming_projection_everything(bool async)
+    {
+        await base.Custom_naming_projection_everything(async);
+
+        AssertSql(
+            """
+SELECT "j"."Id", "j"."Title", "j"."json_collection_custom_naming", "j"."json_reference_custom_naming", "j"."json_reference_custom_naming", "j"."json_reference_custom_naming" ->> '"Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"', "j"."json_collection_custom_naming", "j"."json_reference_custom_naming" ->> 'CustomOwnedCollectionBranch', "j"."json_reference_custom_naming" ->> 'CustomName', "j"."json_reference_custom_naming" ->> '$."Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"."\u30E6\u30CB\u30B3\u30FC\u30F3Fraction\u4E00\u89D2\u7363"'
+FROM "JsonEntitiesCustomNaming" AS "j"
+""");
+    }
+
+    public override async Task Custom_naming_projection_owned_scalar(bool async)
+    {
+        await base.Custom_naming_projection_owned_scalar(async);
+
+        AssertSql(
+            """
+SELECT "j"."json_reference_custom_naming" ->> '$."Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"."\u30E6\u30CB\u30B3\u30FC\u30F3Fraction\u4E00\u89D2\u7363"'
+FROM "JsonEntitiesCustomNaming" AS "j"
+""");
+    }
+
+    public override async Task Custom_naming_projection_owned_reference(bool async)
+    {
+        await base.Custom_naming_projection_owned_reference(async);
+
+        AssertSql(
+            """
+SELECT "j"."json_reference_custom_naming" ->> '"Custom#OwnedReferenceBranch\u0060-=[]\\;\u0027,./~!@#$%^\u0026*()_\u002B{}|:\u0022\u003C\u003E?\u72EC\u89D2\u517D\u03C0\u7368\u89D2\u7378"', "j"."Id"
+FROM "JsonEntitiesCustomNaming" AS "j"
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
