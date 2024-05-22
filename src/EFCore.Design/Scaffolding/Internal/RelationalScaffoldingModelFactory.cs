@@ -265,6 +265,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             builder.IsCyclic(sequence.IsCyclic.Value);
         }
 
+        builder.Metadata.AddAnnotations(sequence.GetAnnotations());
+
         return builder;
     }
 

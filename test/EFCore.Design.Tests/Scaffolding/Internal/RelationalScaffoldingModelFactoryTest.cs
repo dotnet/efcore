@@ -1603,7 +1603,8 @@ public class RelationalScaffoldingModelFactoryTest
                 {
                     Database = Database,
                     Name = "CountByThree",
-                    IncrementBy = 3
+                    IncrementBy = 3,
+                    ["CustomAnnotation"] = "Hello there"
                 }
             }
         };
@@ -1620,6 +1621,7 @@ public class RelationalScaffoldingModelFactoryTest
                 Assert.Null(first.MaxValue);
                 Assert.Null(first.MinValue);
                 Assert.False(first.IsCyclic);
+                Assert.Equal("Hello there", first["CustomAnnotation"]);
             });
     }
 
