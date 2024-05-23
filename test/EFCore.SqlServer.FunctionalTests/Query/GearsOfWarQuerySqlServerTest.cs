@@ -1162,10 +1162,7 @@ ORDER BY [g0].[Nickname]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN CAST(LEN([g].[LeaderNickname]) AS int) <> CAST(LEN([g].[LeaderNickname]) AS int) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(0 AS bit)
     ELSE NULL
 END
 FROM [Gears] AS [g]

@@ -3791,7 +3791,7 @@ ORDER BY "w0"."Name" LIKE '%Lancer' AND "w0"."Name" IS NOT NULL
         AssertSql(
             """
 SELECT CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname") <> length("g"."LeaderNickname")
+    WHEN "g"."LeaderNickname" IS NOT NULL THEN 0
     ELSE NULL
 END
 FROM "Gears" AS "g"
