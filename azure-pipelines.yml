@@ -122,8 +122,20 @@ extends:
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
+              - task: CopyFiles@2
+                displayName: 'Copy binaries for publishing'
+                inputs:
+                  Contents: |
+                    artifacts/bin/**/?(*.dll|*.exe|*.pdb)
+                    !artifacts/bin/*Tests/**
+                  TargetFolder: $(Agent.TempDirectory)/BinArtifacts
             templateContext:
               outputs:
+              - output: pipelineArtifact
+                displayName: Publish binaries
+                condition: always()
+                path: $(Agent.TempDirectory)/BinArtifacts/
+                artifact: BinArtifacts
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
