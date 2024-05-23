@@ -3447,6 +3447,22 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key2(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Level1>()
+                .Join(
+                    ss.Set<Level2>().GroupBy(g => g.Id % 3).Select(g => new { g.Key, Sum = g.Sum(x => x.Id) }),
+                    o => new { o.Id, Condition = false },
+                    i => new
+                    {
+                        Id = i.Key,
+                        Condition = i.Sum <= 10,
+                    },
+                    (o, i) => i.Key));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_joins_groupby_predicate(bool async)
         => AssertQuery(
             async,
