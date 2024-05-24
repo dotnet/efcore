@@ -17,6 +17,30 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task Join_uses_database_semantics(bool async)
+    {
+        await base.Join_uses_database_semantics(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e0"."Id" AS "Id2", "e"."NullableIntA", "e0"."NullableIntB"
+FROM "Entities1" AS "e"
+INNER JOIN "Entities2" AS "e0" ON "e"."NullableIntA" = "e0"."NullableIntB"
+""");
+    }
+
+    public override async Task Join_uses_csharp_semantics_for_anon_objects(bool async)
+    {
+        await base.Join_uses_csharp_semantics_for_anon_objects(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id" AS "Id1", "e0"."Id" AS "Id2", "e"."NullableIntA", "e0"."NullableIntB"
+FROM "Entities1" AS "e"
+INNER JOIN "Entities2" AS "e0" ON "e"."NullableIntA" = "e0"."NullableIntB" OR ("e"."NullableIntA" IS NULL AND "e0"."NullableIntB" IS NULL)
+""");
+    }
+
     public override async Task Null_semantics_contains_non_nullable_item_with_non_nullable_subquery(bool async)
     {
         await base.Null_semantics_contains_non_nullable_item_with_non_nullable_subquery(async);
