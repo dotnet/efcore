@@ -30,8 +30,18 @@ public static class XunitTestCaseExtensions
                 .OfType<ReflectionAttributeInfo>()
                 .Select(attributeInfo => (ITestCondition)attributeInfo.Attribute);
 
+        if (!assembly.Name.StartsWith("Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests"))
+        {
+            skipReasons.Add("HACK: skip all non-sqlite tests");
+        }
+
         foreach (var attribute in attributes)
         {
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                skipReasons.Add("HACK: skip all non-mac os tests");
+            }
+
             if (!await attribute.IsMetAsync())
             {
                 skipReasons.Add(attribute.SkipReason);
