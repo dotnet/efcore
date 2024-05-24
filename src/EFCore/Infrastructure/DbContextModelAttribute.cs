@@ -25,7 +25,8 @@ public sealed class DbContextModelAttribute : Attribute
     /// <param name="contextType">The associated context.</param>
     /// <param name="modelType">The compiled model.</param>
     public DbContextModelAttribute(
-        Type contextType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type modelType)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type contextType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type modelType)
     {
         Check.NotNull(contextType, nameof(contextType));
 
