@@ -3,7 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Query.Internal.Translators;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
