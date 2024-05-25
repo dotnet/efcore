@@ -207,20 +207,15 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
 
-                // Note: we add IS NOT NULL checks here since we don't do null semantics/compensation for comparison (greater-than)
                 return
-                    _sqlExpressionFactory.AndAlso(
-                        _sqlExpressionFactory.IsNotNull(instance),
-                        _sqlExpressionFactory.AndAlso(
-                            _sqlExpressionFactory.IsNotNull(pattern),
-                            _sqlExpressionFactory.GreaterThan(
-                                _sqlExpressionFactory.Function(
-                                    "instr",
-                                    new[] { instance, pattern },
-                                    nullable: true,
-                                    argumentsPropagateNullability: new[] { true, true },
-                                    typeof(int)),
-                                _sqlExpressionFactory.Constant(0))));
+                    _sqlExpressionFactory.GreaterThan(
+                        _sqlExpressionFactory.Function(
+                            "instr",
+                            new[] { instance, pattern },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, true },
+                            typeof(int)),
+                        _sqlExpressionFactory.Constant(0));
             }
         }
 
