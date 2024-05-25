@@ -1400,18 +1400,26 @@ public class SqlNullabilityProcessor
             return sqlFunctionExpression.Update(sqlFunctionExpression.Instance, coalesceArguments);
         }
 
-        var instance = Visit(sqlFunctionExpression.Instance, out _);
-        nullable = sqlFunctionExpression.IsNullable;
+        var useNullabilityPropagation = sqlFunctionExpression is { InstancePropagatesNullability: true };
+
+        var instance = Visit(sqlFunctionExpression.Instance, out var nullableInstance);
+        var hasNullableArgument = nullableInstance && sqlFunctionExpression is { InstancePropagatesNullability: true };
 
         if (sqlFunctionExpression.IsNiladic)
         {
-            return sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
+            sqlFunctionExpression = sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
         }
-
-        var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
-        for (var i = 0; i < arguments.Length; i++)
+        else
         {
-            arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out _);
+            var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out var nullableArgument);
+                useNullabilityPropagation |= sqlFunctionExpression.ArgumentsPropagateNullability[i];
+                hasNullableArgument |= nullableArgument && sqlFunctionExpression.ArgumentsPropagateNullability[i];
+            }
+
+            sqlFunctionExpression = sqlFunctionExpression.Update(instance, arguments);
         }
 
         if (sqlFunctionExpression.IsBuiltIn
@@ -1420,12 +1428,15 @@ public class SqlNullabilityProcessor
             nullable = false;
 
             return _sqlExpressionFactory.Coalesce(
-                sqlFunctionExpression.Update(instance, arguments),
+                sqlFunctionExpression,
                 _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
                 sqlFunctionExpression.TypeMapping);
         }
 
-        return sqlFunctionExpression.Update(instance, arguments);
+        // if some of the {Instance,Arguments}PropagateNullability are true, use
+        // the computed nullability information; otherwise rely only on IsNullable
+        nullable = sqlFunctionExpression.IsNullable && (!useNullabilityPropagation || hasNullableArgument);
+        return sqlFunctionExpression;
     }
 
     /// <summary>
