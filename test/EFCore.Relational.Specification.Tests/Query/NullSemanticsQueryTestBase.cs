@@ -1561,7 +1561,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => !(e.IntA <= i)).Select(e => e.Id));
     }
 
-    [ConditionalTheory(Skip = "issue #9544")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Negated_order_comparison_on_nullable_arguments_doesnt_get_optimized(bool async)
     {

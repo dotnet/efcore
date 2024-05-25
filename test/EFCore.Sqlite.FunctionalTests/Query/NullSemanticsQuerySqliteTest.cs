@@ -397,6 +397,94 @@ WHERE "e"."BoolB" | ("e"."NullableBoolA" IS NOT NULL)
 """);
     }
 
+    public override async Task Negated_order_comparison_on_non_nullable_arguments_gets_optimized(bool async)
+    {
+        await base.Negated_order_comparison_on_non_nullable_arguments_gets_optimized(async);
+
+        AssertSql(
+            """
+@__i_0='1'
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."IntA" <= @__i_0
+""",
+            //
+            """
+@__i_0='1'
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."IntA" < @__i_0
+""",
+            //
+            """
+@__i_0='1'
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."IntA" >= @__i_0
+""",
+            //
+            """
+@__i_0='1'
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."IntA" > @__i_0
+""");
+    }
+
+    public override async Task Negated_order_comparison_on_nullable_arguments_doesnt_get_optimized(bool async)
+    {
+        await base.Negated_order_comparison_on_nullable_arguments_doesnt_get_optimized(async);
+
+        AssertSql(
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT (CASE
+    WHEN "e"."NullableIntA" > @__i_0 THEN 1
+    ELSE 0
+END)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT (CASE
+    WHEN "e"."NullableIntA" >= @__i_0 THEN 1
+    ELSE 0
+END)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT (CASE
+    WHEN "e"."NullableIntA" < @__i_0 THEN 1
+    ELSE 0
+END)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT (CASE
+    WHEN "e"."NullableIntA" <= @__i_0 THEN 1
+    ELSE 0
+END)
+""");
+    }
+
     public override async Task Comparison_compared_to_null_check_on_bool(bool async)
     {
         await base.Comparison_compared_to_null_check_on_bool(async);
