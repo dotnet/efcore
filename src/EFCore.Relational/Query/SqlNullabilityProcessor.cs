@@ -1327,6 +1327,28 @@ public class SqlNullabilityProcessor
         nullable = leftNullable || rightNullable;
         var result = sqlBinaryExpression.Update(left, right);
 
+        if (nullable && !optimize && result.OperatorType
+            is ExpressionType.GreaterThan
+            or ExpressionType.GreaterThanOrEqual
+            or ExpressionType.LessThan
+            or ExpressionType.LessThanOrEqual)
+        {
+            // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/nullable-value-types#lifted-operators
+            // For the comparison operators <, >, <=, and >=, if one or both
+            // operands are null, the result is false; otherwise, the contained
+            // values of operands are compared.
+
+            // if either operand is NULL, the SQL comparison would return NULL;
+            // to match the C# semantics, replace expr with
+            // CASE WHEN expr THEN TRUE ELSE FALSE
+
+            nullable = false;
+            return _sqlExpressionFactory.Case(
+                [new(result, _sqlExpressionFactory.Constant(true, result.TypeMapping))],
+                _sqlExpressionFactory.Constant(false, result.TypeMapping)
+            );
+        }
+
         return result is SqlBinaryExpression sqlBinaryResult
             && sqlBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse
                 ? SimplifyLogicalSqlBinaryExpression(sqlBinaryResult)
