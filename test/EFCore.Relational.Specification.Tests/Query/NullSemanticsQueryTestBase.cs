@@ -1066,6 +1066,9 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
                 e => (e.BoolA ? e.NullableBoolA != e.NullableBoolB : e.BoolC) != e.BoolB
                     ? e.BoolA
                     : e.NullableBoolB == e.NullableBoolC).Select(e => e.Id));
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e => (e.BoolA ? e.NullableIntA : e.IntB) > e.IntC));
     }
 
     [ConditionalTheory]

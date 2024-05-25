@@ -1757,6 +1757,17 @@ WHERE CASE
         ELSE CAST(0 AS bit)
     END
 END = CAST(1 AS bit)
+""",
+            //
+            """
+SELECT CASE
+    WHEN CASE
+        WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableIntA]
+        ELSE [e].[IntB]
+    END > [e].[IntC] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
 """);
     }
 
