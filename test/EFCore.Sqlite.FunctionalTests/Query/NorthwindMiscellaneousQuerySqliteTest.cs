@@ -28,7 +28,7 @@ public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQuery
             """
 SELECT "o"."CustomerID"
 FROM "Orders" AS "o"
-WHERE "o"."OrderDate" IS NOT NULL AND "o"."EmployeeID" IS NOT NULL AND instr(CAST("o"."EmployeeID" AS TEXT), '7') > 0
+WHERE "o"."OrderDate" IS NOT NULL AND instr(CAST("o"."EmployeeID" AS TEXT), '7') > 0
 """);
     }
 

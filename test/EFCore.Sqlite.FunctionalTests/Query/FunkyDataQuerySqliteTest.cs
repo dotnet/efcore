@@ -25,7 +25,7 @@ public class FunkyDataQuerySqliteTest : FunkyDataQueryTestBase<FunkyDataQuerySql
 
 SELECT "f"."Id", "f"."FirstName", "f"."LastName", "f"."NullableBool"
 FROM "FunkyCustomers" AS "f"
-WHERE ("f"."FirstName" IS NOT NULL AND instr("f"."FirstName", @__s_0) > 0) OR "f"."LastName" LIKE @__s_0_startswith ESCAPE '\'
+WHERE instr("f"."FirstName", @__s_0) > 0 OR "f"."LastName" LIKE @__s_0_startswith ESCAPE '\'
 """);
     }
 

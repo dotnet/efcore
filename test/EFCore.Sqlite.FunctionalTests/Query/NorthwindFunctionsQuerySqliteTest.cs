@@ -828,7 +828,7 @@ WHERE "c"."ContactName" LIKE '%m'
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
+WHERE instr("c"."ContactName", 'M') > 0
 """);
     }
 
@@ -840,7 +840,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactName") > 0
+WHERE instr("c"."ContactName", "c"."ContactName") > 0
 """);
     }
 
@@ -852,7 +852,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactNam
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactName") > 0
+WHERE instr("c"."ContactName", "c"."ContactName") > 0
 """);
     }
 
@@ -886,7 +886,7 @@ WHERE substr("c"."ContactName", length("c"."ContactName"), 1) = 's'
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
+WHERE instr("c"."ContactName", 'M') > 0
 """);
     }
 
