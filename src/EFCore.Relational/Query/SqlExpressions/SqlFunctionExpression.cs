@@ -213,6 +213,17 @@ public class SqlFunctionExpression : SqlExpression
         IsNullable = nullable;
         InstancePropagatesNullability = instancePropagatesNullability;
         ArgumentsPropagateNullability = argumentsPropagateNullability?.ToList();
+
+        if (Arguments?.Count != ArgumentsPropagateNullability?.Count)
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.InconsistentNumberOfArguments(
+                    name,
+                    Arguments?.Count(),
+                    ArgumentsPropagateNullability?.Count()
+                )
+            );
+        }
     }
 
     /// <summary>

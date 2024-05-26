@@ -890,6 +890,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 view, entityType, otherEntityType);
 
         /// <summary>
+        ///     '{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments.
+        /// </summary>
+        public static string InconsistentNumberOfArguments(object? name, object? argumentCount, object? argumentNullabilityCount)
+            => string.Format(
+                GetString("InconsistentNumberOfArguments", nameof(name), nameof(argumentCount), nameof(argumentNullabilityCount)),
+                name, argumentCount, argumentNullabilityCount);
+
+        /// <summary>
         ///     Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.
         /// </summary>
         public static string IncorrectDefaultValueType(object? value, object? valueType, object? property, object? propertyType, object? entityType)
