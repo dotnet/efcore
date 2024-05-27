@@ -104,6 +104,8 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Constant(true.ToString()));
         }
 
+        // Enums are handled by EnumMethodTranslator
+
         return TypeMapping.TryGetValue(instance.Type, out var storeType)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",

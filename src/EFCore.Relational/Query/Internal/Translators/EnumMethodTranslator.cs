@@ -12,10 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class EnumHasFlagTranslator : IMethodCallTranslator
+public class EnumMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo MethodInfo
-        = typeof(Enum).GetRuntimeMethod(nameof(Enum.HasFlag), [typeof(Enum)])!;
+    private static readonly MethodInfo HasFlagMethodInfo
+        = typeof(Enum).GetRuntimeMethod(nameof(Enum.HasFlag), new[] { typeof(Enum) })!;
+
+    private static readonly MethodInfo ToStringMethodInfo
+        = typeof(object).GetRuntimeMethod(nameof(ToString), new Type[] { })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -25,7 +28,7 @@ public class EnumHasFlagTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EnumHasFlagTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public EnumMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -42,13 +45,44 @@ public class EnumHasFlagTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, MethodInfo)
+        if (Equals(method, HasFlagMethodInfo)
             && instance != null)
         {
             var argument = arguments[0];
             return instance.Type != argument.Type
                 ? null
                 : _sqlExpressionFactory.Equal(_sqlExpressionFactory.And(instance, argument), argument);
+        }
+
+        if (Equals(method, ToStringMethodInfo)
+            && instance != null
+            && instance.Type.IsEnum)
+        {
+            var converterType = instance.TypeMapping?.Converter?.GetType();
+
+            if (converterType is not null
+                && converterType.IsGenericType)
+            {
+                if (converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>)
+                    && converterType.GetGenericArguments().Length == 2
+                    && converterType.GetGenericArguments()[1] == typeof(int)
+                    && (instance is SqlParameterExpression || instance is ColumnExpression))
+                {
+                    var cases = Enum.GetValues(instance.Type)
+                        .Cast<object>()
+                        .Select(value => new CaseWhenClause(
+                            _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(value)),
+                            _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
+                        .ToArray();
+
+                    return _sqlExpressionFactory.Case(cases, _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
+                }
+                else if (converterType.GetGenericTypeDefinition() == typeof(EnumToStringConverter<>))
+                {
+                    // TODO: Unnecessary cast to string, #33733
+                    return _sqlExpressionFactory.MakeUnary(ExpressionType.Convert, instance, typeof(string));
+                }
+            }
         }
 
         return null;

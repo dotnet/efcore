@@ -339,7 +339,12 @@ public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsO
                 b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
             });
 
-        modelBuilder.Entity<Mission>().Property(m => m.Id).ValueGeneratedNever();
+        modelBuilder.Entity<Mission>(
+            b =>
+            {
+                b.Property(m => m.Id).ValueGeneratedNever();
+                b.Property(m => m.Difficulty).HasConversion<string>();
+            });
 
         modelBuilder.Entity<SquadMission>(
             b =>
