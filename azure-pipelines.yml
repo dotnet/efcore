@@ -132,7 +132,7 @@ extends:
           - job: macOS
             pool:
               name: Azure Pipelines
-              image: macOS-11
+              image: macOS-12
               os: macOS
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
@@ -212,7 +212,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: OSX.1200.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 # Needed for internal queues
                 value: $(HelixApiAccessToken)
