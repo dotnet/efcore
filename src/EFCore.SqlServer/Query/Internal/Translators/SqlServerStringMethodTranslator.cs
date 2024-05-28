@@ -191,86 +191,22 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimStartMethodInfoWithoutArgs.Equals(method)
-                || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+            if (_sqlServerSingletonOptions.CompatibilityLevel >= 160)
             {
-                return _sqlExpressionFactory.Function(
-                    "LTRIM",
-                    new[] { instance },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true },
-                    instance.Type,
-                    instance.TypeMapping);
-            }
+                if (TrimStartMethodInfoWithoutArgs.Equals(method)
+                || TrimStartMethodInfoWithCharArg.Equals(method)
+                || TrimStartMethodInfoWithCharArrayArg.Equals(method))
+                {
+                    return ProcessTrimMethod(instance, arguments, "LTRIM");
+                }
 
-            if (TrimStartMethodInfoWithCharArg.Equals(method)
-                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
-            {
-                return _sqlExpressionFactory.Function(
-                    "LTRIM",
-                    new[] { instance, arguments[0] },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    instance.Type,
-                    instance.TypeMapping);
-            }
-
-            if (TrimStartMethodInfoWithCharArrayArg.Equals(method)
-                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
-            {
-                var firstArgumentValue = (arguments[0] as SqlConstantExpression)?.Value as char[];
-                var firstArgument = _sqlExpressionFactory.Constant(new string(firstArgumentValue), instance.TypeMapping);
-
-                return _sqlExpressionFactory.Function(
-                    "LTRIM",
-                    new[] { instance, firstArgument },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    instance.Type,
-                    instance.TypeMapping);
-            }
-
-            if (TrimEndMethodInfoWithoutArgs.Equals(method)
-                || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
-            {
-                return _sqlExpressionFactory.Function(
-                    "RTRIM",
-                    new[] { instance },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true },
-                    instance.Type,
-                    instance.TypeMapping);
-            }
-
-
-            if (TrimEndMethodInfoWithCharArg.Equals(method)
-                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
-            {
-                return _sqlExpressionFactory.Function(
-                    "RTRIM",
-                    new[] { instance, arguments[0] },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    instance.Type,
-                    instance.TypeMapping);
-            }
-
-            if (TrimEndMethodInfoWithCharArrayArg.Equals(method)
-                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
-            {
-                var firstArgumentValue = (arguments[0] as SqlConstantExpression)?.Value as char[];
-                var firstArgument = _sqlExpressionFactory.Constant(new string(firstArgumentValue), instance.TypeMapping);
-
-                return _sqlExpressionFactory.Function(
-                    "RTRIM",
-                    new[] { instance, firstArgument },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    instance.Type,
-                    instance.TypeMapping);
-            }
+                if (TrimEndMethodInfoWithoutArgs.Equals(method)
+                    || TrimEndMethodInfoWithCharArg.Equals(method)
+                    || TrimEndMethodInfoWithCharArrayArg.Equals(method))
+                {
+                    return ProcessTrimMethod(instance, arguments, "RTRIM");
+                }
+            }            
 
             if (TrimMethodInfoWithoutArgs.Equals(method)
                 || (TrimMethodInfoWithCharArrayArg.Equals(method)
@@ -420,5 +356,47 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Constant(0))
             },
             charIndexExpression);
+    }
+
+    private SqlExpression? ProcessTrimMethod(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
+    {
+        var typeMapping = instance.TypeMapping;
+        if (typeMapping == null)
+        {
+            return null;
+        }
+
+        var sqlArguments = new List<SqlExpression> { instance };
+        if (arguments.Count == 1)
+        {
+            var constantValue = (arguments[0] as SqlConstantExpression)?.Value;
+            var charactersToTrim = new List<char>();
+
+            if (constantValue is char singleChar)
+            {
+                charactersToTrim.Add(singleChar);
+            }
+            else if (constantValue is char[] charArray)
+            {
+                charactersToTrim.AddRange(charArray);
+            }
+            else
+            {
+                return null;
+            }
+
+            if (charactersToTrim.Count > 0)
+            {
+                sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToArray()), typeMapping));
+            }
+        }
+
+        return _sqlExpressionFactory.Function(
+            functionName,
+            sqlArguments,
+            nullable: true,
+            argumentsPropagateNullability: sqlArguments.Select(_ => true).ToList(),
+            instance.Type,
+            typeMapping);
     }
 }
