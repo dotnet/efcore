@@ -119,7 +119,7 @@ stages:
                 - script: "echo ##vso[build.addbuildtag]CodeQL3000"
                   displayName: 'Set CI CodeQL3000 tag'
                   condition: ne(variables.CODEQL_DIST,'')
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine /bl:$(Build.SourcesDirectory)\artifacts\log\$(_BuildConfig)\Build.binlog $(_InternalBuildArgs)
                   $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -143,7 +143,7 @@ stages:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
             steps:
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
@@ -168,7 +168,7 @@ stages:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
             steps:
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
