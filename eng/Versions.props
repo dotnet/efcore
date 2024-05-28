@@ -25,6 +25,8 @@
     <MicrosoftExtensionsDependencyModelVersion>9.0.0-preview.5.24275.1</MicrosoftExtensionsDependencyModelVersion>
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>9.0.0-preview.5.24275.1</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>9.0.0-preview.5.24275.1</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftNETCoreAppRefVersion>9.0.0-preview.5.24275.1</MicrosoftNETCoreAppRefVersion>
+    <MicrosoftNETCoreAppRuntimewinx64Version>9.0.0-preview.5.24275.1</MicrosoftNETCoreAppRuntimewinx64Version>
     <SystemTextJsonVersion>9.0.0-preview.5.24275.1</SystemTextJsonVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
