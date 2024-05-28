@@ -1066,10 +1066,7 @@ FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
     ELSE NULL
-END = 5 AND CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-    ELSE NULL
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -1566,7 +1563,7 @@ FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN "g"."LeaderNickname" LIKE '%us'
     ELSE NULL
-END = 1
+END
 """);
     }
 
@@ -3370,7 +3367,7 @@ FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NULL THEN NULL
     ELSE "g"."LeaderNickname" LIKE '%us' AND "g"."LeaderNickname" IS NOT NULL
-END = 1
+END
 """);
     }
 
@@ -5996,7 +5993,7 @@ WHERE "g"."HasSoulPatch" AND (
             """
 SELECT CASE
     WHEN "f"."Eradicated" = 0 THEN 'False'
-    WHEN "f"."Eradicated" = 1 THEN 'True'
+    WHEN "f"."Eradicated" THEN 'True'
     ELSE NULL
 END
 FROM "Factions" AS "f"
@@ -7486,10 +7483,7 @@ FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
     ELSE NULL
-END = 5 AND CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-    ELSE NULL
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -8275,10 +8269,7 @@ FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NULL THEN NULL
     ELSE length("g"."LeaderNickname")
-END = 5 AND CASE
-    WHEN "g"."LeaderNickname" IS NULL THEN NULL
-    ELSE length("g"."LeaderNickname")
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -8481,7 +8472,7 @@ LEFT JOIN (
             """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."LeaderNickname" = 'Marcus' AND "g"."LeaderNickname" IS NOT NULL
+WHERE "g"."LeaderNickname" = 'Marcus'
 """);
     }
 

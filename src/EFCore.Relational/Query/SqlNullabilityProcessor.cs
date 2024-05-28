@@ -1174,6 +1174,29 @@ public class SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
+        // Most optimizations are done in OptimizeComparison below, but this one
+        // benefits from being done early.
+        // Consider query: (x.NullableString == "Foo") == true
+        // We recursively visit Left and Right, but when processing the left
+        // side, allowOptimizedExpansion would be set to false (we only allow it
+        // to trickle down to child nodes for AndAlso & OrElse operations), so
+        // the comparison would get unnecessarily expanded. In order to avoid
+        // this, we would need to modify the allowOptimizedExpansion calculation
+        // to capture this scenario and then flow allowOptimizedExpansion to
+        // OptimizeComparison. Instead, we just do the optimization right away
+        // and the resulting code is clearer.
+        if (allowOptimizedExpansion && sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+        {
+            if (IsTrue(sqlBinaryExpression.Left) && sqlBinaryExpression.Left.TypeMapping!.Converter == null)
+            {
+                return Visit(sqlBinaryExpression.Right, allowOptimizedExpansion, out nullable);
+            }
+            else if (IsTrue(sqlBinaryExpression.Right) && sqlBinaryExpression.Right.TypeMapping!.Converter == null)
+            {
+                return Visit(sqlBinaryExpression.Left, allowOptimizedExpansion, out nullable);
+            }
+        }
+
         var optimize = allowOptimizedExpansion;
 
         allowOptimizedExpansion = allowOptimizedExpansion
