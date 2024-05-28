@@ -362,7 +362,4 @@
   <data name="TransientExceptionDetected" xml:space="preserve">
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
   </data>
-  <data name="TrimStartTrimEndWithArgsCompatibilityLevelTooLow" xml:space="preserve">
-    <value>EF Core's SQL Server compatibility level is set to {compatibilityLevel}; compatibility level 160 (SQL Server 2022) is the minimum for functions LTRIM and RTRIM with the optional characters positional argument.</value>
-  </data>
 </root>

@@ -407,14 +407,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
 
-        /// <summary>
-        ///     This usage of string.TrimStart or string.TrimEnd with args requires SQL Server functions LTRIM and RTRIM, which require compatibility level 160.
-        /// </summary>
-        public static string TrimStartTrimEndWithArgsCompatibilityLevelTooLow(object? compatibilityLevel)
-            => string.Format(
-                GetString("TrimStartTrimEndWithArgsCompatibilityLevelTooLow", nameof(compatibilityLevel)),
-                compatibilityLevel);
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

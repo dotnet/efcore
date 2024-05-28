@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal.Translators;
@@ -206,7 +205,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             }
 
             if (TrimStartMethodInfoWithCharArg.Equals(method)
-                && CheckTrimStartTrimEndWithArgsCompatibilityLevel())
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
             {
                 return _sqlExpressionFactory.Function(
                     "LTRIM",
@@ -218,7 +217,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             }
 
             if (TrimStartMethodInfoWithCharArrayArg.Equals(method)
-                && CheckTrimStartTrimEndWithArgsCompatibilityLevel())
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
             {
                 var firstArgumentValue = (arguments[0] as SqlConstantExpression)?.Value as char[];
                 var firstArgument = _sqlExpressionFactory.Constant(new string(firstArgumentValue), instance.TypeMapping);
@@ -247,7 +246,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
 
             if (TrimEndMethodInfoWithCharArg.Equals(method)
-                && CheckTrimStartTrimEndWithArgsCompatibilityLevel())
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
             {
                 return _sqlExpressionFactory.Function(
                     "RTRIM",
@@ -259,7 +258,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             }
 
             if (TrimEndMethodInfoWithCharArrayArg.Equals(method)
-                && CheckTrimStartTrimEndWithArgsCompatibilityLevel())
+                && _sqlServerSingletonOptions.CompatibilityLevel >= 160)
             {
                 var firstArgumentValue = (arguments[0] as SqlConstantExpression)?.Value as char[];
                 var firstArgument = _sqlExpressionFactory.Constant(new string(firstArgumentValue), instance.TypeMapping);
@@ -421,17 +420,5 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Constant(0))
             },
             charIndexExpression);
-    }
-
-    private bool CheckTrimStartTrimEndWithArgsCompatibilityLevel()
-        => CheckCompatibilityLevel(160, SqlServerStrings.TrimStartTrimEndWithArgsCompatibilityLevelTooLow);
-
-    private bool CheckCompatibilityLevel(int compatibilityLevel, Func<object?, string> compatibilityTooLowFunction)
-    {
-        if (_sqlServerSingletonOptions.CompatibilityLevel < compatibilityLevel)
-        {
-            throw new InvalidOperationException(compatibilityTooLowFunction(compatibilityLevel));
-        }
-        return true;
     }
 }
