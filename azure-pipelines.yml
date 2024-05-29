@@ -72,7 +72,6 @@ extends:
           enablePublishTestResults: true
           enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
           publishAssetsImmediately: true
-          enableSourceIndex: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
