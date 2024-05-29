@@ -1698,7 +1698,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task TrimStart_with_char_array_argument_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"));
+            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimStart(new [] {'O', 'w'}) == "ner"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1719,7 +1719,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task TrimEnd_with_char_array_argument_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"));
+            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimEnd(new [] {'e', 'r'}) == "Own"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1740,7 +1740,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Trim_with_char_array_argument_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactTitle.Trim('O', 'r') == "wne"));
+            ss => ss.Set<Customer>().Where(c => c.ContactTitle.Trim(new [] {'O', 'r'}) == "wne"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
