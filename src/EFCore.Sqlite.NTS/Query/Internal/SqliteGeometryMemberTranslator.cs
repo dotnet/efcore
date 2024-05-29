@@ -105,7 +105,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: new[] { true, true },
                         returnType),
                     new[]
                     {
@@ -139,7 +139,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                             _sqlExpressionFactory.Constant(" ZM")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: new[] { true, true },
                         typeof(string)),
                     new[]
                     {
