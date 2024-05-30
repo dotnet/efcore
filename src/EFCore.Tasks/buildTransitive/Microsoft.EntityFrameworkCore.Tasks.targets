@@ -2,20 +2,65 @@
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <EFGeneratedFilesList Condition="'$(EFGeneratedFilesList)' == ''">$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(IntermediateOutputPath)$(AssemblyName).EFGeneratedFiles.txt'))</EFGeneratedFilesList>
+    <_FullOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(OutputPath)'))</_FullOutputPath>
+    <_FullIntermediateOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(IntermediateOutputPath)'))</_FullIntermediateOutputPath>
+    <EFGeneratedSourcesFile Condition="'$(EFGeneratedSourcesFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.txt</EFGeneratedSourcesFile>
+    <EFProjectsToOptimizePath Condition="'$(EFProjectsToOptimizePath)' == ''">$(_FullIntermediateOutputPath)EFProjectsToOptimize\</EFProjectsToOptimizePath>
+    <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).dll</_AssemblyFullName>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);_EFPrepareForCompile</CoreCompileDependsOn>
   </PropertyGroup>
 
-  <!-- Invokes OptimizeContext on the startup project to generate files if needed -->
-  <Target Name="_GenerateFiles"
-          BeforeTargets="_ReadGeneratedFilesList"
-          Condition="'$(EFOptimizeContext)'=='true'">
+  <PropertyGroup Condition="'$(OutputType)'=='Exe' Or '$(OutputType)'=='WinExe'">
+    <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).exe</_AssemblyFullName>
+  </PropertyGroup>
+
+  <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
+  <Target Name="_EFGenerateFiles"
+          AfterTargets="Build"
+          Condition="Exists($(EFProjectsToOptimizePath))">
+    <ItemGroup>
+      <_EFProjectsToOptimizeFiles Include="$(EFProjectsToOptimizePath)*.*" />
+    </ItemGroup>
+
+    <ReadLinesFromFile File="%(_EFProjectsToOptimizeFiles.Identity)">
+      <Output TaskParameter="Lines" ItemName="_EFProjectsToOptimize"/>
+    </ReadLinesFromFile>
+
+    <RemoveDir Directories="$(EFProjectsToOptimizePath)" />
+
+    <!-- The startup assembly used for file generation should be compiled without using AOT mode -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Build"
+             BuildInParallel="true"
+             Condition="'$(PublishAot)'=='true'"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);EFOptimizeContext=false;PublishAot=false" />
+
+    <MSBuild Projects="@(_EFProjectsToOptimize)"
+             Targets="OptimizeDbContext"
+             BuildInParallel="true"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);EFOptimizeContext=false;EFStartupAssembly=$(_AssemblyFullName)" />
+
+    <ItemGroup>
+      <_EFProjectsToOptimize Remove="$(MSBuildProjectFullPath)" />
+    </ItemGroup>
+
+    <!-- This assumes that the optimized projects are dependencies, so the current project needs to be recompiled too -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Build"
+             BuildInParallel="true"
+             Condition="@(_EFProjectsToOptimize->Count()) &gt; 0"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);EFOptimizeContext=false" />
+  </Target>
+
+  <Target Name="OptimizeDbContext"
+          Inputs="$(_AssemblyFullName)"
+          Outputs="$(EFGeneratedSourcesFile)"
+          Returns="$(_EFGeneratedFiles)">
     <PropertyGroup>
-      <EFStartupProject Condition="'$(EFStartupProject)'==''">$(MSBuildProjectFullPath)</EFStartupProject>
       <EFRootNamespace Condition="'$(EFRootNamespace)'==''">$(RootNamespace)</EFRootNamespace>
       <EFRootNamespace Condition="'$(EFRootNamespace)'==''">$(AssemblyName)</EFRootNamespace>
       <EFTargetNamespace Condition="'$(EFTargetNamespace)'==''">$(EFRootNamespace)</EFTargetNamespace>
-      <_FullOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(OutputPath)'))</_FullOutputPath>
-      <_FullIntermediateOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(IntermediateOutputPath)'))</_FullIntermediateOutputPath>
+      <EFOutputDir Condition="'$(EFOutputDir)'==''">$(_FullIntermediateOutputPath)</EFOutputDir>
       <EFNullable>false</EFNullable>
     </PropertyGroup>
 
@@ -23,100 +68,99 @@
       <EFNullable>true</EFNullable>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(OutputType)'=='Library'">
-      <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).dll</_AssemblyFullName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(OutputType)'=='Exe'">
-      <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).exe</_AssemblyFullName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(OutputType)'=='WinExe'">
-      <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).exe</_AssemblyFullName>
-    </PropertyGroup>
+    <OptimizeDbContext Assembly="$(_AssemblyFullName)"
+                       StartupAssembly="$(EFStartupAssembly)"
+                       ProjectAssetsFile="$(ProjectAssetsFile)"
+                       RuntimeFrameworkVersion="$(RuntimeFrameworkVersion)"
+                       TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
+                       DbContextName="$(DbContextName)"
+                       RootNamespace="$(EFRootNamespace)"
+                       TargetNamespace="$(EFTargetNamespace)"
+                       Language="$(Language)"
+                       Nullable="$(EFNullable)"
+                       OutputDir="$(EFOutputDir)"
+                       ProjectDir="$(MSBuildProjectDirectory)">
+      <Output TaskParameter="GeneratedFiles" PropertyName="_EFGeneratedFiles" />
+    </OptimizeDbContext>
 
-    <MSBuild Projects="$(MSBuildProjectFullPath)"
-             Targets="Build"
-             BuildInParallel="true"
-             Condition="'$(EFStartupProject)'!='$(MSBuildProjectFullPath)'"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;EFOptimizeContext=false" />
+    <Delete Files="$(EFGeneratedSourcesFile)" />
 
-    <MSBuild Projects="$(EFStartupProject)"
-             Targets="OptimizeContext"
-             BuildInParallel="true"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;EFOptimizeContext=false;EFGeneratedFilesListToWrite=$(EFGeneratedFilesList);DbContextAssembly=$(_AssemblyFullName);DbContextName=$(DbContextName);EFRootNamespace=$(EFRootNamespace);EFTargetNamespace=$(EFTargetNamespace);EFTargetLanguage=$(EFTargetLanguage);EFNullable=$(EFNullable);EFOutputDir=$(_FullIntermediateOutputPath);EFProjectDir=$(MSBuildProjectDirectory)">
-      <Output TaskParameter="TargetOutputs" ItemName="_GeneratedFiles" />
-    </MSBuild>
+    <CallTarget Targets="Build"/>
 
-    <Message Text="Generated files: @(_GeneratedFiles)" Importance="low" />
-  </Target>
-
-  <Target Name="OptimizeContext"
-          DependsOnTargets="Build"
-          Inputs="$(DbContextAssembly)"
-          Outputs="$(EFGeneratedFilesListToWrite)"
-          Returns="$(_GeneratedFiles)">
-    <PropertyGroup>
-      <_FullOutputPath>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), '$(OutputPath)'))</_FullOutputPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OutputType)'=='Library'">
-      <_StartupAssemblyFullName>$(_FullOutputPath)$(AssemblyName).dll</_StartupAssemblyFullName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(OutputType)'=='Exe'">
-      <_StartupAssemblyFullName>$(_FullOutputPath)$(AssemblyName).exe</_StartupAssemblyFullName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(OutputType)'=='WinExe'">
-      <_StartupAssemblyFullName>$(_FullOutputPath)$(AssemblyName).exe</_StartupAssemblyFullName>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <MyItemGroup Remove="@(_GeneratedFiles)"/>
-    </ItemGroup>
-
-    <OptimizeContext Assembly="$(DbContextAssembly)"
-                     StartupAssembly="$(_StartupAssemblyFullName)"
-                     ProjectAssetsFile="$(ProjectAssetsFile)"
-                     RuntimeFrameworkVersion="$(RuntimeFrameworkVersion)"
-                     TargetFrameworkMoniker="$(TargetFrameworkMoniker)"
-                     DbContextName="$(DbContextName)"
-                     RootNamespace="$(EFRootNamespace)"
-                     TargetNamespace="$(EFTargetNamespace)"
-                     Language="$(EFTargetLanguage)"
-                     Nullable="$(EFNullable)"
-                     OutputDir="$(EFOutputDir)"
-                     ProjectDir="$(EFProjectDir)">
-      <Output TaskParameter="GeneratedFiles" PropertyName="_GeneratedFiles" />
-    </OptimizeContext>
+    <WriteLinesToFile File="$(EFGeneratedSourcesFile)" Lines="$(_EFGeneratedFiles)"/>
   </Target>
 
   <!-- Read the previously generated files if the files weren't regenerated -->
-  <Target Name="_ReadGeneratedFilesList"
-          BeforeTargets="_CompileGeneratedFiles"
-          Condition="Exists($(EFGeneratedFilesList))">
-    <ReadLinesFromFile File="$(EFGeneratedFilesList)" Condition="@(_GeneratedFiles->Count()) == 0">
+  <Target Name="_EFReadGeneratedFilesList"
+          BeforeTargets="_EFProcessGeneratedFiles;_EFCleanupGeneratedFiles"
+          Condition="'$(EFOptimizeContext)'=='true' And Exists($(EFGeneratedSourcesFile))">
+    <ReadLinesFromFile File="$(EFGeneratedSourcesFile)">
       <Output TaskParameter="Lines" ItemName="_ReadGeneratedFiles"/>
     </ReadLinesFromFile>
-    <Message Text="Found previously generated files: @(_ReadGeneratedFiles)" Importance="low" Condition="@(_GeneratedFiles->Count()) == 0" />
 
     <ItemGroup>
-      <_GeneratedFiles Include="@(_ReadGeneratedFiles)" />
+      <_EFGeneratedFiles Include="@(_ReadGeneratedFiles)" />
     </ItemGroup>
   </Target>
 
   <!-- Adds the generated files to compilation -->
-  <Target Name="_CompileGeneratedFiles"
+  <Target Name="_EFProcessGeneratedFiles"
           BeforeTargets="CoreCompile">
     <ItemGroup>
-      <Compile Include="@(_GeneratedFiles)" />
+      <Compile Include="@(_EFGeneratedFiles)" />
     </ItemGroup>
   </Target>
 
-  <!-- Writes the list of generated files with a newer timestamp than the assembly compiled with them -->
-  <Target Name="_WriteGeneratedFilesList"
-          AfterTargets="Build"
-          Condition="'$(EFOptimizeContext)'=='true' And @(_GeneratedFiles->Count()) &gt; 0">
-    <Message Text="Writing generated files list to: $(EFGeneratedFilesList)" Importance="low" />
+  <!-- Removes the outdated generated files from compilation and registers this project for optimization
+       This target has the same Inputs and Outputs as CoreCompile to run only if CoreCompile isn't going to be skipped -->
+  <Target Name="_EFPrepareForCompile"
+          DependsOnTargets="_EFProcessGeneratedFiles"
+          Condition="'$(EFOptimizeContext)'=='true'"
+          Inputs="$(MSBuildAllProjects);
+                  @(Compile);
+                  @(_CoreCompileResourceInputs);
+                  $(ApplicationIcon);
+                  $(KeyOriginatorFile);
+                  @(ReferencePathWithRefAssemblies);
+                  @(CompiledLicenseFile);
+                  @(LinkResource);
+                  @(EmbeddedDocumentation);
+                  $(Win32Resource);
+                  $(Win32Manifest);
+                  @(CustomAdditionalCompileInputs);
+                  $(ResolvedCodeAnalysisRuleSet);
+                  @(AdditionalFiles);
+                  @(EmbeddedFiles);
+                  @(Analyzer);
+                  @(EditorConfigFiles);
+                  $(SourceLink)"
+          Outputs="@(DocFileItem);
+                   @(IntermediateAssembly);
+                   @(IntermediateRefAssembly);
+                   @(_DebugSymbolsIntermediatePath);
+                   $(NonExistentFile);
+                   @(CustomAdditionalCompileOutputs)">
+    <ItemGroup>
+      <Compile Remove="@(_EFGeneratedFiles)" />
+    </ItemGroup>
 
-    <WriteLinesToFile File="$(EFGeneratedFilesList)" Lines="@(_GeneratedFiles)" Overwrite="true"/>
+    <MSBuild Projects="$(EFStartupProject)"
+             Targets="_EFRegisterProjectToOptimize"
+             Properties="Configuration=$(Configuration);Platform=$(Platform);_EFProjectToOptimize=$(MSBuildProjectFullPath)" />
+  </Target>
+
+  <Target Name="_EFRegisterProjectToOptimize">
+    <PropertyGroup>
+      <_ProjectName>$([System.IO.Path]::GetFileName('$(_EFProjectToOptimize)'))</_ProjectName>
+    </PropertyGroup>
+    <MakeDir Directories="$(EFProjectsToOptimizePath)" />
+    <WriteLinesToFile File="$(EFProjectsToOptimizePath)$(_ProjectName).txt" Lines="$(_EFProjectToOptimize)" Overwrite="true"/>
+  </Target>
+
+  <Target Name="_EFCleanGeneratedFiles" AfterTargets="Clean">
+    <Delete Files="@(_EFGeneratedFiles)" />
+    <Delete Files="$(EFGeneratedSourcesFile)" />
+    <RemoveDir Directories="$(EFProjectsToOptimizePath)" />
   </Target>
 
 </Project>

@@ -141,8 +141,9 @@ public class ModelSourceTest
         var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
         var model = modelSource.GetModel(context, testModelDependencies, designTime: false);
-        var designTimeModel = modelSource.GetModel(new Context1(options), testModelDependencies, designTime: true);
+        var designTimeModel = modelSource.GetModel(context, testModelDependencies, designTime: true);
 
+        Assert.True(context.OnModelCreatingCallCount < 2);
         Assert.NotSame(model, designTimeModel);
 
         var modelContext = new ModelContext(model, _serviceProvider);
@@ -150,12 +151,16 @@ public class ModelSourceTest
         Assert.NotSame(modelContext.Model, modelContext.GetService<IDesignTimeModel>().Model);
         Assert.Same(model, modelContext.Model);
         Assert.NotSame(model, modelContext.GetService<IDesignTimeModel>().Model);
+        Assert.NotSame(designTimeModel, modelContext.GetService<IDesignTimeModel>().Model);
+        Assert.Equal(1, modelContext.OnModelCreatingCallCount);
 
         var designTimeContext = new ModelContext(designTimeModel, _serviceProvider);
 
-        Assert.NotSame(modelContext.Model, designTimeContext.GetService<IDesignTimeModel>().Model);
-        Assert.NotSame(model, designTimeContext.Model);
+        Assert.NotSame(designTimeContext.Model, designTimeContext.GetService<IDesignTimeModel>().Model);
+        Assert.Same(model, designTimeContext.Model);
+        Assert.NotSame(model, designTimeContext.GetService<IDesignTimeModel>().Model);
         Assert.Same(designTimeModel, designTimeContext.GetService<IDesignTimeModel>().Model);
+        Assert.Equal(0, designTimeContext.OnModelCreatingCallCount);
     }
 
     [ConditionalFact]
@@ -194,6 +199,7 @@ public class ModelSourceTest
     {
         private readonly IModel _model = model;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
+        public int OnModelCreatingCallCount { get; private set; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -206,6 +212,12 @@ public class ModelSourceTest
             {
                 optionsBuilder.UseModel(_model);
             }
+        }
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            OnModelCreatingCallCount++;
         }
     }
 
@@ -231,7 +243,16 @@ public class ModelSourceTest
         Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
     }
 
-    private class Context1(DbContextOptions options) : DbContext(options);
+    private class Context1(DbContextOptions options) : DbContext(options)
+    {
+        public int OnModelCreatingCallCount { get; private set; }
+
+        protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            OnModelCreatingCallCount++;
+        }
+    }
 
     private class Context2(DbContextOptions options) : DbContext(options);
 }

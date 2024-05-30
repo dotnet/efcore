@@ -18,66 +18,30 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        switch (extensionExpression)
+        => extensionExpression switch
         {
-            case ShapedQueryExpression shapedQueryExpression:
-                return shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression));
+            ShapedQueryExpression shapedQueryExpression
+                => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression)),
+            ReadItemExpression readItemExpression => readItemExpression,
+            SelectExpression selectExpression => VisitSelect(selectExpression),
+            ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
+            EntityProjectionExpression entityProjectionExpression => VisitEntityProjection(entityProjectionExpression),
+            ObjectArrayProjectionExpression arrayProjectionExpression => VisitObjectArrayProjection(arrayProjectionExpression),
+            FromSqlExpression fromSqlExpression => VisitFromSql(fromSqlExpression),
+            RootReferenceExpression rootReferenceExpression => VisitRootReference(rootReferenceExpression),
+            KeyAccessExpression keyAccessExpression => VisitKeyAccess(keyAccessExpression),
+            ObjectAccessExpression objectAccessExpression => VisitObjectAccess(objectAccessExpression),
+            SqlBinaryExpression sqlBinaryExpression => VisitSqlBinary(sqlBinaryExpression),
+            SqlConstantExpression sqlConstantExpression => VisitSqlConstant(sqlConstantExpression),
+            SqlUnaryExpression sqlUnaryExpression => VisitSqlUnary(sqlUnaryExpression),
+            SqlConditionalExpression sqlConditionalExpression => VisitSqlConditional(sqlConditionalExpression),
+            SqlParameterExpression sqlParameterExpression => VisitSqlParameter(sqlParameterExpression),
+            InExpression inExpression => VisitIn(inExpression),
+            SqlFunctionExpression sqlFunctionExpression => VisitSqlFunction(sqlFunctionExpression),
+            OrderingExpression orderingExpression => VisitOrdering(orderingExpression),
 
-            case ReadItemExpression readItemExpression:
-                return readItemExpression;
-
-            case SelectExpression selectExpression:
-                return VisitSelect(selectExpression);
-
-            case ProjectionExpression projectionExpression:
-                return VisitProjection(projectionExpression);
-
-            case EntityProjectionExpression entityProjectionExpression:
-                return VisitEntityProjection(entityProjectionExpression);
-
-            case ObjectArrayProjectionExpression arrayProjectionExpression:
-                return VisitObjectArrayProjection(arrayProjectionExpression);
-
-            case FromSqlExpression fromSqlExpression:
-                return VisitFromSql(fromSqlExpression);
-
-            case RootReferenceExpression rootReferenceExpression:
-                return VisitRootReference(rootReferenceExpression);
-
-            case KeyAccessExpression keyAccessExpression:
-                return VisitKeyAccess(keyAccessExpression);
-
-            case ObjectAccessExpression objectAccessExpression:
-                return VisitObjectAccess(objectAccessExpression);
-
-            case SqlBinaryExpression sqlBinaryExpression:
-                return VisitSqlBinary(sqlBinaryExpression);
-
-            case SqlConstantExpression sqlConstantExpression:
-                return VisitSqlConstant(sqlConstantExpression);
-
-            case SqlUnaryExpression sqlUnaryExpression:
-                return VisitSqlUnary(sqlUnaryExpression);
-
-            case SqlConditionalExpression sqlConditionalExpression:
-                return VisitSqlConditional(sqlConditionalExpression);
-
-            case SqlParameterExpression sqlParameterExpression:
-                return VisitSqlParameter(sqlParameterExpression);
-
-            case InExpression inExpression:
-                return VisitIn(inExpression);
-
-            case SqlFunctionExpression sqlFunctionExpression:
-                return VisitSqlFunction(sqlFunctionExpression);
-
-            case OrderingExpression orderingExpression:
-                return VisitOrdering(orderingExpression);
-        }
-
-        return base.VisitExtension(extensionExpression);
-    }
+            _ => base.VisitExtension(extensionExpression)
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

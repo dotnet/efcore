@@ -1194,6 +1194,72 @@ LEFT JOIN (
 
     #endregion GroupBy
 
+    public override async Task Projecting_property_of_complex_type_using_left_join_with_pushdown(bool async)
+    {
+        await base.Projecting_property_of_complex_type_using_left_join_with_pushdown(async);
+
+        AssertSql(
+"""
+SELECT [c1].[BillingAddress_ZipCode]
+FROM [CustomerGroup] AS [c]
+LEFT JOIN (
+    SELECT [c0].[Id], [c0].[BillingAddress_ZipCode]
+    FROM [Customer] AS [c0]
+    WHERE [c0].[Id] > 5
+) AS [c1] ON [c].[Id] = [c1].[Id]
+""");
+    }
+
+    public override async Task Projecting_complex_from_optional_navigation_using_conditional(bool async)
+    {
+        await base.Projecting_complex_from_optional_navigation_using_conditional(async);
+
+        AssertSql(
+"""
+@__p_0='20'
+
+SELECT [s0].[ShippingAddress_ZipCode]
+FROM (
+    SELECT DISTINCT [s].[ShippingAddress_AddressLine1], [s].[ShippingAddress_AddressLine2], [s].[ShippingAddress_Tags], [s].[ShippingAddress_ZipCode], [s].[ShippingAddress_Country_Code], [s].[ShippingAddress_Country_FullName]
+    FROM (
+        SELECT TOP(@__p_0) [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+        FROM [CustomerGroup] AS [c]
+        LEFT JOIN [Customer] AS [c0] ON [c].[OptionalCustomerId] = [c0].[Id]
+        ORDER BY [c0].[ShippingAddress_ZipCode]
+    ) AS [s]
+) AS [s0]
+""");
+    }
+
+    public override async Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
+    {
+        await base.Project_entity_with_complex_type_pushdown_and_then_left_join(async);
+
+        AssertSql(
+"""
+@__p_0='20'
+@__p_1='30'
+
+SELECT [c3].[BillingAddress_ZipCode] AS [Zip1], [c4].[ShippingAddress_ZipCode] AS [Zip2]
+FROM (
+    SELECT DISTINCT [c0].[Id], [c0].[Name], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[BillingAddress_Country_Code], [c0].[BillingAddress_Country_FullName], [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+    FROM (
+        SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+        FROM [Customer] AS [c]
+        ORDER BY [c].[Id]
+    ) AS [c0]
+) AS [c3]
+LEFT JOIN (
+    SELECT DISTINCT [c2].[Id], [c2].[Name], [c2].[BillingAddress_AddressLine1], [c2].[BillingAddress_AddressLine2], [c2].[BillingAddress_Tags], [c2].[BillingAddress_ZipCode], [c2].[BillingAddress_Country_Code], [c2].[BillingAddress_Country_FullName], [c2].[ShippingAddress_AddressLine1], [c2].[ShippingAddress_AddressLine2], [c2].[ShippingAddress_Tags], [c2].[ShippingAddress_ZipCode], [c2].[ShippingAddress_Country_Code], [c2].[ShippingAddress_Country_FullName]
+    FROM (
+        SELECT TOP(@__p_1) [c1].[Id], [c1].[Name], [c1].[BillingAddress_AddressLine1], [c1].[BillingAddress_AddressLine2], [c1].[BillingAddress_Tags], [c1].[BillingAddress_ZipCode], [c1].[BillingAddress_Country_Code], [c1].[BillingAddress_Country_FullName], [c1].[ShippingAddress_AddressLine1], [c1].[ShippingAddress_AddressLine2], [c1].[ShippingAddress_Tags], [c1].[ShippingAddress_ZipCode], [c1].[ShippingAddress_Country_Code], [c1].[ShippingAddress_Country_FullName]
+        FROM [Customer] AS [c1]
+        ORDER BY [c1].[Id] DESC
+    ) AS [c2]
+) AS [c4] ON [c3].[Id] = [c4].[Id]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

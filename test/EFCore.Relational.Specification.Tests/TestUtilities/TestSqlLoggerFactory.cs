@@ -172,7 +172,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                     {
                         // Detect whether a byte-order mark (BOM) exists, to write out the same
                         var buffer = new byte[3];
-                        inputStream.Read(buffer, 0, 3);
+                        inputStream.ReadExactly(buffer, 0, 3);
                         inputStream.Position = 0;
 
                         var hasUtf8ByteOrderMark = (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF);

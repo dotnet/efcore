@@ -14,5 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
 public record RelationalMaterializerLiftableConstantContext(
         ShapedQueryCompilingExpressionVisitorDependencies Dependencies,
-        RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies)
+        RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies,
+        RelationalCommandBuilderDependencies CommandBuilderDependencies)
     : MaterializerLiftableConstantContext(Dependencies);

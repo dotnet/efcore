@@ -168,15 +168,15 @@ namespace TestNamespace
             isDateStatic.TypeMapping = BoolTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 keyComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 providerValueComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
@@ -184,7 +184,7 @@ namespace TestNamespace
             functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+DbFunctionContext.IsDateStatic(string)"] = isDateStatic;
 
             AddAnnotation("Relational:DbFunctions", functions);
-            AddRuntimeAnnotation("Relational:RelationalModel", CreateRelationalModel());
+            AddRuntimeAnnotation("Relational:RelationalModelFactory", () => CreateRelationalModel());
         }
 
         private IRelationalModel CreateRelationalModel()

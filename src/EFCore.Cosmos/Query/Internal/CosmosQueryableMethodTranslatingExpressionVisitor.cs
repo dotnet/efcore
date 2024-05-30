@@ -80,46 +80,50 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
-        if (expression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
-            && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate)
-        {
-            if (methodCallExpression.Arguments[0] is MethodCallExpression { Method.IsGenericMethod: true } queryRootMethodCallExpression
-                && queryRootMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
+        if (expression is MethodCallExpression
             {
-                if (queryRootMethodCallExpression.Arguments[0] is EntityQueryRootExpression entityQueryRootExpression)
-                {
-                    var entityType = entityQueryRootExpression.EntityType;
-
-                    if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression { Operand: LambdaExpression lambdaExpression })
+                Method: { Name: nameof(Queryable.FirstOrDefault), IsGenericMethod: true },
+                Arguments:
+                [
+                    MethodCallExpression
                     {
-                        var queryProperties = new List<IProperty>();
-                        var parameterNames = new List<string>();
+                        Method: { Name: nameof(Queryable.Where), IsGenericMethod: true },
+                        Arguments:
+                        [
+                            EntityQueryRootExpression { EntityType: var entityType },
+                            UnaryExpression { Operand: LambdaExpression lambdaExpression, NodeType: ExpressionType.Quote }
+                        ]
+                    } whereMethodCall
+                ]
+            } firstOrDefaultMethodCall
+            && firstOrDefaultMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate
+            && whereMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
+        {
+            var queryProperties = new List<IProperty>();
+            var parameterNames = new List<string>();
 
-                        if (ExtractPartitionKeyFromPredicate(entityType, lambdaExpression.Body, queryProperties, parameterNames))
-                        {
-                            var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties;
-                            var idProperty = entityType.GetProperties()
-                                .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+            if (ExtractPartitionKeyFromPredicate(entityType, lambdaExpression.Body, queryProperties, parameterNames))
+            {
+                var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties;
+                var idProperty = entityType.GetProperties()
+                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                            var partitionKeyProperties = entityType.GetPartitionKeyProperties();
 
-                            if (TryGetPartitionKeyProperty(entityType, out var partitionKeyProperty)
-                                && entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
-                                && (partitionKeyProperty == null
-                                    || entityTypePrimaryKeyProperties.Contains(partitionKeyProperty))
-                                && (idProperty.GetValueGeneratorFactory() != null
-                                    || entityTypePrimaryKeyProperties.Contains(idProperty)))
-                            {
-                                var propertyParameterList = queryProperties.Zip(
-                                        parameterNames,
-                                        (property, parameter) => (property, parameter))
-                                    .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
+                if (entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
+                                && (!partitionKeyProperties.Any()
+                        || partitionKeyProperties.All(p => entityTypePrimaryKeyProperties.Contains(p)))
+                    && (idProperty.GetValueGeneratorFactory() != null
+                        || entityTypePrimaryKeyProperties.Contains(idProperty)))
+                {
+                    var propertyParameterList = queryProperties.Zip(
+                            parameterNames,
+                            (property, parameter) => (property, parameter))
+                        .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
 
-                                var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
+                    var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
 
-                                return CreateShapedQueryExpression(entityType, readItemExpression)
-                                    .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
-                            }
-                        }
-                    }
+                    return CreateShapedQueryExpression(entityType, readItemExpression)
+                        .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
                 }
             }
         }
@@ -132,18 +136,44 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             ICollection<IProperty> properties,
             ICollection<string> parameterNames)
         {
-            if (joinCondition is BinaryExpression joinBinaryExpression)
+            switch (joinCondition)
             {
-                if (joinBinaryExpression.NodeType == ExpressionType.AndAlso)
-                {
-                    return ExtractPartitionKeyFromPredicate(entityType, joinBinaryExpression.Left, properties, parameterNames)
-                        && ExtractPartitionKeyFromPredicate(entityType, joinBinaryExpression.Right, properties, parameterNames);
-                }
+                case BinaryExpression joinBinaryExpression:
+                    switch (joinBinaryExpression)
+                    {
+                        case { NodeType: ExpressionType.AndAlso }:
+                            return ExtractPartitionKeyFromPredicate(entityType, joinBinaryExpression.Left, properties, parameterNames)
+                                && ExtractPartitionKeyFromPredicate(entityType, joinBinaryExpression.Right, properties, parameterNames);
 
-                if (joinBinaryExpression.NodeType == ExpressionType.Equal
-                    && joinBinaryExpression.Left is MethodCallExpression equalMethodCallExpression
-                    && joinBinaryExpression.Right is ParameterExpression { Name: string parameterName } equalParameterExpresion
-                    && equalMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
+                        case
+                        {
+                            NodeType: ExpressionType.Equal,
+                            Left: MethodCallExpression equalMethodCallExpression,
+                            Right: ParameterExpression { Name: string parameterName }
+                        } when equalMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName):
+                            var property = entityType.FindProperty(propertyName);
+                            if (property == null)
+                            {
+                                return false;
+                            }
+
+                            properties.Add(property);
+                            parameterNames.Add(parameterName);
+                            return true;
+                    }
+
+                    break;
+
+                case MethodCallExpression
+                {
+                    Method.Name: "Equals",
+                    Object: null,
+                    Arguments:
+                    [
+                        MethodCallExpression equalsMethodCallExpression,
+                        ParameterExpression { Name: string parameterName }
+                    ]
+                } when equalsMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName):
                 {
                     var property = entityType.FindProperty(propertyName);
                     if (property == null)
@@ -156,63 +186,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     return true;
                 }
             }
-            else if (joinCondition is MethodCallExpression
-                     {
-                         Method.Name: "Equals",
-                         Object: null,
-                         Arguments:
-                         [
-                             MethodCallExpression equalsMethodCallExpression,
-                             ParameterExpression { Name: string parameterName }
-                         ]
-                     }
-                     && equalsMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
-            {
-                var property = entityType.FindProperty(propertyName);
-                if (property == null)
-                {
-                    return false;
-                }
-
-                properties.Add(property);
-                parameterNames.Add(parameterName);
-                return true;
-            }
 
             return false;
-        }
-
-        static bool TryGetPartitionKeyProperty(IEntityType entityType, out IProperty? partitionKeyProperty)
-        {
-            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-            if (partitionKeyPropertyName is null)
-            {
-                partitionKeyProperty = null;
-                return true;
-            }
-
-            partitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
-            return true;
         }
     }
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
-    {
-        switch (extensionExpression)
+        => extensionExpression switch
         {
-            case FromSqlQueryRootExpression fromSqlQueryRootExpression:
-                return CreateShapedQueryExpression(
+            FromSqlQueryRootExpression fromSqlQueryRootExpression
+                => CreateShapedQueryExpression(
                     fromSqlQueryRootExpression.EntityType,
                     _sqlExpressionFactory.Select(
-                        fromSqlQueryRootExpression.EntityType,
-                        fromSqlQueryRootExpression.Sql,
-                        fromSqlQueryRootExpression.Argument));
+                        fromSqlQueryRootExpression.EntityType, fromSqlQueryRootExpression.Sql, fromSqlQueryRootExpression.Argument)),
 
-            default:
-                return base.VisitExtension(extensionExpression);
-        }
-    }
+            _ => base.VisitExtension(extensionExpression)
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -239,11 +229,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
-    {
-        var selectExpression = _sqlExpressionFactory.Select(entityType);
-
-        return CreateShapedQueryExpression(entityType, selectExpression);
-    }
+        => CreateShapedQueryExpression(entityType, _sqlExpressionFactory.Select(entityType));
 
     private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
         => new(
@@ -293,8 +279,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
-        projection = _sqlExpressionFactory.Function(
-            "AVG", new[] { projection }, projection.Type, projection.TypeMapping);
+        projection = _sqlExpressionFactory.Function("AVG", new[] { projection }, projection.Type, projection.TypeMapping);
 
         return AggregateResultShaper(source, projection, throwOnNullResult: true, resultType);
     }
@@ -306,9 +291,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
-        => source.ShaperExpression.Type != resultType
-            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
-            : source;
+        => source.ShaperExpression.Type == resultType
+            ? source
+            : source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -433,8 +418,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.Predicate == null
-            && selectExpression.Orderings.Count == 0)
+        if (selectExpression is { Predicate: null, Orderings: [] })
         {
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
@@ -643,56 +627,55 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
-        if (source.ShaperExpression is StructuralTypeShaperExpression entityShaperExpression)
+        if (source.ShaperExpression is not StructuralTypeShaperExpression entityShaperExpression)
         {
-            if (entityShaperExpression.StructuralType is not IEntityType entityType)
-            {
-                throw new UnreachableException("Complex types not supported in Cosmos");
-            }
-
-            if (entityType.ClrType == resultType)
-            {
-                return source;
-            }
-
-            var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
-            var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
-            var translation = TranslateLambdaExpression(source, predicate);
-            if (translation == null)
-            {
-                // EntityType is not part of hierarchy
-                return null;
-            }
-
-            var selectExpression = (SelectExpression)source.QueryExpression;
-            if (translation is not SqlConstantExpression { Value: true })
-            {
-                selectExpression.ApplyPredicate(translation);
-            }
-
-            var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
-            if (baseType != null)
-            {
-                return source.UpdateShaperExpression(entityShaperExpression.WithType(baseType));
-            }
-
-            var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
-            var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-
-            var projectionMember = projectionBindingExpression.ProjectionMember;
-            Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
-
-            var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
-            selectExpression.ReplaceProjectionMapping(
-                new Dictionary<ProjectionMember, Expression>
-                {
-                    { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
-                });
-
-            return source.UpdateShaperExpression(entityShaperExpression.WithType(derivedType));
+            return null;
         }
 
-        return null;
+        if (entityShaperExpression.StructuralType is not IEntityType entityType)
+        {
+            throw new UnreachableException("Complex types not supported in Cosmos");
+        }
+
+        if (entityType.ClrType == resultType)
+        {
+            return source;
+        }
+
+        var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
+        var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
+        if (TranslateLambdaExpression(source, predicate) is not SqlExpression translation)
+        {
+            // EntityType is not part of hierarchy
+            return null;
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        if (translation is not SqlConstantExpression { Value: true })
+        {
+            selectExpression.ApplyPredicate(translation);
+        }
+
+        var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
+        if (baseType != null)
+        {
+            return source.UpdateShaperExpression(entityShaperExpression.WithType(baseType));
+        }
+
+        var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
+        var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
+
+        var projectionMember = projectionBindingExpression.ProjectionMember;
+        Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
+
+        var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
+        selectExpression.ReplaceProjectionMapping(
+            new Dictionary<ProjectionMember, Expression>
+            {
+                { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
+            });
+
+        return source.UpdateShaperExpression(entityShaperExpression.WithType(derivedType));
     }
 
     /// <summary>
@@ -706,8 +689,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         LambdaExpression keySelector,
         bool ascending)
     {
-        var translation = TranslateLambdaExpression(source, keySelector);
-        if (translation != null)
+        if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
         {
             ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
 
@@ -808,9 +790,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var selectExpression = (SelectExpression)source.QueryExpression;
         selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2))!);
 
-        return source.ShaperExpression.Type != returnType
-            ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
-            : source;
+        return source.ShaperExpression.Type == returnType
+            ? source
+            : source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType));
     }
 
     /// <summary>
@@ -872,8 +854,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var serverOutputType = resultType.UnwrapNullableType();
         var projection = (SqlExpression)selectExpression.GetMappedProjection(new ProjectionMember());
 
-        projection = _sqlExpressionFactory.Function(
-            "SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
+        projection = _sqlExpressionFactory.Function("SUM", new[] { projection }, serverOutputType, projection.TypeMapping);
 
         return AggregateResultShaper(source, projection, throwOnNullResult: false, resultType);
     }
@@ -921,8 +902,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
     {
-        var translation = TranslateLambdaExpression(source, keySelector);
-        if (translation != null)
+        if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
         {
             ((SelectExpression)source.QueryExpression).AppendOrdering(new OrderingExpression(translation, ascending));
 
@@ -949,23 +929,35 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
     {
-        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType }
-            && entityType.GetPartitionKeyPropertyName() is string partitionKeyPropertyName
-            && TryExtractPartitionKey(predicate.Body, entityType, out var newPredicate) is Expression partitionKeyValue)
+        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType } entityShaperExpression
+            && entityType.GetPartitionKeyPropertyNames().FirstOrDefault() != null)
         {
-            var partitionKeyProperty = entityType.GetProperty(partitionKeyPropertyName);
-            ((SelectExpression)source.QueryExpression).SetPartitionKey(partitionKeyProperty, partitionKeyValue);
-
-            if (newPredicate == null)
+            List<(Expression Expression, IProperty Property)?> partitionKeyValues = new();
+            if (TryExtractPartitionKey(predicate.Body, entityType, out var newPredicate, partitionKeyValues))
             {
-                return source;
-            }
+                foreach (var propertyName in entityType.GetPartitionKeyPropertyNames())
+                {
+                    var partitionKeyValue = partitionKeyValues.FirstOrDefault(p => p!.Value.Property.Name == propertyName);
+                    if (partitionKeyValue == null)
+                    {
+                        newPredicate = null;
+                        break;
+                    }
 
-            predicate = Expression.Lambda(newPredicate, predicate.Parameters);
+                    ((SelectExpression)source.QueryExpression).AddPartitionKey(
+                        partitionKeyValue.Value.Property, partitionKeyValue.Value.Expression);
+                }
+
+                if (newPredicate == null)
+                {
+                    return source;
+                }
+
+                predicate = Expression.Lambda(newPredicate, predicate.Parameters);
+            }
         }
 
-        var translation = TranslateLambdaExpression(source, predicate);
-        if (translation != null)
+        if (TranslateLambdaExpression(source, predicate) is SqlExpression translation)
         {
             ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
 
@@ -974,22 +966,37 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         return null;
 
-        Expression? TryExtractPartitionKey(Expression expression, IEntityType entityType, out Expression? updatedPredicate)
+        bool TryExtractPartitionKey(
+            Expression expression,
+            IEntityType entityType,
+            out Expression? updatedPredicate,
+            List<(Expression, IProperty)?> partitionKeyValues)
         {
+            updatedPredicate = null;
             if (expression is BinaryExpression binaryExpression)
             {
-                if (GetPartitionKeyValue(binaryExpression, entityType) is Expression pkv)
+                if (TryGetPartitionKeyValue(binaryExpression, entityType, out var valueExpression, out var property))
                 {
-                    partitionKeyValue = pkv;
-                    updatedPredicate = null;
-                    return partitionKeyValue;
+                    partitionKeyValues.Add((valueExpression!, property!));
+                    return true;
                 }
 
                 if (binaryExpression.NodeType == ExpressionType.AndAlso)
                 {
-                    var leftPartitionKeyValue = TryExtractPartitionKey(binaryExpression.Left, entityType, out var leftPredicate);
-                    var rightPartitionKeyValue = TryExtractPartitionKey(binaryExpression.Right, entityType, out var rightPredicate);
-                    if ((leftPartitionKeyValue != null) ^ (rightPartitionKeyValue != null))
+                    var foundInRight = TryExtractPartitionKey(binaryExpression.Left, entityType, out var leftPredicate, partitionKeyValues);
+
+                    var foundInLeft = TryExtractPartitionKey(
+                        binaryExpression.Right,
+                        entityType,
+                        out var rightPredicate,
+                        partitionKeyValues);
+
+                    if (foundInLeft && foundInRight)
+                    {
+                        return true;
+                    }
+
+                    if (foundInLeft || foundInRight)
                     {
                         updatedPredicate = leftPredicate != null
                             ? rightPredicate != null
@@ -997,60 +1004,76 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                                 : leftPredicate
                             : rightPredicate;
 
-                        return leftPartitionKeyValue ?? rightPartitionKeyValue;
+                        return true;
                     }
+                }
+            }
+            else if (expression.NodeType == ExpressionType.MemberAccess
+                     && expression.Type == typeof(bool))
+            {
+                if (IsPartitionKeyPropertyAccess(expression, entityType, out var property))
+                {
+                    partitionKeyValues.Add((Expression.Constant(true), property!));
+                    return true;
+                }
+            }
+            else if (expression.NodeType == ExpressionType.Not)
+            {
+                if (IsPartitionKeyPropertyAccess(((UnaryExpression)expression).Operand, entityType, out var property))
+                {
+                    partitionKeyValues.Add((Expression.Constant(false), property!));
+                    return true;
                 }
             }
 
             updatedPredicate = expression;
-
-            return null;
+            return false;
         }
 
-        Expression? GetPartitionKeyValue(BinaryExpression binaryExpression, IEntityType entityType)
+        bool TryGetPartitionKeyValue(
+            BinaryExpression binaryExpression,
+            IEntityType entityType,
+            out Expression? expression,
+            out IProperty? property)
         {
             if (binaryExpression.NodeType == ExpressionType.Equal)
             {
-                var valueExpression = IsPartitionKeyPropertyAccess(binaryExpression.Left, entityType)
+                expression = IsPartitionKeyPropertyAccess(binaryExpression.Left, entityType, out property)
                     ? binaryExpression.Right
-                    : IsPartitionKeyPropertyAccess(binaryExpression.Right, entityType)
+                    : IsPartitionKeyPropertyAccess(binaryExpression.Right, entityType, out property)
                         ? binaryExpression.Left
                         : null;
 
-                if (valueExpression is ConstantExpression
-                    || (valueExpression is ParameterExpression valueParameterExpression
+                if (expression is ConstantExpression
+                    || (expression is ParameterExpression valueParameterExpression
                         && valueParameterExpression.Name?
                             .StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
                         == true))
                 {
-                    return valueExpression;
+                    return true;
                 }
             }
 
-            return null;
+            expression = null;
+            property = null;
+            return false;
         }
 
-        bool IsPartitionKeyPropertyAccess(Expression expression, IEntityType entityType)
+        bool IsPartitionKeyPropertyAccess(Expression expression, IEntityType entityType, out IProperty? property)
         {
-            IProperty? property = null;
-            switch (expression)
+            property = expression switch
             {
-                case MemberExpression memberExpression:
-                    property = entityType.FindProperty(memberExpression.Member.GetSimpleMemberName());
-                    break;
+                MemberExpression memberExpression
+                    => entityType.FindProperty(memberExpression.Member.GetSimpleMemberName()),
+                MethodCallExpression methodCallExpression when methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName)
+                    => entityType.FindProperty(propertyName),
+                MethodCallExpression methodCallExpression
+                    when methodCallExpression.TryGetIndexerArguments(_queryCompilationContext.Model, out _, out var propertyName)
+                    => entityType.FindProperty(propertyName),
+                _ => null
+            };
 
-                case MethodCallExpression methodCallExpression
-                    when methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName):
-                    property = entityType.FindProperty(propertyName);
-                    break;
-
-                case MethodCallExpression methodCallExpression
-                    when methodCallExpression.TryGetIndexerArguments(_queryCompilationContext.Model, out _, out var propertyName):
-                    property = entityType.FindProperty(propertyName);
-                    break;
-            }
-
-            return property != null && property.Name == entityType.GetPartitionKeyPropertyName();
+            return property != null && entityType.GetPartitionKeyPropertyNames().Contains(property.Name);
         }
     }
 
@@ -1084,8 +1107,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         Type resultType)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ReplaceProjectionMapping(
-            new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
+        selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
 
         selectExpression.ClearOrdering();
 

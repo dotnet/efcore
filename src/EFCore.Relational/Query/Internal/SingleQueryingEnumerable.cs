@@ -22,7 +22,7 @@ public static class SingleQueryingEnumerable
     /// </summary>
     public static SingleQueryingEnumerable<T> Create<T>(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
         Type contextType,
@@ -31,7 +31,7 @@ public static class SingleQueryingEnumerable
         bool threadSafetyChecksEnabled)
         => new(
             relationalQueryContext,
-            relationalCommandCache,
+            relationalCommandResolver,
             readerColumns,
             shaper,
             contextType,
@@ -49,7 +49,7 @@ public static class SingleQueryingEnumerable
 public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
 {
     private readonly RelationalQueryContext _relationalQueryContext;
-    private readonly RelationalCommandCache _relationalCommandCache;
+    private readonly RelationalCommandResolver _relationalCommandResolver;
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
     private readonly Type _contextType;
@@ -66,7 +66,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     /// </summary>
     public SingleQueryingEnumerable(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
         Type contextType,
@@ -75,7 +75,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         bool threadSafetyChecksEnabled)
     {
         _relationalQueryContext = relationalQueryContext;
-        _relationalCommandCache = relationalCommandCache;
+        _relationalCommandResolver = relationalCommandResolver;
         _readerColumns = readerColumns;
         _shaper = shaper;
         _contextType = contextType;
@@ -123,8 +123,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbCommand CreateDbCommand()
-        => _relationalCommandCache
-            .GetRelationalCommandTemplate(_relationalQueryContext.ParameterValues)
+        => _relationalCommandResolver(_relationalQueryContext.ParameterValues)
             .CreateDbCommand(
                 new RelationalCommandParameterObject(
                     _relationalQueryContext.Connection,
@@ -150,7 +149,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     private sealed class Enumerator : IEnumerator<T>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
         private readonly Type _contextType;
@@ -168,7 +167,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         public Enumerator(SingleQueryingEnumerable<T> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _shaper = queryingEnumerable._shaper;
             _contextType = queryingEnumerable._contextType;
@@ -269,7 +268,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             EntityFrameworkEventSource.Log.QueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
                 new RelationalCommandParameterObject(
@@ -307,7 +306,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
     private sealed class AsyncEnumerator : IAsyncEnumerator<T>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly RelationalCommandCache _relationalCommandCache;
+        private readonly RelationalCommandResolver _relationalCommandResolver;
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> _shaper;
         private readonly Type _contextType;
@@ -326,7 +325,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
         public AsyncEnumerator(SingleQueryingEnumerable<T> queryingEnumerable)
         {
             _relationalQueryContext = queryingEnumerable._relationalQueryContext;
-            _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+            _relationalCommandResolver = queryingEnumerable._relationalCommandResolver;
             _readerColumns = queryingEnumerable._readerColumns;
             _shaper = queryingEnumerable._shaper;
             _contextType = queryingEnumerable._contextType;
@@ -430,7 +429,7 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
             EntityFrameworkEventSource.Log.QueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
-                enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
             var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(

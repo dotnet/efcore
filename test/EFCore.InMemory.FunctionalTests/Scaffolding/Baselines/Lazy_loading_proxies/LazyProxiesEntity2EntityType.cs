@@ -105,10 +105,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity2)source.Entity;
-                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
+                    return (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<int>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(default(int))));
+                () => (ISnapshot)new Snapshot<int>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(default(int))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<int>(default(int)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -119,7 +119,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity2)source.Entity;
-                    return (ISnapshot)new Snapshot<int, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity)));
+                    return (ISnapshot)new Snapshot<int, object>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity2_CollectionNavigation(entity)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 1,

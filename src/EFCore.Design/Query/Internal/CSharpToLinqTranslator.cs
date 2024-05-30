@@ -226,6 +226,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         var left = Visit(binary.Left);
         var right = Visit(binary.Right);
 
+        if (Nullable.GetUnderlyingType(left.Type) == right.Type)
+        {
+            right = Convert(right, left.Type);
+        }
+        else if (Nullable.GetUnderlyingType(right.Type) == left.Type)
+        {
+            left = Convert(left, right.Type);
+        }
+
         // https://learn.microsoft.com/dotnet/api/Microsoft.CodeAnalysis.CSharp.Syntax.BinaryExpressionSyntax
         return binary.Kind() switch
         {
@@ -406,7 +415,8 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                         new FakeFieldInfo(
                             typeof(FakeClosureFrameClass),
                             ResolveType(localSymbol.Type),
-                            localSymbol.Name)));
+                            localSymbol.Name,
+                            localSymbol.NullableAnnotation is NullableAnnotation.NotAnnotated)));
         }
 
         throw new InvalidOperationException(
@@ -1123,6 +1133,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
 
         Type GetClrType(INamedTypeSymbol symbol)
         {
+            if (symbol.SpecialType == SpecialType.System_Nullable_T)
+            {
+                return typeof(Nullable<>);
+            }
+
             var name = symbol.ContainingType is null
                 ? typeSymbol.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat)
                 : typeSymbol.Name;
@@ -1205,8 +1220,15 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
     [CompilerGenerated]
     private sealed class FakeClosureFrameClass;
 
-    private sealed class FakeFieldInfo(Type declaringType, Type fieldType, string name) : FieldInfo
+    private sealed class FakeFieldInfo(
+        Type declaringType,
+        Type fieldType,
+        string name,
+        bool isNonNullableReferenceType)
+        : FieldInfo, IParameterNullabilityInfo
     {
+        public bool IsNonNullableReferenceType { get; } = isNonNullableReferenceType;
+
         public override object[] GetCustomAttributes(bool inherit)
             => Array.Empty<object>();
 

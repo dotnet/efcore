@@ -135,8 +135,12 @@ public class QueryCompiler : IQueryCompiler
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual Expression<Func<QueryContext, TResult>> PrecompileQuery<TResult>(Expression query, bool async)
     {
-        query = ExtractParameters(query, _queryContextFactory.Create(), _logger, precompiledQuery: true);
-        return _database.CompileQueryExpression<TResult>(query, async);
+        query = new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, _logger)
+            .ExtractParameters(
+                query, _queryContextFactory.Create(), parameterize: true, clearParameterizedValues: true, precompiledQuery: true,
+                out var nonNullableReferenceTypeParameters);
+
+        return _database.CompileQueryExpression<TResult>(query, async, nonNullableReferenceTypeParameters);
     }
 
     /// <summary>
@@ -150,8 +154,7 @@ public class QueryCompiler : IQueryCompiler
         IParameterValues parameterValues,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger,
         bool compiledQuery = false,
-        bool precompiledQuery = false,
         bool generateContextAccessors = false)
         => new ExpressionTreeFuncletizer(_model, _evaluatableExpressionFilter, _contextType, generateContextAccessors: false, logger)
-            .ExtractParameters(query, parameterValues, precompiledQuery, parameterize: !compiledQuery, clearParameterizedValues: true);
+            .ExtractParameters(query, parameterValues, parameterize: !compiledQuery, clearParameterizedValues: true);
 }

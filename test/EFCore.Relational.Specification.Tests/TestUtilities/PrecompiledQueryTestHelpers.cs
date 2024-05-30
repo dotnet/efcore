@@ -93,7 +93,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
             "TestCompilation",
             syntaxTrees: [syntaxTree],
             _metadataReferences,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
 
         IReadOnlyList<PrecompiledQueryCodeGenerator.GeneratedInterceptorFile>? generatedFiles = null;
 

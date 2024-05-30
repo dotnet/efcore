@@ -43,6 +43,7 @@ public class ConcurrencyDetectorDisabledCosmosTest(ConcurrencyDetectorDisabledCo
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.EnableThreadSafetyChecks(enableChecks: false);
+            => base.AddOptions(builder.EnableThreadSafetyChecks(enableChecks: false))
+                .ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
     }
 }

@@ -88,12 +88,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
             }
         }
 
-        if (designTime)
-        {
-            return model;
-        }
-
-        model = model.GetOrAddRuntimeAnnotationValue(
+        var finalizedModel = model.GetOrAddRuntimeAnnotationValue(
             CoreAnnotationNames.ReadOnlyModel,
             static model =>
             {
@@ -107,7 +102,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
             },
             model);
 
-        return model;
+        return designTime ? model : finalizedModel;
     }
 
     /// <summary>

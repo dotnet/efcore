@@ -4,8 +4,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -575,14 +573,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             _ => expression
         };
 
-    private sealed class FakeMemberInfo : MemberInfo
+    private sealed class FakeMemberInfo(string name) : MemberInfo
     {
-        public FakeMemberInfo(string name)
-        {
-            Name = name;
-        }
-
-        public override string Name { get; }
+        public override string Name { get; } = name;
 
         public override object[] GetCustomAttributes(bool inherit)
             => throw new NotSupportedException();

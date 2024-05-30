@@ -64,15 +64,15 @@ namespace Scaffolding
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -153,15 +153,15 @@ namespace Scaffolding
             concurrencyStamp.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -181,15 +181,15 @@ namespace Scaffolding
             discriminator.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -224,15 +224,15 @@ namespace Scaffolding
             email.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -268,15 +268,15 @@ namespace Scaffolding
             emailConfirmed.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 keyComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 providerValueComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
@@ -312,15 +312,15 @@ namespace Scaffolding
             lockoutEnabled.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 keyComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 providerValueComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
@@ -356,15 +356,15 @@ namespace Scaffolding
             lockoutEnd.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTimeOffset?>(
                     (Nullable<DateTimeOffset> v1, Nullable<DateTimeOffset> v2) => v1.HasValue && v2.HasValue && ((DateTimeOffset)v1).EqualsExact((DateTimeOffset)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((DateTimeOffset)v).GetHashCode() : 0,
+                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((object)(DateTimeOffset)v).GetHashCode() : 0,
                     (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
                 keyComparer: new ValueComparer<DateTimeOffset?>(
                     (Nullable<DateTimeOffset> v1, Nullable<DateTimeOffset> v2) => v1.HasValue && v2.HasValue && ((DateTimeOffset)v1).EqualsExact((DateTimeOffset)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((DateTimeOffset)v).GetHashCode() : 0,
+                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((object)(DateTimeOffset)v).GetHashCode() : 0,
                     (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
                 providerValueComparer: new ValueComparer<DateTimeOffset?>(
                     (Nullable<DateTimeOffset> v1, Nullable<DateTimeOffset> v2) => v1.HasValue && v2.HasValue && ((DateTimeOffset)v1).EqualsExact((DateTimeOffset)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((DateTimeOffset)v).GetHashCode() : 0,
+                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((object)(DateTimeOffset)v).GetHashCode() : 0,
                     (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
                 clrType: typeof(DateTimeOffset),
                 jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
@@ -400,15 +400,15 @@ namespace Scaffolding
             normalizedEmail.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -444,15 +444,15 @@ namespace Scaffolding
             normalizedUserName.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -488,15 +488,15 @@ namespace Scaffolding
             passwordHash.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -532,15 +532,15 @@ namespace Scaffolding
             phoneNumber.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -576,15 +576,15 @@ namespace Scaffolding
             phoneNumberConfirmed.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 keyComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 providerValueComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
@@ -620,15 +620,15 @@ namespace Scaffolding
             securityStamp.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -664,15 +664,15 @@ namespace Scaffolding
             twoFactorEnabled.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 keyComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 providerValueComparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
-                    (bool v) => v.GetHashCode(),
+                    (bool v) => ((object)v).GetHashCode(),
                     (bool v) => v),
                 clrType: typeof(bool),
                 jsonValueReaderWriter: JsonBoolReaderWriter.Instance);
@@ -708,15 +708,15 @@ namespace Scaffolding
             userName.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -751,7 +751,7 @@ namespace Scaffolding
                 (InternalEntityEntry source) =>
                 {
                     var entity = (IdentityUser)source.Entity;
-                    return (ISnapshot)new Snapshot<string, int, string, string, string, bool, bool, Nullable<DateTimeOffset>, string, string, string, string, bool, string, bool, string>(source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(id)), ((ValueComparer<int>)accessFailedCount.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)concurrencyStamp.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(concurrencyStamp)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)discriminator.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)email.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(email)), ((ValueComparer<bool>)emailConfirmed.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)lockoutEnabled.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), source.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd) == null ? null : ((ValueComparer<Nullable<DateTimeOffset>>)lockoutEnd.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd)), source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)normalizedEmail.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(normalizedEmail)), source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)normalizedUserName.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(normalizedUserName)), source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)passwordHash.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(passwordHash)), source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)phoneNumber.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(phoneNumber)), ((ValueComparer<bool>)phoneNumberConfirmed.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)securityStamp.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(securityStamp)), ((ValueComparer<bool>)twoFactorEnabled.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)userName.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(userName)));
+                    return (ISnapshot)new Snapshot<string, int, string, string, string, bool, bool, Nullable<DateTimeOffset>, string, string, string, string, bool, string, bool, string>(source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(id)), ((ValueComparer<int>)((IProperty)accessFailedCount).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(accessFailedCount)), source.GetCurrentValue<string>(concurrencyStamp) == null ? null : ((ValueComparer<string>)((IProperty)concurrencyStamp).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(concurrencyStamp)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)((IProperty)discriminator).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), source.GetCurrentValue<string>(email) == null ? null : ((ValueComparer<string>)((IProperty)email).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(email)), ((ValueComparer<bool>)((IProperty)emailConfirmed).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(emailConfirmed)), ((ValueComparer<bool>)((IProperty)lockoutEnabled).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(lockoutEnabled)), source.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd) == null ? null : ((ValueComparer<Nullable<DateTimeOffset>>)((IProperty)lockoutEnd).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<DateTimeOffset>>(lockoutEnd)), source.GetCurrentValue<string>(normalizedEmail) == null ? null : ((ValueComparer<string>)((IProperty)normalizedEmail).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(normalizedEmail)), source.GetCurrentValue<string>(normalizedUserName) == null ? null : ((ValueComparer<string>)((IProperty)normalizedUserName).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(normalizedUserName)), source.GetCurrentValue<string>(passwordHash) == null ? null : ((ValueComparer<string>)((IProperty)passwordHash).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(passwordHash)), source.GetCurrentValue<string>(phoneNumber) == null ? null : ((ValueComparer<string>)((IProperty)phoneNumber).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(phoneNumber)), ((ValueComparer<bool>)((IProperty)phoneNumberConfirmed).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(phoneNumberConfirmed)), source.GetCurrentValue<string>(securityStamp) == null ? null : ((ValueComparer<string>)((IProperty)securityStamp).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(securityStamp)), ((ValueComparer<bool>)((IProperty)twoFactorEnabled).GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(twoFactorEnabled)), source.GetCurrentValue<string>(userName) == null ? null : ((ValueComparer<string>)((IProperty)userName).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(userName)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 () => Snapshot.Empty);
@@ -765,7 +765,7 @@ namespace Scaffolding
                 (InternalEntityEntry source) =>
                 {
                     var entity = (IdentityUser)source.Entity;
-                    return (ISnapshot)new Snapshot<string>(source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<string>(id)));
+                    return (ISnapshot)new Snapshot<string>(source.GetCurrentValue<string>(id) == null ? null : ((ValueComparer<string>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<string>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 16,

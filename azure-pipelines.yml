@@ -72,7 +72,6 @@ extends:
           enablePublishTestResults: true
           enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
           publishAssetsImmediately: true
-          enableSourceIndex: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
@@ -118,12 +117,25 @@ extends:
                   arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - task: NuGetAuthenticate@1
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
+              - task: CopyFiles@2
+                displayName: 'Copy binaries for publishing'
+                inputs:
+                  Contents: |
+                    artifacts/bin/**/?(*.dll|*.exe|*.pdb)
+                    !artifacts/bin/*Tests/**
+                  TargetFolder: $(Agent.TempDirectory)/BinArtifacts
             templateContext:
               outputs:
+              - output: pipelineArtifact
+                displayName: Publish binaries
+                condition: always()
+                path: $(Agent.TempDirectory)/BinArtifacts/
+                artifact: BinArtifacts
               - output: pipelineArtifact
                 displayName: Upload TestResults
                 condition: always()
@@ -132,7 +144,7 @@ extends:
           - job: macOS
             pool:
               name: Azure Pipelines
-              image: macOS-11
+              image: macOS-12
               os: macOS
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
@@ -145,6 +157,7 @@ extends:
                   arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - task: NuGetAuthenticate@1
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -188,6 +201,7 @@ extends:
                   arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - task: NuGetAuthenticate@1
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -212,7 +226,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: OSX.1200.Amd64;OSX.1200.ARM64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 # Needed for internal queues
                 value: $(HelixApiAccessToken)
@@ -230,6 +244,7 @@ extends:
                   arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                 env:
                     Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - task: NuGetAuthenticate@1
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)

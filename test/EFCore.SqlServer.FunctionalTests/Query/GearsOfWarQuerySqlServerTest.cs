@@ -945,7 +945,7 @@ FROM [Weapons] AS [w]
             """
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[LeaderNickname] = N'Marcus' AND [g].[LeaderNickname] IS NOT NULL
+WHERE [g].[LeaderNickname] = N'Marcus'
 """);
     }
 
@@ -999,10 +999,7 @@ FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NULL THEN NULL
     ELSE CAST(LEN([g].[LeaderNickname]) AS int)
-END = 5 AND CASE
-    WHEN [g].[LeaderNickname] IS NULL THEN NULL
-    ELSE CAST(LEN([g].[LeaderNickname]) AS int)
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -1018,10 +1015,7 @@ FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
     ELSE NULL
-END = 5 AND CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-    ELSE NULL
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -1037,10 +1031,7 @@ FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
     ELSE NULL
-END = 5 AND CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-    ELSE NULL
-END IS NOT NULL
+END = 5
 """);
     }
 
@@ -1171,10 +1162,7 @@ ORDER BY [g0].[Nickname]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN CAST(LEN([g].[LeaderNickname]) AS int) <> CAST(LEN([g].[LeaderNickname]) AS int) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(0 AS bit)
     ELSE NULL
 END
 FROM [Gears] AS [g]
@@ -9258,6 +9246,111 @@ END = CAST(1 AS bit)
         await AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
         AssertSql();
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_property(bool async)
+    {
+        await base.Where_TimeOnly_FromDateTime_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
+FROM [Tags] AS [t]
+CROSS JOIN [Missions] AS [m]
+WHERE CAST([t].[IssueDate] AS time) = [m].[Time]
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_parameter(bool async)
+    {
+        await base.Where_TimeOnly_FromDateTime_compared_to_parameter(async);
+
+        AssertSql(
+"""
+@__time_0='02:00' (DbType = Time)
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
+WHERE [g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL AND CAST(DATEADD(hour, CAST(CAST([g].[SquadId] AS float) AS int), [t].[IssueDate]) AS time) = @__time_0
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromDateTime_compared_to_constant(bool async)
+    {
+        await base.Where_TimeOnly_FromDateTime_compared_to_constant(async);
+
+        AssertSql(
+"""
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
+FROM [Tags] AS [t]
+WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int), [t].[IssueDate]) AS time) > '09:00:00'
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromTimeSpan_compared_to_property(bool async)
+    {
+        await base.Where_TimeOnly_FromTimeSpan_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CAST([m].[Duration] AS time) < [m].[Time]
+""");
+    }
+
+    public override async Task Where_TimeOnly_FromTimeSpan_compared_to_parameter(bool async)
+    {
+        await base.Where_TimeOnly_FromTimeSpan_compared_to_parameter(async);
+
+        AssertSql(
+"""
+@__time_0='01:02' (DbType = Time)
+
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CAST([m].[Duration] AS time) = @__time_0
+""");
+    }
+
+    public override async Task Order_by_TimeOnly_FromTimeSpan(bool async)
+    {
+        await base.Order_by_TimeOnly_FromTimeSpan(async);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+ORDER BY CAST([m].[Duration] AS time)
+""");
+    }
+
+    public override async Task Where_DateOnly_FromDateTime_compared_to_property(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime_compared_to_property(async);
+
+        AssertSql(
+"""
+SELECT [t].[Id] AS [TagId], [m].[Id] AS [MissionId]
+FROM [Tags] AS [t]
+CROSS JOIN [Missions] AS [m]
+WHERE CAST([t].[IssueDate] AS date) > [m].[Date]
+""");
+    }
+
+    public override async Task Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime_compared_to_constant_and_parameter(async);
+
+        AssertSql(
+"""
+@__prm_0='10/11/0002' (DbType = Date)
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
+FROM [Tags] AS [t]
+WHERE CAST([t].[IssueDate] AS date) IN (@__prm_0, '0015-03-07')
+""");
     }
 
     public override async Task Include_on_entity_that_is_not_present_in_final_projection_but_uses_TypeIs_instead(bool async)

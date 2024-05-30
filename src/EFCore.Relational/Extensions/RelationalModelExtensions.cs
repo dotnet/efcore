@@ -66,13 +66,21 @@ public static class RelationalModelExtensions
     /// <returns>The database model.</returns>
     public static IRelationalModel GetRelationalModel(this IModel model)
     {
-        var databaseModel = (IRelationalModel?)model.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel);
-        if (databaseModel == null)
+        var relationalModel = (IRelationalModel?)model.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel);
+        if (relationalModel == null)
         {
-            throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetRelationalModel)));
+            var relationalModelFactory = (Func<IRelationalModel>?)model.FindRuntimeAnnotationValue(
+                            RelationalAnnotationNames.RelationalModelFactory)
+                ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetRelationalModel)));
+            lock (relationalModelFactory)
+            {
+                relationalModel = model.GetOrAddRuntimeAnnotationValue(
+                    RelationalAnnotationNames.RelationalModel, f => f!(), relationalModelFactory);
+                model.RemoveRuntimeAnnotation(RelationalAnnotationNames.RelationalModelFactory);
+            }
         }
 
-        return databaseModel;
+        return relationalModel;
     }
 
     #region Max identifier length

@@ -1113,12 +1113,15 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual IModel OnModelFinalized()
     {
         IModel model = this;
-        foreach (var modelConvention in _modelFinalizedConventions!)
+        if (_modelFinalizedConventions != null)
         {
-            model = modelConvention.ProcessModelFinalized(model);
-        }
+            foreach (var modelConvention in _modelFinalizedConventions)
+            {
+                model = modelConvention.ProcessModelFinalized(model);
+            }
 
-        _modelFinalizedConventions = null;
+            _modelFinalizedConventions = null;
+        }
 
         return model;
     }

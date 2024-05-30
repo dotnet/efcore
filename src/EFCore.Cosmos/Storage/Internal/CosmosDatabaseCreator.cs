@@ -108,14 +108,17 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
         foreach (var (containerName, mappedTypes) in containers)
         {
-            string? partitionKey = null;
+            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
 
             foreach (var entityType in mappedTypes)
             {
-                partitionKey ??= GetPartitionKeyStoreName(entityType);
+                if (!partitionKeyStoreNames.Any())
+                {
+                    partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
+                }
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
@@ -123,7 +126,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
             yield return new ContainerProperties(
                 containerName,
-                partitionKey!,
+                partitionKeyStoreNames,
                 analyticalTtl,
                 defaultTtl,
                 throughput);
@@ -213,11 +216,25 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     /// </summary>
     /// <param name="entityType">The entity type to get the partition key property name for.</param>
     /// <returns>The name of the partition key property.</returns>
+    [Obsolete("Use GetPartitionKeyStoreNames")]
     private static string GetPartitionKeyStoreName(IEntityType entityType)
     {
         var name = entityType.GetPartitionKeyPropertyName();
         return name != null
             ? entityType.FindProperty(name)!.GetJsonPropertyName()
             : CosmosClientWrapper.DefaultPartitionKey;
+    }
+
+    /// <summary>
+    ///     Returns the store names of the properties that is used to store the partition keys.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the partition key property names for.</param>
+    /// <returns>The names of the partition key property.</returns>
+    private static IReadOnlyList<string> GetPartitionKeyStoreNames(IEntityType entityType)
+    {
+        var properties = entityType.GetPartitionKeyProperties();
+        return properties.Any()
+            ? properties.Select(p => p.GetJsonPropertyName()).ToList()
+            : [CosmosClientWrapper.DefaultPartitionKey];
     }
 }

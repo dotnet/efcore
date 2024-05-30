@@ -27,18 +27,17 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
         _plugins.AddRange(plugins.SelectMany(p => p.Translators));
 
         _translators.AddRange(
-            new IMethodCallTranslator[]
-            {
-                new CosmosEqualsTranslator(sqlExpressionFactory),
-                new CosmosStringMethodTranslator(sqlExpressionFactory),
-                new CosmosRandomTranslator(sqlExpressionFactory),
-                new CosmosMathTranslator(sqlExpressionFactory),
-                new CosmosRegexTranslator(sqlExpressionFactory)
-                //new LikeTranslator(sqlExpressionFactory),
-                //new EnumHasFlagTranslator(sqlExpressionFactory),
-                //new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                //new ComparisonTranslator(sqlExpressionFactory),
-            });
+        [
+            new CosmosEqualsTranslator(sqlExpressionFactory),
+            new CosmosStringMethodTranslator(sqlExpressionFactory),
+            new CosmosRandomTranslator(sqlExpressionFactory),
+            new CosmosMathTranslator(sqlExpressionFactory),
+            new CosmosRegexTranslator(sqlExpressionFactory)
+            //new LikeTranslator(sqlExpressionFactory),
+            //new EnumHasFlagTranslator(sqlExpressionFactory),
+            //new GetValueOrDefaultTranslator(sqlExpressionFactory),
+            //new ComparisonTranslator(sqlExpressionFactory),
+        ]);
     }
 
     /// <summary>

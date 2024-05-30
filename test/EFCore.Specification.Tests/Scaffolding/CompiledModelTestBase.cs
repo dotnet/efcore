@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 public abstract class CompiledModelTestBase : NonSharedModelTestBase
 {
     [ConditionalFact]
-    public virtual void SimpleModel()
+    public virtual Task SimpleModel()
         => Test(
             modelBuilder =>
             {
@@ -80,7 +80,7 @@ namespace TestNamespace
             });
 
     [ConditionalFact]
-    public virtual void BigModel()
+    public virtual Task BigModel()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),
@@ -580,20 +580,21 @@ namespace TestNamespace
     }
 
     [ConditionalFact]
-    public virtual void ComplexTypes()
+    public virtual Task ComplexTypes()
         => Test(
             BuildComplexTypesModel,
             AssertComplexTypes,
             c =>
             {
-                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                    new PrincipalDerived<DependentBase<byte?>>
-                    {
-                        Id = 1,
-                        AlternateId = new Guid(),
-                        Dependent = new DependentBase<byte?>(1),
-                        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
-                    });
+                // #33828
+                //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                //    new PrincipalDerived<DependentBase<byte?>>
+                //    {
+                //        Id = 1,
+                //        AlternateId = new Guid(),
+                //        Dependent = new DependentBase<byte?>(1),
+                //        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
+                //    });
 
                 //c.SaveChanges();
 

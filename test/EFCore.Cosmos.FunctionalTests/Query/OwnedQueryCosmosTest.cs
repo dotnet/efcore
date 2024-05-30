@@ -741,6 +741,10 @@ OFFSET 0 LIMIT @__p_0
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(
+                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<OwnedPerson>(

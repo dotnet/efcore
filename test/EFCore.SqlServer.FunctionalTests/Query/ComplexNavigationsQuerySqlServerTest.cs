@@ -4107,8 +4107,27 @@ INNER JOIN (
         FROM [LevelTwo] AS [l0]
     ) AS [l1]
     GROUP BY [l1].[Key]
-) AS [l2] ON [l].[Id] = [l2].[Key] AND CAST(1 AS bit) = CASE
-    WHEN [l2].[Sum] > 10 THEN CAST(1 AS bit)
+) AS [l2] ON [l].[Id] = [l2].[Key] AND [l2].[Sum] > 10
+""");
+    }
+
+    public override async Task Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key2(bool async)
+    {
+        await base.Composite_key_join_on_groupby_aggregate_projecting_only_grouping_key2(async);
+
+        AssertSql(
+            """
+SELECT [l2].[Key]
+FROM [LevelOne] AS [l]
+INNER JOIN (
+    SELECT [l1].[Key], COALESCE(SUM([l1].[Id]), 0) AS [Sum]
+    FROM (
+        SELECT [l0].[Id], [l0].[Id] % 3 AS [Key]
+        FROM [LevelTwo] AS [l0]
+    ) AS [l1]
+    GROUP BY [l1].[Key]
+) AS [l2] ON [l].[Id] = [l2].[Key] AND CAST(0 AS bit) = CASE
+    WHEN [l2].[Sum] <= 10 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);

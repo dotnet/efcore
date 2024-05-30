@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable InconsistentNaming
 
+/// <summary>
+///     General tests for precompiled queries.
+///     See also <see cref="PrecompiledSqlPregenerationQueryRelationalTestBase" /> for tests specifically related to SQL pregeneration.
+/// </summary>
 public class PrecompiledQueryRelationalTestBase
 {
     public PrecompiledQueryRelationalTestBase(PrecompiledQueryRelationalFixture fixture, ITestOutputHelper testOutputHelper)

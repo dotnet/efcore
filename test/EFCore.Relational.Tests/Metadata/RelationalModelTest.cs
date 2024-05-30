@@ -21,6 +21,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     () => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
+        [ConditionalFact]
+        public void Both_design_and_runtime_RelationalModels_are_built_for_external_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<DateDetails>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<Order>().ToTable(tb => tb.HasCheckConstraint("OrderCK", "[Id] > 0"));
+
+            var options = FakeRelationalTestHelpers.Instance.CreateOptions((IModel)modelBuilder.Model);
+            using var context = new DbContext(options);
+
+            var designTimeModel = context.GetService<IDesignTimeModel>().Model;
+            var runtimeModel = context.Model;
+            Assert.NotSame(designTimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory),
+                runtimeModel.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModelFactory));
+
+            var designTimeRelationalModel = designTimeModel.GetRelationalModel();
+            var runtimeRelationalModel = runtimeModel.GetRelationalModel();
+            Assert.NotSame(designTimeRelationalModel, runtimeRelationalModel);
+
+            Assert.Single(designTimeRelationalModel.Tables.Single().CheckConstraints);
+            Assert.Empty(((Table)runtimeRelationalModel.Tables.Single()).CheckConstraints);
+        }
+
         [ConditionalTheory]
         [InlineData(true, Mapping.TPH)]
         [InlineData(true, Mapping.TPT)]

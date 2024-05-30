@@ -23,23 +23,22 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
         var typeMappingSource = dependencies.RelationalTypeMappingSource;
         AddTranslators(
-            new IMethodCallTranslator[]
-            {
-                new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
-                new SqlServerConvertTranslator(sqlExpressionFactory),
-                new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
-                new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                new SqlServerDateOnlyMethodTranslator(sqlExpressionFactory),
-                new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
-                new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
-                new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory),
-                new SqlServerMathTranslator(sqlExpressionFactory),
-                new SqlServerNewGuidTranslator(sqlExpressionFactory),
-                new SqlServerObjectToStringTranslator(sqlExpressionFactory, typeMappingSource),
-                new SqlServerStringMethodTranslator(sqlExpressionFactory),
-                new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory)
-            });
+        [
+            new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
+            new SqlServerConvertTranslator(sqlExpressionFactory),
+            new SqlServerDataLengthFunctionTranslator(sqlExpressionFactory),
+            new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
+            new SqlServerDateOnlyMethodTranslator(sqlExpressionFactory),
+            new SqlServerDateTimeMethodTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
+            new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
+            new SqlServerIsNumericFunctionTranslator(sqlExpressionFactory),
+            new SqlServerMathTranslator(sqlExpressionFactory),
+            new SqlServerNewGuidTranslator(sqlExpressionFactory),
+            new SqlServerObjectToStringTranslator(sqlExpressionFactory, typeMappingSource),
+            new SqlServerStringMethodTranslator(sqlExpressionFactory),
+            new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory)
+        ]);
     }
 }

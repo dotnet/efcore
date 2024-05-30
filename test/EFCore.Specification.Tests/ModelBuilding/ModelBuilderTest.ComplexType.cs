@@ -26,6 +26,7 @@ public abstract partial class ModelBuilderTest
                 .HasTypeAnnotation("foo", "bar")
                 .HasPropertyAnnotation("foo2", "bar2")
                 .Ignore(c => c.Details)
+                .Ignore(c => c.Title)
                 .Ignore(c => c.Orders);
 
             var model = modelBuilder.FinalizeModel();
@@ -1726,6 +1727,7 @@ public abstract partial class ModelBuilderTest
                 .ComplexProperty(e => e.Customer)
                 .Ignore(c => c.Notes)
                 .Ignore(c => c.Name)
+                .Ignore(c => c.Title)
                 .Ignore(c => c.Id)
                 .Ignore(c => c.AlternateKey);
 

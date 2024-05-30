@@ -89,6 +89,7 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
+            RelationalAnnotationNames.RelationalModelFactory,
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.JsonPropertyName,
@@ -134,14 +135,7 @@ public partial class CSharpMigrationsGeneratorTest
             },
             {
                 CoreAnnotationNames.DiscriminatorValue, ("MyDiscriminatorValue",
-                    _toTable
-                    + ";"
-                    + _nl
-                    + _nl
-                    + "entityTypeBuilder.HasDiscriminator"
-                    + "()."
-                    + nameof(DiscriminatorBuilder.HasValue)
-                    + @"(""MyDiscriminatorValue"")")
+                    _toTable)
             },
             {
                 RelationalAnnotationNames.Comment, ("My Comment",
@@ -264,6 +258,7 @@ public partial class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
+            RelationalAnnotationNames.RelationalModelFactory,
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.ContainerColumnName,

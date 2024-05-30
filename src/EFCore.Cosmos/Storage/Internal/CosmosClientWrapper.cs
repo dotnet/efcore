@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -201,8 +202,9 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         CancellationToken cancellationToken = default)
     {
         var (parameters, wrapper) = parametersTuple;
+        var partitionKeyPaths = parameters.PartitionKeyStoreNames.Select(e => "/" + e).ToList();
         var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
-                new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
+                new Azure.Cosmos.ContainerProperties(parameters.Id, partitionKeyPaths)
                 {
                     PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
                     DefaultTimeToLive = parameters.DefaultTimeToLive,
@@ -267,11 +269,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var wrapper = parameters.Wrapper;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
         var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKey = CreatePartitionKey(entry);
+        var partitionKeyValue = ExtractPartitionKeyValue(entry);
 
         var response = await container.CreateItemStreamAsync(
                 stream,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                partitionKeyValue,
                 itemRequestOptions,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -282,7 +284,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Headers.ActivityId,
             parameters.Document["id"].ToString(),
             parameters.ContainerId,
-            partitionKey);
+            partitionKeyValue);
 
         ProcessResponse(response, entry);
 
@@ -343,12 +345,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var wrapper = parameters.Wrapper;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
         var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKey = CreatePartitionKey(entry);
+        var partitionKeyValue = ExtractPartitionKeyValue(entry);
 
         using var response = await container.ReplaceItemStreamAsync(
                 stream,
                 parameters.ResourceId,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                partitionKeyValue,
                 itemRequestOptions,
                 cancellationToken)
             .ConfigureAwait(false);
@@ -359,7 +361,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Headers.ActivityId,
             parameters.ResourceId,
             parameters.ContainerId,
-            partitionKey);
+            partitionKeyValue);
 
         ProcessResponse(response, entry);
 
@@ -410,11 +412,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         var items = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(parameters.ContainerId);
 
         var itemRequestOptions = CreateItemRequestOptions(entry, wrapper._enableContentResponseOnWrite);
-        var partitionKey = CreatePartitionKey(entry);
+        var partitionKeyValue = ExtractPartitionKeyValue(entry);
 
         using var response = await items.DeleteItemStreamAsync(
                 parameters.ResourceId,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                partitionKeyValue,
                 itemRequestOptions,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);
@@ -425,7 +427,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Headers.ActivityId,
             parameters.ResourceId,
             parameters.ContainerId,
-            partitionKey);
+            partitionKeyValue);
 
         ProcessResponse(response, entry);
 
@@ -477,23 +479,21 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return new ItemRequestOptions { IfMatchEtag = (string?)etag, EnableContentResponseOnWrite = enabledContentResponse };
     }
 
-    private static string? CreatePartitionKey(IUpdateEntry entry)
+    private static PartitionKey ExtractPartitionKeyValue(IUpdateEntry entry)
     {
-        object? partitionKey = null;
-        var partitionKeyPropertyName = entry.EntityType.GetPartitionKeyPropertyName();
-        if (partitionKeyPropertyName != null)
+        var partitionKeyProperties = entry.EntityType.GetPartitionKeyProperties();
+        if (!partitionKeyProperties.Any())
         {
-            var partitionKeyProperty = entry.EntityType.FindProperty(partitionKeyPropertyName)!;
-            partitionKey = entry.GetCurrentValue(partitionKeyProperty);
-
-            var converter = partitionKeyProperty.GetTypeMapping().Converter;
-            if (converter != null)
-            {
-                partitionKey = converter.ConvertToProvider(partitionKey);
-            }
+            return PartitionKey.None;
         }
 
-        return (string?)partitionKey;
+        var builder = new PartitionKeyBuilder();
+        foreach (var property in partitionKeyProperties)
+        {
+            builder.Add(entry.GetCurrentValue(property), property);
+        }
+
+        return builder.Build();
     }
 
     private static void ProcessResponse(ResponseMessage response, IUpdateEntry entry)
@@ -527,14 +527,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     public virtual IEnumerable<JObject> ExecuteSqlQuery(
         string containerId,
-        string? partitionKey,
+        PartitionKey partitionKeyValue,
         CosmosSqlQuery query)
     {
         _databaseLogger.SyncNotSupported();
 
-        _commandLogger.ExecutingSqlQuery(containerId, partitionKey, query);
+        _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentEnumerable(this, containerId, partitionKey, query);
+        return new DocumentEnumerable(this, containerId, partitionKeyValue, query);
     }
 
     /// <summary>
@@ -545,12 +545,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
         string containerId,
-        string? partitionKey,
+        PartitionKey partitionKeyValue,
         CosmosSqlQuery query)
     {
-        _commandLogger.ExecutingSqlQuery(containerId, partitionKey, query);
+        _commandLogger.ExecutingSqlQuery(containerId, partitionKeyValue, query);
 
-        return new DocumentAsyncEnumerable(this, containerId, partitionKey, query);
+        return new DocumentAsyncEnumerable(this, containerId, partitionKeyValue, query);
     }
 
     /// <summary>
@@ -561,14 +561,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     public virtual JObject? ExecuteReadItem(
         string containerId,
-        string? partitionKey,
+        PartitionKey partitionKeyValue,
         string resourceId)
     {
         _databaseLogger.SyncNotSupported();
 
-        _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
+        _commandLogger.ExecutingReadItem(containerId, partitionKeyValue, resourceId);
 
-        var response = _executionStrategy.Execute((containerId, partitionKey, resourceId, this), CreateSingleItemQuery, null);
+        var response = _executionStrategy.Execute((containerId, partitionKeyValue, resourceId, this), CreateSingleItemQuery, null);
 
         _commandLogger.ExecutedReadItem(
             response.Diagnostics.GetClientElapsedTime(),
@@ -576,7 +576,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Headers.ActivityId,
             resourceId,
             containerId,
-            partitionKey);
+            partitionKeyValue);
 
         return JObjectFromReadItemResponseMessage(response);
     }
@@ -589,14 +589,14 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     public virtual async Task<JObject?> ExecuteReadItemAsync(
         string containerId,
-        string? partitionKey,
+        PartitionKey partitionKeyValue,
         string resourceId,
         CancellationToken cancellationToken = default)
     {
-        _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
+        _commandLogger.ExecutingReadItem(containerId, partitionKeyValue, resourceId);
 
         var response = await _executionStrategy.ExecuteAsync(
-                (containerId, partitionKey, resourceId, this),
+                (containerId, partitionKeyValue, resourceId, this),
                 CreateSingleItemQueryAsync,
                 null,
                 cancellationToken)
@@ -608,27 +608,27 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             response.Headers.ActivityId,
             resourceId,
             containerId,
-            partitionKey);
+            partitionKeyValue);
 
         return JObjectFromReadItemResponseMessage(response);
     }
 
     private static ResponseMessage CreateSingleItemQuery(
         DbContext? context,
-        (string ContainerId, string? PartitionKey, string ResourceId, CosmosClientWrapper Wrapper) parameters)
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, CosmosClientWrapper Wrapper) parameters)
         => CreateSingleItemQueryAsync(context, parameters).GetAwaiter().GetResult();
 
     private static Task<ResponseMessage> CreateSingleItemQueryAsync(
         DbContext? _,
-        (string ContainerId, string? PartitionKey, string ResourceId, CosmosClientWrapper Wrapper) parameters,
+        (string ContainerId, PartitionKey PartitionKeyValue, string ResourceId, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
-        var (containerId, partitionKey, resourceId, wrapper) = parameters;
+        var (containerId, partitionKeyValue, resourceId, wrapper) = parameters;
         var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(containerId);
 
         return container.ReadItemStreamAsync(
             resourceId,
-            string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new PartitionKey(partitionKey),
+            partitionKeyValue,
             cancellationToken: cancellationToken);
     }
 
@@ -658,7 +658,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     /// </summary>
     public virtual FeedIterator CreateQuery(
         string containerId,
-        string? partitionKey,
+        PartitionKey partitionKeyValue,
         CosmosSqlQuery query)
     {
         var container = Client.GetDatabase(_databaseId).GetContainer(containerId);
@@ -669,12 +669,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 queryDefinition,
                 (current, parameter) => current.WithParameter(parameter.Name, parameter.Value));
 
-        if (string.IsNullOrEmpty(partitionKey))
+        if (partitionKeyValue == PartitionKey.None)
         {
             return container.GetItemQueryStreamIterator(queryDefinition);
         }
 
-        var queryRequestOptions = new QueryRequestOptions { PartitionKey = new PartitionKey(partitionKey) };
+        var queryRequestOptions = new QueryRequestOptions { PartitionKey = partitionKeyValue };
 
         return container.GetItemQueryStreamIterator(queryDefinition, requestOptions: queryRequestOptions);
     }
@@ -722,18 +722,18 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         private readonly CosmosClientWrapper _cosmosClient;
         private readonly string _containerId;
-        private readonly string? _partitionKey;
+        private readonly PartitionKey _partitionKeyValue;
         private readonly CosmosSqlQuery _cosmosSqlQuery;
 
         public DocumentEnumerable(
             CosmosClientWrapper cosmosClient,
             string containerId,
-            string? partitionKey,
+            PartitionKey partitionKeyValue,
             CosmosSqlQuery cosmosSqlQuery)
         {
             _cosmosClient = cosmosClient;
             _containerId = containerId;
-            _partitionKey = partitionKey;
+            _partitionKeyValue = partitionKeyValue;
             _cosmosSqlQuery = cosmosSqlQuery;
         }
 
@@ -747,7 +747,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             private readonly CosmosClientWrapper _cosmosClientWrapper;
             private readonly string _containerId;
-            private readonly string? _partitionKey;
+            private readonly PartitionKey _partitionKeyValue;
             private readonly CosmosSqlQuery _cosmosSqlQuery;
 
             private JObject? _current;
@@ -762,7 +762,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 _cosmosClientWrapper = documentEnumerable._cosmosClient;
                 _containerId = documentEnumerable._containerId;
-                _partitionKey = documentEnumerable._partitionKey;
+                _partitionKeyValue = documentEnumerable._partitionKeyValue;
                 _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
             }
 
@@ -777,7 +777,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 if (_jsonReader == null)
                 {
-                    _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
+                    _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKeyValue, _cosmosSqlQuery);
 
                     if (!_query.HasMoreResults)
                     {
@@ -792,7 +792,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         _responseMessage.Headers.RequestCharge,
                         _responseMessage.Headers.ActivityId,
                         _containerId,
-                        _partitionKey,
+                        _partitionKeyValue,
                         _cosmosSqlQuery);
 
                     _responseMessage.EnsureSuccessStatusCode();
@@ -840,18 +840,18 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         private readonly CosmosClientWrapper _cosmosClient;
         private readonly string _containerId;
-        private readonly string? _partitionKey;
+        private readonly PartitionKey _partitionKeyValue;
         private readonly CosmosSqlQuery _cosmosSqlQuery;
 
         public DocumentAsyncEnumerable(
             CosmosClientWrapper cosmosClient,
             string containerId,
-            string? partitionKey,
+            PartitionKey partitionKeyValue,
             CosmosSqlQuery cosmosSqlQuery)
         {
             _cosmosClient = cosmosClient;
             _containerId = containerId;
-            _partitionKey = partitionKey;
+            _partitionKeyValue = partitionKeyValue;
             _cosmosSqlQuery = cosmosSqlQuery;
         }
 
@@ -862,7 +862,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             private readonly CosmosClientWrapper _cosmosClientWrapper;
             private readonly string _containerId;
-            private readonly string? _partitionKey;
+            private readonly PartitionKey _partitionKeyValue;
             private readonly CosmosSqlQuery _cosmosSqlQuery;
             private readonly CancellationToken _cancellationToken;
 
@@ -881,7 +881,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 _cosmosClientWrapper = documentEnumerable._cosmosClient;
                 _containerId = documentEnumerable._containerId;
-                _partitionKey = documentEnumerable._partitionKey;
+                _partitionKeyValue = documentEnumerable._partitionKeyValue;
                 _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                 _cancellationToken = cancellationToken;
             }
@@ -893,7 +893,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                 if (_jsonReader == null)
                 {
-                    _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
+                    _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKeyValue, _cosmosSqlQuery);
 
                     if (!_query.HasMoreResults)
                     {
@@ -908,7 +908,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                         _responseMessage.Headers.RequestCharge,
                         _responseMessage.Headers.ActivityId,
                         _containerId,
-                        _partitionKey,
+                        _partitionKeyValue,
                         _cosmosSqlQuery);
 
                     _responseMessage.EnsureSuccessStatusCode();

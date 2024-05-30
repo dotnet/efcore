@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
 {
     [ConditionalFact]
-    public virtual void BigModel_with_JSON_columns()
+    public virtual Task BigModel_with_JSON_columns()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
             model => AssertBigModel(model, jsonColumns: true),
@@ -451,7 +451,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Tpc_Sprocs()
+    public virtual Task Tpc_Sprocs()
         => Test(
             BuildTpcSprocsModel,
             AssertTpcSprocs,
@@ -847,7 +847,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Sequences()
+    public virtual Task Sequences()
         => Test(
             modelBuilder =>
                 modelBuilder.HasSequence<long>("Long")
@@ -872,7 +872,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
 
     [ConditionalFact]
-    public virtual void CheckConstraints()
+    public virtual Task CheckConstraints()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(
                 eb =>
@@ -893,7 +893,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             });
 
     [ConditionalFact]
-    public virtual void Triggers()
+    public virtual Task Triggers()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(
                 eb =>
@@ -1209,7 +1209,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     }
 
     [ConditionalFact]
-    public virtual void Dynamic_schema()
+    public virtual Task Dynamic_schema()
         => Test(
             modelBuilder => modelBuilder.Entity<Data>(
                 eb =>

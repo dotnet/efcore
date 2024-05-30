@@ -25,12 +25,11 @@ public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
         IEnumerable<IMemberTranslatorPlugin> plugins)
     {
         _plugins.AddRange(plugins.SelectMany(p => p.Translators));
-        _translators
-            .AddRange(
-                new IMemberTranslator[]
-                {
-                    new CosmosStringMemberTranslator(sqlExpressionFactory), new CosmosDateTimeMemberTranslator(sqlExpressionFactory)
-                });
+        _translators.AddRange(
+        [
+            new CosmosStringMemberTranslator(sqlExpressionFactory),
+            new CosmosDateTimeMemberTranslator(sqlExpressionFactory)
+        ]);
     }
 
     /// <summary>

@@ -87,6 +87,7 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
         public Guid AlternateKey { get; set; }
         public string? Name { get; set; }
+        public string Title { get; set; } = null!;
 
         public IEnumerable<Order>? Orders { get; set; }
 

@@ -19,7 +19,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -104,7 +104,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -182,7 +182,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
         string storeId = null;
@@ -261,7 +261,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -357,7 +357,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -588,14 +588,17 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int PartitionKey { get; set; }
+        public int PartitionKey1 { get; set; }
+        public bool PartitionKey3 { get; set; }
+        public string PartitionKey2 { get; set; }
     }
 
     private class CustomerWithResourceId
     {
         public string id { get; set; }
         public string Name { get; set; }
-        public int PartitionKey { get; set; }
+        public int PartitionKey1 { get; set; }
+        public decimal PartitionKey2 { get; set; }
     }
 
     private class CustomerGuid
@@ -625,7 +628,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             b => b.Entity<Customer>(),
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "2021-08-23T06:23:40+00:00" };
 
@@ -686,7 +689,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<IdentifierShadowValuePresenceTestContext>(
             usePooling: false,
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var context = contextFactory.CreateContext();
         var item = new GItem();
@@ -711,7 +714,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<IdentifierShadowValuePresenceTestContext>(
             usePooling: false,
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var context = contextFactory.CreateContext();
 
@@ -940,7 +943,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<CollectionCustomerContext<TCollection>>(
             shouldLogCategory: _ => true,
             onModelCreating: onModelBuilder,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new CustomerWithCollection<TCollection>
         {
@@ -1022,7 +1025,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             id = "42",
             Name = "Theon",
-            PartitionKey = pk1
+            PartitionKey1 = pk1,
+            PartitionKey2 = 3.15m
         };
 
         await using (var context = contextFactory.CreateContext())
@@ -1039,7 +1043,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 {
                     id = "42",
                     Name = "Theon Twin",
-                    PartitionKey = pk2
+                    PartitionKey1 = pk2,
+                    PartitionKey2 = 3.15m
                 });
 
             await context.SaveChangesAsync();
@@ -1048,12 +1053,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         await using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>()
-                .FindAsync(pk1, "42");
+                .FindAsync(pk1, 3.15m, "42");
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
-            AssertSql(context, @"ReadItem(1, 42)");
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal(3.15m, customerFromStore.PartitionKey2);
+            AssertSql(context, """ReadItem([1.0,3.15], 42)""");
 
             customerFromStore.Name = "Theon Greyjoy";
 
@@ -1063,12 +1069,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         await using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>()
-                .WithPartitionKey(partitionKey: pk1.ToString())
+                .WithPartitionKey(pk1, 3.15m)
                 .FirstAsync();
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal(3.15m, customerFromStore.PartitionKey2);
         }
     }
 
@@ -1086,7 +1093,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             id = "42",
             Name = "Theon",
-            PartitionKey = pk1
+            PartitionKey1 = pk1,
+            PartitionKey2 = 3.15m
         };
 
         using (var context = contextFactory.CreateContext())
@@ -1099,7 +1107,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 {
                     id = "42",
                     Name = "Theon Twin",
-                    PartitionKey = pk2
+                    PartitionKey1 = pk2,
+                    PartitionKey2 = 3.15m
                 });
 
             context.SaveChanges();
@@ -1108,12 +1117,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = context.Set<CustomerWithResourceId>()
-                .Find(pk1, "42");
+                .Find(pk1, 3.15m, "42");
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
-            AssertSql(context, @"ReadItem(1, 42)");
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal(3.15m, customerFromStore.PartitionKey2);
+            AssertSql(context, """ReadItem([1.0,3.15], 42)""");
 
             customerFromStore.Name = "Theon Greyjoy";
 
@@ -1123,12 +1133,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = context.Set<CustomerWithResourceId>()
-                .WithPartitionKey(partitionKey: pk1.ToString())
+                .WithPartitionKey(pk1, 3.15m)
                 .First();
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal(3.15m, customerFromStore.PartitionKey2);
         }
     }
 
@@ -1145,7 +1156,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             Assert.Equal(
                 CosmosStrings.InvalidResourceId,
-                Assert.Throws<InvalidOperationException>(() => context.Set<CustomerWithResourceId>().Find(1, "")).Message);
+                Assert.Throws<InvalidOperationException>(() => context.Set<CustomerWithResourceId>().Find(1, 3.15m, "")).Message);
         }
     }
 
@@ -1163,7 +1174,9 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             Id = 42,
             Name = "Theon",
-            PartitionKey = pk1
+            PartitionKey1 = pk1,
+            PartitionKey2 = "One",
+            PartitionKey3 = true
         };
 
         await using (var context = contextFactory.CreateContext())
@@ -1176,7 +1189,9 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 {
                     Id = 42,
                     Name = "Theon Twin",
-                    PartitionKey = pk2
+                    PartitionKey1 = pk2,
+                    PartitionKey2 = "Two",
+                    PartitionKey3 = false
                 });
 
             await context.SaveChangesAsync();
@@ -1185,11 +1200,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         await using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = await context.Set<Customer>()
-                .FindAsync(pk1, 42);
+                .FindAsync(pk1, 42, "One", true);
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal("One", customerFromStore.PartitionKey2);
+            Assert.True(customerFromStore.PartitionKey3);
 
             customerFromStore.Name = "Theon Greyjoy";
 
@@ -1199,12 +1216,14 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         await using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = await context.Set<Customer>()
-                .WithPartitionKey(partitionKey: pk1.ToString())
+                .WithPartitionKey(pk1, "One", true)
                 .FirstAsync();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal("One", customerFromStore.PartitionKey2);
+            Assert.True(customerFromStore.PartitionKey3);
         }
     }
 
@@ -1222,7 +1241,9 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             Id = 42,
             Name = "Theon",
-            PartitionKey = pk1
+            PartitionKey1 = pk1,
+            PartitionKey2 = "One",
+            PartitionKey3 = true
         };
 
         using (var context = contextFactory.CreateContext())
@@ -1235,7 +1256,9 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 {
                     Id = 42,
                     Name = "Theon Twin",
-                    PartitionKey = pk2
+                    PartitionKey1 = pk2,
+                    PartitionKey2 = "Two",
+                    PartitionKey3 = false
                 });
 
             context.SaveChanges();
@@ -1244,12 +1267,14 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = context.Set<Customer>()
-                .Find(pk1, 42);
+                .Find(pk1, 42, "One", true);
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
-            AssertSql(context, @"ReadItem(1, Customer-42)");
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal("One", customerFromStore.PartitionKey2);
+            Assert.True(customerFromStore.PartitionKey3);
+            AssertSql(context, """ReadItem([1.0,"One",true], Customer-42)""");
 
             customerFromStore.Name = "Theon Greyjoy";
 
@@ -1259,12 +1284,14 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = context.Set<Customer>()
-                .WithPartitionKey(partitionKey: pk1.ToString())
+                .WithPartitionKey(pk1, "One", true)
                 .First();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal("One", customerFromStore.PartitionKey2);
+            Assert.True(customerFromStore.PartitionKey3);
         }
     }
 
@@ -1281,7 +1308,9 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             Id = 42,
             Name = "Theon",
-            PartitionKey = pk1
+            PartitionKey1 = pk1,
+            PartitionKey2 = "One",
+            PartitionKey3 = true
         };
 
         using (var context = contextFactory.CreateContext())
@@ -1298,19 +1327,21 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = context.Set<Customer>()
-                .Find(pk1, 42);
+                .Find(pk1, "One", true, 42);
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal("One", customerFromStore.PartitionKey2);
+            Assert.True(customerFromStore.PartitionKey3);
             AssertSql(
                 context,
                 """
-@__p_1='42'
+@__p_3='42'
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["Id"] = @__p_1))
+WHERE ((c["Discriminator"] = "Customer") AND (c["Id"] = @__p_3))
 OFFSET 0 LIMIT 1
 """);
 
@@ -1322,12 +1353,14 @@ OFFSET 0 LIMIT 1
         using (var context = contextFactory.CreateContext())
         {
             var customerFromStore = context.Set<Customer>()
-                .WithPartitionKey(partitionKey: pk1.ToString())
+                .WithPartitionKey(pk1, "One", true)
                 .First();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
-            Assert.Equal(pk1, customerFromStore.PartitionKey);
+            Assert.Equal(pk1, customerFromStore.PartitionKey1);
+            Assert.Equal("One", customerFromStore.PartitionKey2);
+            Assert.True(customerFromStore.PartitionKey3);
         }
     }
 
@@ -1336,13 +1369,15 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<PartitionKeyContextNonPrimaryKey>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer
         {
             Id = 42,
             Name = "Theon",
-            PartitionKey = 1
+            PartitionKey1 = 1,
+            PartitionKey2 = "One",
+            PartitionKey3 = true
         };
 
         using (var context = contextFactory.CreateContext())
@@ -1360,7 +1395,7 @@ OFFSET 0 LIMIT 1
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            AssertSql(context, "ReadItem(, Customer|42)");
+            AssertSql(context, """ReadItem(None, Customer|42)""");
         }
     }
 
@@ -1369,7 +1404,7 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<PartitionKeyContextEntityWithNoPartitionKey>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new CustomerNoPartitionKey { Id = 42, Name = "Theon" };
 
@@ -1388,7 +1423,7 @@ OFFSET 0 LIMIT 1
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            AssertSql(context, @"ReadItem(, CustomerNoPartitionKey|42)");
+            AssertSql(context, @"ReadItem(None, CustomerNoPartitionKey|42)");
         }
     }
 
@@ -1416,7 +1451,7 @@ OFFSET 0 LIMIT 1
 
             Assert.Equal(customer.Id, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            AssertSql(context, @$"ReadItem({customer.Id}, {customer.Id})");
+            AssertSql(context, @$"ReadItem([""{customer.Id}""], {customer.Id})");
         }
     }
 
@@ -1463,9 +1498,8 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<Customer>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                    cb.Property(c => c.PartitionKey).HasConversion<string>();
-                    cb.HasKey(c => new { c.Id, c.PartitionKey });
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasKey(c => new { c.Id, c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
                 });
     }
 
@@ -1484,10 +1518,8 @@ OFFSET 0 LIMIT 1
                     cb.Property(StoreKeyConvention.DefaultIdPropertyName)
                         .HasValueGeneratorFactory(typeof(CustomPartitionKeyIdValueGeneratorFactory));
 
-                    cb.Property(c => c.PartitionKey).HasConversion<string>();
-
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                    cb.HasKey(c => new { c.PartitionKey, c.Id });
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasKey(c => new { c.PartitionKey1, c.Id, c.PartitionKey2, c.PartitionKey3 });
                 });
     }
 
@@ -1499,10 +1531,8 @@ OFFSET 0 LIMIT 1
                 {
                     cb.Property(StoreKeyConvention.DefaultIdPropertyName).HasValueGenerator((Type)null);
 
-                    cb.Property(c => c.PartitionKey).HasConversion<string>();
-
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                    cb.HasKey(c => new { c.PartitionKey, c.Id });
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3 });
+                    cb.HasKey(c => new { c.PartitionKey1, c.PartitionKey2, c.PartitionKey3, c.Id });
                 });
     }
 
@@ -1529,8 +1559,7 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                    cb.Property(c => c.PartitionKey).HasConversion<string>();
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 } );
                     cb.Property(c => c.id).HasConversion<string>();
                     cb.HasKey(c => new { c.id });
                 });
@@ -1542,9 +1571,8 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
                 {
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                    cb.Property(c => c.PartitionKey).HasConversion<string>();
-                    cb.HasKey(c => new { c.PartitionKey, c.id });
+                    cb.HasPartitionKey(c => new { c.PartitionKey1, c.PartitionKey2 } );
+                    cb.HasKey(c => new { c.PartitionKey1, c.PartitionKey2, c.id });
                 });
     }
 
@@ -1553,7 +1581,7 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<NoDiscriminatorCustomerContext>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -1604,7 +1632,7 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<ExtraCustomerContext>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -1665,7 +1693,7 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<UnmappedCustomerContext>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -1787,7 +1815,7 @@ OFFSET 0 LIMIT 1
     {
         var contextFactory = await InitializeAsync<ConflictingIdContext>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         var entity = new ConflictingId { id = "42", Name = "Theon" };
 
@@ -1870,7 +1898,7 @@ OFFSET 0 LIMIT 1
                     b.Entity<NonStringDiscriminator>();
                 }
             },
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported, CosmosEventId.NoPartitionKeyDefined)));
 
         using var context = contextFactory.CreateContext();
         context.Database.EnsureCreated();

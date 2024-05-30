@@ -1241,7 +1241,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(6, entity.GetProperties().Count());
+            Assert.Equal(7, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
             Assert.Equal("historySchema", entity.GetHistoryTableSchema());
@@ -1290,7 +1290,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(6, entity.GetProperties().Count());
+            Assert.Equal(7, entity.GetProperties().Count());
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
@@ -1339,7 +1339,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(6, entity.GetProperties().Count());
+            Assert.Equal(7, entity.GetProperties().Count());
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
@@ -1389,7 +1389,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(6, entity.GetProperties().Count());
+            Assert.Equal(7, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
@@ -1437,7 +1437,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(8, entity.GetProperties().Count());
+            Assert.Equal(9, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
@@ -1480,7 +1480,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.False(entity.IsTemporal());
             Assert.Null(entity.GetPeriodStartPropertyName());
             Assert.Null(entity.GetPeriodEndPropertyName());
-            Assert.Equal(4, entity.GetProperties().Count());
+            Assert.Equal(5, entity.GetProperties().Count());
         }
 
         [ConditionalFact]

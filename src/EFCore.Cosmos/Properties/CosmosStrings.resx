@@ -187,6 +187,10 @@
     <value>Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}</value>
     <comment>Information CosmosEventId.ExecutingSqlQuery string string? string string string</comment>
   </data>
+  <data name="LogNoPartitionKeyDefined" xml:space="preserve">
+    <value>No partition key has been configured for entity type '{entityType}'. It is highly recommended that an appropriate partition key be defined. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+    <comment>Warning CosmosEventId.NoPartitionKeyDefined string</comment>
+  </data>
   <data name="LogSyncNotSupported" xml:space="preserve">
     <value>Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.</value>
     <comment>Error CosmosEventId.SyncNotSupported</comment>
@@ -216,7 +220,7 @@
     <value>The entity type '{entityType}' has property '{property}' configured as a concurrency token, but only a property mapped to '_etag' is supported as a concurrency token. Consider using 'PropertyBuilder.IsETagConcurrency'.</value>
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a partition key set, but is mapped to the container '{container}' shared by entity types with partition keys. Configure a compatible partition key on '{entityType}'.</value>
+    <value>The partition key properties for entity type '{entityType1}' are '{props1}', while the partition key properties for entity type '{entityType2}' are '{props2}', and both entity types are mapped to the container '{containerName}'. All entity types mapped to the same container must have compatible partition keys defined.</value>
   </data>
   <data name="NoPartitionKeyKey" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
@@ -248,6 +252,15 @@
   <data name="OwnedTypeDifferentContainer" xml:space="preserve">
     <value>The entity type '{entityType}' is owned by the entity type '{owner}', but is mapped to the container '{container}'. Owned types mapped to a container directly are not supported, remove this configuration to allow the owned type to be embedded in the same document as the owner.</value>
   </data>
+  <data name="PartitionKeyBadStoreType" xml:space="preserve">
+    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key property types must be numeric, Boolean, or string, or converted to one of these types.</value>
+  </data>
+  <data name="PartitionKeyBadValue" xml:space="preserve">
+    <value>The partition key value is of type '{valueType}' which is not valid for Cosmos partition keys. All partition key properties values must be numeric, Boolean, or string, or converted to one of these types.</value>
+  </data>
+  <data name="PartitionKeyBadValueType" xml:space="preserve">
+    <value>The partition key value supplied for '{propertyType}' property '{entityType}.{property}' is of type '{valueType}'. Partition key values must be of a type assignable to the property.</value>
+  </data>
   <data name="PartitionKeyMismatch" xml:space="preserve">
     <value>The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.</value>
   </data>
@@ -256,9 +269,6 @@
   </data>
   <data name="PartitionKeyMissingProperty" xml:space="preserve">
     <value>The partition key for entity type '{entityType}' is set to '{property}', but there is no property with that name.</value>
-  </data>
-  <data name="PartitionKeyNonStringStoreType" xml:space="preserve">
-    <value>The type of the partition key property '{property}' on '{entityType}' is '{propertyType}'. All partition key properties need to be strings or have a string value converter.</value>
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.</value>
@@ -292,5 +302,8 @@
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
+  </data>
+  <data name="WithPartitionKeyBadNode" xml:space="preserve">
+    <value>'WithPartitionKeyMethodInfo' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
   </data>
 </root>

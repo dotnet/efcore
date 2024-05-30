@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
@@ -51,6 +52,7 @@ public class CosmosModelValidator : ModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        // All entity types mapped to a single container must have the same container-level settings, most notably partition keys.
         var containers = new Dictionary<string, List<IEntityType>>();
         foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
         {
@@ -102,7 +104,7 @@ public class CosmosModelValidator : ModelValidator
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var discriminatorValues = new Dictionary<object, IEntityType>();
-        IProperty? partitionKey = null;
+        List<string?> partitionKeyStoreNames = new();
         int? analyticalTtl = null;
         int? defaultTtl = null;
         ThroughputProperties? throughput = null;
@@ -110,38 +112,45 @@ public class CosmosModelValidator : ModelValidator
         foreach (var entityType in mappedTypes)
         {
             Check.DebugAssert(entityType.IsDocumentRoot(), "Only document roots expected here.");
-            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-            if (partitionKeyPropertyName != null)
-            {
-                var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName)!;
-                if (partitionKey == null)
-                {
-                    if (firstEntityType != null)
-                    {
-                        throw new InvalidOperationException(CosmosStrings.NoPartitionKey(firstEntityType.DisplayName(), container));
-                    }
 
-                    partitionKey = nextPartitionKeyProperty;
-                }
-                else if (partitionKey.GetJsonPropertyName() != nextPartitionKeyProperty.GetJsonPropertyName())
+            var storeNames = entityType.GetPartitionKeyPropertyNames()
+                .Select(n => entityType.FindProperty(n)?.GetJsonPropertyName())
+                .ToList();
+
+            if (firstEntityType is null)
+            {
+                partitionKeyStoreNames = storeNames;
+                firstEntityType = entityType;
+            }
+            else
+            {
+                if (partitionKeyStoreNames.Count != storeNames.Count)
                 {
                     throw new InvalidOperationException(
-                        CosmosStrings.PartitionKeyStoreNameMismatch(
-                            partitionKey.Name, firstEntityType!.DisplayName(), partitionKey.GetJsonPropertyName(),
-                            nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetJsonPropertyName()));
+                        CosmosStrings.NoPartitionKey(
+                            firstEntityType.DisplayName(),
+                            string.Join(",", partitionKeyStoreNames),
+                            entityType.DisplayName(),
+                            string.Join(",", storeNames),
+                            container));
                 }
-            }
-            else if (partitionKey != null)
-            {
-                throw new InvalidOperationException(CosmosStrings.NoPartitionKey(entityType.DisplayName(), container));
+
+                for (var i = 0; i < storeNames.Count; i++)
+                {
+                    if (!string.Equals(storeNames[i], partitionKeyStoreNames[i], StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyStoreNameMismatch(
+                                firstEntityType.GetPartitionKeyPropertyNames()[i], firstEntityType.DisplayName(), partitionKeyStoreNames[i],
+                                entityType.GetPartitionKeyPropertyNames()[i], entityType.DisplayName(), storeNames[i]));
+                    }
+                }
             }
 
             if (mappedTypes.Count == 1)
             {
                 break;
             }
-
-            firstEntityType ??= entityType;
 
             if (entityType.ClrType.IsInstantiable()
                 && entityType.GetContainingPropertyName() == null)
@@ -313,30 +322,39 @@ public class CosmosModelValidator : ModelValidator
                 throw new InvalidOperationException(CosmosStrings.NoIdKey(entityType.DisplayName(), idProperty.Name));
             }
 
-            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
-            if (partitionKeyPropertyName != null)
+            var partitionKeyPropertyNames = entityType.GetPartitionKeyPropertyNames();
+            if (partitionKeyPropertyNames.Count == 0)
             {
-                var partitionKey = entityType.FindProperty(partitionKeyPropertyName);
-                if (partitionKey == null)
+                logger.NoPartitionKeyDefined(entityType);
+            }
+            else
+            {
+                foreach (var partitionKeyPropertyName in partitionKeyPropertyNames)
                 {
-                    throw new InvalidOperationException(
-                        CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
-                }
+                    var partitionKey = entityType.FindProperty(partitionKeyPropertyName);
+                    if (partitionKey == null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyMissingProperty(entityType.DisplayName(), partitionKeyPropertyName));
+                    }
 
-                var partitionKeyType = partitionKey.GetTypeMapping().Converter?.ProviderClrType
-                    ?? partitionKey.ClrType;
-                if (partitionKeyType != typeof(string))
-                {
-                    throw new InvalidOperationException(
-                        CosmosStrings.PartitionKeyNonStringStoreType(
-                            partitionKeyPropertyName, entityType.DisplayName(), partitionKeyType.ShortDisplayName()));
-                }
+                    var partitionKeyType = (partitionKey.GetTypeMapping().Converter?.ProviderClrType
+                        ?? partitionKey.ClrType).UnwrapNullableType();
+                    if (partitionKeyType != typeof(string)
+                        && !partitionKeyType.IsNumeric()
+                        && partitionKeyType != typeof(bool))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.PartitionKeyBadStoreType(
+                                partitionKeyPropertyName, entityType.DisplayName(), partitionKeyType.ShortDisplayName()));
+                    }
 
-                if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
-                {
-                    throw new InvalidOperationException(
-                        CosmosStrings.NoPartitionKeyKey(
-                            entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                    if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.NoPartitionKeyKey(
+                                entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
+                    }
                 }
             }
         }

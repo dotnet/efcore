@@ -21,9 +21,7 @@ public class RelationalMemberTranslatorProvider : IMemberTranslatorProvider
         Dependencies = dependencies;
 
         _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
-        _translators
-            .AddRange(
-                new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
+        _translators.AddRange([new NullableMemberTranslator(dependencies.SqlExpressionFactory)]);
     }
 
     /// <summary>

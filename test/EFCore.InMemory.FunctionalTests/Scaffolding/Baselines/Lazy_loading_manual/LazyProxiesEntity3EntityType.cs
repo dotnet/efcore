@@ -108,15 +108,15 @@ namespace TestNamespace
             name.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -149,7 +149,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity3)source.Entity;
-                    return (ISnapshot)new Snapshot<int, string>(((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)name.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(name)));
+                    return (ISnapshot)new Snapshot<int, string>(((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(name) == null ? null : ((ValueComparer<string>)((IProperty)name).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(name)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
                 () => Snapshot.Empty);
@@ -163,7 +163,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelInMemoryTest.LazyProxiesEntity3)source.Entity;
-                    return (ISnapshot)new Snapshot<int, object>(((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity3__collectionNavigation(entity)));
+                    return (ISnapshot)new Snapshot<int, object>(((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity3__collectionNavigation(entity)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 2,

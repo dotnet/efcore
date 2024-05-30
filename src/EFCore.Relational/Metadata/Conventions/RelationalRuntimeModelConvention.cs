@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -49,12 +50,28 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
 
         if (runtime)
         {
-            annotations[RelationalAnnotationNames.RelationalModel] =
-                RelationalModel.Create(
-                    runtimeModel,
-                    RelationalDependencies.RelationalAnnotationProvider,
-                    (IRelationalTypeMappingSource)Dependencies.TypeMappingSource,
-                    designTime: false);
+            var annotationProvider = RelationalDependencies.RelationalAnnotationProvider;
+            var typeMappingSource = (IRelationalTypeMappingSource)Dependencies.TypeMappingSource;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            if ((bool?)model[CoreAnnotationNames.AdHocModel] ?? false)
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            {
+                annotations[RelationalAnnotationNames.RelationalModel] =
+                    RelationalModel.Create(
+                        runtimeModel,
+                        annotationProvider,
+                        typeMappingSource,
+                        designTime: false);
+            }
+            else
+            {
+                annotations[RelationalAnnotationNames.RelationalModelFactory] =
+                    () => RelationalModel.Create(
+                        runtimeModel,
+                        annotationProvider,
+                        typeMappingSource,
+                        designTime: false);
+            }
         }
         else
         {
@@ -143,9 +160,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations[RelationalAnnotationNames.SqlQuery] = entityType.GetSqlQuery();
             annotations[RelationalAnnotationNames.FunctionName] = entityType.GetFunctionName();
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.MappingFragments, out var mappingFragments))
+            if (annotations.TryGetValue(RelationalAnnotationNames.MappingFragments, out var mappingFragments)
+                && mappingFragments != null)
             {
-                var entityTypeMappingFragment = (IReadOnlyStoreObjectDictionary<IEntityTypeMappingFragment>)mappingFragments!;
+                var entityTypeMappingFragment = (IReadOnlyStoreObjectDictionary<IEntityTypeMappingFragment>)mappingFragments;
                 var runtimeEntityTypeMappingFragment = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();
                 foreach (var fragment in entityTypeMappingFragment.GetValues())
                 {
@@ -161,9 +179,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                 annotations[RelationalAnnotationNames.MappingFragments] = runtimeEntityTypeMappingFragment;
             }
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.InsertStoredProcedure, out var insertStoredProcedure))
+            if (annotations.TryGetValue(RelationalAnnotationNames.InsertStoredProcedure, out var insertStoredProcedure)
+                && insertStoredProcedure != null)
             {
-                var runtimeSproc = Create((IStoredProcedure)insertStoredProcedure!, runtimeEntityType);
+                var runtimeSproc = Create((IStoredProcedure)insertStoredProcedure, runtimeEntityType);
 
                 CreateAnnotations(
                     (IStoredProcedure)insertStoredProcedure!, runtimeSproc,
@@ -173,9 +192,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                 annotations[RelationalAnnotationNames.InsertStoredProcedure] = runtimeSproc;
             }
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.DeleteStoredProcedure, out var deleteStoredProcedure))
+            if (annotations.TryGetValue(RelationalAnnotationNames.DeleteStoredProcedure, out var deleteStoredProcedure)
+                && deleteStoredProcedure != null)
             {
-                var runtimeSproc = Create((IStoredProcedure)deleteStoredProcedure!, runtimeEntityType);
+                var runtimeSproc = Create((IStoredProcedure)deleteStoredProcedure, runtimeEntityType);
 
                 CreateAnnotations(
                     (IStoredProcedure)deleteStoredProcedure!, runtimeSproc,
@@ -185,9 +205,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                 annotations[RelationalAnnotationNames.DeleteStoredProcedure] = runtimeSproc;
             }
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.UpdateStoredProcedure, out var updateStoredProcedure))
+            if (annotations.TryGetValue(RelationalAnnotationNames.UpdateStoredProcedure, out var updateStoredProcedure)
+                && updateStoredProcedure != null)
             {
-                var runtimeSproc = Create((IStoredProcedure)updateStoredProcedure!, runtimeEntityType);
+                var runtimeSproc = Create((IStoredProcedure)updateStoredProcedure, runtimeEntityType);
 
                 CreateAnnotations(
                     (IStoredProcedure)updateStoredProcedure!, runtimeSproc,
@@ -384,9 +405,10 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(RelationalAnnotationNames.Comment);
             annotations.Remove(RelationalAnnotationNames.Collation);
 
-            if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var relationalOverrides))
+            if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var relationalOverrides)
+                && relationalOverrides != null)
             {
-                var tableOverrides = (IReadOnlyStoreObjectDictionary<IRelationalPropertyOverrides>)relationalOverrides!;
+                var tableOverrides = (IReadOnlyStoreObjectDictionary<IRelationalPropertyOverrides>)relationalOverrides;
                 var runtimeTableOverrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
                 foreach (var overrides in tableOverrides.GetValues())
                 {

@@ -1369,6 +1369,19 @@ public abstract partial class ModelBuilding101TestBase
                     .WithOne(e => e.Blog)
                     .HasPrincipalKey(e => e.AlternateId);
         }
+
+        public class ContextAnnotated1 : ContextAnnotated0
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Post>().HasIndex(p => p.BlogId);
+            }
+
+            protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+                => configurationBuilder.Conventions.Remove<ForeignKeyIndexConvention>();
+        }
     }
 
     [ConditionalFact]

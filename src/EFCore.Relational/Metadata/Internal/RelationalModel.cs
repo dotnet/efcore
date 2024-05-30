@@ -120,28 +120,6 @@ public class RelationalModel : Annotatable, IRelationalModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IModel Add(
-        IModel model,
-        IRelationalAnnotationProvider relationalAnnotationProvider,
-        IRelationalTypeMappingSource relationalTypeMappingSource,
-        bool designTime)
-    {
-        model.AddRuntimeAnnotation(
-            RelationalAnnotationNames.RelationalModel,
-            Create(
-                model,
-                relationalAnnotationProvider,
-                relationalTypeMappingSource,
-                designTime));
-        return model;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static IRelationalModel Create(
         IModel model,
         IRelationalAnnotationProvider relationalAnnotationProvider,
@@ -415,6 +393,11 @@ public class RelationalModel : Annotatable, IRelationalModel
             return property.GetColumnName();
         }
     }
+
+    private static IEnumerable<ITableMapping> GetTableMappings(ITypeBase typeBase)
+        => (IEnumerable<ITableMapping>?)typeBase.FindRuntimeAnnotationValue(
+                    RelationalAnnotationNames.TableMappings)
+                ?? Enumerable.Empty<ITableMapping>();
 
     private static void AddTables(
         RelationalModel databaseModel,
@@ -963,7 +946,13 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static StoreFunction GetOrCreateStoreFunction(IRuntimeDbFunction dbFunction, RelationalModel databaseModel)
     {
-        var storeFunction = (StoreFunction?)dbFunction.StoreFunction;
+        var storeFunction = dbFunction switch
+        {
+            RuntimeDbFunction runtimeDbFunction => (StoreFunction?)runtimeDbFunction.StoreFunction,
+            DbFunction function => (StoreFunction?)function.StoreFunction,
+            _ => null
+        };
+
         if (storeFunction == null)
         {
             var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType).ToArray();
@@ -1012,7 +1001,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     ? !isTpc && mappedType == entityType
                     : (bool?)null;
 
-            var tableMappings = entityType.GetTableMappings().Where(
+            var tableMappings = GetTableMappings(entityType).Where(
                 m => m.Table.Name == mappedType.GetTableName()
                     && m.Table.Schema == mappedType.GetSchema()
                     && m.IsSplitEntityTypePrincipal != false
@@ -1369,6 +1358,16 @@ public class RelationalModel : Annotatable, IRelationalModel
         }
     }
 
+    private static IEnumerable<IColumnMapping> GetTableColumnMappings(IProperty property)
+        => (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
+                    RelationalAnnotationNames.TableColumnMappings)
+                ?? Enumerable.Empty<IColumnMapping>();
+
+    private static IColumn? FindColumn(Table table, IProperty property)
+        => GetTableColumnMappings(property)
+            .FirstOrDefault(cm => cm.TableMapping.Table == table)
+            ?.Column;
+
     private static void PopulateTableConfiguration(Table table, bool designTime)
     {
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
@@ -1390,7 +1389,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     var columns = new Column[key.Properties.Count];
                     for (var i = 0; i < columns.Length; i++)
                     {
-                        if (table.FindColumn(key.Properties[i]) is Column uniqueConstraintColumn)
+                        if (FindColumn(table, key.Properties[i]) is Column uniqueConstraintColumn)
                         {
                             columns[i] = uniqueConstraintColumn;
                         }
@@ -1432,7 +1431,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     var columns = new Column[index.Properties.Count];
                     for (var i = 0; i < columns.Length; i++)
                     {
-                        if (table.FindColumn(index.Properties[i]) is Column indexColumn)
+                        if (FindColumn(table, index.Properties[i]) is Column indexColumn)
                         {
                             columns[i] = indexColumn;
                         }
@@ -1617,7 +1616,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             var includeInherited = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
             foreach (var foreignKey in includeInherited ? entityType.GetForeignKeys() : entityType.GetDeclaredForeignKeys())
             {
-                foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())
+                foreach (var principalMapping in GetTableMappings(foreignKey.PrincipalEntityType).Reverse())
                 {
                     var principalTable = (Table)principalMapping.Table;
                     var principalStoreObject = StoreObjectIdentifier.Table(principalTable.Name, principalTable.Schema);
@@ -1639,7 +1638,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     var principalColumns = new Column[foreignKey.Properties.Count];
                     for (var i = 0; i < principalColumns.Length; i++)
                     {
-                        if (principalTable.FindColumn(foreignKey.PrincipalKey.Properties[i]) is Column principalColumn)
+                        if (FindColumn(principalTable, foreignKey.PrincipalKey.Properties[i]) is Column principalColumn)
                         {
                             principalColumns[i] = principalColumn;
                         }
@@ -1659,7 +1658,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     var columns = new Column[foreignKey.Properties.Count];
                     for (var i = 0; i < columns.Length; i++)
                     {
-                        if (table.FindColumn(foreignKey.Properties[i]) is Column foreignKeyColumn)
+                        if (FindColumn(table, foreignKey.Properties[i]) is Column foreignKeyColumn)
                         {
                             columns[i] = foreignKeyColumn;
                         }

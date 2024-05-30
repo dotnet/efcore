@@ -5,6 +5,7 @@ using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -430,7 +431,11 @@ public abstract class TestHelpers
             => FinalizeModel(designTime: false);
 
         public IModel FinalizeModel(bool designTime = false, bool skipValidation = false)
-            => _modelRuntimeInitializer.Initialize((IModel)Model, designTime, skipValidation ? null : _validationLogger);
+        {
+            var designTimeModel = _modelRuntimeInitializer.Initialize((IModel)Model, designTime: true, skipValidation ? null : _validationLogger);
+            var runtimeModel = (IModel)designTimeModel.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
+            return designTime ? designTimeModel : runtimeModel;
+        }
     }
 
     public class TestModelConfigurationBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)

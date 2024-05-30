@@ -92,6 +92,10 @@ WHERE ((c["Discriminator"] = "BuiltInDataTypes") AND (c["Id"] = 13))
         public override bool PreservesDateTimeKind
             => true;
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(
+                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);

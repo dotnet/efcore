@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -83,6 +82,30 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         nullable = matchNullable || patternNullable;
 
         return regexpExpression.Update(match, pattern);
+    }
+
+    /// <inheritdoc/>
+    protected override SqlExpression VisitSqlFunction(
+        SqlFunctionExpression sqlFunctionExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        var result = base.VisitSqlFunction(sqlFunctionExpression, allowOptimizedExpansion, out nullable);
+
+        if (result is SqlFunctionExpression resultFunctionExpression
+            && resultFunctionExpression.IsBuiltIn
+            && string.Equals(resultFunctionExpression.Name, "ef_sum", StringComparison.OrdinalIgnoreCase))
+        {
+            nullable = false;
+
+            var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+            return sqlExpressionFactory.Coalesce(
+                result,
+                sqlExpressionFactory.Constant(0, resultFunctionExpression.TypeMapping),
+                resultFunctionExpression.TypeMapping);
+        }
+
+        return result;
     }
 
 #pragma warning disable EF1001

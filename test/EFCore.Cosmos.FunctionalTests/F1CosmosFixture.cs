@@ -16,6 +16,9 @@ public class F1CosmosFixture<TRowVersion> : F1FixtureBase<TRowVersion>
     public override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(CosmosEventId.NoPartitionKeyDefined));
+
     protected override void BuildModelExternal(ModelBuilder modelBuilder)
     {
         base.BuildModelExternal(modelBuilder);

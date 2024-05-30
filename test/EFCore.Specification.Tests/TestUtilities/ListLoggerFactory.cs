@@ -26,6 +26,12 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
     public CancellationToken CancelQuery()
         => Logger.CancelOnNextLogEntry();
 
+    public virtual void SuspendTestOutput()
+        => Logger.SuspendTestOutput();
+
+    public virtual void WriteTestOutput()
+        => Logger.WriteTestOutput();
+
     public virtual IDisposable SuspendRecordingEvents()
         => Logger.SuspendRecordingEvents();
 
@@ -63,10 +69,12 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
         private readonly object _sync = new();
         private CancellationTokenSource? _cancellationTokenSource;
         protected bool IsRecordingSuspended { get; private set; }
+        public bool WriteToTestOutputHelper { get; set; } = true;
+        private int _testOutputEventIndex;
 
         public ITestOutputHelper? TestOutputHelper { get; set; }
 
-        public List<(LogLevel, EventId, string?, object?, Exception?)> LoggedEvents { get; }
+        public List<(LogLevel LogLevel, EventId EventId, string? Message, object? State, Exception? Exception)> LoggedEvents { get; }
             = [];
 
         public CancellationToken CancelOnNextLogEntry()
@@ -128,7 +136,10 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
                     _cancellationTokenSource = null;
                 }
 
-                TestOutputHelper?.WriteLine(message + Environment.NewLine);
+                if (WriteToTestOutputHelper)
+                {
+                    TestOutputHelper?.WriteLine(message + Environment.NewLine);
+                }
             }
 
             if (!IsRecordingSuspended)
@@ -146,12 +157,31 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
         public IDisposable? BeginScope<TState>(TState state)  where TState : notnull
             => null;
 
+        public void SuspendTestOutput(bool writeAllPreviousMessages = true)
+        {
+            _testOutputEventIndex = LoggedEvents.Count;
+            WriteToTestOutputHelper = false;
+        }
+
+        public void WriteTestOutput(bool writeAllPreviousMessages = true)
+        {
+            WriteToTestOutputHelper = true;
+
+            if (TestOutputHelper is null)
+            {
+                return;
+            }
+
+            for (; _testOutputEventIndex < LoggedEvents.Count; _testOutputEventIndex++)
+            {
+                TestOutputHelper.WriteLine(LoggedEvents[_testOutputEventIndex].Message + Environment.NewLine);
+            }
+        }
+
         private class RecordingSuspensionHandle(ListLogger logger) : IDisposable
         {
-            private readonly ListLogger _logger = logger;
-
             public void Dispose()
-                => _logger.IsRecordingSuspended = false;
+                => logger.IsRecordingSuspended = false;
         }
     }
 }

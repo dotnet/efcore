@@ -51,15 +51,15 @@ namespace TestNamespace
             principalDerivedId.TypeMapping = LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 keyComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
@@ -210,52 +210,52 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v))))),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))),
                 elementMapping: SqliteStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     keyComparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         size: 45),
                     converter: new ValueConverter<IPAddress, string>(
-                        (IPAddress v) => v.ToString(),
+                        (IPAddress v) => ((object)v).ToString(),
                         (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))));
             refTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeArray", "TestNamespace") });
 
@@ -287,21 +287,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
             refTypeEnumerable.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeEnumerable", "TestNamespace") });
@@ -334,21 +334,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeIList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: SqliteStringTypeMapping.Default);
             refTypeIList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeIList", "TestNamespace") });
@@ -381,52 +381,52 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v))))),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))),
                 elementMapping: SqliteStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     keyComparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         size: 45),
                     converter: new ValueConverter<IPAddress, string>(
-                        (IPAddress v) => v.ToString(),
+                        (IPAddress v) => ((object)v).ToString(),
                         (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))));
             refTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__refTypeList", "TestNamespace") });
 
@@ -458,21 +458,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => ((object)v).GetHashCode(),
                     (DateTime v) => v)),
-                keyComparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => ((object)v).GetHashCode(),
                     (DateTime v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     SqliteJsonDateTimeReaderWriter.Instance),
                 elementMapping: SqliteDateTimeTypeMapping.Default);
             valueTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("OwnedType0EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_OwnedType__valueTypeArray", "TestNamespace") });
@@ -505,21 +505,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeEnumerable.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: ByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -566,21 +566,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeIList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: ByteTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -627,21 +627,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
-                comparer: new ListComparer<short>(new ValueComparer<short>(
+                comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
-                keyComparer: new ListComparer<short>(new ValueComparer<short>(
+                keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance),
                 elementMapping: ShortTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
@@ -742,11 +742,11 @@ namespace TestNamespace
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {
-                    var entity = (CompiledModelTestBase.OwnedType)source.Entity;
-                    return (ISnapshot)new Snapshot<long, Guid, int, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)principalDerivedId.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)principalDerivedAlternateId.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)details.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(details)), ((ValueComparer<int>)number.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(number)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
+                    var entity8 = (CompiledModelTestBase.OwnedType)source.Entity;
+                    return (ISnapshot)new Snapshot<long, Guid, int, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)((IProperty)principalDerivedId).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)((IProperty)principalDerivedAlternateId).GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(id)), source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)((IProperty)details).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(details)), ((ValueComparer<int>)((IProperty)number).GetValueComparer()).Snapshot(source.GetCurrentValue<int>(number)), (object)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<object>)((IProperty)refTypeArray).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IPAddress[]>(refTypeArray)), (object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : (IEnumerable<string>)((ValueComparer<object>)((IProperty)refTypeEnumerable).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (object)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<object>)((IProperty)refTypeIList).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IList<string>>(refTypeIList)), (object)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<object>)((IProperty)refTypeList).GetValueComparer()).Snapshot((object)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)((IProperty)valueTypeArray).GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeEnumerable).GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeIList).GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)((IProperty)valueTypeList).GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<long, Guid, int>(((ValueComparer<long>)principalDerivedId.GetValueComparer()).Snapshot(default(long)), ((ValueComparer<Guid>)principalDerivedAlternateId.GetValueComparer()).Snapshot(default(Guid)), ((ValueComparer<int>)id.GetValueComparer()).Snapshot(default(int))));
+                () => (ISnapshot)new Snapshot<long, Guid, int>(((ValueComparer<long>)((IProperty)principalDerivedId).GetValueComparer()).Snapshot(default(long)), ((ValueComparer<Guid>)((IProperty)principalDerivedAlternateId).GetValueComparer()).Snapshot(default(Guid)), ((ValueComparer<int>)((IProperty)id).GetValueComparer()).Snapshot(default(int))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<long, Guid, int>(default(long), default(Guid), default(int)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -756,8 +756,8 @@ namespace TestNamespace
             runtimeEntityType.SetRelationshipSnapshotFactory(
                 (InternalEntityEntry source) =>
                 {
-                    var entity = (CompiledModelTestBase.OwnedType)source.Entity;
-                    return (ISnapshot)new Snapshot<long, Guid, int>(((ValueComparer<long>)principalDerivedId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)principalDerivedAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
+                    var entity8 = (CompiledModelTestBase.OwnedType)source.Entity;
+                    return (ISnapshot)new Snapshot<long, Guid, int>(((ValueComparer<long>)((IProperty)principalDerivedId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalDerivedId)), ((ValueComparer<Guid>)((IProperty)principalDerivedAlternateId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalDerivedAlternateId)), ((ValueComparer<int>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<int>(id)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 13,

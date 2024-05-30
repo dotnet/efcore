@@ -852,6 +852,36 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     #endregion GroupBy
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Projecting_property_of_complex_type_using_left_join_with_pushdown(bool async)
+        => AssertQuery(
+            async,
+            ss => from cg in ss.Set<CustomerGroup>()
+                  join c in ss.Set<Customer>().Where(x => x.Id > 5) on cg.Id equals c.Id into grouping
+                  from c in grouping.DefaultIfEmpty()
+                  select c == null ? null : (int?)c.BillingAddress.ZipCode);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Projecting_complex_from_optional_navigation_using_conditional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CustomerGroup>().Select(x => x.OptionalCustomer == null ? null : x.OptionalCustomer.ShippingAddress)
+                .OrderBy(x => x!.ZipCode).Take(20).Distinct().Select(x => (int?)x!.ZipCode),
+            ss => ss.Set<CustomerGroup>().Select(x => x.OptionalCustomer == null ? null : x.OptionalCustomer.ShippingAddress)
+                .OrderBy(x => x.MaybeScalar(xx => xx!.ZipCode)).Take(20).Distinct().Select(x => x.MaybeScalar(xx => xx!.ZipCode)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_entity_with_complex_type_pushdown_and_then_left_join(bool async)
+        => AssertQuery(
+            async,
+            ss => from c1 in ss.Set<Customer>().OrderBy(x => x.Id).Take(20).Distinct()
+                  join c2 in ss.Set<Customer>().OrderByDescending(x => x.Id).Take(30).Distinct() on c1.Id equals c2.Id into grouping
+                  from c2 in grouping.DefaultIfEmpty()
+                  select new { Zip1 = c1.BillingAddress.ZipCode, Zip2 = c2.ShippingAddress.ZipCode });
+
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 }

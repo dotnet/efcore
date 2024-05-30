@@ -404,6 +404,23 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Join_uses_csharp_semantics_for_anon_objects(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<NullSemanticsEntity1>()
+                  join e2 in ss.Set<NullSemanticsEntity2>() on
+                    new { NullInt = e1.NullableIntA } equals new { NullInt = e2.NullableIntB }
+                  select new
+                  {
+                      Id1 = e1.Id,
+                      Id2 = e2.Id,
+                      e1.NullableIntA,
+                      e2.NullableIntB
+                  },
+            elementSorter: e => (e.Id1, e.Id2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_with_local_array_closure_with_null(bool async)
     {
         string[] ids = ["Foo", null];
@@ -1719,6 +1736,62 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
             ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 != e.NullableStringA.CompareTo(e.NullableStringB).CompareTo(0)),
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA != e.NullableStringB));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_second_filter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 2)
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_first_or_third_filter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 3)
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_second_select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 2),
+            assertOrder: true
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseWhen_equal_to_first_or_third_select(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => NullSemanticsQueryFixtureBase.Cases(
+                    x.StringA == "Foo", 3,
+                    x.StringB == "Foo", 2,
+                    x.StringC == "Foo", 3
+                ) == 3),
+            assertOrder: true
+        );
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

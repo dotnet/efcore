@@ -26,19 +26,18 @@ public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvi
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
         _translators.AddRange(
-            new IMethodCallTranslator[]
-            {
-                new EqualsTranslator(sqlExpressionFactory),
-                new StringMethodTranslator(sqlExpressionFactory),
-                new CollateTranslator(),
-                new ContainsTranslator(sqlExpressionFactory),
-                new LikeTranslator(sqlExpressionFactory),
-                new EnumHasFlagTranslator(sqlExpressionFactory),
-                new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                new ComparisonTranslator(sqlExpressionFactory),
-                new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
-                new RandomTranslator(sqlExpressionFactory)
-            });
+        [
+            new EqualsTranslator(sqlExpressionFactory),
+            new StringMethodTranslator(sqlExpressionFactory),
+            new CollateTranslator(),
+            new ContainsTranslator(sqlExpressionFactory),
+            new LikeTranslator(sqlExpressionFactory),
+            new EnumHasFlagTranslator(sqlExpressionFactory),
+            new GetValueOrDefaultTranslator(sqlExpressionFactory),
+            new ComparisonTranslator(sqlExpressionFactory),
+            new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
+            new RandomTranslator(sqlExpressionFactory)
+        ]);
         _sqlExpressionFactory = sqlExpressionFactory;
     }
 

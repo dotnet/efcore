@@ -906,6 +906,18 @@ INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]
 """);
     }
 
+    public override async Task Join_uses_csharp_semantics_for_anon_objects(bool async)
+    {
+        await base.Join_uses_csharp_semantics_for_anon_objects(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id] AS [Id1], [e0].[Id] AS [Id2], [e].[NullableIntA], [e0].[NullableIntB]
+FROM [Entities1] AS [e]
+INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB] OR ([e].[NullableIntA] IS NULL AND [e0].[NullableIntB] IS NULL)
+""");
+    }
+
     public override async Task Contains_with_local_array_closure_with_null(bool async)
     {
         await base.Contains_with_local_array_closure_with_null(async);
@@ -2714,6 +2726,84 @@ WHERE ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] I
 SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] IS NULL
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_second_filter(bool async)
+    {
+        await base.CaseWhen_equal_to_second_filter(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[StringA] = N'Foo' THEN 3
+    WHEN [e].[StringB] = N'Foo' THEN 2
+    WHEN [e].[StringC] = N'Foo' THEN 3
+END = 2
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_first_or_third_filter(bool async)
+    {
+        await base.CaseWhen_equal_to_first_or_third_filter(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[StringA] = N'Foo' THEN 3
+    WHEN [e].[StringB] = N'Foo' THEN 2
+    WHEN [e].[StringC] = N'Foo' THEN 3
+END = 3
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_second_select(bool async)
+    {
+        await base.CaseWhen_equal_to_second_select(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN CASE
+        WHEN [e].[StringA] = N'Foo' THEN 3
+        WHEN [e].[StringB] = N'Foo' THEN 2
+        WHEN [e].[StringC] = N'Foo' THEN 3
+    END = 2 AND CASE
+        WHEN [e].[StringA] = N'Foo' THEN 3
+        WHEN [e].[StringB] = N'Foo' THEN 2
+        WHEN [e].[StringC] = N'Foo' THEN 3
+    END IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task CaseWhen_equal_to_first_or_third_select(bool async)
+    {
+        await base.CaseWhen_equal_to_first_or_third_select(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN CASE
+        WHEN [e].[StringA] = N'Foo' THEN 3
+        WHEN [e].[StringB] = N'Foo' THEN 2
+        WHEN [e].[StringC] = N'Foo' THEN 3
+    END = 3 AND CASE
+        WHEN [e].[StringA] = N'Foo' THEN 3
+        WHEN [e].[StringB] = N'Foo' THEN 2
+        WHEN [e].[StringC] = N'Foo' THEN 3
+    END IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
 """);
     }
 

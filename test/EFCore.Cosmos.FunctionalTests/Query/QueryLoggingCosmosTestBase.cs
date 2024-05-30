@@ -43,7 +43,7 @@ public abstract class QueryLoggingCosmosTestBase
         {
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "NorthwindContext", "(null)", "", Environment.NewLine,
+                    "NorthwindContext", "None", "", Environment.NewLine,
                     """
 SELECT c
 FROM root c
@@ -89,7 +89,7 @@ WHERE (c["Discriminator"] = "Customer")
         {
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "NorthwindContext", "(null)", "@__city_0='Redmond'", Environment.NewLine,
+                    "NorthwindContext", "None", "@__city_0='Redmond'", Environment.NewLine,
                     """
 SELECT c
 FROM root c

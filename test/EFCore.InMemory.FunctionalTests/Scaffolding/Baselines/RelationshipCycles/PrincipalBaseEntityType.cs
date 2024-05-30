@@ -69,15 +69,15 @@ namespace TestNamespace
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 keyComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 providerValueComparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((long)v).GetHashCode() : 0,
+                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
@@ -98,15 +98,15 @@ namespace TestNamespace
             discriminator.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 keyComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
@@ -141,15 +141,15 @@ namespace TestNamespace
             enum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                     (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AnEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                     (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AnEnum v) => v),
                 providerValueComparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                     (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AnEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AnEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AnEnum v) => v),
                 clrType: typeof(CompiledModelTestBase.AnEnum),
                 jsonValueReaderWriter: JsonSignedEnumReaderWriter<CompiledModelTestBase.AnEnum>.Instance);
@@ -185,15 +185,15 @@ namespace TestNamespace
             enum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                     (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                     (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                     (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                     (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                 providerValueComparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                     (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
+                    (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? ((object)(CompiledModelTestBase.AnEnum)v).GetHashCode() : 0,
                     (Nullable<CompiledModelTestBase.AnEnum> v) => v.HasValue ? (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)v : default(Nullable<CompiledModelTestBase.AnEnum>)),
                 clrType: typeof(CompiledModelTestBase.AnEnum),
                 jsonValueReaderWriter: JsonSignedEnumReaderWriter<CompiledModelTestBase.AnEnum>.Instance);
@@ -229,15 +229,15 @@ namespace TestNamespace
             flagsEnum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 keyComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 providerValueComparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
-                    (CompiledModelTestBase.AFlagsEnum v) => v.GetHashCode(),
+                    (CompiledModelTestBase.AFlagsEnum v) => ((object)v).GetHashCode(),
                     (CompiledModelTestBase.AFlagsEnum v) => v),
                 clrType: typeof(CompiledModelTestBase.AFlagsEnum),
                 jsonValueReaderWriter: JsonSignedEnumReaderWriter<CompiledModelTestBase.AFlagsEnum>.Instance);
@@ -257,15 +257,15 @@ namespace TestNamespace
             principalId.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 keyComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
-                    (long v) => v.GetHashCode(),
+                    (long v) => ((object)v).GetHashCode(),
                     (long v) => v),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
@@ -299,50 +299,50 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<IPAddress[], IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v))))),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     keyComparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     converter: new ValueConverter<IPAddress, string>(
-                        (IPAddress v) => v.ToString(),
+                        (IPAddress v) => ((object)v).ToString(),
                         (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))));
             refTypeArray.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeArray", "TestNamespace") });
 
@@ -374,34 +374,34 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     keyComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
@@ -435,34 +435,34 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<string>(new ValueComparer<string>(
+                comparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
-                keyComparer: new ListComparer<string>(new ValueComparer<string>(
+                keyComparer: new ListOfReferenceTypesComparer<List<string>, string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                converter: new CollectionToJsonStringConverter<string>(new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<string>, string>(
                     JsonStringReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     keyComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     clrType: typeof(string),
                     jsonValueReaderWriter: JsonStringReaderWriter.Instance));
@@ -496,50 +496,50 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             refTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                comparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
-                keyComparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
+                keyComparer: new ListOfReferenceTypesComparer<List<IPAddress>, IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                    (IPAddress v) => v.GetHashCode(),
+                    (IPAddress v) => ((object)v).GetHashCode(),
                     (IPAddress v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v))))),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
+                jsonValueReaderWriter: new JsonCollectionOfReferencesReaderWriter<List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     keyComparer: new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
-                        (IPAddress v) => v.GetHashCode(),
+                        (IPAddress v) => ((object)v).GetHashCode(),
                         (IPAddress v) => v),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
-                        (string v) => v.GetHashCode(),
+                        (string v) => ((object)v).GetHashCode(),
                         (string v) => v),
                     converter: new ValueConverter<IPAddress, string>(
-                        (IPAddress v) => v.ToString(),
+                        (IPAddress v) => ((object)v).ToString(),
                         (string v) => IPAddress.Parse(v)),
                     jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, string>(
                         JsonStringReaderWriter.Instance,
                         new ValueConverter<IPAddress, string>(
-                            (IPAddress v) => v.ToString(),
+                            (IPAddress v) => ((object)v).ToString(),
                             (string v) => IPAddress.Parse(v)))));
             refTypeList.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_RefTypeList", "TestNamespace") });
 
@@ -571,34 +571,34 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                comparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => ((object)v).GetHashCode(),
                     (DateTime v) => v)),
-                keyComparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
+                keyComparer: new ListOfValueTypesComparer<DateTime[], DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
-                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => ((object)v).GetHashCode(),
                     (DateTime v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v),
                     keyComparer: new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v),
                     providerValueComparer: new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
-                        (DateTime v) => v.GetHashCode(),
+                        (DateTime v) => ((object)v).GetHashCode(),
                         (DateTime v) => v),
                     clrType: typeof(DateTime),
                     jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance));
@@ -632,21 +632,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -693,21 +693,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<byte>(new ValueComparer<byte>(
+                comparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
-                keyComparer: new ListComparer<byte>(new ValueComparer<byte>(
+                keyComparer: new ListOfValueTypesComparer<List<byte>, byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
                     (byte v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<byte>, byte>(
                     JsonByteReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte>(
@@ -754,21 +754,21 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ListComparer<short>(new ValueComparer<short>(
+                comparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
-                keyComparer: new ListComparer<short>(new ValueComparer<short>(
+                keyComparer: new ListOfValueTypesComparer<List<short>, short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
                     (short v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
+                    (string v) => ((object)v).GetHashCode(),
                     (string v) => v),
-                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                converter: new CollectionToJsonStringConverter<short>(new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance)),
-                jsonValueReaderWriter: new JsonCollectionReaderWriter<List<short>, List<short>, short>(
+                jsonValueReaderWriter: new JsonCollectionOfStructsReaderWriter<List<short>, short>(
                     JsonInt16ReaderWriter.Instance),
                 elementMapping: InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<short>(
@@ -830,10 +830,10 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, string, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, long, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)discriminator.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum2.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<long>)principalId.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
+                    return (ISnapshot)new Snapshot<Nullable<long>, string, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, long, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)((IProperty)discriminator).GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), ((ValueComparer<CompiledModelTestBase.AnEnum>)((IProperty)enum1).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)((IProperty)enum2).GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)((IProperty)flagsEnum1).GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<long>)((IProperty)principalId).GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), (object)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<object>)((IProperty)refTypeArray).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IPAddress[]>(refTypeArray)), (object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : (IEnumerable<string>)((ValueComparer<object>)((IProperty)refTypeEnumerable).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (object)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<object>)((IProperty)refTypeIList).GetValueComparer()).Snapshot((object)source.GetCurrentValue<IList<string>>(refTypeIList)), (object)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<object>)((IProperty)refTypeList).GetValueComparer()).Snapshot((object)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)((IProperty)valueTypeArray).GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeEnumerable).GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)((IProperty)valueTypeIList).GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)((IProperty)valueTypeList).GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => (ISnapshot)new Snapshot<Nullable<long>, long>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(default(Nullable<long>)), ((ValueComparer<long>)principalId.GetValueComparer()).Snapshot(default(long))));
+                () => (ISnapshot)new Snapshot<Nullable<long>, long>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetValueComparer()).Snapshot(default(Nullable<long>)), ((ValueComparer<long>)((IProperty)principalId).GetValueComparer()).Snapshot(default(long))));
             runtimeEntityType.SetTemporaryValuesFactory(
                 (InternalEntityEntry source) => (ISnapshot)new Snapshot<Nullable<long>, long>(default(Nullable<long>), default(long)));
             runtimeEntityType.SetShadowValuesFactory(
@@ -844,7 +844,7 @@ namespace TestNamespace
                 (InternalEntityEntry source) =>
                 {
                     var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
-                    return (ISnapshot)new Snapshot<Nullable<long>, long, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<long>)principalId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity)));
+                    return (ISnapshot)new Snapshot<Nullable<long>, long, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)((IProperty)id).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), ((ValueComparer<long>)((IProperty)principalId).GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalId)), SnapshotFactoryFactory.SnapshotCollection(UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity)));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 14,

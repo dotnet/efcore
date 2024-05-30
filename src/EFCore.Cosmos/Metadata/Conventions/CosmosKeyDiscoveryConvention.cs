@@ -41,7 +41,7 @@ public class CosmosKeyDiscoveryConvention :
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == CosmosAnnotationNames.PartitionKeyName)
+        if (name == CosmosAnnotationNames.PartitionKeyNames)
         {
             TryConfigurePrimaryKey(entityTypeBuilder);
         }
@@ -55,10 +55,9 @@ public class CosmosKeyDiscoveryConvention :
             return;
         }
 
-        var partitionKey = entityType.GetPartitionKeyPropertyName();
-        if (partitionKey != null)
+        foreach (var propertyName in entityType.GetPartitionKeyPropertyNames())
         {
-            var partitionKeyProperty = entityType.FindProperty(partitionKey);
+            var partitionKeyProperty = entityType.FindProperty(propertyName);
             if (partitionKeyProperty != null
                 && !keyProperties.Contains(partitionKeyProperty))
             {

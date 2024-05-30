@@ -63,8 +63,12 @@ public interface IDatabase
     /// </summary>
     /// <typeparam name="TResult">The type of query result.</typeparam>
     /// <param name="query">The query to compile.</param>
+    /// <param name="nonNullableReferenceTypeParameters">Names of parameters which have non-nullable reference types..</param>
     /// <param name="async">A value indicating whether this is an async query.</param>
     /// <returns>An expression tree which can be used to execute the query.</returns>
     [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
-    Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async);
+    Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(
+        Expression query,
+        bool async,
+        IReadOnlySet<string> nonNullableReferenceTypeParameters);
 }

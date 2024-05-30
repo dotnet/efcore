@@ -1,9 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -16,6 +19,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     private readonly bool _threadSafetyChecksEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly bool _useRelationalNulls;
+    private readonly bool _isPrecompiling;
+
+    private readonly RelationalParameterBasedSqlProcessor _relationalParameterBasedSqlProcessor;
+    private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
+
+    private static ConstructorInfo? _relationalCommandConstructor;
+    private static ConstructorInfo? _typeMappedRelationalParameterConstructor;
+    private static PropertyInfo? _commandBuilderDependenciesProperty;
+    private static MethodInfo? _getRelationalCommandTemplateMethod;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ShapedQueryCompilingExpressionVisitor" /> class.
@@ -30,18 +42,32 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         : base(dependencies, queryCompilationContext)
     {
         RelationalDependencies = relationalDependencies;
+        _relationalParameterBasedSqlProcessor =
+            relationalDependencies.RelationalParameterBasedSqlProcessorFactory.Create(_useRelationalNulls);
+        _querySqlGeneratorFactory = relationalDependencies.QuerySqlGeneratorFactory;
 
         _contextType = queryCompilationContext.ContextType;
         _tags = queryCompilationContext.Tags;
         _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
         _detailedErrorsEnabled = dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
         _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
+        _isPrecompiling = queryCompilationContext.IsPrecompiling;
     }
 
     /// <summary>
     ///     Relational provider-specific dependencies for this service.
     /// </summary>
     protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
+
+    /// <summary>
+    ///     Determines the maximum number of nullable parameters a query may have for us to pregenerate SQL for it in precompiled queries;
+    ///     each additional nullable parameter doubles the number of SQLs we need to pregenerate. If a query has more nullable parameters
+    ///     than this number, we don't pregenerate SQL, but instead insert the SQL as an expression tree and execute
+    ///     <see cref="RelationalParameterBasedSqlProcessor" /> at runtime as usual (slower startup).
+    /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
+    protected virtual int MaxNullableParametersForPregeneratedSql
+        => 3;
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
@@ -70,12 +96,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 break;
         }
 
-        var relationalCommandCache = CreateRelationalCommandCacheExpression(innerExpression);
+        var relationalCommandResolver = CreateRelationalCommandResolverExpression(innerExpression);
 
         return Call(
             QueryCompilationContext.IsAsync ? NonQueryAsyncMethodInfo : NonQueryMethodInfo,
             Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-            relationalCommandCache,
+            relationalCommandResolver,
             Constant(_contextType),
             Constant(nonQueryExpression.CommandSource),
             Constant(_threadSafetyChecksEnabled));
@@ -100,7 +126,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     [EntityFrameworkInternal]
     public static int NonQueryResult(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         Type contextType,
         CommandSource commandSource,
         bool threadSafetyChecksEnabled)
@@ -115,12 +141,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             try
             {
                 return relationalQueryContext.ExecutionStrategy.Execute(
-                    (relationalQueryContext, relationalCommandCache, commandSource),
+                    (relationalQueryContext, relationalCommandResolver, commandSource),
                     static (_, state) =>
                     {
                         EntityFrameworkEventSource.Log.QueryExecuting();
 
-                        var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+                        var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
                         return relationalCommand.ExecuteNonQuery(
                             new RelationalCommandParameterObject(
@@ -178,7 +204,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     [EntityFrameworkInternal]
     public static Task<int> NonQueryResultAsync(
         RelationalQueryContext relationalQueryContext,
-        RelationalCommandCache relationalCommandCache,
+        RelationalCommandResolver relationalCommandResolver,
         Type contextType,
         CommandSource commandSource,
         bool threadSafetyChecksEnabled)
@@ -193,12 +219,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             try
             {
                 return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                    (relationalQueryContext, relationalCommandCache, commandSource),
+                    (relationalQueryContext, relationalCommandResolver, commandSource),
                     static (_, state, cancellationToken) =>
                     {
                         EntityFrameworkEventSource.Log.QueryExecuting();
 
-                        var relationalCommand = state.relationalCommandCache.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+                        var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
                         return relationalCommand.ExecuteNonQueryAsync(
                             new RelationalCommandParameterObject(
@@ -264,7 +290,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             var elementSelector = new ShaperProcessingExpressionVisitor(this, selectExpression, selectExpression.Tags, splitQuery, false)
                 .ProcessRelationalGroupingResult(
                     relationalGroupByResultExpression,
-                    out var relationalCommandCache,
+                    out var relationalCommandResolver,
                     out var readerColumns,
                     out var keySelector,
                     out var keyIdentifier,
@@ -293,7 +319,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                         .Single(m => m.Name == nameof(GroupBySplitQueryingEnumerable.Create))
                         .MakeGenericMethod(keySelector.ReturnType, elementSelector.ReturnType),
                     Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                    relationalCommandCache,
+                    relationalCommandResolver,
                     readerColumnsExpression,
                     keySelector,
                     keyIdentifier,
@@ -320,7 +346,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     .Single(m => m.Name == nameof(GroupBySingleQueryingEnumerable.Create))
                     .MakeGenericMethod(keySelector.ReturnType, elementSelector.ReturnType),
                 Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                relationalCommandCache,
+                relationalCommandResolver,
                 readerColumnsExpression,
                 keySelector,
                 keyIdentifier,
@@ -342,9 +368,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         else
         {
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
-            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
-                shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var readerColumns,
-                out var relatedDataLoaders, ref collectionCount);
+            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql)
+                .ProcessShaper(
+                    shapedQueryExpression.ShaperExpression, out var relationalCommandResolver, out var readerColumns,
+                    out var relatedDataLoaders, ref collectionCount);
 
             if (querySplittingBehavior == null
                 && collectionCount > 1)
@@ -360,7 +387,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                         .Single(m => m.Name == nameof(FromSqlQueryingEnumerable.Create))
                         .MakeGenericMethod(shaper.ReturnType),
                     Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                    relationalCommandCache,
+                    relationalCommandResolver,
                     readerColumnsExpression,
                     Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                         selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToArray(),
@@ -392,10 +419,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
                 return Call(
                     typeof(SplitQueryingEnumerable).GetMethods()
-                        .Single(m => m.Name == nameof(FromSqlQueryingEnumerable.Create))
+                        .Single(m => m.Name == nameof(SplitQueryingEnumerable.Create))
                         .MakeGenericMethod(shaper.ReturnType),
                     Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                    relationalCommandCache,
+                    relationalCommandResolver,
                     readerColumnsExpression,
                     shaper,
                     relatedDataLoadersParameter,
@@ -411,7 +438,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     .Single(m => m.Name == nameof(SingleQueryingEnumerable.Create))
                     .MakeGenericMethod(shaper.ReturnType),
                 Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                relationalCommandCache,
+                relationalCommandResolver,
                 readerColumnsExpression,
                 shaper,
                 Constant(_contextType),
@@ -468,8 +495,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         return result;
     }
 
-    private Expression CreateRelationalCommandCacheExpression(Expression queryExpression)
+    private Expression CreateRelationalCommandResolverExpression(Expression queryExpression)
     {
+        // In the regular case, we generate code that accesses the RelationalCommandCache (which invokes the 2nd part of the
+        // query pipeline). This is only skipped in query precompilation with few nullable parameters, where we pregenerate the SQL,
+        // bypassing the RelationalCommandCache (no more 2nd part of the query pipeline at runtime).
+        if (_isPrecompiling && TryGeneratePregeneratedCommandResolver(queryExpression, out var relationalCommandResolver))
+        {
+            return relationalCommandResolver;
+        }
+
         var relationalCommandCache = new RelationalCommandCache(
             Dependencies.MemoryCache,
             RelationalDependencies.QuerySqlGeneratorFactory,
@@ -477,7 +512,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             queryExpression,
             _useRelationalNulls);
 
-        return RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
+        var commandLiftableConstant = RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
             relationalCommandCache,
             c => new RelationalCommandCache(
                 c.Dependencies.MemoryCache,
@@ -487,5 +522,231 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 _useRelationalNulls),
             "relationalCommandCache",
             typeof(RelationalCommandCache));
+
+        var parametersParameter = Parameter(typeof(IReadOnlyDictionary<string, object?>), "parameters");
+
+        return Lambda<RelationalCommandResolver>(
+            Call(
+                commandLiftableConstant,
+                _getRelationalCommandTemplateMethod ??=
+                    typeof(RelationalCommandCache).GetMethod(nameof(RelationalCommandCache.GetRelationalCommandTemplate))!,
+                parametersParameter),
+            parametersParameter);
+
+        bool TryGeneratePregeneratedCommandResolver(
+            Expression select,
+            [NotNullWhen(true)] out Expression<RelationalCommandResolver>? resolver)
+        {
+            var parameters = new Dictionary<string, object?>();
+            var nullableParameterList = new List<SqlParameterExpression>();
+            foreach (var parameter in new SqlParameterLocator().LocateParameters(select))
+            {
+                if (parameter.IsNullable)
+                {
+                    nullableParameterList.Add(parameter);
+                    parameters[parameter.Name] = null;
+                }
+                else
+                {
+                    parameters[parameter.Name] = GenerateNonNullParameterValue(parameter.Type);
+                }
+            }
+
+            var numNullableParameters = nullableParameterList.Count;
+
+            if (numNullableParameters > MaxNullableParametersForPregeneratedSql)
+            {
+                resolver = null;
+                return false;
+            }
+
+            var parameterDictionaryParameter = Parameter(typeof(IReadOnlyDictionary<string, object?>), "parameters");
+            var resultParameter = Parameter(typeof(IRelationalCommandTemplate), "result");
+            Expression resolverBody;
+            bool canCache;
+
+            if (numNullableParameters == 0)
+            {
+                resolverBody = GenerateRelationalCommandExpression(parameters, out canCache);
+            }
+            else
+            {
+                var parameterIndex = 0;
+
+                resolverBody = Core(parameterIndex);
+            }
+
+            // If we can't cache the query SQL, we can't pregenerate it; flow down to the generic RelationalCommandCache path.
+            // Note that in theory certain parameter nullability can be uncacheable, whereas others may be cacheable; so we could
+            // keep pregenerated SQLs where that works, and flow down to the generic RelationalCommandCache path otherwise.
+            if (!canCache)
+            {
+                resolver = null;
+                return false;
+            }
+
+            resolver = Lambda<RelationalCommandResolver>(resolverBody, parameterDictionaryParameter);
+            return true;
+
+            Expression Core(int parameterIndex)
+            {
+                var currentParameter = nullableParameterList[parameterIndex];
+                Expression ifNull, ifNotNull;
+                ConditionalExpression ifThenElse;
+
+                if (parameterIndex < numNullableParameters - 1)
+                {
+                    var parameter = nullableParameterList[parameterIndex];
+                    parameters[parameter.Name] = null;
+                    ifNull = Core(parameterIndex + 1);
+                    if (!canCache)
+                    {
+                        return null!;
+                    }
+
+                    parameters[parameter.Name] = GenerateNonNullParameterValue(parameter.Type);
+                    ifNotNull = Core(parameterIndex + 1);
+
+                    ifThenElse =
+                        IfThenElse(
+                            Equal(
+                                Property(parameterDictionaryParameter, "Item", Constant(currentParameter.Name)),
+                                Constant(null, typeof(object))),
+                            ifNull,
+                            ifNotNull);
+                }
+                else
+                {
+                    // We've reached the last parameter; generate the SQL and see if we can cache it.
+                    ifNull = LastParameter(withNull: true);
+                    if (!canCache)
+                    {
+                        return null!;
+                    }
+
+                    ifNotNull = LastParameter(withNull: false);
+
+                    ifThenElse =
+                        IfThenElse(
+                            Equal(
+                                Property(parameterDictionaryParameter, "Item", Constant(currentParameter.Name)),
+                                Constant(null, typeof(object))),
+                            Assign(resultParameter, ifNull),
+                            Assign(resultParameter, ifNotNull));
+                }
+
+                return parameterIndex > 0
+                    ? Block(ifThenElse, resultParameter)
+                    : Block(variables: [resultParameter], ifThenElse, resultParameter);
+
+                Expression LastParameter(bool withNull)
+                {
+                    var parameter = nullableParameterList[parameterIndex];
+                    parameters[parameter.Name] = withNull ? null : GenerateNonNullParameterValue(parameter.Type);
+
+                    return GenerateRelationalCommandExpression(parameters, out canCache);
+                }
+            }
+
+            static object GenerateNonNullParameterValue(Type type)
+            {
+                // In general, the (2nd part of) the query pipeline doesn't care about actual values - it mostly looks a null vs. non-null.
+                // However, in some specific cases, it looks at actual parameters values - this happens e.g. for Contains over parameter, when
+                // actual values are integrated into the SQL. For these cases, SQL can't be cached in any case and so pregeneration isn't
+                // possible; but we still want to avoid casting exceptions, so we attempt to have a valid, correctly-typed value as the
+                // parameter, and this method attempts to do that in a reasonable way.
+                if (type == typeof(string))
+                {
+                    return string.Empty;
+                }
+
+                if (type.IsArray)
+                {
+                    return Array.CreateInstance(type.GetElementType()!, new int[type.GetArrayRank()]);
+                }
+
+                try
+                {
+                    return Activator.CreateInstance(type)!;
+                }
+                catch
+                {
+                    return new object();
+                }
+            }
+
+            Expression GenerateRelationalCommandExpression(IReadOnlyDictionary<string, object?> parameters, out bool canCache)
+            {
+                var queryExpression = _relationalParameterBasedSqlProcessor.Optimize(select, parameters, out canCache);
+                if (!canCache)
+                {
+                    return null!;
+                }
+
+                var relationalCommandTemplate = _querySqlGeneratorFactory.Create().GetCommand(queryExpression);
+
+                var liftableConstantContextParameter = Parameter(typeof(RelationalMaterializerLiftableConstantContext), "c");
+                // TODO: Instead of instantiating RelationalCommand directly go through the provider's RelationalCommandBuilder (#33516)
+                return RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
+                    null!, // Not actually needed, as this is only used as a liftable constant
+                    Lambda<Func<RelationalMaterializerLiftableConstantContext, object>>(
+                        New(
+                            _relationalCommandConstructor ??= typeof(RelationalCommand)
+                                .GetConstructor(
+                                [
+                                    typeof(RelationalCommandBuilderDependencies),
+                                    typeof(string),
+                                    typeof(IReadOnlyList<IRelationalParameter>)
+                                ])!,
+                            Property(
+                                liftableConstantContextParameter,
+                                _commandBuilderDependenciesProperty ??= typeof(RelationalMaterializerLiftableConstantContext)
+                                    .GetProperty(nameof(RelationalMaterializerLiftableConstantContext.CommandBuilderDependencies))!),
+                            Constant(relationalCommandTemplate.CommandText),
+                            NewArrayInit(
+                                typeof(IRelationalParameter),
+                                relationalCommandTemplate.Parameters.Cast<TypeMappedRelationalParameter>().Select(
+                                    p => (Expression)New(
+                                        _typeMappedRelationalParameterConstructor ??= typeof(TypeMappedRelationalParameter)
+                                            .GetConstructor(
+                                            [
+                                                typeof(string),
+                                                typeof(string),
+                                                typeof(RelationalTypeMapping),
+                                                typeof(bool?),
+                                                typeof(ParameterDirection)
+                                            ])!,
+                                        Constant(p.InvariantName),
+                                        Constant(p.Name),
+                                        RelationalExpressionQuotingUtilities.QuoteTypeMapping(p.RelationalTypeMapping),
+                                        Constant(p.IsNullable, typeof(bool?)),
+                                        Constant(p.Direction))).ToArray())),
+                        liftableConstantContextParameter),
+                    "relationalCommandTemplate",
+                    typeof(IRelationalCommandTemplate));
+            }
+        }
+    }
+
+    private sealed class SqlParameterLocator : ExpressionVisitor
+    {
+        private HashSet<SqlParameterExpression> _parameters = null!;
+
+        public IReadOnlySet<SqlParameterExpression> LocateParameters(Expression selectExpression)
+        {
+            _parameters = new();
+            Visit(selectExpression);
+            return _parameters;
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is SqlParameterExpression parameter)
+            {
+                _parameters.Add(parameter);
+            }
+
+            return base.VisitExtension(node);
+        }
     }
 }
