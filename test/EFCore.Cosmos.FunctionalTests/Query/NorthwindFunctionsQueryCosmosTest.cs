@@ -1890,6 +1890,44 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
 """);
             });
 
+    public override Task String_Contains_negated_in_predicate(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_Contains_negated_in_predicate(a);
+
+                AssertSql(
+"""
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND NOT(CONTAINS(c["CompanyName"], c["ContactName"])))
+""");
+            });
+
+    public override Task String_Contains_negated_in_projection(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_Contains_negated_in_projection(a);
+
+                AssertSql(
+"""
+SELECT VALUE {"Id" : c["CustomerID"], "Value" : NOT(CONTAINS(c["CompanyName"], c["ContactName"]))}
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+            });
+
+    [ConditionalTheory(Skip = "issue #33858")]
+    public override Task String_Contains_in_projection(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_Contains_in_projection(a);
+
+                AssertSql("");
+            });
+
     public override Task String_Join_over_non_nullable_column(bool async)
         => AssertTranslationFailed(() => base.String_Join_over_non_nullable_column(async));
 
