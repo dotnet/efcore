@@ -135,6 +135,29 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new { Id = c.CustomerID, Value = c.CompanyName.Contains(c.ContactName) }),
+            elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_negated_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => !c.CompanyName.Contains(c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_negated_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new { Id = c.CustomerID, Value = !c.CompanyName.Contains(c.ContactName) }),
+            elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_FirstOrDefault_MethodCall(bool async)
         => AssertQuery(
             async,
