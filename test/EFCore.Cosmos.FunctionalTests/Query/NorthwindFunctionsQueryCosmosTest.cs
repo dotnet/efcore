@@ -289,7 +289,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], c["Conta
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], c["ContactName"]))
+WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["CompanyName"], c["ContactName"]))
 """);
             });
 

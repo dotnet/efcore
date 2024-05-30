@@ -220,7 +220,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task String_Contains_Column(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains(c.ContactName)));
+            ss => ss.Set<Customer>().Where(c => c.CompanyName.Contains(c.ContactName)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
