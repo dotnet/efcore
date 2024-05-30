@@ -1795,15 +1795,19 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__Order_0, c["Custo
 
                 AssertSql(
                     """
+@__ids_0='["ABCDE","ALFKI"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
 """,
-//
+                    //
                     """
+@__ids_0='["ABCDE"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
 """
                 );
             });
@@ -1816,9 +1820,11 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
 
                 AssertSql(
                     """
+@__ids_0='["ABCDE","ALFKI"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
 """
                 );
             });
@@ -1831,9 +1837,11 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI
 
                 AssertSql(
                     """
+@__ids_0='[null,null]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN (null, null))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
 """);
             });
 
@@ -1860,15 +1868,19 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI
 
                 AssertSql(
                     """
+@__AsReadOnly_0='["ABCDE","ALFKI"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__AsReadOnly_0, c["CustomerID"]))
 """,
-//
-                    """
+                //
+                """
+@__AsReadOnly_0='["ABCDE","ANATR"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__AsReadOnly_0, c["CustomerID"]))
 """
                 );
             });
@@ -2223,9 +2235,11 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 
                 AssertSql(
                     """
+@__ids_0='["ALFKI"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
 """);
             });
 
@@ -2237,9 +2251,11 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 
                 AssertSql(
                     """
+@__ids_0='["ALFKI"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
 """);
             });
 

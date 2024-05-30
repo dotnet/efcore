@@ -263,6 +263,20 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_HashSet_of_ints_Contains_int(bool async)
+    {
+        var ints = new HashSet<int>() { 10, 999 };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
     {
         var ints = new int?[] { 10, 999 };
