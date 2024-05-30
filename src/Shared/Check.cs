@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
-//[DebuggerStepThrough]
+[DebuggerStepThrough]
 internal static class Check
 {
     [ContractAnnotation("value:null => halt")]
