@@ -208,6 +208,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("InvalidColumnNameForFreeText");
 
         /// <summary>
+        ///     The expression passed to the 'propertyReference' parameter of the 'PatIndex' method is not a valid reference to a property. The expression must represent a reference to a property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.PatIndex('%pattern%', e.SomeProperty) > 0 select e'
+        /// </summary>
+        public static string InvalidColumnNameForPatIndex
+            => GetString("InvalidColumnNameForPatIndex");
+
+        /// <summary>
         ///     The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.
         /// </summary>
         public static string InvalidTableToIncludeInScaffolding(object? table)

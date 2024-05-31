@@ -557,6 +557,91 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
 """);
     }
 
+    [ConditionalFact]
+    public async Task PatIndex_literal()
+    {
+        using var context = CreateContext();
+        var result = await context.Employees
+            .Where(c => EF.Functions.PatIndex("%Repr%", c.Title) > 0)
+            .ToListAsync();
+
+        Assert.Equal(1u, result.First().EmployeeID);
+
+        AssertSql(
+            """
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE PATINDEX(N'%Repr%', [e].[Title]) > 0
+""");
+    }
+
+    [ConditionalFact]
+    public void PatIndex_client_eval_throws()
+    {
+        Assert.Throws<InvalidOperationException>(() => EF.Functions.PatIndex("%test%", "teststring"));
+        Assert.Throws<InvalidOperationException>(() => EF.Functions.PatIndex("%test%", "teststring"));
+    }
+
+    [ConditionalFact]
+    public void PatIndex_multiple_words()
+    {
+        using var context = CreateContext();
+        var result = context.Employees
+            .Where(c => EF.Functions.PatIndex("%Representative Sales%", c.Title) > 0)
+            .Count();
+
+        Assert.Equal(9, result);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Employees] AS [e]
+WHERE PATINDEX(N'%Representative Sales%', [e].[Title])
+""");
+    }
+
+    [ConditionalFact]
+    public void PatIndex_with_language_term()
+    {
+        using var context = CreateContext();
+        var result = context.Employees.SingleOrDefault(c => EF.Functions.PatIndex("%President%", c.Title, "Latin1_General_BIN") > 0);
+
+        Assert.Equal(2u, result.EmployeeID);
+
+        AssertSql(
+            """
+SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE PATINDEX(N'%President%', [e].[Title] COLLATE Latin1_General_BIN) > 0
+""");
+    }
+
+
+//     [ConditionalFact]
+//     public void PatIndex_01()
+//     {
+//         using var context = CreateContext();
+//         var result = context.Employees
+//             .Where(
+//                 c => EF.Functions.PatIndex("%ter%", c.FirstName) > 0)
+//             .FirstOrDefault();
+
+//         Assert.NotNull(result);
+//         Assert.Equal(8u, result.EmployeeID);
+
+//         AssertSql(
+//                """
+// SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+// FROM [Employees] AS [e]
+// WHERE PATINDEX('%ter%', 'interesting data') > 0)
+// """);
+//     }
+
+
+
+
+
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Year(bool async)

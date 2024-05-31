@@ -90,6 +90,42 @@ public static class SqlServerDbFunctionsExtensions
         string searchCondition)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>PATINDEX</c> store function.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="stringPattern">A string pattern to search for.</param>
+    /// <param name="target">The string to search.</param>    
+    /// <param name="collation">Collation of the expression that is searched.</param>    
+    public static int? PatIndex(
+        this DbFunctions _,
+        string stringPattern,
+        object target, 
+        [NotParameterized] string collation)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>PATINDEX</c> store function.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="stringPattern">A string pattern to search for.</param>
+    /// <param name="target">The string to search.</param>    
+    public static int? PatIndex(
+        this DbFunctions _,
+        string stringPattern,
+        object target)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
+
     #endregion Full-text search
 
     #region DateDiffYear
