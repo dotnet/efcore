@@ -890,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 view, entityType, otherEntityType);
 
         /// <summary>
-        ///     '{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments.
+        ///     '{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments. When in doubt use 'false' for nullability argument.
         /// </summary>
         public static string InconsistentNumberOfArguments(object? name, object? argumentCount, object? argumentNullabilityCount)
             => string.Format(

@@ -452,7 +452,7 @@
     <value>Cannot use view '{view}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between their primary keys.</value>
   </data>
   <data name="InconsistentNumberOfArguments" xml:space="preserve">
-    <value>'{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments.</value>
+    <value>'{name}' was constructed with {argumentCount} arguments, but the nullability was defined for {argumentNullabilityCount} arguments. When in doubt use 'false' for nullability argument.</value>
   </data>
   <data name="IncorrectDefaultValueType" xml:space="preserve">
     <value>Cannot set default value '{value}' of type '{valueType}' on property '{property}' of type '{propertyType}' in entity type '{entityType}'.</value>
