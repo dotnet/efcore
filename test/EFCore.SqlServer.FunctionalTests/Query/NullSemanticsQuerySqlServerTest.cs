@@ -1757,6 +1757,17 @@ WHERE CASE
         ELSE CAST(0 AS bit)
     END
 END = CAST(1 AS bit)
+""",
+            //
+            """
+SELECT CASE
+    WHEN CASE
+        WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableIntA]
+        ELSE [e].[IntB]
+    END > [e].[IntC] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
 """);
     }
 
@@ -2518,7 +2529,49 @@ WHERE [e].[IntA] > @__i_0
         await base.Negated_order_comparison_on_nullable_arguments_doesnt_get_optimized(async);
 
         AssertSql(
-            @"");
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] > @__i_0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(0 AS bit)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] >= @__i_0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(0 AS bit)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] < @__i_0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(0 AS bit)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] <= @__i_0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(0 AS bit)
+""");
     }
 
     public override async Task Nullable_column_info_propagates_inside_binary_AndAlso(bool async)

@@ -1066,6 +1066,9 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
                 e => (e.BoolA ? e.NullableBoolA != e.NullableBoolB : e.BoolC) != e.BoolB
                     ? e.BoolA
                     : e.NullableBoolB == e.NullableBoolC).Select(e => e.Id));
+        await AssertQueryScalar(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(e => (e.BoolA ? e.NullableIntA : e.IntB) > e.IntC));
     }
 
     [ConditionalTheory]
@@ -1558,7 +1561,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => !(e.IntA <= i)).Select(e => e.Id));
     }
 
-    [ConditionalTheory(Skip = "issue #9544")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Negated_order_comparison_on_nullable_arguments_doesnt_get_optimized(bool async)
     {

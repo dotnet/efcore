@@ -828,7 +828,7 @@ WHERE "c"."ContactName" LIKE '%m'
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
+WHERE instr("c"."ContactName", 'M') > 0
 """);
     }
 
@@ -840,7 +840,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactName") > 0
+WHERE instr("c"."ContactName", "c"."ContactName") > 0
 """);
     }
 
@@ -852,7 +852,50 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactNam
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactName") > 0
+WHERE instr("c"."ContactName", "c"."ContactName") > 0
+""");
+    }
+
+    public override async Task String_Contains_in_projection(bool async)
+    {
+        await base.String_Contains_in_projection(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID" AS "Id", CASE
+    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 1
+    ELSE 0
+END AS "Value"
+FROM "Customers" AS "c"
+""");
+    }
+
+    public override async Task String_Contains_negated_in_predicate(bool async)
+    {
+        await base.String_Contains_negated_in_predicate(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE NOT (CASE
+    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 1
+    ELSE 0
+END)
+""");
+    }
+
+    public override async Task String_Contains_negated_in_projection(bool async)
+    {
+        await base.String_Contains_negated_in_projection(async);
+
+        AssertSql(
+            """
+SELECT "c"."CustomerID" AS "Id", NOT (CASE
+    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 1
+    ELSE 0
+END) AS "Value"
+FROM "Customers" AS "c"
 """);
     }
 
@@ -886,7 +929,7 @@ WHERE substr("c"."ContactName", length("c"."ContactName"), 1) = 's'
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
+WHERE instr("c"."ContactName", 'M') > 0
 """);
     }
 

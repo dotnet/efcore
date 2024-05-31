@@ -1178,7 +1178,7 @@ SELECT COALESCE((
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     ) AS "w0"
     LIMIT 1), 0)
 FROM "Gears" AS "g"
@@ -2342,7 +2342,7 @@ FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch" AND COALESCE((
     SELECT DISTINCT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
 ORDER BY "g"."Nickname"
 """);
@@ -3049,7 +3049,7 @@ WHERE "g"."HasSoulPatch" AND (
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     ) AS "w0"
     LIMIT 1)
 ORDER BY "g"."Nickname"
@@ -3252,7 +3252,7 @@ WHERE "g"."HasSoulPatch" AND COALESCE((
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     ) AS "w0"
     LIMIT 1), 0)
 ORDER BY "g"."Nickname"
@@ -3906,7 +3906,7 @@ INNER JOIN "Cities" AS "c" ON "g0"."CityOfBirthName" = "c"."Name"
             """
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
-WHERE "c"."Location" IS NOT NULL AND instr("c"."Location", 'Jacinto') > 0
+WHERE instr("c"."Location", 'Jacinto') > 0
 """);
     }
 
@@ -4821,7 +4821,7 @@ END IS NOT NULL
 SELECT COALESCE((
     SELECT DISTINCT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
 FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch"
@@ -5047,7 +5047,10 @@ WHERE "g"."Rank" & @__parameter_0 = @__parameter_0
 
         AssertSql(
             """
-SELECT "g"."HasSoulPatch" AND "t"."Note" IS NOT NULL AND instr("t"."Note", 'Cole') > 0
+SELECT "g"."HasSoulPatch" AND CASE
+    WHEN instr("t"."Note", 'Cole') > 0 THEN 1
+    ELSE 0
+END
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 """);
@@ -7235,7 +7238,7 @@ WHERE "g"."Discriminator" = 'Officer'
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
-WHERE "g"."HasSoulPatch" OR ("t"."Note" IS NOT NULL AND instr("t"."Note", 'Cole') > 0)
+WHERE "g"."HasSoulPatch" OR instr("t"."Note", 'Cole') > 0
 """);
     }
 
@@ -7331,7 +7334,7 @@ SELECT (
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Lancer') > 0
     ) AS "w0"
     LIMIT 1)
 FROM "Gears" AS "g"
@@ -8695,7 +8698,7 @@ LEFT JOIN "Weapons" AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
 ORDER BY (
     SELECT "w"."Name"
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Gnasher') > 0
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND instr("w"."Name", 'Gnasher') > 0
     LIMIT 1), "g"."Nickname", "g"."SquadId"
 """);
     }
