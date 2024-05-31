@@ -32,7 +32,7 @@ public class ExistsExpression : SqlExpression
     }
 
     /// <summary>
-    ///     The subquery to check existence of.
+    ///     The subquery for which to check for element existence.
     /// </summary>
     public virtual SelectExpression Subquery { get; }
 

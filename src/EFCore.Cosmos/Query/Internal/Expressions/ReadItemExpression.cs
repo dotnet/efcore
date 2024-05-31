@@ -80,7 +80,7 @@ public class ReadItemExpression : Expression
         ProjectionExpression = new ProjectionExpression(
             new EntityProjectionExpression(
                 entityType,
-                new RootReferenceExpression(entityType, RootAlias)),
+                new ObjectReferenceExpression(entityType, RootAlias)),
             RootAlias);
 
         EntityType = entityType;

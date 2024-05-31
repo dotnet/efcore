@@ -16,10 +16,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 {
     private readonly QueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly ITypeMappingSource _typeMappingSource;
     private readonly IMemberTranslatorProvider _memberTranslatorProvider;
     private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+    private readonly bool _subquery;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,21 +33,26 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
         QueryCompilationContext queryCompilationContext,
         ISqlExpressionFactory sqlExpressionFactory,
+        ITypeMappingSource typeMappingSource,
         IMemberTranslatorProvider memberTranslatorProvider,
         IMethodCallTranslatorProvider methodCallTranslatorProvider)
         : base(dependencies, queryCompilationContext, subquery: false)
     {
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = sqlExpressionFactory;
+        _typeMappingSource = typeMappingSource;
         _memberTranslatorProvider = memberTranslatorProvider;
         _methodCallTranslatorProvider = methodCallTranslatorProvider;
         _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             queryCompilationContext,
             _sqlExpressionFactory,
+            _typeMappingSource,
             _memberTranslatorProvider,
-            _methodCallTranslatorProvider);
+            _methodCallTranslatorProvider,
+            this);
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
+        _subquery = false;
     }
 
     /// <summary>
@@ -60,15 +67,19 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         _queryCompilationContext = parentVisitor._queryCompilationContext;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
+        _typeMappingSource = parentVisitor._typeMappingSource;
         _memberTranslatorProvider = parentVisitor._memberTranslatorProvider;
         _methodCallTranslatorProvider = parentVisitor._methodCallTranslatorProvider;
         _sqlTranslator = new CosmosSqlTranslatingExpressionVisitor(
             QueryCompilationContext,
             _sqlExpressionFactory,
+            _typeMappingSource,
             _memberTranslatorProvider,
-            _methodCallTranslatorProvider);
+            _methodCallTranslatorProvider,
+            parentVisitor);
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
+        _subquery = true;
     }
 
     /// <summary>
@@ -193,16 +204,23 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
     /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    {
+        switch (extensionExpression)
         {
-            FromSqlQueryRootExpression fromSqlQueryRootExpression
-                => CreateShapedQueryExpression(
+            case EntityQueryRootExpression when _subquery:
+                AddTranslationErrorDetails(CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+                return QueryCompilationContext.NotTranslatedExpression;
+
+            case FromSqlQueryRootExpression fromSqlQueryRootExpression:
+                return CreateShapedQueryExpression(
                     fromSqlQueryRootExpression.EntityType,
                     _sqlExpressionFactory.Select(
-                        fromSqlQueryRootExpression.EntityType, fromSqlQueryRootExpression.Sql, fromSqlQueryRootExpression.Argument)),
+                        fromSqlQueryRootExpression.EntityType, fromSqlQueryRootExpression.Sql, fromSqlQueryRootExpression.Argument));
 
-            _ => base.VisitExtension(extensionExpression)
-        };
+            default:
+                return base.VisitExtension(extensionExpression);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -219,8 +237,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ShapedQueryExpression TranslateSubquery(Expression expression)
-        => throw new InvalidOperationException(CoreStrings.TranslationFailed(expression.Print()));
+    public override ShapedQueryExpression? TranslateSubquery(Expression expression)
+    {
+        var subqueryVisitor = CreateSubqueryVisitor();
+        var translation = subqueryVisitor.Translate(expression) as ShapedQueryExpression;
+        if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
+        {
+            AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
+        }
+
+        return translation;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -255,7 +282,34 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
-        => null;
+    {
+        if (predicate != null)
+        {
+            var translatedSource = TranslateWhere(source, predicate);
+            if (translatedSource == null)
+            {
+                return null;
+            }
+
+            source = translatedSource;
+        }
+
+        var subquery = (SelectExpression)source.QueryExpression;
+        subquery.ClearProjection();
+        subquery.ApplyProjection();
+        if (subquery.Limit == null
+            && subquery.Offset == null)
+        {
+            subquery.ClearOrdering();
+        }
+
+        var translation = _sqlExpressionFactory.Exists(subquery);
+        var selectExpression = new SelectExpression(subquery.Container, translation);
+
+        return source.Update(
+            selectExpression,
+            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -302,7 +356,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        => null;
+        => TranslateSetOperation(source1, source2, "ARRAY_CONCAT");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -311,7 +365,26 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
-        => null;
+    {
+        // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
+        if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
+            && TranslateExpression(item) is SqlExpression translatedItem
+            && source.QueryExpression is SelectExpression { Container: var container })
+        {
+            if (array is ArrayConstantExpression arrayConstant)
+            {
+                var inExpression = _sqlExpressionFactory.In(translatedItem, arrayConstant.Items);
+                return source.Update(new SelectExpression(container, inExpression), source.ShaperExpression);
+            }
+
+            (translatedItem, array) = _sqlExpressionFactory.ApplyTypeMappingsOnItemAndArray(translatedItem, array);
+            var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_CONTAINS", new[] { array, translatedItem }, typeof(bool));
+            return source.UpdateQueryExpression(new SelectExpression(container, simplifiedTranslation));
+        }
+
+        // TODO: Translation to IN, with scalars and with subquery
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -321,6 +394,15 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
     {
+        // Simplify x.Array.Count() => ARRAY_LENGTH(x.Array) instead of (SELECT COUNT(1) FROM i IN x.Array))
+        if (predicate is null
+            && CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
+            && source.QueryExpression is SelectExpression { Container: var container })
+        {
+            var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_LENGTH", new[] { array }, typeof(int));
+            return source.UpdateQueryExpression(new SelectExpression(container, simplifiedTranslation));
+        }
+
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.IsDistinct
             || selectExpression.Limit != null
@@ -384,7 +466,22 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         ShapedQueryExpression source,
         Expression index,
         bool returnDefault)
-        => null;
+    {
+        // Simplify x.Array[1] => x.Array[1] (using the Cosmos array subscript operator) instead of a subquery with LIMIT/OFFSET
+        if (!returnDefault
+            && CosmosQueryUtils.TryExtractBareArray(source, out var array, out var projectedScalarReference)
+            && TranslateExpression(index) is { } translatedIndex
+            && source.QueryExpression is SelectExpression { Container: var container })
+        {
+            var arrayIndex = _sqlExpressionFactory.ArrayIndex(
+                array, translatedIndex, projectedScalarReference.Type, projectedScalarReference.TypeMapping);
+            return source.UpdateQueryExpression(new SelectExpression(container, arrayIndex));
+        }
+
+        // Note that Cosmos doesn't support OFFSET/LIMIT in subqueries, so this translation is for top-level entity querying only.
+        // TODO: Translate with OFFSET/LIMIT
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -393,7 +490,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        => null;
+    {
+        AddTranslationErrorDetails(CosmosStrings.ExceptNotSupported);
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -464,7 +564,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        => null;
+        => TranslateSetOperation(source1, source2, "SetIntersect", ignoreOrderings: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -808,7 +908,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (translation != null)
         {
-            if (selectExpression.Orderings.Count == 0)
+            // Ordering of documents is not guaranteed in Cosmos, so we warn for Skip without OrderBy.
+            // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
+            // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
+            // warn or not.
+            if (selectExpression.Orderings.Count == 0 && !_subquery)
             {
                 _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
             }
@@ -872,7 +976,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         if (translation != null)
         {
-            if (selectExpression.Orderings.Count == 0)
+            // Ordering of documents is not guaranteed in Cosmos, so we warn for Take without OrderBy.
+            // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
+            // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
+            // warn or not.
+            if (selectExpression.Orderings.Count == 0 && !_subquery)
             {
                 _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
             }
@@ -919,7 +1027,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        => null;
+        => TranslateSetOperation(source1, source2, "SetUnion", ignoreOrderings: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1075,6 +1183,168 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
             return property != null && entityType.GetPartitionKeyPropertyNames().Contains(property.Name);
         }
+    }
+
+    #region Queryable collection support
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
+    {
+        // TODO: the below immediately wraps the JSON array property in a subquery (SELECT VALUE i FROM i IN c.Array).
+        // TODO: This isn't strictly necessary, as c.Array can be referenced directly; however, that would mean producing a
+        // TODO: ShapedQueryExpression that doesn't wrap a SelectExpression, but rather a KeyAccessExpression directly; this isn't currently
+        // TODO: supported.
+
+        // Attempt to translate access into a primitive collection property
+        if (_sqlTranslator.TryBindMember(_sqlTranslator.Visit(source), member, out var translatedExpression, out var property)
+            && property is IProperty { IsPrimitiveCollection: true }
+            && translatedExpression is SqlExpression sqlExpression
+            && WrapPrimitiveCollectionAsShapedQuery(
+                sqlExpression,
+                sqlExpression.Type.GetSequenceType(),
+                sqlExpression.TypeMapping!.ElementTypeMapping!) is { } primitiveCollectionTranslation)
+        {
+            return primitiveCollectionTranslation;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateInlineQueryRoot(InlineQueryRootExpression inlineQueryRootExpression)
+    {
+        // The below produces an InlineArrayExpression ([1,2,3]), wrapped by a SelectExpression (SELECT VALUE [1,2,3]).
+        // This is because a bare inline array can only appear in the projection. For example, the following is wrong:
+        // SELECT i FROM i IN [1,2,3] (syntax error)
+        var values = inlineQueryRootExpression.Values;
+        var translatedItems = new SqlExpression[values.Count];
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            if (TranslateExpression(values[i]) is not SqlExpression translatedItem)
+            {
+                return null;
+            }
+
+            translatedItems[i] = translatedItem;
+        }
+
+        // TODO: Do we need full-on type mapping inference like in relational?
+        // TODO: The following currently just gets the type mapping from the CLR type, which ignores e.g. value converters on
+        // TODO: properties compared against
+        var elementClrType = inlineQueryRootExpression.ElementType;
+        var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
+        var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
+        var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
+
+        // Unfortunately, Cosmos doesn't support selecting directly from an inline array: SELECT i FROM i IN [1,2,3] (syntax error)
+        // We must wrap the inline array in a subquery: SELECT VALUE i FROM (SELECT VALUE [1,2,3])
+        var innerSelect = new SelectExpression(
+            [new ProjectionExpression(inlineArray, null!)],
+            sources: [],
+            orderings: [],
+            container: null!)
+        {
+            UsesSingleValueProjection = true
+        };
+
+        return WrapPrimitiveCollectionAsShapedQuery(innerSelect, elementClrType, elementTypeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
+    {
+        if (parameterQueryRootExpression.ParameterExpression.Name?.StartsWith(
+                QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+            != true)
+        {
+            return null;
+        }
+
+        // TODO: Do we need full-on type mapping inference like in relational?
+        // TODO: The following currently just gets the type mapping from the CLR type, which ignores e.g. value converters on
+        // TODO: properties compared against
+        var elementClrType = parameterQueryRootExpression.ElementType;
+        var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
+        var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
+        var sqlParameterExpression = new SqlParameterExpression(parameterQueryRootExpression.ParameterExpression, arrayTypeMapping);
+
+        // Unfortunately, Cosmos doesn't support selecting directly from an inline array: SELECT i FROM i IN [1,2,3] (syntax error)
+        // We must wrap the inline array in a subquery: SELECT VALUE i FROM (SELECT VALUE [1,2,3])
+        var innerSelect = new SelectExpression(
+            [new ProjectionExpression(sqlParameterExpression, null!)],
+            sources: [],
+            orderings: [],
+            container: null!)
+        {
+            UsesSingleValueProjection = true
+        };
+
+        return WrapPrimitiveCollectionAsShapedQuery(innerSelect, elementClrType, elementTypeMapping);
+    }
+
+    private ShapedQueryExpression WrapPrimitiveCollectionAsShapedQuery(
+        Expression containerExpression,
+        Type elementClrType,
+        CoreTypeMapping elementTypeMapping)
+    {
+        // TODO: Do proper alias management: #33894
+        var selectExpression = SelectExpression.CreateForPrimitiveCollection(
+            new SourceExpression(containerExpression, "i", withIn: true),
+            elementClrType,
+            elementTypeMapping);
+        var shaperExpression = (Expression)new ProjectionBindingExpression(
+            selectExpression, new ProjectionMember(), elementClrType.MakeNullable());
+        if (shaperExpression.Type != elementClrType)
+        {
+            Check.DebugAssert(
+                elementClrType.MakeNullable() == shaperExpression.Type,
+                "expression.Type must be nullable of targetType");
+
+            shaperExpression = Expression.Convert(shaperExpression, elementClrType);
+        }
+
+        return new ShapedQueryExpression(selectExpression, shaperExpression);
+    }
+
+    #endregion Queryable collection support
+
+    private ShapedQueryExpression? TranslateSetOperation(
+        ShapedQueryExpression source1,
+        ShapedQueryExpression source2,
+        string functionName,
+        bool ignoreOrderings = false)
+    {
+        if (CosmosQueryUtils.TryConvertToArray(source1, _typeMappingSource, out var array1, out var projection1, ignoreOrderings)
+            && CosmosQueryUtils.TryConvertToArray(source2, _typeMappingSource, out var array2, out var projection2, ignoreOrderings)
+            && projection1.Type == projection2.Type
+            && (projection1.TypeMapping ?? projection2.TypeMapping) is CoreTypeMapping typeMapping)
+        {
+            var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], projection1.Type, typeMapping);
+            var select = SelectExpression.CreateForPrimitiveCollection(
+                new SourceExpression(translation, "i", withIn: true),
+                projection1.Type,
+                typeMapping);
+            return source1.UpdateQueryExpression(select);
+        }
+
+        // TODO: can also handle subqueries via ARRAY()
+        return null;
     }
 
     private SqlExpression? TranslateExpression(Expression expression)

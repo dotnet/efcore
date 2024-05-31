@@ -730,6 +730,9 @@ ORDER BY [p].[Id]
     public override Task Inline_collection_Except_column_collection(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection(async));
 
+    public override Task Column_collection_Where_Union(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection(async));
+
     public override async Task Column_collection_equality_parameter_collection(bool async)
     {
         await base.Column_collection_equality_parameter_collection(async);
@@ -766,6 +769,13 @@ WHERE [p].[Ints] = N'[1,10]'
     public override async Task Column_collection_equality_inline_collection_with_parameters(bool async)
     {
         await base.Column_collection_equality_inline_collection_with_parameters(async);
+
+        AssertSql();
+    }
+
+    public override async Task Column_collection_Where_equality_inline_collection(bool async)
+    {
+        await base.Column_collection_Where_equality_inline_collection(async);
 
         AssertSql();
     }

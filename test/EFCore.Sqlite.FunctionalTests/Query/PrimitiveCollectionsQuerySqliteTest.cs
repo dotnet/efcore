@@ -1167,6 +1167,26 @@ WHERE (
 """);
     }
 
+    public override async Task Column_collection_Where_Union(bool async)
+    {
+        await base.Column_collection_Where_Union(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT "i"."value"
+        FROM json_each("p"."Ints") AS "i"
+        WHERE "i"."value" > 100
+        UNION
+        SELECT CAST(50 AS INTEGER) AS "Value"
+    ) AS "u") = 2
+""");
+    }
+
     public override async Task Column_collection_equality_parameter_collection(bool async)
     {
         await base.Column_collection_equality_parameter_collection(async);
@@ -1203,6 +1223,13 @@ WHERE "p"."Ints" = '[1,10]'
     public override async Task Column_collection_equality_inline_collection_with_parameters(bool async)
     {
         await base.Column_collection_equality_inline_collection_with_parameters(async);
+
+        AssertSql();
+    }
+
+    public override async Task Column_collection_Where_equality_inline_collection(bool async)
+    {
+        await base.Column_collection_Where_equality_inline_collection(async);
 
         AssertSql();
     }

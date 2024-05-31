@@ -71,8 +71,26 @@ public class CosmosTypeMappingSource : TypeMappingSource
     private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
+        var elementMapping = mappingInfo.ElementTypeMapping;
 
-        if (mappingInfo.ElementTypeMapping != null)
+        // Special case for byte[], to allow it to be treated as a scalar (i.e. base64 encoding) rather than as a collection
+        if (clrType == typeof(byte[]) && elementMapping is null)
+        {
+            return null;
+        }
+
+        // First attempt to resolve this as a primitive collection (e.g. List<int>). This does not handle Dictionary.
+        if (TryFindJsonCollectionMapping(
+                mappingInfo, clrType, providerClrType: null, ref elementMapping, out var elementComparer,
+                out var collectionReaderWriter)
+            && elementMapping is not null)
+        {
+            return new CosmosTypeMapping(
+                clrType, elementComparer, elementMapping: elementMapping, jsonValueReaderWriter: collectionReaderWriter);
+        }
+
+        // Next, attempt to resolve this as a dictionary (e.g. Dictionary<string, int>).
+        if (elementMapping is not null)
         {
             return null;
         }
@@ -100,7 +118,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
 
                 elementType = genericArguments[1];
                 var elementMappingInfo = new TypeMappingInfo(elementType);
-                var elementMapping = FindPrimitiveMapping(elementMappingInfo)
+                elementMapping = FindPrimitiveMapping(elementMappingInfo)
                     ?? FindCollectionMapping(elementMappingInfo);
                 return elementMapping == null
                     ? null

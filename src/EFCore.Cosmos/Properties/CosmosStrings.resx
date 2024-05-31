@@ -123,9 +123,6 @@
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
-  <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
-    <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
-  </data>
   <data name="ConnectionInfoMissing" xml:space="preserve">
     <value>None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.</value>
   </data>
@@ -143,6 +140,9 @@
   </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
     <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
+  </data>
+  <data name="ExceptNotSupported" xml:space="preserve">
+    <value>The 'Except()' LINQ operator isn't supported by Cosmos.</value>
   </data>
   <data name="IdNonStringStoreType" xml:space="preserve">
     <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.</value>
@@ -212,6 +212,9 @@
   </data>
   <data name="NoIdProperty" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
+  </data>
+  <data name="NonCorrelatedSubqueriesNotSupported" xml:space="preserve">
+    <value>Cosmos subqueries must be correlated, referencing values from the outer query.</value>
   </data>
   <data name="NonEmbeddedIncludeNotSupported" xml:space="preserve">
     <value>Including navigation '{navigation}' is not supported as the navigation is not embedded in same resource.</value>

@@ -14,12 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpressionVisitor
+public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpressionVisitor
 {
     private readonly IndentedStringBuilder _sqlBuilder = new();
     private IReadOnlyDictionary<string, object> _parameterValues = null!;
     private List<SqlParameter> _sqlParameters = null!;
-    private bool _useValueProjection;
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
     private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
@@ -95,6 +94,46 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitExists(ExistsExpression existsExpression)
+    {
+        _sqlBuilder.AppendLine("EXISTS (");
+
+        using (_sqlBuilder.Indent())
+        {
+            Visit(existsExpression.Subquery);
+        }
+
+        _sqlBuilder.Append(")");
+
+        return existsExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitArray(ArrayExpression arrayExpression)
+    {
+        _sqlBuilder.AppendLine("ARRAY (");
+
+        using (_sqlBuilder.Indent())
+        {
+            Visit(arrayExpression.Subquery);
+        }
+
+        _sqlBuilder.Append(")");
+
+        return arrayExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression)
     {
         _sqlBuilder.Append(objectArrayProjectionExpression.ToString());
@@ -134,16 +173,44 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+    protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
     {
-        if (_useValueProjection)
+        _sqlBuilder.AppendLine("(");
+        using (_sqlBuilder.Indent())
+        {
+            Visit(scalarSubqueryExpression.Subquery);
+        }
+
+        _sqlBuilder.Append(")");
+
+        return scalarSubqueryExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+        => VisitProjection(projectionExpression, objectProjectionStyle: false);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Expression VisitProjection(ProjectionExpression projectionExpression, bool objectProjectionStyle)
+    {
+        if (objectProjectionStyle)
         {
             _sqlBuilder.Append('"').Append(projectionExpression.Alias).Append("\" : ");
         }
 
         Visit(projectionExpression.Expression);
 
-        if (!_useValueProjection
+        if (!objectProjectionStyle
             && !string.IsNullOrEmpty(projectionExpression.Alias)
             && projectionExpression.Alias != projectionExpression.Name)
         {
@@ -159,11 +226,24 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitRootReference(RootReferenceExpression rootReferenceExpression)
+    protected override Expression VisitObjectReference(ObjectReferenceExpression objectReferenceExpression)
     {
-        _sqlBuilder.Append(rootReferenceExpression.ToString());
+        _sqlBuilder.Append(objectReferenceExpression.Name);
 
-        return rootReferenceExpression;
+        return objectReferenceExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitValueReference(ScalarReferenceExpression scalarReferenceExpression)
+    {
+        _sqlBuilder.Append(scalarReferenceExpression.Name);
+
+        return scalarReferenceExpression;
     }
 
     /// <summary>
@@ -181,20 +261,39 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
             _sqlBuilder.Append("DISTINCT ");
         }
 
-        if (selectExpression.Projection.Count > 0)
+        if (selectExpression.Projection is { Count: > 0 } projection)
         {
-            if (selectExpression.Projection.Any(p => !string.IsNullOrEmpty(p.Alias) && p.Alias != p.Name)
-                && !selectExpression.Projection.Any(p => p.Expression is SqlFunctionExpression)) // Aggregates are not allowed
+            // If the SELECT projects a single value out, we just project that with the Cosmos VALUE keyword (without VALUE,
+            // Cosmos projects a JSON object containing the value).
+            if (selectExpression.UsesSingleValueProjection)
             {
-                _useValueProjection = true;
-                _sqlBuilder.Append("VALUE {");
-                GenerateList(selectExpression.Projection, e => Visit(e));
-                _sqlBuilder.Append('}');
-                _useValueProjection = false;
+                _sqlBuilder.Append("VALUE ");
+
+                if (projection is not [var singleProjection])
+                {
+                    throw new UnreachableException(
+                        $"Encountered SelectExpression with UsesValueProject=true and Projection.Count={projection.Count}.");
+                }
+
+                Visit(singleProjection.Expression);
+            }
+            // Otherwise, we'll project a JSON object; Cosmos has two syntaxes for doing so:
+            // 1. Project out a JSON object as a value (SELECT VALUE { 'a': a, 'b': b }), or
+            // 2. Project a set of properties with optional AS+aliases (SELECT 'a' AS a, 'b' AS b)
+            // Both methods produce the exact same results; we usually prefer the 1st, but in some cases we use the 2nd.
+            else if ((projection.Count > 1
+                         // Cosmos does not support "AS Value" projections, specifically for the alias "Value"
+                         || projection is [{ Alias: var alias }] && alias.Equals("value", StringComparison.OrdinalIgnoreCase))
+                     && projection.Any(p => !string.IsNullOrEmpty(p.Alias) && p.Alias != p.Name)
+                     && !projection.Any(p => p.Expression is SqlFunctionExpression)) // Aggregates are not allowed
+            {
+                _sqlBuilder.AppendLine("VALUE").AppendLine("{").IncrementIndent();
+                GenerateList(projection, e => VisitProjection(e, objectProjectionStyle: true), joinAction: sql => sql.AppendLine(","));
+                _sqlBuilder.AppendLine().DecrementIndent().Append("}");
             }
             else
             {
-                GenerateList(selectExpression.Projection, e => Visit(e));
+                GenerateList(projection, e => Visit(e));
             }
         }
         else
@@ -202,11 +301,17 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
             _sqlBuilder.Append('1');
         }
 
-        _sqlBuilder.AppendLine();
+        if (selectExpression.Sources.Count > 0)
+        {
+            if (selectExpression.Sources.Count > 1)
+            {
+                throw new NotImplementedException("JOINs not yet supported");
+            }
 
-        _sqlBuilder.Append(selectExpression.FromExpression is FromSqlExpression ? "FROM " : "FROM root ");
+            _sqlBuilder.AppendLine().Append("FROM ");
 
-        Visit(selectExpression.FromExpression);
+            Visit(selectExpression.Sources[0]);
+        }
 
         if (selectExpression.Predicate != null)
         {
@@ -311,9 +416,7 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
             _sqlBuilder.AppendLines(sql);
         }
 
-        _sqlBuilder
-            .Append(") ")
-            .Append(fromSqlExpression.Alias);
+        _sqlBuilder.Append(")");
 
         return fromSqlExpression;
     }
@@ -344,6 +447,16 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
     /// </summary>
     protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {
+        if (sqlBinaryExpression.OperatorType is ExpressionType.ArrayIndex)
+        {
+            Visit(sqlBinaryExpression.Left);
+            _sqlBuilder.Append('[');
+            Visit(sqlBinaryExpression.Right);
+            _sqlBuilder.Append(']');
+
+            return sqlBinaryExpression;
+        }
+
         var op = _operatorMap[sqlBinaryExpression.OperatorType];
         _sqlBuilder.Append('(');
         Visit(sqlBinaryExpression.Left);
@@ -508,6 +621,112 @@ public class QuerySqlGenerator(ITypeMappingSource typeMappingSource) : SqlExpres
         GenerateIn(inExpression, negated: false);
 
         return inExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitArrayConstant(ArrayConstantExpression arrayConstantExpression)
+    {
+        _sqlBuilder.Append("[");
+
+        var items = arrayConstantExpression.Items;
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (i > 0)
+            {
+                _sqlBuilder.Append(", ");
+            }
+
+            Visit(items[i]);
+        }
+
+        _sqlBuilder.Append("]");
+
+        return arrayConstantExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected sealed override Expression VisitSource(SourceExpression sourceExpression)
+    {
+        // https://learn.microsoft.com/azure/cosmos-db/nosql/query/from
+        if (sourceExpression.WithIn)
+        {
+            if (sourceExpression.Alias is null)
+            {
+                throw new UnreachableException("Alias cannot be null when WithIn is true");
+            }
+
+            _sqlBuilder
+                .Append(sourceExpression.Alias)
+                .Append(" IN ");
+
+
+            VisitContainerExpression(sourceExpression.ContainerExpression);
+        }
+        else
+        {
+            VisitContainerExpression(sourceExpression.ContainerExpression);
+
+            if (sourceExpression.Alias is not null)
+            {
+                _sqlBuilder
+                    .Append(" ")
+                    .Append(sourceExpression.Alias);
+            }
+        }
+
+        return sourceExpression;
+
+        void VisitContainerExpression(Expression containerExpression)
+        {
+            var subquery = containerExpression is SelectExpression;
+            var simpleValueProjectionSubquery = containerExpression is SelectExpression
+            {
+                Sources: [],
+                Predicate: null,
+                Offset: null,
+                Limit: null,
+                Orderings: [],
+                IsDistinct: false,
+                UsesSingleValueProjection: true,
+                Projection.Count: 1
+            };
+
+            if (subquery)
+            {
+                if (simpleValueProjectionSubquery)
+                {
+                    _sqlBuilder.Append("(");
+                }
+                else
+                {
+                    _sqlBuilder.AppendLine("(").IncrementIndent();
+                }
+            }
+
+            Visit(sourceExpression.ContainerExpression);
+
+            if (subquery)
+            {
+                if (simpleValueProjectionSubquery)
+                {
+                    _sqlBuilder.Append(")");
+                }
+                else
+                {
+                    _sqlBuilder.DecrementIndent().Append(")");
+                }
+            }
+        }
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ public class ObjectArrayProjectionExpression : Expression, IPrintableExpression,
         InnerProjection = innerProjection
             ?? new EntityProjectionExpression(
                 targetType,
-                new RootReferenceExpression(targetType, ""));
+                new ObjectReferenceExpression(targetType, ""));
     }
 
     /// <summary>

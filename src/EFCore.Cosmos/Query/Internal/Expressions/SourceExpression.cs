@@ -10,7 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class RootReferenceExpression(IEntityType entityType, string alias) : Expression, IAccessExpression
+/// <seealso href="https://learn.microsoft.com/azure/cosmos-db/nosql/query/from">FROM clause (NoSQL query)</seealso>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
+public class SourceExpression(Expression containerExpression, string alias, bool withIn = false)
+    : Expression, IAccessExpression, IPrintableExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +31,7 @@ public class RootReferenceExpression(IEntityType entityType, string alias) : Exp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => EntityType.ClrType;
+        => ContainerExpression.Type;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +39,7 @@ public class RootReferenceExpression(IEntityType entityType, string alias) : Exp
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEntityType EntityType { get; } = entityType;
+    public virtual Expression ContainerExpression { get; } = containerExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,6 +48,17 @@ public class RootReferenceExpression(IEntityType entityType, string alias) : Exp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Alias { get; } = alias;
+
+    /// <summary>
+    ///     Specifies that the source uses IN, and will be generated as <c>FROM x IN c.Tags</c>
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public virtual bool WithIn { get; } = withIn;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +76,18 @@ public class RootReferenceExpression(IEntityType entityType, string alias) : Exp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => this;
+        => Update(visitor.Visit(ContainerExpression));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SourceExpression Update(Expression containerExpression)
+        => ReferenceEquals(containerExpression, ContainerExpression)
+            ? this
+            : new SourceExpression(containerExpression, Alias);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,20 +99,42 @@ public class RootReferenceExpression(IEntityType entityType, string alias) : Exp
         => Alias;
 
     /// <summary>
+    ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
+    /// </summary>
+    /// <param name="expressionPrinter">The expression printer to use.</param>
+    public void Print(ExpressionPrinter expressionPrinter)
+    {
+        if (WithIn)
+        {
+            expressionPrinter
+                .Append(Alias)
+                .Append(" IN ");
+            expressionPrinter.Visit(ContainerExpression);
+        }
+        else
+        {
+            expressionPrinter.Visit(ContainerExpression);
+            expressionPrinter
+                .Append(" AS ")
+                .Append(Alias);
+        }
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override bool Equals(object? obj)
-        => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is RootReferenceExpression rootReferenceExpression
-                && Equals(rootReferenceExpression));
+        => obj is SourceExpression other && Equals(other);
 
-    private bool Equals(RootReferenceExpression rootReferenceExpression)
-        => Alias == rootReferenceExpression.Alias
-            && EntityType.Equals(rootReferenceExpression.EntityType);
+    private bool Equals(SourceExpression? other)
+        => ReferenceEquals(this, other)
+            || (other is not null
+                && Alias == other.Alias
+                && WithIn == other.WithIn
+                && ContainerExpression.Equals(other.ContainerExpression));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,5 +143,11 @@ public class RootReferenceExpression(IEntityType entityType, string alias) : Exp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(Alias, EntityType);
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(ContainerExpression);
+        hashCode.Add(Alias);
+        hashCode.Add(WithIn);
+        return hashCode.ToHashCode();
+    }
 }
