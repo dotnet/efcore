@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Design;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -136,16 +137,53 @@ public class DbContextOperations
     public virtual IReadOnlyList<string> Optimize(
         string? outputDir, string? modelNamespace, string? contextTypeName, string? suffix, bool scaffoldModel, bool precompileQueries)
     {
-        using var context = CreateContext(contextTypeName);
+        var optimizeAllInAssembly = contextTypeName == "*";
+        var contexts = optimizeAllInAssembly ? CreateAllContexts() : [CreateContext(contextTypeName)];
+
+        MSBuildLocator.RegisterDefaults();
+
+        List<string> generatedFiles = [];
+        HashSet<string> generatedFileNames = [];
+        foreach (var context in contexts)
+        {
+            using (context)
+            {
+                Optimize(
+                    outputDir,
+                    modelNamespace,
+                    suffix,
+                    scaffoldModel,
+                    precompileQueries,
+                    context,
+                    optimizeAllInAssembly,
+                    generatedFiles,
+                    generatedFileNames);
+            }
+        }
+
+        return generatedFiles;
+    }
+
+    private void Optimize(
+        string? outputDir,
+        string? modelNamespace,
+        string? suffix,
+        bool scaffoldModel,
+        bool precompileQueries,
+        DbContext context,
+        bool optimizeAllInAssembly,
+        List<string> generatedFiles,
+        HashSet<string> generatedFileNames)
+    {
         var contextType = context.GetType();
         var services = _servicesBuilder.Build(context);
 
-        IReadOnlyList<string> generatedFiles = [];
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null;
 
-        if (scaffoldModel)
+        if (scaffoldModel
+            && (!optimizeAllInAssembly || contextType.Assembly == _assembly))
         {
-            generatedFiles = ScaffoldCompiledModel(outputDir, modelNamespace, context, suffix, services);
+            generatedFiles.AddRange(ScaffoldCompiledModel(outputDir, modelNamespace, context, suffix, services, generatedFileNames));
             if (precompileQueries)
             {
                 memberAccessReplacements = ((IRuntimeModel)context.GetService<IDesignTimeModel>().Model).GetUnsafeAccessors();
@@ -154,16 +192,23 @@ public class DbContextOperations
 
         if (precompileQueries)
         {
-            generatedFiles = generatedFiles.Concat(PrecompileQueries(
-                outputDir, context, suffix, services, memberAccessReplacements ?? ((IRuntimeModel)context.Model).GetUnsafeAccessors()))
-                .ToList();
+            generatedFiles.AddRange(PrecompileQueries(
+                outputDir,
+                context,
+                suffix,
+                services,
+                memberAccessReplacements ?? ((IRuntimeModel)context.Model).GetUnsafeAccessors(),
+                generatedFileNames));
         }
-
-        return generatedFiles;
     }
 
     private IReadOnlyList<string> ScaffoldCompiledModel(
-        string? outputDir, string? modelNamespace, DbContext context, string? suffix, IServiceProvider services)
+        string? outputDir,
+        string? modelNamespace,
+        DbContext context,
+        string? suffix,
+        IServiceProvider services,
+        ISet<string> generatedFileNames)
     {
         var contextType = context.GetType();
         if (contextType.Assembly != _assembly)
@@ -199,7 +244,8 @@ public class DbContextOperations
                 ModelNamespace = finalModelNamespace,
                 Language = _language,
                 UseNullableReferenceTypes = _nullable,
-                Suffix = suffix
+                Suffix = suffix,
+                GeneratedFileNames = generatedFileNames
             });
 
         var fullName = contextType.ShortDisplayName() + "Model";
@@ -219,11 +265,10 @@ public class DbContextOperations
         return scaffoldedFiles;
     }
 
-    private IReadOnlyList<string> PrecompileQueries(string? outputDir, DbContext context, string? suffix, IServiceProvider services, IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
+    private IReadOnlyList<string> PrecompileQueries(string? outputDir, DbContext context, string? suffix, IServiceProvider services, IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements, ISet<string> generatedFileNames)
     {
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
 
-        MSBuildLocator.RegisterDefaults();
         // TODO: pass through properties
         var workspace = MSBuildWorkspace.Create();
         workspace.LoadMetadataForReferencedProjects = true;
@@ -253,7 +298,14 @@ public class DbContextOperations
 
         var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
         var generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
-            compilation, syntaxGenerator, context, memberAccessReplacements, precompilationErrors, assembly: _assembly, suffix);
+            compilation,
+            syntaxGenerator,
+            context,
+            memberAccessReplacements,
+            precompilationErrors,
+            generatedFileNames,
+            assembly: _assembly,
+            suffix);
 
         if (precompilationErrors.Count > 0)
         {
@@ -267,19 +319,15 @@ public class DbContextOperations
             throw new InvalidOperationException(errorBuilder.ToString());
         }
 
-        Directory.CreateDirectory(outputDir);
         var writtenFiles = new List<string>();
         foreach (var generatedFile in generatedFiles)
         {
-            var finalText = FormatCode(project, generatedFile).GetAwaiter().GetResult();
-            var outputFilePath = Path.Combine(outputDir, generatedFile.Path);
-            File.WriteAllText(outputFilePath, finalText.ToString());
-            writtenFiles.Add(outputFilePath);
+            generatedFile.Code = FormatCode(project, generatedFile).GetAwaiter().GetResult().ToString()!;
         }
 
-        return writtenFiles;
+        return CompiledModelScaffolder.WriteFiles(generatedFiles, outputDir);
 
-        static async Task<object> FormatCode(Project project, PrecompiledQueryCodeGenerator.GeneratedInterceptorFile generatedFile)
+        static async Task<object> FormatCode(Project project, ScaffoldedFile generatedFile)
         {
             var document = project.AddDocument("_EfGeneratedInterceptors.cs", generatedFile.Code);
 
@@ -334,7 +382,27 @@ public class DbContextOperations
     public virtual DbContext CreateContext(string? contextType)
     {
         EF.IsDesignTime = true;
-        var contextPair = FindContextType(contextType);
+        return CreateContext(contextType, FindContextType(contextType));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<DbContext> CreateAllContexts()
+    {
+        EF.IsDesignTime = true;
+        var types = FindContextTypes();
+        foreach (var contextPair in types)
+        {
+            yield return CreateContext(null, contextPair);
+        }
+    }
+
+    private DbContext CreateContext(string? contextType, KeyValuePair<Type, Func<DbContext>> contextPair)
+    {
         var factory = contextPair.Value;
         try
         {

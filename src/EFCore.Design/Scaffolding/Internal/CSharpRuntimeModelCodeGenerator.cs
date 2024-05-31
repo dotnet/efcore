@@ -66,30 +66,36 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
         var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
-        var assemblyInfoFileName = options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = assemblyInfoFileName, Code = assemblyAttributesCode });
+        var assemblyInfoFileName = Uniquify(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
+        scaffoldedFiles.Add(new(assemblyInfoFileName, assemblyAttributesCode));
 
         var modelCode = CreateModel(options.ModelNamespace, options.ContextType, nullable);
-        var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
+        var modelFileName = Uniquify(options.ContextType.ShortDisplayName() + ModelSuffix, options);
+        scaffoldedFiles.Add(new(modelFileName, modelCode));
 
         var configurationClassNames = new Dictionary<ITypeBase, string>();
         var modelBuilderCode = CreateModelBuilder(
             model, options.ModelNamespace, options.ContextType, configurationClassNames, nullable);
-        var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
+        var modelBuilderFileName = Uniquify(options.ContextType.ShortDisplayName() + ModelBuilderSuffix, options);
+        scaffoldedFiles.Add(new(modelBuilderFileName, modelBuilderCode));
 
         foreach (var entityType in model.GetEntityTypesInHierarchicalOrder())
         {
-            var generatedCode = GenerateEntityType(
-                entityType, options.ModelNamespace, configurationClassNames, nullable);
+            var generatedCode = GenerateEntityType(entityType, options.ModelNamespace, configurationClassNames, nullable);
 
-            var entityTypeFileName = configurationClassNames[entityType] + FileExtension;
-            scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+            var entityTypeFileName = Uniquify(configurationClassNames[entityType], options);
+            scaffoldedFiles.Add(new(entityTypeFileName, generatedCode));
         }
 
         return scaffoldedFiles;
     }
+
+    private string Uniquify(string name, CompiledModelCodeGenerationOptions options)
+        => Uniquifier.Uniquify(
+            name,
+            options.GeneratedFileNames,
+            (options.Suffix ?? "") + FileExtension,
+            CompiledModelScaffolder.MaxFileNameLength);
 
     private static string GenerateHeader(SortedSet<string> namespaces, string currentNamespace, bool nullable)
     {

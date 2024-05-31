@@ -103,7 +103,8 @@
                        Project="$(MSBuildProjectFullPath)"
                        ProjectDir="$(MSBuildProjectDirectory)"
                        NoScaffold="$(_EFNoScaffold)"
-                       PrecompileQueries="$(_EFPrecompileQueries)">
+                       PrecompileQueries="$(_EFPrecompileQueries)"
+                       Condition="'$(_EFNoScaffold)'=='false' Or '$(_EFPrecompileQueries)'=='true'">
       <Output TaskParameter="GeneratedFiles" PropertyName="_EFGeneratedFiles" />
     </OptimizeDbContext>
 

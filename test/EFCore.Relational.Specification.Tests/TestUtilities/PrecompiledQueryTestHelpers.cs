@@ -95,7 +95,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
             _metadataReferences,
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
 
-        IReadOnlyList<PrecompiledQueryCodeGenerator.GeneratedInterceptorFile>? generatedFiles = null;
+        IReadOnlyList<ScaffoldedFile>? generatedFiles = null;
 
         try
         {
@@ -114,7 +114,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
                 generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
-                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: null, precompilationErrors, additionalAssembly: assembly);
+                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: null, precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
 
                 if (errorAsserter is null)
                 {

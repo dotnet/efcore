@@ -27,16 +27,18 @@ public interface IPrecompiledQueryCodeGenerator : ILanguageBasedService
     /// <param name="dbContext">The context.</param>
     /// <param name="memberAccessReplacements">The member access replacements.</param>
     /// <param name="precompilationErrors">A list that will contain precompilation errors.</param>
+    /// <param name="generatedFileNames">The set of file names generated so far.</param>
     /// <param name="assembly">The assembly corresponding to the provided compilation.</param>
     /// <param name="suffix">The suffix to attach to the name of all the generated files.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The files containing precompiled queries code.</returns>
-    IReadOnlyList<GeneratedInterceptorFile> GeneratePrecompiledQueries(
+    IReadOnlyList<ScaffoldedFile> GeneratePrecompiledQueries(
         Compilation compilation,
         SyntaxGenerator syntaxGenerator,
         DbContext dbContext,
         IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
         List<QueryPrecompilationError> precompilationErrors,
+        ISet<string> generatedFileNames,
         Assembly? assembly = null,
         string? suffix = null,
         CancellationToken cancellationToken = default);

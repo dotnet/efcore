@@ -63,6 +63,28 @@ public class DbContextOperationsTest
     }
 
     [ConditionalFact]
+    public void CreateAllContexts_creates_all_contexts()
+    {
+        var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+        var operations = new TestDbContextOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            args: [],
+            new TestAppServiceProviderFactory(assembly));
+
+        var contexts = operations.CreateAllContexts().ToList();
+        Assert.Collection(contexts,
+            c => Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(c).FactoryUsed),
+            c => Assert.Equal(nameof(DerivedContext), Assert.IsType<DerivedContext>(c).FactoryUsed));
+    }
+
+    [ConditionalFact]
     public void GetContextInfo_returns_correct_info()
     {
         var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext));
