@@ -214,6 +214,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("InvalidColumnNameForPatIndex");
 
         /// <summary>
+        ///     The expression passed to the 'stringPattern' parameter of the 'PatIndex' method is not a valid constant or parameter expression.
+        /// </summary>
+        public static string InvalidPatternForPatIndex
+            => GetString("InvalidPatternForPatIndex");
+       
+        /// <summary>
         ///     The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.
         /// </summary>
         public static string InvalidTableToIncludeInScaffolding(object? table)

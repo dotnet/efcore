@@ -100,12 +100,12 @@ public static class SqlServerDbFunctionsExtensions
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="stringPattern">A string pattern to search for.</param>
-    /// <param name="target">The string to search.</param>    
+    /// <param name="propertyReference">The property on which the search will be performed.</param>    
     /// <param name="collation">Collation of the expression that is searched.</param>    
     public static int? PatIndex(
         this DbFunctions _,
         string stringPattern,
-        object target, 
+        object propertyReference, 
         [NotParameterized] string collation)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
 
@@ -119,11 +119,11 @@ public static class SqlServerDbFunctionsExtensions
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="stringPattern">A string pattern to search for.</param>
-    /// <param name="target">The string to search.</param>    
+    /// <param name="propertyReference">The property on which the search will be performed.</param>    
     public static int? PatIndex(
         this DbFunctions _,
         string stringPattern,
-        object target)
+        object propertyReference)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
 
     #endregion Full-text search
@@ -2128,7 +2128,7 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsNumeric)));
 
     /// <summary>
-    ///     Converts <paramref name="dateTime" /> to the corresponding <c>datetimeoffset</c> in the target <paramref name="timeZone" />.
+    ///     Converts <paramref name="dateTime" /> to the corresponding <c>datetimeoffset</c> in the propertyReference <paramref name="timeZone" />.
     ///     Corresponds to the SQL Server <c>AT TIME ZONE</c> construct.
     /// </summary>
     /// <remarks>

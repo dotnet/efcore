@@ -42,7 +42,7 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
             nameof(SqlServerDbFunctionsExtensions.PatIndex),
             [typeof(DbFunctions), typeof(string), typeof(object)])!;
 
-    private static readonly MethodInfo PatIndexMethodInfoWithLanguage
+    private static readonly MethodInfo PatIndexMethodInfoWithCollation
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.PatIndex),
             [typeof(DbFunctions), typeof(string), typeof(object), typeof(string)])!;
@@ -55,7 +55,7 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
             { ContainsMethodInfo, ContainsFunctionName },
             { ContainsMethodInfoWithLanguage, ContainsFunctionName },
             { PatIndexMethodInfo, PatIndexFunctionName },
-            { PatIndexMethodInfoWithLanguage, PatIndexFunctionName }
+            { PatIndexMethodInfoWithCollation, PatIndexFunctionName }
         };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -82,46 +82,56 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-    {        
+    {                
         if (FunctionMapping.TryGetValue(method, out var functionName))
         {
-            var (propertyReference, functionArguments, errorMessage, typeMapping) = functionName switch
-            {
-                PatIndexFunctionName => (arguments[2],                                          
-                                         new List<SqlExpression>() 
-                                         { 
-                                            _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]),                                            
-                                            arguments[2] 
-                                         },
-                                         SqlServerStrings.InvalidColumnNameForPatIndex,
-                                         typeof(int)),                                         
-                                    _ => (arguments[1], 
-                                          new List<SqlExpression>() 
-                                          { 
-                                            _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]), 
-                                            arguments[1],                                            
-                                          },                                        
-                                          SqlServerStrings.InvalidColumnNameForFreeText,                       
-                                          typeof(bool))
-            };
+            var fourthArgumentValue = () => (string)((SqlConstantExpression)arguments[3]).Value!;
+            var functionArguments = new List<SqlExpression>();
 
-            if (propertyReference is not ColumnExpression)
+            Type typeMapping;
+
+            if(functionName == PatIndexFunctionName)
             {
-                throw new InvalidOperationException(errorMessage);
+                var pattern = arguments[1];
+
+                if(!(pattern is SqlParameterExpression || pattern is SqlConstantExpression))
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidPatternForPatIndex);
+                }
+
+                var propertyReference = arguments[2];
+
+                if (propertyReference is not ColumnExpression)
+                {
+                    throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForPatIndex);
+                }
+
+                functionArguments.AddRange([
+                    _sqlExpressionFactory.ApplyDefaultTypeMapping(pattern),
+                    arguments.Count == 4 
+                        ? new CollateExpression(propertyReference, fourthArgumentValue())
+                        : propertyReference
+                ]);
+
+                typeMapping = typeof(int);
             }
-
-            if (arguments.Count == 4)
+            else
             {
-                var sqlConstantExpression = ((SqlConstantExpression)arguments[3]).Value;
+                var propertyReference = arguments[1];
 
-                if(functionName == PatIndexFunctionName)
+                if (propertyReference is not ColumnExpression)
                 {
-                    functionArguments[1] = new CollateExpression(arguments[2], (string)sqlConstantExpression!);                    
-                }
-                else
-                {
-                    functionArguments.Add(_sqlExpressionFactory.Fragment($"LANGUAGE {sqlConstantExpression}"));                                            
-                }
+                    throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
+                }                
+
+                var freeText = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
+
+                functionArguments.AddRange(
+                    arguments.Count == 4
+                        ? [propertyReference, freeText, _sqlExpressionFactory.Fragment($"LANGUAGE {fourthArgumentValue()}")]
+                        : [propertyReference, freeText]);
+
+                typeMapping = typeof(bool);
             }
 
             return _sqlExpressionFactory.Function(
