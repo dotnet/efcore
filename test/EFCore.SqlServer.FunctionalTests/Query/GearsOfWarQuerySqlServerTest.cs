@@ -4007,8 +4007,8 @@ FROM [Weapons] AS [w]
         AssertSql(
             """
 SELECT CASE
-    WHEN [w].[IsAutomatic] = CAST(0 AS bit) THEN N'False'
-    ELSE N'True'
+    WHEN [w].[IsAutomatic] = CAST(1 AS bit) THEN N'True'
+    ELSE N'False'
 END
 FROM [Weapons] AS [w]
 """);
@@ -4020,9 +4020,9 @@ FROM [Weapons] AS [w]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [f].[Eradicated] = CAST(0 AS bit) THEN N'False'
-    WHEN [f].[Eradicated] = CAST(1 AS bit) THEN N'True'
+SELECT CASE [f].[Eradicated]
+    WHEN CAST(0 AS bit) THEN N'False'
+    WHEN CAST(1 AS bit) THEN N'True'
     ELSE NULL
 END
 FROM [Factions] AS [f]
