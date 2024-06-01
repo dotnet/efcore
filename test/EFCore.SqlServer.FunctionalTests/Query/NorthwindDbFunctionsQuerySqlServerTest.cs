@@ -369,7 +369,7 @@ WHERE FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Titl
         using var context = CreateContext();
         await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.FreeText((e.City + "1"), "President")));
+                e => EF.Functions.FreeText(e.City + "1", "President")));
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await context.Employees.FirstOrDefaultAsync(
