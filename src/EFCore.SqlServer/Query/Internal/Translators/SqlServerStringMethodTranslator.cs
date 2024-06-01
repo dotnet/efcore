@@ -298,7 +298,8 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 method.ReturnType);
         }
 
-        if(PatIndexMethodInfo.Equals(method) || PatIndexMethodInfoWithCollation.Equals(method))
+        if(PatIndexMethodInfo.Equals(method)
+            || PatIndexMethodInfoWithCollation.Equals(method))
         {
             var pattern = arguments[1];
 
@@ -319,9 +320,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 new List<SqlExpression>()
                 {
                     _sqlExpressionFactory.ApplyDefaultTypeMapping(pattern),
-                        arguments.Count == 4
-                            ? new CollateExpression(propertyReference, (string)((SqlConstantExpression)arguments[3]).Value!)
-                            : propertyReference
+                    arguments.Count == 4
+                        ? new CollateExpression(propertyReference, (string)((SqlConstantExpression)arguments[3]).Value!)
+                        : propertyReference
                 },
                 nullable: true,
                 argumentsPropagateNullability: new[] { false, false },                
