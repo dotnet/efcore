@@ -189,7 +189,7 @@ WHERE FREETEXT([e].[Title], N'Representative')
     [ConditionalFact]
     public void FreeText_client_eval_throws()
     {
-        Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText((object)"teststring", "teststring"));
+        Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
         Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
     }
 
@@ -351,15 +351,15 @@ WHERE FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Titl
         using var context = CreateContext();
         await Assert.ThrowsAsync<SqlException>(
             async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.FreeText((object)e.City, e.FirstName)));
+                e => EF.Functions.FreeText(e.City, e.FirstName)));
 
         await Assert.ThrowsAsync<SqlException>(
             async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.FreeText((object)e.City, "")));
+                e => EF.Functions.FreeText(e.City, "")));
 
         await Assert.ThrowsAsync<SqlException>(
             async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.FreeText((object)e.City, e.FirstName.ToUpper())));
+                e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
     }
 
     [ConditionalFact]
@@ -369,17 +369,17 @@ WHERE FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Titl
         using var context = CreateContext();
         await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.FreeText((object)(e.City + "1"), "President")));
+                e => EF.Functions.FreeText((e.City + "1"), "President")));
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.FreeText((object)e.City.ToLower(), "President")));
+                e => EF.Functions.FreeText(e.City.ToLower(), "President")));
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             async () => await (from e1 in context.Employees
                                join m1 in context.Employees.OrderBy(e => e.EmployeeID).Skip(0)
                                    on e1.ReportsTo equals m1.EmployeeID
-                               where EF.Functions.FreeText((object)m1.Title, "President")
+                               where EF.Functions.FreeText(m1.Title, "President")
                                select e1).LastOrDefaultAsync());
     }
 

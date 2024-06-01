@@ -2128,7 +2128,7 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(IsNumeric)));
 
     /// <summary>
-    ///     Converts <paramref name="dateTime" /> to the corresponding <c>datetimeoffset</c> in the propertyReference <paramref name="timeZone" />.
+    ///     Converts <paramref name="dateTime" /> to the corresponding <c>datetimeoffset</c> in the target <paramref name="timeZone" />.
     ///     Corresponds to the SQL Server <c>AT TIME ZONE</c> construct.
     /// </summary>
     /// <remarks>
