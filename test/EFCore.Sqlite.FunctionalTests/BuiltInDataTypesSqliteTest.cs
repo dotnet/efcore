@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -1582,6 +1583,30 @@ FROM "ObjectBackedDataTypes" AS "o"
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => e.Bytes).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_filter_using_unhex_function()
+    {
+        using var context = CreateContext();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => e.String)
+            .Where(e => EF.Functions.Unhex(e) == null).ToList();
+
+        AssertSql(
+            """
+SELECT "o"."String"
+FROM "ObjectBackedDataTypes" AS "o"
+WHERE unhex("o"."String") IS NULL
+""");
+
+        var regex = new Regex("^[0-9a-fA-F]*$");
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => e.String)
+            .Where(e => !regex.IsMatch(e)).ToList();
 
         Assert.Equal(expectedResults, results);
     }
