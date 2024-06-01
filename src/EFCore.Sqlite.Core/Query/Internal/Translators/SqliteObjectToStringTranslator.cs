@@ -77,13 +77,14 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
             if (instance is ColumnExpression { IsNullable: true })
             {
                 return _sqlExpressionFactory.Case(
+                    instance,
                     new[]
                     {
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
+                            _sqlExpressionFactory.Constant(false),
                             _sqlExpressionFactory.Constant(false.ToString())),
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(true)),
+                            _sqlExpressionFactory.Constant(true),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     },
                     _sqlExpressionFactory.Constant(null, typeof(string)));
@@ -93,10 +94,10 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
                 new[]
                 {
                     new CaseWhenClause(
-                        _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
-                        _sqlExpressionFactory.Constant(false.ToString()))
+                        instance,
+                        _sqlExpressionFactory.Constant(true.ToString()))
                 },
-                _sqlExpressionFactory.Constant(true.ToString()));
+                _sqlExpressionFactory.Constant(false.ToString()));
         }
 
         return TypeMapping.Contains(instance.Type)
