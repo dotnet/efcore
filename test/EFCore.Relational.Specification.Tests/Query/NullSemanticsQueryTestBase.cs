@@ -1798,6 +1798,31 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseOpWhen_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .OrderBy(x => x.Id)
+                .Select(x => NullSemanticsQueryFixtureBase.BoolSwitch(
+                    x.StringA == "Foo", 3, 2
+                )),
+            assertOrder: true
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CaseOpWhen_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>()
+                .Where(x => NullSemanticsQueryFixtureBase.BoolSwitch(
+                    x.StringA == "Foo", 3, 2
+                ) == 2),
+            assertOrder: true
+        );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task False_compared_to_negated_is_null(bool async)
         => AssertQuery(
             async,

@@ -2860,6 +2860,42 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task CaseOpWhen_projection(bool async)
+    {
+        await base.CaseOpWhen_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE CASE
+    WHEN [e].[StringA] = N'Foo' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+    WHEN 1 THEN 3
+    WHEN 0 THEN 2
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task CaseOpWhen_predicate(bool async)
+    {
+        await base.CaseOpWhen_predicate(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE CASE
+    WHEN [e].[StringA] = N'Foo' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+    WHEN 1 THEN 3
+    WHEN 0 THEN 2
+END = 2
+""");
+    }
+
     public override async Task Multiple_non_equality_comparisons_with_null_in_the_middle(bool async)
     {
         await base.Multiple_non_equality_comparisons_with_null_in_the_middle(async);
