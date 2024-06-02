@@ -433,11 +433,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return result;
         }
 
+        var isBooleanExpression = binaryExpression.Type == typeof(bool) || binaryExpression.Type == typeof(bool?);
         var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
         {
             ExpressionType.AddChecked => ExpressionType.Add,
             ExpressionType.SubtractChecked => ExpressionType.Subtract,
             ExpressionType.MultiplyChecked => ExpressionType.Multiply,
+            ExpressionType.And when isBooleanExpression => ExpressionType.AndAlso,
+            ExpressionType.Or when isBooleanExpression => ExpressionType.OrElse,
             _ => binaryExpression.NodeType
         };
 
