@@ -1468,7 +1468,12 @@ CROSS APPLY OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
     {
         await base.Json_collection_of_primitives_SelectMany(async);
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT [n].[value]
+FROM [JsonEntitiesBasic] AS [j]
+CROSS APPLY OPENJSON(JSON_QUERY([j].[OwnedReferenceRoot], '$.Names')) WITH ([value] nvarchar(max) '$') AS [n]
+""");
     }
 
     public override async Task Json_collection_of_primitives_index_used_in_predicate(bool async)

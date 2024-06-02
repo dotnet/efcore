@@ -1437,7 +1437,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .AsNoTracking(),
             elementSorter: e => (e.Enum, e.Date, e.NullableEnum, e.Fraction));
 
-    [ConditionalTheory(Skip = "issue #31364")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_of_primitives_SelectMany(bool async)
         => AssertQuery(
