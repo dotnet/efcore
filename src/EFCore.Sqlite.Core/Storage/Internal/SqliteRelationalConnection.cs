@@ -113,7 +113,7 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateFunction(
                 "ef_mod",
-                (decimal? dividend, decimal? divisor) => dividend % divisor,
+                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend % divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
@@ -123,7 +123,7 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
 
             sqliteConnection.CreateFunction(
                 name: "ef_divide",
-                (decimal? dividend, decimal? divisor) => dividend / divisor,
+                (decimal? dividend, decimal? divisor) => divisor == 0m ? null : dividend / divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(
