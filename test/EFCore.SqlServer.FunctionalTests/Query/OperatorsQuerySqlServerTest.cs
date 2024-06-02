@@ -19,7 +19,21 @@ public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
     {
         await base.Bitwise_and_on_expression_with_like_and_null_check_being_compared_to_false();
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT [o].[Value] AS [Value1], [o0].[Value] AS [Value2], [o1].[Value] AS [Value3]
+FROM [OperatorEntityString] AS [o]
+CROSS JOIN [OperatorEntityString] AS [o0]
+CROSS JOIN [OperatorEntityBool] AS [o1]
+WHERE CASE
+    WHEN ([o0].[Value] LIKE N'B' AND [o0].[Value] IS NOT NULL) OR [o1].[Value] = CAST(1 AS bit) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END & CASE
+    WHEN [o].[Value] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
+ORDER BY [o].[Id], [o0].[Id], [o1].[Id]
+""");
     }
 
     public override async Task Complex_predicate_with_bitwise_and_modulo_and_negation()
