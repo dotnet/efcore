@@ -2318,6 +2318,9 @@ WHERE [o].[CustomerID] = N'ALFKI' AND (CONVERT(nvarchar(max), [o].[OrderDate]) L
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[Region] IS NOT NULL THEN 0
+END = 0
 """);
     }
 
@@ -2343,9 +2346,9 @@ WHERE CHARINDEX(N'a', [c].[ContactName]) - 1 = 1
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
+WHERE CHARINDEX(@__pattern_0, [c].[ContactName]) - CASE
     WHEN @__pattern_0 = N'' THEN 0
-    ELSE CHARINDEX(@__pattern_0, [c].[ContactName]) - 1
+    ELSE 1
 END = 1
 """);
     }
@@ -2791,9 +2794,9 @@ WHERE CHARINDEX('123', CONVERT(varchar(11), [o].[OrderID])) - 1 = -1
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CASE
+WHERE CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), '123') - CASE
     WHEN CONVERT(varchar(11), [o].[OrderID]) = '' THEN 0
-    ELSE CHARINDEX(CONVERT(varchar(11), [o].[OrderID]), '123') - 1
+    ELSE 1
 END = -1
 """);
     }

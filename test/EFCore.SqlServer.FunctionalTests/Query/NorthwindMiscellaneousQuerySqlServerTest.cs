@@ -5762,9 +5762,9 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ) AS [c0]
-ORDER BY CASE
+ORDER BY CHARINDEX(@__searchTerm_0, [c0].[City]) - CASE
     WHEN @__searchTerm_0 = N'' THEN 0
-    ELSE CHARINDEX(@__searchTerm_0, [c0].[City]) - 1
+    ELSE 1
 END, [c0].[City]
 """);
     }
