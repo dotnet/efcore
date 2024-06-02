@@ -758,13 +758,13 @@ SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON(JSON_VALUE([t].[Owned], '$.Strings')) AS [s]) = 2
+    FROM OPENJSON(JSON_QUERY([t].[Owned], '$.Strings')) AS [s]) = 2
 """,
             //
             """
 SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
-WHERE JSON_VALUE(JSON_VALUE([t].[Owned], '$.Strings'), '$[1]') = N'bar'
+WHERE JSON_VALUE([t].[Owned], '$.Strings[1]') = N'bar'
 """);
     }
 

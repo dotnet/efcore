@@ -382,6 +382,13 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
                 () => base.Json_nested_collection_SelectMany(async)))
             .Message);
 
+    public override async Task Json_collection_of_primitives_SelectMany(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_of_primitives_SelectMany(async)))
+            .Message);
+
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
