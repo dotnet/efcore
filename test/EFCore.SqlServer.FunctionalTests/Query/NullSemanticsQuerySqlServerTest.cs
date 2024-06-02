@@ -1631,7 +1631,15 @@ WHERE (CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1 <> [e].[Nullable
         await base.Where_IndexOf_empty(async);
 
         AssertSql(
-            @"");
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableStringA] IS NOT NULL THEN 0
+END = [e].[NullableIntA] OR (CASE
+    WHEN [e].[NullableStringA] IS NOT NULL THEN 0
+END IS NULL AND [e].[NullableIntA] IS NULL)
+""");
     }
 
     public override async Task Select_IndexOf(bool async)

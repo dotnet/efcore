@@ -957,13 +957,13 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
                     || (e.NullableStringA != null && e.NullableStringA.IndexOf("oo") != e.NullableIntB)).Select(e => e.Id));
     }
 
-    [ConditionalTheory(Skip = "Issue #18773")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_IndexOf_empty(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableStringA.IndexOf("") == e.NullableIntA).Select(e => e.Id),
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableIntA).Select(e => e.Id));
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => 0 == e.NullableIntA || (e.NullableStringA == null && e.NullableIntA == null)).Select(e => e.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
