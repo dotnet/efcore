@@ -46,7 +46,7 @@ CROSS JOIN "OperatorEntityString" AS "o0"
 CROSS JOIN "OperatorEntityString" AS "o1"
 CROSS JOIN "OperatorEntityString" AS "o2"
 CROSS JOIN "OperatorEntityInt" AS "o3"
-WHERE ("o"."Value" = 'A' AND "o"."Value" IS NOT NULL AND "o0"."Value" = 'A' AND "o0"."Value" IS NOT NULL) | ("o1"."Value" = 'B' AND "o1"."Value" IS NOT NULL AND "o2"."Value" = 'B' AND "o2"."Value" IS NOT NULL) AND "o3"."Value" = 2
+WHERE (("o"."Value" = 'A' AND "o0"."Value" = 'A') OR ("o1"."Value" = 'B' AND "o2"."Value" = 'B')) AND "o3"."Value" = 2
 ORDER BY "o"."Id", "o0"."Id", "o1"."Id", "o2"."Id", "o3"."Id"
 """);
     }
