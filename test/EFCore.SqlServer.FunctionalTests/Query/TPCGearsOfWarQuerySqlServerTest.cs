@@ -12632,9 +12632,9 @@ GROUP BY [m].[CodeName]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [l].[Eradicated] = CAST(0 AS bit) THEN N'False'
-    WHEN [l].[Eradicated] = CAST(1 AS bit) THEN N'True'
+SELECT CASE [l].[Eradicated]
+    WHEN CAST(0 AS bit) THEN N'False'
+    WHEN CAST(1 AS bit) THEN N'True'
     ELSE NULL
 END
 FROM [LocustHordes] AS [l]
@@ -12693,8 +12693,8 @@ FROM [Weapons] AS [w]
         AssertSql(
             """
 SELECT CASE
-    WHEN [w].[IsAutomatic] = CAST(0 AS bit) THEN N'False'
-    ELSE N'True'
+    WHEN [w].[IsAutomatic] = CAST(1 AS bit) THEN N'True'
+    ELSE N'False'
 END
 FROM [Weapons] AS [w]
 """);

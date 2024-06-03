@@ -3187,8 +3187,8 @@ FROM "Weapons" AS "w"
         AssertSql(
             """
 SELECT CASE
-    WHEN NOT ("w"."IsAutomatic") THEN 'False'
-    ELSE 'True'
+    WHEN "w"."IsAutomatic" THEN 'True'
+    ELSE 'False'
 END
 FROM "Weapons" AS "w"
 """);
@@ -5994,9 +5994,9 @@ WHERE "g"."HasSoulPatch" AND (
 
         AssertSql(
             """
-SELECT CASE
-    WHEN "f"."Eradicated" = 0 THEN 'False'
-    WHEN "f"."Eradicated" THEN 'True'
+SELECT CASE "f"."Eradicated"
+    WHEN 0 THEN 'False'
+    WHEN 1 THEN 'True'
     ELSE NULL
 END
 FROM "Factions" AS "f"

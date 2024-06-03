@@ -498,9 +498,7 @@ public class SqlNullabilityProcessor
     /// <returns>An optimized sql expression.</returns>
     protected virtual SqlExpression VisitCase(CaseExpression caseExpression, bool allowOptimizedExpansion, out bool nullable)
     {
-        // if there is no 'else' there is a possibility of null, when none of the conditions are met
-        // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
-        nullable = caseExpression.ElseResult == null;
+        nullable = false;
         var currentNonNullableColumnsCount = _nonNullableColumns.Count;
         var currentNullValueColumnsCount = _nullValueColumns.Count;
 
@@ -515,11 +513,16 @@ public class SqlNullabilityProcessor
             var test = Visit(
                 whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
 
-            if (IsTrue(test))
+            var testCondition = testIsCondition
+                ? test
+                : Visit(_sqlExpressionFactory.Equal(operand!, test),
+                    allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
+
+            if (IsTrue(testCondition))
             {
                 testEvaluatesToTrue = true;
             }
-            else if (IsFalse(test))
+            else if (IsFalse(testCondition))
             {
                 // if test evaluates to 'false' we can remove the WhenClause
                 RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
@@ -538,6 +541,12 @@ public class SqlNullabilityProcessor
             // if test evaluates to 'true' we can remove every condition that comes after, including ElseResult
             if (testEvaluatesToTrue)
             {
+                // if the first When clause is always satisfied, simply return its result
+                if (whenClauses.Count == 1)
+                {
+                    return whenClauses[0].Result;
+                }
+
                 break;
             }
         }
@@ -547,6 +556,10 @@ public class SqlNullabilityProcessor
         {
             elseResult = Visit(caseExpression.ElseResult, out var elseResultNullable);
             nullable |= elseResultNullable;
+
+            // if there is no 'else' there is a possibility of null, when none of the conditions are met
+            // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
+            nullable |= elseResult == null;
         }
 
         RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
@@ -560,12 +573,7 @@ public class SqlNullabilityProcessor
             return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
-        // if there is only one When clause and it's test evaluates to 'true' AND there is no else block, simply return the result
-        return elseResult == null
-            && whenClauses.Count == 1
-            && IsTrue(whenClauses[0].Test)
-                ? whenClauses[0].Result
-                : caseExpression.Update(operand, whenClauses, elseResult);
+        return caseExpression.Update(operand, whenClauses, elseResult);
     }
 
     /// <summary>
