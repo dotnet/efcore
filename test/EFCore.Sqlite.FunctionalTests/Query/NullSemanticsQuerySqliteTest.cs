@@ -393,7 +393,7 @@ WHERE 0
             """
 SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
 FROM "Entities1" AS "e"
-WHERE "e"."BoolB" | ("e"."NullableBoolA" IS NOT NULL)
+WHERE "e"."BoolB" OR "e"."NullableBoolA" IS NOT NULL
 """);
     }
 
