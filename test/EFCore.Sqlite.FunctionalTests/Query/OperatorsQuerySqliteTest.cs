@@ -23,7 +23,7 @@ SELECT "o"."Value" AS "Value1", "o0"."Value" AS "Value2", "o1"."Value" AS "Value
 FROM "OperatorEntityString" AS "o"
 CROSS JOIN "OperatorEntityString" AS "o0"
 CROSS JOIN "OperatorEntityBool" AS "o1"
-WHERE (("o0"."Value" LIKE 'B' AND "o0"."Value" IS NOT NULL) OR "o1"."Value") & ("o"."Value" IS NOT NULL)
+WHERE (("o0"."Value" LIKE 'B' AND "o0"."Value" IS NOT NULL) OR "o1"."Value") AND "o"."Value" IS NOT NULL
 ORDER BY "o"."Id", "o0"."Id", "o1"."Id"
 """);
     }

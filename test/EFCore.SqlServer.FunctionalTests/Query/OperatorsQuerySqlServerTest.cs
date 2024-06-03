@@ -25,13 +25,7 @@ SELECT [o].[Value] AS [Value1], [o0].[Value] AS [Value2], [o1].[Value] AS [Value
 FROM [OperatorEntityString] AS [o]
 CROSS JOIN [OperatorEntityString] AS [o0]
 CROSS JOIN [OperatorEntityBool] AS [o1]
-WHERE CASE
-    WHEN ([o0].[Value] LIKE N'B' AND [o0].[Value] IS NOT NULL) OR [o1].[Value] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END & CASE
-    WHEN [o].[Value] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit)
+WHERE (([o0].[Value] LIKE N'B' AND [o0].[Value] IS NOT NULL) OR [o1].[Value] = CAST(1 AS bit)) AND [o].[Value] IS NOT NULL
 ORDER BY [o].[Id], [o0].[Id], [o1].[Id]
 """);
     }
