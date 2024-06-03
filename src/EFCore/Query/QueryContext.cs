@@ -52,6 +52,12 @@ public abstract class QueryContext : IParameterValues
     protected virtual QueryContextDependencies Dependencies { get; }
 
     /// <summary>
+    ///    The <see cref="EntityMaterializerSource"/>, which can be used to create stand-alone entity instances.
+    /// </summary>
+    public virtual IEntityMaterializerSource EntityMaterializerSource
+        => Dependencies.EntityMaterializerSource;
+
+    /// <summary>
     ///     Sets the navigation for given entity as loaded.
     /// </summary>
     /// <param name="entity">The entity instance.</param>

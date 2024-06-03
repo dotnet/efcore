@@ -23,7 +23,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly string _cosmosContainer;
-        private readonly ReadItemExpression _readItemExpression;
+        private readonly ReadItemInfo _readItemInfo;
         private readonly Func<CosmosQueryContext, JObject, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -33,7 +33,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         public ReadItemQueryingEnumerable(
             CosmosQueryContext cosmosQueryContext,
             string cosmosContainer,
-            ReadItemExpression readItemExpression,
+            ReadItemInfo readItemInfo,
             Func<CosmosQueryContext, JObject, T> shaper,
             Type contextType,
             bool standAloneStateManager,
@@ -41,7 +41,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             _cosmosQueryContext = cosmosQueryContext;
             _cosmosContainer = cosmosContainer;
-            _readItemExpression = readItemExpression;
+            _readItemInfo = readItemInfo;
             _shaper = shaper;
             _contextType = contextType;
             _queryLogger = _cosmosQueryContext.QueryLogger;
@@ -67,7 +67,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private bool TryGetPartitionKey(out PartitionKey partitionKeyValue)
         {
-            var properties = _readItemExpression.EntityType.GetPartitionKeyProperties();
+            var properties = _readItemInfo.EntityType.GetPartitionKeyProperties();
             if (!properties.Any())
             {
                 partitionKeyValue = PartitionKey.None;
@@ -95,7 +95,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private bool TryGetResourceId(out string resourceId)
         {
-            var idProperty = _readItemExpression.EntityType.GetProperties()
+            var idProperty = _readItemInfo.EntityType.GetProperties()
                 .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
 
             if (TryGetParameterValue(idProperty, out var value))
@@ -124,7 +124,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private bool TryGetParameterValue(IProperty property, out object value)
         {
             value = null;
-            return _readItemExpression.PropertyParameters.TryGetValue(property, out var parameterName)
+            return _readItemInfo.PropertyParameters.TryGetValue(property, out var parameterName)
                 && _cosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
         }
 
@@ -139,39 +139,36 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private bool TryGenerateIdFromKeys(IProperty idProperty, out object value)
         {
-            var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
-
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            var internalEntityEntry = new InternalEntityEntry(
-                _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
-#pragma warning restore EF1001 // Internal EF Core API usage.
+            // The idea here is that if a `IdValueGeneratorFactory` has been configured to generate an `id` value from the
+            // values of other properties, then we need an entity instance to use with the value generator.
+            var entityInstance = _readItemInfo.EntityType.GetOrCreateEmptyMaterializer(_cosmosQueryContext.EntityMaterializerSource)
+                (new MaterializationContext(ValueBuffer.Empty, _cosmosQueryContext.Context));
 
-            foreach (var keyProperty in _readItemExpression.EntityType.FindPrimaryKey().Properties)
+            var internalEntityEntry = new InternalEntityEntry(
+                _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemInfo.EntityType, entityInstance);
+
+            foreach (var keyProperty in _readItemInfo.EntityType.FindPrimaryKey().Properties)
             {
-                var property = _readItemExpression.EntityType.FindProperty(keyProperty.Name);
+                var property = _readItemInfo.EntityType.FindProperty(keyProperty.Name);
 
                 if (TryGetParameterValue(property, out var parameterValue))
                 {
-#pragma warning disable EF1001 // Internal EF Core API usage.
                     internalEntityEntry[property] = parameterValue;
-#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
             }
 
-#pragma warning disable EF1001 // Internal EF Core API usage.
             internalEntityEntry.SetEntityState(EntityState.Added);
-
             value = internalEntityEntry[idProperty];
-
             internalEntityEntry.SetEntityState(EntityState.Detached);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
             return value != null;
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
-
         private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
+            private readonly ReadItemInfo _readItemInfo;
             private readonly string _cosmosContainer;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
@@ -188,6 +185,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             public Enumerator(ReadItemQueryingEnumerable<T> readItemEnumerable, CancellationToken cancellationToken = default)
             {
                 _cosmosQueryContext = readItemEnumerable._cosmosQueryContext;
+                _readItemInfo = readItemEnumerable._readItemInfo;
                 _cosmosContainer = readItemEnumerable._cosmosContainer;
                 _shaper = readItemEnumerable._shaper;
                 _contextType = readItemEnumerable._contextType;

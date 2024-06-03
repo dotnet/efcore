@@ -10,35 +10,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ReadItemExpression : Expression
+public class ReadItemInfo
 {
-    private const string RootAlias = "c";
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Type Type
-        => typeof(object);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override ExpressionType NodeType
-        => ExpressionType.Extension;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ProjectionExpression ProjectionExpression { get; }
+    public virtual Type Type { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,18 +42,13 @@ public class ReadItemExpression : Expression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ReadItemExpression(
+    public ReadItemInfo(
         IEntityType entityType,
-        IDictionary<IProperty, string> propertyParameters)
+        IDictionary<IProperty, string> propertyParameters,
+        Type type)
     {
-        ProjectionExpression = new ProjectionExpression(
-            new EntityProjectionExpression(
-                entityType,
-                new ObjectReferenceExpression(entityType, RootAlias)),
-            RootAlias);
-
+        Type = type;
         EntityType = entityType;
-
         PropertyParameters = propertyParameters;
     }
 }

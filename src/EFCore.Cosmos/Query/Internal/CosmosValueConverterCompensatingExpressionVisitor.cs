@@ -24,7 +24,6 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
         => extensionExpression switch
         {
             ShapedQueryExpression shapedQueryExpression => VisitShapedQueryExpression(shapedQueryExpression),
-            ReadItemExpression readItemExpression => readItemExpression,
             SelectExpression selectExpression => VisitSelect(selectExpression),
             SqlConditionalExpression sqlConditionalExpression => VisitSqlConditional(sqlConditionalExpression),
             _ => base.VisitExtension(extensionExpression)
