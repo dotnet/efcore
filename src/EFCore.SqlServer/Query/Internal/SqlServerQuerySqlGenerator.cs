@@ -506,7 +506,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             switch (pathSegment)
             {
                 case { PropertyName: string propertyName }:
-                    Sql.Append(".").Append(propertyName);
+                    Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     break;
 
                 case { ArrayIndex: SqlExpression arrayIndex }:

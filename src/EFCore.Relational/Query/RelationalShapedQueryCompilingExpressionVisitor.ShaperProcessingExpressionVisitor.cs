@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -77,6 +78,18 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), [typeof(ReadOnlySpan<byte>)])!;
+
+        private static readonly PropertyInfo EncodingUtf8Property
+            = typeof(Encoding).GetProperty(nameof(Encoding.UTF8))!;
+
+        private static readonly MethodInfo Utf8GetBytesMethod
+            = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
+
+        private static readonly MethodInfo ByteArrayAsSpanMethod = typeof(MemoryExtensions).GetMethods()
+            .Where(x => x.Name == nameof(MemoryExtensions.AsSpan) && x.GetGenericArguments().Count() == 1)
+            .Select(x => new { x, prms = x.GetParameters() })
+            .Where(x => x.prms.Count() == 1 && x.prms[0].ParameterType.IsArray)
+            .Single().x.MakeGenericMethod(typeof(byte));
 
         private static readonly MethodInfo Utf8JsonReaderTrySkipMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.TrySkip), [])!;
@@ -1929,20 +1942,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     managerVariable,
                                     Utf8JsonReaderManagerCurrentReaderField),
                                 Utf8JsonReaderValueTextEqualsMethod,
-                                Property(
-                                    _liftableConstantFactory.CreateLiftableConstant(
-                                        JsonEncodedText.Encode(jsonPropertyName),
-                                        Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                                            Convert(
-                                                Call(
-                                                    JsonEncodedTextEncodeMethod,
-                                                    Constant(jsonPropertyName),
-                                                    Default(typeof(JavaScriptEncoder))),
-                                                typeof(object)),
-                                            Parameter(typeof(MaterializerLiftableConstantContext), "_")),
-                                        jsonPropertyName + "EncodedProperty",
-                                        typeof(JsonEncodedText)),
-                                    JsonEncodedTextEncodedUtf8BytesProperty)));
+                                Convert(
+                                    Call(
+                                        ByteArrayAsSpanMethod,
+                                        Call(
+                                            Property(null, EncodingUtf8Property),
+                                            Utf8GetBytesMethod,
+                                            Constant(jsonPropertyName))),
+                                    typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(valueBufferTryReadValueMethodToProcess.Type);
 
@@ -1974,20 +1981,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     managerVariable,
                                     Utf8JsonReaderManagerCurrentReaderField),
                                 Utf8JsonReaderValueTextEqualsMethod,
-                                Property(
-                                    _liftableConstantFactory.CreateLiftableConstant(
-                                        JsonEncodedText.Encode(innerShaperMapElementKey),
-                                        Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                                            Convert(
-                                                Call(
-                                                    JsonEncodedTextEncodeMethod,
-                                                    Constant(innerShaperMapElementKey),
-                                                    Default(typeof(JavaScriptEncoder))),
-                                                typeof(object)),
-                                            Parameter(typeof(MaterializerLiftableConstantContext), "_")),
-                                        innerShaperMapElementKey + "EncodedNavigation",
-                                        typeof(JsonEncodedText)),
-                                    JsonEncodedTextEncodedUtf8BytesProperty)));
+                                Convert(
+                                    Call(
+                                        ByteArrayAsSpanMethod,
+                                        Call(
+                                            Property(null, EncodingUtf8Property),
+                                            Utf8GetBytesMethod,
+                                            Constant(innerShaperMapElementKey))),
+                                    typeof(ReadOnlySpan<>).MakeGenericType(typeof(byte)))));
 
                         var propertyVariable = Variable(innerShaperMapElement.Value.Type);
                         finalBlockVariables.Add(propertyVariable);
