@@ -63,24 +63,30 @@ public class EnumMethodTranslator : IMethodCallTranslator
             if (converterType is not null
                 && converterType.IsGenericType)
             {
-                if (converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>)
-                    && converterType.GetGenericArguments().Length == 2
-                    && converterType.GetGenericArguments()[1] == typeof(int)
-                    && (instance is SqlParameterExpression || instance is ColumnExpression))
+                if (converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>))
                 {
-                    var cases = Enum.GetValues(instance.Type)
+                    var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
                         .Select(value => new CaseWhenClause(
-                            _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(value)),
+                            _sqlExpressionFactory.Constant(value),
                             _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
                         .ToArray();
 
-                    return _sqlExpressionFactory.Case(cases, _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
+                    SqlExpression elseResult = _sqlExpressionFactory.Convert(instance, typeof(string));
+
+                    if (instance is ColumnExpression { IsNullable: true })
+                    {
+                        elseResult = _sqlExpressionFactory.Coalesce(
+                            elseResult,
+                            _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
+                    }
+
+                    return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
                 }
                 else if (converterType.GetGenericTypeDefinition() == typeof(EnumToStringConverter<>))
                 {
                     // TODO: Unnecessary cast to string, #33733
-                    return _sqlExpressionFactory.MakeUnary(ExpressionType.Convert, instance, typeof(string));
+                    return _sqlExpressionFactory.Convert(instance, typeof(string));
                 }
             }
         }

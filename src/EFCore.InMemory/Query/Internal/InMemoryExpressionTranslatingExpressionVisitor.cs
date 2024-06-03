@@ -882,13 +882,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         // if object is nullable, add null safeguard before calling the function
-        // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard,
-        // and Nullable<>.ToString when the object is a nullable value type.
+        // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard
         if (methodCallExpression.Object != null
             && @object!.Type.IsNullableType()
-            && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault)
-            && (!@object!.Type.IsNullableValueType()
-                || methodCallExpression.Method.Name != nameof(Nullable<int>.ToString)))
+            && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault))
         {
             var result = (Expression)methodCallExpression.Update(
                 Expression.Convert(@object, methodCallExpression.Object.Type),

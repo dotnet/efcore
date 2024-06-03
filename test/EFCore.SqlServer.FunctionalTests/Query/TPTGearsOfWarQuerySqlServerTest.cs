@@ -4672,17 +4672,17 @@ LEFT JOIN (
 
         AssertSql(
 """
-SELECT CASE
-    WHEN [g].[Rank] = 0 THEN N'None'
-    WHEN [g].[Rank] = 1 THEN N'Private'
-    WHEN [g].[Rank] = 2 THEN N'Corporal'
-    WHEN [g].[Rank] = 4 THEN N'Sergeant'
-    WHEN [g].[Rank] = 8 THEN N'Lieutenant'
-    WHEN [g].[Rank] = 16 THEN N'Captain'
-    WHEN [g].[Rank] = 32 THEN N'Major'
-    WHEN [g].[Rank] = 64 THEN N'Colonel'
-    WHEN [g].[Rank] = 128 THEN N'General'
-    ELSE N''
+SELECT CASE [g].[Rank]
+    WHEN 0 THEN N'None'
+    WHEN 1 THEN N'Private'
+    WHEN 2 THEN N'Corporal'
+    WHEN 4 THEN N'Sergeant'
+    WHEN 8 THEN N'Lieutenant'
+    WHEN 16 THEN N'Captain'
+    WHEN 32 THEN N'Major'
+    WHEN 64 THEN N'Colonel'
+    WHEN 128 THEN N'General'
+    ELSE CAST([g].[Rank] AS nvarchar(max))
 END
 FROM [Gears] AS [g]
 """);
@@ -4694,10 +4694,10 @@ FROM [Gears] AS [g]
 
         AssertSql(
 """
-SELECT CASE
-    WHEN [w].[AmmunitionType] = 1 THEN N'Cartridge'
-    WHEN [w].[AmmunitionType] = 2 THEN N'Shell'
-    ELSE N''
+SELECT CASE [w].[AmmunitionType]
+    WHEN 1 THEN N'Cartridge'
+    WHEN 2 THEN N'Shell'
+    ELSE COALESCE(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
 END
 FROM [Weapons] AS [w]
 """);
@@ -4723,10 +4723,10 @@ WHERE CAST([m].[Difficulty] AS nvarchar(max)) LIKE N'%Med%'
 """
 SELECT [w].[Name]
 FROM [Weapons] AS [w]
-WHERE CASE
-    WHEN [w].[AmmunitionType] = 1 THEN N'Cartridge'
-    WHEN [w].[AmmunitionType] = 2 THEN N'Shell'
-    ELSE N''
+WHERE CASE [w].[AmmunitionType]
+    WHEN 1 THEN N'Cartridge'
+    WHEN 2 THEN N'Shell'
+    ELSE CAST([w].[AmmunitionType] AS nvarchar(max))
 END LIKE N'%Cart%'
 """);
     }
