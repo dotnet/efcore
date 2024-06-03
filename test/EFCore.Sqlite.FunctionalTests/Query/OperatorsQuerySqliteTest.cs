@@ -17,7 +17,15 @@ public class OperatorsQuerySqliteTest : OperatorsQueryTestBase
     {
         await base.Bitwise_and_on_expression_with_like_and_null_check_being_compared_to_false();
 
-        AssertSql("");
+        AssertSql(
+            """
+SELECT "o"."Value" AS "Value1", "o0"."Value" AS "Value2", "o1"."Value" AS "Value3"
+FROM "OperatorEntityString" AS "o"
+CROSS JOIN "OperatorEntityString" AS "o0"
+CROSS JOIN "OperatorEntityBool" AS "o1"
+WHERE (("o0"."Value" LIKE 'B' AND "o0"."Value" IS NOT NULL) OR "o1"."Value") AND "o"."Value" IS NOT NULL
+ORDER BY "o"."Id", "o0"."Id", "o1"."Id"
+""");
     }
 
     public override async Task Complex_predicate_with_bitwise_and_modulo_and_negation()
