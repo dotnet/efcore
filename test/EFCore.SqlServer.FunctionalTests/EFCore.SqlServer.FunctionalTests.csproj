@@ -78,8 +78,4 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationEnvironmentVariablesVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsConfigurationJsonVersion)" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Scaffolding\Baselines\" />
-  </ItemGroup>
 </Project>

@@ -862,6 +862,9 @@ namespace TestNamespace
             var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable")!;
             var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
             var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
+            var key = runtimeEntityType.FindKey(new[] { principalDerivedId, principalDerivedAlternateId, id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

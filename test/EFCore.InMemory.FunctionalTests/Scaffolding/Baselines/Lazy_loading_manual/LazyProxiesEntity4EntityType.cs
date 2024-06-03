@@ -299,6 +299,9 @@ namespace TestNamespace
             var content = runtimeEntityType.FindProperty("Content")!;
             var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId")!;
             var title = runtimeEntityType.FindProperty("Title")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation")!;
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

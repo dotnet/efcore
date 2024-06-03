@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -26,6 +27,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, ITypeBase, ValueGenerator>? _valueGeneratorFactory;
     private readonly ValueConverter? _valueConverter;
+    private readonly ValueComparer? _customValueComparer;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
     private ValueComparer? _providerValueComparer;
@@ -103,6 +105,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         }
 
         _typeMapping = typeMapping;
+        _customValueComparer = valueComparer;
         _valueComparer = valueComparer;
         _keyValueComparer = keyValueComparer ?? valueComparer;
         _providerValueComparer = providerValueComparer;
@@ -247,9 +250,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     private ValueComparer? GetValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
-        if (_valueComparer != null)
+        if (_customValueComparer != null)
         {
-            return _valueComparer;
+            return _customValueComparer is IInfrastructure<ValueComparer> underlyingValueComparer
+                ? underlyingValueComparer.Instance
+                : _customValueComparer;
         }
 
         var principal = (RuntimeProperty?)this.FindFirstDifferentPrincipal();
@@ -271,38 +276,48 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         return principal.GetValueComparer(checkedProperties);
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual ValueComparer SetValueComparer(ValueComparer valueComparer)
+        => _valueComparer = valueComparer;
+
     /// <inheritdoc />
     public virtual ValueComparer GetKeyValueComparer()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _keyValueComparer, this,
-            static property => (property.GetKeyValueComparer(null) ?? property.TypeMapping.KeyComparer)
+            static property => (property.GetValueComparer(null) ?? property.TypeMapping.KeyComparer)
                 .ToNullableComparer(property.ClrType)!);
 
-    private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
-    {
-        if (_keyValueComparer != null)
-        {
-            return _keyValueComparer;
-        }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual ValueComparer SetKeyValueComparer(ValueComparer valueComparer)
+        => _keyValueComparer = valueComparer;
 
-        var principal = (RuntimeProperty?)this.FindFirstDifferentPrincipal();
-        if (principal == null)
-        {
-            return null;
-        }
+    private ValueComparer GetProviderValueComparer()
+        => _providerValueComparer ??=
+            (TypeMapping.Converter?.ProviderClrType ?? ClrType).UnwrapNullableType() == ClrType.UnwrapNullableType()
+                ? GetKeyValueComparer()
+                : TypeMapping.ProviderValueComparer;
 
-        if (checkedProperties == null)
-        {
-            checkedProperties = [];
-        }
-        else if (checkedProperties.Contains(this))
-        {
-            return null;
-        }
-
-        checkedProperties.Add(this);
-        return principal.GetKeyValueComparer(checkedProperties);
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual ValueComparer SetProviderValueComparer(ValueComparer valueComparer)
+        => _providerValueComparer = valueComparer;
 
     /// <inheritdoc />
     public override object? Sentinel
@@ -438,12 +453,12 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetProviderValueComparer()
-        => _providerValueComparer ??= TypeMapping.ProviderValueComparer;
+        => GetProviderValueComparer();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer IProperty.GetProviderValueComparer()
-        => _providerValueComparer ??= TypeMapping.ProviderValueComparer;
+        => GetProviderValueComparer();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

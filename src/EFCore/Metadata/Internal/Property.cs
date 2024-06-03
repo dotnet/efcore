@@ -24,6 +24,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private object? _sentinel;
     private ValueGenerated? _valueGenerated;
     private CoreTypeMapping? _typeMapping;
+    private ValueComparer? _valueComparer;
+    private ValueComparer? _keyValueComparer;
 
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
@@ -1159,7 +1161,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType);
+        => IsReadOnly
+            ? _valueComparer = (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType)
+            : (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType);
 
     private ValueComparer? GetValueComparer(HashSet<Property>? checkedProperties)
     {
@@ -1204,7 +1208,11 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetKeyValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping?.KeyComparer).ToNullableComparer(ClrType);
+        => IsReadOnly
+            ? _keyValueComparer ??= GetValueComparer(null) == null && TypeMapping?.KeyComparer != TypeMapping?.Comparer
+                ? TypeMapping?.KeyComparer.ToNullableComparer(ClrType)
+                : GetValueComparer()
+            : (GetValueComparer(null) ?? TypeMapping?.KeyComparer).ToNullableComparer(ClrType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

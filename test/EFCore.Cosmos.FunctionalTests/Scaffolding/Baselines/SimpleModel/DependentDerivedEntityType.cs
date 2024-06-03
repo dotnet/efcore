@@ -227,6 +227,12 @@ namespace TestNamespace
             var discriminator = runtimeEntityType.FindProperty("Discriminator")!;
             var __id = runtimeEntityType.FindProperty("__id")!;
             var __jObject = runtimeEntityType.FindProperty("__jObject")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
+            var key0 = runtimeEntityType.FindKey(new[] { __id });
+            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<string>(key0));
+            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key0));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

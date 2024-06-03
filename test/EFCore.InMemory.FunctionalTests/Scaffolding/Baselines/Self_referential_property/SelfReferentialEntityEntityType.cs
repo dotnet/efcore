@@ -140,6 +140,9 @@ namespace TestNamespace
         {
             var id = runtimeEntityType.FindProperty("Id")!;
             var collection = runtimeEntityType.FindProperty("Collection")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<long>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

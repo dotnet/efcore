@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public sealed class ListOfValueTypesComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement>>
+public sealed class ListOfValueTypesComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement>>, IInfrastructure<ValueComparer>
     where TElement : struct
 {
     private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
@@ -55,6 +55,8 @@ public sealed class ListOfValueTypesComparer<TConcreteCollection, TElement> : Va
     ///     The comparer to use for comparing elements.
     /// </summary>
     public ValueComparer ElementComparer { get; }
+
+    ValueComparer IInfrastructure<ValueComparer>.Instance => ElementComparer;
 
     private static Expression<Func<IEnumerable<TElement>?, IEnumerable<TElement>?, bool>> CompareLambda(ValueComparer elementComparer)
     {

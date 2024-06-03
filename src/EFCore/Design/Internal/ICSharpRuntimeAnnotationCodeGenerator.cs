@@ -114,9 +114,7 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
         CoreTypeMapping typeMapping,
         IProperty property,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => Create(
-            typeMapping, parameters,
-            property.GetValueComparer(), property.GetKeyValueComparer(), property.GetProviderValueComparer());
+        => Create(typeMapping, parameters);
 
     /// <summary>
     ///     Generates code to create the given property type mapping.
@@ -132,4 +130,11 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
         ValueComparer? valueComparer = null,
         ValueComparer? keyValueComparer = null,
         ValueComparer? providerValueComparer = null);
+
+    /// <summary>
+    ///     Generates code to create the given value comparer.
+    /// </summary>
+    /// <param name="comparer">The value comparer to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 }
