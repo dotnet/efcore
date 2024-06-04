@@ -4158,7 +4158,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__entity_equali
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI") OR (c["CustomerID"] = null)))
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN (null, "ALFKI"))
 """);
             });
 
