@@ -567,8 +567,21 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         bool isNullable)
         => typeMapping switch
         {
+            // In general unhex returns NULL whenever the decoding fails.
+            // In this case, we assume that the decoding cannot fail, because we
+            // rely on the user to correctly model the database schema and
+            // contents. Under this assumption, `expression` can only be a valid
+            // hex string or NULL, hence unhex simply propagates the nullability
+            // from its argument.
+
             ByteArrayTypeMapping
-                => sqlExpressionFactory.Function("unhex", new[] { expression }, isNullable, new[] { true }, typeof(byte[]), typeMapping),
+                => sqlExpressionFactory.Function(
+                    "unhex",
+                    new[] { expression },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true },
+                    typeof(byte[]),
+                    typeMapping),
 
             _ => expression
         };

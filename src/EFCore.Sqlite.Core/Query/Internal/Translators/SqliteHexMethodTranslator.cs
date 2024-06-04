@@ -61,11 +61,13 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
         if (method.Equals(UnhexMethodInfo)
             || method.Equals(UnhexWithIgnoreCharsMethodInfo))
         {
+            // unhex returns NULL whenever the decoding fails, hence mark as
+            // nullable and use an all-false argumentsPropagateNullability
             return _sqlExpressionFactory.Function(
                 "unhex",
                 arguments.Skip(1),
                 nullable: true,
-                arguments.Skip(1).Select(_ => true).ToArray(),
+                argumentsPropagateNullability: arguments.Skip(1).Select(_ => false).ToArray(),
                 typeof(byte[]));
         }
 
