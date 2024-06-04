@@ -22,6 +22,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
     private sealed class ReadItemQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable
     {
         private readonly CosmosQueryContext _cosmosQueryContext;
+        private readonly string _cosmosContainer;
         private readonly ReadItemExpression _readItemExpression;
         private readonly Func<CosmosQueryContext, JObject, T> _shaper;
         private readonly Type _contextType;
@@ -31,6 +32,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         public ReadItemQueryingEnumerable(
             CosmosQueryContext cosmosQueryContext,
+            string cosmosContainer,
             ReadItemExpression readItemExpression,
             Func<CosmosQueryContext, JObject, T> shaper,
             Type contextType,
@@ -38,6 +40,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             bool threadSafetyChecksEnabled)
         {
             _cosmosQueryContext = cosmosQueryContext;
+            _cosmosContainer = cosmosContainer;
             _readItemExpression = readItemExpression;
             _shaper = shaper;
             _contextType = contextType;
@@ -169,7 +172,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly ReadItemExpression _readItemExpression;
+            private readonly string _cosmosContainer;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -185,7 +188,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             public Enumerator(ReadItemQueryingEnumerable<T> readItemEnumerable, CancellationToken cancellationToken = default)
             {
                 _cosmosQueryContext = readItemEnumerable._cosmosQueryContext;
-                _readItemExpression = readItemEnumerable._readItemExpression;
+                _cosmosContainer = readItemEnumerable._cosmosContainer;
                 _shaper = readItemEnumerable._shaper;
                 _contextType = readItemEnumerable._contextType;
                 _queryLogger = readItemEnumerable._queryLogger;
@@ -227,7 +230,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             EntityFrameworkEventSource.Log.QueryExecuting();
 
                             _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
-                                _readItemExpression.Container,
+                                _cosmosContainer,
                                 partitionKeyValue,
                                 resourceId);
 
@@ -279,7 +282,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             EntityFrameworkEventSource.Log.QueryExecuting();
 
                             _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
-                                    _readItemExpression.Container,
+                                    _cosmosContainer,
                                     partitionKeyValue,
                                     resourceId,
                                     _cancellationToken)

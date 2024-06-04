@@ -33,9 +33,6 @@ public class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public SelectExpression(IEntityType entityType)
     {
-        // TODO: All queries should reference a non-null container ID, but GetContainer returns null for owned entities.
-        Container = entityType.GetContainer()!;
-
         // TODO: Redo aliasing
         _sources = [new SourceExpression(new ObjectReferenceExpression(entityType, "root"), RootAlias)];
         _projectionMapping[new ProjectionMember()]
@@ -50,8 +47,6 @@ public class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public SelectExpression(IEntityType entityType, string sql, Expression argument)
     {
-        // TODO: All queries should reference a non-null container ID, but GetContainer returns null for owned entities.
-        Container = entityType.GetContainer()!;
         var fromSql = new FromSqlExpression(entityType.ClrType, sql, argument);
         _sources = [new SourceExpression(fromSql, RootAlias)];
         _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(
@@ -67,13 +62,11 @@ public class SelectExpression : Expression, IPrintableExpression
     public SelectExpression(
         List<ProjectionExpression> projections,
         List<SourceExpression> sources,
-        List<OrderingExpression> orderings,
-        string container)
+        List<OrderingExpression> orderings)
     {
         _projection = projections;
         _sources = sources;
         _orderings = orderings;
-        Container = container;
     }
 
     /// <summary>
@@ -82,20 +75,11 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(string container, SqlExpression projection)
-        : this(container)
+    public SelectExpression(SqlExpression projection)
         => _projectionMapping[new ProjectionMember()] = projection;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SelectExpression(string? container)
+    private SelectExpression()
     {
-        // TODO: Move container out of SelectExpression to QueryCompilationContext
-        Container = container!;
     }
 
     /// <summary>
@@ -108,7 +92,7 @@ public class SelectExpression : Expression, IPrintableExpression
         SourceExpression source,
         Type elementClrType,
         CoreTypeMapping elementTypeMapping)
-        => new(container: null)
+        => new()
         {
             _sources = { source },
             _projectionMapping =
@@ -117,14 +101,6 @@ public class SelectExpression : Expression, IPrintableExpression
             },
             UsesSingleValueProjection = true
         };
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual string Container { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -568,7 +544,7 @@ public class SelectExpression : Expression, IPrintableExpression
 
         if (changed)
         {
-            var newSelectExpression = new SelectExpression(projections, sources, orderings, Container)
+            var newSelectExpression = new SelectExpression(projections, sources, orderings)
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
@@ -603,7 +579,7 @@ public class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(projections, sources, orderings, Container)
+        return new SelectExpression(projections, sources, orderings)
         {
             _projectionMapping = projectionMapping,
             Predicate = predicate,

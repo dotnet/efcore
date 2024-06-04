@@ -132,6 +132,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("MissingOrderingInSelectExpression");
 
         /// <summary>
+        ///     Cosmos container '{container1}' is referenced by the query, but '{container2}' is already being referenced. A query can only reference a single Cosmos container.
+        /// </summary>
+        public static string MultipleContainersReferencedInQuery(object? container1, object? container2)
+            => string.Format(
+                GetString("MultipleContainersReferencedInQuery", nameof(container1), nameof(container2)),
+                container1, container2);
+
+        /// <summary>
         ///     Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
         /// </summary>
         public static string NavigationPropertyIsNotAnEmbeddedEntity(object? entityType, object? navigationName)

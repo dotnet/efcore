@@ -198,6 +198,9 @@
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
   </data>
+  <data name="MultipleContainersReferencedInQuery" xml:space="preserve">
+    <value>Cosmos container '{container1}' is referenced by the query, but '{container2}' is already being referenced. A query can only reference a single Cosmos container.</value>
+  </data>
   <data name="NavigationPropertyIsNotAnEmbeddedEntity" xml:space="preserve">
     <value>Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.</value>
   </data>
