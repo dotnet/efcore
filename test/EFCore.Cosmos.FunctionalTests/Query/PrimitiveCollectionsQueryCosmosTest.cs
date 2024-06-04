@@ -985,19 +985,42 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 1
 
     public override async Task Column_collection_Take(bool async)
     {
-        // TODO: IN with subquery
-        await AssertTranslationFailed(() => base.Column_collection_Take(async));
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_Take(async));
 
-        AssertSql();
+            Assert.Contains("'OFFSET LIMIT' clause is not supported in subqueries.", exception.Message);
+        }
     }
 
     public override async Task Column_collection_Skip_Take(bool async)
     {
-        // TODO: Count after Distinct requires subquery pushdown
-        await AssertTranslationFailed(() => base.Column_collection_Skip_Take(async));
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_Skip_Take(async));
 
-        AssertSql();
+            Assert.Contains("'OFFSET LIMIT' clause is not supported in subqueries.", exception.Message);
+        }
     }
+
+    public override Task Column_collection_Contains_over_subquery(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Contains_over_subquery(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
+    SELECT 1
+    FROM i IN c["Ints"]
+    WHERE ((i > 1) AND (i = 11))))
+""");
+            });
 
     public override async Task Column_collection_OrderByDescending_ElementAt(bool async)
     {
