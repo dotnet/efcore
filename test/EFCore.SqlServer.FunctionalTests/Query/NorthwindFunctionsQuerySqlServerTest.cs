@@ -1833,6 +1833,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(int, [o].[OrderID] % 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(bigint, [o].[OrderID] % 3)) = CAST(1 AS bit)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(int, [o].[OrderID] % 3)) = CAST(1 AS bit)
 """);
     }
 
@@ -1887,6 +1893,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(int, [o].[OrderID
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS tinyint)
 """,
             //
             """
@@ -1953,6 +1965,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(bigint, [o
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0
 """);
     }
 
@@ -2007,6 +2025,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(int, [o].[OrderID] 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0E0
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0E0
 """,
             //
             """
@@ -2073,6 +2097,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(bigint, [o].[Ord
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)
 """);
     }
 
@@ -2127,6 +2157,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(int, [o].[OrderID] % 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(bigint, [o].[OrderID] % 1)) >= 0
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0
 """,
             //
             """
@@ -2193,6 +2229,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(bigint, [o].[Order
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint)
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint)
 """);
     }
 
@@ -2247,6 +2289,12 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(int, [o].[O
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(bigint, [o].[OrderID] % 1)) <> N'10'
+""",
+            //
+            """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10'
 """,
             //
             """
