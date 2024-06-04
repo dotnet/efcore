@@ -5925,13 +5925,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
 
         AssertSql(
             """
-SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o]
-        WHERE 0 = 1) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(0 AS bit)
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]
@@ -5944,13 +5938,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o]
-        WHERE 0 = 1) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(0 AS bit)
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]
