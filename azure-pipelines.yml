@@ -245,6 +245,7 @@ extends:
       - template: /eng/common/templates-official/post-build/post-build.yml@self
         parameters:
           publishingInfraVersion: 3
+          publishAssetsImmediately: true
           # Symbol validation isn't being very reliable lately. This should be enabled back
           # once this issue is resolved: https://github.com/dotnet/arcade/issues/2871
           enableSymbolValidation: false
