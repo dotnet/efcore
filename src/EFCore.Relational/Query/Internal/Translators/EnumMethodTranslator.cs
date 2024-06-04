@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class EnumMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo HasFlagMethodInfo
-        = typeof(Enum).GetRuntimeMethod(nameof(Enum.HasFlag), new[] { typeof(Enum) })!;
+        = typeof(Enum).GetRuntimeMethod(nameof(Enum.HasFlag), [typeof(Enum)])!;
 
     private static readonly MethodInfo ToStringMethodInfo
-        = typeof(object).GetRuntimeMethod(nameof(ToString), new Type[] { })!;
+        = typeof(object).GetRuntimeMethod(nameof(ToString), [])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -55,16 +55,12 @@ public class EnumMethodTranslator : IMethodCallTranslator
         }
 
         if (Equals(method, ToStringMethodInfo)
-            && instance != null
-            && instance.Type.IsEnum)
+            && instance is { Type.IsEnum: true, TypeMapping.Converter: ValueConverter converter }
+            && converter.GetType() is { IsGenericType: true } converterType)
         {
-            var converterType = instance.TypeMapping?.Converter?.GetType();
-
-            if (converterType is not null
-                && converterType.IsGenericType)
+            switch (converterType)
             {
-                if (converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>))
-                {
+                case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>):
                     var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
                         .Select(value => new CaseWhenClause(
@@ -72,22 +68,18 @@ public class EnumMethodTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
                         .ToArray();
 
-                    SqlExpression elseResult = _sqlExpressionFactory.Convert(instance, typeof(string));
-
-                    if (instance is ColumnExpression { IsNullable: true })
-                    {
-                        elseResult = _sqlExpressionFactory.Coalesce(
-                            elseResult,
-                            _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
-                    }
+                    var elseResult = _sqlExpressionFactory.Coalesce(
+                            _sqlExpressionFactory.Convert(instance, typeof(string)),
+                            _sqlExpressionFactory.Constant(string.Empty));
 
                     return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
-                }
-                else if (converterType.GetGenericTypeDefinition() == typeof(EnumToStringConverter<>))
-                {
+
+                case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToStringConverter<>):
                     // TODO: Unnecessary cast to string, #33733
                     return _sqlExpressionFactory.Convert(instance, typeof(string));
-                }
+
+                default:
+                    return null;
             }
         }
 

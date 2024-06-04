@@ -3441,17 +3441,17 @@ ORDER BY "s"."Id", "g"."Nickname"
 
         AssertSql(
 """
-SELECT CASE
-    WHEN "g"."Rank" = 0 THEN 'None'
-    WHEN "g"."Rank" = 1 THEN 'Private'
-    WHEN "g"."Rank" = 2 THEN 'Corporal'
-    WHEN "g"."Rank" = 4 THEN 'Sergeant'
-    WHEN "g"."Rank" = 8 THEN 'Lieutenant'
-    WHEN "g"."Rank" = 16 THEN 'Captain'
-    WHEN "g"."Rank" = 32 THEN 'Major'
-    WHEN "g"."Rank" = 64 THEN 'Colonel'
-    WHEN "g"."Rank" = 128 THEN 'General'
-    ELSE ''
+SELECT CASE "g"."Rank"
+    WHEN 0 THEN 'None'
+    WHEN 1 THEN 'Private'
+    WHEN 2 THEN 'Corporal'
+    WHEN 4 THEN 'Sergeant'
+    WHEN 8 THEN 'Lieutenant'
+    WHEN 16 THEN 'Captain'
+    WHEN 32 THEN 'Major'
+    WHEN 64 THEN 'Colonel'
+    WHEN 128 THEN 'General'
+    ELSE COALESCE(CAST("g"."Rank" AS TEXT), '')
 END
 FROM "Gears" AS "g"
 """);
@@ -3463,10 +3463,10 @@ FROM "Gears" AS "g"
 
         AssertSql(
 """
-SELECT CASE
-    WHEN "w"."AmmunitionType" = 1 THEN 'Cartridge'
-    WHEN "w"."AmmunitionType" = 2 THEN 'Shell'
-    ELSE ''
+SELECT CASE "w"."AmmunitionType"
+    WHEN 1 THEN 'Cartridge'
+    WHEN 2 THEN 'Shell'
+    ELSE COALESCE(CAST("w"."AmmunitionType" AS TEXT), '')
 END
 FROM "Weapons" AS "w"
 """);
@@ -3492,10 +3492,10 @@ WHERE instr(CAST("m"."Difficulty" AS TEXT), 'Med') > 0
 """
 SELECT "w"."Name"
 FROM "Weapons" AS "w"
-WHERE instr(CASE
-    WHEN "w"."AmmunitionType" = 1 THEN 'Cartridge'
-    WHEN "w"."AmmunitionType" = 2 THEN 'Shell'
-    ELSE ''
+WHERE instr(CASE "w"."AmmunitionType"
+    WHEN 1 THEN 'Cartridge'
+    WHEN 2 THEN 'Shell'
+    ELSE COALESCE(CAST("w"."AmmunitionType" AS TEXT), '')
 END, 'Cart') > 0
 """);
     }

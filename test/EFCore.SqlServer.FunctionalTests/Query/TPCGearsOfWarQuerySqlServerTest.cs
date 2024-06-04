@@ -5396,7 +5396,7 @@ SELECT CASE [u].[Rank]
     WHEN 32 THEN N'Major'
     WHEN 64 THEN N'Colonel'
     WHEN 128 THEN N'General'
-    ELSE CAST([u].[Rank] AS nvarchar(max))
+    ELSE COALESCE(CAST([u].[Rank] AS nvarchar(max)), N'')
 END
 FROM (
     SELECT [g].[Rank]
@@ -5446,7 +5446,7 @@ FROM [Weapons] AS [w]
 WHERE CASE [w].[AmmunitionType]
     WHEN 1 THEN N'Cartridge'
     WHEN 2 THEN N'Shell'
-    ELSE CAST([w].[AmmunitionType] AS nvarchar(max))
+    ELSE COALESCE(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
 END LIKE N'%Cart%'
 """);
     }
