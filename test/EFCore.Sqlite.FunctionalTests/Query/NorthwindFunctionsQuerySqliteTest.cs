@@ -1021,7 +1021,7 @@ WHERE "c"."Region" IS NULL OR trim("c"."Region") = ''
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE instr("c"."ContactName", '') - 1 = 0
+WHERE instr("c"."Region", '') - 1 = 0
 """);
     }
 

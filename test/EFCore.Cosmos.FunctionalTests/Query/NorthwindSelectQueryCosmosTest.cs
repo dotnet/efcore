@@ -1962,7 +1962,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT INDEX_OF(c["ContactName"], "") AS c
+SELECT INDEX_OF(c["Region"], "") AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);

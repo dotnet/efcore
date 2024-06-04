@@ -1107,7 +1107,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (LOWER(c["CustomerID"]) = "alfki"))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "") = 0))
+WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["Region"], "") = 0))
 """);
             });
 

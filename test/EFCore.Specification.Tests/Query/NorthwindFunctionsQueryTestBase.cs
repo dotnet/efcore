@@ -1542,7 +1542,9 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Indexof_with_emptystring(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(string.Empty) == 0));
+            ss => ss.Set<Customer>().Where(c => c.Region.IndexOf(string.Empty) == 0),
+            ss => ss.Set<Customer>().Where(c => c.Region != null && c.Region.IndexOf(string.Empty) == 0)
+        );
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
