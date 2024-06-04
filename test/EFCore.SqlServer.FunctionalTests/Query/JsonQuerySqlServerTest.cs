@@ -213,7 +213,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
             """
-SELECT [j].[Id], CAST(JSON_VALUE([j].[json_reference_custom_naming], '$.CustomEnum') AS int) AS [Enum]
+SELECT [j].[Id], CAST(JSON_VALUE([j].[json_reference_custom_naming], '$."1CustomEnum"') AS int) AS [Enum]
 FROM [JsonEntitiesCustomNaming] AS [j]
 """);
     }

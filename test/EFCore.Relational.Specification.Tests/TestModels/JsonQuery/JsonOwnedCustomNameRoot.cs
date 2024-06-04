@@ -14,7 +14,7 @@ public class JsonOwnedCustomNameRoot
 
     public int Number { get; set; }
 
-    [JsonPropertyName("CustomEnum")]
+    [JsonPropertyName("1CustomEnum")]
     public JsonEnum Enum { get; set; }
 
     [JsonPropertyName("Custom#OwnedReferenceBranch`-=[]\\;',./~!@#$%^&*()_+{}|:\"<>?独角兽π獨角獸")]
