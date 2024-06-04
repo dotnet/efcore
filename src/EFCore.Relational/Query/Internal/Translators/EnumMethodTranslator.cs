@@ -69,8 +69,8 @@ public class EnumMethodTranslator : IMethodCallTranslator
                         .ToArray();
 
                     var elseResult = _sqlExpressionFactory.Coalesce(
-                            _sqlExpressionFactory.Convert(instance, typeof(string)),
-                            _sqlExpressionFactory.Constant(string.Empty));
+                        _sqlExpressionFactory.Convert(instance, typeof(string)),
+                        _sqlExpressionFactory.Constant(string.Empty));
 
                     return _sqlExpressionFactory.Case(instance, whenClauses, elseResult);
 
