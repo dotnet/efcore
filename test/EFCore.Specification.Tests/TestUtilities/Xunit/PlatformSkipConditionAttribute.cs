@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -10,7 +11,7 @@ public sealed class PlatformSkipConditionAttribute(TestPlatform excludedPlatform
 {
     private readonly TestPlatform _excludedPlatforms = excludedPlatforms;
 
-    public ValueTask<bool> IsMetAsync()
+    public ValueTask<bool> IsMetAsync(XunitTestCase testCase)
         => new(CanRunOnThisPlatform(_excludedPlatforms));
 
     public string SkipReason { get; set; } = "Test cannot run on this platform.";

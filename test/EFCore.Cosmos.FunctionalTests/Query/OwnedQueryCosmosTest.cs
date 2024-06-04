@@ -23,123 +23,105 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         => base.Query_with_owned_entity_equality_operator(async);
 
     [ConditionalTheory(Skip = "Count #16146")]
-    public override Task Navigation_rewrite_on_owned_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_collection(a);
+    public override async Task Navigation_rewrite_on_owned_collection(bool async)
+    {
+        await base.Navigation_rewrite_on_owned_collection(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "Issue#16926")]
-    public override Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_collection_with_composition(a);
+    public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
+    {
+        await base.Navigation_rewrite_on_owned_collection_with_composition(async);
 
-                AssertSql(" ");
-            });
+        AssertSql(" ");
+    }
 
     [ConditionalTheory(Skip = "Issue#16926")]
-    public override Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_collection_with_composition_complex(a);
+    public override async Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool async)
+    {
+        await base.Navigation_rewrite_on_owned_collection_with_composition_complex(async);
 
-                AssertSql(" ");
-            });
+        AssertSql(" ");
+    }
 
-    public override Task Navigation_rewrite_on_owned_reference_projecting_entity(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_reference_projecting_entity(a);
+    public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool async)
+    {
+        await base.Navigation_rewrite_on_owned_reference_projecting_entity(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
-            });
+    }
 
-    public override Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_reference_projecting_scalar(a);
+    public override async Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
+    {
+        await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["PersonAddress"]["Country"]["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
-            });
+    }
 
-    public override Task Query_for_base_type_loads_all_owned_navs(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Query_for_base_type_loads_all_owned_navs(a);
+    public override async Task Query_for_base_type_loads_all_owned_navs(bool async)
+    {
+        await base.Query_for_base_type_loads_all_owned_navs(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Query_for_branch_type_loads_all_owned_navs(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Query_for_branch_type_loads_all_owned_navs(a);
+    public override async Task Query_for_branch_type_loads_all_owned_navs(bool async)
+    {
+        await base.Query_for_branch_type_loads_all_owned_navs(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Branch", "LeafA")
 """);
-            });
+    }
 
-    public override Task Query_for_branch_type_loads_all_owned_navs_tracking(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Query_for_branch_type_loads_all_owned_navs_tracking(a);
+    public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool async)
+    {
+        await base.Query_for_branch_type_loads_all_owned_navs_tracking(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Branch", "LeafA")
 """);
-            });
+    }
 
-    public override Task Query_for_leaf_type_loads_all_owned_navs(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Query_for_leaf_type_loads_all_owned_navs(a);
+    public override async Task Query_for_leaf_type_loads_all_owned_navs(bool async)
+    {
+        await base.Query_for_leaf_type_loads_all_owned_navs(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "LeafA")
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "LeftJoin #17314")]
     public override Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
@@ -207,19 +189,17 @@ WHERE (c["Discriminator"] = "LeafA")
     public override Task Query_with_owned_entity_equality_object_method(bool async)
         => base.Query_with_owned_entity_equality_object_method(async);
 
-    public override Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(a);
+    public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
+    {
+        await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Discriminator"] = "LeafA"))
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "Distinct ordering #16156")]
     public override Task Query_when_subquery(bool async)
@@ -261,89 +241,77 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
     public override Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
         => base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
-    public override Task Can_query_on_indexer_properties(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_query_on_indexer_properties(a);
+    public override async Task Can_query_on_indexer_properties(bool async)
+    {
+        await base.Can_query_on_indexer_properties(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
 """);
-            });
+    }
 
-    public override Task Can_query_on_owned_indexer_properties(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_query_on_owned_indexer_properties(a);
+    public override async Task Can_query_on_owned_indexer_properties(bool async)
+    {
+        await base.Can_query_on_owned_indexer_properties(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
-            });
+    }
 
-    public override Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_query_on_indexer_property_when_property_name_from_closure(a);
+    public override async Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
+    {
+        await base.Can_query_on_indexer_property_when_property_name_from_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
 """);
-            });
+    }
 
-    public override Task Can_project_indexer_properties(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_project_indexer_properties(a);
+    public override async Task Can_project_indexer_properties(bool async)
+    {
+        await base.Can_project_indexer_properties(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Can_project_owned_indexer_properties(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_project_owned_indexer_properties(a);
+    public override async Task Can_project_owned_indexer_properties(bool async)
+    {
+        await base.Can_project_owned_indexer_properties(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Can_project_indexer_properties_converted(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_project_indexer_properties_converted(a);
+    public override async Task Can_project_indexer_properties_converted(bool async)
+    {
+        await base.Can_project_indexer_properties_converted(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
     public override async Task Can_OrderBy_indexer_properties(bool async)
@@ -417,33 +385,29 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         AssertSql(" ");
     }
 
-    public override Task Projecting_indexer_property_ignores_include(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projecting_indexer_property_ignores_include(a);
+    public override async Task Projecting_indexer_property_ignores_include(bool async)
+    {
+        await base.Projecting_indexer_property_ignores_include(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Projecting_indexer_property_ignores_include_converted(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projecting_indexer_property_ignores_include_converted(a);
+    public override async Task Projecting_indexer_property_ignores_include_converted(bool async)
+    {
+        await base.Projecting_indexer_property_ignores_include_converted(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
     [ConditionalTheory(Skip = "Subquery #17246")]
     public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
@@ -516,73 +480,63 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         AssertSql();
     }
 
-    public override Task Filter_on_indexer_using_closure(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Filter_on_indexer_using_closure(a);
+    public override async Task Filter_on_indexer_using_closure(bool async)
+    {
+        await base.Filter_on_indexer_using_closure(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
-            });
+    }
 
-    public override Task Filter_on_indexer_using_function_argument(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Filter_on_indexer_using_function_argument(a);
+    public override async Task Filter_on_indexer_using_function_argument(bool async)
+    {
+        await base.Filter_on_indexer_using_function_argument(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
-            });
+    }
 
     public override Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
         => AssertTranslationFailed(() => base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(async));
 
-    public override Task Can_project_owned_indexer_properties_converted(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_project_owned_indexer_properties_converted(a);
+    public override async Task Can_project_owned_indexer_properties_converted(bool async)
+    {
+        await base.Can_project_owned_indexer_properties_converted(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Can_query_owner_with_different_owned_types_having_same_property_name_in_hierarchy(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Can_query_owner_with_different_owned_types_having_same_property_name_in_hierarchy(a);
+    public override async Task Can_query_owner_with_different_owned_types_having_same_property_name_in_hierarchy(bool async)
+    {
+        await base.Can_query_owner_with_different_owned_types_having_same_property_name_in_hierarchy(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("HeliumBalloon", "HydrogenBalloon")
 """);
-            });
+    }
 
-    public override Task Client_method_skip_take_loads_owned_navigations_variation_2(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Client_method_skip_take_loads_owned_navigations_variation_2(a);
+    public override async Task Client_method_skip_take_loads_owned_navigations_variation_2(bool async)
+    {
+        await base.Client_method_skip_take_loads_owned_navigations_variation_2(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @__p_0='1'
 @__p_1='2'
 
@@ -592,16 +546,14 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
-            });
+    }
 
-    public override Task Client_method_skip_take_loads_owned_navigations(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Client_method_skip_take_loads_owned_navigations(a);
+    public override async Task Client_method_skip_take_loads_owned_navigations(bool async)
+    {
+        await base.Client_method_skip_take_loads_owned_navigations(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @__p_0='1'
 @__p_1='2'
 
@@ -611,92 +563,74 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
-            });
+    }
 
     public override async Task Non_nullable_property_through_optional_navigation(bool async)
     {
-        // Sync always throws before getting to exception being tested.
-        if (async)
-        {
-            await CosmosTestHelpers.Instance.NoSyncTest(
-                async, async a =>
-                {
-                    await base.Non_nullable_property_through_optional_navigation(a);
+        await base.Non_nullable_property_through_optional_navigation(async);
 
-                    AssertSql(
-                        """
+        AssertSql(
+            """
 SELECT c["Throned"]["Value"]
 FROM root c
 WHERE (c["Discriminator"] = "Barton")
 """);
-                });
-        }
     }
 
-    public override Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Owned_entity_without_owner_does_not_throw_for_identity_resolution(a, useAsTracking);
+    public override async Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
+    {
+        await base.Owned_entity_without_owner_does_not_throw_for_identity_resolution(async, useAsTracking);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Simple_query_entity_with_owned_collection(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Simple_query_entity_with_owned_collection(a);
+    public override async Task Simple_query_entity_with_owned_collection(bool async)
+    {
+        await base.Simple_query_entity_with_owned_collection(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Star")
 """);
-            });
+    }
 
-    public override Task Throw_for_owned_entities_without_owner_in_tracking_query(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Throw_for_owned_entities_without_owner_in_tracking_query(a);
+    public override async Task Throw_for_owned_entities_without_owner_in_tracking_query(bool async)
+    {
+        await base.Throw_for_owned_entities_without_owner_in_tracking_query(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
-            });
+    }
 
-    public override Task Unmapped_property_projection_loads_owned_navigations(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Unmapped_property_projection_loads_owned_navigations(a);
+    public override async Task Unmapped_property_projection_loads_owned_navigations(bool async)
+    {
+        await base.Unmapped_property_projection_loads_owned_navigations(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
 """);
-            });
+    }
 
-    public override Task Client_method_take_loads_owned_navigations(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Client_method_take_loads_owned_navigations(a);
+    public override async Task Client_method_take_loads_owned_navigations(bool async)
+    {
+        await base.Client_method_take_loads_owned_navigations(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @__p_0='2'
 
 SELECT c
@@ -705,18 +639,16 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET 0 LIMIT @__p_0
 """);
-            });
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public override Task Client_method_take_loads_owned_navigations_variation_2(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Client_method_take_loads_owned_navigations_variation_2(a);
+    public override async Task Client_method_take_loads_owned_navigations_variation_2(bool async)
+    {
+        await base.Client_method_take_loads_owned_navigations_variation_2(async);
 
-                AssertSql(
-                    """
+        AssertSql(
+            """
 @__p_0='2'
 
 SELECT c
@@ -725,7 +657,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET 0 LIMIT @__p_0
 """);
-            });
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
@@ -742,8 +674,9 @@ OFFSET 0 LIMIT @__p_0
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(
-                w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+            => base.AddOptions(
+                builder.ConfigureWarnings(
+                    w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -28,12 +28,25 @@ public sealed class ConditionalFactTestCase : XunitTestCase
         object[] constructorArguments,
         ExceptionAggregator aggregator,
         CancellationTokenSource cancellationTokenSource)
-        => await XunitTestCaseExtensions.TrySkipAsync(this, messageBus)
-            ? new RunSummary { Total = 1, Skipped = 1 }
-            : await base.RunAsync(
-                diagnosticMessageSink,
-                messageBus,
-                constructorArguments,
-                aggregator,
-                cancellationTokenSource);
+    {
+        try
+        {
+            return await XunitTestCaseExtensions.TrySkipAsync(this, messageBus)
+                ? new RunSummary { Total = 1, Skipped = 1 }
+                : await base.RunAsync(
+                    diagnosticMessageSink,
+                    messageBus,
+                    constructorArguments,
+                    aggregator,
+                    cancellationTokenSource);
+        }
+        catch (Exception exception)
+        {
+            messageBus.QueueMessage(
+                new TestFailed(
+                    new XunitTest(this, DisplayName), executionTime: 0, output: "Failure when processing ITestCondition test attribute",
+                    exception));
+            return new RunSummary { Total = 1, Failed = 1 };
+        }
+    }
 }

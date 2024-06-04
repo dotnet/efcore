@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -11,6 +12,6 @@ public class CosmosDbConfiguredConditionAttribute : Attribute, ITestCondition
     public string SkipReason
         => "Unable to connect to Cosmos DB. Please install/start the emulator service or configure a valid endpoint.";
 
-    public ValueTask<bool> IsMetAsync()
+    public ValueTask<bool> IsMetAsync(XunitTestCase testCase)
         => CosmosTestStore.IsConnectionAvailableAsync();
 }
