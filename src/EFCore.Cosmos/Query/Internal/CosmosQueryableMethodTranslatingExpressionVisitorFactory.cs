@@ -31,7 +31,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitorFactory(
     public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         => new CosmosQueryableMethodTranslatingExpressionVisitor(
             Dependencies,
-            queryCompilationContext,
+            (CosmosQueryCompilationContext)queryCompilationContext,
             sqlExpressionFactory,
             typeMappingSource,
             memberTranslatorProvider,

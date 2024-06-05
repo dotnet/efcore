@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
 {
-    private readonly QueryCompilationContext _queryCompilationContext;
+    private readonly CosmosQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly ITypeMappingSource _typeMappingSource;
     private readonly IMemberTranslatorProvider _memberTranslatorProvider;
@@ -31,7 +31,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     public CosmosQueryableMethodTranslatingExpressionVisitor(
         QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-        QueryCompilationContext queryCompilationContext,
+        CosmosQueryCompilationContext queryCompilationContext,
         ISqlExpressionFactory sqlExpressionFactory,
         ITypeMappingSource typeMappingSource,
         IMemberTranslatorProvider memberTranslatorProvider,
@@ -258,13 +258,29 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
         => CreateShapedQueryExpression(entityType, _sqlExpressionFactory.Select(entityType));
 
-    private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
-        => new(
+    private ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
+    {
+        if (!entityType.IsOwned())
+        {
+            var cosmosContainer = entityType.GetContainer();
+            var existingContainer = _queryCompilationContext.CosmosContainer;
+            Check.DebugAssert(cosmosContainer is not null, "Non-owned entity type without a Cosmos container");
+
+            if (existingContainer is not null && existingContainer != cosmosContainer)
+            {
+                throw new InvalidOperationException(CosmosStrings.MultipleContainersReferencedInQuery(cosmosContainer, existingContainer));
+            }
+
+            _queryCompilationContext.CosmosContainer = cosmosContainer;
+        }
+
+        return new ShapedQueryExpression(
             queryExpression,
             new StructuralTypeShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(queryExpression, new ProjectionMember(), typeof(ValueBuffer)),
                 false));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -304,7 +320,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         var translation = _sqlExpressionFactory.Exists(subquery);
-        var selectExpression = new SelectExpression(subquery.Container, translation);
+        var selectExpression = new SelectExpression(translation);
 
         return source.Update(
             selectExpression,
@@ -368,18 +384,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
-            && TranslateExpression(item) is SqlExpression translatedItem
-            && source.QueryExpression is SelectExpression { Container: var container })
+            && TranslateExpression(item) is SqlExpression translatedItem)
         {
             if (array is ArrayConstantExpression arrayConstant)
             {
                 var inExpression = _sqlExpressionFactory.In(translatedItem, arrayConstant.Items);
-                return source.Update(new SelectExpression(container, inExpression), source.ShaperExpression);
+                return source.Update(new SelectExpression(inExpression), source.ShaperExpression);
             }
 
             (translatedItem, array) = _sqlExpressionFactory.ApplyTypeMappingsOnItemAndArray(translatedItem, array);
             var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_CONTAINS", new[] { array, translatedItem }, typeof(bool));
-            return source.UpdateQueryExpression(new SelectExpression(container, simplifiedTranslation));
+            return source.UpdateQueryExpression(new SelectExpression(simplifiedTranslation));
         }
 
         // TODO: Translation to IN, with scalars and with subquery
@@ -396,11 +411,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         // Simplify x.Array.Count() => ARRAY_LENGTH(x.Array) instead of (SELECT COUNT(1) FROM i IN x.Array))
         if (predicate is null
-            && CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
-            && source.QueryExpression is SelectExpression { Container: var container })
+            && CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true))
         {
             var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_LENGTH", new[] { array }, typeof(int));
-            return source.UpdateQueryExpression(new SelectExpression(container, simplifiedTranslation));
+            return source.UpdateQueryExpression(new SelectExpression(simplifiedTranslation));
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -470,12 +484,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // Simplify x.Array[1] => x.Array[1] (using the Cosmos array subscript operator) instead of a subquery with LIMIT/OFFSET
         if (!returnDefault
             && CosmosQueryUtils.TryExtractBareArray(source, out var array, out var projectedScalarReference)
-            && TranslateExpression(index) is { } translatedIndex
-            && source.QueryExpression is SelectExpression { Container: var container })
+            && TranslateExpression(index) is { } translatedIndex)
         {
             var arrayIndex = _sqlExpressionFactory.ArrayIndex(
                 array, translatedIndex, projectedScalarReference.Type, projectedScalarReference.TypeMapping);
-            return source.UpdateQueryExpression(new SelectExpression(container, arrayIndex));
+            return source.UpdateQueryExpression(new SelectExpression(arrayIndex));
         }
 
         // Note that Cosmos doesn't support OFFSET/LIMIT in subqueries, so this translation is for top-level entity querying only.
@@ -1252,8 +1265,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var innerSelect = new SelectExpression(
             [new ProjectionExpression(inlineArray, null!)],
             sources: [],
-            orderings: [],
-            container: null!)
+            orderings: [])
         {
             UsesSingleValueProjection = true
         };
@@ -1289,8 +1301,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var innerSelect = new SelectExpression(
             [new ProjectionExpression(sqlParameterExpression, null!)],
             sources: [],
-            orderings: [],
-            container: null!)
+            orderings: [])
         {
             UsesSingleValueProjection = true
         };

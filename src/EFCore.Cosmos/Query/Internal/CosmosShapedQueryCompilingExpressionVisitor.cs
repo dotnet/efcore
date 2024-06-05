@@ -35,6 +35,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     /// </summary>
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
     {
+        if (cosmosQueryCompilationContext.CosmosContainer is null)
+        {
+            throw new UnreachableException("No Cosmos container was set during query processing.");
+        }
+
         var jObjectParameter = Parameter(typeof(JObject), "jObject");
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
@@ -64,6 +69,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                     Constant(selectExpression),
                     Constant(shaperLambda.Compile()),
                     Constant(_contextType),
+                    Constant(cosmosQueryCompilationContext.CosmosContainer),
                     Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
                     Constant(
                         QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
@@ -85,6 +91,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                     Convert(
                         QueryCompilationContext.QueryContextParameter,
                         typeof(CosmosQueryContext)),
+                    Constant(cosmosQueryCompilationContext.CosmosContainer),
                     Constant(readItemExpression),
                     Constant(shaperReadItemLambda.Compile()),
                     Constant(_contextType),
