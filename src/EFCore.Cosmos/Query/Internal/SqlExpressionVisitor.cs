@@ -22,7 +22,6 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
         {
             ShapedQueryExpression shapedQueryExpression
                 => shapedQueryExpression.UpdateQueryExpression(Visit(shapedQueryExpression.QueryExpression)),
-            ReadItemExpression readItemExpression => readItemExpression,
             SelectExpression selectExpression => VisitSelect(selectExpression),
             ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
             EntityProjectionExpression entityProjectionExpression => VisitEntityProjection(entityProjectionExpression),

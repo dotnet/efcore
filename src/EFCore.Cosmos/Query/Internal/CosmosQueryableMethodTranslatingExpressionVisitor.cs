@@ -22,6 +22,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
     private readonly bool _subquery;
+    private ReadItemInfo? _readItemExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,55 +92,84 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
-        if (expression is MethodCallExpression
+        if (_queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll // Issue #33893
+            && expression is MethodCallExpression
             {
                 Method: { Name: nameof(Queryable.FirstOrDefault), IsGenericMethod: true },
-                Arguments:
-                [
-                    MethodCallExpression
-                    {
-                        Method: { Name: nameof(Queryable.Where), IsGenericMethod: true },
-                        Arguments:
-                        [
-                            EntityQueryRootExpression { EntityType: var entityType },
-                            UnaryExpression { Operand: LambdaExpression lambdaExpression, NodeType: ExpressionType.Quote }
-                        ]
-                    } whereMethodCall
-                ]
-            } firstOrDefaultMethodCall
-            && firstOrDefaultMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate
-            && whereMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
+                Arguments: [MethodCallExpression innerMethodCall]
+            })
         {
-            var queryProperties = new List<IProperty>();
-            var parameterNames = new List<string>();
-
-            if (ExtractPartitionKeyFromPredicate(entityType, lambdaExpression.Body, queryProperties, parameterNames))
-            {
-                var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties;
-                var idProperty = entityType.GetProperties()
-                    .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
-                            var partitionKeyProperties = entityType.GetPartitionKeyProperties();
-
-                if (entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
-                                && (!partitionKeyProperties.Any()
-                        || partitionKeyProperties.All(p => entityTypePrimaryKeyProperties.Contains(p)))
-                    && (idProperty.GetValueGeneratorFactory() != null
-                        || entityTypePrimaryKeyProperties.Contains(idProperty)))
+            var clrType = innerMethodCall.Type.TryGetSequenceType() ?? typeof(object);
+            if (innerMethodCall is
                 {
-                    var propertyParameterList = queryProperties.Zip(
-                            parameterNames,
-                            (property, parameter) => (property, parameter))
-                        .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
+                    Method: { Name: nameof(Queryable.Select), IsGenericMethod: true },
+                    Arguments:
+                    [
+                        MethodCallExpression innerInnerMethodCall,
+                        UnaryExpression { NodeType: ExpressionType.Quote } unaryExpression
+                    ]
+                })
+            {
+                if (unaryExpression.Operand is LambdaExpression)
+                {
+                    innerMethodCall = innerInnerMethodCall;
+                }
+            }
 
-                    var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
+            if (innerMethodCall is
+                {
+                    Method: { Name: nameof(Queryable.Where), IsGenericMethod: true },
+                    Arguments:
+                    [
+                        EntityQueryRootExpression { EntityType: var entityType },
+                        UnaryExpression { Operand: LambdaExpression lambdaExpression, NodeType: ExpressionType.Quote }
+                    ]
+                })
+            {
+                var queryProperties = new List<IProperty>();
+                var parameterNames = new List<string>();
 
-                    return CreateShapedQueryExpression(entityType, readItemExpression)
-                        .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
+                if (ExtractPartitionKeyFromPredicate(entityType, lambdaExpression.Body, queryProperties, parameterNames))
+                {
+                    var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties;
+                    var idProperty = entityType.GetProperties()
+                        .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                    var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+
+                    if (entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
+                        && (!partitionKeyProperties.Any()
+                            || partitionKeyProperties.All(p => entityTypePrimaryKeyProperties.Contains(p)))
+                        // This should ideally only be looking for properties with the `IdValueGeneratorFactory` generator. since
+                        // this is how the `id` property will be generated from other key values.
+                        && ((idProperty.GetValueGeneratorFactory() != null
+                                // If we can't create an instance, then we might not be able to construct the resource id.
+                                && CanCreateEmptyInstance(entityType))
+                            || entityTypePrimaryKeyProperties.Contains(idProperty)))
+                    {
+                        var propertyParameterList = queryProperties.Zip(
+                                parameterNames,
+                                (property, parameter) => (property, parameter))
+                            .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
+
+                        _readItemExpression = new ReadItemInfo(entityType, propertyParameterList, clrType);
+                    }
                 }
             }
         }
 
         return base.Visit(expression);
+
+        static bool CanCreateEmptyInstance(IEntityType entityType)
+        {
+            var binding = entityType.ServiceOnlyConstructorBinding;
+            if (binding == null)
+            {
+                _ = entityType.ConstructorBinding;
+                binding = entityType.ServiceOnlyConstructorBinding;
+            }
+
+            return binding != null;
+        }
 
         static bool ExtractPartitionKeyFromPredicate(
             IEntityType entityType,
@@ -256,7 +286,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
-        => CreateShapedQueryExpression(entityType, _sqlExpressionFactory.Select(entityType));
+        => CreateShapedQueryExpression(
+            entityType,
+            _readItemExpression == null
+                ? _sqlExpressionFactory.Select(entityType)
+                : _sqlExpressionFactory.ReadItem(entityType, _readItemExpression));
 
     private ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
     {
