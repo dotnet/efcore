@@ -106,6 +106,9 @@ namespace TestNamespace
         {
             var id = runtimeEntityType.FindProperty("Id")!;
             var point = runtimeEntityType.FindProperty("Point")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

@@ -267,7 +267,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
     IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
         => _dependentKeyValueFactory!;
 
-    // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
     IDependentKeyValueFactory IRuntimeForeignKey.DependentKeyValueFactory
     {
@@ -278,7 +278,7 @@ public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
         set => _dependentKeyValueFactory = value;
     }
 
-    // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
+    // Note: This is set and used only by KeyValueFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
     Func<IDependentsMap> IRuntimeForeignKey.DependentsMapFactory
     {

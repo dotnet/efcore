@@ -354,20 +354,22 @@ namespace Scaffolding
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             lockoutEnd.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<DateTimeOffset?>(
-                    (Nullable<DateTimeOffset> v1, Nullable<DateTimeOffset> v2) => v1.HasValue && v2.HasValue && ((DateTimeOffset)v1).EqualsExact((DateTimeOffset)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((object)(DateTimeOffset)v).GetHashCode() : 0,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
-                keyComparer: new ValueComparer<DateTimeOffset?>(
-                    (Nullable<DateTimeOffset> v1, Nullable<DateTimeOffset> v2) => v1.HasValue && v2.HasValue && ((DateTimeOffset)v1).EqualsExact((DateTimeOffset)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((object)(DateTimeOffset)v).GetHashCode() : 0,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
-                providerValueComparer: new ValueComparer<DateTimeOffset?>(
-                    (Nullable<DateTimeOffset> v1, Nullable<DateTimeOffset> v2) => v1.HasValue && v2.HasValue && ((DateTimeOffset)v1).EqualsExact((DateTimeOffset)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? ((object)(DateTimeOffset)v).GetHashCode() : 0,
-                    (Nullable<DateTimeOffset> v) => v.HasValue ? (Nullable<DateTimeOffset>)(DateTimeOffset)v : default(Nullable<DateTimeOffset>)),
+                comparer: new ValueComparer<DateTimeOffset>(
+                    (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
+                    (DateTimeOffset v) => ((object)v).GetHashCode(),
+                    (DateTimeOffset v) => v),
+                keyComparer: new ValueComparer<DateTimeOffset>(
+                    (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
+                    (DateTimeOffset v) => ((object)v).GetHashCode(),
+                    (DateTimeOffset v) => v),
+                providerValueComparer: new ValueComparer<DateTimeOffset>(
+                    (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
+                    (DateTimeOffset v) => ((object)v).GetHashCode(),
+                    (DateTimeOffset v) => v),
                 clrType: typeof(DateTimeOffset),
                 jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
+            lockoutEnd.SetValueComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.Comparer));
+            lockoutEnd.SetKeyValueComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.KeyComparer));
             lockoutEnd.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("IdentityUserEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd", "Scaffolding") });
 
             var normalizedEmail = runtimeEntityType.AddProperty(
@@ -747,6 +749,9 @@ namespace Scaffolding
             var securityStamp = runtimeEntityType.FindProperty("SecurityStamp")!;
             var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled")!;
             var userName = runtimeEntityType.FindProperty("UserName")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<string>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

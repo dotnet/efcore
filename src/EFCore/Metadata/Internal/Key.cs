@@ -156,7 +156,7 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
             ref _identityMapFactory, this, static key =>
             {
                 key.EnsureReadOnly();
-                return new IdentityMapFactoryFactory().Create(key);
+                return IdentityMapFactoryFactory.Create(key);
             });
 
     private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
@@ -167,7 +167,7 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
         where TKey : notnull
     {
         EnsureReadOnly();
-        return new KeyValueFactoryFactory().Create<TKey>(this);
+        return KeyValueFactoryFactory.Create<TKey>(this);
     }
 
     /// <summary>

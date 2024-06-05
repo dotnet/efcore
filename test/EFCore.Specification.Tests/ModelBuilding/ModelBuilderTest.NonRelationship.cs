@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Dynamic;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -1154,7 +1155,7 @@ public abstract partial class ModelBuilderTest
 
             var wierd = entityType.FindProperty("Wierd")!;
             Assert.IsType<NumberToStringConverter<int>>(wierd.GetValueConverter());
-            Assert.IsType<ValueComparer<int?>>(wierd.GetValueComparer());
+            Assert.IsType<NullableValueComparer<int>>(wierd.GetValueComparer());
         }
 
         [ConditionalFact]

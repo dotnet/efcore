@@ -3,6 +3,7 @@
 
 using System.Collections.ObjectModel;
 using System.Dynamic;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -892,7 +893,7 @@ public abstract partial class ModelBuilderTest
 
             var wierd = complexType.FindProperty("Wierd");
             Assert.IsType<NumberToStringConverter<int>>(wierd.GetValueConverter());
-            Assert.IsType<ValueComparer<int?>>(wierd.GetValueComparer());
+            Assert.IsType<NullableValueComparer<int>>(wierd.GetValueComparer());
         }
 
         [ConditionalFact]

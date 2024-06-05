@@ -94,20 +94,22 @@ namespace TestNamespace
                 relationshipIndex: 1,
                 storeGenerationIndex: 1);
             referenceNavigationId.TypeMapping = InMemoryTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)),
-                keyComparer: new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)),
-                providerValueComparer: new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)),
+                comparer: new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
+                keyComparer: new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
+                providerValueComparer: new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+            referenceNavigationId.SetValueComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.Comparer));
+            referenceNavigationId.SetKeyValueComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.KeyComparer));
             referenceNavigationId.SetCurrentValueComparer(new EntryCurrentValueComparer<int?>(referenceNavigationId));
 
             var lazyLoader = runtimeEntityType.AddServiceProperty(
@@ -208,6 +210,9 @@ namespace TestNamespace
         {
             var id = runtimeEntityType.FindProperty("Id")!;
             var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation")!;
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

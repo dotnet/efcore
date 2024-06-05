@@ -158,18 +158,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             id.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)),
-                keyComparer: new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)),
-                providerValueComparer: new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)));
+                comparer: new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v),
+                keyComparer: new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v),
+                providerValueComparer: new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v));
+            id.SetValueComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyValueComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             id.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id", "TestNamespace") });
 
@@ -272,6 +274,9 @@ namespace TestNamespace
             var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId")!;
             var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator")!;
             var id = runtimeEntityType.FindProperty("Id")!;
+            var key = runtimeEntityType.FindKey(new[] { principalId, principalAlternateId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             var principal = runtimeEntityType.FindNavigation("Principal")!;
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
