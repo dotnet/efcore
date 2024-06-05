@@ -45,8 +45,13 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
             changed |= updatedProjection != item;
         }
 
-        var fromExpression = (RootReferenceExpression)Visit(selectExpression.FromExpression);
-        changed |= fromExpression != selectExpression.FromExpression;
+        var sources = new List<SourceExpression>();
+        foreach (var item in selectExpression.Sources)
+        {
+            var updatedSource = (SourceExpression)Visit(item);
+            sources.Add(updatedSource);
+            changed |= updatedSource != item;
+        }
 
         var predicate = TryCompensateForBoolWithValueConverter((SqlExpression?)Visit(selectExpression.Predicate));
         changed |= predicate != selectExpression.Predicate;
@@ -63,7 +68,7 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
         var offset = (SqlExpression?)Visit(selectExpression.Offset);
 
         return changed
-            ? selectExpression.Update(projections, fromExpression, predicate, orderings, limit, offset)
+            ? selectExpression.Update(projections, sources, predicate, orderings, limit, offset)
             : selectExpression;
     }
 

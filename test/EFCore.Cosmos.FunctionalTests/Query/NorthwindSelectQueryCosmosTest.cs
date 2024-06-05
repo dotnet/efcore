@@ -37,7 +37,10 @@ public class NorthwindSelectQueryCosmosTest : NorthwindSelectQueryTestBase<North
 
                 AssertSql(
                     """
-SELECT VALUE {"Value" : c["OrderID"]}
+SELECT VALUE
+{
+    "Value" : c["OrderID"]
+}
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -51,7 +54,11 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT VALUE {"A" : (c["OrderID"] / (c["OrderID"] / 2)), "B" : ((c["OrderID"] / c["OrderID"]) / 2)}
+SELECT VALUE
+{
+    "A" : (c["OrderID"] / (c["OrderID"] / 2)),
+    "B" : ((c["OrderID"] / c["OrderID"]) / 2)
+}
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -65,7 +72,16 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT VALUE {"OrderID" : c["OrderID"], "Double" : (c["OrderID"] * 2), "Add" : (c["OrderID"] + 23), "Sub" : (100000 - c["OrderID"]), "Divide" : (c["OrderID"] / (c["OrderID"] / 2)), "Literal" : 42, "o" : c}
+SELECT VALUE
+{
+    "OrderID" : c["OrderID"],
+    "Double" : (c["OrderID"] * 2),
+    "Add" : (c["OrderID"] + 23),
+    "Sub" : (100000 - c["OrderID"]),
+    "Divide" : (c["OrderID"] / (c["OrderID"] / 2)),
+    "Literal" : 42,
+    "o" : c
+}
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -169,7 +185,7 @@ ORDER BY c["CustomerID"]
 
                 AssertSql(
                     """
-SELECT c["EmployeeID"], c["ReportsTo"]
+SELECT [c["EmployeeID"], c["ReportsTo"]] AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
 """);
@@ -195,7 +211,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
                 """
 @__boolean_0='false'
 
-SELECT VALUE {"c" : @__boolean_0}
+SELECT @__boolean_0 AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY @__boolean_0
@@ -267,7 +283,11 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"CustomerID" : c["CustomerID"], "ConstantTrue" : true}
+SELECT VALUE
+{
+    "CustomerID" : c["CustomerID"],
+    "ConstantTrue" : true
+}
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -281,7 +301,11 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"CustomerID" : c["CustomerID"], "Expression" : (LENGTH(c["CustomerID"]) + 5)}
+SELECT VALUE
+{
+    "CustomerID" : c["CustomerID"],
+    "Expression" : (LENGTH(c["CustomerID"]) + 5)
+}
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -295,7 +319,11 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"ProductID" : c["ProductID"], "IsAvailable" : (c["UnitsInStock"] > 0)}
+SELECT VALUE
+{
+    "ProductID" : c["ProductID"],
+    "IsAvailable" : (c["UnitsInStock"] > 0)
+}
 FROM root c
 WHERE (c["Discriminator"] = "Product")
 """);
@@ -323,7 +351,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : 0}
+SELECT 0 AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -337,7 +365,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : null}
+SELECT null AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -353,7 +381,7 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 @__x_0='10'
 
-SELECT VALUE {"c" : @__x_0}
+SELECT @__x_0 AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -550,7 +578,7 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : (c["OrderID"] + c["OrderID"])}
+SELECT (c["OrderID"] + c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
@@ -581,7 +609,7 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : -(c["OrderID"])}
+SELECT -(c["OrderID"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 ORDER BY c["OrderID"]
@@ -667,7 +695,7 @@ ORDER BY c["OrderID"]
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : ((c["CustomerID"] = null) ? true : (c["OrderID"] < 100))}
+SELECT ((c["CustomerID"] = null) ? true : (c["OrderID"] < 100)) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -908,7 +936,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : ((c["CustomerID"] = "ALFKI") ? 1 : 2)}
+SELECT ((c["CustomerID"] = "ALFKI") ? 1 : 2) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -922,7 +950,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : ((c["CustomerID"] = "ALFKI") ? 1 : 2)}
+SELECT ((c["CustomerID"] = "ALFKI") ? 1 : 2) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -936,7 +964,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : ((c["CustomerID"] = "ALFKI") ? true : false)}
+SELECT ((c["CustomerID"] = "ALFKI") ? true : false) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -964,7 +992,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT VALUE {"A" : c["CustomerID"]}
+SELECT c["CustomerID"] AS A
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
@@ -1181,7 +1209,11 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 
                 AssertSql(
                     """
-SELECT VALUE {"OrderID" : c["OrderID"], "c" : (c["OrderID"] + 1000)}
+SELECT VALUE
+{
+    "OrderID" : c["OrderID"],
+    "c" : (c["OrderID"] + 1000)
+}
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10250))
 """);
@@ -1243,7 +1275,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10250))
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : ((c["EmployeeID"] != null) ? c["EmployeeID"] : 0)}
+SELECT ((c["EmployeeID"] != null) ? c["EmployeeID"] : 0) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -1311,7 +1343,7 @@ ORDER BY c["EmployeeID"]
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : (c["City"] = "Seattle")}
+SELECT (c["City"] = "Seattle") AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
@@ -1412,7 +1444,7 @@ ORDER BY c["CustomerID"]
                     """
 @__p_0='10'
 
-SELECT VALUE {"Aggregate" : ((c["CustomerID"] || " ") || c["City"])}
+SELECT ((c["CustomerID"] || " ") || c["City"]) AS Aggregate
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 ORDER BY c["CustomerID"]
@@ -1430,7 +1462,7 @@ OFFSET 0 LIMIT @__p_0
                     """
 @__p_0='10'
 
-SELECT VALUE {"Aggregate" : ((c["CustomerID"] || " ") || c["City"])}
+SELECT ((c["CustomerID"] || " ") || c["City"]) AS Aggregate
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
@@ -1508,7 +1540,12 @@ OFFSET 0 LIMIT @__p_0
 
                 AssertSql(
                     """
-SELECT VALUE {"CustomerID" : c["CustomerID"], "OrderDate" : c["OrderDate"], "c" : (c["OrderID"] - 10000)}
+SELECT VALUE
+{
+    "CustomerID" : c["CustomerID"],
+    "OrderDate" : c["OrderDate"],
+    "c" : (c["OrderID"] - 10000)
+}
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10300))
 ORDER BY c["OrderID"]
@@ -1953,7 +1990,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT VALUE {"X" : 10}
+SELECT 10 AS X
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -1981,7 +2018,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT VALUE {"c" : ((c["CustomerID"] = "1") ? "01" : ((c["CustomerID"] = "2") ? "02" : ((c["CustomerID"] = "3") ? "03" : ((c["CustomerID"] = "4") ? "04" : ((c["CustomerID"] = "5") ? "05" : ((c["CustomerID"] = "6") ? "06" : ((c["CustomerID"] = "7") ? "07" : ((c["CustomerID"] = "8") ? "08" : ((c["CustomerID"] = "9") ? "09" : ((c["CustomerID"] = "10") ? "10" : ((c["CustomerID"] = "11") ? "11" : null)))))))))))}
+SELECT ((c["CustomerID"] = "1") ? "01" : ((c["CustomerID"] = "2") ? "02" : ((c["CustomerID"] = "3") ? "03" : ((c["CustomerID"] = "4") ? "04" : ((c["CustomerID"] = "5") ? "05" : ((c["CustomerID"] = "6") ? "06" : ((c["CustomerID"] = "7") ? "07" : ((c["CustomerID"] = "8") ? "08" : ((c["CustomerID"] = "9") ? "09" : ((c["CustomerID"] = "10") ? "10" : ((c["CustomerID"] = "11") ? "11" : null))))))))))) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);

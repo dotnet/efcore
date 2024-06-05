@@ -425,7 +425,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
+SELECT c["PersonAddress"]["ZipCode"] AS Nation
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -439,7 +439,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
+SELECT c["PersonAddress"]["ZipCode"] AS Nation
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);

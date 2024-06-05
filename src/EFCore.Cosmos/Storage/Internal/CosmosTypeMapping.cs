@@ -31,6 +31,7 @@ public class CosmosTypeMapping : CoreTypeMapping
         Type clrType,
         ValueComparer? comparer = null,
         ValueComparer? keyComparer = null,
+        CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
         : base(
             new CoreTypeMappingParameters(
@@ -38,6 +39,7 @@ public class CosmosTypeMapping : CoreTypeMapping
                 converter: null,
                 comparer,
                 keyComparer,
+                elementMapping: elementMapping,
                 jsonValueReaderWriter: jsonValueReaderWriter))
     {
     }

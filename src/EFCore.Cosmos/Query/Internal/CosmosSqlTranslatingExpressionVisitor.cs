@@ -16,8 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosSqlTranslatingExpressionVisitor(
         QueryCompilationContext queryCompilationContext,
         ISqlExpressionFactory sqlExpressionFactory,
+        ITypeMappingSource typeMappingSource,
         IMemberTranslatorProvider memberTranslatorProvider,
-        IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        IMethodCallTranslatorProvider methodCallTranslatorProvider,
+        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
     : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
@@ -234,7 +236,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 if (TryBindMember(
                         entityReferenceExpression,
                         MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()),
-                        out var discriminatorMember)
+                        out var discriminatorMember,
+                        out _)
                     && discriminatorMember is SqlExpression discriminatorColumn)
                 {
                     return match
@@ -360,6 +363,90 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                     : QueryCompilationContext.NotTranslatedExpression;
 
+            // This case is for a subquery embedded in a lambda, returning a scalar, e.g. Where(b => b.Posts.Count() > 0).
+            // For most cases, generate a scalar subquery (WHERE (SELECT COUNT(*) FROM Posts) > 0).
+            case ShapedQueryExpression { ResultCardinality: not ResultCardinality.Enumerable } shapedQuery:
+            {
+                var shaperExpression = shapedQuery.ShaperExpression;
+                ProjectionBindingExpression? mappedProjectionBindingExpression = null;
+
+                var innerExpression = shaperExpression;
+                Type? convertedType = null;
+                if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
+                {
+                    convertedType = unaryExpression.Type;
+                    innerExpression = unaryExpression.Operand;
+                }
+
+                if (innerExpression is StructuralTypeShaperExpression ese
+                    && (convertedType == null
+                        || convertedType.IsAssignableFrom(ese.Type)))
+                {
+                    // TODO: Subquery projecting out an entity/structural type
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                if (innerExpression is ProjectionBindingExpression pbe
+                    && (convertedType == null
+                        || convertedType.MakeNullable() == innerExpression.Type))
+                {
+                    mappedProjectionBindingExpression = pbe;
+                }
+
+                if (mappedProjectionBindingExpression == null
+                    && shaperExpression is BlockExpression
+                    {
+                        Expressions: [BinaryExpression { NodeType: ExpressionType.Assign, Right: ProjectionBindingExpression pbe2 }, _]
+                    })
+                {
+                    mappedProjectionBindingExpression = pbe2;
+                }
+
+                if (mappedProjectionBindingExpression == null)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var subquery = (SelectExpression)shapedQuery.QueryExpression;
+
+                var projection = mappedProjectionBindingExpression.ProjectionMember is ProjectionMember projectionMember
+                    ? subquery.GetMappedProjection(projectionMember)
+                    : throw new NotImplementedException("Subquery with index projection binding");
+                if (projection is not SqlExpression sqlExpression)
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                if (subquery.Sources.Count == 0)
+                {
+                    return sqlExpression;
+                }
+
+                // TODO
+                // subquery.ReplaceProjection(new List<Expression> { sqlExpression });
+                subquery.ApplyProjection();
+
+                SqlExpression scalarSubqueryExpression = new ScalarSubqueryExpression(subquery);
+
+                if (shapedQuery.ResultCardinality is ResultCardinality.SingleOrDefault
+                    && !shaperExpression.Type.IsNullableType())
+                {
+                    throw new NotImplementedException("Subquery with SingleOrDefault");
+                    // scalarSubqueryExpression = sqlExpressionFactory.Coalesce(
+                    //     scalarSubqueryExpression,
+                    //     (SqlExpression)Visit(shaperExpression.Type.GetDefaultValueConstant()));
+                }
+
+                return scalarSubqueryExpression;
+            }
+
+            // This case is for a subquery embedded in a lambda, returning an array, e.g. Where(b => b.Ints == new[] { 1, 2, 3 }).
+            // If the subquery represents a bare array (without any operators composed on top), simply extract and return that.
+            // Otherwise, wrap the subquery with an ARRAY() operator, converting the subquery to an array first.
+            case ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery
+                when CosmosQueryUtils.TryConvertToArray(shapedQuery, typeMappingSource, out var array):
+                return array;
+
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
         }
@@ -402,7 +489,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
     {
         var innerExpression = Visit(memberExpression.Expression);
 
-        return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var expression)
+        return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var expression, out _)
             ? expression
             : (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
@@ -433,7 +520,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
         if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
             || methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
         {
-            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result)
+            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result, out _)
                 ? result
                 : QueryCompilationContext.NotTranslatedExpression;
         }
@@ -518,6 +605,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
             case { Arguments: [var argument] } when method.IsContainsMethod():
                 return TranslateContains(argument, methodCallExpression.Object!);
 
+            // For queryable methods, either we translate the whole aggregate or we go to subquery mode
+            case { Method.IsStatic: true, Arguments.Count: > 0 } when method.DeclaringType == typeof(Queryable):
+                return TranslateAsSubquery(methodCallExpression);
+
             default:
             {
                 if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out sqlObject))
@@ -531,7 +622,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     var argument = methodCallExpression.Arguments[i];
                     if (TranslationFailed(argument, Visit(argument), out var sqlArgument))
                     {
-                        return QueryCompilationContext.NotTranslatedExpression;
+                        return TranslateAsSubquery(methodCallExpression);
                     }
 
                     arguments[i] = sqlArgument!;
@@ -541,28 +632,42 @@ public class CosmosSqlTranslatingExpressionVisitor(
             }
         }
 
-        var translation = methodCallTranslatorProvider.Translate(
+        Expression? translation = methodCallTranslatorProvider.Translate(
             _model, sqlObject, methodCallExpression.Method, arguments, queryCompilationContext.Logger);
-
-        if (translation is null)
+        if (translation is not null)
         {
-            if (methodCallExpression.Method == StringEqualsWithStringComparison
-                || methodCallExpression.Method == StringEqualsWithStringComparisonStatic)
-            {
-                AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-            }
-            else
-            {
-                AddTranslationErrorDetails(
-                    CoreStrings.QueryUnableToTranslateMethod(
-                        methodCallExpression.Method.DeclaringType?.DisplayName(),
-                        methodCallExpression.Method.Name));
-            }
-
-            return QueryCompilationContext.NotTranslatedExpression;
+            return translation;
         }
 
-        return translation;
+        translation = TranslateAsSubquery(methodCallExpression);
+        if (translation != QueryCompilationContext.NotTranslatedExpression)
+        {
+            return translation;
+        }
+
+        if (methodCallExpression.Method == StringEqualsWithStringComparison
+            || methodCallExpression.Method == StringEqualsWithStringComparisonStatic)
+        {
+            AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+        else
+        {
+            AddTranslationErrorDetails(
+                CoreStrings.QueryUnableToTranslateMethod(
+                    methodCallExpression.Method.DeclaringType?.DisplayName(),
+                    methodCallExpression.Method.Name));
+        }
+
+        return QueryCompilationContext.NotTranslatedExpression;
+
+        Expression TranslateAsSubquery(Expression expression)
+        {
+            var subqueryTranslation = queryableMethodTranslatingExpressionVisitor.TranslateSubquery(expression);
+
+            return subqueryTranslation == null
+                ? QueryCompilationContext.NotTranslatedExpression
+                : Visit(subqueryTranslation);
+        }
 
         Expression TranslateContains(Expression untranslatedItem, Expression untranslatedCollection)
         {
@@ -652,13 +757,24 @@ public class CosmosSqlTranslatingExpressionVisitor(
     /// </summary>
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
     {
-        if (TryEvaluateToConstant(newArrayExpression, out var sqlConstantExpression))
+        var expressions = newArrayExpression.Expressions;
+        var translatedItems = new SqlExpression[expressions.Count];
+
+        for (var i = 0; i < expressions.Count; i++)
         {
-            return sqlConstantExpression;
+            if (Translate(expressions[i]) is not SqlExpression translatedItem)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            translatedItems[i] = translatedItem;
         }
 
-        AddTranslationErrorDetails(CosmosStrings.CannotTranslateNonConstantNewArrayExpression(newArrayExpression.Print()));
-        return QueryCompilationContext.NotTranslatedExpression;
+        var arrayTypeMapping = typeMappingSource.FindMapping(newArrayExpression.Type);
+        var elementClrType = newArrayExpression.Type.GetElementType()!;
+        var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
+
+        return inlineArray;
     }
 
     /// <summary>
@@ -734,7 +850,8 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 && TryBindMember(
                     entityReferenceExpression,
                     MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()),
-                    out var discriminatorMember)
+                    out var discriminatorMember,
+                    out _)
                     && discriminatorMember is SqlExpression discriminatorColumn)
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
@@ -752,11 +869,23 @@ public class CosmosSqlTranslatingExpressionVisitor(
         return QueryCompilationContext.NotTranslatedExpression;
     }
 
-    private bool TryBindMember(Expression? source, MemberIdentity member, [NotNullWhen(true)] out Expression? expression)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual bool TryBindMember(
+        Expression? source,
+        MemberIdentity member,
+        [NotNullWhen(true)] out Expression? expression,
+        [NotNullWhen(true)] out IPropertyBase? property)
     {
         if (source is not EntityReferenceExpression entityReferenceExpression)
         {
             expression = null;
+            property = null;
             return false;
         }
 
@@ -764,11 +893,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
         {
             { MemberInfo: MemberInfo memberInfo }
                 => entityReferenceExpression.ParameterEntity.BindMember(
-                    memberInfo, entityReferenceExpression.Type, clientEval: false, out _),
+                    memberInfo, entityReferenceExpression.Type, clientEval: false, out property),
 
             { Name: string name }
                 => entityReferenceExpression.ParameterEntity.BindMember(
-                    name, entityReferenceExpression.Type, clientEval: false, out _),
+                    name, entityReferenceExpression.Type, clientEval: false, out property),
 
             _ => throw new UnreachableException()
         };
@@ -777,9 +906,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
         {
             case EntityProjectionExpression entityProjectionExpression:
                 expression = new EntityReferenceExpression(entityProjectionExpression);
+                Check.DebugAssert(property is not null, "Property cannot be null if binding result was non-null");
                 return true;
             case ObjectArrayProjectionExpression objectArrayProjectionExpression:
                 expression = new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection);
+                Check.DebugAssert(property is not null, "Property cannot be null if binding result was non-null");
                 return true;
             case null:
                 AddTranslationErrorDetails(
@@ -790,6 +921,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return false;
             default:
                 expression = result;
+                Check.DebugAssert(property is not null, "Property cannot be null if binding result was non-null");
                 return true;
         }
     }

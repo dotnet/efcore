@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit.Sdk;
@@ -467,7 +468,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 
     public override async Task Where_as_queryable_expression(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Where_as_queryable_expression(async));
 
         AssertSql();
@@ -912,7 +913,7 @@ OFFSET 0 LIMIT @__p_0
 
     public override async Task Where_shadow_subquery_FirstOrDefault(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Where_shadow_subquery_FirstOrDefault(async));
 
         AssertSql();
@@ -927,7 +928,7 @@ OFFSET 0 LIMIT @__p_0
 
     public override async Task Where_subquery_correlated(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Where_subquery_correlated(async));
 
         AssertSql();
@@ -2271,7 +2272,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
 
     public override async Task Where_subquery_FirstOrDefault_is_null(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Where_subquery_FirstOrDefault_is_null(async));
 
         AssertSql();
@@ -2339,7 +2340,7 @@ WHERE ((c["Discriminator"] = "Product") AND (true ? false : true))
 
     public override async Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(async));
 
         AssertSql();
@@ -2513,9 +2514,11 @@ WHERE ((c["Discriminator"] = "Product") AND (true ? false : true))
 
                 AssertSql(
                     """
+@__orderIds_0='[10248,10249]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
+WHERE ((c["Discriminator"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
 """);
             });
 
@@ -2527,9 +2530,11 @@ WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
 
                 AssertSql(
                     """
+@__orderIds_0='[10248,10249]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
+WHERE ((c["Discriminator"] = "Order") AND ARRAY_CONTAINS(@__orderIds_0, c["OrderID"]))
 """);
             });
 
@@ -2563,7 +2568,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task FirstOrDefault_over_scalar_projection_compared_to_null(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.FirstOrDefault_over_scalar_projection_compared_to_null(async));
 
         AssertSql();
@@ -2571,7 +2576,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task FirstOrDefault_over_scalar_projection_compared_to_not_null(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // Uncorrelated subquery, not supported by Cosmos
         await AssertTranslationFailed(() => base.FirstOrDefault_over_scalar_projection_compared_to_not_null(async));
 
         AssertSql();
@@ -2697,9 +2702,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
+@__customerIds_0='["ALFKI","FISSA","WHITC"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "FISSA", "WHITC") AND (c["City"] = "Seattle")))
+WHERE ((c["Discriminator"] = "Customer") AND (ARRAY_CONTAINS(@__customerIds_0, c["CustomerID"]) AND (c["City"] = "Seattle")))
 """);
             });
 
@@ -2711,9 +2718,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "FISS
 
                 AssertSql(
                     """
+@__customerIds_0='["ALFKI","FISSA"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "FISSA") OR (c["City"] = "Seattle")))
+WHERE ((c["Discriminator"] = "Customer") AND (ARRAY_CONTAINS(@__customerIds_0, c["CustomerID"]) OR (c["City"] = "Seattle")))
 """);
             });
 
@@ -2905,9 +2914,11 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10274))
 
                 AssertSql(
                     """
+@__cities_0='["Seattle"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["City"] IN ("Seattle"))
+WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__cities_0, c["City"]))
 """);
             });
 
@@ -3054,9 +3065,11 @@ WHERE ((c["Discriminator"] = "Customer") AND ((((c["Region"] = "WA") OR (c["Regi
 
                 AssertSql(
                     """
+@__array_0='["ALFKI","ANATR"]'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "ANATR") OR (c["CustomerID"] = "ANTON")))
+WHERE ((c["Discriminator"] = "Customer") AND (ARRAY_CONTAINS(@__array_0, c["CustomerID"]) OR (c["CustomerID"] = "ANTON")))
 """);
             });
 
@@ -3069,11 +3082,12 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "ANAT
                 AssertSql(
                     """
 @__prm1_0='ANTON'
+@__array_1='["ALFKI","ANATR"]'
 @__prm2_2='ALFKI'
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = @__prm1_0) OR c["CustomerID"] IN ("ALFKI", "ANATR")) OR (c["CustomerID"] = @__prm2_2)))
+WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = @__prm1_0) OR ARRAY_CONTAINS(@__array_1, c["CustomerID"])) OR (c["CustomerID"] = @__prm2_2)))
 """);
             });
 
@@ -3141,7 +3155,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["Region"] = null))
 
                 AssertSql(
                     """
-SELECT VALUE {"e" : c, "Title" : c["Title"]}
+SELECT VALUE
+{
+    "e" : c,
+    "Title" : c["Title"]
+}
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative"))
 """);
@@ -3174,7 +3192,7 @@ OFFSET 0 LIMIT @__p_0
                     """
 @__p_0='9'
 
-SELECT VALUE {"e" : c}
+SELECT c AS e
 FROM root c
 WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 5))
 OFFSET 0 LIMIT @__p_0
@@ -3379,25 +3397,25 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "1337"))
                     """
 @__id_0='10252'
 
-SELECT VALUE {"Id" : c["OrderID"]}
+SELECT c["OrderID"] AS Id
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = @__id_0))
 """,
                     //
                     """
-SELECT VALUE {"Id" : c["OrderID"]}
+SELECT c["OrderID"] AS Id
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
 """,
                     //
                     """
-SELECT VALUE {"Id" : c["OrderID"]}
+SELECT c["OrderID"] AS Id
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
 """,
                     //
                     """
-SELECT VALUE {"Id" : c["OrderID"]}
+SELECT c["OrderID"] AS Id
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
 """);

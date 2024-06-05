@@ -1911,8 +1911,12 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT(CONTAINS(c["CompanyName"], c["C
                 await base.String_Contains_negated_in_projection(a);
 
                 AssertSql(
-"""
-SELECT VALUE {"Id" : c["CustomerID"], "Value" : NOT(CONTAINS(c["CompanyName"], c["ContactName"]))}
+                    """
+SELECT VALUE
+{
+    "Id" : c["CustomerID"],
+    "Value" : NOT(CONTAINS(c["CompanyName"], c["ContactName"]))
+}
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);

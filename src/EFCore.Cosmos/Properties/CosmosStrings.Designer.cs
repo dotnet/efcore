@@ -38,14 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
-        ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
-        /// </summary>
-        public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
-            => string.Format(
-                GetString("CannotTranslateNonConstantNewArrayExpression", nameof(newArrayExpression)),
-                newArrayExpression);
-
-        /// <summary>
         ///     None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.
         /// </summary>
         public static string ConnectionInfoMissing
@@ -88,6 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("ETagNonStringStoreType", nameof(property), nameof(entityType), nameof(propertyType)),
                 property, entityType, propertyType);
+
+        /// <summary>
+        ///     The 'Except()' LINQ operator isn't supported by Cosmos.
+        /// </summary>
+        public static string ExceptNotSupported
+            => GetString("ExceptNotSupported");
 
         /// <summary>
         ///     The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.
@@ -172,6 +170,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("NoIdProperty", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     Cosmos subqueries must be correlated, referencing values from the outer query.
+        /// </summary>
+        public static string NonCorrelatedSubqueriesNotSupported
+            => GetString("NonCorrelatedSubqueriesNotSupported");
 
         /// <summary>
         ///     Including navigation '{navigation}' is not supported as the navigation is not embedded in same resource.
