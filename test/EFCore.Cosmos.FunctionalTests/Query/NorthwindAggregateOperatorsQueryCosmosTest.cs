@@ -1645,25 +1645,52 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 """);
             });
 
-    public override async Task Contains_with_local_enumerable_inline(bool async)
-    {
-        // Issue #31776
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () =>
-                await base.Contains_with_local_enumerable_inline(async));
+    public override Task Contains_with_local_enumerable_inline(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_with_local_enumerable_inline(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
+    SELECT 1
+    FROM i IN (SELECT VALUE ["ABCDE", "ALFKI"])
+    WHERE ((i != null) AND (i = c["CustomerID"]))))
+""");
+            });
 
-    public override async Task Contains_with_local_enumerable_inline_closure_mix(bool async)
-    {
-        // Issue #31776
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () =>
-                await base.Contains_with_local_enumerable_inline_closure_mix(async));
+    public override Task Contains_with_local_enumerable_inline_closure_mix(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_with_local_enumerable_inline_closure_mix(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@__p_0='["ABCDE","ALFKI"]'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
+    SELECT 1
+    FROM i IN (SELECT VALUE @__p_0)
+    WHERE ((i != null) AND (i = c["CustomerID"]))))
+""",
+                    //
+                    """
+@__p_0='["ABCDE","ANATR"]'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
+    SELECT 1
+    FROM i IN (SELECT VALUE @__p_0)
+    WHERE ((i != null) AND (i = c["CustomerID"]))))
+""");
+            });
 
     public override Task Contains_with_local_ordered_enumerable_closure(bool async)
         => Fixture.NoSyncTest(
@@ -1974,10 +2001,24 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT(false))
 
     public override async Task Contains_top_level(bool async)
     {
-        // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Contains_top_level(async));
+        // Always throws for sync.
+        if (async)
+        {
+            // Top-level Any(), see #33854.
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Contains_top_level(async));
 
-        AssertSql();
+            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+
+            AssertSql(
+                """
+@__p_0='ALFKI'
+
+SELECT EXISTS (
+    SELECT 1
+    FROM root c
+    WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))) AS c
+""");
+        }
     }
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)
@@ -2204,10 +2245,25 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
 
     public override async Task Contains_over_entityType_with_null_should_rewrite_to_false(bool async)
     {
-        // Contains over subquery. Issue #17246.
-        await AssertTranslationFailed(() => base.Contains_over_entityType_with_null_should_rewrite_to_false(async));
+        // Always throws for sync.
+        if (async)
+        {
+            // Top-level Any(), see #33854.
+            var exception =
+                await Assert.ThrowsAsync<CosmosException>(() => base.Contains_over_entityType_with_null_should_rewrite_to_false(async));
 
-        AssertSql();
+            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+
+            AssertSql(
+                """
+@__entity_equality_p_0_OrderID=null
+
+SELECT EXISTS (
+    SELECT 1
+    FROM root c
+    WHERE (((c["Discriminator"] = "Order") AND (c["CustomerID"] = "VINET")) AND (c["OrderID"] = @__entity_equality_p_0_OrderID))) AS c
+""");
+        }
     }
 
     public override async Task Contains_over_entityType_with_null_in_projection(bool async)

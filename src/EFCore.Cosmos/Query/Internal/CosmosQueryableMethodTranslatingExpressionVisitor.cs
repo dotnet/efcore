@@ -431,8 +431,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return source.UpdateQueryExpression(new SelectExpression(simplifiedTranslation));
         }
 
-        // TODO: Translation to IN, with scalars and with subquery
-        return null;
+        // Translate to EXISTS
+        var anyLambdaParameter = Expression.Parameter(item.Type, "p");
+        var anyLambda = Expression.Lambda(
+            Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
+            anyLambdaParameter);
+
+        return TranslateAny(source, anyLambda);
     }
 
     /// <summary>

@@ -986,6 +986,22 @@ WHERE 11 IN (
 """);
     }
 
+    public override async Task Column_collection_Contains_over_subquery(bool async)
+    {
+        await base.Column_collection_Contains_over_subquery(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE 11 IN (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" > 1
+)
+""");
+    }
+
     public override async Task Column_collection_OrderByDescending_ElementAt(bool async)
     {
         await base.Column_collection_OrderByDescending_ElementAt(async);

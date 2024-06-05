@@ -688,6 +688,9 @@ WHERE (
     public override Task Column_collection_Skip_Take(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
 
+    public override Task Column_collection_Contains_over_subquery(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
+
     public override Task Column_collection_OrderByDescending_ElementAt(bool async)
         => AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt(async));
 
