@@ -147,7 +147,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int>() { 999, i, c.Id, c.Id + c.Int }.Contains(c.Int)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new List<int> { 999, i, c.Id, c.Id + c.Int }.Contains(c.Int)));
     }
 
     [ConditionalTheory]

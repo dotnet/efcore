@@ -1806,9 +1806,8 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
-"""
-                );
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN (null, null))
+""");
             });
 
     public override Task Contains_with_local_read_only_collection_inline(bool async)
@@ -1969,7 +1968,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND NOT((true = false)))
+WHERE ((c["Discriminator"] = "Customer") AND NOT(false))
 """);
             });
 

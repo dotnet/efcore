@@ -55,7 +55,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] 
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["NullableInt"] IN (999) OR (c["NullableInt"] = null)))
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] IN (null, 999))
 """);
             });
 
@@ -137,7 +137,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (true = false))
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND false)
 """);
             });
 
@@ -230,13 +230,37 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, @_
 """);
             });
 
-    // TODO: Remove incorrect null semantics compensation for Cosmos: #31063
     public override Task Inline_collection_Contains_with_mixed_value_types(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_Contains_with_mixed_value_types(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Contains_with_mixed_value_types(a);
 
-    // TODO: Remove incorrect null semantics compensation for Cosmos: #31063
+                AssertSql(
+                    """
+@__i_0='11'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"])))
+""");
+            });
+
     public override Task Inline_collection_List_Contains_with_mixed_value_types(bool async)
-        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Inline_collection_List_Contains_with_mixed_value_types(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_List_Contains_with_mixed_value_types(a);
+
+                AssertSql(
+                    """
+@__i_0='11'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"])))
+""");
+            });
 
     public override Task Inline_collection_Contains_as_Any_with_predicate(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
