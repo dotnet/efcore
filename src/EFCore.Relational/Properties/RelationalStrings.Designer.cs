@@ -1198,6 +1198,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entity);
 
         /// <summary>
+        ///     Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.
+        /// </summary>
+        public static string JsonValueReadWriterMissingOnTypeMapping(object? typeMapping, object? property, object? entityType)
+            => string.Format(
+                GetString("JsonValueReadWriterMissingOnTypeMapping", nameof(typeMapping), nameof(property), nameof(entityType)),
+                typeMapping, property, entityType);
+
+        /// <summary>
         ///     The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string KeylessMappingStrategy(object? mappingStrategy, object? entityType)
