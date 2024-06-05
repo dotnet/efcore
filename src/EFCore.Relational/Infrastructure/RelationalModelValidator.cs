@@ -2800,14 +2800,6 @@ public class RelationalModelValidator : ModelValidator
                     RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(
                         jsonEntityType.DisplayName(), jsonPropertyName));
             }
-
-            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
-            if (jsonValueReaderWriter is null)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.JsonValueReadWriterMissingOnTypeMapping(
-                        property.GetTypeMapping().GetType().Name, property.Name, jsonEntityType.DisplayName()));
-            }
         }
 
         foreach (var navigation in jsonEntityType.GetDeclaredNavigations())
