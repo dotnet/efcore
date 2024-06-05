@@ -42,11 +42,11 @@ public interface IRuntimeModel : IModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IReadOnlyDictionary<MemberInfo, QualifiedName>? GetUnsafeAccessors()
+    IReadOnlyDictionary<MemberInfo, QualifiedName> GetUnsafeAccessors()
     {
         return GetOrAddRuntimeAnnotationValue(CoreAnnotationNames.UnsafeAccessors, m => GetAccessors(m!), this);
 
-        static IReadOnlyDictionary<MemberInfo, QualifiedName>? GetAccessors(IRuntimeModel model)
+        static IReadOnlyDictionary<MemberInfo, QualifiedName> GetAccessors(IRuntimeModel model)
         {
             var accessors = new Dictionary<MemberInfo, QualifiedName>();
             foreach (var entityType in model.GetEntityTypes())
@@ -69,7 +69,7 @@ public interface IRuntimeModel : IModel
                 }
             }
 
-            return accessors.Count > 0 ? accessors : null;
+            return accessors;
         }
 
         static void AddPropertyAccessors(ITypeBase structuralType, Dictionary<MemberInfo, QualifiedName> accessors)

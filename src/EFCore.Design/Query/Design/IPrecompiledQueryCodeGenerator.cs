@@ -36,7 +36,7 @@ public interface IPrecompiledQueryCodeGenerator : ILanguageBasedService
         Compilation compilation,
         SyntaxGenerator syntaxGenerator,
         DbContext dbContext,
-        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
+        IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         List<QueryPrecompilationError> precompilationErrors,
         ISet<string> generatedFileNames,
         Assembly? assembly = null,

@@ -18,6 +18,11 @@ internal partial class DbContextOptimizeCommand
         {
             throw new CommandException(Resources.MissingConditionalOption(_precompileQueries.LongName, _noScaffold.LongName));
         }
+
+        if (_precompileQueries!.HasValue())
+        {
+            Reporter.WriteWarning(Resources.PrecompileQueriesWarning);
+        }
     }
 
     protected override int Execute(string[] args)

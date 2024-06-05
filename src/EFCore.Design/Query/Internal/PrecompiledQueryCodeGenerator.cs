@@ -31,9 +31,9 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 
     private Symbols _symbols;
 
-    private readonly HashSet<string> _namespaces = new();
-    private IReadOnlyDictionary<MemberInfo, QualifiedName>? _memberAccessReplacements;
-    private readonly HashSet<MethodDeclarationSyntax> _unsafeAccessors = new();
+    private readonly HashSet<string> _namespaces = [];
+    private IReadOnlyDictionary<MemberInfo, QualifiedName> _memberAccessReplacements = new Dictionary<MemberInfo, QualifiedName>();
+    private readonly HashSet<MethodDeclarationSyntax> _unsafeAccessors = [];
     private readonly IndentedStringBuilder _code = new();
 
     private const string InterceptorsNamespace = "Microsoft.EntityFrameworkCore.GeneratedInterceptors";
@@ -63,7 +63,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         Compilation compilation,
         SyntaxGenerator syntaxGenerator,
         DbContext dbContext,
-        IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
+        IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         List<QueryPrecompilationError> precompilationErrors,
         ISet<string> generatedFileNames,
         Assembly? additionalAssembly = null,

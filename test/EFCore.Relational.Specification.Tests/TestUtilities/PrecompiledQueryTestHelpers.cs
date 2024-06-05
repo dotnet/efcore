@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -114,7 +115,7 @@ using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestB
                 // Perform precompilation
                 var precompilationErrors = new List<PrecompiledQueryCodeGenerator.QueryPrecompilationError>();
                 generatedFiles = precompiledQueryCodeGenerator.GeneratePrecompiledQueries(
-                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: null, precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
+                    compilation, syntaxGenerator, dbContext, memberAccessReplacements: new Dictionary<MemberInfo, QualifiedName>(), precompilationErrors, new HashSet<string>(), additionalAssembly: assembly);
 
                 if (errorAsserter is null)
                 {

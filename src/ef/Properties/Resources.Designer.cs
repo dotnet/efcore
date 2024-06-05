@@ -490,6 +490,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("PrecompileQueriesDescription");
 
         /// <summary>
+        ///     Query precompilation is an experimental feature and should be used with caution.
+        /// </summary>
+        public static string PrecompileQueriesWarning
+            => GetString("PrecompileQueriesWarning");
+
+        /// <summary>
         ///     Prefix output with level.
         /// </summary>
         public static string PrefixDescription

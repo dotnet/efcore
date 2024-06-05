@@ -339,6 +339,9 @@
   <data name="PrecompileQueriesDescription" xml:space="preserve">
     <value>Generate precompiled queries.</value>
   </data>
+  <data name="PrecompileQueriesWarning" xml:space="preserve">
+    <value>Query precompilation is an experimental feature and should be used with caution.</value>
+  </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
   </data>

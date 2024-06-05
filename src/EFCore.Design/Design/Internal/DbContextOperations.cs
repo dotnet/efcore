@@ -265,7 +265,7 @@ public class DbContextOperations
         return scaffoldedFiles;
     }
 
-    private IReadOnlyList<string> PrecompileQueries(string? outputDir, DbContext context, string? suffix, IServiceProvider services, IReadOnlyDictionary<MemberInfo, QualifiedName>? memberAccessReplacements, ISet<string> generatedFileNames)
+    private IReadOnlyList<string> PrecompileQueries(string? outputDir, DbContext context, string? suffix, IServiceProvider services, IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements, ISet<string> generatedFileNames)
     {
         outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? "Generated"));
 
@@ -332,8 +332,8 @@ public class DbContextOperations
             var document = project.AddDocument("_EfGeneratedInterceptors.cs", generatedFile.Code);
 
             // Run the simplifier to e.g. get rid of unneeded parentheses
-            var syntaxRootFoo = (await document.GetSyntaxRootAsync().ConfigureAwait(false))!;
-            var annotatedDocument = document.WithSyntaxRoot(syntaxRootFoo.WithAdditionalAnnotations(Simplifier.Annotation));
+            var syntaxRoot = (await document.GetSyntaxRootAsync().ConfigureAwait(false))!;
+            var annotatedDocument = document.WithSyntaxRoot(syntaxRoot.WithAdditionalAnnotations(Simplifier.Annotation));
             document = await Simplifier.ReduceAsync(annotatedDocument, optionSet: null).ConfigureAwait(false);
             document = await Formatter.FormatAsync(document, options: null).ConfigureAwait(false);
 

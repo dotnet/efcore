@@ -7,7 +7,7 @@
     <EFScaffoldModelStage Condition="'$(EFScaffoldModelStage)'==''">publish</EFScaffoldModelStage>
     <EFPrecompileQueriesStage Condition="'$(EFPrecompileQueriesStage)'==''">publish</EFPrecompileQueriesStage>
     <EFStartupProject Condition="'$(EFStartupProject)'==''">$(MSBuildProjectFullPath)</EFStartupProject>
-    <DbContextName Condition="'$(DbContextName)'==''">*</DbContextName>
+    <DbContextType Condition="'$(DbContextType)'==''">*</DbContextType>
   </PropertyGroup>
 
   <UsingTask TaskName="$(MSBuildThisFileName).OptimizeDbContext" AssemblyFile="$(_EFCustomTasksAssembly)"/>

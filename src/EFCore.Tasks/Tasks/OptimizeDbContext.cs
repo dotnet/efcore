@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Tasks;
 public class OptimizeDbContext : OperationTaskBase
 {
     /// <summary>
-    ///     The name of the target DbContext.
+    ///     The type of the target DbContext.
     /// </summary>
-    public string? DbContextName { get; set; }
+    public string? DbContextType { get; set; }
 
     /// <summary>
     ///     The namespace to use for the generated classes.
@@ -65,11 +65,11 @@ public class OptimizeDbContext : OperationTaskBase
                 AdditionalArguments.Add(targetNamespace);
             }
 
-            var dbContextName = MsBuildUtilities.TrimAndGetNullForEmpty(DbContextName);
-            if (dbContextName != null)
+            var dbContextType = MsBuildUtilities.TrimAndGetNullForEmpty(DbContextType);
+            if (dbContextType != null)
             {
                 AdditionalArguments.Add("--context");
-                AdditionalArguments.Add(dbContextName);
+                AdditionalArguments.Add(dbContextType);
             }
 
             if (NoScaffold)
