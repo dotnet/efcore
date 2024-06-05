@@ -71,9 +71,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
             name.TypeMapping = SqlServerStringTypeMapping.Default;
             name.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var key = runtimeEntityType.AddKey(
-                new[] { id });
-            // TODO: Also set DependentKeyValueFactory on the referencing FKs
+            var key = runtimeEntityType.AddKey(new[] { id });
             key.SetPrincipalKeyValueFactory(new SimplePrincipalKeyValueFactory<int>(key));
             key.SetIdentityMapFactory(sensitiveLoggingEnabled =>
                 new IdentityMap<int>(key, ((IRuntimeKey)key).GetPrincipalKeyValueFactory<int>(), sensitiveLoggingEnabled));

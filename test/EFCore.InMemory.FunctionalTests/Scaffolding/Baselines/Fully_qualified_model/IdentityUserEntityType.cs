@@ -172,6 +172,12 @@ namespace Scaffolding
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(discriminator, 3),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(discriminator),
+                (ValueBuffer valueBuffer) => valueBuffer[3]);
             discriminator.SetPropertyIndexes(
                 index: 3,
                 originalValueIndex: 3,
@@ -750,7 +756,7 @@ namespace Scaffolding
             var twoFactorEnabled = runtimeEntityType.FindProperty("TwoFactorEnabled")!;
             var userName = runtimeEntityType.FindProperty("UserName")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<string>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
@@ -787,48 +793,48 @@ namespace Scaffolding
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Id(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<AccessFailedCount>k__BackingField")]
-        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(IdentityUser @this);
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_AccessFailedCount(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ConcurrencyStamp>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_ConcurrencyStamp(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Email>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_Email(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EmailConfirmed>k__BackingField")]
-        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(IdentityUser @this);
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_EmailConfirmed(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<LockoutEnabled>k__BackingField")]
-        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(IdentityUser @this);
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnabled(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<LockoutEnd>k__BackingField")]
-        public static extern ref DateTimeOffset? UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(IdentityUser @this);
+        public static extern ref DateTimeOffset? UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_LockoutEnd(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NormalizedEmail>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedEmail(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NormalizedUserName>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_NormalizedUserName(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PasswordHash>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PasswordHash(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhoneNumber>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumber(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhoneNumberConfirmed>k__BackingField")]
-        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(IdentityUser @this);
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_PhoneNumberConfirmed(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<SecurityStamp>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_SecurityStamp(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TwoFactorEnabled>k__BackingField")]
-        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(IdentityUser @this);
+        public static extern ref bool UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_TwoFactorEnabled(IdentityUser<string> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UserName>k__BackingField")]
-        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(IdentityUser @this);
+        public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_TestModels_AspNetIdentity_IdentityUser1_UserName(IdentityUser<string> @this);
     }
 }

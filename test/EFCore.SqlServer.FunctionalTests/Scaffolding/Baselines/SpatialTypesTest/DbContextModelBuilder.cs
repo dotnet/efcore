@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using NetTopologySuite.Geometries;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -57,25 +59,28 @@ namespace TestNamespace
             var spatialTypesTable = new Table("SpatialTypes", null, relationalModel);
             var idColumn = new Column("Id", "int", spatialTypesTable);
             spatialTypesTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn);
             var pointColumn = new Column("Point", "geometry", spatialTypesTable)
             {
                 IsNullable = true
             };
             spatialTypesTable.Columns.Add("Point", pointColumn);
-            var pK_SpatialTypes = new UniqueConstraint("PK_SpatialTypes", spatialTypesTable, new[] { idColumn });
-            spatialTypesTable.PrimaryKey = pK_SpatialTypes;
-            var pK_SpatialTypesKey = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+SpatialTypes",
-                new[] { "Id" });
-            pK_SpatialTypes.MappedKeys.Add(pK_SpatialTypesKey);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_SpatialTypesKey).Add(pK_SpatialTypes);
-            spatialTypesTable.UniqueConstraints.Add("PK_SpatialTypes", pK_SpatialTypes);
+            pointColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<Point>(pointColumn);
             relationalModel.Tables.Add(("SpatialTypes", null), spatialTypesTable);
             var spatialTypesTableMapping = new TableMapping(spatialTypes, spatialTypesTable, null);
             spatialTypesTable.AddTypeMapping(spatialTypesTableMapping, false);
             tableMappings.Add(spatialTypesTableMapping);
             RelationalModel.CreateColumnMapping(idColumn, spatialTypes.FindProperty("Id")!, spatialTypesTableMapping);
             RelationalModel.CreateColumnMapping(pointColumn, spatialTypes.FindProperty("Point")!, spatialTypesTableMapping);
+            var pK_SpatialTypes = new UniqueConstraint("PK_SpatialTypes", spatialTypesTable, new[] { idColumn });
+            spatialTypesTable.PrimaryKey = pK_SpatialTypes;
+            pK_SpatialTypes.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_SpatialTypes));
+            var pK_SpatialTypesKey = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+SpatialTypes",
+                new[] { "Id" });
+            pK_SpatialTypes.MappedKeys.Add(pK_SpatialTypesKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_SpatialTypesKey).Add(pK_SpatialTypes);
+            spatialTypesTable.UniqueConstraints.Add("PK_SpatialTypes", pK_SpatialTypes);
             return relationalModel.MakeReadOnly();
         }
     }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -57,13 +58,22 @@ namespace TestNamespace
             var dataTable = new Table("Data", null, relationalModel);
             var idColumn = new Column("Id", "int", dataTable);
             dataTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn);
             var blobColumn = new Column("Blob", "varbinary(max)", dataTable)
             {
                 IsNullable = true
             };
             dataTable.Columns.Add("Blob", blobColumn);
+            blobColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<byte[]>(blobColumn);
+            relationalModel.Tables.Add(("Data", null), dataTable);
+            var dataTableMapping = new TableMapping(data, dataTable, null);
+            dataTable.AddTypeMapping(dataTableMapping, false);
+            tableMappings.Add(dataTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn, data.FindProperty("Id")!, dataTableMapping);
+            RelationalModel.CreateColumnMapping(blobColumn, data.FindProperty("Blob")!, dataTableMapping);
             var pK_Data = new UniqueConstraint("PK_Data", dataTable, new[] { idColumn });
             dataTable.PrimaryKey = pK_Data;
+            pK_Data.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_Data));
             var pK_DataKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
                 new[] { "Id" });
@@ -72,12 +82,6 @@ namespace TestNamespace
             dataTable.UniqueConstraints.Add("PK_Data", pK_Data);
             dataTable.Triggers.Add("Trigger1", data.FindDeclaredTrigger("Trigger1"));
             dataTable.Triggers.Add("Trigger2", data.FindDeclaredTrigger("Trigger2"));
-            relationalModel.Tables.Add(("Data", null), dataTable);
-            var dataTableMapping = new TableMapping(data, dataTable, null);
-            dataTable.AddTypeMapping(dataTableMapping, false);
-            tableMappings.Add(dataTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn, data.FindProperty("Id")!, dataTableMapping);
-            RelationalModel.CreateColumnMapping(blobColumn, data.FindProperty("Blob")!, dataTableMapping);
             return relationalModel.MakeReadOnly();
         }
     }

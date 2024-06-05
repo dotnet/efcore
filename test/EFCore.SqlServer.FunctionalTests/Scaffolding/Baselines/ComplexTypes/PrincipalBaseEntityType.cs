@@ -94,6 +94,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 maxLength: 55,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(discriminator, 1),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(discriminator),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             discriminator.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -330,6 +336,12 @@ namespace TestNamespace
                 "PrincipalBaseId",
                 typeof(long?),
                 nullable: true);
+            principalBaseId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(6) ? entry.ReadStoreGeneratedValue<Nullable<long>>(1) : entry.FlaggedAsTemporary(6) && !entry.ReadShadowValue<Nullable<long>>(1).HasValue ? entry.ReadTemporaryValue<Nullable<long>>(1) : entry.ReadShadowValue<Nullable<long>>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Nullable<long>>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(principalBaseId, 6),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Nullable<long>>(principalBaseId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[6]);
             principalBaseId.SetPropertyIndexes(
                 index: 6,
                 originalValueIndex: 6,
@@ -2892,17 +2904,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Deriveds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             deriveds.SetGetter(
-                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) == null,
-                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(instance),
-                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(instance) == null);
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(instance) == null);
             deriveds.SetSetter(
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = value);
             deriveds.SetMaterializationSetter(
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = value);
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = value);
             deriveds.SetAccessors(
-                (InternalEntityEntry entry) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
-                (InternalEntityEntry entry) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds),
                 null);
@@ -2913,11 +2925,12 @@ namespace TestNamespace
                 relationshipIndex: 2,
                 storeGenerationIndex: -1);
             deriveds.SetCollectionAccessor<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
-                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity),
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
-                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
+                (CompiledModelTestBase.PrincipalBase entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(entity) = (ICollection<CompiledModelTestBase.PrincipalBase>)collection,
                 (CompiledModelTestBase.PrincipalBase entity, Action<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
                 () => (ICollection<CompiledModelTestBase.PrincipalBase>)(ICollection<CompiledModelTestBase.PrincipalBase>)new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance));
+            deriveds.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("PrincipalBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds", "TestNamespace") });
             return runtimeForeignKey;
         }
 
@@ -2967,7 +2980,7 @@ namespace TestNamespace
             var valueTypeIList1 = principalBase.FindProperty("ValueTypeIList")!;
             var valueTypeList1 = principalBase.FindProperty("ValueTypeList")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<long?>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<long?, long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long?>(key));
             var deriveds = runtimeEntityType.FindNavigation("Deriveds")!;
             runtimeEntityType.SetOriginalValuesFactory(

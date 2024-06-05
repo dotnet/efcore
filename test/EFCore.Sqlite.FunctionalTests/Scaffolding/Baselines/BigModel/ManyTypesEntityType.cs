@@ -15805,7 +15805,7 @@ namespace TestNamespace
             var uriArray = runtimeEntityType.FindProperty("UriArray")!;
             var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<CompiledModelTestBase.ManyTypesId>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<CompiledModelTestBase.ManyTypesId>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<CompiledModelTestBase.ManyTypesId>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

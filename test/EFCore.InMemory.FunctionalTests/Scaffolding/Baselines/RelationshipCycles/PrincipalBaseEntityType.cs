@@ -91,6 +91,12 @@ namespace TestNamespace
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(discriminator, 1),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(discriminator),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             discriminator.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -252,6 +258,12 @@ namespace TestNamespace
                 typeof(long),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
+            principalId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(5) ? entry.ReadStoreGeneratedValue<long>(1) : entry.FlaggedAsTemporary(5) && entry.ReadShadowValue<long>(1) == 0L ? entry.ReadTemporaryValue<long>(1) : entry.ReadShadowValue<long>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<long>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(principalId, 5),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long>(principalId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[5]);
             principalId.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,
@@ -830,10 +842,10 @@ namespace TestNamespace
             var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
             var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<long?>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<long?, long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long?>(key));
             var key0 = runtimeEntityType.FindKey(new[] { principalId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<long>(key0));
+            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<long>(key0));
             key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long>(key0));
             var deriveds = runtimeEntityType.FindNavigation("Deriveds")!;
             runtimeEntityType.SetOriginalValuesFactory(

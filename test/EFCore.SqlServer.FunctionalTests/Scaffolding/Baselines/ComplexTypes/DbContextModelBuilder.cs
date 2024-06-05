@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -247,185 +248,208 @@ namespace TestNamespace
             var principalBaseTable = new Table("PrincipalBase", null, relationalModel);
             var idColumn = new Column("Id", "bigint", principalBaseTable);
             principalBaseTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(idColumn);
             var deetsColumn = new Column("Deets", "varchar(64)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Deets", deetsColumn);
+            deetsColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(deetsColumn);
             var discriminatorColumn = new Column("Discriminator", "nvarchar(55)", principalBaseTable);
             principalBaseTable.Columns.Add("Discriminator", discriminatorColumn);
+            discriminatorColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(discriminatorColumn);
             var enum1Column = new Column("Enum1", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Enum1", enum1Column);
+            enum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enum1Column);
             var enum2Column = new Column("Enum2", "int", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Enum2", enum2Column);
+            enum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enum2Column);
             var flagsEnum1Column = new Column("FlagsEnum1", "int", principalBaseTable);
             principalBaseTable.Columns.Add("FlagsEnum1", flagsEnum1Column);
+            flagsEnum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum1Column);
             var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
             principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
+            flagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum2Column);
             var owned_NumberColumn = new Column("Owned_Number", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Number", owned_NumberColumn);
+            owned_NumberColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_NumberColumn);
             var owned_Principal_AlternateIdColumn = new Column("Owned_Principal_AlternateId", "uniqueidentifier", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Principal_AlternateId", owned_Principal_AlternateIdColumn);
+            owned_Principal_AlternateIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<Guid>(owned_Principal_AlternateIdColumn);
             var owned_Principal_Enum1Column = new Column("Owned_Principal_Enum1", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Principal_Enum1", owned_Principal_Enum1Column);
+            owned_Principal_Enum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_Enum1Column);
             var owned_Principal_Enum2Column = new Column("Owned_Principal_Enum2", "int", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_Enum2", owned_Principal_Enum2Column);
+            owned_Principal_Enum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_Enum2Column);
             var owned_Principal_FlagsEnum1Column = new Column("Owned_Principal_FlagsEnum1", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Principal_FlagsEnum1", owned_Principal_FlagsEnum1Column);
+            owned_Principal_FlagsEnum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_FlagsEnum1Column);
             var owned_Principal_FlagsEnum2Column = new Column("Owned_Principal_FlagsEnum2", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Principal_FlagsEnum2", owned_Principal_FlagsEnum2Column);
+            owned_Principal_FlagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(owned_Principal_FlagsEnum2Column);
             var owned_Principal_IdColumn = new Column("Owned_Principal_Id", "bigint", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_Id", owned_Principal_IdColumn);
+            owned_Principal_IdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(owned_Principal_IdColumn);
             var owned_Principal_RefTypeArrayColumn = new Column("Owned_Principal_RefTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_RefTypeArray", owned_Principal_RefTypeArrayColumn);
+            owned_Principal_RefTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_RefTypeArrayColumn);
             var owned_Principal_RefTypeEnumerableColumn = new Column("Owned_Principal_RefTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_RefTypeEnumerable", owned_Principal_RefTypeEnumerableColumn);
+            owned_Principal_RefTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_RefTypeEnumerableColumn);
             var owned_Principal_RefTypeIListColumn = new Column("Owned_Principal_RefTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_RefTypeIList", owned_Principal_RefTypeIListColumn);
+            owned_Principal_RefTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_RefTypeIListColumn);
             var owned_Principal_RefTypeListColumn = new Column("Owned_Principal_RefTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_RefTypeList", owned_Principal_RefTypeListColumn);
+            owned_Principal_RefTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_RefTypeListColumn);
             var owned_Principal_ValueTypeArrayColumn = new Column("Owned_Principal_ValueTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_ValueTypeArray", owned_Principal_ValueTypeArrayColumn);
+            owned_Principal_ValueTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_ValueTypeArrayColumn);
             var owned_Principal_ValueTypeEnumerableColumn = new Column("Owned_Principal_ValueTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_ValueTypeEnumerable", owned_Principal_ValueTypeEnumerableColumn);
+            owned_Principal_ValueTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_ValueTypeEnumerableColumn);
             var owned_Principal_ValueTypeIListColumn = new Column("Owned_Principal_ValueTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_ValueTypeIList", owned_Principal_ValueTypeIListColumn);
+            owned_Principal_ValueTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_ValueTypeIListColumn);
             var owned_Principal_ValueTypeListColumn = new Column("Owned_Principal_ValueTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_Principal_ValueTypeList", owned_Principal_ValueTypeListColumn);
+            owned_Principal_ValueTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_Principal_ValueTypeListColumn);
             var owned_RefTypeArrayColumn = new Column("Owned_RefTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_RefTypeArray", owned_RefTypeArrayColumn);
+            owned_RefTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_RefTypeArrayColumn);
             var owned_RefTypeEnumerableColumn = new Column("Owned_RefTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_RefTypeEnumerable", owned_RefTypeEnumerableColumn);
+            owned_RefTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_RefTypeEnumerableColumn);
             var owned_RefTypeIListColumn = new Column("Owned_RefTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_RefTypeIList", owned_RefTypeIListColumn);
+            owned_RefTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_RefTypeIListColumn);
             var owned_RefTypeListColumn = new Column("Owned_RefTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_RefTypeList", owned_RefTypeListColumn);
+            owned_RefTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_RefTypeListColumn);
             var owned_ValueTypeArrayColumn = new Column("Owned_ValueTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_ValueTypeArray", owned_ValueTypeArrayColumn);
+            owned_ValueTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_ValueTypeArrayColumn);
             var owned_ValueTypeEnumerableColumn = new Column("Owned_ValueTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_ValueTypeEnumerable", owned_ValueTypeEnumerableColumn);
+            owned_ValueTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_ValueTypeEnumerableColumn);
             var owned_ValueTypeIListColumn = new Column("Owned_ValueTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_ValueTypeIList", owned_ValueTypeIListColumn);
+            owned_ValueTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_ValueTypeIListColumn);
             var owned_ValueTypeListColumn = new Column("Owned_ValueTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Owned_ValueTypeList", owned_ValueTypeListColumn);
+            owned_ValueTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(owned_ValueTypeListColumn);
             var principalBaseIdColumn = new Column("PrincipalBaseId", "bigint", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("PrincipalBaseId", principalBaseIdColumn);
+            principalBaseIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(principalBaseIdColumn);
             var refTypeArrayColumn = new Column("RefTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeArray", refTypeArrayColumn);
+            refTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeArrayColumn);
             var refTypeEnumerableColumn = new Column("RefTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeEnumerable", refTypeEnumerableColumn);
+            refTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeEnumerableColumn);
             var refTypeIListColumn = new Column("RefTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeIList", refTypeIListColumn);
+            refTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeIListColumn);
             var refTypeListColumn = new Column("RefTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeList", refTypeListColumn);
+            refTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeListColumn);
             var valueTypeArrayColumn = new Column("ValueTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeArray", valueTypeArrayColumn);
+            valueTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeArrayColumn);
             var valueTypeEnumerableColumn = new Column("ValueTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeEnumerable", valueTypeEnumerableColumn);
+            valueTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeEnumerableColumn);
             var valueTypeIListColumn = new Column("ValueTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeIList", valueTypeIListColumn);
+            valueTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeIListColumn);
             var valueTypeListColumn = new Column("ValueTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeList", valueTypeListColumn);
-            var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn });
-            principalBaseTable.PrimaryKey = pK_PrincipalBase;
-            var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "Id" });
-            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
-            principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
-            var iX_PrincipalBase_PrincipalBaseId = new TableIndex(
-            "IX_PrincipalBase_PrincipalBaseId", principalBaseTable, new[] { principalBaseIdColumn }, false);
-            var iX_PrincipalBase_PrincipalBaseIdIx = RelationalModel.GetIndex(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "PrincipalBaseId" });
-            iX_PrincipalBase_PrincipalBaseId.MappedIndexes.Add(iX_PrincipalBase_PrincipalBaseIdIx);
-            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalBaseIdIx).Add(iX_PrincipalBase_PrincipalBaseId);
-            principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalBaseId", iX_PrincipalBase_PrincipalBaseId);
+            valueTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeListColumn);
             relationalModel.Tables.Add(("PrincipalBase", null), principalBaseTable);
             var principalBaseTableMapping = new TableMapping(principalBase, principalBaseTable, true)
             {
@@ -1010,6 +1034,24 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(valueTypeEnumerableColumn, principalDerived.FindProperty("ValueTypeEnumerable")!, principalBaseTableMapping2);
             RelationalModel.CreateColumnMapping(valueTypeIListColumn, principalDerived.FindProperty("ValueTypeIList")!, principalBaseTableMapping2);
             RelationalModel.CreateColumnMapping(valueTypeListColumn, principalDerived.FindProperty("ValueTypeList")!, principalBaseTableMapping2);
+            var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn });
+            principalBaseTable.PrimaryKey = pK_PrincipalBase;
+            pK_PrincipalBase.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalBase));
+            var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+                new[] { "Id" });
+            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
+            principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
+            var iX_PrincipalBase_PrincipalBaseId = new TableIndex(
+            "IX_PrincipalBase_PrincipalBaseId", principalBaseTable, new[] { principalBaseIdColumn }, false);
+            iX_PrincipalBase_PrincipalBaseId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalBase_PrincipalBaseId));
+            var iX_PrincipalBase_PrincipalBaseIdIx = RelationalModel.GetIndex(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+                new[] { "PrincipalBaseId" });
+            iX_PrincipalBase_PrincipalBaseId.MappedIndexes.Add(iX_PrincipalBase_PrincipalBaseIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalBaseIdIx).Add(iX_PrincipalBase_PrincipalBaseId);
+            principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalBaseId", iX_PrincipalBase_PrincipalBaseId);
 
             var sqlQueryMappings0 = new List<SqlQueryMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:SqlQueryMappings", sqlQueryMappings0);
@@ -1087,6 +1129,7 @@ namespace TestNamespace
                 "FK_PrincipalBase_PrincipalBase_PrincipalBaseId", principalBaseTable, principalBaseTable,
                 new[] { principalBaseIdColumn },
                 principalBaseTable.FindUniqueConstraint("PK_PrincipalBase")!, ReferentialAction.NoAction);
+            fK_PrincipalBase_PrincipalBase_PrincipalBaseId.SetRowForeignKeyValueFactory(RowForeignKeyValueFactoryFactory.CreateSimpleNonNullableFactory<long, long>(fK_PrincipalBase_PrincipalBase_PrincipalBaseId));
             var fK_PrincipalBase_PrincipalBase_PrincipalBaseIdFk = RelationalModel.GetForeignKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "PrincipalBaseId" },

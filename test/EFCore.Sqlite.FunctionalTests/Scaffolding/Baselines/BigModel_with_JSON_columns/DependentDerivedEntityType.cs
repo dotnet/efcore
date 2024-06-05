@@ -69,6 +69,12 @@ namespace TestNamespace
                 precision: 9,
                 scale: 3,
                 sentinel: 0m);
+            money.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<decimal>(3),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<decimal>(3),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<decimal>(money, 5),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<decimal>(money),
+                (ValueBuffer valueBuffer) => valueBuffer[5]);
             money.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,

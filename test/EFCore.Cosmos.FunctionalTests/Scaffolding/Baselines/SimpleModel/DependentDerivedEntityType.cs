@@ -130,6 +130,12 @@ namespace TestNamespace
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(discriminator, 2),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(discriminator),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
             discriminator.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -157,6 +163,12 @@ namespace TestNamespace
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new IdValueGeneratorFactory().Create);
+            __id.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 3),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[3]);
             __id.SetPropertyIndexes(
                 index: 3,
                 originalValueIndex: 3,
@@ -188,6 +200,12 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAddOrUpdate,
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
+            __jObject.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(4) ? entry.ReadStoreGeneratedValue<JObject>(0) : entry.FlaggedAsTemporary(4) && entry.ReadShadowValue<JObject>(2) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(2),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<JObject>(2),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 4),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<JObject>(__jObject),
+                (ValueBuffer valueBuffer) => valueBuffer[4]);
             __jObject.SetPropertyIndexes(
                 index: 4,
                 originalValueIndex: 4,
@@ -228,10 +246,10 @@ namespace TestNamespace
             var __id = runtimeEntityType.FindProperty("__id")!;
             var __jObject = runtimeEntityType.FindProperty("__jObject")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             var key0 = runtimeEntityType.FindKey(new[] { __id });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<string>(key0));
+            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key0));
             key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key0));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
@@ -268,7 +286,7 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(CompiledModelTestBase.DependentDerived<int> @this);
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(CompiledModelTestBase.DependentBase<int> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Data>k__BackingField")]
         public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(CompiledModelTestBase.DependentDerived<int> @this);

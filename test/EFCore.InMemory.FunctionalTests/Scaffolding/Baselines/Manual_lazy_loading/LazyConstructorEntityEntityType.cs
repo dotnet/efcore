@@ -101,7 +101,7 @@ namespace TestNamespace
         {
             var id = runtimeEntityType.FindProperty("Id")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             var lazyPropertyDelegateEntity = runtimeEntityType.FindNavigation("LazyPropertyDelegateEntity")!;
             var lazyPropertyEntity = runtimeEntityType.FindNavigation("LazyPropertyEntity")!;

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -67,13 +68,22 @@ namespace TestNamespace
             var dependentBasebyteTable = new Table("DependentBase<byte?>", "TPC", relationalModel);
             var idColumn = new Column("Id", "tinyint", dependentBasebyteTable);
             dependentBasebyteTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<byte>(idColumn);
             var principalIdColumn = new Column("PrincipalId", "bigint", dependentBasebyteTable)
             {
                 IsNullable = true
             };
             dependentBasebyteTable.Columns.Add("PrincipalId", principalIdColumn);
+            principalIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(principalIdColumn);
+            relationalModel.Tables.Add(("DependentBase<byte?>", "TPC"), dependentBasebyteTable);
+            var dependentBasebyteTableMapping = new TableMapping(dependentBase, dependentBasebyteTable, null);
+            dependentBasebyteTable.AddTypeMapping(dependentBasebyteTableMapping, false);
+            tableMappings.Add(dependentBasebyteTableMapping);
+            RelationalModel.CreateColumnMapping(idColumn, dependentBase.FindProperty("Id")!, dependentBasebyteTableMapping);
+            RelationalModel.CreateColumnMapping(principalIdColumn, dependentBase.FindProperty("PrincipalId")!, dependentBasebyteTableMapping);
             var pK_DependentBasebyte = new UniqueConstraint("PK_DependentBase<byte?>", dependentBasebyteTable, new[] { idColumn });
             dependentBasebyteTable.PrimaryKey = pK_DependentBasebyte;
+            pK_DependentBasebyte.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<byte>(pK_DependentBasebyte));
             var pK_DependentBasebyteKey = RelationalModel.GetKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
                 new[] { "Id" });
@@ -82,18 +92,13 @@ namespace TestNamespace
             dependentBasebyteTable.UniqueConstraints.Add("PK_DependentBase<byte?>", pK_DependentBasebyte);
             var iX_DependentBasebyte_PrincipalId = new TableIndex(
             "IX_DependentBase<byte?>_PrincipalId", dependentBasebyteTable, new[] { principalIdColumn }, true);
+            iX_DependentBasebyte_PrincipalId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_DependentBasebyte_PrincipalId));
             var iX_DependentBasebyte_PrincipalIdIx = RelationalModel.GetIndex(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
                 new[] { "PrincipalId" });
             iX_DependentBasebyte_PrincipalId.MappedIndexes.Add(iX_DependentBasebyte_PrincipalIdIx);
             RelationalModel.GetOrCreateTableIndexes(iX_DependentBasebyte_PrincipalIdIx).Add(iX_DependentBasebyte_PrincipalId);
             dependentBasebyteTable.Indexes.Add("IX_DependentBase<byte?>_PrincipalId", iX_DependentBasebyte_PrincipalId);
-            relationalModel.Tables.Add(("DependentBase<byte?>", "TPC"), dependentBasebyteTable);
-            var dependentBasebyteTableMapping = new TableMapping(dependentBase, dependentBasebyteTable, null);
-            dependentBasebyteTable.AddTypeMapping(dependentBasebyteTableMapping, false);
-            tableMappings.Add(dependentBasebyteTableMapping);
-            RelationalModel.CreateColumnMapping(idColumn, dependentBase.FindProperty("Id")!, dependentBasebyteTableMapping);
-            RelationalModel.CreateColumnMapping(principalIdColumn, dependentBase.FindProperty("PrincipalId")!, dependentBasebyteTableMapping);
 
             var principalBase = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase")!;
 
@@ -188,91 +193,82 @@ namespace TestNamespace
             var principalBaseTable = new Table("PrincipalBase", "TPC", relationalModel);
             var idColumn0 = new Column("Id", "bigint", principalBaseTable);
             principalBaseTable.Columns.Add("Id", idColumn0);
+            idColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(idColumn0);
             var enum1Column = new Column("Enum1", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Enum1", enum1Column);
+            enum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enum1Column);
             var enum2Column = new Column("Enum2", "int", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Enum2", enum2Column);
+            enum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enum2Column);
             var flagsEnum1Column = new Column("FlagsEnum1", "int", principalBaseTable);
             principalBaseTable.Columns.Add("FlagsEnum1", flagsEnum1Column);
+            flagsEnum1Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum1Column);
             var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
             principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
+            flagsEnum2Column.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum2Column);
             var principalBaseIdColumn = new Column("PrincipalBaseId", "bigint", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("PrincipalBaseId", principalBaseIdColumn);
+            principalBaseIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(principalBaseIdColumn);
             var principalDerivedDependentBasebyteIdColumn = new Column("PrincipalDerived<DependentBase<byte?>>Id", "bigint", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("PrincipalDerived<DependentBase<byte?>>Id", principalDerivedDependentBasebyteIdColumn);
+            principalDerivedDependentBasebyteIdColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(principalDerivedDependentBasebyteIdColumn);
             var refTypeArrayColumn = new Column("RefTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeArray", refTypeArrayColumn);
+            refTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeArrayColumn);
             var refTypeEnumerableColumn = new Column("RefTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeEnumerable", refTypeEnumerableColumn);
+            refTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeEnumerableColumn);
             var refTypeIListColumn = new Column("RefTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeIList", refTypeIListColumn);
+            refTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeIListColumn);
             var refTypeListColumn = new Column("RefTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("RefTypeList", refTypeListColumn);
+            refTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeListColumn);
             var valueTypeArrayColumn = new Column("ValueTypeArray", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeArray", valueTypeArrayColumn);
+            valueTypeArrayColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeArrayColumn);
             var valueTypeEnumerableColumn = new Column("ValueTypeEnumerable", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeEnumerable", valueTypeEnumerableColumn);
+            valueTypeEnumerableColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeEnumerableColumn);
             var valueTypeIListColumn = new Column("ValueTypeIList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeIList", valueTypeIListColumn);
+            valueTypeIListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeIListColumn);
             var valueTypeListColumn = new Column("ValueTypeList", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("ValueTypeList", valueTypeListColumn);
-            var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn0 });
-            principalBaseTable.PrimaryKey = pK_PrincipalBase;
-            var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "Id" });
-            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
-            principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
-            var iX_PrincipalBase_PrincipalDerivedDependentBasebyteId = new TableIndex(
-            "IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, new[] { principalDerivedDependentBasebyteIdColumn }, false);
-            var iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx = RelationalModel.GetIndex(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                new[] { "PrincipalDerivedId" });
-            iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
-            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
-            principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
-            var pIX = new TableIndex(
-            "PIX", principalBaseTable, new[] { principalBaseIdColumn }, true);
-            var pIXIx = RelationalModel.GetIndex(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
-                "PrincipalIndex");
-            pIX.MappedIndexes.Add(pIXIx);
-            RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX);
-            principalBaseTable.Indexes.Add("PIX", pIX);
+            valueTypeListColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeListColumn);
             relationalModel.Tables.Add(("PrincipalBase", "TPC"), principalBaseTable);
             var principalBaseTableMapping = new TableMapping(principalBase, principalBaseTable, false);
             principalBaseTable.AddTypeMapping(principalBaseTableMapping, false);
@@ -292,6 +288,33 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(valueTypeEnumerableColumn, principalBase.FindProperty("ValueTypeEnumerable")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(valueTypeIListColumn, principalBase.FindProperty("ValueTypeIList")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(valueTypeListColumn, principalBase.FindProperty("ValueTypeList")!, principalBaseTableMapping);
+            var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn0 });
+            principalBaseTable.PrimaryKey = pK_PrincipalBase;
+            pK_PrincipalBase.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalBase));
+            var pK_PrincipalBaseKey = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+                new[] { "Id" });
+            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalBase);
+            principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
+            var iX_PrincipalBase_PrincipalDerivedDependentBasebyteId = new TableIndex(
+            "IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, new[] { principalDerivedDependentBasebyteIdColumn }, false);
+            iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId));
+            var iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx = RelationalModel.GetIndex(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+                new[] { "PrincipalDerivedId" });
+            iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            var pIX = new TableIndex(
+            "PIX", principalBaseTable, new[] { principalBaseIdColumn }, true);
+            pIX.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(pIX));
+            var pIXIx = RelationalModel.GetIndex(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
+                "PrincipalIndex");
+            pIX.MappedIndexes.Add(pIXIx);
+            RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX);
+            principalBaseTable.Indexes.Add("PIX", pIX);
 
             var viewMappings = new List<ViewMapping>();
             principalBase.SetRuntimeAnnotation("Relational:ViewMappings", viewMappings);
@@ -665,82 +688,82 @@ namespace TestNamespace
             var principalDerivedTable = new Table("PrincipalDerived", "TPC", relationalModel);
             var idColumn1 = new Column("Id", "bigint", principalDerivedTable);
             principalDerivedTable.Columns.Add("Id", idColumn1);
+            idColumn1.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(idColumn1);
             var enum1Column0 = new Column("Enum1", "int", principalDerivedTable);
             principalDerivedTable.Columns.Add("Enum1", enum1Column0);
+            enum1Column0.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enum1Column0);
             var enum2Column0 = new Column("Enum2", "int", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("Enum2", enum2Column0);
+            enum2Column0.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(enum2Column0);
             var flagsEnum1Column0 = new Column("FlagsEnum1", "int", principalDerivedTable);
             principalDerivedTable.Columns.Add("FlagsEnum1", flagsEnum1Column0);
+            flagsEnum1Column0.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum1Column0);
             var flagsEnum2Column0 = new Column("FlagsEnum2", "int", principalDerivedTable);
             principalDerivedTable.Columns.Add("FlagsEnum2", flagsEnum2Column0);
+            flagsEnum2Column0.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(flagsEnum2Column0);
             var principalBaseIdColumn0 = new Column("PrincipalBaseId", "bigint", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("PrincipalBaseId", principalBaseIdColumn0);
+            principalBaseIdColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(principalBaseIdColumn0);
             var principalDerivedDependentBasebyteIdColumn0 = new Column("PrincipalDerived<DependentBase<byte?>>Id", "bigint", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("PrincipalDerived<DependentBase<byte?>>Id", principalDerivedDependentBasebyteIdColumn0);
+            principalDerivedDependentBasebyteIdColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<long>(principalDerivedDependentBasebyteIdColumn0);
             var refTypeArrayColumn0 = new Column("RefTypeArray", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("RefTypeArray", refTypeArrayColumn0);
+            refTypeArrayColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeArrayColumn0);
             var refTypeEnumerableColumn0 = new Column("RefTypeEnumerable", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("RefTypeEnumerable", refTypeEnumerableColumn0);
+            refTypeEnumerableColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeEnumerableColumn0);
             var refTypeIListColumn0 = new Column("RefTypeIList", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("RefTypeIList", refTypeIListColumn0);
+            refTypeIListColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeIListColumn0);
             var refTypeListColumn0 = new Column("RefTypeList", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("RefTypeList", refTypeListColumn0);
+            refTypeListColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(refTypeListColumn0);
             var valueTypeArrayColumn0 = new Column("ValueTypeArray", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("ValueTypeArray", valueTypeArrayColumn0);
+            valueTypeArrayColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeArrayColumn0);
             var valueTypeEnumerableColumn0 = new Column("ValueTypeEnumerable", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("ValueTypeEnumerable", valueTypeEnumerableColumn0);
+            valueTypeEnumerableColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeEnumerableColumn0);
             var valueTypeIListColumn0 = new Column("ValueTypeIList", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("ValueTypeIList", valueTypeIListColumn0);
+            valueTypeIListColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeIListColumn0);
             var valueTypeListColumn0 = new Column("ValueTypeList", "nvarchar(max)", principalDerivedTable)
             {
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("ValueTypeList", valueTypeListColumn0);
-            var pK_PrincipalDerived = new UniqueConstraint("PK_PrincipalDerived", principalDerivedTable, new[] { idColumn1 });
-            principalDerivedTable.PrimaryKey = pK_PrincipalDerived;
-            pK_PrincipalDerived.MappedKeys.Add(pK_PrincipalBaseKey);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalDerived);
-            principalDerivedTable.UniqueConstraints.Add("PK_PrincipalDerived", pK_PrincipalDerived);
-            var iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId = new TableIndex(
-            "IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, new[] { principalDerivedDependentBasebyteIdColumn0 }, false);
-            iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
-            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
-            principalDerivedTable.Indexes.Add("IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
-            var pIX0 = new TableIndex(
-            "PIX", principalDerivedTable, new[] { principalBaseIdColumn0 }, true);
-            pIX0.MappedIndexes.Add(pIXIx);
-            RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX0);
-            principalDerivedTable.Indexes.Add("PIX", pIX0);
+            valueTypeListColumn0.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(valueTypeListColumn0);
             relationalModel.Tables.Add(("PrincipalDerived", "TPC"), principalDerivedTable);
             var principalDerivedTableMapping = new TableMapping(principalDerived, principalDerivedTable, null);
             principalDerivedTable.AddTypeMapping(principalDerivedTableMapping, false);
@@ -760,6 +783,24 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(valueTypeEnumerableColumn0, principalDerived.FindProperty("ValueTypeEnumerable")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(valueTypeIListColumn0, principalDerived.FindProperty("ValueTypeIList")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(valueTypeListColumn0, principalDerived.FindProperty("ValueTypeList")!, principalDerivedTableMapping);
+            var pK_PrincipalDerived = new UniqueConstraint("PK_PrincipalDerived", principalDerivedTable, new[] { idColumn1 });
+            principalDerivedTable.PrimaryKey = pK_PrincipalDerived;
+            pK_PrincipalDerived.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<long>(pK_PrincipalDerived));
+            pK_PrincipalDerived.MappedKeys.Add(pK_PrincipalBaseKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseKey).Add(pK_PrincipalDerived);
+            principalDerivedTable.UniqueConstraints.Add("PK_PrincipalDerived", pK_PrincipalDerived);
+            var iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId = new TableIndex(
+            "IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, new[] { principalDerivedDependentBasebyteIdColumn0 }, false);
+            iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId));
+            iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
+            principalDerivedTable.Indexes.Add("IX_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
+            var pIX0 = new TableIndex(
+            "PIX", principalDerivedTable, new[] { principalBaseIdColumn0 }, true);
+            pIX0.SetRowIndexValueFactory(new SimpleRowIndexValueFactory<long>(pIX0));
+            pIX0.MappedIndexes.Add(pIXIx);
+            RelationalModel.GetOrCreateTableIndexes(pIXIx).Add(pIX0);
+            principalDerivedTable.Indexes.Add("PIX", pIX0);
 
             var viewMappings0 = new List<ViewMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:ViewMappings", viewMappings0);
@@ -1042,6 +1083,7 @@ namespace TestNamespace
                 "FK_DependentBase<byte?>_PrincipalDerived_PrincipalId", dependentBasebyteTable, principalDerivedTable,
                 new[] { principalIdColumn },
                 principalDerivedTable.FindUniqueConstraint("PK_PrincipalDerived")!, ReferentialAction.NoAction);
+            fK_DependentBasebyte_PrincipalDerived_PrincipalId.SetRowForeignKeyValueFactory(RowForeignKeyValueFactoryFactory.CreateSimpleNonNullableFactory<long, long>(fK_DependentBasebyte_PrincipalDerived_PrincipalId));
             var fK_DependentBasebyte_PrincipalDerived_PrincipalIdFk = RelationalModel.GetForeignKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>",
                 new[] { "PrincipalId" },
@@ -1055,6 +1097,7 @@ namespace TestNamespace
                 "FK_PrincipalBase_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, principalDerivedTable,
                 new[] { principalDerivedDependentBasebyteIdColumn },
                 principalDerivedTable.FindUniqueConstraint("PK_PrincipalDerived")!, ReferentialAction.NoAction);
+            fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteId.SetRowForeignKeyValueFactory(RowForeignKeyValueFactoryFactory.CreateSimpleNonNullableFactory<long, long>(fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteId));
             var fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk = RelationalModel.GetForeignKey(this,
                 "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalBase",
                 new[] { "PrincipalDerivedId" },
@@ -1068,6 +1111,7 @@ namespace TestNamespace
                 "FK_PrincipalDerived_PrincipalDerived_PrincipalDerived<DependentBase<byte?>>Id", principalDerivedTable, principalDerivedTable,
                 new[] { principalDerivedDependentBasebyteIdColumn0 },
                 principalDerivedTable.FindUniqueConstraint("PK_PrincipalDerived")!, ReferentialAction.NoAction);
+            fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId.SetRowForeignKeyValueFactory(RowForeignKeyValueFactoryFactory.CreateSimpleNonNullableFactory<long, long>(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId));
             fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId.MappedForeignKeys.Add(fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk);
             RelationalModel.GetOrCreateForeignKeyConstraints(fK_PrincipalBase_PrincipalDerived_PrincipalDerivedDependentBasebyteIdFk).Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
             principalDerivedTable.ForeignKeyConstraints.Add(fK_PrincipalDerived_PrincipalDerived_PrincipalDerivedDependentBasebyteId);
