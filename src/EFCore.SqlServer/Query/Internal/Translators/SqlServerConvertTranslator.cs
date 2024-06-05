@@ -37,7 +37,8 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         typeof(int),
         typeof(long),
         typeof(short),
-        typeof(string)
+        typeof(string),
+        typeof(object)
     ];
 
     private static readonly MethodInfo[] SupportedMethods

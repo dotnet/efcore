@@ -1335,6 +1335,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToBoolean(Convert.ToInt16(o.OrderID % 3)),
             o => Convert.ToBoolean(Convert.ToInt32(o.OrderID % 3)),
             o => Convert.ToBoolean(Convert.ToInt64(o.OrderID % 3)),
+            o => Convert.ToBoolean((object)Convert.ToInt32(o.OrderID % 3))
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1360,7 +1361,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToByte(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToByte(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToByte(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToByte(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToByte(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToByte((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1386,7 +1388,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToDecimal(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToDecimal(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToDecimal(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToDecimal(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToDecimal(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToDecimal((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1412,7 +1415,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToDouble(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToDouble(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToDouble(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToDouble(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToDouble(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToDouble((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1438,7 +1442,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToInt16(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToInt16(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToInt16(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToInt16(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToInt16(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToInt16((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1464,7 +1469,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToInt32(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToInt32(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToInt32(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToInt32(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToInt32(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToInt32((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1490,7 +1496,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToInt64(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToInt64(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToInt64(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToInt64(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToInt64(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToInt64((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1517,6 +1524,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToString(Convert.ToInt32(o.OrderID % 1)) != "10",
             o => Convert.ToString(Convert.ToInt64(o.OrderID % 1)) != "10",
             o => Convert.ToString(Convert.ToString(o.OrderID % 1)) != "10",
+            o => Convert.ToString((object)Convert.ToString(o.OrderID % 1)) != "10",
             o => Convert.ToString(o.OrderDate.Value).Contains("1997") || Convert.ToString(o.OrderDate.Value).Contains("1998")
         };
 
