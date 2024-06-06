@@ -10,6 +10,7 @@
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9100</NoWarn> <!-- Precomiled query is experimental -->
     <NoWarn>$(NoWarn);EF9002</NoWarn> <!-- Experimental provider-facing feature -->
+    <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

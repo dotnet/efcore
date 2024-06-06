@@ -226,7 +226,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
             {
                 Current = null;
 
-                EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
+                EntityFrameworkMetricsData.ReportExecutionStrategyOperationFailure();
 
                 if (verifySucceeded != null
                     && CallOnWrappedException(ex, ShouldVerifySuccessOn))
@@ -337,7 +337,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
             {
                 Current = null;
 
-                EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
+                EntityFrameworkMetricsData.ReportExecutionStrategyOperationFailure();
 
                 if (verifySucceeded != null
                     && CallOnWrappedException(ex, ShouldVerifySuccessOn))

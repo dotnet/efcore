@@ -225,7 +225,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
                             }
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                            EntityFrameworkMetricsData.ReportQueryExecuting();
 
                             _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
                                 _cosmosContainer,
@@ -277,7 +277,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
                             }
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                            EntityFrameworkMetricsData.ReportQueryExecuting();
 
                             _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
                                     _cosmosContainer,

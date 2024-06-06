@@ -144,7 +144,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     (relationalQueryContext, relationalCommandResolver, commandSource),
                     static (_, state) =>
                     {
-                        EntityFrameworkEventSource.Log.QueryExecuting();
+                        EntityFrameworkMetricsData.ReportQueryExecuting();
 
                         var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 
@@ -222,7 +222,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     (relationalQueryContext, relationalCommandResolver, commandSource),
                     static (_, state, cancellationToken) =>
                     {
-                        EntityFrameworkEventSource.Log.QueryExecuting();
+                        EntityFrameworkMetricsData.ReportQueryExecuting();
 
                         var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
 

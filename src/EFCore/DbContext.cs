@@ -130,7 +130,7 @@ public class DbContext :
             .GetRequiredService<IDbSetInitializer>()
             .InitializeSets(this);
 
-        EntityFrameworkEventSource.Log.DbContextInitializing();
+        EntityFrameworkMetricsData.ReportDbContextInitializing();
     }
 
     /// <summary>
@@ -659,7 +659,7 @@ public class DbContext :
         }
         catch (DbUpdateConcurrencyException exception)
         {
-            EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+            EntityFrameworkMetricsData.ReportOptimisticConcurrencyFailure();
 
             SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 
@@ -804,7 +804,7 @@ public class DbContext :
         }
         catch (DbUpdateConcurrencyException exception)
         {
-            EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+            EntityFrameworkMetricsData.ReportOptimisticConcurrencyFailure();
 
             SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
 
@@ -1119,7 +1119,7 @@ public class DbContext :
         }
         else if (!_disposed)
         {
-            EntityFrameworkEventSource.Log.DbContextDisposing();
+            EntityFrameworkMetricsData.ReportDbContextDisposing();
 
             _dbContextDependencies?.InfrastructureLogger.ContextDisposed(this);
 
