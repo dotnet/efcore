@@ -5,6 +5,7 @@ using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
@@ -115,6 +116,7 @@ public static class CosmosServiceCollectionExtensions
                     .TryAddSingleton<ICosmosSingletonOptions, CosmosSingletonOptions>()
                     .TryAddSingleton<ISingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
                     .TryAddSingleton<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>()
+                    .TryAddSingleton<IRuntimeJsonIdDefinitionFactory, RuntimeJsonIdDefinitionFactory>()
                     .TryAddScoped<ISqlExpressionFactory, SqlExpressionFactory>()
                     .TryAddScoped<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                     .TryAddScoped<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()

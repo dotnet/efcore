@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 
 /// <summary>
@@ -11,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 /// </summary>
 public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
 {
+    private readonly IRuntimeJsonIdDefinitionFactory _runtimeJsonIdDefinitionFactory;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -18,9 +22,11 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public CosmosConventionSetBuilder(
-        ProviderConventionSetBuilderDependencies dependencies)
+        ProviderConventionSetBuilderDependencies dependencies,
+        IRuntimeJsonIdDefinitionFactory runtimeJsonIdDefinitionFactory)
         : base(dependencies)
     {
+        _runtimeJsonIdDefinitionFactory = runtimeJsonIdDefinitionFactory;
     }
 
     /// <summary>
@@ -36,6 +42,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
         conventionSet.Add(new ContextContainerConvention(Dependencies));
         conventionSet.Add(new ETagPropertyConvention());
         conventionSet.Add(new StoreKeyConvention(Dependencies));
+        conventionSet.Add(new JsonIdConvention(Dependencies));
 
         conventionSet.Replace<ValueGenerationConvention>(new CosmosValueGenerationConvention(Dependencies));
         conventionSet.Replace<KeyDiscoveryConvention>(new CosmosKeyDiscoveryConvention(Dependencies));
@@ -43,7 +50,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
         conventionSet.Replace<RelationshipDiscoveryConvention>(new CosmosRelationshipDiscoveryConvention(Dependencies));
         conventionSet.Replace<DiscriminatorConvention>(new CosmosDiscriminatorConvention(Dependencies));
         conventionSet.Replace<ManyToManyJoinEntityTypeConvention>(new CosmosManyToManyJoinEntityTypeConvention(Dependencies));
-        conventionSet.Replace<RuntimeModelConvention>(new CosmosRuntimeModelConvention(Dependencies));
+        conventionSet.Replace<RuntimeModelConvention>(new CosmosRuntimeModelConvention(Dependencies, _runtimeJsonIdDefinitionFactory));
 
         return conventionSet;
     }

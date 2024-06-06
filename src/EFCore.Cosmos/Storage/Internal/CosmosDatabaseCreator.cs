@@ -166,8 +166,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         {
             foreach (var targetSeed in entityType.GetSeedData())
             {
-                updateAdapter.Model.FindEntityType(entityType.Name);
-                var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                var runtimeEntityType = updateAdapter.Model.FindEntityType(entityType.Name)!;
+                var entry = updateAdapter.CreateEntry(targetSeed, runtimeEntityType);
                 entry.EntityState = EntityState.Added;
             }
         }

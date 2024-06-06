@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -92,8 +93,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {
-        if (_queryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll // Issue #33893
-            && expression is MethodCallExpression
+        if (expression is MethodCallExpression
             {
                 Method: { Name: nameof(Queryable.FirstOrDefault), IsGenericMethod: true },
                 Arguments: [MethodCallExpression innerMethodCall]
@@ -110,7 +110,27 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     ]
                 })
             {
-                if (unaryExpression.Operand is LambdaExpression)
+                // Strip out Include and Convert expressions until we get to the parameter, or not.
+                var processing = unaryExpression.Operand;
+                while (true)
+                {
+                    switch (processing)
+                    {
+                        case UnaryExpression { NodeType: ExpressionType.Quote or ExpressionType.Convert } q:
+                            processing = q.Operand;
+                            continue;
+                        case LambdaExpression l:
+                            processing = l.Body;
+                            continue;
+                        case IncludeExpression i:
+                            processing = i.EntityExpression;
+                            continue;
+                    }
+                    break;
+                }
+
+                // If we are left with the ParameterExpression, then it's safe to use ReadItem.
+                if (processing is ParameterExpression)
                 {
                     innerMethodCall = innerInnerMethodCall;
                 }
@@ -132,19 +152,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 if (ExtractPartitionKeyFromPredicate(entityType, lambdaExpression.Body, queryProperties, parameterNames))
                 {
                     var entityTypePrimaryKeyProperties = entityType.FindPrimaryKey()!.Properties;
-                    var idProperty = entityType.GetProperties()
-                        .First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
                     var partitionKeyProperties = entityType.GetPartitionKeyProperties();
 
                     if (entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
                         && (!partitionKeyProperties.Any()
                             || partitionKeyProperties.All(p => entityTypePrimaryKeyProperties.Contains(p)))
-                        // This should ideally only be looking for properties with the `IdValueGeneratorFactory` generator. since
-                        // this is how the `id` property will be generated from other key values.
-                        && ((idProperty.GetValueGeneratorFactory() != null
-                                // If we can't create an instance, then we might not be able to construct the resource id.
-                                && CanCreateEmptyInstance(entityType))
-                            || entityTypePrimaryKeyProperties.Contains(idProperty)))
+                        && entityType.FindRuntimeAnnotation(CosmosAnnotationNames.JsonIdDefinition) != null)
                     {
                         var propertyParameterList = queryProperties.Zip(
                                 parameterNames,
@@ -158,18 +171,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         return base.Visit(expression);
-
-        static bool CanCreateEmptyInstance(IEntityType entityType)
-        {
-            var binding = entityType.ServiceOnlyConstructorBinding;
-            if (binding == null)
-            {
-                _ = entityType.ConstructorBinding;
-                binding = entityType.ServiceOnlyConstructorBinding;
-            }
-
-            return binding != null;
-        }
 
         static bool ExtractPartitionKeyFromPredicate(
             IEntityType entityType,
