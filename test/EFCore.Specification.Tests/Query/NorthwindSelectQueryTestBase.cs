@@ -1506,7 +1506,8 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
     public virtual Task Select_with_complex_expression_that_can_be_funcletized(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("")),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => (int?)c.Region.IndexOf("")),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.Region == null ? default(int?) : c.Region.IndexOf("")),
             assertOrder: true);
 
     [ConditionalTheory]
