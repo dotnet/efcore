@@ -2148,7 +2148,7 @@ public static class SqlServerDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="pattern">A string pattern to search for.</param>
     /// <param name="expression">Typically a column that is searched for the specified pattern</param>
-    /// <returns>The starting position for PATINDEX is 1.</returns>
+    /// <returns>Returns the starting position of the first occurrence of a pattern in a specified expression.</returns>
     /// <seealso href="https://learn.microsoft.com/en-us/sql/t-sql/functions/patindex-transact-sql">SQL Server documentation for <c>PATINDEX</c>.</seealso>
     public static long PatIndex(
         this DbFunctions _,
