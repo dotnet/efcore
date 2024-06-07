@@ -75,7 +75,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo PatIndexMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.PatIndex),
-            [typeof(DbFunctions), typeof(string), typeof(string)])!;    
+            [typeof(DbFunctions), typeof(string), typeof(string)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -292,9 +292,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 method.ReturnType);
         }
 
-        if(PatIndexMethodInfo.Equals(method))
+        if (PatIndexMethodInfo.Equals(method))
         {
-            var pattern = arguments[1];            
+            var pattern = arguments[1];
             var expression = arguments[2];
             var patIndexSqlExpression = _sqlExpressionFactory.Function(
                 "PATINDEX",
@@ -303,9 +303,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 argumentsPropagateNullability: new[] { true, true },
                 method.ReturnType
             );
-            
-            return new[] { pattern, expression }.OfType<SqlConstantExpression>()                    
-                    .Any(x => x.Value == null)
+
+            return (pattern is SqlConstantExpression p && p.Value == null)
+                    || (expression is ColumnExpression e && e.IsNullable)
                 ? _sqlExpressionFactory.Coalesce(patIndexSqlExpression, _sqlExpressionFactory.Constant(0))
                 : patIndexSqlExpression;
         }

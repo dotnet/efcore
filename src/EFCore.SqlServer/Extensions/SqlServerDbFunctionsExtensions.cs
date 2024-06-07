@@ -89,7 +89,7 @@ public static class SqlServerDbFunctionsExtensions
         object propertyReference,
         string searchCondition)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
-    
+
     #endregion Full-text search
 
     #region DateDiffYear
@@ -2138,7 +2138,7 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
 
     /// <summary>
-    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>PATINDEX</c> store function.
+    ///     Returns the starting position of the first occurrence of a pattern in a specified expression, or zero if the pattern is not found, on all valid text and character data types.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -2147,7 +2147,9 @@ public static class SqlServerDbFunctionsExtensions
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="pattern">A string pattern to search for.</param>
-    /// <param name="expression">Typically a column that is searched for the specified pattern</param>    
+    /// <param name="expression">Typically a column that is searched for the specified pattern</param>
+    /// <returns>The starting position for PATINDEX is 1.</returns>
+    /// <seealso href="https://learn.microsoft.com/en-us/sql/t-sql/functions/patindex-transact-sql">SQL Server documentation for <c>PATINDEX</c>.</seealso>
     public static long PatIndex(
         this DbFunctions _,
         string pattern,
