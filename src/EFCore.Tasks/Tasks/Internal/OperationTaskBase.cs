@@ -52,6 +52,11 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
     public ITaskItem? DataDir { get; set; }
 
     /// <summary>
+    ///    The target project.
+    /// </summary>
+    public ITaskItem? Project { get; set; }
+
+    /// <summary>
     ///    The project directory.
     /// </summary>
     public ITaskItem? ProjectDir { get; set; }
@@ -195,6 +200,12 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
         {
             args.Add("--startup-assembly");
             args.Add(Path.ChangeExtension(StartupAssembly.ItemSpec, ".dll"));
+        }
+
+        if (Project != null)
+        {
+            args.Add("--project");
+            args.Add(Project.ItemSpec);
         }
 
         if (ProjectDir != null)

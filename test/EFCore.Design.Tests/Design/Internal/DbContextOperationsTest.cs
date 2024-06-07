@@ -30,6 +30,7 @@ public class DbContextOperationsTest
             new TestOperationReporter(),
             assembly,
             assembly,
+            project: "",
             projectDir: "",
             rootNamespace: null,
             language: "C#",
@@ -46,6 +47,7 @@ public class DbContextOperationsTest
             new TestOperationReporter(),
             assembly,
             assembly,
+            project: "",
             projectDir: "",
             rootNamespace: null,
             language: "C#",
@@ -58,6 +60,28 @@ public class DbContextOperationsTest
 
         var derivedContext = Assert.IsType<DerivedContext>(operations.CreateContext(nameof(DerivedContext)));
         Assert.Equal(nameof(DerivedContext), derivedContext.FactoryUsed);
+    }
+
+    [ConditionalFact]
+    public void CreateAllContexts_creates_all_contexts()
+    {
+        var assembly = MockAssembly.Create(typeof(BaseContext), typeof(DerivedContext), typeof(HierarchyContextFactory));
+        var operations = new TestDbContextOperations(
+            new TestOperationReporter(),
+            assembly,
+            assembly,
+            project: "",
+            projectDir: "",
+            rootNamespace: null,
+            language: "C#",
+            nullable: false,
+            args: [],
+            new TestAppServiceProviderFactory(assembly));
+
+        var contexts = operations.CreateAllContexts().ToList();
+        Assert.Collection(contexts,
+            c => Assert.Equal(nameof(BaseContext), Assert.IsType<BaseContext>(c).FactoryUsed),
+            c => Assert.Equal(nameof(DerivedContext), Assert.IsType<DerivedContext>(c).FactoryUsed));
     }
 
     [ConditionalFact]
@@ -164,6 +188,7 @@ public class DbContextOperationsTest
             new TestOperationReporter(),
             assembly,
             assembly,
+            project: "",
             projectDir: "",
             rootNamespace: null,
             language: "C#",
@@ -176,8 +201,7 @@ public class DbContextOperationsTest
         => new(
             new ServiceCollection()
                 .AddDbContext<TestContext>(
-                    b =>
-                        configureProvider(b.EnableServiceProviderCaching(false)))
+                    b => configureProvider(b.EnableServiceProviderCaching(false)))
                 .BuildServiceProvider(validateScopes: true));
 
     private class TestContext : DbContext

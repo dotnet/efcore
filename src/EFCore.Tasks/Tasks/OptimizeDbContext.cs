@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Tasks;
 public class OptimizeDbContext : OperationTaskBase
 {
     /// <summary>
-    ///     The name of the target DbContext.
+    ///     The type of the target DbContext.
     /// </summary>
-    public string? DbContextName { get; set; }
+    public string? DbContextType { get; set; }
 
     /// <summary>
     ///     The namespace to use for the generated classes.
@@ -26,6 +26,16 @@ public class OptimizeDbContext : OperationTaskBase
     ///     The output directory. Usually, relative to the project directory.
     /// </summary>
     public ITaskItem? OutputDir { get; set; }
+
+    /// <summary>
+    ///     Don't generate a compiled model.
+    /// </summary>
+    public bool NoScaffold { get; set; }
+
+    /// <summary>
+    ///     Generate precompiled queries.
+    /// </summary>
+    public bool PrecompileQueries { get; set; }
 
     /// <summary>
     ///     Generated files that should be include in the build.
@@ -55,11 +65,21 @@ public class OptimizeDbContext : OperationTaskBase
                 AdditionalArguments.Add(targetNamespace);
             }
 
-            var dbContextName = MsBuildUtilities.TrimAndGetNullForEmpty(DbContextName);
-            if(dbContextName != null)
+            var dbContextType = MsBuildUtilities.TrimAndGetNullForEmpty(DbContextType);
+            if (dbContextType != null)
             {
                 AdditionalArguments.Add("--context");
-                AdditionalArguments.Add(dbContextName);
+                AdditionalArguments.Add(dbContextType);
+            }
+
+            if (NoScaffold)
+            {
+                AdditionalArguments.Add("--no-scaffold");
+            }
+
+            if (PrecompileQueries)
+            {
+                AdditionalArguments.Add("--precompile-queries");
             }
 
             AdditionalArguments.Add("--suffix");

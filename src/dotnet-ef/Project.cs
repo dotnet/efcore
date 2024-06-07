@@ -153,7 +153,7 @@ internal class Project
         };
     }
 
-    public void Build()
+    public void Build(IEnumerable<string>? additionalArgs)
     {
         var args = new List<string> { "build" };
 
@@ -184,6 +184,10 @@ internal class Project
         args.Add("/verbosity:quiet");
         args.Add("/nologo");
         args.Add("/p:PublishAot=false"); // Avoid NativeAOT warnings
+        if (additionalArgs != null)
+        {
+            args.AddRange(additionalArgs);
+        }
 
         var exitCode = Exe.Run("dotnet", args, handleOutput: Reporter.WriteVerbose);
         if (exitCode != 0)

@@ -47,10 +47,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true },
             additionalSourceFiles:
             [
-                new()
-                {
-                    Path = "DbContextModelStub.cs",
-                    Code = """
+                new("DbContextModelStub.cs",
+                    """
 using Microsoft.EntityFrameworkCore.Metadata;
 using static TestNamespace.DbContextModel.Dummy;
 
@@ -67,8 +65,7 @@ namespace TestNamespace
         }
     }
 }
-"""
-                }
+""")
             ],
             assertAssembly: assembly =>
             {
@@ -586,7 +583,7 @@ namespace TestNamespace
             AssertComplexTypes,
             c =>
             {
-                // #33828
+                // Blocked by https://github.com/dotnet/runtime/issues/102792
                 //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
                 //    new PrincipalDerived<DependentBase<byte?>>
                 //    {

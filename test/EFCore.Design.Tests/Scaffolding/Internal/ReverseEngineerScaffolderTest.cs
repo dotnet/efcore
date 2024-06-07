@@ -19,8 +19,8 @@ public class ReverseEngineerScaffolderTest
         var scaffolder = CreateScaffolder();
         var scaffoldedModel = new ScaffoldedModel
         {
-            ContextFile = new ScaffoldedFile { Path = Path.Combine("..", "Data", "TestContext.cs"), Code = "// TestContext" },
-            AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
+            ContextFile = new ScaffoldedFile(Path.Combine("..", "Data", "TestContext.cs"), "// TestContext"),
+            AdditionalFiles = { new ScaffoldedFile("TestEntity.cs", "// TestEntity") }
         };
 
         var result = scaffolder.Save(
@@ -51,8 +51,8 @@ public class ReverseEngineerScaffolderTest
         var scaffolder = CreateScaffolder();
         var scaffoldedModel = new ScaffoldedModel
         {
-            ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
-            AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
+            ContextFile = new ScaffoldedFile("TestContext.cs", "// TestContext"),
+            AdditionalFiles = { new ScaffoldedFile("TestEntity.cs", "// TestEntity") }
         };
 
         var ex = Assert.Throws<OperationException>(
@@ -73,7 +73,7 @@ public class ReverseEngineerScaffolderTest
         File.WriteAllText(path, "// Old");
 
         var scaffolder = CreateScaffolder();
-        var scaffoldedModel = new ScaffoldedModel { ContextFile = new ScaffoldedFile { Path = "Test.cs", Code = "// Test" } };
+        var scaffoldedModel = new ScaffoldedModel { ContextFile = new ScaffoldedFile("Test.cs", "// Test") };
 
         var result = scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: true);
 
@@ -99,8 +99,8 @@ public class ReverseEngineerScaffolderTest
             var scaffolder = CreateScaffolder();
             var scaffoldedModel = new ScaffoldedModel
             {
-                ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
-                AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
+                ContextFile = new ScaffoldedFile("TestContext.cs", "// TestContext"),
+                AdditionalFiles = { new ScaffoldedFile("TestEntity.cs", "// TestEntity") }
             };
 
             var ex = Assert.Throws<OperationException>(

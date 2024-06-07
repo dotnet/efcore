@@ -135,8 +135,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
         // At least for EF's purposes, it doesn't matter, so we build a placeholder.
         if (_semanticModel.GetSymbolInfo(anonymousObjectCreation).Symbol is not IMethodSymbol constructorSymbol)
         {
-            throw new InvalidOperationException(
-                "Could not find symbol for anonymous object creation initializer: " + anonymousObjectCreation);
+            throw new InvalidOperationException(DesignStrings.NoAnonymousSymbol + " " + anonymousObjectCreation);
         }
 
         var anonymousType = ResolveType(constructorSymbol.ContainingType);
