@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class ConnectionSpecificationTest
 {
     [ConditionalFact]

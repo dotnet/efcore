@@ -172,20 +172,30 @@ extends:
             steps:
               - bash: |
                   echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                  echo "##vso[task.setvariable variable=_CosmosToken]$(ef-nightly-cosmos-key)"
                 displayName: Prepare to run Cosmos tests on ef-nightly-test
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
               - bash: |
                   echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                  echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
                 displayName: Prepare to run Cosmos tests on ef-pr-test
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - task: AzureCLI@2
+                displayName: Build
+                inputs:
+                  azureSubscription: EFCosmosTesting
+                  addSpnToEnvironment: true
+                  scriptType: bash
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                      az account get-access-token --scope https://ef-pr-test.documents.azure.com/.default --output none
+                      az account get-access-token --scope https://ef-nightly-test.documents.azure.com/.default --output none
+                      eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                  Test__Cosmos__AuthToken: $(_CosmosToken)
+                  Test__Cosmos__UseTokenCredential: true
+                  Test__Cosmos__SubscriptionId: d709b837-4a74-4aec-addc-b6e4b9b23e7e
+                  Test__Cosmos__ResourceGroup: efcosmosci
                 name: Build
             templateContext:
               outputs:
