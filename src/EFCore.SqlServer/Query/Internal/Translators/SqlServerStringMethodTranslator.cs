@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -76,12 +75,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo PatIndexMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.PatIndex),
-            [typeof(DbFunctions), typeof(string), typeof(object)])!;
-
-    private static readonly MethodInfo PatIndexMethodInfoWithCollation
-        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.PatIndex),
-            [typeof(DbFunctions), typeof(string), typeof(object), typeof(string)])!;
+            [typeof(DbFunctions), typeof(string), typeof(string)])!;    
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -298,36 +292,23 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 method.ReturnType);
         }
 
-        if(PatIndexMethodInfo.Equals(method)
-            || PatIndexMethodInfoWithCollation.Equals(method))
+        if(PatIndexMethodInfo.Equals(method))
         {
-            var pattern = arguments[1];
-
-            if (!(pattern is SqlParameterExpression || pattern is SqlConstantExpression))
-            {
-                throw new InvalidOperationException(SqlServerStrings.InvalidPatternForPatIndex);
-            }
-
-            var propertyReference = arguments[2];
-
-            if (propertyReference is not ColumnExpression)
-            {
-                throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForPatIndex);
-            }
-           
-            return _sqlExpressionFactory.Function(
+            var pattern = arguments[1];            
+            var expression = arguments[2];
+            var patIndexSqlExpression = _sqlExpressionFactory.Function(
                 "PATINDEX",
-                new List<SqlExpression>()
-                {
-                    _sqlExpressionFactory.ApplyDefaultTypeMapping(pattern),
-                    arguments.Count == 4
-                        ? new CollateExpression(propertyReference, (string)((SqlConstantExpression)arguments[3]).Value!)
-                        : propertyReference
-                },
+                new[] { pattern, expression },
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, false },                
-                typeof(int));
-        }                
+                argumentsPropagateNullability: new[] { true, true },
+                method.ReturnType
+            );
+            
+            return new[] { pattern, expression }.OfType<SqlConstantExpression>()                    
+                    .Any(x => x.Value == null)
+                ? _sqlExpressionFactory.Coalesce(patIndexSqlExpression, _sqlExpressionFactory.Constant(0))
+                : patIndexSqlExpression;
+        }
 
         return null;
     }

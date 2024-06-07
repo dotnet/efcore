@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 // ReSharper disable InconsistentNaming
@@ -571,66 +572,56 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
             """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE PATINDEX(N'%Repr%', [e].[Title]) > 0
+WHERE PATINDEX(N'%Repr%', [e].[Title]) > CAST(0 AS bigint)
 """);
     }
 
     [ConditionalFact]
     public void PatIndex_client_eval_throws()
     {
-        Assert.Throws<InvalidOperationException>(() => EF.Functions.PatIndex("%test%", (object)"teststring"));
-        Assert.Throws<InvalidOperationException>(() => EF.Functions.PatIndex("%test%", (object)"teststring"));
+        Assert.Throws<InvalidOperationException>(() => EF.Functions.PatIndex("%test%", "teststring"));        
     }
-    
+
     [ConditionalFact]
     public void PatIndex_with_collate_term()
     {
         using var context = CreateContext();
-        var result = context.Employees.SingleOrDefault(c => EF.Functions.PatIndex("%President%", c.Title, "Latin1_General_BIN") > 0);
+        var result = context.Employees
+            .SingleOrDefault(
+                c => EF.Functions.PatIndex(
+                        "%President%",
+                        EF.Functions.Collate(c.Title, "Latin1_General_BIN"
+                     )) > 0);
 
         Assert.Equal(2u, result.EmployeeID);
 
         AssertSql(
             """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE PATINDEX(N'%President%', [e].[Title] COLLATE Latin1_General_BIN) > 0
-""");
+    SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE PATINDEX(N'%President%', [e].[Title] COLLATE Latin1_General_BIN) > CAST(0 AS bigint)
+    """);
     }
 
     [ConditionalFact]
-    public void PatIndex_with_non_literal_collate_term()
-    {
-        var collation = "Latin1_General_BIN";
-        using var context = CreateContext();
-        var result = context.Employees.SingleOrDefault(c => EF.Functions.PatIndex("%President%", c.Title, collation) > 0);
-
-        Assert.Equal(2u, result.EmployeeID);
-
-        AssertSql(
-            """
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE PATINDEX(N'%President%', [e].[Title] COLLATE Latin1_General_BIN) > 0
-""");
-    }
-
-    [ConditionalFact]    
     public void PatIndex_with_multiple_words_and_collate_term()
     {
         using var context = CreateContext();
         var result = context.Employees
-            .Where(c => EF.Functions.PatIndex("%Sales Representative%", c.Title, "Latin1_General_BIN") > 0)
+            .Where(
+                c => EF.Functions.PatIndex(
+                    "%Sales Representative%",
+                    EF.Functions.Collate(c.Title, "Latin1_General_BIN")) > 0)
             .ToList();
 
         Assert.Equal(1u, result.First().EmployeeID);
 
         AssertSql(
             """
-SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE PATINDEX(N'%Sales Representative%', [e].[Title] COLLATE Latin1_General_BIN) > 0
-""");
+    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE PATINDEX(N'%Sales Representative%', [e].[Title] COLLATE Latin1_General_BIN) > CAST(0 AS bigint)
+    """);
     }
 
     [ConditionalFact]
@@ -640,17 +631,19 @@ WHERE PATINDEX(N'%Sales Representative%', [e].[Title] COLLATE Latin1_General_BIN
         var result = context.Employees
             .Where(
                 c => EF.Functions.PatIndex("%London%", c.City) > 0
-                    && EF.Functions.PatIndex("%Manager%", c.Title, "Latin1_General_BIN") > 0)
+                    && EF.Functions.PatIndex(
+                        "%Manager%",
+                        EF.Functions.Collate(c.Title, "Latin1_General_BIN")) > 0)
             .FirstOrDefault();
 
         Assert.Equal(5u, result.EmployeeID);
 
         AssertSql(
             """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE PATINDEX(N'%London%', [e].[City]) > 0 AND PATINDEX(N'%Manager%', [e].[Title] COLLATE Latin1_General_BIN) > 0
-""");
+    SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    WHERE PATINDEX(N'%London%', [e].[City]) > CAST(0 AS bigint) AND PATINDEX(N'%Manager%', [e].[Title] COLLATE Latin1_General_BIN) > CAST(0 AS bigint)
+    """);
     }
 
     [ConditionalFact]
@@ -669,12 +662,12 @@ WHERE PATINDEX(N'%London%', [e].[City]) > 0 AND PATINDEX(N'%Manager%', [e].[Titl
 
         AssertSql(
             """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE PATINDEX(N'%President%', [e0].[Title]) > 0 AND PATINDEX(N'%Inside%', [e].[Title]) > 0 AND [e].[FirstName] LIKE N'%Lau%'
-ORDER BY [e].[EmployeeID] DESC
-""");
+    SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+    WHERE PATINDEX(N'%President%', [e0].[Title]) > CAST(0 AS bigint) AND PATINDEX(N'%Inside%', [e].[Title]) > CAST(0 AS bigint) AND [e].[FirstName] LIKE N'%Lau%'
+    ORDER BY [e].[EmployeeID] DESC
+    """);
     }
 
     [ConditionalFact]
@@ -683,8 +676,12 @@ ORDER BY [e].[EmployeeID] DESC
         using var context = CreateContext();
         var result = context.Employees
             .Where(
-                c => EF.Functions.PatIndex("%President%", c.Manager.Title, "Latin1_General_BIN") > 0
-                    && EF.Functions.PatIndex("%Inside%", c.Title, "Latin1_General_BIN") > 0
+                c => EF.Functions.PatIndex(
+                        "%President%",
+                        EF.Functions.Collate(c.Manager.Title, "Latin1_General_BIN")) > 0
+                    && EF.Functions.PatIndex(
+                        "%Inside%",
+                        EF.Functions.Collate(c.Title, "Latin1_General_BIN")) > 0
                     && c.FirstName.Contains("Lau"))
             .OrderBy(e => e.EmployeeID)
             .FirstOrDefault();
@@ -693,49 +690,57 @@ ORDER BY [e].[EmployeeID] DESC
 
         AssertSql(
             """
-SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE PATINDEX(N'%President%', [e0].[Title] COLLATE Latin1_General_BIN) > 0 AND PATINDEX(N'%Inside%', [e].[Title] COLLATE Latin1_General_BIN) > 0 AND [e].[FirstName] LIKE N'%Lau%'
-ORDER BY [e].[EmployeeID]
-""");
+    SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+    WHERE PATINDEX(N'%President%', [e0].[Title] COLLATE Latin1_General_BIN) > CAST(0 AS bigint) AND PATINDEX(N'%Inside%', [e].[Title] COLLATE Latin1_General_BIN) > CAST(0 AS bigint) AND [e].[FirstName] LIKE N'%Lau%'
+    ORDER BY [e].[EmployeeID]
+    """);
+    }
+    
+    [ConditionalFact]
+    public async Task PatIndex_not_throws_when_using_non_parameter_or_constant_for_pattern_string()
+    {        
+        using var context = CreateContext();
+        try
+        {
+            await context.Employees.FirstOrDefaultAsync(
+                e => EF.Functions.PatIndex(e.FirstName, e.City) > 0);
+
+            await context.Employees.FirstOrDefaultAsync(
+                    e => EF.Functions.PatIndex(e.City + "1", e.City) > 0);
+
+            await context.Employees.FirstOrDefaultAsync(
+                    e => EF.Functions.PatIndex(e.FirstName.ToUpper(), e.City) > 0);
+        }
+        catch(Exception e)
+        {
+            Assert.Fail(e.Message);
+        }                
     }
 
     [ConditionalFact]
-    public async Task PatIndex_throws_when_using_non_parameter_or_constant_for_pattern_string()
+    public async Task PatIndex_not_throws_when_using_non_column_for_property_reference()
     {
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.PatIndex(e.FirstName, e.City) > 0));
+        using var context = CreateContext();        
+        try
+        {
+            await context.Employees.FirstOrDefaultAsync(
+                e => EF.Functions.PatIndex("%President%", e.City + "1") > 0);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.PatIndex(e.City + "1", e.City) > 0));
+            await context.Employees.FirstOrDefaultAsync(
+                e => EF.Functions.PatIndex("%President%", e.City.ToLower()) > 0);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.PatIndex(e.FirstName.ToUpper(), e.City) > 0));               
-    }
-
-    [ConditionalFact]
-    public async Task PatIndex_throws_when_using_non_column_for_property_reference()
-    {
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.PatIndex("%President%", e.City + "1") > 0));
-
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await context.Employees.FirstOrDefaultAsync(
-                e => EF.Functions.PatIndex("%President%", e.City.ToLower()) > 0));
-
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () => await (from e1 in context.Employees
-                               join m1 in context.Employees.OrderBy(e => e.EmployeeID).Skip(0)
-                                   on e1.ReportsTo equals m1.EmployeeID
-                               where EF.Functions.PatIndex("%President%", m1.Title) > 0
-                               select e1).LastOrDefaultAsync());
+            await (from e1 in context.Employees
+                   join m1 in context.Employees.OrderBy(e => e.EmployeeID).Skip(0)
+                       on e1.ReportsTo equals m1.EmployeeID
+                   where EF.Functions.PatIndex("%President%", m1.Title) == 0
+                   select e1).FirstOrDefaultAsync();
+        }
+        catch(Exception e)
+        {
+            Assert.Fail(e.Message);
+        }                
     }
 
     [ConditionalFact]
@@ -744,17 +749,36 @@ ORDER BY [e].[EmployeeID]
         using var context = CreateContext();
         var result = await context.Employees
             .Where(
-                c => EF.Functions.PatIndex(null, c.FirstName) == null)
+                c => EF.Functions.PatIndex(null, c.FirstName) == 0)
             .ToListAsync();
 
-        Assert.True(result.Count > 0);
+        Assert.Equal(9, result.Count);
 
         AssertSql(
                """
-     SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-     FROM [Employees] AS [e]
-     WHERE PATINDEX(NULL, [e].[FirstName]) IS NULL
-     """);
+         SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+         FROM [Employees] AS [e]
+         WHERE COALESCE(PATINDEX(NULL, [e].[FirstName]), 0) = 0
+         """);
+    }
+
+    [ConditionalFact]
+    public async Task PatIndex_null_expression()
+    {
+        using var context = CreateContext();        
+        var result = await context.Customers
+            .Where(
+                c => EF.Functions.PatIndex("%WA%", c.Region) == 0)
+            .ToListAsync();
+
+        Assert.Equal(28, result.Count);
+
+        AssertSql(
+               """
+         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+         FROM [Customers] AS [c]
+         WHERE PATINDEX(N'%WA%', [c].[Region]) = CAST(0 AS bigint)
+         """);
     }
 
     [ConditionalTheory]

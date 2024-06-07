@@ -89,43 +89,7 @@ public static class SqlServerDbFunctionsExtensions
         object propertyReference,
         string searchCondition)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
-
-    /// <summary>
-    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>PATINDEX</c> store function.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples.
-    /// </remarks>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="stringPattern">A string pattern to search for.</param>
-    /// <param name="propertyReference">The property on which the search will be performed.</param>    
-    /// <param name="collation">Collation of the expression that is searched.</param>    
-    public static int? PatIndex(
-        this DbFunctions _,
-        string stringPattern,
-        object propertyReference, 
-        [NotParameterized] string collation)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
-
-    /// <summary>
-    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>PATINDEX</c> store function.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
-    ///     for more information and examples.
-    /// </remarks>
-    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="stringPattern">A string pattern to search for.</param>
-    /// <param name="propertyReference">The property on which the search will be performed.</param>    
-    public static int? PatIndex(
-        this DbFunctions _,
-        string stringPattern,
-        object propertyReference)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
-
+    
     #endregion Full-text search
 
     #region DateDiffYear
@@ -2172,6 +2136,23 @@ public static class SqlServerDbFunctionsExtensions
         DateTimeOffset dateTimeOffset,
         string timeZone)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>PATINDEX</c> store function.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="pattern">A string pattern to search for.</param>
+    /// <param name="expression">Typically a column that is searched for the specified pattern</param>    
+    public static long PatIndex(
+        this DbFunctions _,
+        string pattern,
+        string expression)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
 
     #region Sample standard deviation
 
