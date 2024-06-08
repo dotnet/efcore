@@ -1010,6 +1010,66 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
 """);
     }
 
+    public override async Task Column_collection_First(bool async)
+    {
+        await base.Column_collection_First(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT TOP(1) CAST([i].[value] AS int) AS [value]
+    FROM OPENJSON([p].[Ints]) AS [i]
+    ORDER BY CAST([i].[key] AS int)) = 1
+""");
+    }
+
+    public override async Task Column_collection_FirstOrDefault(bool async)
+    {
+        await base.Column_collection_FirstOrDefault(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE COALESCE((
+    SELECT TOP(1) CAST([i].[value] AS int) AS [value]
+    FROM OPENJSON([p].[Ints]) AS [i]
+    ORDER BY CAST([i].[key] AS int)), 0) = 1
+""");
+    }
+
+    public override async Task Column_collection_Single(bool async)
+    {
+        await base.Column_collection_Single(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT TOP(1) CAST([i].[value] AS int) AS [value]
+    FROM OPENJSON([p].[Ints]) AS [i]
+    ORDER BY CAST([i].[key] AS int)) = 1
+""");
+    }
+
+    public override async Task Column_collection_SingleOrDefault(bool async)
+    {
+        await base.Column_collection_SingleOrDefault(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE COALESCE((
+    SELECT TOP(1) CAST([i].[value] AS int) AS [value]
+    FROM OPENJSON([p].[Ints]) AS [i]
+    ORDER BY CAST([i].[key] AS int)), 0) = 1
+""");
+    }
+
     public override async Task Column_collection_Skip(bool async)
     {
         await base.Column_collection_Skip(async);
@@ -1062,6 +1122,65 @@ WHERE 11 IN (
 """);
     }
 
+    public override async Task Column_collection_Where_Skip(bool async)
+    {
+        await base.Column_collection_Where_Skip(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT 1 AS empty
+        FROM OPENJSON([p].[Ints]) AS [i]
+        WHERE CAST([i].[value] AS int) > 1
+        ORDER BY CAST([i].[key] AS int)
+        OFFSET 1 ROWS
+    ) AS [i0]) = 3
+""");
+    }
+
+    public override async Task Column_collection_Where_Take(bool async)
+    {
+        await base.Column_collection_Where_Take(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT TOP(2) 1 AS empty
+        FROM OPENJSON([p].[Ints]) AS [i]
+        WHERE CAST([i].[value] AS int) > 1
+        ORDER BY CAST([i].[key] AS int)
+    ) AS [i0]) = 2
+""");
+    }
+
+    public override async Task Column_collection_Where_Skip_Take(bool async)
+    {
+        await base.Column_collection_Where_Skip_Take(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT 1 AS empty
+        FROM OPENJSON([p].[Ints]) AS [i]
+        WHERE CAST([i].[value] AS int) > 1
+        ORDER BY CAST([i].[key] AS int)
+        OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY
+    ) AS [i0]) = 1
+""");
+    }
+
     public override async Task Column_collection_Contains_over_subquery(bool async)
     {
         await base.Column_collection_Contains_over_subquery(async);
@@ -1091,6 +1210,23 @@ WHERE (
     FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
     ORDER BY [i].[value] DESC
     OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 111
+""");
+    }
+
+    public override async Task Column_collection_Where_ElementAt(bool async)
+    {
+        await base.Column_collection_Where_ElementAt(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT CAST([i].[value] AS int) AS [value]
+    FROM OPENJSON([p].[Ints]) AS [i]
+    WHERE CAST([i].[value] AS int) > 1
+    ORDER BY CAST([i].[key] AS int)
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) = 11
 """);
     }
 

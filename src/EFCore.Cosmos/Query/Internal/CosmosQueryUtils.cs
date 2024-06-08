@@ -87,7 +87,7 @@ public static class CosmosQueryUtils
     public static bool TryExtractBareArray(
         ShapedQueryExpression source,
         [NotNullWhen(true)] out SqlExpression? array,
-        [NotNullWhen(true)] out ScalarReferenceExpression? projectedScalarReference,
+        [NotNullWhen(true)] out SqlExpression? projectedScalarReference,
         bool ignoreOrderings = false)
     {
         if (source.QueryExpression is not SelectExpression

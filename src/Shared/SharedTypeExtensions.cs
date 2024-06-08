@@ -644,12 +644,5 @@ internal static class SharedTypeExtensions
     }
 
     public static ConstantExpression GetDefaultValueConstant(this Type type)
-        => (ConstantExpression)GenerateDefaultValueConstantMethod
-            .MakeGenericMethod(type).Invoke(null, [])!;
-
-    private static readonly MethodInfo GenerateDefaultValueConstantMethod =
-        typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant))!;
-
-    private static ConstantExpression GenerateDefaultValueConstant<TDefault>()
-        => Expression.Constant(default(TDefault), typeof(TDefault));
+        => Expression.Constant(type.IsValueType ? RuntimeHelpers.GetUninitializedObject(type) : null, type);
 }

@@ -159,6 +159,9 @@
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
   </data>
+  <data name="LimitOffsetNotSupportedInSubqueries" xml:space="preserve">
+    <value>Skip, Take, First/FirstOrDefault and Single/SingleOrDefault aren't supported in subqueries since Cosmos doesn't support LIMIT/OFFSET in subqueries.</value>
+  </data>
   <data name="LogExecutedCreateItem" xml:space="preserve">
     <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
     <comment>Information CosmosEventId.ExecutedCreateItem string string string string string string?</comment>
@@ -242,6 +245,9 @@
   </data>
   <data name="OffsetRequiresLimit" xml:space="preserve">
     <value>Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
+  </data>
+  <data name="SingleFirstOrDefaultNotSupportedOnNonNullableQueries" xml:space="preserve">
+    <value>SingleOrDefault and FirstOrDefault cannot be used Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
   </data>
   <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
     <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
