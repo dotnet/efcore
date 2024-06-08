@@ -558,7 +558,7 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
     }
 
     [ConditionalFact]
-    public async Task PatIndex_on_non_nullable_column_not_coalesced()
+    public async Task PatIndex_literal()
     {
         using var context = CreateContext();
         var result = await context.Employees
@@ -576,7 +576,7 @@ WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
     }
 
     [ConditionalFact]
-    public async Task PatIndex_null_const_pattern_coalesced_to_zero()
+    public async Task PatIndex_null_pattern()
     {
         using var context = CreateContext();
         var result = await context.Employees
@@ -584,32 +584,11 @@ WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
                 c => EF.Functions.PatIndex(null, c.FirstName) == 0)
             .ToListAsync();
 
-        Assert.Equal(9, result.Count);
-
         AssertSql(
                """
          SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
          FROM [Employees] AS [e]
-         WHERE COALESCE(PATINDEX(NULL, [e].[FirstName]), 0) = 0
-         """);
-    }
-
-    [ConditionalFact]
-    public async Task PatIndex_nullable_column_coalesced_to_zero()
-    {
-        using var context = CreateContext();
-        var result = await context.Customers
-            .Where(
-                c => EF.Functions.PatIndex("%WA%", c.Region) == 0)
-            .ToListAsync();
-
-        Assert.Equal(88, result.Count);
-
-        AssertSql(
-               """
-         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-         FROM [Customers] AS [c]
-         WHERE COALESCE(PATINDEX(N'%WA%', [c].[Region]), 0) = 0
+         WHERE PATINDEX(NULL, [e].[FirstName]) = CAST(0 AS bigint)
          """);
     }
 

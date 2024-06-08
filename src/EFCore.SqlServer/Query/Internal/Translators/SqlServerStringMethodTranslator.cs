@@ -296,18 +296,14 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         {
             var pattern = arguments[1];
             var expression = arguments[2];
-            var patIndexSqlExpression = _sqlExpressionFactory.Function(
+
+            return _sqlExpressionFactory.Function(
                 "PATINDEX",
                 new[] { pattern, expression },
                 nullable: true,
                 argumentsPropagateNullability: new[] { true, true },
                 method.ReturnType
             );
-
-            return (pattern is SqlConstantExpression p && p.Value == null)
-                    || (expression is ColumnExpression e && e.IsNullable)
-                ? _sqlExpressionFactory.Coalesce(patIndexSqlExpression, _sqlExpressionFactory.Constant(0))
-                : patIndexSqlExpression;
         }
 
         return null;
