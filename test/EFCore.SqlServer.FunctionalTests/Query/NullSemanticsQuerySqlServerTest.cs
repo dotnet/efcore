@@ -2543,9 +2543,9 @@ WHERE [e].[IntA] > @__i_0
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN [e].[NullableIntA] > @__i_0 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)
+    WHEN [e].[NullableIntA] > @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """,
             //
             """
@@ -2554,9 +2554,9 @@ END = CAST(0 AS bit)
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN [e].[NullableIntA] >= @__i_0 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)
+    WHEN [e].[NullableIntA] >= @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """,
             //
             """
@@ -2565,9 +2565,9 @@ END = CAST(0 AS bit)
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN [e].[NullableIntA] < @__i_0 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)
+    WHEN [e].[NullableIntA] < @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """,
             //
             """
@@ -2576,9 +2576,9 @@ END = CAST(0 AS bit)
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE CASE
-    WHEN [e].[NullableIntA] <= @__i_0 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)
+    WHEN [e].[NullableIntA] <= @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 

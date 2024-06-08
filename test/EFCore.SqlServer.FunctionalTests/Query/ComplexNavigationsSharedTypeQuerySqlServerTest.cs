@@ -975,9 +975,9 @@ INNER JOIN (
     ) AS [s]
     GROUP BY [s].[Key]
 ) AS [s1] ON [l].[Id] = [s1].[Key] AND CASE
-    WHEN [s1].[Sum] <= 10 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(0 AS bit)
+    WHEN [s1].[Sum] <= 10 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 

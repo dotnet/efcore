@@ -1715,9 +1715,9 @@ WHERE 0 = 1
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE CASE
-    WHEN [p].[UnitsInStock] >= CAST(20 AS smallint) THEN CAST(0 AS bit)
-    ELSE CAST(1 AS bit)
-END = CAST(0 AS bit)
+    WHEN [p].[UnitsInStock] >= CAST(20 AS smallint) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 

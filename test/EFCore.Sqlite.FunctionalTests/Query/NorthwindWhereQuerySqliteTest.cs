@@ -22,10 +22,10 @@ public class NorthwindWhereQuerySqliteTest : NorthwindWhereQueryRelationalTestBa
             """
 SELECT "p"."ProductID", "p"."Discontinued", "p"."ProductName", "p"."SupplierID", "p"."UnitPrice", "p"."UnitsInStock"
 FROM "Products" AS "p"
-WHERE NOT (CASE
-    WHEN "p"."UnitsInStock" >= 20 THEN 0
-    ELSE 1
-END)
+WHERE CASE
+    WHEN "p"."UnitsInStock" >= 20 THEN 1
+    ELSE 0
+END
 """);
     }
 
