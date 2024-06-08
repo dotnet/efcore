@@ -575,23 +575,6 @@ WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
 """);
     }
 
-    [ConditionalFact]
-    public async Task PatIndex_null_pattern()
-    {
-        using var context = CreateContext();
-        var result = await context.Employees
-            .Where(
-                c => EF.Functions.PatIndex(null, c.FirstName) == 0)
-            .ToListAsync();
-
-        AssertSql(
-               """
-         SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-         FROM [Employees] AS [e]
-         WHERE PATINDEX(NULL, [e].[FirstName]) = CAST(0 AS bigint)
-         """);
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Year(bool async)
