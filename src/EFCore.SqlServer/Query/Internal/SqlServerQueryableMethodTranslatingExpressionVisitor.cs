@@ -28,6 +28,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     private static readonly bool UseOldBehavior32374 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32374", out var enabled32374) && enabled32374;
 
+    private static readonly bool UseOldBehavior33932 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33932", out var enabled33932) && enabled33932;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -446,8 +449,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     Offset: null,
                     Orderings: [],
                     Projection: [{ Expression: ColumnExpression { Name: "value", Table: var projectionColumnTable } }]
-                }
+                } subquery
             }
+            && (UseOldBehavior33932 || subquery.Predicate is null)
             && projectionColumnTable == openJsonExpression)
         {
             var newInExpression = _sqlExpressionFactory.In(translatedItem, parameter);
@@ -493,6 +497,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 ]
             } selectExpression
             && TranslateExpression(index) is { } translatedIndex
+            && (UseOldBehavior33932 || selectExpression.Predicate is null)
             && orderingTable == openJsonExpression)
         {
             // Index on JSON array
