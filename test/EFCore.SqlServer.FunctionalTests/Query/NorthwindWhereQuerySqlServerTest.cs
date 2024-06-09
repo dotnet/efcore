@@ -1706,6 +1706,21 @@ WHERE 0 = 1
 """);
     }
 
+    public override async Task Where_ternary_boolean_condition_negated(bool async)
+    {
+        await base.Where_ternary_boolean_condition_negated(async);
+
+        AssertSql(
+            """
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE CASE
+    WHEN [p].[UnitsInStock] >= CAST(20 AS smallint) THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(0 AS bit)
+""");
+    }
+
     public override async Task Where_compare_constructed_equal(bool async)
     {
         //  Anonymous type to constant comparison. Issue #14672.

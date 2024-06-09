@@ -14,6 +14,21 @@ public class NorthwindWhereQuerySqliteTest : NorthwindWhereQueryRelationalTestBa
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task Where_ternary_boolean_condition_negated(bool async)
+    {
+        await base.Where_ternary_boolean_condition_negated(async);
+
+        AssertSql(
+            """
+SELECT "p"."ProductID", "p"."Discontinued", "p"."ProductName", "p"."SupplierID", "p"."UnitPrice", "p"."UnitsInStock"
+FROM "Products" AS "p"
+WHERE NOT (CASE
+    WHEN "p"."UnitsInStock" >= 20 THEN 0
+    ELSE 1
+END)
+""");
+    }
+
     public override Task Where_datetimeoffset_now_component(bool async)
         => AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
 

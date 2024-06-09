@@ -2103,6 +2103,20 @@ WHERE ((c["Discriminator"] = "Product") AND false)
 """);
             });
 
+    public override Task Where_ternary_boolean_condition_negated(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_ternary_boolean_condition_negated(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Product") AND NOT(((c["UnitsInStock"] >= 20) ? false : true)))
+""");
+            });
+
     public override async Task Where_compare_constructed_equal(bool async)
     {
         // Anonymous type to constant comparison. Issue #14672.
