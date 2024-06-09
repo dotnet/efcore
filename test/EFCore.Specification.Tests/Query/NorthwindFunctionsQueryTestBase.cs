@@ -34,6 +34,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
     }
 
+    #region String.StartsWith
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task String_StartsWith_Literal(bool async)
@@ -75,6 +77,49 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_with_StringComparison_Ordinal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.Ordinal)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.OrdinalIgnoreCase)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_StartsWith_with_StringComparison_unsupported(bool async)
+    {
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.CurrentCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
+    }
+
+    #endregion String.StartsWith
+
+    #region String.EndsWith
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_EndsWith_Literal(bool async)
         => AssertQuery(
             async,
@@ -111,6 +156,50 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith(LocalMethod2())));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_with_StringComparison_Ordinal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("DY", StringComparison.Ordinal)),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("DY", StringComparison.OrdinalIgnoreCase)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_EndsWith_with_StringComparison_unsupported(bool async)
+    {
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("Qu", StringComparison.CurrentCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
+    }
+
+    #endregion String.EndsWith
+
+    #region String.Contains
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -155,6 +244,47 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>().Select(c => new { Id = c.CustomerID, Value = !c.CompanyName.Contains(c.ContactName) }),
             elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_with_StringComparison_Ordinal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.Ordinal)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.OrdinalIgnoreCase)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_Contains_with_StringComparison_unsupported(bool async)
+    {
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCultureIgnoreCase))));
+    }
+
+    #endregion String.Contains
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
