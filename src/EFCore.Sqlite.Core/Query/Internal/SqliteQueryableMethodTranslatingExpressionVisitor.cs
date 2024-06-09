@@ -96,6 +96,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             && source.QueryExpression is SelectExpression
             {
                 Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                Predicate: null,
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,
@@ -196,6 +197,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             && source.QueryExpression is SelectExpression
             {
                 Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                Predicate: null,
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,
@@ -465,6 +467,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
                     } jsonEachExpression
                 ],
+                Predicate: null,
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,

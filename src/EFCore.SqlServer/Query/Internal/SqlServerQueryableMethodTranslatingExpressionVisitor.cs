@@ -430,6 +430,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 Subquery:
                 {
                     Tables: [SqlServerOpenJsonExpression { Arguments: [SqlParameterExpression parameter] } openJsonExpression],
+                    Predicate: null,
                     GroupBy: [],
                     Having: null,
                     IsDistinct: false,
@@ -466,6 +467,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && source.QueryExpression is SelectExpression
             {
                 Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
+                Predicate: null,
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,

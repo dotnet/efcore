@@ -813,6 +813,40 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
 """);
             });
 
+    public override Task Column_collection_Count_with_predicate(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Count_with_predicate(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+    SELECT VALUE COUNT(1)
+    FROM i IN c["Ints"]
+    WHERE (i > 1)) = 2))
+""");
+            });
+
+    public override Task Column_collection_Where_Count(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Where_Count(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+    SELECT VALUE COUNT(1)
+    FROM i IN c["Ints"]
+    WHERE (i > 1)) = 2))
+""");
+            });
+
     public override Task Column_collection_index_int(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
