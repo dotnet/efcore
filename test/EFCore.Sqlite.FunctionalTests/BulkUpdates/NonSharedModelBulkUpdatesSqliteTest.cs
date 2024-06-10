@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
+
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
@@ -57,6 +59,20 @@ DELETE FROM "Owner" AS "o"
         await base.Delete_aggregate_root_when_table_sharing_with_non_owned_throws(async);
 
         AssertSql();
+    }
+
+    public override async Task Replace_ColumnExpression_in_column_setter(bool async)
+    {
+        // #33947
+        await Assert.ThrowsAsync<SqliteException>(() => base.Replace_ColumnExpression_in_column_setter(async));
+
+        AssertSql(
+            """
+UPDATE "OwnedCollection" AS "o0"
+SET "Value" = 'SomeValue'
+FROM "Owner" AS "o"
+INNER JOIN "OwnedCollection" AS "o0" ON "o"."Id" = "o0"."OwnerId"
+""");
     }
 
     public override async Task Update_non_owned_property_on_entity_with_owned(bool async)
