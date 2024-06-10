@@ -21,6 +21,9 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _areJsonFunctionsSupported;
 
+    private static readonly bool UseOldBehavior33932 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue33932", out var enabled33932) && enabled33932;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -82,7 +85,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 IsDistinct: false,
                 Limit: null,
                 Offset: null
-            })
+            } subquery
+            && (UseOldBehavior33932 || subquery.Predicate is null))
         {
             var translation =
                 _sqlExpressionFactory.GreaterThan(
@@ -180,7 +184,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 IsDistinct: false,
                 Limit: null,
                 Offset: null
-            })
+            } subquery
+            && (UseOldBehavior33932 || subquery.Predicate is null))
         {
             var translation = _sqlExpressionFactory.Function(
                 "json_array_length",
@@ -456,7 +461,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 Offset: null
             } selectExpression
             && orderingColumn.Table == jsonEachExpression
-            && TranslateExpression(index) is { } translatedIndex)
+            && TranslateExpression(index) is { } translatedIndex
+            && (UseOldBehavior33932 || selectExpression.Predicate is null))
         {
             // Index on JSON array
 
