@@ -663,6 +663,36 @@ WHERE (
 """);
     }
 
+    public override async Task Column_collection_Count_with_predicate(bool async)
+    {
+        await base.Column_collection_Count_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 1) = 2
+""");
+    }
+
+    public override async Task Column_collection_Where_Count(bool async)
+    {
+        await base.Column_collection_Where_Count(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 1) = 2
+""");
+    }
+
     public override async Task Column_collection_index_int(bool async)
     {
         await base.Column_collection_index_int(async);

@@ -649,6 +649,37 @@ WHERE json_array_length("p"."Ints") = 2
 """);
     }
 
+    public override async Task Column_collection_Count_with_predicate(bool async)
+    {
+        await base.Column_collection_Count_with_predicate(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" > 1) = 2
+""");
+    }
+
+    // #33932
+    public override async Task Column_collection_Where_Count(bool async)
+    {
+        await base.Column_collection_Where_Count(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each("p"."Ints") AS "i"
+    WHERE "i"."value" > 1) = 2
+""");
+    }
+
     public override async Task Column_collection_index_int(bool async)
     {
         await base.Column_collection_index_int(async);

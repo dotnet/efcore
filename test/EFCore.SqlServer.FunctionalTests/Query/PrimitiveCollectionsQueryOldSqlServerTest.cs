@@ -468,6 +468,12 @@ WHERE 0 = 1
     public override Task Column_collection_Length(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Length(async));
 
+    public override Task Column_collection_Count_with_predicate(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Count_with_predicate(async));
+
+    public override Task Column_collection_Where_Count(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Count(async));
+
     public override Task Column_collection_index_int(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_int(async));
 
