@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class EntityProjectionExpression : Expression, IPrintableExpression, IAccessExpression
 {
     private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = new();
-    private readonly Dictionary<INavigation, IAccessExpression> _navigationExpressionsMap = new();
+    private readonly Dictionary<INavigation, StructuralTypeShaperExpression> _navigationExpressionsMap = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,11 +23,11 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityProjectionExpression(IEntityType entityType, Expression accessExpression)
+    public EntityProjectionExpression(Expression @object, IEntityType entityType)
     {
+        Object = @object;
         EntityType = entityType;
-        AccessExpression = accessExpression;
-        Name = (accessExpression as IAccessExpression)?.Name;
+        PropertyName = (@object as IAccessExpression)?.PropertyName;
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression AccessExpression { get; }
+    public virtual Expression Object { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -70,7 +70,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? Name { get; }
+    public virtual string? PropertyName { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,7 +79,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => Update(visitor.Visit(AccessExpression));
+        => Update(visitor.Visit(Object));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,10 +87,10 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Update(Expression accessExpression)
-        => accessExpression != AccessExpression
-            ? new EntityProjectionExpression(EntityType, accessExpression)
-            : this;
+    public virtual Expression Update(Expression @object)
+        => ReferenceEquals(@object, Object)
+            ? this
+            : new EntityProjectionExpression(@object, EntityType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,7 +109,8 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
 
         if (!_propertyExpressionsMap.TryGetValue(property, out var expression))
         {
-            expression = new KeyAccessExpression(property, AccessExpression);
+            expression = new ScalarAccessExpression(
+                Object, property.GetJsonPropertyName(), property.ClrType, property.GetTypeMapping());
             _propertyExpressionsMap[property] = expression;
         }
 
@@ -118,7 +119,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
             // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
             // TODO: We shouldn't be returning null from here
             && property.Name != StoreKeyConvention.JObjectPropertyName
-            && expression.Name?.Length is null or 0)
+            && expression.PropertyName?.Length is null or 0)
         {
             // Non-persisted property can't be translated
             return null!;
@@ -144,24 +145,29 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
 
         if (!_navigationExpressionsMap.TryGetValue(navigation, out var expression))
         {
+            // TODO: Unify ObjectAccessExpression and ObjectArrayAccessExpression
             expression = navigation.IsCollection
-                ? new ObjectArrayProjectionExpression(navigation, AccessExpression)
-                : new EntityProjectionExpression(
+                ? new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
-                    new ObjectAccessExpression(navigation, AccessExpression));
+                    new ObjectArrayAccessExpression(Object, navigation),
+                    nullable: true)
+                : new StructuralTypeShaperExpression(
+                    navigation.TargetEntityType,
+                    new EntityProjectionExpression(new ObjectAccessExpression(Object, navigation), navigation.TargetEntityType),
+                    nullable: !navigation.ForeignKey.IsRequiredDependent);
 
             _navigationExpressionsMap[navigation] = expression;
         }
 
-        if (!clientEval
-            && expression.Name?.Length is null or 0)
-        {
-            // Non-persisted navigation can't be translated
-            // TODO: We shouldn't be returning null from here
-            return null!;
-        }
+        // if (!clientEval
+        //     && expression.PropertyName?.Length is null or 0)
+        // {
+        //     // Non-persisted navigation can't be translated
+        //     // TODO: We shouldn't be returning null from here
+        //     return null!;
+        // }
 
-        return (Expression)expression;
+        return expression;
     }
 
     /// <summary>
@@ -237,7 +243,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
                     derivedType.DisplayName(), EntityType.DisplayName()));
         }
 
-        return new EntityProjectionExpression(derivedType, AccessExpression);
+        return new EntityProjectionExpression(Object, derivedType);
     }
 
     /// <summary>
@@ -247,7 +253,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Visit(AccessExpression);
+        => expressionPrinter.Visit(Object);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -263,7 +269,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
 
     private bool Equals(EntityProjectionExpression entityProjectionExpression)
         => Equals(EntityType, entityProjectionExpression.EntityType)
-            && AccessExpression.Equals(entityProjectionExpression.AccessExpression);
+            && Object.Equals(entityProjectionExpression.Object);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -272,5 +278,14 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(EntityType, AccessExpression);
+        => HashCode.Combine(EntityType, Object);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override string ToString()
+        => $"EntityProjectionExpression: {EntityType.ShortName()}";
 }

@@ -10,12 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlFunctionExpression(
-        string name,
-        IEnumerable<SqlExpression> arguments,
-        Type type,
-        CoreTypeMapping? typeMapping)
-    : SqlExpression(type, typeMapping)
+public class SqlFunctionExpression : SqlExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,7 +18,16 @@ public class SqlFunctionExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Name { get; } = name;
+    public SqlFunctionExpression(
+        string name,
+        IEnumerable<Expression> arguments,
+        Type type,
+        CoreTypeMapping? typeMapping)
+        : base(type, typeMapping)
+    {
+        Name = name;
+        Arguments = arguments.ToList();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +35,15 @@ public class SqlFunctionExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<SqlExpression> Arguments { get; } = arguments.ToList();
+    public virtual string Name { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<Expression> Arguments { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,19 +54,15 @@ public class SqlFunctionExpression(
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var changed = false;
-        var arguments = new SqlExpression[Arguments.Count];
+        var arguments = new Expression[Arguments.Count];
         for (var i = 0; i < arguments.Length; i++)
         {
-            arguments[i] = (SqlExpression)visitor.Visit(Arguments[i]);
+            arguments[i] = visitor.Visit(Arguments[i]);
             changed |= arguments[i] != Arguments[i];
         }
 
         return changed
-            ? new SqlFunctionExpression(
-                Name,
-                arguments,
-                Type,
-                TypeMapping)
+            ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
             : this;
     }
 
@@ -73,10 +81,10 @@ public class SqlFunctionExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
-        => !arguments.SequenceEqual(Arguments)
-            ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
-            : this;
+    public virtual SqlFunctionExpression Update(IReadOnlyList<Expression> arguments)
+        => arguments.SequenceEqual(Arguments)
+            ? this
+            : new SqlFunctionExpression(Name, arguments, Type, TypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

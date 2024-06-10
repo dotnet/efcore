@@ -87,7 +87,7 @@ public class ExpressionPrinter : ExpressionVisitor
     /// </summary>
     /// <param name="value">The string to append.</param>
     /// <returns>This printer so additional calls can be chained.</returns>
-    public virtual ExpressionVisitor AppendLine(string value)
+    public virtual ExpressionPrinter AppendLine(string value)
     {
         _stringBuilder.AppendLine(value);
         return this;

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
-public class ArrayExpression(SelectExpression subquery, Type arrayClrType, CoreTypeMapping? arrayTypeMapping = null)
+public class ScalarArrayExpression(SelectExpression subquery, Type arrayClrType, CoreTypeMapping? arrayTypeMapping = null)
     : SqlExpression(arrayClrType, arrayTypeMapping)
 {
     /// <summary>
@@ -35,11 +35,11 @@ public class ArrayExpression(SelectExpression subquery, Type arrayClrType, CoreT
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ArrayExpression VisitChildren(ExpressionVisitor visitor)
+    protected override ScalarArrayExpression VisitChildren(ExpressionVisitor visitor)
         => visitor.Visit(Subquery) is var newQuery
             && ReferenceEquals(newQuery, Subquery)
                 ? this
-                : new ArrayExpression((SelectExpression)newQuery, Type, TypeMapping);
+                : new ScalarArrayExpression((SelectExpression)newQuery, Type, TypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,9 +56,9 @@ public class ArrayExpression(SelectExpression subquery, Type arrayClrType, CoreT
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
-        => obj is ArrayExpression other && Equals(other);
+        => obj is ScalarArrayExpression other && Equals(other);
 
-    private bool Equals(ArrayExpression? other)
+    private bool Equals(ScalarArrayExpression? other)
         => ReferenceEquals(this, other) || (base.Equals(other) && Subquery.Equals(other.Subquery));
 
     /// <inheritdoc />

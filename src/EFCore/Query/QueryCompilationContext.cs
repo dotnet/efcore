@@ -289,13 +289,17 @@ public class QueryCompilationContext
     private static readonly MethodInfo QueryContextAddParameterMethodInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredMethod(nameof(QueryContext.AddParameter))!;
 
-    private sealed class NotTranslatedExpressionType : Expression
+    [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
+    private sealed class NotTranslatedExpressionType : Expression, IPrintableExpression
     {
         public override Type Type
             => typeof(object);
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;
+
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+            => expressionPrinter.Append("!!! NotTranslated !!!");
     }
 
     private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor

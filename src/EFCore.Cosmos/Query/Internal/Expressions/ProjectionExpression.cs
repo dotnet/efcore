@@ -36,7 +36,7 @@ public class ProjectionExpression(Expression expression, string alias)
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string? Name
-        => (Expression as IAccessExpression)?.Name;
+        => (Expression as IAccessExpression)?.PropertyName;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -22,7 +22,7 @@ public static class CosmosQueryUtils
     public static bool TryConvertToArray(
         ShapedQueryExpression source,
         ITypeMappingSource typeMappingSource,
-        [NotNullWhen(true)] out SqlExpression? array,
+        [NotNullWhen(true)] out Expression? array,
         bool ignoreOrderings = false)
         => TryConvertToArray(source, typeMappingSource, out array, out _, ignoreOrderings);
 
@@ -35,8 +35,8 @@ public static class CosmosQueryUtils
     public static bool TryConvertToArray(
         ShapedQueryExpression source,
         ITypeMappingSource typeMappingSource,
-        [NotNullWhen(true)] out SqlExpression? array,
-        [NotNullWhen(true)] out SqlExpression? projection,
+        [NotNullWhen(true)] out Expression? array,
+        [NotNullWhen(true)] out Expression? projection,
         bool ignoreOrderings = false)
     {
         if (TryExtractBareArray(source, out array, out var projectedScalar, ignoreOrderings))
@@ -53,12 +53,21 @@ public static class CosmosQueryUtils
 
             // TODO: Should the type be an array, or enumerable/queryable?
             var arrayClrType = projection.Type.MakeArrayType();
-            // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
-            // value conversion).
-            var arrayTypeMapping = typeMappingSource.FindMapping(arrayClrType);
 
-            array = new ArrayExpression(subquery, arrayClrType, arrayTypeMapping);
-            return true;
+            switch (projection)
+            {
+                case StructuralTypeShaperExpression:
+                    array = new ObjectArrayExpression(subquery, arrayClrType);
+                    return true;
+
+                // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
+                // value conversion).
+                case SqlExpression sqlExpression:
+                    var arrayTypeMapping = typeMappingSource.FindMapping(arrayClrType);
+
+                    array = new ScalarArrayExpression(subquery, arrayClrType, arrayTypeMapping);
+                    return true;
+            }
         }
 
         array = null;
@@ -74,7 +83,7 @@ public static class CosmosQueryUtils
     /// </summary>
     public static bool TryExtractBareArray(
         ShapedQueryExpression source,
-        [NotNullWhen(true)] out SqlExpression? array,
+        [NotNullWhen(true)] out Expression? array,
         bool ignoreOrderings = false)
         => TryExtractBareArray(source, out array, out _, ignoreOrderings);
 
@@ -86,8 +95,25 @@ public static class CosmosQueryUtils
     /// </summary>
     public static bool TryExtractBareArray(
         ShapedQueryExpression source,
-        [NotNullWhen(true)] out SqlExpression? array,
-        [NotNullWhen(true)] out SqlExpression? projectedScalarReference,
+        [NotNullWhen(true)] out Expression? array,
+        [NotNullWhen(true)] out Expression? projection,
+        bool ignoreOrderings = false)
+        => TryExtractBareArray(source, out array, out projection, out _, out var boundMember, ignoreOrderings)
+            && boundMember is null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static bool TryExtractBareArray(
+        ShapedQueryExpression source,
+        [NotNullWhen(true)] out Expression? array,
+        [NotNullWhen(true)] out Expression? projection,
+        out StructuralTypeShaperExpression? projectedStructuralTypeShaper,
+        // On this, see comment in CosmosQueryableMethodTranslatingEV.VisitMethod()
+        out Expression? boundMember,
         bool ignoreOrderings = false)
     {
         if (source.QueryExpression is not SelectExpression
@@ -98,36 +124,73 @@ public static class CosmosQueryUtils
                 Offset: null
             } select
             || (!ignoreOrderings && select.Orderings.Count > 0)
-            || !TryGetProjection(source, out var projection)
-            || projection is not ScalarReferenceExpression scalarReferenceProjection)
+            || !TryGetProjection(source, out projection))
         {
-            array = null;
-            projectedScalarReference = null;
-            return false;
+            goto ExitFailed;
         }
 
-        switch (source.QueryExpression)
+        // On this, see comment in CosmosQueryableMethodTranslatingEV.VisitMethod()
+        switch (projection)
         {
-            // For properties: SELECT i FROM i IN c.SomeArray
-            // So just match any SelectExpression with IN.
-            case SelectExpression {
-                Sources: [{ WithIn: true, ContainerExpression: SqlExpression a } arraySource],
-            } when scalarReferenceProjection.Name == arraySource.Alias:
-            {
-                array = a;
-                projectedScalarReference = scalarReferenceProjection;
-                return true;
-            }
+            case ScalarAccessExpression { Object: ObjectReferenceExpression objectRef } scalarAccess:
+                projection = objectRef;
+                boundMember = scalarAccess;
+                break;
 
-            // For inline and parameter arrays the case is unfortunately more difficult; Cosmos doesn't allow SELECT i FROM i IN [1,2,3]
-            // or SELECT i FROM i IN @p.
-            // So we instead generate SELECT i FROM i IN (SELECT VALUE [1,2,3]), which needs to be match here.
-            case SelectExpression
+            case ObjectAccessExpression { Object: ObjectReferenceExpression objectRef } objectAccess:
+                projection = objectRef;
+                boundMember = objectAccess;
+                break;
+
+            default:
+                boundMember = null;
+                break;
+        }
+
+        if (projection is StructuralTypeShaperExpression shaper)
+        {
+            projectedStructuralTypeShaper = shaper;
+            projection = shaper.ValueBufferExpression;
+            if (projection is ProjectionBindingExpression { ProjectionMember: ProjectionMember projectionMember }
+                && select.GetMappedProjection(projectionMember) is EntityProjectionExpression entityProjection)
+            {
+                projection = entityProjection.Object;
+            }
+        }
+        else
+        {
+            projectedStructuralTypeShaper = null;
+        }
+
+        var projectedReferenceName = projection switch
+        {
+            ScalarReferenceExpression { Name: var name } => name,
+            ObjectReferenceExpression { Name: var name } => name,
+
+            _ => null
+        };
+
+        if (projectedReferenceName is null)
+        {
+            goto ExitFailed;
+        }
+
+        switch (select)
+        {
+            // SelectExpressions representing bare arrays are of the form SELECT VALUE i FROM i IN x.
+            // Unfortunately, Cosmos doesn't support x being anything but a root container or a property access
+            // (e.g. SELECT VALUE i FROM i IN c.SomeArray).
+            // For example, x cannot be a function invocation (SELECT VALUE i FROM i IN SetUnion(...)) or an array constant
+            // (SELECT VALUE i FROM i IN [1,2,3]).
+            // So we wrap any non-property in a subquery as follows: SELECT i FROM i IN (SELECT VALUE [1,2,3]), and that needs to be
+            // match here.
+            case
             {
                 Sources:
                 [
                     {
                         WithIn: true,
+                        Alias: var sourceAlias,
                         ContainerExpression: SelectExpression
                         {
                             Sources: [],
@@ -137,22 +200,32 @@ public static class CosmosQueryUtils
                             Orderings: [],
                             IsDistinct: false,
                             UsesSingleValueProjection: true,
-                            Projection: [{Expression: SqlExpression a}]
+                            Projection: [{ Expression: var a }]
                         },
-                    } arraySource
+                    }
                 ]
-            } when scalarReferenceProjection.Name == arraySource.Alias:
+            } when projectedReferenceName == sourceAlias:
             {
                 array = a;
-                projectedScalarReference = scalarReferenceProjection;
                 return true;
             }
 
-            default:
-                array = null;
-                projectedScalarReference = null;
-                return false;
+            // For properties: SELECT i FROM i IN c.SomeArray
+            // So just match any SelectExpression with IN.
+            case { Sources: [{ WithIn: true, ContainerExpression: var a, Alias: var sourceAlias }] }
+                when projectedReferenceName == sourceAlias:
+            {
+                array = a;
+                return true;
+            }
         }
+
+        ExitFailed:
+        array = null;
+        projection = null;
+        projectedStructuralTypeShaper = null;
+        boundMember = null;
+        return false;
     }
 
     /// <summary>
@@ -163,7 +236,7 @@ public static class CosmosQueryUtils
     /// </summary>
     public static bool TryGetProjection(
         ShapedQueryExpression shapedQueryExpression,
-        [NotNullWhen(true)] out SqlExpression? projectedScalarReference)
+        [NotNullWhen(true)] out Expression? projection)
     {
         var shaperExpression = shapedQueryExpression.ShaperExpression;
         // No need to check ConvertChecked since this is convert node which we may have added during projection
@@ -174,15 +247,23 @@ public static class CosmosQueryUtils
             shaperExpression = unaryExpression.Operand;
         }
 
-        if (shapedQueryExpression.QueryExpression is SelectExpression selectExpression
-            && shaperExpression is ProjectionBindingExpression { ProjectionMember: ProjectionMember projectionMember }
-            && selectExpression.GetMappedProjection(projectionMember) is SqlExpression projection)
+        switch (shaperExpression)
         {
-            projectedScalarReference = projection;
-            return true;
+            case ProjectionBindingExpression { ProjectionMember: ProjectionMember projectionMember }
+                when shapedQueryExpression.QueryExpression is SelectExpression selectExpression:
+            {
+                projection = selectExpression.GetMappedProjection(projectionMember);
+                return true;
+            }
+
+            case StructuralTypeShaperExpression shaper:
+            {
+                projection = shaper;
+                return true;
+            }
         }
 
-        projectedScalarReference = null;
+        projection = null;
         return false;
     }
 }

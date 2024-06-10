@@ -568,15 +568,15 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     /// </summary>
     public virtual SqlFunctionExpression Function(
         string functionName,
-        IEnumerable<SqlExpression> arguments,
+        IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null)
     {
-        var typeMappedArguments = new List<SqlExpression>();
+        var typeMappedArguments = new List<Expression>();
 
         foreach (var argument in arguments)
         {
-            typeMappedArguments.Add(ApplyDefaultTypeMapping(argument));
+            typeMappedArguments.Add(argument is SqlExpression sqlArgument ? ApplyDefaultTypeMapping(sqlArgument) : argument);
         }
 
         return new SqlFunctionExpression(

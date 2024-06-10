@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
-///     Represents a property access on a CosmosJSON object, which returns a JSON object (structural type) (e.g. <c>c.Address</c>).
+///     Represents a property access on a CosmosJSON object, which returns an array of JSON objects (structural types) (e.g.
+///     <c>c.Addresses</c>).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessExpression
+public class ObjectArrayAccessExpression : Expression, IPrintableExpression, IAccessExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,15 +24,23 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ObjectAccessExpression(Expression @object, INavigation navigation)
+    public ObjectArrayAccessExpression(
+        Expression @object,
+        INavigation navigation,
+        EntityProjectionExpression? innerProjection = null)
     {
-        PropertyName = navigation.TargetEntityType.GetContainingPropertyName()
+        var targetType = navigation.TargetEntityType;
+        Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
+
+        PropertyName = targetType.GetContainingPropertyName()
             ?? throw new InvalidOperationException(
                 CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
                     navigation.DeclaringEntityType.DisplayName(), navigation.Name));
 
         Navigation = navigation;
         Object = @object;
+        InnerProjection = innerProjection
+            ?? new EntityProjectionExpression(new ObjectReferenceExpression(targetType, ""), targetType);
     }
 
     /// <summary>
@@ -40,7 +49,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ExpressionType NodeType
+    public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
 
     /// <summary>
@@ -49,8 +58,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Type Type
-        => Navigation.ClrType;
+    public override Type Type { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,8 +90,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => Update(visitor.Visit(Object));
+    public virtual EntityProjectionExpression InnerProjection { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,9 +98,25 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ObjectAccessExpression Update(Expression outerExpression)
-        => outerExpression != Object
-            ? new ObjectAccessExpression(outerExpression, Navigation)
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+    {
+        var accessExpression = visitor.Visit(Object);
+        var innerProjection = visitor.Visit(InnerProjection);
+
+        return Update(accessExpression, (EntityProjectionExpression)innerProjection);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ObjectArrayAccessExpression Update(
+        Expression accessExpression,
+        EntityProjectionExpression innerProjection)
+        => accessExpression != Object || innerProjection != InnerProjection
+            ? new ObjectArrayAccessExpression(accessExpression, Navigation, innerProjection)
             : this;
 
     /// <summary>
@@ -123,12 +146,12 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectAccessExpression objectAccessExpression
-                && Equals(objectAccessExpression));
+                || obj is ObjectArrayAccessExpression arrayProjectionExpression
+                && Equals(arrayProjectionExpression));
 
-    private bool Equals(ObjectAccessExpression objectAccessExpression)
-        => Navigation == objectAccessExpression.Navigation
-            && Object.Equals(objectAccessExpression.Object);
+    private bool Equals(ObjectArrayAccessExpression objectArrayAccessExpression)
+        => Object.Equals(objectArrayAccessExpression.Object)
+            && InnerProjection.Equals(objectArrayAccessExpression.InnerProjection);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,5 +160,5 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(Navigation, Object);
+        => HashCode.Combine(Object, InnerProjection);
 }

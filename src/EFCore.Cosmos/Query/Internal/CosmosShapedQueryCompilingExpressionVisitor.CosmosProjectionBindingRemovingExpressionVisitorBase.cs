@@ -86,33 +86,38 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
 
                         Expression innerAccessExpression;
-                        if (projectionExpression is ObjectArrayProjectionExpression objectArrayProjectionExpression)
+                        switch (projectionExpression)
                         {
-                            innerAccessExpression = objectArrayProjectionExpression.AccessExpression;
-                            _projectionBindings[objectArrayProjectionExpression] = parameterExpression;
-                            storeName ??= objectArrayProjectionExpression.Name;
-                        }
-                        else
-                        {
-                            var entityProjectionExpression = (EntityProjectionExpression)projectionExpression;
-                            var accessExpression = entityProjectionExpression.AccessExpression;
-                            _projectionBindings[accessExpression] = parameterExpression;
-                            storeName ??= entityProjectionExpression.Name;
+                            case ObjectArrayAccessExpression objectArrayProjectionExpression:
+                                innerAccessExpression = objectArrayProjectionExpression.Object;
+                                _projectionBindings[objectArrayProjectionExpression] = parameterExpression;
+                                storeName ??= objectArrayProjectionExpression.PropertyName;
+                                break;
 
-                            switch (accessExpression)
-                            {
-                                case ObjectAccessExpression innerObjectAccessExpression:
-                                    innerAccessExpression = innerObjectAccessExpression.AccessExpression;
-                                    _ownerMappings[accessExpression] =
-                                        (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
-                                    break;
-                                case ObjectReferenceExpression:
-                                    innerAccessExpression = jObjectParameter;
-                                    break;
-                                default:
-                                    throw new InvalidOperationException(
-                                        CoreStrings.TranslationFailed(binaryExpression.Print()));
-                            }
+                            case EntityProjectionExpression entityProjectionExpression:
+                                var accessExpression = entityProjectionExpression.Object;
+                                _projectionBindings[accessExpression] = parameterExpression;
+                                storeName ??= entityProjectionExpression.PropertyName;
+
+                                switch (accessExpression)
+                                {
+                                    case ObjectAccessExpression innerObjectAccessExpression:
+                                        innerAccessExpression = innerObjectAccessExpression.Object;
+                                        _ownerMappings[accessExpression] =
+                                            (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
+                                        break;
+                                    case ObjectReferenceExpression:
+                                        innerAccessExpression = jObjectParameter;
+                                        break;
+                                    default:
+                                        throw new InvalidOperationException(
+                                            CoreStrings.TranslationFailed(binaryExpression.Print()));
+                                }
+
+                                break;
+
+                            default:
+                                throw new UnreachableException();
                         }
 
                         var valueExpression = CreateGetValueExpression(innerAccessExpression, storeName, parameterExpression.Type);
@@ -136,7 +141,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             entityProjectionExpression = (EntityProjectionExpression)projection;
                         }
 
-                        _materializationContextBindings[parameterExpression] = entityProjectionExpression.AccessExpression;
+                        _materializationContextBindings[parameterExpression] = entityProjectionExpression.Object;
 
                         var updatedExpression = New(
                             newExpression.Constructor,
@@ -224,28 +229,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 case CollectionShaperExpression collectionShaperExpression:
                 {
-                    ObjectArrayProjectionExpression objectArrayProjection;
+                    ObjectArrayAccessExpression objectArrayAccess;
                     switch (collectionShaperExpression.Projection)
                     {
                         case ProjectionBindingExpression projectionBindingExpression:
                             var projection = GetProjection(projectionBindingExpression);
-                            objectArrayProjection = (ObjectArrayProjectionExpression)projection.Expression;
+                            objectArrayAccess = (ObjectArrayAccessExpression)projection.Expression;
                             break;
-                        case ObjectArrayProjectionExpression objectArrayProjectionExpression:
-                            objectArrayProjection = objectArrayProjectionExpression;
+                        case ObjectArrayAccessExpression objectArrayProjectionExpression:
+                            objectArrayAccess = objectArrayProjectionExpression;
                             break;
                         default:
                             throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
                     }
 
-                    var jArray = _projectionBindings[objectArrayProjection];
+                    var jArray = _projectionBindings[objectArrayAccess];
                     var jObjectParameter = Parameter(typeof(JObject), jArray.Name + "Object");
                     var ordinalParameter = Parameter(typeof(int), jArray.Name + "Ordinal");
 
-                    var accessExpression = objectArrayProjection.InnerProjection.AccessExpression;
+                    var accessExpression = objectArrayAccess.InnerProjection.Object;
                     _projectionBindings[accessExpression] = jObjectParameter;
                     _ownerMappings[accessExpression] =
-                        (objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
+                        (objectArrayAccess.Navigation.DeclaringEntityType, objectArrayAccess.Object);
                     _ordinalParameterBindings[accessExpression] = Add(
                         ordinalParameter, Constant(1, typeof(int)));
 
@@ -596,19 +601,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 if (entityType == null
                     || !entityType.IsDocumentRoot())
                 {
-                    if (ownership != null
-                        && !ownership.IsUnique)
+                    if (ownership is { IsUnique: false } && property.IsOrdinalKeyProperty())
                     {
-                        if (property.IsOrdinalKeyProperty())
+                        var ordinalExpression = _ordinalParameterBindings[jObjectExpression];
+                        if (ordinalExpression.Type != type)
                         {
-                            var ordinalExpression = _ordinalParameterBindings[jObjectExpression];
-                            if (ordinalExpression.Type != type)
-                            {
-                                ordinalExpression = Convert(ordinalExpression, type);
-                            }
-
-                            return ordinalExpression;
+                            ordinalExpression = Convert(ordinalExpression, type);
                         }
+
+                        return ordinalExpression;
                     }
 
                     var principalProperty = property.FindFirstPrincipal();
@@ -629,7 +630,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         }
                         else if (jObjectExpression is ObjectAccessExpression objectAccessExpression)
                         {
-                            ownerJObjectExpression = objectAccessExpression.AccessExpression;
+                            ownerJObjectExpression = objectAccessExpression.Object;
                         }
 
                         if (ownerJObjectExpression != null)
@@ -643,8 +644,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             // Workaround for old databases that didn't store the key property
-            if (ownership != null
-                && !ownership.IsUnique
+            if (ownership is { IsUnique: false }
                 && !entityType.IsDocumentRoot()
                 && property.ClrType == typeof(int)
                 && !property.IsForeignKey()
@@ -686,23 +686,22 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             Check.DebugAssert(type.IsNullableType(), "Must read nullable type from JObject.");
 
-            var innerExpression = jObjectExpression;
-            if (_projectionBindings.TryGetValue(jObjectExpression, out var innerVariable))
+            var innerExpression = jObjectExpression switch
             {
-                innerExpression = innerVariable;
-            }
-            else if (jObjectExpression is ObjectReferenceExpression objectReferenceExpression)
-            {
-                innerExpression = CreateGetValueExpression(
-                    jObjectParameter, objectReferenceExpression.Name, typeof(JObject));
-            }
-            else if (jObjectExpression is ObjectAccessExpression objectAccessExpression)
-            {
-                var innerAccessExpression = objectAccessExpression.AccessExpression;
+                _ when _projectionBindings.TryGetValue(jObjectExpression, out var innerVariable)
+                    => innerVariable,
 
-                innerExpression = CreateGetValueExpression(
-                    innerAccessExpression, ((IAccessExpression)innerAccessExpression).Name, typeof(JObject));
-            }
+                ObjectReferenceExpression objectReference
+                    => CreateGetValueExpression(jObjectParameter, objectReference.Name, typeof(JObject)),
+
+                ObjectAccessExpression objectAccessExpression
+                    => CreateGetValueExpression(
+                        objectAccessExpression.Object,
+                        ((IAccessExpression)objectAccessExpression.Object).PropertyName,
+                        typeof(JObject)),
+
+                _ => jObjectExpression
+            };
 
             var jTokenExpression = CreateReadJTokenExpression(innerExpression, storeName);
 
