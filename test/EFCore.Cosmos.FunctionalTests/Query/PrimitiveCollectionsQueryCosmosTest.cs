@@ -469,6 +469,30 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 """);
             });
 
+    public override Task Parameter_collection_HashSet_of_ints_Contains_int(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_collection_HashSet_of_ints_Contains_int(a);
+
+                AssertSql(
+                    """
+@__ints_0='[10,999]'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+""",
+                    //
+                    """
+@__ints_0='[10,999]'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["Int"])))
+""");
+            });
+
     public override Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
