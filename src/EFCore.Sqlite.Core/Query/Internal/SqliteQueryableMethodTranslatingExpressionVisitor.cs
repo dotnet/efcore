@@ -102,7 +102,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 IsDistinct: false,
                 Limit: null,
                 Offset: null
-            })
+            } subquery
+            && (UseOldBehavior33932 || subquery.Predicate is null))
         {
             var translation =
                 _sqlExpressionFactory.GreaterThan(
@@ -203,7 +204,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 IsDistinct: false,
                 Limit: null,
                 Offset: null
-            })
+            } subquery
+            && (UseOldBehavior33932 || subquery.Predicate is null))
         {
             var translation = _sqlExpressionFactory.Function(
                 "json_array_length",
@@ -476,7 +478,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 Offset: null
             } selectExpression
             && orderingColumn.TableAlias == jsonEachExpression.Alias
-            && TranslateExpression(index) is { } translatedIndex)
+            && TranslateExpression(index) is { } translatedIndex
+            && (UseOldBehavior33932 || selectExpression.Predicate is null))
         {
             // Index on JSON array
 
