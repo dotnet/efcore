@@ -77,6 +77,8 @@ WHERE [o].[OrderDate] <= @__myDatetime_0
 """);
     }
 
+    #region String.StartsWith
+
     public override async Task String_StartsWith_Literal(bool async)
     {
         await base.String_StartsWith_Literal(async);
@@ -139,6 +141,31 @@ WHERE [c].[ContactName] LIKE N'M%'
 """);
     }
 
+    public override async Task String_StartsWith_with_StringComparison_Ordinal(bool async)
+    {
+        await base.String_StartsWith_with_StringComparison_Ordinal(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+    {
+        await base.String_StartsWith_with_StringComparison_OrdinalIgnoreCase(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_StartsWith_with_StringComparison_unsupported(bool async)
+    {
+        await base.String_StartsWith_with_StringComparison_unsupported(async);
+
+        AssertSql();
+    }
+
+    #endregion String.StartsWith
+
+    #region String.EndsWith
+
     public override async Task String_EndsWith_Literal(bool async)
     {
         await base.String_EndsWith_Literal(async);
@@ -200,6 +227,29 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'%m'
 """);
     }
+
+    public override async Task String_EndsWith_with_StringComparison_Ordinal(bool async)
+    {
+        await base.String_EndsWith_with_StringComparison_Ordinal(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+    {
+        await base.String_EndsWith_with_StringComparison_OrdinalIgnoreCase(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_EndsWith_with_StringComparison_unsupported(bool async)
+    {
+        await base.String_EndsWith_with_StringComparison_unsupported(async);
+
+        AssertSql();
+    }
+
+    #endregion String.EndsWith
 
     public override async Task String_Contains_Literal(bool async)
     {
@@ -2839,6 +2889,27 @@ SELECT [c].[CustomerID] AS [Id], CASE
 END AS [Value]
 FROM [Customers] AS [c]
 """);
+    }
+
+    public override async Task String_Contains_with_StringComparison_Ordinal(bool async)
+    {
+        await base.String_Contains_with_StringComparison_Ordinal(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
+    {
+        await base.String_Contains_with_StringComparison_OrdinalIgnoreCase(async);
+
+        AssertSql();
+    }
+
+    public override async Task String_Contains_with_StringComparison_unsupported(bool async)
+    {
+        await base.String_Contains_with_StringComparison_unsupported(async);
+
+        AssertSql();
     }
 
     [ConditionalTheory]

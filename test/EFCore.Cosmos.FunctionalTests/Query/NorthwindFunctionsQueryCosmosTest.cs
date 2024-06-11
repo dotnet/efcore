@@ -24,6 +24,8 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    #region String.StartsWith
+
     public override Task String_StartsWith_Literal(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -95,6 +97,47 @@ FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
 """);
             });
+
+    public override Task String_StartsWith_with_StringComparison_Ordinal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_StartsWith_with_StringComparison_Ordinal(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CompanyName"], "Qu", false))
+""");
+            });
+
+    public override Task String_StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_StartsWith_with_StringComparison_OrdinalIgnoreCase(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CompanyName"], "Qu", true))
+""");
+            });
+
+    public override async Task String_StartsWith_with_StringComparison_unsupported(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.String_StartsWith_with_StringComparison_unsupported(async);
+        }
+    }
+
+    #endregion String.StartsWith
+
+    #region String.EndsWith
 
     public override Task String_EndsWith_Literal(bool async)
         => Fixture.NoSyncTest(
@@ -168,6 +211,47 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "m"))
 """);
             });
 
+    public override Task String_EndsWith_with_StringComparison_Ordinal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_EndsWith_with_StringComparison_Ordinal(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "DY", false))
+""");
+            });
+
+    public override Task String_EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_EndsWith_with_StringComparison_OrdinalIgnoreCase(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "DY", true))
+""");
+            });
+
+    public override async Task String_EndsWith_with_StringComparison_unsupported(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.String_EndsWith_with_StringComparison_unsupported(async);
+        }
+    }
+
+    #endregion String.EndsWith
+
+    #region String.Contains
+
     public override Task String_Contains_Literal(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -208,6 +292,45 @@ FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], c["ContactName"]))
 """);
             });
+
+    public override Task String_Contains_with_StringComparison_Ordinal(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_Contains_with_StringComparison_Ordinal(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M", false))
+""");
+            });
+
+    public override Task String_Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.String_Contains_with_StringComparison_OrdinalIgnoreCase(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M", true))
+""");
+            });
+
+    public override async Task String_Contains_with_StringComparison_unsupported(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await base.String_Contains_with_StringComparison_unsupported(async);
+        }
+    }
+
+    #endregion String.Contains
 
     public override Task String_FirstOrDefault_MethodCall(bool async)
         => Fixture.NoSyncTest(
