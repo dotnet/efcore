@@ -475,10 +475,10 @@ WHERE "e"."IntA" > @__i_0
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE NOT (CASE
-    WHEN "e"."NullableIntA" > @__i_0 THEN 1
-    ELSE 0
-END)
+WHERE CASE
+    WHEN "e"."NullableIntA" > @__i_0 THEN 0
+    ELSE 1
+END
 """,
             //
             """
@@ -486,10 +486,10 @@ END)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE NOT (CASE
-    WHEN "e"."NullableIntA" >= @__i_0 THEN 1
-    ELSE 0
-END)
+WHERE CASE
+    WHEN "e"."NullableIntA" >= @__i_0 THEN 0
+    ELSE 1
+END
 """,
             //
             """
@@ -497,10 +497,10 @@ END)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE NOT (CASE
-    WHEN "e"."NullableIntA" < @__i_0 THEN 1
-    ELSE 0
-END)
+WHERE CASE
+    WHEN "e"."NullableIntA" < @__i_0 THEN 0
+    ELSE 1
+END
 """,
             //
             """
@@ -508,10 +508,10 @@ END)
 
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE NOT (CASE
-    WHEN "e"."NullableIntA" <= @__i_0 THEN 1
-    ELSE 0
-END)
+WHERE CASE
+    WHEN "e"."NullableIntA" <= @__i_0 THEN 0
+    ELSE 1
+END
 """);
     }
 

@@ -1467,6 +1467,15 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_ternary_boolean_condition_negated(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Product>().Where(p => !(p.UnitsInStock >= 20 ? false : true)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_constructed_equal(bool async)
         => AssertQuery(
             async,

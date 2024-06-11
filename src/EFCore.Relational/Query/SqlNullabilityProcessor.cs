@@ -2032,7 +2032,30 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-                break;
+            break;
+
+            case CaseExpression caseExpression:
+            {
+                if (caseExpression.Type == typeof(bool)
+                    && caseExpression.ElseResult is SqlConstantExpression elseResult
+                    && caseExpression.WhenClauses.All(clause => clause.Result is SqlConstantExpression)
+                )
+                {
+                    var clauses = caseExpression.WhenClauses
+                        .Select(clause => new CaseWhenClause(
+                            clause.Test,
+                            _sqlExpressionFactory.Constant(!(bool)(clause.Result as SqlConstantExpression)!.Value!, clause.Result.TypeMapping))
+                        )
+                        .ToList();
+                    var newElseResult = _sqlExpressionFactory.Constant(!(bool)elseResult.Value!, elseResult.TypeMapping);
+
+                    return caseExpression.Operand is null
+                        ? _sqlExpressionFactory.Case(clauses, newElseResult)
+                        : _sqlExpressionFactory.Case(caseExpression.Operand, clauses, newElseResult);
+                }
+            }
+
+            break;
         }
 
         return sqlUnaryExpression;
@@ -2369,7 +2392,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;

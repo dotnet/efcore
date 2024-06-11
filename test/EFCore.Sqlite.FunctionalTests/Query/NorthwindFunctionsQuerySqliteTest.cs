@@ -878,10 +878,10 @@ FROM "Customers" AS "c"
             """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE NOT (CASE
-    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 1
-    ELSE 0
-END)
+WHERE CASE
+    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 0
+    ELSE 1
+END
 """);
     }
 
@@ -891,10 +891,10 @@ END)
 
         AssertSql(
             """
-SELECT "c"."CustomerID" AS "Id", NOT (CASE
-    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 1
-    ELSE 0
-END) AS "Value"
+SELECT "c"."CustomerID" AS "Id", CASE
+    WHEN instr("c"."CompanyName", "c"."ContactName") > 0 THEN 0
+    ELSE 1
+END AS "Value"
 FROM "Customers" AS "c"
 """);
     }
