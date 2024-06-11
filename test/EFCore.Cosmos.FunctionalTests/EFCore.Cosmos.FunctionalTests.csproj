@@ -78,6 +78,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(MicrosoftExtensionsConfigurationEnvironmentVariablesVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(MicrosoftExtensionsConfigurationJsonVersion)" />
     <PackageReference Include="Azure.Identity" Version="$(AzureIdentityVersion)" />
+    <PackageReference Include="Azure.ResourceManager.CosmosDB" Version="$(AzureResourceManagerCosmosDBVersion)" />
   </ItemGroup>
 
 </Project>

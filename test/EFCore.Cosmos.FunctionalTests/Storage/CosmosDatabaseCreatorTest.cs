@@ -5,6 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 #nullable disable
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class CosmosDatabaseCreatorTest
 {
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
