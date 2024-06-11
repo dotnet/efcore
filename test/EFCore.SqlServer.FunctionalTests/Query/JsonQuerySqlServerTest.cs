@@ -39,6 +39,17 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
+    public override async Task Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
     public override async Task Basic_json_projection_owner_entity_duplicated(bool async)
     {
         await base.Basic_json_projection_owner_entity_duplicated(async);
@@ -53,6 +64,17 @@ FROM [JsonEntitiesBasic] AS [j]
     public override async Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
     {
         await base.Basic_json_projection_owner_entity_duplicated_NoTracking(async);
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j].[OwnedCollection]
+FROM [JsonEntitiesSingleOwned] AS [j]
+""");
+    }
+
+    public override async Task Basic_json_projection_owner_entity_duplicated_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owner_entity_duplicated_NoTrackingWithIdentityResolution(async);
 
         AssertSql(
             """
@@ -83,6 +105,17 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
+    public override async Task Basic_json_projection_owner_entity_twice_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owner_entity_twice_NoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
     public override async Task Basic_json_projection_owned_reference_root(bool async)
     {
         await base.Basic_json_projection_owned_reference_root(async);
@@ -94,15 +127,14 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Basic_json_projection_owned_reference_duplicated2(bool async)
+    public override async Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
     {
-        await base.Basic_json_projection_owned_reference_duplicated2(async);
+        await base.Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(async);
 
         AssertSql(
             """
-SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf')
+SELECT [j].[OwnedReferenceRoot], [j].[Id]
 FROM [JsonEntitiesBasic] AS [j]
-ORDER BY [j].[Id]
 """);
     }
 
@@ -118,9 +150,56 @@ ORDER BY [j].[Id]
 """);
     }
 
+    public override async Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch')
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
+    public override async Task Basic_json_projection_owned_reference_duplicated2(bool async)
+    {
+        await base.Basic_json_projection_owned_reference_duplicated2(async);
+
+        AssertSql(
+            """
+SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf')
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
+    public override async Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf')
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
     public override async Task Basic_json_projection_owned_collection_root(bool async)
     {
         await base.Basic_json_projection_owned_collection_root(async);
+
+        AssertSql(
+            """
+SELECT [j].[OwnedCollectionRoot], [j].[Id]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(async);
 
         AssertSql(
             """
@@ -140,9 +219,31 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
+    public override async Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+            """
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[Id]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
     public override async Task Basic_json_projection_owned_collection_branch(bool async)
     {
         await base.Basic_json_projection_owned_collection_branch(async);
+
+        AssertSql(
+            """
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[Id]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(async);
 
         AssertSql(
             """
@@ -2745,8 +2846,6 @@ WHERE CAST(JSON_VALUE([j].[Reference], '$.StringYNConvertedToBool') AS bit) = CA
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_basic(bool async)
     {
         await base.FromSql_on_entity_with_json_basic(async);
@@ -2760,8 +2859,6 @@ FROM (
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual async Task FromSqlInterpolated_on_entity_with_json_with_predicate(bool async)
     {
         var parameter = new SqlParameter { ParameterName = "prm", Value = 1 };
@@ -2783,8 +2880,6 @@ FROM (
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_project_json_reference(bool async)
     {
         await base.FromSql_on_entity_with_json_project_json_reference(async);
@@ -2798,8 +2893,6 @@ FROM (
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_project_json_collection(bool async)
     {
         await base.FromSql_on_entity_with_json_project_json_collection(async);
@@ -2813,8 +2906,6 @@ FROM (
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_inheritance_on_base(bool async)
     {
         await base.FromSql_on_entity_with_json_inheritance_on_base(async);
@@ -2828,8 +2919,6 @@ FROM (
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_inheritance_on_derived(bool async)
     {
         await base.FromSql_on_entity_with_json_inheritance_on_derived(async);
@@ -2844,8 +2933,6 @@ WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_inheritance_project_reference_on_base(bool async)
     {
         await base.FromSql_on_entity_with_json_inheritance_project_reference_on_base(async);
@@ -2860,8 +2947,6 @@ ORDER BY [m].[Id]
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_inheritance_project_reference_on_derived(bool async)
     {
         await base.FromSql_on_entity_with_json_inheritance_project_reference_on_derived(async);
@@ -2874,6 +2959,166 @@ FROM (
 ) AS [m]
 WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
 ORDER BY [m].[Id]
+""");
+    }
+
+
+    public override async Task Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[Name]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [s].[key], [s].[c], [s].[c0], [s].[c1], [s].[c2], [s].[key0]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [o].[key], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [c], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [c0], JSON_QUERY([o0].[value], '$.Enums') AS [c1], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [c2], [o0].[key] AS [key0], CAST([o].[key] AS int) AS [c3], CAST([o0].[key] AS int) AS [c4]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    OUTER APPLY OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
+) AS [s]
+ORDER BY [j].[Id], [s].[c3], [s].[key], [s].[c4]
+""");
+    }
+
+    public override async Task Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[1]')
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[1]')
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    public override async Task Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+@__prm_0='1'
+
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[' + CAST(@__prm_0 AS nvarchar(max)) + ']'), @__prm_0
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[1]')
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    public override async Task Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+@__prm1_0='0'
+@__prm2_1='1'
+
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[' + CAST(@__prm1_0 AS nvarchar(max)) + '].OwnedCollectionLeaf[' + CAST(@__prm2_1 AS nvarchar(max)) + ']'), @__prm1_0, @__prm2_1
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[1]'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[1].OwnedCollectionLeaf')
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[1]')
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    public override async Task Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+@__prm_0='0'
+
+SELECT [j].[Id], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[' + CAST(@__prm_0 AS nvarchar(max)) + '].OwnedCollectionLeaf[1]'), @__prm_0
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[1]'), [j].[OwnedReferenceRoot], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        await base.Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf[1]'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 

@@ -31,6 +31,13 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().AsNoTrackingWithIdentityResolution());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owner_entity_duplicated(bool async)
         => AssertQuery(
             async,
@@ -57,6 +64,19 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_duplicated_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntitySingleOwned>().Select(x => new { First = x, Second = x }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owner_entity_twice(bool async)
         => AssertQuery(
             async,
@@ -74,6 +94,19 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new { First = x, Second = x }).AsNoTracking(),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_twice_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { First = x, Second = x }).AsNoTrackingWithIdentityResolution(),
             elementSorter: e => e.First.Id,
             elementAsserter: (e, a) =>
             {
@@ -141,27 +174,10 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Basic_json_projection_owned_reference_duplicated2(bool async)
+    public virtual Task Basic_json_projection_owned_reference_root_NoTrackingWithIdentityResolution(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>()
-                .OrderBy(x => x.Id)
-                .Select(
-                    x => new
-                    {
-                        Root1 = x.OwnedReferenceRoot,
-                        Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
-                        Root2 = x.OwnedReferenceRoot,
-                        Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
-                    }).AsNoTracking(),
-            assertOrder: true,
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.Root1, a.Root1);
-                AssertEqual(e.Root2, a.Root2);
-                AssertEqual(e.Leaf1, a.Leaf1);
-                AssertEqual(e.Leaf2, a.Leaf2);
-            });
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot).AsNoTrackingWithIdentityResolution());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -189,10 +205,90 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_reference_duplicated_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(x => x.Id)
+                .Select(
+                    x => new
+                    {
+                        Root1 = x.OwnedReferenceRoot,
+                        Branch1 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                        Root2 = x.OwnedReferenceRoot,
+                        Branch2 = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                    }).AsNoTrackingWithIdentityResolution(),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Root1, a.Root1);
+                AssertEqual(e.Root2, a.Root2);
+                AssertEqual(e.Branch1, a.Branch1);
+                AssertEqual(e.Branch2, a.Branch2);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_reference_duplicated2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(x => x.Id)
+                .Select(
+                    x => new
+                    {
+                        Root1 = x.OwnedReferenceRoot,
+                        Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        Root2 = x.OwnedReferenceRoot,
+                        Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    }).AsNoTracking(),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Root1, a.Root1);
+                AssertEqual(e.Root2, a.Root2);
+                AssertEqual(e.Leaf1, a.Leaf1);
+                AssertEqual(e.Leaf2, a.Leaf2);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_reference_duplicated2_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(x => x.Id)
+                .Select(
+                    x => new
+                    {
+                        Root1 = x.OwnedReferenceRoot,
+                        Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        Root2 = x.OwnedReferenceRoot,
+                        Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    }).AsNoTrackingWithIdentityResolution(),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Root1, a.Root1);
+                AssertEqual(e.Root2, a.Root2);
+                AssertEqual(e.Leaf1, a.Leaf1);
+                AssertEqual(e.Leaf2, a.Leaf2);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owned_collection_root(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot).AsNoTracking(),
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_collection_root_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot).AsNoTrackingWithIdentityResolution(),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
     [ConditionalTheory]
@@ -204,10 +300,25 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_reference_branch_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch).AsNoTrackingWithIdentityResolution());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owned_collection_branch(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch).AsNoTracking(),
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_collection_branch_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch).AsNoTrackingWithIdentityResolution(),
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
 
     [ConditionalTheory]
@@ -1386,7 +1497,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Select(
                     x => new
                     {
-                        First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(), Second = x.EntityCollection.ToList()
+                        First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(),
+                        Second = x.EntityCollection.ToList()
                     })
                 .AsNoTracking(),
             assertOrder: true,
@@ -2599,4 +2711,789 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityInheritanceDerived>().OrderBy(x => x.Id).Select(x => x.CollectionOnDerived),
             elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)),
             assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_using_queryable_methods_on_top_of_JSON_collection_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Skip = x.OwnedCollectionRoot.Skip(1).ToList(),
+                    Take = x.OwnedCollectionRoot.Take(2).ToList(),
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(e.Skip, a.Skip);
+                AssertCollection(e.Take, a.Take);
+            }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_nested_collection_anonymous_projection_in_projection_NoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>()
+                    .OrderBy(x => x.Id)
+                    .Select(
+                        x => x.OwnedCollectionRoot
+                            .Select(
+                                xx => xx.OwnedCollectionBranch.Select(
+                                    xxx => new
+                                    {
+                                        xxx.Date,
+                                        xxx.Enum,
+                                        xxx.Enums,
+                                        xxx.Fraction,
+                                        xxx.OwnedReferenceLeaf,
+                                        xxx.OwnedCollectionLeaf
+                                    }).ToList()))
+                    .AsNoTrackingWithIdentityResolution(),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(
+                    e, a, ordered: true, elementAsserter: (ee, aa) => AssertCollection(
+                        ee, aa, ordered: true, elementAsserter: (eee, aaa) =>
+                        {
+                            AssertEqual(eee.Date, aaa.Date);
+                            AssertEqual(eee.Enum, aaa.Enum);
+                            AssertCollection(eee.Enums, aaa.Enums, ordered: true);
+                            AssertEqual(eee.Fraction, aaa.Fraction);
+                            AssertEqual(eee.OwnedReferenceLeaf, aaa.OwnedReferenceLeaf);
+                            AssertCollection(eee.OwnedCollectionLeaf, aaa.OwnedCollectionLeaf, ordered: true);
+                        }))))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_nested_collection_and_element_using_parameter_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm = 0;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf[1],
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                    AssertCollection(e.Original, a.Original, ordered: true);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_nested_collection_and_element_using_parameter_AsNoTrackingWithIdentityResolution2(bool async)
+    {
+        var prm1 = 0;
+        var prm2 = 0;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[1],
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[prm2].OwnedCollectionLeaf,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                    AssertCollection(e.Original, a.Original, ordered: true);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_through_collection_element_parameter_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm1 = 0;
+        var prm2 = 1;
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[1],
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[prm2].OwnedCollectionLeaf,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.Original, a.Original, ordered: true);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_through_collection_element_parameter_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm = 0;
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf[1],
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.Original, a.Original, ordered: true);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_through_collection_element_parameter_projected_before_owner_nested_AsNoTrackingWithIdentityResolution2(bool async)
+    {
+        var prm1 = 0;
+        var prm2 = 0;
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[1],
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[prm2].OwnedCollectionLeaf,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Original, a.Original);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_through_collection_element_parameter_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm = 0;
+
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf[1],
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.Original, a.Original, ordered: true);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_through_collection_element_constant_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                    Original = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf,
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Original, a.Original);
+                AssertEqual(e.Duplicate, a.Duplicate);
+            }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_branch_collection_distinct_and_other_collection_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>()
+                    .OrderBy(x => x.Id)
+                    .Select(
+                        x => new
+                        {
+                            First = x.EntityCollection.ToList(),
+                            Second = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList()
+                        })
+                    .AsNoTrackingWithIdentityResolution(),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.First, a.First, ordered: true);
+                    AssertCollection(e.Second, a.Second, elementSorter: ee => ee.Fraction);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_collection_SelectMany_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                    async,
+                    ss => ss.Set<JsonEntityBasic>()
+                        .SelectMany(x => x.OwnedCollectionRoot)
+                        .AsNoTrackingWithIdentityResolution(),
+                    elementSorter: e => (e.Number, e.Name)))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_deduplication_with_collection_indexer_in_target_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm = 1;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate1 = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
+                        Original = x.OwnedReferenceRoot,
+                        Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[prm]
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Original, a.Original);
+                    AssertEqual(e.Duplicate1, a.Duplicate1);
+                    AssertEqual(e.Duplicate2, a.Duplicate2);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_nested_collection_and_element_wrong_order_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                    AssertCollection(e.Original, a.Original, ordered: true);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_projected_before_entire_collection_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
+                        Original = x.OwnedReferenceRoot.OwnedCollectionBranch,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Original, a.Original);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_projected_before_owner_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
+                        Original = x.OwnedReferenceRoot,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Original, a.Original);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedCollectionBranch#JsonOwnedBranch",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_projection_second_element_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<JsonEntityBasic>().Select(
+                    x => new
+                    {
+                        x.Id,
+                        Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1],
+                        Original = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                        Parent = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                    }).AsNoTrackingWithIdentityResolution(),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Original, a.Original);
+                    AssertEqual(e.Duplicate, a.Duplicate);
+                }))).Message;
+
+        Assert.Equal(
+            RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                "JsonEntityBasic.OwnedReferenceRoot#JsonOwnedRoot.OwnedReferenceBranch#JsonOwnedBranch.OwnedCollectionLeaf#JsonOwnedLeaf",
+                nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)),
+            message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_collection_element_and_reference_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    CollectionElement = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
+                    Reference = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.CollectionElement, a.CollectionElement);
+                AssertEqual(e.Reference, a.Reference);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_nothing_interesting_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    x.Name
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_owner_entity_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    x
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.x, a.x);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_nested_collection_anonymous_projection_of_primitives_in_projection_NoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(x => x.Id)
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .Select(
+                            xx => xx.OwnedCollectionBranch.Select(
+                                xxx => new
+                                {
+                                    xxx.Date,
+                                    xxx.Enum,
+                                    xxx.Enums,
+                                    xxx.Fraction,
+                                }).ToList()))
+                .AsNoTrackingWithIdentityResolution(),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(
+                e, a, ordered: true, elementAsserter: (ee, aa) => AssertCollection(
+                    ee, aa, ordered: true, elementAsserter: (eee, aaa) =>
+                    {
+                        AssertEqual(eee.Date, aaa.Date);
+                        AssertEqual(eee.Enum, aaa.Enum);
+                        AssertCollection(eee.Enums, aaa.Enums, ordered: true);
+                        AssertEqual(eee.Fraction, aaa.Fraction);
+                    })));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_second_element_through_collection_element_constant_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Original = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(e.Original, a.Original, ordered: true);
+                AssertEqual(e.Duplicate, a.Duplicate);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_reference_collection_and_collection_element_nested_AsNoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Reference = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedReferenceLeaf,
+                    Collection = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf,
+                    CollectionElement = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Reference, a.Reference);
+                AssertCollection(e.Collection, a.Collection, ordered: true);
+                AssertEqual(e.CollectionElement, a.CollectionElement);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_second_element_through_collection_element_parameter_correctly_projected_after_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm = 1;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Original = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[prm],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(e.Original, a.Original, ordered: true);
+                AssertEqual(e.Duplicate, a.Duplicate);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_only_second_element_through_collection_element_constant_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Element = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Element, a.Element);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_only_second_element_through_collection_element_parameter_projected_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm1 = 0;
+        var prm2 = 1;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Element = x.OwnedReferenceRoot.OwnedCollectionBranch[prm1].OwnedCollectionLeaf[prm2],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Element, a.Element);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_second_element_through_collection_element_constant_different_values_projected_before_owner_nested_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                    Original = x.OwnedReferenceRoot.OwnedCollectionBranch[1].OwnedCollectionLeaf,
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Duplicate, a.Duplicate);
+                AssertCollection(e.Original, a.Original, ordered: true);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_nested_collection_and_element_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Original = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[1],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(e.Original, a.Original, ordered: true);
+                AssertEqual(e.Duplicate, a.Duplicate);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_nested_collection_element_using_parameter_and_the_owner_in_correct_order_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        var prm = 0;
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Original = x.OwnedReferenceRoot,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[prm].OwnedCollectionLeaf[1],
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Original, a.Original);
+                AssertEqual(e.Duplicate, a.Duplicate);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_second_element_projected_before_owner_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Duplicate = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
+                    Original = x.OwnedReferenceRoot,
+                    Owned = x
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Original, a.Original);
+                AssertEqual(e.Duplicate, a.Duplicate);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_projection_second_element_projected_before_owner_nested_as_well_as_root_AsNoTrackingWithIdentityResolution(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Duplicate = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1],
+                    Original = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                    Parent = x.OwnedReferenceRoot.OwnedReferenceBranch,
+                    Owner = x
+                }).AsNoTrackingWithIdentityResolution(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.Duplicate, a.Duplicate);
+                AssertCollection(e.Original, a.Original, ordered: true);
+                AssertEqual(e.Owner, a.Owner);
+            });
 }
