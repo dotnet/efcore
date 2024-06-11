@@ -1,8 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using System.Net.Sockets;
+using Azure;
 using Azure.Core;
+using Azure.ResourceManager;
+using Azure.ResourceManager.CosmosDB;
+using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
@@ -76,11 +81,9 @@ public class CosmosTestStore : TestStore
         => new TestStoreContext(this);
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-        => builder.UseCosmos(
-            ConnectionUri,
-            AuthToken,
-            Name,
-            _configureCosmos);
+        => TestEnvironment.UseTokenCredential
+        ? builder.UseCosmos(ConnectionUri, TokenCredential, Name, _configureCosmos)
+        : builder.UseCosmos(ConnectionUri, AuthToken, Name, _configureCosmos);
 
     public static async ValueTask<bool> IsConnectionAvailableAsync()
     {
@@ -160,8 +163,9 @@ public class CosmosTestStore : TestStore
 
     private async Task CreateFromFile(DbContext context)
     {
-        if (await context.Database.EnsureCreatedAsync())
+        if (await EnsureCreatedAsync(context))
         {
+            await context.Database.EnsureCreatedAsync();
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
             using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
@@ -217,13 +221,52 @@ public class CosmosTestStore : TestStore
         }
     }
 
+    private static readonly ArmClient _armClient = new(TestEnvironment.TokenCredential);
+
     public override void Clean(DbContext context)
         => CleanAsync(context).GetAwaiter().GetResult();
 
+    public async Task<bool> EnsureCreatedAsync(DbContext context, CancellationToken cancellationToken = default)
+    {
+        if (!TestEnvironment.UseTokenCredential)
+        {
+            var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
+            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken);
+        }
+
+        var databaseAccount = await GetDBAccount(cancellationToken);
+        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+        var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(TestEnvironment.AzureLocation,
+            new CosmosDBSqlDatabaseResourceInfo(Name));
+        var databaseResponse = (await collection.CreateOrUpdateAsync(
+            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken)).GetRawResponse();
+        return databaseResponse.Status == (int)HttpStatusCode.Created;
+    }
+
+    private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
+    {
+        if (!TestEnvironment.UseTokenCredential)
+        {
+            return await context.Database.EnsureDeletedAsync(cancellationToken);
+        }
+
+        var databaseAccount = await GetDBAccount(cancellationToken);
+        var databaseResponse = (await databaseAccount.Value.GetCosmosDBSqlDatabase(Name, cancellationToken).Value.DeleteAsync(
+            WaitUntil.Completed, cancellationToken)).GetRawResponse();
+        return databaseResponse.Status == (int)HttpStatusCode.Created;
+    }
+
+    private async Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken)
+    {
+        var accountName = new Uri(ConnectionUri).Host.Split('.').First();
+        var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
+            TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
+        return await _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
+    }
+
     public override async Task CleanAsync(DbContext context)
     {
-        var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-        var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null);
+        var created = await EnsureCreatedAsync(context);
         try
         {
             if (!created)
@@ -274,7 +317,7 @@ public class CosmosTestStore : TestStore
         {
             try
             {
-                await context.Database.EnsureDeletedAsync();
+                await EnsureDeletedAsync(context);
             }
             catch (Exception)
             {
@@ -302,7 +345,7 @@ public class CosmosTestStore : TestStore
                 GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
             }
 
-            await _storeContext.Database.EnsureDeletedAsync();
+            await EnsureDeletedAsync(_storeContext);
         }
 
         _storeContext.Dispose();
@@ -318,7 +361,16 @@ public class CosmosTestStore : TestStore
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
+        {
+            if (TestEnvironment.UseTokenCredential)
+            {
+                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.TokenCredential, _testStore.Name, _testStore._configureCosmos);
+            }
+            else
+            {
+                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
+            }
+        }
     }
 
     private class FakeUpdateEntry : IUpdateEntry

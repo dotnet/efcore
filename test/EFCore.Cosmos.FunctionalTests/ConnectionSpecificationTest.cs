@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class ConnectionSpecificationTest
 {
     [ConditionalFact]

@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosFixture>
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
