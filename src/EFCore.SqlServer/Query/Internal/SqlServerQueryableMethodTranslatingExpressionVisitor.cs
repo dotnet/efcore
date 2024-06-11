@@ -438,7 +438,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     Offset: null,
                     Orderings: [],
                     Projection: [{ Expression: ColumnExpression { Name: "value", TableAlias: var projectionTableAlias } }]
-                } subquery
+                }
             }
             && projectionTableAlias == openJsonExpression.Alias)
         {
