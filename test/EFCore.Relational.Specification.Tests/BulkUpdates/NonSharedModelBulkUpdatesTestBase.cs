@@ -60,6 +60,20 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
             RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
     }
 
+    [ConditionalTheory] // #33937, #33946
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Replace_ColumnExpression_in_column_setter(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>();
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Set<Owner>().SelectMany(e => e.OwnedCollections),
+            s => s.SetProperty(o => o.Value, "SomeValue"),
+            rowsAffectedCount: 0);
+    }
+
     protected class Context28671(DbContextOptions options) : DbContext(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)

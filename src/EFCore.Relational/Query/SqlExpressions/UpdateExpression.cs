@@ -93,12 +93,14 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
         for (var (i, n) = (0, ColumnValueSetters.Count); i < n; i++)
         {
             var columnValueSetter = ColumnValueSetters[i];
+            var newColumn = (ColumnExpression)visitor.Visit(columnValueSetter.Column);
             var newValue = (SqlExpression)visitor.Visit(columnValueSetter.Value);
+
             if (columnValueSetters != null)
             {
-                columnValueSetters.Add(columnValueSetter with { Value = newValue });
+                columnValueSetters.Add(new ColumnValueSetter(newColumn, newValue));
             }
-            else if (!ReferenceEquals(newValue, columnValueSetter.Value))
+            else if (!ReferenceEquals(newColumn, columnValueSetter.Column) || !ReferenceEquals(newValue, columnValueSetter.Value))
             {
                 columnValueSetters = new List<ColumnValueSetter>(n);
                 for (var j = 0; j < i; j++)
@@ -106,7 +108,7 @@ public sealed class UpdateExpression : Expression, IRelationalQuotableExpression
                     columnValueSetters.Add(ColumnValueSetters[j]);
                 }
 
-                columnValueSetters.Add(columnValueSetter with { Value = newValue });
+                columnValueSetters.Add(new ColumnValueSetter(newColumn, newValue));
             }
         }
 
