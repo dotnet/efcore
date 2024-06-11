@@ -21,40 +21,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     private List<SqlParameter> _sqlParameters = null!;
     private ParameterNameGenerator _parameterNameGenerator = null!;
 
-    private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
-    {
-        // Arithmetic
-        { ExpressionType.Add, " + " },
-        { ExpressionType.Subtract, " - " },
-        { ExpressionType.Multiply, " * " },
-        { ExpressionType.Divide, " / " },
-        { ExpressionType.Modulo, " % " },
-
-        // Bitwise >>> (zero-fill right shift) not available in C#
-        { ExpressionType.Or, " | " },
-        { ExpressionType.And, " & " },
-        { ExpressionType.ExclusiveOr, " ^ " },
-        { ExpressionType.LeftShift, " << " },
-        { ExpressionType.RightShift, " >> " },
-
-        // Logical
-        { ExpressionType.AndAlso, " AND " },
-        { ExpressionType.OrElse, " OR " },
-
-        // Comparison
-        { ExpressionType.Equal, " = " },
-        { ExpressionType.NotEqual, " != " },
-        { ExpressionType.GreaterThan, " > " },
-        { ExpressionType.GreaterThanOrEqual, " >= " },
-        { ExpressionType.LessThan, " < " },
-        { ExpressionType.LessThanOrEqual, " <= " },
-
-        // Unary
-        { ExpressionType.UnaryPlus, "+" },
-        { ExpressionType.Negate, "-" },
-        { ExpressionType.Not, "~" }
-    };
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -116,7 +82,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     /// </summary>
     protected override Expression VisitArray(ArrayExpression arrayExpression)
     {
-        _sqlBuilder.AppendLine("ARRAY (");
+        _sqlBuilder.AppendLine("ARRAY(");
 
         using (_sqlBuilder.Indent())
         {
@@ -457,7 +423,40 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             return sqlBinaryExpression;
         }
 
-        var op = _operatorMap[sqlBinaryExpression.OperatorType];
+        var op = sqlBinaryExpression.OperatorType switch
+        {
+            // Arithmetic
+            ExpressionType.Add => " + ",
+            ExpressionType.Subtract => " - ",
+            ExpressionType.Multiply => " * " ,
+            ExpressionType.Divide => " / " ,
+            ExpressionType.Modulo => " % ",
+
+            // Bitwise >>> (zero-fill right shift) not available in C#
+            ExpressionType.Or => " | ",
+            ExpressionType.And => " & ",
+            ExpressionType.ExclusiveOr => " ^ ",
+            ExpressionType.LeftShift => " << ",
+            ExpressionType.RightShift => " >> ",
+
+            // Logical
+            ExpressionType.AndAlso => " AND ",
+            ExpressionType.OrElse => " OR ",
+
+            // Comparison
+            ExpressionType.Equal => " = ",
+            ExpressionType.NotEqual => " != ",
+            ExpressionType.GreaterThan => " > ",
+            ExpressionType.GreaterThanOrEqual => " >= ",
+            ExpressionType.LessThan => " < ",
+            ExpressionType.LessThanOrEqual => " <= ",
+
+            // Other
+            ExpressionType.Coalesce => " ?? ",
+
+            _ => throw new UnreachableException($"Unsupported unary OperatorType: {sqlBinaryExpression.OperatorType}")
+        };
+
         _sqlBuilder.Append('(');
         Visit(sqlBinaryExpression.Left);
 
@@ -483,7 +482,14 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     /// </summary>
     protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
     {
-        var op = _operatorMap[sqlUnaryExpression.OperatorType];
+        var op = sqlUnaryExpression.OperatorType switch
+        {
+            ExpressionType.UnaryPlus => "+",
+            ExpressionType.Negate => "-",
+            ExpressionType.Not => "~",
+
+            _ => throw new UnreachableException($"Unsupported unary OperatorType: {sqlUnaryExpression.OperatorType}")
+        };
 
         if (sqlUnaryExpression.OperatorType == ExpressionType.Not
             && sqlUnaryExpression.Operand.Type == typeof(bool))

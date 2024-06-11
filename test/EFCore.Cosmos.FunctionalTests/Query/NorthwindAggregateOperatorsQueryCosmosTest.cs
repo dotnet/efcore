@@ -42,6 +42,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10248))
 
     public override async Task Contains_over_keyless_entity_throws(bool async)
     {
+        // TODO: #33931
         // The subquery inside the Contains gets executed separately during shaper generation - and synchronously (even in
         // the async variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
         // sync I/O.

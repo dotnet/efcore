@@ -131,8 +131,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                         : typeMappingSource.FindMapping(right.Type, model));
                 resultType = typeof(bool);
                 resultTypeMapping = _boolTypeMapping;
-            }
                 break;
+            }
 
             case ExpressionType.AndAlso:
             case ExpressionType.OrElse:
@@ -140,8 +140,8 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                 inferredTypeMapping = _boolTypeMapping;
                 resultType = typeof(bool);
                 resultTypeMapping = _boolTypeMapping;
-            }
                 break;
+            }
 
             case ExpressionType.Add:
             case ExpressionType.Subtract:
@@ -152,14 +152,16 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.RightShift:
             case ExpressionType.And:
             case ExpressionType.Or:
+            case ExpressionType.Coalesce:
             {
                 inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
                 resultType = inferredTypeMapping?.ClrType ?? left.Type;
                 resultTypeMapping = inferredTypeMapping;
-            }
                 break;
+            }
 
             case ExpressionType.ArrayIndex:
+            {
                 // TODO: This infers based on the CLR type; need to properly infer based on the element type mapping
                 // TODO: being applied here (e.g. WHERE @p[1] = c.PropertyWithValueConverter)
                 var arrayTypeMapping = left.TypeMapping
@@ -170,6 +172,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                     ApplyDefaultTypeMapping(right),
                     sqlBinaryExpression.Type,
                     typeMapping ?? sqlBinaryExpression.TypeMapping);
+            }
 
             default:
                 throw new InvalidOperationException(
@@ -493,6 +496,15 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         => SqlUnaryExpression.IsValidOperator(operatorType)
             ? (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping)
             : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression CoalesceUndefined(SqlExpression left, SqlExpression right, CoreTypeMapping? typeMapping = null)
+        => MakeBinary(ExpressionType.Coalesce, left, right, typeMapping)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

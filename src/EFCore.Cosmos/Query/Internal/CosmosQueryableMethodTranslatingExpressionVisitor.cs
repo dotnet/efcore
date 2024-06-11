@@ -520,18 +520,57 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         Expression index,
         bool returnDefault)
     {
-        // Simplify x.Array[1] => x.Array[1] (using the Cosmos array subscript operator) instead of a subquery with LIMIT/OFFSET
-        if (!returnDefault
-            && CosmosQueryUtils.TryExtractBareArray(source, out var array, out var projectedScalarReference)
-            && TranslateExpression(index) is { } translatedIndex)
+        if (TranslateExpression(index) is not SqlExpression translatedIndex)
         {
-            var arrayIndex = _sqlExpressionFactory.ArrayIndex(
-                array, translatedIndex, projectedScalarReference.Type, projectedScalarReference.TypeMapping);
-            return source.UpdateQueryExpression(new SelectExpression(arrayIndex));
+            return null;
         }
 
-        // Note that Cosmos doesn't support OFFSET/LIMIT in subqueries, so this translation is for top-level entity querying only.
-        // TODO: Translate with OFFSET/LIMIT
+        var select = (SelectExpression)source.QueryExpression;
+
+        // If the source query represents a bare array (e.g. x.Array), simplify x.Array.Skip(2) => ARRAY_SLICE(x.Array, 2) instead of
+        // subquery+OFFSET (which isn't supported by Cosmos).
+        // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
+        // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
+        var array = CosmosQueryUtils.TryExtractBareArray(source, out var a, out var projectedScalarReference)
+            ? a
+            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projectedScalarReference)
+                ? a
+                : null;
+
+        // Simplify x.Array[1] => x.Array[1] (using the Cosmos array subscript operator) instead of a subquery with LIMIT/OFFSET
+        if (array is SqlExpression scalarArray) // TODO: ElementAt over arrays of structural types
+        {
+            SqlExpression translation = _sqlExpressionFactory.ArrayIndex(
+                array, translatedIndex, projectedScalarReference!.Type, projectedScalarReference.TypeMapping);
+
+            if (returnDefault)
+            {
+                translation = _sqlExpressionFactory.CoalesceUndefined(
+                    translation, TranslateExpression(translation.Type.GetDefaultValueConstant())!);
+            }
+
+            return source.UpdateQueryExpression(new SelectExpression(translation));
+        }
+
+        // Translate using OFFSET/LIMIT, except in subqueries where it isn't supported
+        if (_subquery)
+        {
+            AddTranslationErrorDetails(CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            return null;
+        }
+
+        // Ordering of documents is not guaranteed in Cosmos, so we warn for Take without OrderBy.
+        // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
+        // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
+        // warn or not.
+        if (select.Orderings.Count == 0 && !_subquery)
+        {
+            _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+        }
+
+        select.ApplyOffset(translatedIndex);
+        select.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+
         return null;
     }
 
@@ -567,6 +606,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             }
 
             source = translatedSource;
+        }
+
+        // Cosmos does not support LIMIT in subqueries, so call into TranslateElementAtOrDefault which knows how to either extract an
+        // array from the source or wrap it in a Cosmos ARRAY() operator, to turn it into an array. At that point, a regular array index
+        // (x.Array[0]) can be used to get the first element.
+        if (_subquery)
+        {
+            return TranslateElementAtOrDefault(source, Expression.Constant(0), returnDefault);
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
@@ -939,6 +986,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = translatedSource;
         }
 
+        // Cosmos does not support LIMIT in subqueries, so call into TranslateElementAtOrDefault which knows how to either extract an
+        // array from the source or wrap it in a Cosmos ARRAY() operator, to turn it into an array. At that point, a regular array index
+        // (x.Array[0]) can be used to get the first element.
+        if (_subquery)
+        {
+            return TranslateElementAtOrDefault(source, Expression.Constant(0), returnDefault);
+        }
+
         var selectExpression = (SelectExpression)source.QueryExpression;
         selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2))!);
 
@@ -955,26 +1010,55 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        var translation = TranslateExpression(count);
-
-        if (translation != null)
+        if (TranslateExpression(count) is not SqlExpression translatedCount)
         {
-            // Ordering of documents is not guaranteed in Cosmos, so we warn for Skip without OrderBy.
-            // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
-            // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
-            // warn or not.
-            if (selectExpression.Orderings.Count == 0 && !_subquery)
-            {
-                _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
-            }
-
-            selectExpression.ApplyOffset(translation);
-
-            return source;
+            return null;
         }
 
-        return null;
+        var select = (SelectExpression)source.QueryExpression;
+
+        // If the source query represents a bare array (e.g. x.Array), simplify x.Array.Skip(2) => ARRAY_SLICE(x.Array, 2) instead of
+        // subquery+OFFSET (which isn't supported by Cosmos).
+        // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
+        // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
+        var array = CosmosQueryUtils.TryExtractBareArray(source, out var a, out var projectedScalarReference)
+            ? a
+            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projectedScalarReference)
+                ? a
+                : null;
+
+        if (array is SqlExpression scalarArray) // TODO: Take over arrays of structural types
+        {
+            var slice = _sqlExpressionFactory.Function(
+                "ARRAY_SLICE", [scalarArray, translatedCount], scalarArray.Type, scalarArray.TypeMapping);
+
+            // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
+            select = SelectExpression.CreateForPrimitiveCollection(
+                new SourceExpression(slice, "i", withIn: true),
+                projectedScalarReference!.Type,
+                projectedScalarReference.TypeMapping!);
+            return source.UpdateQueryExpression(select);
+        }
+
+        // Translate using OFFSET/LIMIT, except in subqueries where it isn't supported
+        if (_subquery)
+        {
+            AddTranslationErrorDetails(CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            return null;
+        }
+
+        // Ordering of documents is not guaranteed in Cosmos, so we warn for Skip without OrderBy.
+        // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
+        // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
+        // warn or not.
+        if (select.Orderings.Count == 0 && !_subquery)
+        {
+            _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+        }
+
+        select.ApplyOffset(translatedCount);
+
+        return source;
     }
 
     /// <summary>
@@ -1023,26 +1107,59 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        var translation = TranslateExpression(count);
-
-        if (translation != null)
+        if (TranslateExpression(count) is not SqlExpression translatedCount)
         {
-            // Ordering of documents is not guaranteed in Cosmos, so we warn for Take without OrderBy.
-            // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
-            // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
-            // warn or not.
-            if (selectExpression.Orderings.Count == 0 && !_subquery)
-            {
-                _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
-            }
-
-            selectExpression.ApplyLimit(translation);
-
-            return source;
+            return null;
         }
 
-        return null;
+        var select = (SelectExpression)source.QueryExpression;
+
+        // If the source query represents a bare array (e.g. x.Array), simplify x.Array.Take(2) => ARRAY_SLICE(x.Array, 0, 2) instead of
+        // subquery+LIMIT (which isn't supported by Cosmos).
+        // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
+        // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
+        var array = CosmosQueryUtils.TryExtractBareArray(source, out var a, out var projectedScalarReference)
+            ? a
+            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projectedScalarReference)
+                ? a
+                : null;
+
+        if (array is SqlExpression scalarArray) // TODO: Take over arrays of structural types
+        {
+            // Take() is composed over Skip(), combine the two together to a single ARRAY_SLICE()
+            var slice = array is SqlFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var nestedArray, var skipCount] } previousSlice
+                ? previousSlice.Update([nestedArray, skipCount, translatedCount])
+                : _sqlExpressionFactory.Function(
+                    "ARRAY_SLICE", [scalarArray, TranslateExpression(Expression.Constant(0))!, translatedCount], scalarArray.Type,
+                    scalarArray.TypeMapping);
+
+            // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
+            select = SelectExpression.CreateForPrimitiveCollection(
+                new SourceExpression(slice, "i", withIn: true),
+                projectedScalarReference!.Type,
+                projectedScalarReference.TypeMapping!);
+            return source.UpdateQueryExpression(select);
+        }
+
+        // Translate using OFFSET/LIMIT, except in subqueries where it isn't supported
+        if (_subquery)
+        {
+            AddTranslationErrorDetails(CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            return null;
+        }
+
+        // Ordering of documents is not guaranteed in Cosmos, so we warn for Take without OrderBy.
+        // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
+        // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
+        // warn or not.
+        if (select.Orderings.Count == 0 && !_subquery)
+        {
+            _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+        }
+
+        select.ApplyLimit(translatedCount);
+
+        return source;
     }
 
     /// <summary>
@@ -1349,17 +1466,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     }
 
     private ShapedQueryExpression WrapPrimitiveCollectionAsShapedQuery(
-        Expression containerExpression,
+        Expression array,
         Type elementClrType,
         CoreTypeMapping elementTypeMapping)
     {
         // TODO: Do proper alias management: #33894
-        var selectExpression = SelectExpression.CreateForPrimitiveCollection(
-            new SourceExpression(containerExpression, "i", withIn: true),
+        var select = SelectExpression.CreateForPrimitiveCollection(
+            new SourceExpression(array, "i", withIn: true),
             elementClrType,
             elementTypeMapping);
         var shaperExpression = (Expression)new ProjectionBindingExpression(
-            selectExpression, new ProjectionMember(), elementClrType.MakeNullable());
+            select, new ProjectionMember(), elementClrType.MakeNullable());
         if (shaperExpression.Type != elementClrType)
         {
             Check.DebugAssert(
@@ -1369,7 +1486,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             shaperExpression = Expression.Convert(shaperExpression, elementClrType);
         }
 
-        return new ShapedQueryExpression(selectExpression, shaperExpression);
+        return new ShapedQueryExpression(select, shaperExpression);
     }
 
     #endregion Queryable collection support

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Xunit.Sdk;
 
@@ -1033,35 +1034,154 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 1
 """);
             });
 
-    public override async Task Column_collection_Skip(bool async)
-    {
-        // TODO: Count after Distinct requires subquery pushdown
-        await AssertTranslationFailed(() => base.Column_collection_Skip(async));
+    public override Task Column_collection_First(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_First(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1))
+""");
+            });
 
-    public override async Task Column_collection_Take(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_Take(async));
+    public override Task Column_collection_FirstOrDefault(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_FirstOrDefault(a);
 
-            Assert.Contains("'OFFSET LIMIT' clause is not supported in subqueries.", exception.Message);
-        }
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ?? 0) = 1))
+""");
+            });
 
-    public override async Task Column_collection_Skip_Take(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_Skip_Take(async));
+    public override Task Column_collection_Single(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Single(a);
 
-            Assert.Contains("'OFFSET LIMIT' clause is not supported in subqueries.", exception.Message);
-        }
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1))
+""");
+            });
+
+    public override Task Column_collection_SingleOrDefault(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_SingleOrDefault(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ?? 0) = 1))
+""");
+            });
+
+    public override Task Column_collection_Skip(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Skip(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2))
+""");
+            });
+
+    public override Task Column_collection_Take(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Take(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11))
+""");
+            });
+
+    public override Task Column_collection_Skip_Take(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Skip_Take(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11))
+""");
+            });
+
+    public override Task Column_collection_Where_Skip(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Where_Skip(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    WHERE (i > 1)), 1)) = 3))
+""");
+            });
+
+    public override Task Column_collection_Where_Take(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Where_Take(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    WHERE (i > 1)), 0, 2)) = 2))
+""");
+            });
+
+    public override Task Column_collection_Where_Skip_Take(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Where_Skip_Take(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    WHERE (i > 1)), 1, 2)) = 1))
+""");
+            });
 
     public override Task Column_collection_Contains_over_subquery(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1082,11 +1202,41 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
 
     public override async Task Column_collection_OrderByDescending_ElementAt(bool async)
     {
-        // TODO: ElementAt over composed query (non-simple array)
-        await AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt(async));
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_OrderByDescending_ElementAt(async));
 
-        AssertSql();
+            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    ORDER BY i DESC)[0] = 111))
+""");
+        }
     }
+
+    public override Task Column_collection_Where_ElementAt(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_Where_ElementAt(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    WHERE (i > 1))[0] = 11))
+""");
+            });
 
     public override Task Column_collection_Any(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1216,7 +1366,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(ARRAY (
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
     WHERE (i > 100)), [50])) = 2))
@@ -1296,7 +1446,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [@__
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY (
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
     WHERE (i != 11)) = [1,111]))
@@ -1305,18 +1455,14 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY (
 
     public override async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(async));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(a));
 
-            // Note that even if the query didn't attempt to do offset without limit, Cosmos still doesn't support OFFSET/LIMIT in subqueries,
-            // so this test would fail anyway.
-            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
-
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override Task Parameter_collection_in_subquery_Union_column_collection(bool async)
@@ -1354,42 +1500,38 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
 
     public override async Task Parameter_collection_in_subquery_Count_as_compiled_query(bool async)
     {
-        // TODO: Count after Skip requires subquery pushdown
-        await AssertTranslationFailed(() => base.Parameter_collection_in_subquery_Count_as_compiled_query(async));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Parameter_collection_in_subquery_Count_as_compiled_query(a));
 
         AssertSql();
     }
 
     public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(a));
 
-            // Note that even if the query didn't attempt to do offset without limit, Cosmos still doesn't support OFFSET/LIMIT in
-            // subqueries, so this test would fail anyway.
-            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
-
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override async Task Column_collection_in_subquery_Union_parameter_collection(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Column_collection_in_subquery_Union_parameter_collection(async));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Column_collection_in_subquery_Union_parameter_collection(a));
 
-            // Note that even if the query didn't attempt to do offset without limit, Cosmos still doesn't support OFFSET/LIMIT in subqueries,
-            // so this test would fail anyway.
-            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
-
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override Task Project_collection_of_ints_simple(bool async)
@@ -1430,46 +1572,38 @@ ORDER BY c["Id"]
 
     public override async Task Project_collection_of_nullable_ints_with_paging(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception =
-                await Assert.ThrowsAsync<CosmosException>(() => base.Project_collection_of_nullable_ints_with_paging(async: true));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Project_collection_of_nullable_ints_with_paging(a));
 
-            Assert.Contains("'OFFSET LIMIT' clause is not supported in subqueries.", exception.Message);
-        }
+        AssertSql();
     }
 
     public override async Task Project_collection_of_nullable_ints_with_paging2(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_collection_of_nullable_ints_with_paging2(async: true));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Project_collection_of_nullable_ints_with_paging2(a));
 
-            // Note that even if the query didn't attempt to do offset without limit, Cosmos still doesn't support OFFSET/LIMIT in subqueries,
-            // so this test would fail anyway.
-            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
-
-            AssertSql();
-        }
+        AssertSql();
     }
 
     public override async Task Project_collection_of_nullable_ints_with_paging3(bool async)
     {
-        // Always throws for sync.
-        if (async)
-        {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_collection_of_nullable_ints_with_paging3(async));
+        // TODO: #33931
+        // The ToList inside the query gets executed separately during shaper generation - and synchronously (even in the async
+        // variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
+        // sync I/O.
+        await CosmosTestHelpers.Instance.NoSyncTest(
+            async: false, a => base.Project_collection_of_nullable_ints_with_paging3(a));
 
-            // Note that even if the query didn't attempt to do offset without limit, Cosmos still doesn't support OFFSET/LIMIT in subqueries,
-            // so this test would fail anyway.
-            Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
-
-            AssertSql();
-        }
+        AssertSql();
     }
 
     // TODO: Project out primitive collection subquery: #33797
@@ -1615,6 +1749,48 @@ FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two")))
 """);
             });
+
+    #region Cosmos-specific tests
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task IsDefined(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.IsDefined(e.Ints[2])),
+                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length >= 3));
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND IS_DEFINED(c["Ints"][2]))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task CoalesceUndefined(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.CoalesceUndefined(e.Ints[2], 999) == 999),
+                    ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length < 3));
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][2] ?? 999) = 999))
+""");
+            });
+
+    #endregion Cosmos-specific tests
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

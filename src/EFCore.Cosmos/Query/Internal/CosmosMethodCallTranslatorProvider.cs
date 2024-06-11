@@ -32,7 +32,8 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
             new CosmosStringMethodTranslator(sqlExpressionFactory),
             new CosmosRandomTranslator(sqlExpressionFactory),
             new CosmosMathTranslator(sqlExpressionFactory),
-            new CosmosRegexTranslator(sqlExpressionFactory)
+            new CosmosRegexTranslator(sqlExpressionFactory),
+            new CosmosTypeCheckingTranslator(sqlExpressionFactory)
             //new LikeTranslator(sqlExpressionFactory),
             //new EnumHasFlagTranslator(sqlExpressionFactory),
             //new GetValueOrDefaultTranslator(sqlExpressionFactory),
