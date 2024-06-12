@@ -6,6 +6,7 @@ using Microsoft.Azure.Cosmos;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "ConfigPatternsCosmos";

@@ -120,7 +120,7 @@ extends:
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                name: Build
+                displayName: Build
             templateContext:
               outputs:
               - output: pipelineArtifact
@@ -131,7 +131,7 @@ extends:
           - job: macOS
             pool:
               name: Azure Pipelines
-              image: macOS-11
+              image: macOS-12
               os: macOS
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
@@ -149,7 +149,7 @@ extends:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
                   COMPlus_EnableWriteXorExecute: 0
-                name: Build
+                displayName: Build
             templateContext:
               outputs:
               - output: pipelineArtifact
@@ -172,12 +172,10 @@ extends:
             steps:
               - bash: |
                   echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
-                  echo "##vso[task.setvariable variable=_CosmosToken]$(ef-nightly-cosmos-key)"
                 displayName: Prepare to run Cosmos tests on ef-nightly-test
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
               - bash: |
                   echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
-                  echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
                 displayName: Prepare to run Cosmos tests on ef-pr-test
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
               - task: Bash@3
@@ -188,10 +186,20 @@ extends:
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                displayName: Build
+              - task: AzureCLI@2
+                displayName: Run Cosmos tests
+                inputs:
+                  azureSubscription: EFCosmosTesting
+                  scriptType: bash
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                    ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                  Test__Cosmos__AuthToken: $(_CosmosToken)
-                name: Build
+                  Test__Cosmos__UseTokenCredential: true
+                  Test__Cosmos__SubscriptionId: d709b837-4a74-4aec-addc-b6e4b9b23e7e
+                  Test__Cosmos__ResourceGroup: efcosmosci
             templateContext:
               outputs:
               - output: pipelineArtifact
