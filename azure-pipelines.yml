@@ -80,7 +80,6 @@ extends:
               os: windows
             timeoutInMinutes: 180
             variables:
-              - _AdditionalBuildArgs: ''
               - _InternalBuildArgs: ''
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
@@ -110,10 +109,10 @@ extends:
                 displayName: Start LocalDB
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
-                name: Build
+                displayName: Build
               - task: CopyFiles@2
                 displayName: 'Copy binaries for publishing'
                 inputs:
@@ -149,7 +148,7 @@ extends:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   # Work-around for https://github.com/dotnet/runtime/issues/70758
                   COMPlus_EnableWriteXorExecute: 0
-                name: Build
+                displayName: Build
             templateContext:
               outputs:
               - output: pipelineArtifact
@@ -180,17 +179,16 @@ extends:
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
               - template: /eng/common/templates-official/steps/enable-internal-sources.yml
               - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
-              - task: AzureCLI@2
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 displayName: Build
+              - task: AzureCLI@2
+                displayName: Run Cosmos tests
                 inputs:
                   azureSubscription: EFCosmosTesting
-                  addSpnToEnvironment: true
                   scriptType: bash
                   scriptLocation: 'inlineScript'
                   inlineScript: |
-                      az account get-access-token --scope https://ef-pr-test.documents.azure.com/.default --output none
-                      az account get-access-token --scope https://ef-nightly-test.documents.azure.com/.default --output none
-                      eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                      ./test.sh --ci --configuration $(_BuildConfig) --projects $(Build.SourcesDirectory)/test/EFCore.Cosmos.FunctionalTests/EFCore.Cosmos.FunctionalTests.csproj
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__UseTokenCredential: true
