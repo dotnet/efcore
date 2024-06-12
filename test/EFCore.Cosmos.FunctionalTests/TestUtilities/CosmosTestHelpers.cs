@@ -17,7 +17,12 @@ public class CosmosTestHelpers : TestHelpers
         => services.AddEntityFrameworkCosmos();
 
     public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseCosmos(
+        => TestEnvironment.UseTokenCredential
+        ? optionsBuilder.UseCosmos(
+            TestEnvironment.DefaultConnection,
+            TestEnvironment.TokenCredential,
+            "UnitTests")
+        : optionsBuilder.UseCosmos(
             TestEnvironment.DefaultConnection,
             TestEnvironment.AuthToken,
             "UnitTests");
