@@ -1293,77 +1293,125 @@ WHERE ((c["Discriminator"] = "Customer") AND (GetCurrentDateTime() != @__myDatet
         AssertSql();
     }
 
-    public override async Task Where_date_add_year_constant_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_date_add_year_constant_component(async));
+    public override Task Where_date_add_year_constant_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_date_add_year_constant_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("yyyy", DateTimeAdd("yyyy", -1, c["OrderDate"])) = 1997))
+""");
+            });
 
-    public override async Task Where_datetime_year_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_year_component(async));
+    public override Task Where_datetime_year_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_year_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("yyyy", c["OrderDate"]) = 1998))
+""");
+            });
 
-    public override async Task Where_datetime_month_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_month_component(async));
+    public override Task Where_datetime_month_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_month_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("mm", c["OrderDate"]) = 4))
+""");
+            });
 
     public override async Task Where_datetime_dayOfYear_component(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
+        // DateTime.DayOfYear not supported by Cosmos
         await AssertTranslationFailed(() => base.Where_datetime_dayOfYear_component(async));
 
         AssertSql();
     }
 
-    public override async Task Where_datetime_day_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_day_component(async));
+    public override Task Where_datetime_day_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_day_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("dd", c["OrderDate"]) = 4))
+""");
+            });
 
-    public override async Task Where_datetime_hour_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_hour_component(async));
+    public override Task Where_datetime_hour_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_hour_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("hh", c["OrderDate"]) = 0))
+""");
+            });
 
-    public override async Task Where_datetime_minute_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_minute_component(async));
+    public override Task Where_datetime_minute_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_minute_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("mi", c["OrderDate"]) = 0))
+""");
+            });
 
-    public override async Task Where_datetime_second_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_second_component(async));
+    public override Task Where_datetime_second_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_second_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("ss", c["OrderDate"]) = 0))
+""");
+            });
 
-    public override async Task Where_datetime_millisecond_component(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Where_datetime_millisecond_component(async));
+    public override Task Where_datetime_millisecond_component(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_datetime_millisecond_component(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (DateTimePart("ms", c["OrderDate"]) = 0))
+""");
+            });
 
     public override async Task Where_datetimeoffset_now_component(bool async)
     {

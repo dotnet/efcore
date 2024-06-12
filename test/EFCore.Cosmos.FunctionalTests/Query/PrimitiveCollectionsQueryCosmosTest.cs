@@ -1566,7 +1566,7 @@ ORDER BY c["Id"]
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_collection_of_datetimes_filtered(async));
+            await Assert.ThrowsAsync<InvalidCastException>(() => base.Project_collection_of_datetimes_filtered(async));
         }
     }
 
@@ -1656,8 +1656,32 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
         // Always throws for sync.
         if (async)
         {
-            // TODO: Project out primitive collection subquery: #33797
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_multiple_collections(async));
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Project_multiple_collections(async));
+
+            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+
+            AssertSql(
+                """
+SELECT VALUE
+{
+    "Ints" : c["Ints"],
+    "c" : ARRAY(
+        SELECT VALUE i
+        FROM i IN c["Ints"]
+        ORDER BY i DESC),
+    "c0" : ARRAY(
+        SELECT VALUE i
+        FROM i IN c["DateTimes"]
+        WHERE (DateTimePart("dd", i) != 1)),
+    "c1" : ARRAY(
+        SELECT VALUE i
+        FROM i IN c["DateTimes"]
+        WHERE (i > "2000-01-01T00:00:00"))
+}
+FROM root c
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+ORDER BY c["Id"]
+""");
         }
     }
 

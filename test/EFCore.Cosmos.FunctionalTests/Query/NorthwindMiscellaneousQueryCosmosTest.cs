@@ -2423,29 +2423,77 @@ ORDER BY c["CustomerID"]
         AssertSql();
     }
 
-    public override async Task Parameter_extraction_short_circuits_1(bool async)
-    {
-        // Optimize query SQL. Issue #13159.
-        await AssertTranslationFailed(() => base.Parameter_extraction_short_circuits_1(async));
+    public override Task Parameter_extraction_short_circuits_1(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_extraction_short_circuits_1(a);
 
-        AssertSql();
-    }
+                // Optimize query SQL. Issue #13159.
+                AssertSql(
+                    """
+@__dateFilter_Value_Month_0='7'
+@__dateFilter_Value_Year_1='1996'
 
-    public override async Task Parameter_extraction_short_circuits_2(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Parameter_extraction_short_circuits_2(async));
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] < 10400) AND (false OR (((c["OrderDate"] != null) AND (DateTimePart("mm", c["OrderDate"]) = @__dateFilter_Value_Month_0)) AND (DateTimePart("yyyy", c["OrderDate"]) = @__dateFilter_Value_Year_1)))))
+""",
+                    //
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10400))
+""");
+            });
 
-        AssertSql();
-    }
+    public override Task Parameter_extraction_short_circuits_2(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_extraction_short_circuits_2(a);
 
-    public override async Task Parameter_extraction_short_circuits_3(bool async)
-    {
-        // Optimize query SQL. Issue #13159.
-        await AssertTranslationFailed(() => base.Parameter_extraction_short_circuits_3(async));
+                // Optimize query SQL. Issue #13159.
+                AssertSql(
+                    """
+@__dateFilter_Value_Month_0='7'
+@__dateFilter_Value_Year_1='1996'
 
-        AssertSql();
-    }
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] < 10400) AND (((c["OrderDate"] != null) AND (DateTimePart("mm", c["OrderDate"]) = @__dateFilter_Value_Month_0)) AND (DateTimePart("yyyy", c["OrderDate"]) = @__dateFilter_Value_Year_1))))
+""",
+                    //
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND false)
+""");
+            });
+
+    public override Task Parameter_extraction_short_circuits_3(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Parameter_extraction_short_circuits_3(a);
+
+                // Optimize query SQL. Issue #13159.
+                AssertSql(
+                    """
+@__dateFilter_Value_Month_0='7'
+@__dateFilter_Value_Year_1='1996'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] < 10400) OR (((c["OrderDate"] != null) AND (DateTimePart("mm", c["OrderDate"]) = @__dateFilter_Value_Month_0)) AND (DateTimePart("yyyy", c["OrderDate"]) = @__dateFilter_Value_Year_1))))
+""",
+                    //
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
 
     public override async Task Subquery_member_pushdown_does_not_change_original_subquery_model(bool async)
     {
@@ -2533,7 +2581,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("yyyy", 1, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2547,7 +2595,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("mm", 1, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2561,7 +2609,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("hh", 1.0, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2575,7 +2623,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("mi", 1.0, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2589,7 +2637,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("ss", 1.0, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2603,7 +2651,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("ms", 1000000000000.0, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2617,7 +2665,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimeAdd("ms", -1000000000000.0, c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2631,7 +2679,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT c["OrderDate"], DateTimePart("ms", c["OrderDate"]) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
 """);
@@ -2652,13 +2700,21 @@ ORDER BY c["OrderID"]
 """);
             });
 
-    public override async Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
-    {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Select_expression_references_are_updated_correctly_with_subquery(async));
+    public override Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_expression_references_are_updated_correctly_with_subquery(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+@__nextYear_0='2017'
+
+SELECT DISTINCT DateTimePart("yyyy", c["OrderDate"]) AS c
+FROM root c
+WHERE (((c["Discriminator"] = "Order") AND (c["OrderDate"] != null)) AND (DateTimePart("yyyy", c["OrderDate"]) < @__nextYear_0))
+""");
+            });
 
     public override async Task DefaultIfEmpty_without_group_join(bool async)
     {
