@@ -1855,6 +1855,58 @@ ORDER BY "b"."Id", "b0"."Id"
 """);
     }
 
+    [ConditionalFact]
+    public virtual void Projecting_arithmetic_operations_on_nullable_decimals()
+    {
+        using var context = CreateContext();
+        var expected = (from dt1 in context.Set<BuiltInNullableDataTypes>().ToList()
+                        from dt2 in context.Set<BuiltInNullableDataTypes>().ToList()
+                        orderby dt1.Id, dt2.Id
+                        select new
+                        {
+                            add = dt1.TestNullableDecimal + dt2.TestNullableDecimal,
+                            subtract = dt1.TestNullableDecimal - dt2.TestNullableDecimal,
+                            multiply = dt1.TestNullableDecimal * dt2.TestNullableDecimal,
+                            divide = dt2.TestNullableDecimal == 0 ? null : dt1.TestNullableDecimal / dt2.TestNullableDecimal,
+                            modulus = dt2.TestNullableDecimal == 0 ? null : dt1.TestNullableDecimal % dt2.TestNullableDecimal,
+                            negate = -dt1.TestNullableDecimal
+                        }).ToList();
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var actual = (from dt1 in context.Set<BuiltInNullableDataTypes>()
+                      from dt2 in context.Set<BuiltInNullableDataTypes>()
+                      orderby dt1.Id, dt2.Id
+                      select new
+                      {
+                          add = dt1.TestNullableDecimal + dt2.TestNullableDecimal,
+                          subtract = dt1.TestNullableDecimal - dt2.TestNullableDecimal,
+                          multiply = dt1.TestNullableDecimal * dt2.TestNullableDecimal,
+                          divide = dt1.TestNullableDecimal / dt2.TestNullableDecimal,
+                          modulus = dt1.TestNullableDecimal % dt2.TestNullableDecimal,
+                          negate = -dt1.TestNullableDecimal
+                      }).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i].add, actual[i].add);
+            Assert.Equal(expected[i].subtract, actual[i].subtract);
+            Assert.Equal(expected[i].multiply, actual[i].multiply);
+            Assert.Equal(expected[i].divide, actual[i].divide);
+            Assert.Equal(expected[i].modulus, actual[i].modulus);
+            Assert.Equal(expected[i].negate, actual[i].negate);
+        }
+
+        AssertSql(
+            """
+SELECT ef_add("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "add", ef_add("b"."TestNullableDecimal", ef_negate("b0"."TestNullableDecimal")) AS "subtract", ef_multiply("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "multiply", ef_divide("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "divide", ef_mod("b"."TestNullableDecimal", "b0"."TestNullableDecimal") AS "modulus", ef_negate("b"."TestNullableDecimal") AS "negate"
+FROM "BuiltInNullableDataTypes" AS "b"
+CROSS JOIN "BuiltInNullableDataTypes" AS "b0"
+ORDER BY "b"."Id", "b0"."Id"
+""");
+    }
+
     private void AssertTranslationFailed(Action testCode)
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[21..],
