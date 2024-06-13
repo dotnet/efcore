@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -841,7 +842,7 @@ OFFSET 0 LIMIT @__p_0
             // Top-level Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_simple(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -861,7 +862,7 @@ SELECT EXISTS (
             // Top-level Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_predicate(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -1318,7 +1319,7 @@ OFFSET @__p_0 LIMIT @__p_1
             // Top-level Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Skip_Take_Any(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -1359,7 +1360,7 @@ SELECT EXISTS (
             // Top-level parameterless Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Skip_Take_Any_with_predicate(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -1384,7 +1385,7 @@ SELECT EXISTS (
             // Top-level parameterless Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Take_Any_with_predicate(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -1600,7 +1601,7 @@ ORDER BY c["Country"], c["City"]
             // Top-level Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ThenBy_Any(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """

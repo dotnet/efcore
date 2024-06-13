@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Extensions;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -965,10 +966,17 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (EXISTS (
         // Always throws for sync.
         if (async)
         {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos, and neither is LIMIT/OFFSET within subqueries.
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Inline_collection_index_Column(async));
 
-            Assert.Contains("The specified query includes 'member indexer' which is currently not supported.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, 2, 3][c["Int"]] = 1))
+""");
         }
     }
 
@@ -977,10 +985,17 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (EXISTS (
         // Always throws for sync.
         if (async)
         {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos, and neither is LIMIT/OFFSET within subqueries.
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Inline_collection_value_index_Column(async));
 
-            Assert.Contains("The specified query includes 'member indexer' which is currently not supported.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3][c["Int"]] = 1))
+""");
         }
     }
 
@@ -989,10 +1004,17 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (EXISTS (
         // Always throws for sync.
         if (async)
         {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos, and neither is LIMIT/OFFSET within subqueries.
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Inline_collection_List_value_index_Column(async));
 
-            Assert.Contains("The specified query includes 'member indexer' which is currently not supported.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3][c["Int"]] = 1))
+""");
         }
     }
 
@@ -1001,10 +1023,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (EXISTS (
         // Always throws for sync.
         if (async)
         {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos, and neither is LIMIT/OFFSET within subqueries.
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Parameter_collection_index_Column_equal_Column(async));
 
-            Assert.Contains("The specified query includes 'member indexer' which is currently not supported.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+@__ints_0='[0,2,3]'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int"]] = c["Int"]))
+""");
         }
     }
 
@@ -1013,10 +1044,19 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (EXISTS (
         // Always throws for sync.
         if (async)
         {
-            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos, and neither is LIMIT/OFFSET within subqueries.
+            // Member indexer (c.Array[c.SomeMember]) isn't supported by Cosmos
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Parameter_collection_index_Column_equal_constant(async));
 
-            Assert.Contains("The specified query includes 'member indexer' which is currently not supported.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+@__ints_0='[1,2,3]'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int"]] = 1))
+""");
         }
     }
 
@@ -1205,9 +1245,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
         // Always throws for sync.
         if (async)
         {
+            // 'ORDER BY' is not supported in subqueries.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Column_collection_OrderByDescending_ElementAt(async));
 
-            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -1554,9 +1595,21 @@ ORDER BY c["Id"]
         // Always throws for sync.
         if (async)
         {
+            // 'ORDER BY' is not supported in subqueries.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Project_collection_of_ints_ordered(async));
 
-            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
+
+            AssertSql(
+                """
+SELECT ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    ORDER BY i DESC) AS c
+FROM root c
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+ORDER BY c["Id"]
+""");
         }
     }
 
