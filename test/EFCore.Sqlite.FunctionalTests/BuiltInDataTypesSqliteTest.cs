@@ -1814,6 +1814,7 @@ WHERE "b"."Id" = 291
                             subtract = dt1.TestDecimal - dt2.TestDecimal,
                             multiply = dt1.TestDecimal * dt2.TestDecimal,
                             divide = dt1.TestDecimal / dt2.TestDecimal,
+                            modulus = dt1.TestDecimal % dt2.TestDecimal,
                             negate = -dt1.TestDecimal
                         }).ToList();
 
@@ -1829,6 +1830,7 @@ WHERE "b"."Id" = 291
                           subtract = dt1.TestDecimal - dt2.TestDecimal,
                           multiply = dt1.TestDecimal * dt2.TestDecimal,
                           divide = dt1.TestDecimal / dt2.TestDecimal,
+                          modulus = dt1.TestDecimal % dt2.TestDecimal,
                           negate = -dt1.TestDecimal
                       }).ToList();
 
@@ -1839,12 +1841,13 @@ WHERE "b"."Id" = 291
             Assert.Equal(expected[i].subtract, actual[i].subtract);
             Assert.Equal(expected[i].multiply, actual[i].multiply);
             Assert.Equal(expected[i].divide, actual[i].divide);
+            Assert.Equal(expected[i].modulus, actual[i].modulus);
             Assert.Equal(expected[i].negate, actual[i].negate);
         }
 
         AssertSql(
             """
-SELECT ef_add("b"."TestDecimal", "b0"."TestDecimal") AS "add", ef_add("b"."TestDecimal", ef_negate("b0"."TestDecimal")) AS "subtract", ef_multiply("b"."TestDecimal", "b0"."TestDecimal") AS "multiply", ef_divide("b"."TestDecimal", "b0"."TestDecimal") AS "divide", ef_negate("b"."TestDecimal") AS "negate"
+SELECT ef_add("b"."TestDecimal", "b0"."TestDecimal") AS "add", ef_add("b"."TestDecimal", ef_negate("b0"."TestDecimal")) AS "subtract", ef_multiply("b"."TestDecimal", "b0"."TestDecimal") AS "multiply", ef_divide("b"."TestDecimal", "b0"."TestDecimal") AS "divide", ef_mod("b"."TestDecimal", "b0"."TestDecimal") AS "modulus", ef_negate("b"."TestDecimal") AS "negate"
 FROM "BuiltInDataTypes" AS "b"
 CROSS JOIN "BuiltInDataTypes" AS "b0"
 WHERE "b0"."TestDecimal" <> '0.0'
