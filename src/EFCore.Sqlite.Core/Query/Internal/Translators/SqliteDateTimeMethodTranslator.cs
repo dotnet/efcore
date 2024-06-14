@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
+public class SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory) : IMethodCallTranslator
 {
     private static readonly MethodInfo AddMilliseconds
         = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), [typeof(double)])!;
@@ -20,7 +20,7 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo AddTicks
         = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddTicks), [typeof(long)])!;
 
-    private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
+    private static readonly Dictionary<MethodInfo, string> MethodInfoToUnitSuffix = new()
     {
         { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), [typeof(int)])!, " years" },
         { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), [typeof(int)])!, " months" },
@@ -32,19 +32,6 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
         { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddMonths), [typeof(int)])!, " months" },
         { typeof(DateOnly).GetRuntimeMethod(nameof(DateOnly.AddDays), [typeof(int)])!, " days" }
     };
-
-    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,55 +58,55 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
         SqlExpression? modifier = null;
         if (AddMilliseconds.Equals(method))
         {
-            modifier = _sqlExpressionFactory.Add(
-                _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Divide(
+            modifier = sqlExpressionFactory.Add(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Divide(
                         arguments[0],
-                        _sqlExpressionFactory.Constant(1000.0)),
+                        sqlExpressionFactory.Constant(1000.0)),
                     typeof(string)),
-                _sqlExpressionFactory.Constant(" seconds"));
+                sqlExpressionFactory.Constant(" seconds"));
         }
         else if (AddTicks.Equals(method))
         {
-            modifier = _sqlExpressionFactory.Add(
-                _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Divide(
+            modifier = sqlExpressionFactory.Add(
+                sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Divide(
                         arguments[0],
-                        _sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
+                        sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
                     typeof(string)),
-                _sqlExpressionFactory.Constant(" seconds"));
+                sqlExpressionFactory.Constant(" seconds"));
         }
-        else if (_methodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
+        else if (MethodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
         {
-            modifier = _sqlExpressionFactory.Add(
-                _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
-                _sqlExpressionFactory.Constant(unitSuffix));
+            modifier = sqlExpressionFactory.Add(
+                sqlExpressionFactory.Convert(arguments[0], typeof(string)),
+                sqlExpressionFactory.Constant(unitSuffix));
         }
 
         if (modifier != null)
         {
-            return _sqlExpressionFactory.Function(
+            return sqlExpressionFactory.Function(
                 "rtrim",
                 new SqlExpression[]
                 {
-                    _sqlExpressionFactory.Function(
+                    sqlExpressionFactory.Function(
                         "rtrim",
                         new SqlExpression[]
                         {
-                            _sqlExpressionFactory.Strftime(
+                            sqlExpressionFactory.Strftime(
                                 method.ReturnType,
                                 "%Y-%m-%d %H:%M:%f",
                                 instance!,
-                                new[] { modifier }),
-                            _sqlExpressionFactory.Constant("0")
+                                modifiers: [modifier]),
+                            sqlExpressionFactory.Constant("0")
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, false },
+                        argumentsPropagateNullability: [true, false],
                         method.ReturnType),
-                    _sqlExpressionFactory.Constant(".")
+                    sqlExpressionFactory.Constant(".")
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, false },
+                argumentsPropagateNullability: [true, false],
                 method.ReturnType);
         }
 
@@ -131,17 +118,17 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments)
     {
-        if (instance is not null && _methodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
+        if (instance is not null && MethodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
         {
-            return _sqlExpressionFactory.Date(
+            return sqlExpressionFactory.Date(
                 method.ReturnType,
                 instance,
-                new[]
-                {
-                    _sqlExpressionFactory.Add(
-                        _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
-                        _sqlExpressionFactory.Constant(unitSuffix))
-                });
+                modifiers:
+                [
+                    sqlExpressionFactory.Add(
+                        sqlExpressionFactory.Convert(arguments[0], typeof(string)),
+                        sqlExpressionFactory.Constant(unitSuffix))
+                ]);
         }
 
         return null;

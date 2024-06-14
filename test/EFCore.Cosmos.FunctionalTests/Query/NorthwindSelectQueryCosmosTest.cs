@@ -712,18 +712,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
     }
 
     public override Task Projection_containing_DateTime_subtraction(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projection_containing_DateTime_subtraction(a);
-
-                AssertSql(
-                    """
-SELECT c["OrderDate"]
-FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10300))
-""");
-            });
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Projection_containing_DateTime_subtraction(async));
 
     public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool async)
     {
@@ -824,7 +813,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10300))
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("yyyy", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -838,7 +827,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("mm", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -848,6 +837,7 @@ WHERE (c["Discriminator"] = "Order")
         => Fixture.NoSyncTest(
             async, async a =>
             {
+                // DateTime.DayOfYear not supported by Cosmos
                 await base.Select_datetime_day_of_year_component(a);
 
                 AssertSql(
@@ -866,7 +856,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("dd", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -880,7 +870,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("hh", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -894,7 +884,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("mi", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -908,7 +898,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("ss", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -922,7 +912,7 @@ WHERE (c["Discriminator"] = "Order")
 
                 AssertSql(
                     """
-SELECT c["OrderDate"]
+SELECT DateTimePart("ms", c["OrderDate"]) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Order")
 """);
@@ -1543,8 +1533,10 @@ OFFSET 0 LIMIT @__p_0
 SELECT VALUE
 {
     "CustomerID" : c["CustomerID"],
+    "c" : (c["OrderDate"] != null),
     "OrderDate" : c["OrderDate"],
-    "c" : (c["OrderID"] - 10000)
+    "c0" : (c["OrderID"] - 10000),
+    "c1" : ((c["OrderDate"] != null) = false)
 }
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10300))

@@ -25,16 +25,34 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         var declaringType = member.DeclaringType;
-        if ((declaringType == typeof(DateTime)
-                || declaringType == typeof(DateTimeOffset))
-            && member.Name == nameof(DateTime.UtcNow))
+
+        if (declaringType != typeof(DateTime) && declaringType != typeof(DateTimeOffset))
         {
-            return sqlExpressionFactory.Function(
-                "GetCurrentDateTime",
-                [],
-                returnType);
+            return null;
         }
 
-        return null;
+        return member.Name switch
+        {
+            nameof(DateTime.Year) => DatePart("yyyy"),
+            nameof(DateTime.Month) => DatePart("mm"),
+            nameof(DateTime.Day) => DatePart("dd"),
+            nameof(DateTime.Hour) => DatePart("hh"),
+            nameof(DateTime.Minute) => DatePart("mi"),
+            nameof(DateTime.Second) => DatePart("ss"),
+            nameof(DateTime.Millisecond) => DatePart("ms"),
+            nameof(DateTime.Microsecond) => DatePart("mcs"),
+            nameof(DateTime.Nanosecond) => DatePart("ns"),
+
+            nameof(DateTime.UtcNow)
+                => sqlExpressionFactory.Function(
+                    "GetCurrentDateTime",
+                    [],
+                    returnType),
+
+            _ => null
+        };
+
+        SqlFunctionExpression DatePart(string part)
+            => sqlExpressionFactory.Function("DateTimePart", arguments: [sqlExpressionFactory.Constant(part), instance!], returnType);
     }
 }
