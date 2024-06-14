@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
@@ -195,8 +196,8 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             if (_sqlServerSingletonOptions.CompatibilityLevel >= 160)
             {
                 if (TrimStartMethodInfoWithoutArgs.Equals(method)
-                || TrimStartMethodInfoWithCharArg.Equals(method)
-                || TrimStartMethodInfoWithCharArrayArg.Equals(method))
+                    || TrimStartMethodInfoWithCharArg.Equals(method)
+                    || TrimStartMethodInfoWithCharArrayArg.Equals(method))
                 {
                     return ProcessTrimMethod(instance, arguments, "LTRIM");
                 }
@@ -375,24 +376,24 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         if (arguments.Count == 1)
         {
             var constantValue = (arguments[0] as SqlConstantExpression)?.Value;
-            var charactersToTrim = new List<char>();
+            var charactersToTrim = new StringBuilder();
 
             if (constantValue is char singleChar)
             {
-                charactersToTrim.Add(singleChar);
+                charactersToTrim.Append(singleChar);
             }
             else if (constantValue is char[] charArray)
             {
-                charactersToTrim.AddRange(charArray);
+                charactersToTrim.Append(charArray);
             }
             else
             {
                 return null;
             }
 
-            if (charactersToTrim.Count > 0)
+            if (charactersToTrim.Length > 0)
             {
-                sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToArray()), typeMapping));
+                sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToString()), typeMapping));
             }
         }
 
