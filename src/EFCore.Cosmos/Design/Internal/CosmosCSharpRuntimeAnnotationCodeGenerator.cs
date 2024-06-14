@@ -35,6 +35,10 @@ public class CosmosCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotatio
         {
             annotations.Remove(CosmosAnnotationNames.Throughput);
         }
+        else
+        {
+            annotations.Remove(CosmosAnnotationNames.ModelDependencies);
+        }
 
         base.Generate(model, parameters);
     }
@@ -48,7 +52,6 @@ public class CosmosCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotatio
             annotations.Remove(CosmosAnnotationNames.AnalyticalStoreTimeToLive);
             annotations.Remove(CosmosAnnotationNames.DefaultTimeToLive);
             annotations.Remove(CosmosAnnotationNames.Throughput);
-            annotations.Remove(CosmosAnnotationNames.JsonIdDefinition);
         }
 
         base.Generate(entityType, parameters);

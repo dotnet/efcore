@@ -96,12 +96,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private bool TryGetResourceId(out string resourceId)
         {
             var entityType = _readItemInfo.EntityType;
-            var jsonIdDefinition = (RuntimeJsonIdDefinition)entityType.FindRuntimeAnnotation(CosmosAnnotationNames.JsonIdDefinition)?.Value;
-            if (jsonIdDefinition == null)
-            {
-                resourceId = null;
-                return false;
-            }
+            var jsonIdDefinition = entityType.GetJsonIdDefinition();
+            Check.DebugAssert(jsonIdDefinition != null,
+                "Should not be using this enumerable if not using ReadItem, which needs an id definition.");
 
             var values = new List<object>(jsonIdDefinition.Properties.Count);
             foreach (var property in jsonIdDefinition.Properties)

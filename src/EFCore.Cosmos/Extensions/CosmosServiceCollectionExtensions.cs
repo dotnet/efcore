@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
@@ -100,6 +101,7 @@ public static class CosmosServiceCollectionExtensions
             .TryAdd<IExecutionStrategyFactory, CosmosExecutionStrategyFactory>()
             .TryAdd<IDbContextTransactionManager, CosmosTransactionManager>()
             .TryAdd<IModelValidator, CosmosModelValidator>()
+            .TryAdd<IModelRuntimeInitializer, CosmosModelRuntimeInitializer>()
             .TryAdd<IProviderConventionSetBuilder, CosmosConventionSetBuilder>()
             .TryAdd<IValueGeneratorSelector, CosmosValueGeneratorSelector>()
             .TryAdd<IDatabaseCreator, CosmosDatabaseCreator>()
@@ -116,12 +118,12 @@ public static class CosmosServiceCollectionExtensions
                     .TryAddSingleton<ICosmosSingletonOptions, CosmosSingletonOptions>()
                     .TryAddSingleton<ISingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
                     .TryAddSingleton<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>()
-                    .TryAddSingleton<IRuntimeJsonIdDefinitionFactory, RuntimeJsonIdDefinitionFactory>()
+                    .TryAddSingleton<CosmosModelRuntimeInitializerDependencies, CosmosModelRuntimeInitializerDependencies>()
+                    .TryAddSingleton<IJsonIdDefinitionFactory, JsonIdDefinitionFactory>()
                     .TryAddScoped<ISqlExpressionFactory, SqlExpressionFactory>()
                     .TryAddScoped<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
                     .TryAddScoped<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
-                    .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>()
-            );
+                    .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>());
 
         builder.TryAddCoreServices();
 

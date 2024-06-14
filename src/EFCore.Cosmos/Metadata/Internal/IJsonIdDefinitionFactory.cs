@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class RuntimeJsonIdDefinitionFactory : IRuntimeJsonIdDefinitionFactory
+public interface IJsonIdDefinitionFactory
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,6 +17,5 @@ public class RuntimeJsonIdDefinitionFactory : IRuntimeJsonIdDefinitionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RuntimeJsonIdDefinition Create(RuntimeEntityType entityType, JsonIdDefinition jsonIdDefinition)
-        => new(entityType, jsonIdDefinition);
+    IJsonIdDefinition? Create(IEntityType entityType);
 }

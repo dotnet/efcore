@@ -15,19 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class CosmosRuntimeModelConvention : RuntimeModelConvention
 {
-    private readonly IRuntimeJsonIdDefinitionFactory _runtimeJsonIdDefinitionFactory;
-
     /// <summary>
     ///     Creates a new instance of <see cref="CosmosRuntimeModelConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    /// <param name="runtimeJsonIdDefinitionFactory">A factory for creating <see cref="RuntimeJsonIdDefinition"/> instance.</param>
-    public CosmosRuntimeModelConvention(
-        ProviderConventionSetBuilderDependencies dependencies,
-        IRuntimeJsonIdDefinitionFactory runtimeJsonIdDefinitionFactory)
+    public CosmosRuntimeModelConvention(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
-        _runtimeJsonIdDefinitionFactory = runtimeJsonIdDefinitionFactory;
     }
 
     /// <summary>
@@ -71,13 +65,6 @@ public class CosmosRuntimeModelConvention : RuntimeModelConvention
             annotations.Remove(CosmosAnnotationNames.AnalyticalStoreTimeToLive);
             annotations.Remove(CosmosAnnotationNames.DefaultTimeToLive);
             annotations.Remove(CosmosAnnotationNames.Throughput);
-        }
-
-        if (annotations.TryGetAndRemove(CosmosAnnotationNames.JsonIdDefinition, out JsonIdDefinition jsonId))
-        {
-            runtimeEntityType.AddRuntimeAnnotation(
-                CosmosAnnotationNames.JsonIdDefinition,
-                _runtimeJsonIdDefinitionFactory.Create(runtimeEntityType, jsonId));
         }
     }
 }

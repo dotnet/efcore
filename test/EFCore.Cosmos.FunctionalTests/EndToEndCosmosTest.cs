@@ -1167,7 +1167,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<PartitionKeyContextCustomValueGenerator>(
             shouldLogCategory: _ => true,
             onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)),
-            addServices: s => s.AddSingleton<IRuntimeJsonIdDefinitionFactory, CustomRuntimeJsonIdDefinitionFactory>());
+            addServices: s => s.AddSingleton<IJsonIdDefinitionFactory, CustomJsonIdDefinitionFactory>());
 
         const int pk1 = 1;
         const int pk2 = 2;
@@ -1235,7 +1235,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<PartitionKeyContextCustomValueGenerator>(
             shouldLogCategory: _ => true,
             onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)),
-            addServices: s => s.AddSingleton<IRuntimeJsonIdDefinitionFactory, CustomRuntimeJsonIdDefinitionFactory>());
+            addServices: s => s.AddSingleton<IJsonIdDefinitionFactory, CustomJsonIdDefinitionFactory>());
 
         const int pk1 = 1;
         const int pk2 = 2;

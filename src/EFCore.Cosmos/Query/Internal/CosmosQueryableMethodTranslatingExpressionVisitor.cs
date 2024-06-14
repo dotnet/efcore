@@ -157,7 +157,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     if (entityTypePrimaryKeyProperties.SequenceEqual(queryProperties)
                         && (!partitionKeyProperties.Any()
                             || partitionKeyProperties.All(p => entityTypePrimaryKeyProperties.Contains(p)))
-                        && entityType.FindRuntimeAnnotation(CosmosAnnotationNames.JsonIdDefinition) != null)
+                        && entityType.GetJsonIdDefinition() != null)
                     {
                         var propertyParameterList = queryProperties.Zip(
                                 parameterNames,
