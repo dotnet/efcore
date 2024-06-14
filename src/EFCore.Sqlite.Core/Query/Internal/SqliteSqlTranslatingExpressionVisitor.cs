@@ -219,7 +219,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     function,
                     new[] { sqlBinary.Left, sqlBinary.Right },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability: new[] { false, false },
                     visitedExpression.Type,
                     visitedExpression.TypeMapping);
             }
@@ -513,7 +513,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         return op switch
         {
             ExpressionType.Add => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
-            ExpressionType.Divide => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
+            ExpressionType.Divide => DecimalDivisionExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
             ExpressionType.Multiply => DecimalArithmeticExpressionFactoryMethod(ResolveFunctionNameFromExpressionType(op), left, right),
             ExpressionType.Subtract => DecimalSubtractExpressionFactoryMethod(left, right),
             _ => visitedExpression
@@ -535,6 +535,14 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                 new[] { left, right },
                 nullable: true,
                 new[] { true, true },
+                visitedExpression.Type);
+
+        Expression DecimalDivisionExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
+            => Dependencies.SqlExpressionFactory.Function(
+                name,
+                new[] { left, right },
+                nullable: true,
+                new[] { false, false },
                 visitedExpression.Type);
 
         Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)
