@@ -2343,6 +2343,44 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                             EnumU16 = EnumU16.SomeValue,
                             EnumS8 = EnumS8.SomeValue
                         });
+
+                    eb.HasData(
+                        new sbyte[] { -10, -7, -4, -3, -2, -1, 0, 1, 2, 3, 8, 15 }
+                        .Select((x, i) =>
+                            new BuiltInDataTypes
+                            {
+                                Id = 17 + i,
+                                PartitionId = 2,
+                                TestInt16 = x,
+                                TestInt32 = x,
+                                TestInt64 = x,
+                                TestDouble = x * 0.25,
+                                TestDecimal = x * 0.2M,
+                                TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                                TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                                TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                                TestDateOnly = new DateOnly(2020, 3, 1),
+                                TestTimeOnly = new TimeOnly(12, 30, 45, 123),
+                                TestSingle = x * 0.25F,
+                                TestBoolean = x > 0,
+                                TestByte = (byte)(10 + x),
+                                TestUnsignedInt16 = (byte)(10 + x),
+                                TestUnsignedInt32 = (byte)(10 + x),
+                                TestUnsignedInt64 = (byte)(10 + x),
+                                TestCharacter = 'a',
+                                TestSignedByte = x,
+                                Enum64 = Enum64.SomeValue,
+                                Enum32 = Enum32.SomeValue,
+                                Enum16 = Enum16.SomeValue,
+                                Enum8 = Enum8.SomeValue,
+                                EnumU64 = EnumU64.SomeValue,
+                                EnumU32 = EnumU32.SomeValue,
+                                EnumU16 = EnumU16.SomeValue,
+                                EnumS8 = EnumS8.SomeValue
+                            }
+                        )
+                    );
+
                     eb.Property(e => e.Id).ValueGeneratedNever();
                 });
             modelBuilder.Entity<BuiltInDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();
@@ -2380,6 +2418,43 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                             EnumU16 = EnumU16.SomeValue,
                             EnumS8 = EnumS8.SomeValue
                         });
+
+                    eb.HasData(
+                        new sbyte?[] { null, -10, -7, -4, -3, -2, -1, 0, 1, 2, 3, 8, 15 }
+                        .Select((x, i) =>
+                            new BuiltInNullableDataTypes
+                            {
+                                Id = 17 + i,
+                                PartitionId = 2,
+                                TestNullableInt16 = x,
+                                TestNullableInt32 = x,
+                                TestNullableInt64 = x,
+                                TestNullableDouble = x * 0.25,
+                                TestNullableDecimal = x * 0.2M,
+                                TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                                TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+                                TestNullableDateOnly = new DateOnly(2020, 3, 1),
+                                TestNullableTimeOnly = new TimeOnly(12, 30, 45, 123),
+                                TestNullableSingle = x * 0.25F,
+                                TestNullableBoolean = x == null ? null : x > 0,
+                                TestNullableByte = (byte?)(10 + x),
+                                TestNullableUnsignedInt16 = (byte?)(10 + x),
+                                TestNullableUnsignedInt32 = (byte?)(10 + x),
+                                TestNullableUnsignedInt64 = (byte?)(10 + x),
+                                TestNullableCharacter = 'a',
+                                TestNullableSignedByte = x,
+                                Enum64 = Enum64.SomeValue,
+                                Enum32 = Enum32.SomeValue,
+                                Enum16 = Enum16.SomeValue,
+                                Enum8 = Enum8.SomeValue,
+                                EnumU64 = EnumU64.SomeValue,
+                                EnumU32 = EnumU32.SomeValue,
+                                EnumU16 = EnumU16.SomeValue,
+                                EnumS8 = EnumS8.SomeValue
+                            }
+                        )
+                    );
+
                     eb.Property(e => e.Id).ValueGeneratedNever();
                 });
             modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property(e => e.Id).ValueGeneratedNever();

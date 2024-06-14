@@ -703,6 +703,18 @@ WHERE (
     public override Task Column_collection_ElementAt(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_ElementAt(async));
 
+    public override Task Column_collection_First(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_First(async));
+
+    public override Task Column_collection_FirstOrDefault(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_FirstOrDefault(async));
+
+    public override Task Column_collection_Single(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Single(async));
+
+    public override Task Column_collection_SingleOrDefault(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_SingleOrDefault(async));
+
     public override Task Column_collection_Skip(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip(async));
 
@@ -712,11 +724,23 @@ WHERE (
     public override Task Column_collection_Skip_Take(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
 
+    public override Task Column_collection_Where_Skip(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Skip(async));
+
+    public override Task Column_collection_Where_Take(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Take(async));
+
+    public override Task Column_collection_Where_Skip_Take(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Where_Skip_Take(async));
+
     public override Task Column_collection_Contains_over_subquery(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
 
     public override Task Column_collection_OrderByDescending_ElementAt(bool async)
         => AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt(async));
+
+    public override Task Column_collection_Where_ElementAt(bool async)
+        => AssertTranslationFailed(() => base.Column_collection_Where_ElementAt(async));
 
     public override Task Column_collection_Any(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any(async));

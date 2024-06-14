@@ -126,6 +126,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, property2, entityType, storeName);
 
         /// <summary>
+        ///     Skip, Take, First/FirstOrDefault and Single/SingleOrDefault aren't supported in subqueries since Cosmos doesn't support LIMIT/OFFSET in subqueries.
+        /// </summary>
+        public static string LimitOffsetNotSupportedInSubqueries
+            => GetString("LimitOffsetNotSupportedInSubqueries");
+
+        /// <summary>
         ///     'Reverse' could not be translated to the server because there is no ordering on the server side.
         /// </summary>
         public static string MissingOrderingInSelectExpression

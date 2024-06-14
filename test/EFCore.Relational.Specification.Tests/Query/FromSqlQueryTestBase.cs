@@ -195,6 +195,23 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSqlRaw_queryable_simple_different_cased_columns_and_not_enough_columns_throws(bool async)
+    {
+        using var context = CreateContext();
+        var query = context.Set<Customer>().FromSqlRaw(
+            NormalizeDelimitersInRawString(
+                "SELECT [PostalCODE], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"));
+
+        Assert.Equal(
+            RelationalStrings.FromSqlMissingColumn("Region"),
+            (async
+                ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
+                : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
+    }
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_queryable_composed(bool async)
         => AssertQuery(
             async,

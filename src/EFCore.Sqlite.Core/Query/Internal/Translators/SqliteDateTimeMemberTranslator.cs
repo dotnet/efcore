@@ -12,34 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteDateTimeMemberTranslator : IMemberTranslator
+public class SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpressionFactory) : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> DatePartMapping
-        = new()
-        {
-            { nameof(DateTime.Year), "%Y" },
-            { nameof(DateTime.Month), "%m" },
-            { nameof(DateTime.DayOfYear), "%j" },
-            { nameof(DateTime.Day), "%d" },
-            { nameof(DateTime.Hour), "%H" },
-            { nameof(DateTime.Minute), "%M" },
-            { nameof(DateTime.Second), "%S" },
-            { nameof(DateTime.DayOfWeek), "%w" }
-        };
-
-    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
-    {
-        _sqlExpressionFactory = sqlExpressionFactory;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -52,112 +26,123 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType == typeof(DateTime))
+        if (member.DeclaringType != typeof(DateTime))
         {
-            var memberName = member.Name;
+            return null;
+        }
 
-            if (DatePartMapping.TryGetValue(memberName, out var datePart))
-            {
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Strftime(
-                        typeof(string),
-                        datePart,
-                        instance!),
-                    returnType);
-            }
+        var memberName = member.Name;
 
-            if (memberName == nameof(DateTime.Ticks))
-            {
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Multiply(
-                        _sqlExpressionFactory.Subtract(
-                            _sqlExpressionFactory.Function(
+        switch (memberName)
+        {
+            case nameof(DateTime.Year):
+                return DatePart("%Y");
+            case nameof(DateTime.Month):
+                return DatePart("%m");
+            case nameof(DateTime.DayOfYear):
+                return DatePart("%j");
+            case nameof(DateTime.Day):
+                return DatePart("%d");
+            case nameof(DateTime.Hour):
+                return DatePart("%H");
+            case nameof(DateTime.Minute):
+                return DatePart("%M");
+            case nameof(DateTime.Second):
+                return DatePart("%S");
+            case nameof(DateTime.DayOfWeek):
+                return DatePart("%w");
+
+            case nameof(DateTime.Ticks):
+                return sqlExpressionFactory.Convert(
+                    sqlExpressionFactory.Multiply(
+                        sqlExpressionFactory.Subtract(
+                            sqlExpressionFactory.Function(
                                 "julianday",
                                 new[] { instance! },
                                 nullable: true,
                                 argumentsPropagateNullability: new[] { true },
                                 typeof(double)),
-                            _sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
-                        _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
+                            sqlExpressionFactory.Constant(1721425.5)), // NB: Result of julianday('0001-01-01 00:00:00')
+                        sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
                     typeof(long));
-            }
 
-            if (memberName == nameof(DateTime.Millisecond))
-            {
-                return _sqlExpressionFactory.Modulo(
-                    _sqlExpressionFactory.Multiply(
-                        _sqlExpressionFactory.Convert(
-                            _sqlExpressionFactory.Strftime(
+            case nameof(DateTime.Millisecond):
+                return sqlExpressionFactory.Modulo(
+                    sqlExpressionFactory.Multiply(
+                        sqlExpressionFactory.Convert(
+                            sqlExpressionFactory.Strftime(
                                 typeof(string),
                                 "%f",
                                 instance!),
                             typeof(double)),
-                        _sqlExpressionFactory.Constant(1000)),
-                    _sqlExpressionFactory.Constant(1000));
-            }
-
-            var format = "%Y-%m-%d %H:%M:%f";
-            SqlExpression timestring;
-            var modifiers = new List<SqlExpression>();
-
-            switch (memberName)
-            {
-                case nameof(DateTime.Now):
-                    timestring = _sqlExpressionFactory.Constant("now");
-                    modifiers.Add(_sqlExpressionFactory.Constant("localtime"));
-                    break;
-
-                case nameof(DateTime.UtcNow):
-                    timestring = _sqlExpressionFactory.Constant("now");
-                    break;
-
-                case nameof(DateTime.Date):
-                    timestring = instance!;
-                    modifiers.Add(_sqlExpressionFactory.Constant("start of day"));
-                    break;
-
-                case nameof(DateTime.Today):
-                    timestring = _sqlExpressionFactory.Constant("now");
-                    modifiers.Add(_sqlExpressionFactory.Constant("localtime"));
-                    modifiers.Add(_sqlExpressionFactory.Constant("start of day"));
-                    break;
-
-                case nameof(DateTime.TimeOfDay):
-                    format = "%H:%M:%f";
-                    timestring = instance!;
-                    break;
-
-                default:
-                    return null;
-            }
-
-            Check.DebugAssert(timestring != null, "timestring is null");
-
-            return _sqlExpressionFactory.Function(
-                "rtrim",
-                new SqlExpression[]
-                {
-                    _sqlExpressionFactory.Function(
-                        "rtrim",
-                        new SqlExpression[]
-                        {
-                            _sqlExpressionFactory.Strftime(
-                                returnType,
-                                format,
-                                timestring,
-                                modifiers),
-                            _sqlExpressionFactory.Constant("0")
-                        },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, false },
-                        returnType),
-                    _sqlExpressionFactory.Constant(".")
-                },
-                nullable: true,
-                argumentsPropagateNullability: new[] { true, false },
-                returnType);
+                        sqlExpressionFactory.Constant(1000)),
+                    sqlExpressionFactory.Constant(1000));
         }
 
-        return null;
+        var format = "%Y-%m-%d %H:%M:%f";
+        SqlExpression timestring;
+        var modifiers = new List<SqlExpression>();
+
+        switch (memberName)
+        {
+            case nameof(DateTime.Now):
+                timestring = sqlExpressionFactory.Constant("now");
+                modifiers.Add(sqlExpressionFactory.Constant("localtime"));
+                break;
+
+            case nameof(DateTime.UtcNow):
+                timestring = sqlExpressionFactory.Constant("now");
+                break;
+
+            case nameof(DateTime.Date):
+                timestring = instance!;
+                modifiers.Add(sqlExpressionFactory.Constant("start of day"));
+                break;
+
+            case nameof(DateTime.Today):
+                timestring = sqlExpressionFactory.Constant("now");
+                modifiers.Add(sqlExpressionFactory.Constant("localtime"));
+                modifiers.Add(sqlExpressionFactory.Constant("start of day"));
+                break;
+
+            case nameof(DateTime.TimeOfDay):
+                format = "%H:%M:%f";
+                timestring = instance!;
+                break;
+
+            default:
+                return null;
+        }
+
+        Check.DebugAssert(timestring != null, "timestring is null");
+
+        return sqlExpressionFactory.Function(
+            "rtrim",
+            new SqlExpression[]
+            {
+                sqlExpressionFactory.Function(
+                    "rtrim",
+                    new SqlExpression[]
+                    {
+                        sqlExpressionFactory.Strftime(
+                            returnType,
+                            format,
+                            timestring,
+                            modifiers),
+                        sqlExpressionFactory.Constant("0")
+                    },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, false },
+                    returnType),
+                sqlExpressionFactory.Constant(".")
+            },
+            nullable: true,
+            argumentsPropagateNullability: new[] { true, false },
+            returnType);
+
+        SqlExpression DatePart(string part)
+            => sqlExpressionFactory.Convert(
+                sqlExpressionFactory.Strftime(typeof(string), part, instance!),
+                returnType);
     }
 }

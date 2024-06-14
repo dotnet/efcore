@@ -498,7 +498,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         Guid addressGuid;
         await using (var context = new EmbeddedTransportationContext(options))
         {
-            await context.Database.EnsureCreatedAsync();
             var person = new Person { Id = 1 };
             address = new Address { Street = "Second", City = "Village" };
             person.Addresses.Add(address);

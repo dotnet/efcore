@@ -17,25 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class QuerySqlGenerator : SqlExpressionVisitor
 {
-    private static readonly Dictionary<ExpressionType, string> OperatorMap = new()
-    {
-        { ExpressionType.Equal, " = " },
-        { ExpressionType.NotEqual, " <> " },
-        { ExpressionType.GreaterThan, " > " },
-        { ExpressionType.GreaterThanOrEqual, " >= " },
-        { ExpressionType.LessThan, " < " },
-        { ExpressionType.LessThanOrEqual, " <= " },
-        { ExpressionType.AndAlso, " AND " },
-        { ExpressionType.OrElse, " OR " },
-        { ExpressionType.Add, " + " },
-        { ExpressionType.Subtract, " - " },
-        { ExpressionType.Multiply, " * " },
-        { ExpressionType.Divide, " / " },
-        { ExpressionType.Modulo, " % " },
-        { ExpressionType.And, " & " },
-        { ExpressionType.Or, " | " }
-    };
-
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -1098,7 +1079,26 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="binaryExpression">A SQL binary operation.</param>
     /// <returns>A string representation of the binary operator.</returns>
     protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
-        => OperatorMap[binaryExpression.OperatorType];
+        => binaryExpression.OperatorType switch
+        {
+            ExpressionType.Equal => " = ",
+            ExpressionType.NotEqual => " <> ",
+            ExpressionType.GreaterThan => " > ",
+            ExpressionType.GreaterThanOrEqual => " >= ",
+            ExpressionType.LessThan => " < ",
+            ExpressionType.LessThanOrEqual => " <= ",
+            ExpressionType.AndAlso => " AND ",
+            ExpressionType.OrElse => " OR ",
+            ExpressionType.Add => " + ",
+            ExpressionType.Subtract => " - ",
+            ExpressionType.Multiply => " * ",
+            ExpressionType.Divide => " / ",
+            ExpressionType.Modulo => " % ",
+            ExpressionType.And => " & ",
+            ExpressionType.Or => " | ",
+
+            _ => throw new UnreachableException($"Unsupported unary OperatorType: {binaryExpression.OperatorType}")
+        };
 
     /// <summary>
     ///     Generates SQL for the TOP clause of the given SELECT expression.

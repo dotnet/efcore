@@ -1232,7 +1232,9 @@ public class BufferedDataReader : DbDataReader
             if (FieldCount < _columns.Count)
             {
                 // Non-composed FromSql
-                var firstMissingColumn = _columns.Select(c => c?.Name).Where(c => c != null).Except(_columnNames).FirstOrDefault();
+                var readerColumns = _fieldNameLookup.Value;
+
+                var firstMissingColumn = _columns.Select(c => c?.Name).FirstOrDefault(c => c != null && !readerColumns.ContainsKey(c));
                 if (firstMissingColumn != null)
                 {
                     throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(firstMissingColumn));

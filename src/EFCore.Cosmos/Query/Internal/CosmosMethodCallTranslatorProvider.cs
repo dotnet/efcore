@@ -28,11 +28,13 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
 
         _translators.AddRange(
         [
+            new CosmosDateTimeMethodTranslator(sqlExpressionFactory),
             new CosmosEqualsTranslator(sqlExpressionFactory),
-            new CosmosStringMethodTranslator(sqlExpressionFactory),
-            new CosmosRandomTranslator(sqlExpressionFactory),
             new CosmosMathTranslator(sqlExpressionFactory),
-            new CosmosRegexTranslator(sqlExpressionFactory)
+            new CosmosRandomTranslator(sqlExpressionFactory),
+            new CosmosRegexTranslator(sqlExpressionFactory),
+            new CosmosStringMethodTranslator(sqlExpressionFactory),
+            new CosmosTypeCheckingTranslator(sqlExpressionFactory)
             //new LikeTranslator(sqlExpressionFactory),
             //new EnumHasFlagTranslator(sqlExpressionFactory),
             //new GetValueOrDefaultTranslator(sqlExpressionFactory),

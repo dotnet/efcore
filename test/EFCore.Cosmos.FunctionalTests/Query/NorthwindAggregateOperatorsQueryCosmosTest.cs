@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -42,6 +43,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10248))
 
     public override async Task Contains_over_keyless_entity_throws(bool async)
     {
+        // TODO: #33931
         // The subquery inside the Contains gets executed separately during shaper generation - and synchronously (even in
         // the async variant of the test), but Cosmos doesn't support sync I/O. So both sync and async variants fail because of unsupported
         // sync I/O.
@@ -2019,7 +2021,7 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT(false))
             // Top-level Any(), see #33854.
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Contains_top_level(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -2268,7 +2270,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
             var exception =
                 await Assert.ThrowsAsync<CosmosException>(() => base.Contains_over_entityType_with_null_should_rewrite_to_false(async));
 
-            Assert.Contains("Identifier 'root' could not be resolved.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """

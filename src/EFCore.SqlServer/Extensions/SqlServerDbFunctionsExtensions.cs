@@ -2137,6 +2137,25 @@ public static class SqlServerDbFunctionsExtensions
         string timeZone)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
 
+    /// <summary>
+    ///     Returns the starting position of the first occurrence of a pattern in a specified expression, or zero if the pattern is not found, on all valid text and character data types.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="pattern">A string pattern to search for.</param>
+    /// <param name="expression">Typically a column that is searched for the specified pattern</param>
+    /// <returns>Returns the starting position of the first occurrence of a pattern in a specified expression.</returns>
+    /// <seealso href="https://learn.microsoft.com/en-us/sql/t-sql/functions/patindex-transact-sql">SQL Server documentation for <c>PATINDEX</c>.</seealso>
+    public static long PatIndex(
+        this DbFunctions _,
+        string pattern,
+        string expression)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(PatIndex)));
+
     #region Sample standard deviation
 
     /// <summary>

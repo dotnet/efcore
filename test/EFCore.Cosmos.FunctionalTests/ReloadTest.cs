@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Azure.Core;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -37,14 +38,27 @@ public class ReloadTest
         private readonly string _connectionUri = testStore.ConnectionUri;
         private readonly string _authToken = testStore.AuthToken;
         private readonly string _name = testStore.Name;
+        private readonly TokenCredential _tokenCredential = testStore.TokenCredential;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
-                .UseCosmos(
-                    _connectionUri,
-                    _authToken,
-                    _name,
-                    b => b.ApplyConfiguration());
+        {
+            if (TestEnvironment.UseTokenCredential)
+            {
+                optionsBuilder.UseCosmos(
+                            _connectionUri,
+                            _tokenCredential,
+                            _name,
+                            b => b.ApplyConfiguration());
+            }
+            else
+            {
+                optionsBuilder.UseCosmos(
+                            _connectionUri,
+                            _authToken,
+                            _name,
+                            b => b.ApplyConfiguration());
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

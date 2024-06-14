@@ -557,6 +557,24 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'"Ins*"')
 """);
     }
 
+    [ConditionalFact]
+    public async Task PatIndex_literal()
+    {
+        using var context = CreateContext();
+        var result = await context.Employees
+            .Where(c => EF.Functions.PatIndex("%Nancy%", c.FirstName) == 1)
+            .ToListAsync();
+
+        Assert.Equal(1u, result.First().EmployeeID);
+
+        AssertSql(
+            """
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE PATINDEX(N'%Nancy%', [e].[FirstName]) = CAST(1 AS bigint)
+""");
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task DateDiff_Year(bool async)

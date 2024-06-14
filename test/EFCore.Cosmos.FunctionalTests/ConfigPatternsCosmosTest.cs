@@ -8,6 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fixture)
     : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {

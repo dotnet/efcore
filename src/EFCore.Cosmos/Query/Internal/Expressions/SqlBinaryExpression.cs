@@ -14,32 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class SqlBinaryExpression : SqlExpression
 {
-    private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
-    {
-        ExpressionType.Add,
-        ExpressionType.Subtract,
-        ExpressionType.Multiply,
-        ExpressionType.Divide,
-        ExpressionType.Modulo,
-        ExpressionType.And,
-        ExpressionType.AndAlso,
-        ExpressionType.Or,
-        ExpressionType.OrElse,
-        ExpressionType.LessThan,
-        ExpressionType.LessThanOrEqual,
-        ExpressionType.GreaterThan,
-        ExpressionType.GreaterThanOrEqual,
-        ExpressionType.Equal,
-        ExpressionType.NotEqual,
-        ExpressionType.ExclusiveOr,
-        ExpressionType.RightShift,
-        ExpressionType.LeftShift,
-        ExpressionType.ArrayIndex
-    };
-
-    internal static bool IsValidOperator(ExpressionType operatorType)
-        => AllowedOperators.Contains(operatorType);
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -115,6 +89,36 @@ public class SqlBinaryExpression : SqlExpression
             ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
             : this;
 
+    internal static bool IsValidOperator(ExpressionType operatorType)
+    {
+        switch (operatorType)
+        {
+            case ExpressionType.Add:
+            case ExpressionType.Subtract:
+            case ExpressionType.Multiply:
+            case ExpressionType.Divide:
+            case ExpressionType.Modulo:
+            case ExpressionType.And:
+            case ExpressionType.AndAlso:
+            case ExpressionType.Or:
+            case ExpressionType.OrElse:
+            case ExpressionType.LessThan:
+            case ExpressionType.LessThanOrEqual:
+            case ExpressionType.GreaterThan:
+            case ExpressionType.GreaterThanOrEqual:
+            case ExpressionType.Equal:
+            case ExpressionType.NotEqual:
+            case ExpressionType.ExclusiveOr:
+            case ExpressionType.RightShift:
+            case ExpressionType.LeftShift:
+            case ExpressionType.ArrayIndex:
+            case ExpressionType.Coalesce:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -123,6 +127,15 @@ public class SqlBinaryExpression : SqlExpression
     /// </summary>
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
+        if (OperatorType is ExpressionType.ArrayIndex)
+        {
+            expressionPrinter.Visit(Left);
+            expressionPrinter.Append("[");
+            expressionPrinter.Visit(Right);
+            expressionPrinter.Append("]");
+            return;
+        }
+
         var requiresBrackets = RequiresBrackets(Left);
 
         if (requiresBrackets)
