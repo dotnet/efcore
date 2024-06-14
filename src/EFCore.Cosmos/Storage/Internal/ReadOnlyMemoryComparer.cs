@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 /// <summary>
@@ -11,11 +9,4 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public readonly record struct ContainerProperties(
-    string Id,
-    IReadOnlyList<string> PartitionKeyStoreNames,
-    int? AnalyticalStoreTimeToLiveInSeconds,
-    int? DefaultTimeToLive,
-    ThroughputProperties? Throughput,
-    IReadOnlyList<IIndex> Indexes,
-    IReadOnlyList<(IProperty Property, CosmosVectorType VectorType)> Vectors);
+public class ReadOnlyMemoryComparer<T>() : ValueComparer<ReadOnlyMemory<T>>(false);

@@ -11,6 +11,7 @@
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);EF9101</NoWarn> <!-- Metrics is experimental -->
     <NoWarn>$(NoWarn);EF9102</NoWarn> <!-- Paging is experimental -->
+    <NoWarn>$(NoWarn);EF9103</NoWarn> <!-- Vector search is experimental -->
   </PropertyGroup>
 
   <ItemGroup>
