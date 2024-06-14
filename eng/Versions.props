@@ -24,12 +24,12 @@
     <MicrosoftExtensionsConfigurationJsonVersion>8.0.0</MicrosoftExtensionsConfigurationJsonVersion>
     <MicrosoftExtensionsDependencyInjectionVersion>8.0.0</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsDependencyModelVersion>8.0.1</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>8.0.7-servicing.24312.14</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>8.0.7-servicing.24313.11</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>8.0.0</MicrosoftExtensionsLoggingVersion>
     <SystemTextJsonVersion>8.0.4</SystemTextJsonVersion>
     <MicrosoftNETCoreAppRefVersion>8.0.7</MicrosoftNETCoreAppRefVersion>
     <MicrosoftNETCoreAppRuntimewinx64Version>8.0.7</MicrosoftNETCoreAppRuntimewinx64Version>
-    <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.7-servicing.24312.14</MicrosoftNETCoreBrowserDebugHostTransportVersion>
+    <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.7-servicing.24313.11</MicrosoftNETCoreBrowserDebugHostTransportVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.24266.3</MicrosoftDotNetBuildTasksTemplatingVersion>
