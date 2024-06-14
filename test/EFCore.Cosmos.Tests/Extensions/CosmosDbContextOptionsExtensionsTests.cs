@@ -2,13 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net;
-using Azure.Core;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;

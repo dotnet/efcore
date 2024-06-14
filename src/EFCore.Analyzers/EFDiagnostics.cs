@@ -18,4 +18,5 @@ public static class EFDiagnostics
     public const string PrecompiledQueryExperimental = "EF9100";
     public const string MetricsExperimental = "EF9101";
     public const string PagingExperimental = "EF9102";
+    public const string CosmosVectorSearchExperimental = "EF9103";
 }

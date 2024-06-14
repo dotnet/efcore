@@ -2,11 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -234,13 +237,56 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     {
         var (parameters, wrapper) = parametersTuple;
         var partitionKeyPaths = parameters.PartitionKeyStoreNames.Select(e => "/" + e).ToList();
-        var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
-                new Azure.Cosmos.ContainerProperties(parameters.Id, partitionKeyPaths)
+
+        var vectorIndexes = new Collection<VectorIndexPath>();
+        foreach (var index in parameters.Indexes)
+        {
+            var vectorIndexType = (VectorIndexType?)index.FindAnnotation(CosmosAnnotationNames.VectorIndexType)?.Value;
+            if (vectorIndexType != null)
+            {
+                // Model validation will ensure there is only one property.
+                Check.DebugAssert(index.Properties.Count == 1, "Vector index must have one property.");
+
+                vectorIndexes.Add(
+                    new VectorIndexPath { Path = "/" + index.Properties[0].GetJsonPropertyName(), Type = vectorIndexType.Value });
+            }
+        }
+
+        var embeddings = new Collection<Embedding>();
+        foreach (var tuple in parameters.Vectors)
+        {
+            embeddings.Add(
+                new Embedding
                 {
-                    PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
-                    DefaultTimeToLive = parameters.DefaultTimeToLive,
-                    AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds
-                },
+                    Path = "/" + tuple.Property.GetJsonPropertyName(),
+                    DataType = CosmosVectorType.CreateDefaultVectorDataType(tuple.Property.ClrType),
+                    Dimensions = tuple.VectorType.Dimensions,
+                    DistanceFunction = tuple.VectorType.DistanceFunction
+                });
+        }
+
+        var containerProperties = new Azure.Cosmos.ContainerProperties(parameters.Id, partitionKeyPaths)
+        {
+            PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
+            DefaultTimeToLive = parameters.DefaultTimeToLive,
+            AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
+        };
+
+        // TODO: Enable these once they are available in the Cosmos SDK. See #33783.
+        if (embeddings.Any())
+        {
+            throw new InvalidOperationException(CosmosStrings.NoVectorContainerConfig);
+            //containerProperties.VectorEmbeddingPolicy = new VectorEmbeddingPolicy(embeddings);
+        }
+
+        if (vectorIndexes.Any())
+        {
+            throw new InvalidOperationException(CosmosStrings.NoVectorContainerConfig);
+            //containerProperties.IndexingPolicy = new IndexingPolicy { VectorIndexes = vectorIndexes };
+        }
+
+        var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerIfNotExistsAsync(
+                containerProperties,
                 throughput: parameters.Throughput?.Throughput,
                 cancellationToken: cancellationToken)
             .ConfigureAwait(false);

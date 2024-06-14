@@ -31,6 +31,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                         eb.ToContainer("DataContainer");
                         eb.Property<Dictionary<string, string[]>>("Map");
                         eb.Property<List<Dictionary<string, int>>>("List");
+                        eb.Property<ReadOnlyMemory<byte>>("Bytes");
                         eb.UseETagConcurrency();
                         eb.HasNoDiscriminator();
                         eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
@@ -128,6 +129,22 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.NotNull(list.GetValueComparer());
                 Assert.NotNull(list.GetKeyValueComparer());
 
+                var bytes = dataEntity.FindProperty("Bytes")!;
+                Assert.Equal(typeof(ReadOnlyMemory<byte>), bytes.ClrType);
+                Assert.Null(bytes.PropertyInfo);
+                Assert.Null(bytes.FieldInfo);
+                Assert.False(bytes.IsNullable);
+                Assert.False(bytes.IsConcurrencyToken);
+                Assert.False(bytes.IsPrimitiveCollection);
+                Assert.Equal(ValueGenerated.Never, bytes.ValueGenerated);
+                Assert.Equal(PropertySaveBehavior.Save, bytes.GetAfterSaveBehavior());
+                Assert.Equal(PropertySaveBehavior.Save, bytes.GetBeforeSaveBehavior());
+                Assert.Equal("Bytes", CosmosPropertyExtensions.GetJsonPropertyName(bytes));
+                Assert.Null(bytes.GetValueGeneratorFactory());
+                Assert.Null(bytes.GetValueConverter());
+                Assert.NotNull(bytes.GetValueComparer());
+                Assert.NotNull(bytes.GetKeyValueComparer());
+
                 var eTag = dataEntity.FindProperty("_etag")!;
                 Assert.Equal(typeof(string), eTag.ClrType);
                 Assert.Null(eTag.PropertyInfo);
@@ -177,7 +194,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
 
                 Assert.Equal(1, dataEntity.GetKeys().Count());
 
-                Assert.Equal([id, partitionId, blob, list, map, storeId, jObject, eTag], dataEntity.GetProperties());
+                Assert.Equal([id, partitionId, blob, bytes, list, map, storeId, jObject, eTag], dataEntity.GetProperties());
             });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
