@@ -1,24 +1,34 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Azure.Core;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class ReloadTest
+public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
 {
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    protected void ClearLog()
+        => Fixture.TestSqlLoggerFactory.Clear();
+
+    protected CosmosReloadTestFixture Fixture { get; }
+
+    public ReloadTest(CosmosReloadTestFixture fixture)
+    {
+        Fixture = fixture;
+        ClearLog();
+    }
 
     [ConditionalFact]
     public async Task Entity_reference_can_be_reloaded()
     {
-        await using var testDatabase = await CosmosTestStore.CreateInitializedAsync("ReloadTest");
-
-        using var context = new ReloadTestContext(testDatabase);
-        await context.Database.EnsureCreatedAsync();
+        using var context = CreateContext();
 
         var entry = await context.AddAsync(new Item { Id = 1337 });
 
@@ -33,35 +43,33 @@ public class ReloadTest
         Assert.Null(itemJson["unmapped"]);
     }
 
-    public class ReloadTestContext(CosmosTestStore testStore) : DbContext
+    protected ReloadTestContext CreateContext()
+        => Fixture.CreateContext();
+
+    public class CosmosReloadTestFixture : SharedStoreFixtureBase<ReloadTestContext>
     {
-        private readonly string _connectionUri = testStore.ConnectionUri;
-        private readonly string _authToken = testStore.AuthToken;
-        private readonly string _name = testStore.Name;
-        private readonly TokenCredential _tokenCredential = testStore.TokenCredential;
+        protected override string StoreName
+            => nameof(ReloadTest);
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (TestEnvironment.UseTokenCredential)
-            {
-                optionsBuilder.UseCosmos(
-                            _connectionUri,
-                            _tokenCredential,
-                            _name,
-                            b => b.ApplyConfiguration());
-            }
-            else
-            {
-                optionsBuilder.UseCosmos(
-                            _connectionUri,
-                            _authToken,
-                            _name,
-                            b => b.ApplyConfiguration());
-            }
-        }
+        protected override bool UsePooling
+            => false;
 
+        protected override ITestStoreFactory TestStoreFactory
+            => CosmosTestStoreFactory.Instance;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+    }
+
+    public class ReloadTestContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
+    {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Item>(
+                b =>
+                {
+                    b.HasPartitionKey(e => e.Id);
+                });
         }
 
         public DbSet<Item> Items { get; set; }
