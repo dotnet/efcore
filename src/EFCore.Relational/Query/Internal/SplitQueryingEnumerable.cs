@@ -259,7 +259,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
 
         private static bool InitializeReader(Enumerator enumerator)
         {
-            EntityFrameworkEventSource.Log.QueryExecuting();
+            EntityFrameworkMetricsData.ReportQueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
                 enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
@@ -414,7 +414,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
 
         private static async Task<bool> InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
         {
-            EntityFrameworkEventSource.Log.QueryExecuting();
+            EntityFrameworkMetricsData.ReportQueryExecuting();
 
             var relationalCommand = enumerator._relationalCommand =
                 enumerator._relationalCommandResolver.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);

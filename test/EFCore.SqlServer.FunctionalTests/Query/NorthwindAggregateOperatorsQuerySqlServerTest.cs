@@ -1982,15 +1982,25 @@ WHERE [c].[CustomerID] IN (
 
         AssertSql(
             """
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """,
-            //
-"""
+                //
+                """
+@__ids_0='["ABCDE"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ABCDE'
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2000,9 +2010,14 @@ WHERE [c].[CustomerID] = N'ABCDE'
 
         AssertSql(
             """
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2012,9 +2027,14 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
 
         AssertSql(
             """
+@__ids_0='[null,null]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE 0 = 1
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2036,15 +2056,25 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
 
         AssertSql(
             """
+@__AsReadOnly_0='["ABCDE","ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+WHERE [c].[CustomerID] IN (
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsReadOnly_0) WITH ([value] nchar(5) '$') AS [a]
+)
 """,
-            //
-"""
+        //
+        """
+@__AsReadOnly_0='["ABCDE","ANATR"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ABCDE', N'ANATR')
+WHERE [c].[CustomerID] IN (
+    SELECT [a].[value]
+    FROM OPENJSON(@__AsReadOnly_0) WITH ([value] nchar(5) '$') AS [a]
+)
 """);
     }
 
@@ -2412,9 +2442,14 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
+@__ids_0='["ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 
@@ -2424,9 +2459,14 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
         AssertSql(
             """
+@__ids_0='["ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
 """);
     }
 

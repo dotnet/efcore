@@ -144,10 +144,10 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
         .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
 
     private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
-        where TKey : notnull => new KeyValueFactoryFactory().Create<TKey>(this);
+        where TKey : notnull => KeyValueFactoryFactory.Create<TKey>(this);
 
     /// <inheritdoc />
     Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _identityMapFactory, this, static key => new IdentityMapFactoryFactory().Create(key));
+            ref _identityMapFactory, this, static key => IdentityMapFactoryFactory.Create(key));
 }

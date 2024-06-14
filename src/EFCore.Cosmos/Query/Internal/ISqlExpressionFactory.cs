@@ -37,6 +37,14 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    (SqlExpression, SqlExpression) ApplyTypeMappingsOnItemAndArray(SqlExpression item, SqlExpression array);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     SqlBinaryExpression? MakeBinary(
         ExpressionType operatorType,
         SqlExpression left,
@@ -58,6 +66,13 @@ public interface ISqlExpressionFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     SqlBinaryExpression NotEqual(SqlExpression left, SqlExpression right);
+
+    /// <summary>
+    ///     Creates a new <see cref="ExistsExpression" /> which represents an EXISTS operation in a SQL tree.
+    /// </summary>
+    /// <param name="subquery">A subquery to check existence of.</param>
+    /// <returns>An expression representing an EXISTS operation in a SQL tree.</returns>
+    ExistsExpression Exists(SelectExpression subquery);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -206,6 +221,14 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    SqlBinaryExpression ArrayIndex(SqlExpression left, SqlExpression right, Type type, CoreTypeMapping? typeMapping = null);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     SqlUnaryExpression Convert(
         SqlExpression operand,
         Type type,
@@ -289,4 +312,12 @@ public interface ISqlExpressionFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     SelectExpression Select(IEntityType entityType, string sql, Expression argument);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    SelectExpression ReadItem(IEntityType entityType, ReadItemInfo argument);
 }

@@ -1631,7 +1631,15 @@ WHERE (CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1 <> [e].[Nullable
         await base.Where_IndexOf_empty(async);
 
         AssertSql(
-            @"");
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableStringA] IS NOT NULL THEN 0
+END = [e].[NullableIntA] OR (CASE
+    WHEN [e].[NullableStringA] IS NOT NULL THEN 0
+END IS NULL AND [e].[NullableIntA] IS NULL)
+""");
     }
 
     public override async Task Select_IndexOf(bool async)
@@ -1757,6 +1765,17 @@ WHERE CASE
         ELSE CAST(0 AS bit)
     END
 END = CAST(1 AS bit)
+""",
+            //
+            """
+SELECT CASE
+    WHEN CASE
+        WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableIntA]
+        ELSE [e].[IntB]
+    END > [e].[IntC] THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Entities1] AS [e]
 """);
     }
 
@@ -2518,7 +2537,49 @@ WHERE [e].[IntA] > @__i_0
         await base.Negated_order_comparison_on_nullable_arguments_doesnt_get_optimized(async);
 
         AssertSql(
-            @"");
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] > @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] >= @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] < @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
+""",
+            //
+            """
+@__i_0='1' (Nullable = true)
+
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableIntA] <= @__i_0 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
+""");
     }
 
     public override async Task Nullable_column_info_propagates_inside_binary_AndAlso(bool async)
@@ -2807,6 +2868,42 @@ ORDER BY [e].[Id]
 """);
     }
 
+    public override async Task CaseOpWhen_projection(bool async)
+    {
+        await base.CaseOpWhen_projection(async);
+
+        AssertSql(
+            """
+SELECT CASE CASE
+    WHEN [e].[StringA] = N'Foo' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+    WHEN 1 THEN 3
+    WHEN 0 THEN 2
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]
+""");
+    }
+
+    public override async Task CaseOpWhen_predicate(bool async)
+    {
+        await base.CaseOpWhen_predicate(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE CASE
+    WHEN [e].[StringA] = N'Foo' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+    WHEN 1 THEN 3
+    WHEN 0 THEN 2
+END = 2
+""");
+    }
+
     public override async Task Multiple_non_equality_comparisons_with_null_in_the_middle(bool async)
     {
         await base.Multiple_non_equality_comparisons_with_null_in_the_middle(async);
@@ -3077,10 +3174,7 @@ WHERE 0 = 1
             """
 SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolB] | CASE
-    WHEN [e].[NullableBoolA] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit)
+WHERE [e].[BoolB] = CAST(1 AS bit) OR [e].[NullableBoolA] IS NOT NULL
 """);
     }
 

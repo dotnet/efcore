@@ -3432,7 +3432,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _sqlAliasManager.GenerateTableAlias(_tables is [{ Alias: string singleTableAlias }] ? singleTableAlias : "subquery");
 
         var subquery = new SelectExpression(
-            subqueryAlias, _tables.ToList(), _groupBy.ToList(), [], _orderings.ToList(), Annotations, _sqlAliasManager)
+            subqueryAlias, _tables.ToList(), _groupBy.ToList(), projections: [], _orderings.ToList(), Annotations, _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -4284,6 +4284,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             RelationalExpressionQuotingUtilities.QuoteTags(Tags),
             RelationalExpressionQuotingUtilities.QuoteAnnotations(Annotations));
 
+    #region Print
+
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
@@ -4437,6 +4439,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     [EntityFrameworkInternal]
     public string DebugView
         => this.Print();
+
+    #endregion Print
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

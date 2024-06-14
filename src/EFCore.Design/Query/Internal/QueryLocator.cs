@@ -294,7 +294,7 @@ public class QueryLocator : CSharpSyntaxWalker
             {
                 while (true)
                 {
-                    // TODO: Check for the user's specific DbContext type
+                    // TODO: Check for the user's specific DbContext type #33866
                     if (typeSymbol.Equals(_symbols.DbContext, SymbolEqualityComparer.Default))
                     {
                         return true;

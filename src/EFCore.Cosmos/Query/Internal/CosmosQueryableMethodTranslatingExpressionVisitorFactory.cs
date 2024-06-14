@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosQueryableMethodTranslatingExpressionVisitorFactory(
     QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
     ISqlExpressionFactory sqlExpressionFactory,
+    ITypeMappingSource typeMappingSource,
     IMemberTranslatorProvider memberTranslatorProvider,
     IMethodCallTranslatorProvider methodCallTranslatorProvider)
     : IQueryableMethodTranslatingExpressionVisitorFactory
@@ -30,8 +31,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitorFactory(
     public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         => new CosmosQueryableMethodTranslatingExpressionVisitor(
             Dependencies,
-            queryCompilationContext,
+            (CosmosQueryCompilationContext)queryCompilationContext,
             sqlExpressionFactory,
+            typeMappingSource,
             memberTranslatorProvider,
             methodCallTranslatorProvider);
 }

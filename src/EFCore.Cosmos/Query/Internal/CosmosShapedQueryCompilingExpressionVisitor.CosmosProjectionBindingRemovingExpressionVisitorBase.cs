@@ -106,7 +106,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     _ownerMappings[accessExpression] =
                                         (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                     break;
-                                case RootReferenceExpression:
+                                case ObjectReferenceExpression:
                                     innerAccessExpression = jObjectParameter;
                                     break;
                                 default:
@@ -623,9 +623,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                             ownerJObjectExpression = ownerInfo.JObjectExpression;
                         }
-                        else if (jObjectExpression is RootReferenceExpression rootReferenceExpression)
+                        else if (jObjectExpression is ObjectReferenceExpression objectReferenceExpression)
                         {
-                            ownerJObjectExpression = rootReferenceExpression;
+                            ownerJObjectExpression = objectReferenceExpression;
                         }
                         else if (jObjectExpression is ObjectAccessExpression objectAccessExpression)
                         {
@@ -691,10 +691,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 innerExpression = innerVariable;
             }
-            else if (jObjectExpression is RootReferenceExpression rootReferenceExpression)
+            else if (jObjectExpression is ObjectReferenceExpression objectReferenceExpression)
             {
                 innerExpression = CreateGetValueExpression(
-                    jObjectParameter, rootReferenceExpression.Alias, typeof(JObject));
+                    jObjectParameter, objectReferenceExpression.Name, typeof(JObject));
             }
             else if (jObjectExpression is ObjectAccessExpression objectAccessExpression)
             {

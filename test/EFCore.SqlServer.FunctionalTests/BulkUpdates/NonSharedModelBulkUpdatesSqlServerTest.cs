@@ -62,6 +62,19 @@ FROM [Owner] AS [o]
         AssertSql();
     }
 
+    public override async Task Replace_ColumnExpression_in_column_setter(bool async)
+    {
+        await base.Replace_ColumnExpression_in_column_setter(async);
+
+        AssertSql(
+            """
+UPDATE [o0]
+SET [o0].[Value] = N'SomeValue'
+FROM [Owner] AS [o]
+INNER JOIN [OwnedCollection] AS [o0] ON [o].[Id] = [o0].[OwnerId]
+""");
+    }
+
     public override async Task Update_non_owned_property_on_entity_with_owned(bool async)
     {
         await base.Update_non_owned_property_on_entity_with_owned(async);

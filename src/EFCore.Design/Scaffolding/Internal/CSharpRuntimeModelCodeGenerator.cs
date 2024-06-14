@@ -66,30 +66,36 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
         var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
-        var assemblyInfoFileName = options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = assemblyInfoFileName, Code = assemblyAttributesCode });
+        var assemblyInfoFileName = Uniquify(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
+        scaffoldedFiles.Add(new(assemblyInfoFileName, assemblyAttributesCode));
 
         var modelCode = CreateModel(options.ModelNamespace, options.ContextType, nullable);
-        var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
+        var modelFileName = Uniquify(options.ContextType.ShortDisplayName() + ModelSuffix, options);
+        scaffoldedFiles.Add(new(modelFileName, modelCode));
 
         var configurationClassNames = new Dictionary<ITypeBase, string>();
         var modelBuilderCode = CreateModelBuilder(
             model, options.ModelNamespace, options.ContextType, configurationClassNames, nullable);
-        var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
-        scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
+        var modelBuilderFileName = Uniquify(options.ContextType.ShortDisplayName() + ModelBuilderSuffix, options);
+        scaffoldedFiles.Add(new(modelBuilderFileName, modelBuilderCode));
 
         foreach (var entityType in model.GetEntityTypesInHierarchicalOrder())
         {
-            var generatedCode = GenerateEntityType(
-                entityType, options.ModelNamespace, configurationClassNames, nullable);
+            var generatedCode = GenerateEntityType(entityType, options.ModelNamespace, configurationClassNames, nullable);
 
-            var entityTypeFileName = configurationClassNames[entityType] + FileExtension;
-            scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+            var entityTypeFileName = Uniquify(configurationClassNames[entityType], options);
+            scaffoldedFiles.Add(new(entityTypeFileName, generatedCode));
         }
 
         return scaffoldedFiles;
     }
+
+    private string Uniquify(string name, CompiledModelCodeGenerationOptions options)
+        => Uniquifier.Uniquify(
+            name,
+            options.GeneratedFileNames,
+            (options.Suffix ?? "") + FileExtension,
+            CompiledModelScaffolder.MaxFileNameLength);
 
     private static string GenerateHeader(SortedSet<string> namespaces, string currentNamespace, bool nullable)
     {
@@ -977,10 +983,20 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             AddNamespace(valueComparerType, parameters.Namespaces);
 
+            var valueComparerString = $"new {_code.Reference(valueComparerType)}()" ;
+            if (property.ClrType.IsNullableValueType())
+            {
+                var valueComparerElementType = ((ValueComparer)Activator.CreateInstance(valueComparerType)!).Type;
+                if (!valueComparerElementType.IsNullableValueType())
+                {
+                    AddNamespace(typeof(NullableValueComparer<>), parameters.Namespaces);
+                    valueComparerString = $"new NullableValueComparer<{_code.Reference(valueComparerType)}>({valueComparerString})";
+                }
+            }
+
             mainBuilder.AppendLine(",")
-                .Append("valueComparer: new ")
-                .Append(_code.Reference(valueComparerType))
-                .Append("()");
+                .Append("valueComparer: ")
+                .Append(valueComparerString);
         }
 
         var providerValueComparerType = (Type?)property[CoreAnnotationNames.ProviderValueComparerType];
@@ -1025,6 +1041,52 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         _annotationCodeGenerator.Create(property.GetTypeMapping(), property, propertyParameters);
         mainBuilder.AppendLine(";");
 
+        var valueComparer = property.GetValueComparer();
+        var typeMappingComparer = property.GetTypeMapping().Comparer;
+        if (valueComparerType == null
+            && valueComparer != typeMappingComparer)
+        {
+            mainBuilder
+                .Append(variableName)
+                .Append(".SetValueComparer(");
+            CreateValueComparer(valueComparer, typeMappingComparer, nameof(CoreTypeMapping.Comparer), propertyParameters);
+
+            mainBuilder
+                .AppendLine(");");
+        }
+
+        var keyValueComparer = property.GetKeyValueComparer();
+        var typeMappingKeyComparer = property.GetTypeMapping().KeyComparer;
+        if (valueComparer != keyValueComparer
+            && keyValueComparer != typeMappingKeyComparer)
+        {
+            mainBuilder
+                .Append(variableName)
+                .Append(".SetKeyValueComparer(");
+            CreateValueComparer(keyValueComparer, typeMappingKeyComparer, nameof(CoreTypeMapping.KeyComparer), propertyParameters);
+
+            mainBuilder
+                .AppendLine(");");
+        }
+
+        var providerValueComparer = property.GetProviderValueComparer();
+        var defaultProviderValueComparer = property.ClrType.UnwrapNullableType()
+             == (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType()
+                 ? property.GetKeyValueComparer()
+                 : property.GetTypeMapping().ProviderValueComparer;
+        if (providerValueComparerType == null
+            && providerValueComparer != defaultProviderValueComparer)
+        {
+            mainBuilder
+                .Append(variableName)
+                .Append(".SetProviderValueComparer(");
+            CreateValueComparer(
+                providerValueComparer, property.GetTypeMapping().ProviderValueComparer, nameof(CoreTypeMapping.ProviderValueComparer), propertyParameters);
+
+            mainBuilder
+                .AppendLine(");");
+        }
+
         if (property.IsKey()
             || property.IsForeignKey()
             || property.IsUniqueIndex())
@@ -1051,7 +1113,35 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             _annotationCodeGenerator.Generate,
             parameters with { TargetName = variableName });
 
-        parameters.MainBuilder.AppendLine();
+        mainBuilder.AppendLine();
+    }
+
+    private void CreateValueComparer(
+        ValueComparer valueComparer,
+        ValueComparer typeMappingComparer,
+        string typeMappingComparerProperty,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var valueComparerType = valueComparer.GetType();
+        if (valueComparer is IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer }
+            && typeMappingComparer == underlyingValueComparer
+            && valueComparerType.GetDeclaredConstructor([typeof(ValueComparer)]) != null)
+        {
+            AddNamespace(valueComparerType, parameters.Namespaces);
+
+            parameters.MainBuilder
+                .Append("new ")
+                .Append(_code.Reference(valueComparerType))
+                .Append("(")
+                .Append(parameters.TargetName)
+                .Append(".TypeMapping.")
+                .Append(typeMappingComparerProperty)
+                .Append(")");
+        }
+        else
+        {
+            _annotationCodeGenerator.Create(valueComparer, parameters);
+        }
     }
 
     private void
@@ -1760,11 +1850,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder
                 .Append("var ").Append(foreignKeyVariable).Append(" = ")
                 .Append(declaringEntityType).Append(".AddForeignKey(").IncrementIndent();
-            FindProperties(declaringEntityType, foreignKey.Properties, mainBuilder, nullable);
+            FindProperties(declaringEntityType, foreignKey.Properties, mainBuilder, nullable, scopeVariables);
 
             mainBuilder.AppendLine(",")
                 .Append(principalEntityType).Append(".FindKey(");
-            FindProperties(principalEntityType, foreignKey.PrincipalKey.Properties, mainBuilder, nullable);
+            FindProperties(principalEntityType, foreignKey.PrincipalKey.Properties, mainBuilder, nullable, scopeVariables);
             mainBuilder.Append(")");
             if (nullable)
             {
@@ -2005,10 +2095,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(joinEntityType).AppendLine(".FindForeignKey(");
             using (mainBuilder.Indent())
             {
-                FindProperties(joinEntityType, navigation.ForeignKey.Properties, mainBuilder, nullable);
+                FindProperties(joinEntityType, navigation.ForeignKey.Properties, mainBuilder, nullable, scopeVariables);
                 mainBuilder.AppendLine(",")
                     .Append(declaringEntityType).Append(".FindKey(");
-                FindProperties(declaringEntityType, navigation.ForeignKey.PrincipalKey.Properties, mainBuilder, nullable);
+                FindProperties(declaringEntityType, navigation.ForeignKey.PrincipalKey.Properties, mainBuilder, nullable, scopeVariables);
                 mainBuilder.Append(")");
                 if (nullable)
                 {
@@ -2135,6 +2225,41 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null;
             memberAccessReplacements = GenerateMemberReferences(entityType, memberAccessReplacements, parameters);
 
+            foreach (var key in entityType.GetDeclaredKeys())
+            {
+                if (scopeVariables == null
+                    || !scopeVariables.TryGetValue(key, out var keyVariableName))
+                {
+                    keyVariableName = _code.Identifier("key", key, parameters.ScopeObjects);
+
+                    mainBuilder
+                        .Append($"var {keyVariableName} = ")
+                        .Append(entityTypeVariable).Append(".FindKey(");
+                    FindProperties(entityTypeVariable, key.Properties, mainBuilder, nullable, parameters.ScopeVariables);
+                    mainBuilder.AppendLine(");");
+                }
+
+                mainBuilder
+                    .Append(keyVariableName)
+                    .Append(".SetPrincipalKeyValueFactory(")
+                    .Append(_code.Reference(typeof(KeyValueFactoryFactory)))
+                    .Append(".Create<")
+                    .Append(_code.Reference(key.GetKeyType()))
+                    .Append(">(")
+                    .Append(keyVariableName)
+                    .AppendLine("));");
+
+                mainBuilder
+                    .Append(keyVariableName)
+                    .Append(".SetIdentityMapFactory(")
+                    .Append(_code.Reference(typeof(IdentityMapFactoryFactory)))
+                    .Append(".CreateFactory<")
+                    .Append(_code.Reference(key.GetKeyType()))
+                    .Append(">(")
+                    .Append(keyVariableName)
+                    .AppendLine("));");
+            }
+
             foreach (var navigation in entityType.GetNavigations())
             {
                 var variableName = _code.Identifier(navigation.Name, navigation, parameters.ScopeObjects, capitalize: false);
@@ -2148,7 +2273,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
             var runtimeType = (IRuntimeEntityType)entityType;
 
-            // TODO
             var unsafeAccessors = new HashSet<string>();
 
             var originalValuesFactory = OriginalValuesFactoryFactory.Instance.CreateExpression(runtimeType);
@@ -2214,6 +2338,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .DecrementIndent();
 
             CreateAnnotations(entityType, _annotationCodeGenerator.Generate, parameters);
+
+            // TODO: Output any additional unsafe accessors
+            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled");
 
             mainBuilder
                 .AppendLine()

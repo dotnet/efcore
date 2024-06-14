@@ -37,4 +37,10 @@ public class CompiledModelCodeGenerationOptions
     /// </summary>
     /// <value> The suffix to attach to the name of all the generated files. </value>
     public virtual string? Suffix { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the set of file names generated so far.
+    /// </summary>
+    /// <value> The file names generated so far. </value>
+    public virtual ISet<string> GeneratedFileNames { get; set; } = new HashSet<string>();
 }

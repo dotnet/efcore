@@ -137,13 +137,11 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         var dbContextFileName = options.ContextName + host.Extension;
         var resultingFiles = new ScaffoldedModel
         {
-            ContextFile = new ScaffoldedFile
-            {
-                Path = options.ContextDir != null
+            ContextFile = new ScaffoldedFile(
+                options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
                     : dbContextFileName,
-                Code = generatedCode
-            }
+                generatedCode)
         };
 
         var entityTypeTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, EntityTypeTemplate);
@@ -181,7 +179,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     var entityTypeFileName = entityType.Name + entityTypeExtension;
                     resultingFiles.AdditionalFiles.Add(
-                        new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                        new ScaffoldedFile(entityTypeFileName,  generatedCode));
                 }
             }
             finally
@@ -225,13 +223,11 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     var configurationFileName = entityType.Name + "Configuration" + configurationExtension;
                     resultingFiles.AdditionalFiles.Add(
-                        new ScaffoldedFile
-                        {
-                            Path = options.ContextDir != null
+                        new ScaffoldedFile(
+                            options.ContextDir != null
                                 ? Path.Combine(options.ContextDir, configurationFileName)
                                 : configurationFileName,
-                            Code = generatedCode
-                        });
+                            generatedCode));
                 }
             }
             finally

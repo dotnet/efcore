@@ -1387,7 +1387,9 @@ CROSS APPLY (
 
         AssertSql(
             """
-SELECT 0
+SELECT CASE
+    WHEN [c].[Region] IS NOT NULL THEN 0
+END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
 """);

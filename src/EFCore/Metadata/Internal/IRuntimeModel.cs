@@ -42,37 +42,35 @@ public interface IRuntimeModel : IModel
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IReadOnlyDictionary<MemberInfo, QualifiedName>? GetUnsafeAccessors()
+    IReadOnlyDictionary<MemberInfo, QualifiedName> GetUnsafeAccessors()
     {
-        var accessorsAnnotation = FindRuntimeAnnotation(CoreAnnotationNames.UnsafeAccessors);
-        if (accessorsAnnotation != null)
+        return GetOrAddRuntimeAnnotationValue(CoreAnnotationNames.UnsafeAccessors, m => GetAccessors(m!), this);
+
+        static IReadOnlyDictionary<MemberInfo, QualifiedName> GetAccessors(IRuntimeModel model)
         {
-            return accessorsAnnotation.Value as IReadOnlyDictionary<MemberInfo, QualifiedName>;
+            var accessors = new Dictionary<MemberInfo, QualifiedName>();
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                AddPropertyAccessors(entityType, accessors);
+
+                foreach (var property in entityType.GetDeclaredServiceProperties())
+                {
+                    AddAccessors(property, accessors);
+                }
+
+                foreach (var navigation in entityType.GetDeclaredNavigations())
+                {
+                    AddAccessors(navigation, accessors);
+                }
+
+                foreach (var navigation in entityType.GetDeclaredSkipNavigations())
+                {
+                    AddAccessors(navigation, accessors);
+                }
+            }
+
+            return accessors;
         }
-
-        var accessors = new Dictionary<MemberInfo, QualifiedName>();
-        foreach (var entityType in GetEntityTypes())
-        {
-            AddPropertyAccessors(entityType, accessors);
-
-            foreach (var property in entityType.GetDeclaredServiceProperties())
-            {
-                AddAccessors(property, accessors);
-            }
-
-            foreach (var navigation in entityType.GetDeclaredNavigations())
-            {
-                AddAccessors(navigation, accessors);
-            }
-
-            foreach (var navigation in entityType.GetDeclaredSkipNavigations())
-            {
-                AddAccessors(navigation, accessors);
-            }
-        }
-
-        SetRuntimeAnnotation(CoreAnnotationNames.UnsafeAccessors, accessors);
-        return accessors;
 
         static void AddPropertyAccessors(ITypeBase structuralType, Dictionary<MemberInfo, QualifiedName> accessors)
         {

@@ -33,7 +33,8 @@ public class SqlBinaryExpression : SqlExpression
         ExpressionType.NotEqual,
         ExpressionType.ExclusiveOr,
         ExpressionType.RightShift,
-        ExpressionType.LeftShift
+        ExpressionType.LeftShift,
+        ExpressionType.ArrayIndex
     };
 
     internal static bool IsValidOperator(ExpressionType operatorType)

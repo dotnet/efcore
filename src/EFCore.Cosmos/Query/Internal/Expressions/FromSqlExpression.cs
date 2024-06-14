@@ -10,12 +10,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class FromSqlExpression(IEntityType entityType, string alias, string sql, Expression arguments)
-    : RootReferenceExpression(entityType, alias), IPrintableExpression
+public class FromSqlExpression(Type clrType, string sql, Expression arguments)
+    : Expression, IPrintableExpression
 {
-    /// <inheritdoc />
-    public override string Alias
-        => base.Alias!;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public sealed override ExpressionType NodeType
+        => ExpressionType.Extension;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +46,7 @@ public class FromSqlExpression(IEntityType entityType, string alias, string sql,
     /// </summary>
     public virtual FromSqlExpression Update(Expression arguments)
         => arguments != Arguments
-            ? new FromSqlExpression(EntityType, Alias, Sql, arguments)
+            ? new FromSqlExpression(Type, Sql, arguments)
             : this;
 
     /// <inheritdoc />
@@ -49,8 +54,7 @@ public class FromSqlExpression(IEntityType entityType, string alias, string sql,
         => this;
 
     /// <inheritdoc />
-    public override Type Type
-        => typeof(object);
+    public override Type Type { get; } = clrType;
 
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)

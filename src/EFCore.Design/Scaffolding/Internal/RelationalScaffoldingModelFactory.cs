@@ -282,6 +282,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             builder.UseCache();
         }
 
+        builder.Metadata.AddAnnotations(sequence.GetAnnotations());
+
         return builder;
     }
 

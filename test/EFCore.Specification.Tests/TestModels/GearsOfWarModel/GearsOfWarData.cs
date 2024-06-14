@@ -133,7 +133,8 @@ public class GearsOfWarData : ISetSource
                 Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0)),
                 Duration = new TimeSpan(1, 2, 3),
                 Date = new DateOnly(2020, 1, 1),
-                Time = new TimeOnly(15, 30, 10)
+                Time = new TimeOnly(15, 30, 10),
+                Difficulty = MissionDifficulty.Low
             },
             new()
             {
@@ -143,7 +144,8 @@ public class GearsOfWarData : ISetSource
                 Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)),
                 Duration = new TimeSpan(0, 1, 2, 3, 456),
                 Date = new DateOnly(1990, 11, 10),
-                Time = new TimeOnly(10, 15, 50, 500)
+                Time = new TimeOnly(10, 15, 50, 500),
+                Difficulty = MissionDifficulty.Medium
             },
             new()
             {
@@ -153,7 +155,8 @@ public class GearsOfWarData : ISetSource
                 Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()),
                 Duration = new TimeSpan(0, 1, 0, 15, 456),
                 Date = new DateOnly(1, 1, 1),
-                Time = new TimeOnly(0, 0, 0)
+                Time = new TimeOnly(0, 0, 0),
+                Difficulty = MissionDifficulty.Unknown
             }
         };
 

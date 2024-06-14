@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -936,7 +937,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
     }
 
     [ConditionalFact]
-    public virtual void Cant_query_Average_of_converted_types()
+    public virtual void Can_query_Average_of_converted_types()
     {
         using var context = CreateContext();
         context.Add(
@@ -958,15 +959,14 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Average), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => context.Set<BuiltInNullableDataTypes>()
-                    .Where(e => e.PartitionId == 202)
-                    .Average(e => e.TestNullableDecimal)).Message);
+            1.000000000000002m,
+            context.Set<BuiltInNullableDataTypes>()
+                .Where(e => e.PartitionId == 202)
+                .Average(e => e.TestNullableDecimal));
     }
 
     [ConditionalFact]
-    public virtual void Cant_query_Sum_of_converted_types()
+    public virtual void Can_query_Sum_of_converted_types()
     {
         using var context = CreateContext();
         context.Add(
@@ -988,11 +988,10 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         context.SaveChanges();
 
         Assert.Equal(
-            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), typeof(decimal).ShortDisplayName()),
-            Assert.Throws<NotSupportedException>(
-                () => context.Set<BuiltInDataTypes>()
-                    .Where(e => e.PartitionId == 203)
-                    .Sum(e => e.TestDecimal)).Message);
+            2.000000000000002m,
+            context.Set<BuiltInDataTypes>()
+                .Where(e => e.PartitionId == 203)
+                .Sum(e => e.TestDecimal));
     }
 
     [ConditionalFact]
@@ -1584,6 +1583,30 @@ FROM "ObjectBackedDataTypes" AS "o"
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => e.Bytes).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_filter_using_unhex_function()
+    {
+        using var context = CreateContext();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => e.String)
+            .Where(e => EF.Functions.Unhex(e) == null).ToList();
+
+        AssertSql(
+            """
+SELECT "o"."String"
+FROM "ObjectBackedDataTypes" AS "o"
+WHERE unhex("o"."String") IS NULL
+""");
+
+        var regex = new Regex("^[0-9a-fA-F]*$");
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => e.String)
+            .Where(e => !regex.IsMatch(e)).ToList();
 
         Assert.Equal(expectedResults, results);
     }

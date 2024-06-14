@@ -692,7 +692,10 @@ FROM "PointEntity" AS "p"
             """
 @__point_0='0x0001000000000000000000000000000000000000F03F00000000000000000000...' (Size = 60) (DbType = String)
 
-SELECT "p"."Id", Distance("p"."Point", @__point_0) <= 1.0 AS "IsWithinDistance"
+SELECT "p"."Id", CASE
+    WHEN Distance("p"."Point", @__point_0) <= 1.0 THEN 1
+    ELSE 0
+END AS "IsWithinDistance"
 FROM "PointEntity" AS "p"
 """);
     }

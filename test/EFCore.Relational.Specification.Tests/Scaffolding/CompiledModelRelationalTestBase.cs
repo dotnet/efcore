@@ -1226,10 +1226,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             },
             additionalSourceFiles:
             [
-                new()
-                {
-                    Path = "DbContextModelCustomizer.cs",
-                    Code = """
+                new("DbContextModelCustomizer.cs",
+                    """
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace;
@@ -1302,8 +1300,7 @@ public partial class DbContextModel
         }
     }
 }
-"""
-                }
+""")
             ]);
 
     public class SpatialTypes : AbstractBase;

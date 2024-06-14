@@ -407,6 +407,10 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         }
     }
 
+    /// <inheritdoc />
+    public void Create(ValueComparer comparer, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(comparer, parameters, Dependencies.CSharpHelper);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -420,10 +424,10 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
     {
         var mainBuilder = parameters.MainBuilder;
 
-        var constructor = comparer.GetType().GetDeclaredConstructor([typeof(ValueComparer)]);
-        var elementComparerProperty = comparer.GetType().GetProperty(nameof(ListOfValueTypesComparer<object, int>.ElementComparer));
+        var comparerType = comparer.GetType();
+        var constructor = comparerType.GetDeclaredConstructor([typeof(ValueComparer)]);
         if (constructor == null
-            || elementComparerProperty == null)
+            || comparer is not IInfrastructure<ValueComparer> { Instance: ValueComparer underlyingValueComparer })
         {
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);
@@ -449,14 +453,14 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         }
         else
         {
-            AddNamespace(comparer.GetType(), parameters.Namespaces);
+            AddNamespace(comparerType, parameters.Namespaces);
 
             mainBuilder
                 .Append("new ")
-                .Append(codeHelper.Reference(comparer.GetType()))
+                .Append(codeHelper.Reference(comparerType))
                 .Append("(");
 
-            Create((ValueComparer)elementComparerProperty.GetValue(comparer)!, parameters, codeHelper);
+            Create(underlyingValueComparer, parameters, codeHelper);
 
             mainBuilder
                 .Append(")");

@@ -51,4 +51,9 @@ public class PrimitiveCollectionsQueryRelationalTestBase<TFixture>(TFixture fixt
 
         Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
     }
+
+    // TODO: Requires converting the results of a subquery (relational rowset) to a primitive collection for comparison,
+    // not yet supported (#33792)
+    public override async Task Column_collection_Where_equality_inline_collection(bool async)
+        => await AssertTranslationFailed(() => base.Column_collection_Where_equality_inline_collection(async));
 }

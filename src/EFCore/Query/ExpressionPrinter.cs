@@ -53,7 +53,9 @@ public class ExpressionPrinter : ExpressionVisitor
         { ExpressionType.Modulo, " % " },
         { ExpressionType.And, " & " },
         { ExpressionType.Or, " | " },
-        { ExpressionType.ExclusiveOr, " ^ " }
+        { ExpressionType.ExclusiveOr, " ^ " },
+        { ExpressionType.LeftShift, " << " },
+        { ExpressionType.RightShift, " >> " }
     };
 
     /// <summary>

@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -16,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class PrecompiledQueryCodeGenerator
+public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
 {
     private readonly QueryLocator _queryLocator;
     private readonly CSharpToLinqTranslator _csharpToLinqTranslator;
@@ -24,16 +26,20 @@ public class PrecompiledQueryCodeGenerator
     private SyntaxGenerator _g = null!;
     private IQueryCompiler _queryCompiler = null!;
     private ExpressionTreeFuncletizer _funcletizer = null!;
-    private LinqToCSharpSyntaxTranslator _linqToCSharpTranslator = null!;
+    private RuntimeModelLinqToCSharpSyntaxTranslator _linqToCSharpTranslator = null!;
     private LiftableConstantProcessor _liftableConstantProcessor = null!;
 
     private Symbols _symbols;
 
-    private readonly HashSet<string> _namespaces = new();
-    private readonly HashSet<MethodDeclarationSyntax> _unsafeAccessors = new();
+    private readonly HashSet<string> _namespaces = [];
+    private IReadOnlyDictionary<MemberInfo, QualifiedName> _memberAccessReplacements = new Dictionary<MemberInfo, QualifiedName>();
+    private readonly HashSet<MethodDeclarationSyntax> _unsafeAccessors = [];
     private readonly IndentedStringBuilder _code = new();
 
     private const string InterceptorsNamespace = "Microsoft.EntityFrameworkCore.GeneratedInterceptors";
+
+    /// <inheritdoc/>
+    public string? Language => "C#";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,25 +59,30 @@ public class PrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<GeneratedInterceptorFile> GeneratePrecompiledQueries(
+    public virtual IReadOnlyList<ScaffoldedFile> GeneratePrecompiledQueries(
         Compilation compilation,
         SyntaxGenerator syntaxGenerator,
         DbContext dbContext,
+        IReadOnlyDictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         List<QueryPrecompilationError> precompilationErrors,
+        ISet<string> generatedFileNames,
         Assembly? additionalAssembly = null,
+        string? suffix = null,
         CancellationToken cancellationToken = default)
     {
         _queryLocator.Initialize(compilation);
         _symbols = Symbols.Load(compilation);
         _g = syntaxGenerator;
-        _linqToCSharpTranslator = new LinqToCSharpSyntaxTranslator(_g);
+        _linqToCSharpTranslator = new RuntimeModelLinqToCSharpSyntaxTranslator(_g);
+        _memberAccessReplacements = memberAccessReplacements;
         _liftableConstantProcessor = new LiftableConstantProcessor(null!);
         _queryCompiler = dbContext.GetService<IQueryCompiler>();
         _unsafeAccessors.Clear();
+        var contextType = dbContext.GetType();
         _funcletizer = new ExpressionTreeFuncletizer(
             dbContext.Model,
             dbContext.GetService<IEvaluatableExpressionFilter>(),
-            dbContext.GetType(),
+            contextType,
             generateContextAccessors: false,
             dbContext.GetService<IDiagnosticsLogger<DbLoggerCategory.Query>>());
 
@@ -79,7 +90,7 @@ public class PrecompiledQueryCodeGenerator
         _csharpToLinqTranslator.Load(compilation, dbContext, additionalAssembly);
 
         // TODO: Ignore our auto-generated code! Also compiled model, generated code (comment, filename...?).
-        var generatedSyntaxTrees = new List<GeneratedInterceptorFile>();
+        var generatedFiles = new List<ScaffoldedFile>();
         foreach (var syntaxTree in compilation.SyntaxTrees)
         {
             if (_queryLocator.LocateQueries(syntaxTree, precompilationErrors, cancellationToken) is not { Count: > 0 } locatedQueries)
@@ -88,15 +99,21 @@ public class PrecompiledQueryCodeGenerator
             }
 
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
-            var generatedSyntaxTree = ProcessSyntaxTreeAsync(
-                syntaxTree, semanticModel, locatedQueries, precompilationErrors, cancellationToken);
-            if (generatedSyntaxTree is not null)
+            var generatedFile = ProcessSyntaxTree(
+                syntaxTree,
+                semanticModel,
+                locatedQueries,
+                precompilationErrors,
+                "." + contextType.ShortDisplayName() + (suffix ?? ".g"),
+                generatedFileNames,
+                cancellationToken);
+            if (generatedFile is not null)
             {
-                generatedSyntaxTrees.Add(generatedSyntaxTree);
+                generatedFiles.Add(generatedFile);
             }
         }
 
-        return generatedSyntaxTrees;
+        return generatedFiles;
     }
 
     /// <summary>
@@ -105,11 +122,13 @@ public class PrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual GeneratedInterceptorFile? ProcessSyntaxTreeAsync(
+    protected virtual ScaffoldedFile? ProcessSyntaxTree(
         SyntaxTree syntaxTree,
         SemanticModel semanticModel,
         IReadOnlyList<InvocationExpressionSyntax> locatedQueries,
         List<QueryPrecompilationError> precompilationErrors,
+        string suffix,
+        ISet<string> generatedFileNames,
         CancellationToken cancellationToken)
     {
         var queriesPrecompiledInFile = 0;
@@ -287,11 +306,15 @@ namespace System.Runtime.CompilerServices
         public InterceptsLocationAttribute(string filePath, int line, int column) { }
     }
 }
-""");
+"""
+        );
 
-        return new(
-            $"{Path.GetFileNameWithoutExtension(syntaxTree.FilePath)}.EFInterceptors.g{Path.GetExtension(syntaxTree.FilePath)}",
-            _code.ToString());
+        var name = Uniquifier.Uniquify(
+            Path.GetFileNameWithoutExtension(syntaxTree.FilePath),
+            generatedFileNames,
+            ".EFInterceptors" + suffix + Path.GetExtension(syntaxTree.FilePath),
+            CompiledModelScaffolder.MaxFileNameLength);
+        return new(name, _code.ToString());
     }
 
     /// <summary>
@@ -473,7 +496,7 @@ namespace System.Runtime.CompilerServices
         // Output the interceptor method signature preceded by the [InterceptsLocation] attribute.
         var startPosition = operatorSyntax.SyntaxTree.GetLineSpan(memberAccessSyntax.Name.Span, cancellationToken).StartLinePosition;
         var interceptorName = $"Query{queryNum}_{memberAccessSyntax.Name}{operatorNum}";
-        code.AppendLine($"""[InterceptsLocation("{operatorSyntax.SyntaxTree.FilePath}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
+        code.AppendLine($"""[InterceptsLocation(@"{operatorSyntax.SyntaxTree.FilePath.Replace("\"","\"\"")}", {startPosition.Line + 1}, {startPosition.Character + 1})]""");
         GenerateInterceptorMethodSignature();
         code.AppendLine("{").IncrementIndent();
 
@@ -749,7 +772,7 @@ namespace System.Runtime.CompilerServices
                                 var collectedNamespaces = new HashSet<string>();
                                 var unsafeAccessors = new HashSet<MethodDeclarationSyntax>();
                                 var roslynPathSegment = _linqToCSharpTranslator.TranslateExpression(
-                                    linqPathSegment, constantReplacements: null, collectedNamespaces, unsafeAccessors);
+                                    linqPathSegment, constantReplacements: null, _memberAccessReplacements, collectedNamespaces, unsafeAccessors);
 
                                 var variableName = capturedVariablesPathTree.ExpressionType.Name;
                                 variableName = char.ToLower(variableName[0]) + variableName[1..^"Expression".Length] + ++variableCounter;
@@ -869,7 +892,7 @@ namespace System.Runtime.CompilerServices
         foreach (var liftedConstant in _liftableConstantProcessor.LiftedConstants)
         {
             var variableValueSyntax = _linqToCSharpTranslator.TranslateExpression(
-                liftedConstant.Expression, constantReplacements: null, namespaces, unsafeAccessors);
+                liftedConstant.Expression, constantReplacements: null, _memberAccessReplacements, namespaces, unsafeAccessors);
             // code.AppendLine($"{liftedConstant.Parameter.Type.Name} {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
             code.AppendLine($"var {liftedConstant.Parameter.Name} = {variableValueSyntax.NormalizeWhitespace().ToFullString()};");
         }
@@ -878,6 +901,7 @@ namespace System.Runtime.CompilerServices
             (AnonymousFunctionExpressionSyntax)_linqToCSharpTranslator.TranslateExpression(
                 queryExecutorAfterLiftingExpression,
                 constantReplacements: null,
+                _memberAccessReplacements,
                 namespaces,
                 unsafeAccessors);
 
@@ -1125,11 +1149,4 @@ namespace System.Runtime.CompilerServices
             => _compilation.GetTypeByMetadataName(fullyQualifiedMetadataName)
                 ?? throw new InvalidOperationException("Could not find type symbol for: " + fullyQualifiedMetadataName);
     }
-
-    /// <summary>
-    ///     A generated file containing LINQ operator interceptors.
-    /// </summary>
-    /// <param name="Path">The path of the generated file.</param>
-    /// <param name="Code">The code of the generated file.</param>
-    public sealed record GeneratedInterceptorFile(string Path, string Code);
 }

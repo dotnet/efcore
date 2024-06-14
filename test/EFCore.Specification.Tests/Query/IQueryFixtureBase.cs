@@ -16,6 +16,8 @@ public interface IQueryFixtureBase
 
     IReadOnlyDictionary<Type, object> EntityAsserters { get; }
 
+    ListLoggerFactory ListLoggerFactory { get; }
+
     private class DefaultSetSource(DbContext context) : ISetSource
     {
         private readonly DbContext _context = context;

@@ -350,6 +350,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
+        // Navigations represent nested JSON owned entities, which we also add to the OPENJSON WITH clause, but with AS JSON.
         foreach (var navigation in jsonQueryExpression.EntityType.GetNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
@@ -429,6 +430,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 Subquery:
                 {
                     Tables: [SqlServerOpenJsonExpression { Arguments: [SqlParameterExpression parameter] } openJsonExpression],
+                    Predicate: null,
                     GroupBy: [],
                     Having: null,
                     IsDistinct: false,
@@ -465,6 +467,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && source.QueryExpression is SelectExpression
             {
                 Tables: [SqlServerOpenJsonExpression { Arguments: [var jsonArrayColumn] } openJsonExpression],
+                Predicate: null,
                 GroupBy: [],
                 Having: null,
                 IsDistinct: false,

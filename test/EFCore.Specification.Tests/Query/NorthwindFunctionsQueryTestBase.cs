@@ -34,6 +34,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     {
     }
 
+    #region String.StartsWith
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task String_StartsWith_Literal(bool async)
@@ -72,6 +74,49 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.StartsWith(LocalMethod1())));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_with_StringComparison_Ordinal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.Ordinal)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.OrdinalIgnoreCase)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_StartsWith_with_StringComparison_unsupported(bool async)
+    {
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("Qu", StringComparison.CurrentCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
+    }
+
+    #endregion String.StartsWith
+
+    #region String.EndsWith
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -114,6 +159,50 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_with_StringComparison_Ordinal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("DY", StringComparison.Ordinal)),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("DY", StringComparison.OrdinalIgnoreCase)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_EndsWith_with_StringComparison_unsupported(bool async)
+    {
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("Qu", StringComparison.CurrentCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("Qu", StringComparison.InvariantCultureIgnoreCase))));
+    }
+
+    #endregion String.EndsWith
+
+    #region String.Contains
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_Contains_Literal(bool async)
         => AssertQuery(
             async,
@@ -132,6 +221,70 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains(c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new { Id = c.CustomerID, Value = c.CompanyName.Contains(c.ContactName) }),
+            elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_negated_in_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => !c.CompanyName.Contains(c.ContactName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_negated_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new { Id = c.CustomerID, Value = !c.CompanyName.Contains(c.ContactName) }),
+            elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_with_StringComparison_Ordinal(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.Ordinal)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_with_StringComparison_OrdinalIgnoreCase(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.OrdinalIgnoreCase)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task String_Contains_with_StringComparison_unsupported(bool async)
+    {
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.CurrentCultureIgnoreCase))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCulture))));
+
+        await AssertTranslationFailed(() =>
+            AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M", StringComparison.InvariantCultureIgnoreCase))));
+    }
+
+    #endregion String.Contains
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1312,6 +1465,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToBoolean(Convert.ToInt16(o.OrderID % 3)),
             o => Convert.ToBoolean(Convert.ToInt32(o.OrderID % 3)),
             o => Convert.ToBoolean(Convert.ToInt64(o.OrderID % 3)),
+            o => Convert.ToBoolean((object)Convert.ToInt32(o.OrderID % 3))
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1337,7 +1491,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToByte(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToByte(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToByte(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToByte(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToByte(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToByte((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1363,7 +1518,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToDecimal(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToDecimal(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToDecimal(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToDecimal(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToDecimal(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToDecimal((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1389,7 +1545,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToDouble(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToDouble(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToDouble(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToDouble(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToDouble(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToDouble((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1415,7 +1572,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToInt16(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToInt16(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToInt16(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToInt16(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToInt16(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToInt16((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1441,7 +1599,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToInt32(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToInt32(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToInt32(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToInt32(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToInt32(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToInt32((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1467,7 +1626,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToInt64(Convert.ToInt16(o.OrderID % 1)) >= 0,
             o => Convert.ToInt64(Convert.ToInt32(o.OrderID % 1)) >= 0,
             o => Convert.ToInt64(Convert.ToInt64(o.OrderID % 1)) >= 0,
-            o => Convert.ToInt64(Convert.ToString(o.OrderID % 1)) >= 0
+            o => Convert.ToInt64(Convert.ToString(o.OrderID % 1)) >= 0,
+            o => Convert.ToInt64((object)Convert.ToString(o.OrderID % 1)) >= 0
         };
 
         foreach (var convertMethod in convertMethods)
@@ -1494,6 +1654,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             o => Convert.ToString(Convert.ToInt32(o.OrderID % 1)) != "10",
             o => Convert.ToString(Convert.ToInt64(o.OrderID % 1)) != "10",
             o => Convert.ToString(Convert.ToString(o.OrderID % 1)) != "10",
+            o => Convert.ToString((object)Convert.ToString(o.OrderID % 1)) != "10",
             o => Convert.ToString(o.OrderDate.Value).Contains("1997") || Convert.ToString(o.OrderDate.Value).Contains("1998")
         };
 
@@ -1511,7 +1672,9 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Indexof_with_emptystring(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactName.IndexOf(string.Empty) == 0));
+            ss => ss.Set<Customer>().Where(c => c.Region.IndexOf(string.Empty) == 0),
+            ss => ss.Set<Customer>().Where(c => c.Region != null && c.Region.IndexOf(string.Empty) == 0)
+        );
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1698,7 +1861,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task TrimStart_with_char_array_argument_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimStart('O', 'w') == "ner"));
+            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimStart(new [] {'O', 'w'}) == "ner"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1719,7 +1882,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task TrimEnd_with_char_array_argument_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimEnd('e', 'r') == "Own"));
+            ss => ss.Set<Customer>().Where(c => c.ContactTitle.TrimEnd(new [] {'e', 'r'}) == "Own"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1740,7 +1903,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Trim_with_char_array_argument_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ContactTitle.Trim('O', 'r') == "wne"));
+            ss => ss.Set<Customer>().Where(c => c.ContactTitle.Trim(new [] {'O', 'r'}) == "wne"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

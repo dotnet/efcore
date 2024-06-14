@@ -67,7 +67,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             && sqlUnaryExpression.Type == typeof(bool)
             && sqlUnaryExpression.Operand is SqlBinaryExpression
             {
-                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual
+                OperatorType: ExpressionType.Equal
             } sqlBinaryOperand)
         {
             if (sqlBinaryOperand.Left.Type == typeof(bool)

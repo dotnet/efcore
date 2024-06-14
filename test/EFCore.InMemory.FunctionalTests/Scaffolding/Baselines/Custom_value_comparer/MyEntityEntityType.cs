@@ -85,19 +85,23 @@ namespace TestNamespace
                 storeGenerationIndex: 0);
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
-                    (int l, int r) => false,
-                    (int v) => 0,
-                    (int v) => 1),
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
                 keyComparer: new ValueComparer<int>(
-                    (int l, int r) => false,
-                    (int v) => 0,
-                    (int v) => 1),
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
                 providerValueComparer: new ValueComparer<int>(
-                    (int l, int r) => false,
-                    (int v) => 0,
-                    (int v) => 1),
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
+            id.SetValueComparer(new ValueComparer<int>(
+                (int l, int r) => false,
+                (int v) => 0,
+                (int v) => 1));
             id.SetCurrentValueComparer(new EntryCurrentValueComparer<int>(id));
 
             var key = runtimeEntityType.AddKey(
@@ -110,6 +114,9 @@ namespace TestNamespace
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
             var id = runtimeEntityType.FindProperty("Id")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

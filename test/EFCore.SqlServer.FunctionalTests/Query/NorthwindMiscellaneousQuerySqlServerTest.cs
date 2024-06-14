@@ -3121,10 +3121,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
         AssertSql(
             """
 SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END | CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
+    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
@@ -3139,13 +3136,7 @@ ORDER BY [c].[CustomerID]
         AssertSql(
             """
 SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END | CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END | CASE
-    WHEN [c].[CustomerID] = N'ANTON' THEN CAST(1 AS bit)
+    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
@@ -3159,13 +3150,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END & CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
+SELECT [c].[CustomerID], CAST(0 AS bit) AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -3177,13 +3162,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], (CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END & CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END) | CASE
+SELECT [c].[CustomerID], CASE
     WHEN [c].[CustomerID] = N'ANTON' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
@@ -3200,13 +3179,7 @@ ORDER BY [c].[CustomerID]
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END | CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit) OR [c].[CustomerID] = N'ANTON'
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')
 """);
     }
 
@@ -3218,13 +3191,7 @@ END = CAST(1 AS bit) OR [c].[CustomerID] = N'ANTON'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END & CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit) AND [c].[CustomerID] = N'ANTON'
+WHERE 0 = 1
 """);
     }
 
@@ -3236,13 +3203,7 @@ END = CAST(1 AS bit) AND [c].[CustomerID] = N'ANTON'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END | CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit) AND [c].[Country] = N'Germany'
+WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') AND [c].[Country] = N'Germany'
 """);
     }
 
@@ -3254,13 +3215,7 @@ END = CAST(1 AS bit) AND [c].[Country] = N'Germany'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END & CASE
-    WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit) OR [c].[CustomerID] = N'ANTON'
+WHERE [c].[CustomerID] = N'ANTON'
 """);
     }
 
@@ -3309,13 +3264,7 @@ WHERE [o].[OrderID] | 10248 = 10248
         AssertSql(
             """
 SELECT [c].[CustomerID], CASE
-    WHEN CASE
-        WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END | CASE
-        WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END = CAST(1 AS bit) OR [c].[CustomerID] = N'ANTON' THEN CAST(1 AS bit)
+    WHEN [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
@@ -3329,16 +3278,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [c].[CustomerID], CASE
-    WHEN CASE
-        WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END & CASE
-        WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END = CAST(1 AS bit) AND [c].[CustomerID] = N'ANTON' THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Value]
+SELECT [c].[CustomerID], CAST(0 AS bit) AS [Value]
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """);
@@ -5822,9 +5762,9 @@ FROM (
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ) AS [c0]
-ORDER BY CASE
+ORDER BY CHARINDEX(@__searchTerm_0, [c0].[City]) - CASE
     WHEN @__searchTerm_0 = N'' THEN 0
-    ELSE CHARINDEX(@__searchTerm_0, [c0].[City]) - 1
+    ELSE 1
 END, [c0].[City]
 """);
     }
@@ -5985,13 +5925,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
 
         AssertSql(
             """
-SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o]
-        WHERE 0 = 1) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(0 AS bit)
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]
@@ -6004,13 +5938,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
-        FROM [Orders] AS [o]
-        WHERE 0 = 1) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(0 AS bit)
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]

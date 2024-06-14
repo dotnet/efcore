@@ -9,9 +9,10 @@ public class TestDbContextOperations(
     IOperationReporter reporter,
     Assembly assembly,
     Assembly startupAssembly,
+    string project,
     string projectDir,
     string rootNamespace,
     string language,
     bool nullable,
     string[] args,
-    AppServiceProviderFactory appServicesFactory) : DbContextOperations(reporter, assembly, startupAssembly, projectDir, rootNamespace, language, nullable, args, appServicesFactory);
+    AppServiceProviderFactory appServicesFactory) : DbContextOperations(reporter, assembly, startupAssembly, project, projectDir, rootNamespace, language, nullable, args, appServicesFactory);

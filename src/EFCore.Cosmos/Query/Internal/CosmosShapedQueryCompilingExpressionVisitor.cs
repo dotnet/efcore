@@ -35,6 +35,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     /// </summary>
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
     {
+        if (cosmosQueryCompilationContext.CosmosContainer is null)
+        {
+            throw new UnreachableException("No Cosmos container was set during query processing.");
+        }
+
         var jObjectParameter = Parameter(typeof(JObject), "jObject");
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
@@ -54,43 +59,36 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                     QueryCompilationContext.QueryContextParameter,
                     jObjectParameter);
 
-                return New(
-                    typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
-                    Convert(
-                        QueryCompilationContext.QueryContextParameter,
-                        typeof(CosmosQueryContext)),
-                    Constant(sqlExpressionFactory),
-                    Constant(querySqlGeneratorFactory),
-                    Constant(selectExpression),
-                    Constant(shaperLambda.Compile()),
-                    Constant(_contextType),
-                    Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
-                    Constant(
-                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Constant(_threadSafetyChecksEnabled));
+                var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
+                var shaperConstant = Constant(shaperLambda.Compile());
+                var contextTypeConstant = Constant(_contextType);
+                var containerConstant = Constant(cosmosQueryCompilationContext.CosmosContainer);
+                var threadSafetyConstant = Constant(_threadSafetyChecksEnabled);
+                var standAloneStateManagerConstant = Constant(
+                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
 
-            case ReadItemExpression readItemExpression:
-                shaperBody = new CosmosProjectionBindingRemovingReadItemExpressionVisitor(
-                        readItemExpression, jObjectParameter,
-                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-                    .Visit(shaperBody);
-
-                var shaperReadItemLambda = Lambda(
-                    shaperBody,
-                    QueryCompilationContext.QueryContextParameter,
-                    jObjectParameter);
-
-                return New(
-                    typeof(ReadItemQueryingEnumerable<>).MakeGenericType(shaperReadItemLambda.ReturnType).GetConstructors()[0],
-                    Convert(
-                        QueryCompilationContext.QueryContextParameter,
-                        typeof(CosmosQueryContext)),
-                    Constant(readItemExpression),
-                    Constant(shaperReadItemLambda.Compile()),
-                    Constant(_contextType),
-                    Constant(
-                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Constant(_threadSafetyChecksEnabled));
+                return selectExpression.ReadItemInfo != null
+                    ? New(
+                        typeof(ReadItemQueryingEnumerable<>).MakeGenericType(selectExpression.ReadItemInfo.Type).GetConstructors()[0],
+                        cosmosQueryContextConstant,
+                        containerConstant,
+                        Constant(selectExpression.ReadItemInfo),
+                        shaperConstant,
+                        contextTypeConstant,
+                        standAloneStateManagerConstant,
+                        threadSafetyConstant)
+                    : New(
+                        typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                        cosmosQueryContextConstant,
+                        Constant(sqlExpressionFactory),
+                        Constant(querySqlGeneratorFactory),
+                        Constant(selectExpression),
+                        shaperConstant,
+                        contextTypeConstant,
+                        containerConstant,
+                        Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                        standAloneStateManagerConstant,
+                        threadSafetyConstant);
 
             default:
                 throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));

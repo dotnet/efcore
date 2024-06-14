@@ -12,6 +12,6 @@ public class JsonOwnedCustomNameBranch
     [JsonPropertyName("CustomDate")]
     public DateTime Date { get; set; }
 
-    [JsonPropertyName("CustomFraction")]
+    [JsonPropertyName("ユニコーンFraction一角獣")]
     public double Fraction { get; set; }
 }

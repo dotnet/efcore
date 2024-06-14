@@ -681,12 +681,12 @@ namespace TestNamespace
             bytesToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
                     (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (byte[] v) => v.ToArray()),
+                    (byte[] v) => ((object)v).GetHashCode(),
+                    (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
                     (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
                     (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (byte[] v) => v.ToArray()),
+                    (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -7795,18 +7795,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableBool.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(
-                comparer: new ValueComparer<bool?>(
-                    (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<bool> v) => v.HasValue ? ((object)(bool)v).GetHashCode() : 0,
-                    (Nullable<bool> v) => v.HasValue ? (Nullable<bool>)(bool)v : default(Nullable<bool>)),
-                keyComparer: new ValueComparer<bool?>(
-                    (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<bool> v) => v.HasValue ? ((object)(bool)v).GetHashCode() : 0,
-                    (Nullable<bool> v) => v.HasValue ? (Nullable<bool>)(bool)v : default(Nullable<bool>)),
-                providerValueComparer: new ValueComparer<bool?>(
-                    (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<bool> v) => v.HasValue ? ((object)(bool)v).GetHashCode() : 0,
-                    (Nullable<bool> v) => v.HasValue ? (Nullable<bool>)(bool)v : default(Nullable<bool>)));
+                comparer: new ValueComparer<bool>(
+                    (bool v1, bool v2) => v1 == v2,
+                    (bool v) => ((object)v).GetHashCode(),
+                    (bool v) => v),
+                keyComparer: new ValueComparer<bool>(
+                    (bool v1, bool v2) => v1 == v2,
+                    (bool v) => ((object)v).GetHashCode(),
+                    (bool v) => v),
+                providerValueComparer: new ValueComparer<bool>(
+                    (bool v1, bool v2) => v1 == v2,
+                    (bool v) => ((object)v).GetHashCode(),
+                    (bool v) => v));
+            nullableBool.SetValueComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
+            nullableBool.SetKeyValueComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.KeyComparer));
             nullableBool.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableBool.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableBool", "TestNamespace") });
 
@@ -7837,14 +7839,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableBoolArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<bool?[], bool>(new ValueComparer<bool?>(
-                    (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<bool> v) => v.HasValue ? ((object)(bool)v).GetHashCode() : 0,
-                    (Nullable<bool> v) => v.HasValue ? (Nullable<bool>)(bool)v : default(Nullable<bool>))),
-                keyComparer: new ListOfNullableValueTypesComparer<bool?[], bool>(new ValueComparer<bool?>(
-                    (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<bool> v) => v.HasValue ? ((object)(bool)v).GetHashCode() : 0,
-                    (Nullable<bool> v) => v.HasValue ? (Nullable<bool>)(bool)v : default(Nullable<bool>))),
+                comparer: new ListOfNullableValueTypesComparer<bool?[], bool>(new NullableValueComparer<bool>(new ValueComparer<bool>(
+                    (bool v1, bool v2) => v1 == v2,
+                    (bool v) => ((object)v).GetHashCode(),
+                    (bool v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<bool?[], bool>(new NullableValueComparer<bool>(new ValueComparer<bool>(
+                    (bool v1, bool v2) => v1 == v2,
+                    (bool v) => ((object)v).GetHashCode(),
+                    (bool v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8106,14 +8108,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableChar.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ValueComparer<char?>(
-                    (Nullable<char> v1, Nullable<char> v2) => v1.HasValue && v2.HasValue && (char)v1 == (char)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<char> v) => v.HasValue ? (int)(char)v : 0,
-                    (Nullable<char> v) => v.HasValue ? (Nullable<char>)(char)v : default(Nullable<char>)),
-                keyComparer: new ValueComparer<char?>(
-                    (Nullable<char> v1, Nullable<char> v2) => v1.HasValue && v2.HasValue && (char)v1 == (char)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<char> v) => v.HasValue ? (int)(char)v : 0,
-                    (Nullable<char> v) => v.HasValue ? (Nullable<char>)(char)v : default(Nullable<char>)),
+                comparer: new ValueComparer<char>(
+                    (char v1, char v2) => v1 == v2,
+                    (char v) => (int)v,
+                    (char v) => v),
+                keyComparer: new ValueComparer<char>(
+                    (char v1, char v2) => v1 == v2,
+                    (char v) => (int)v,
+                    (char v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8131,6 +8133,8 @@ namespace TestNamespace
                     new ValueConverter<char, string>(
                         (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
                         (string v) => v.Length < 1 ? '\0' : v[0])));
+            nullableChar.SetValueComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
+            nullableChar.SetKeyValueComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.KeyComparer));
             nullableChar.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableChar.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableChar", "TestNamespace") });
 
@@ -8161,14 +8165,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableCharArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<char?[], char>(new ValueComparer<char?>(
-                    (Nullable<char> v1, Nullable<char> v2) => v1.HasValue && v2.HasValue && (char)v1 == (char)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<char> v) => v.HasValue ? (int)(char)v : 0,
-                    (Nullable<char> v) => v.HasValue ? (Nullable<char>)(char)v : default(Nullable<char>))),
-                keyComparer: new ListOfNullableValueTypesComparer<char?[], char>(new ValueComparer<char?>(
-                    (Nullable<char> v1, Nullable<char> v2) => v1.HasValue && v2.HasValue && (char)v1 == (char)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<char> v) => v.HasValue ? (int)(char)v : 0,
-                    (Nullable<char> v) => v.HasValue ? (Nullable<char>)(char)v : default(Nullable<char>))),
+                comparer: new ListOfNullableValueTypesComparer<char?[], char>(new NullableValueComparer<char>(new ValueComparer<char>(
+                    (char v1, char v2) => v1 == v2,
+                    (char v) => (int)v,
+                    (char v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<char?[], char>(new NullableValueComparer<char>(new ValueComparer<char>(
+                    (char v1, char v2) => v1 == v2,
+                    (char v) => (int)v,
+                    (char v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8247,18 +8251,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDateOnly.TypeMapping = SqlServerDateOnlyTypeMapping.Default.Clone(
-                comparer: new ValueComparer<DateOnly?>(
-                    (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateOnly> v) => v.HasValue ? ((object)(DateOnly)v).GetHashCode() : 0,
-                    (Nullable<DateOnly> v) => v.HasValue ? (Nullable<DateOnly>)(DateOnly)v : default(Nullable<DateOnly>)),
-                keyComparer: new ValueComparer<DateOnly?>(
-                    (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateOnly> v) => v.HasValue ? ((object)(DateOnly)v).GetHashCode() : 0,
-                    (Nullable<DateOnly> v) => v.HasValue ? (Nullable<DateOnly>)(DateOnly)v : default(Nullable<DateOnly>)),
-                providerValueComparer: new ValueComparer<DateOnly?>(
-                    (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateOnly> v) => v.HasValue ? ((object)(DateOnly)v).GetHashCode() : 0,
-                    (Nullable<DateOnly> v) => v.HasValue ? (Nullable<DateOnly>)(DateOnly)v : default(Nullable<DateOnly>)));
+                comparer: new ValueComparer<DateOnly>(
+                    (DateOnly v1, DateOnly v2) => v1.Equals(v2),
+                    (DateOnly v) => ((object)v).GetHashCode(),
+                    (DateOnly v) => v),
+                keyComparer: new ValueComparer<DateOnly>(
+                    (DateOnly v1, DateOnly v2) => v1.Equals(v2),
+                    (DateOnly v) => ((object)v).GetHashCode(),
+                    (DateOnly v) => v),
+                providerValueComparer: new ValueComparer<DateOnly>(
+                    (DateOnly v1, DateOnly v2) => v1.Equals(v2),
+                    (DateOnly v) => ((object)v).GetHashCode(),
+                    (DateOnly v) => v));
+            nullableDateOnly.SetValueComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
+            nullableDateOnly.SetKeyValueComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.KeyComparer));
             nullableDateOnly.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableDateOnly.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableDateOnly", "TestNamespace") });
 
@@ -8289,14 +8295,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDateOnlyArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<DateOnly?[], DateOnly>(new ValueComparer<DateOnly?>(
-                    (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateOnly> v) => v.HasValue ? ((object)(DateOnly)v).GetHashCode() : 0,
-                    (Nullable<DateOnly> v) => v.HasValue ? (Nullable<DateOnly>)(DateOnly)v : default(Nullable<DateOnly>))),
-                keyComparer: new ListOfNullableValueTypesComparer<DateOnly?[], DateOnly>(new ValueComparer<DateOnly?>(
-                    (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateOnly> v) => v.HasValue ? ((object)(DateOnly)v).GetHashCode() : 0,
-                    (Nullable<DateOnly> v) => v.HasValue ? (Nullable<DateOnly>)(DateOnly)v : default(Nullable<DateOnly>))),
+                comparer: new ListOfNullableValueTypesComparer<DateOnly?[], DateOnly>(new NullableValueComparer<DateOnly>(new ValueComparer<DateOnly>(
+                    (DateOnly v1, DateOnly v2) => v1.Equals(v2),
+                    (DateOnly v) => ((object)v).GetHashCode(),
+                    (DateOnly v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<DateOnly?[], DateOnly>(new NullableValueComparer<DateOnly>(new ValueComparer<DateOnly>(
+                    (DateOnly v1, DateOnly v2) => v1.Equals(v2),
+                    (DateOnly v) => ((object)v).GetHashCode(),
+                    (DateOnly v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8354,18 +8360,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDateTime.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
-                comparer: new ValueComparer<DateTime?>(
-                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTime> v) => v.HasValue ? ((object)(DateTime)v).GetHashCode() : 0,
-                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>)),
-                keyComparer: new ValueComparer<DateTime?>(
-                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTime> v) => v.HasValue ? ((object)(DateTime)v).GetHashCode() : 0,
-                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>)),
-                providerValueComparer: new ValueComparer<DateTime?>(
-                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTime> v) => v.HasValue ? ((object)(DateTime)v).GetHashCode() : 0,
-                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>)));
+                comparer: new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => ((object)v).GetHashCode(),
+                    (DateTime v) => v),
+                keyComparer: new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => ((object)v).GetHashCode(),
+                    (DateTime v) => v),
+                providerValueComparer: new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => ((object)v).GetHashCode(),
+                    (DateTime v) => v));
+            nullableDateTime.SetValueComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
+            nullableDateTime.SetKeyValueComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.KeyComparer));
             nullableDateTime.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableDateTime.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableDateTime", "TestNamespace") });
 
@@ -8396,14 +8404,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDateTimeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<DateTime?[], DateTime>(new ValueComparer<DateTime?>(
-                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTime> v) => v.HasValue ? ((object)(DateTime)v).GetHashCode() : 0,
-                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>))),
-                keyComparer: new ListOfNullableValueTypesComparer<DateTime?[], DateTime>(new ValueComparer<DateTime?>(
-                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<DateTime> v) => v.HasValue ? ((object)(DateTime)v).GetHashCode() : 0,
-                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>))),
+                comparer: new ListOfNullableValueTypesComparer<DateTime?[], DateTime>(new NullableValueComparer<DateTime>(new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => ((object)v).GetHashCode(),
+                    (DateTime v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<DateTime?[], DateTime>(new NullableValueComparer<DateTime>(new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => ((object)v).GetHashCode(),
+                    (DateTime v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8461,18 +8469,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDecimal.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
-                comparer: new ValueComparer<decimal?>(
-                    (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<decimal> v) => v.HasValue ? ((object)(decimal)v).GetHashCode() : 0,
-                    (Nullable<decimal> v) => v.HasValue ? (Nullable<decimal>)(decimal)v : default(Nullable<decimal>)),
-                keyComparer: new ValueComparer<decimal?>(
-                    (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<decimal> v) => v.HasValue ? ((object)(decimal)v).GetHashCode() : 0,
-                    (Nullable<decimal> v) => v.HasValue ? (Nullable<decimal>)(decimal)v : default(Nullable<decimal>)),
-                providerValueComparer: new ValueComparer<decimal?>(
-                    (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<decimal> v) => v.HasValue ? ((object)(decimal)v).GetHashCode() : 0,
-                    (Nullable<decimal> v) => v.HasValue ? (Nullable<decimal>)(decimal)v : default(Nullable<decimal>)));
+                comparer: new ValueComparer<decimal>(
+                    (decimal v1, decimal v2) => v1 == v2,
+                    (decimal v) => ((object)v).GetHashCode(),
+                    (decimal v) => v),
+                keyComparer: new ValueComparer<decimal>(
+                    (decimal v1, decimal v2) => v1 == v2,
+                    (decimal v) => ((object)v).GetHashCode(),
+                    (decimal v) => v),
+                providerValueComparer: new ValueComparer<decimal>(
+                    (decimal v1, decimal v2) => v1 == v2,
+                    (decimal v) => ((object)v).GetHashCode(),
+                    (decimal v) => v));
+            nullableDecimal.SetValueComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
+            nullableDecimal.SetKeyValueComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.KeyComparer));
             nullableDecimal.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableDecimal.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableDecimal", "TestNamespace") });
 
@@ -8503,14 +8513,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDecimalArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<decimal?[], decimal>(new ValueComparer<decimal?>(
-                    (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<decimal> v) => v.HasValue ? ((object)(decimal)v).GetHashCode() : 0,
-                    (Nullable<decimal> v) => v.HasValue ? (Nullable<decimal>)(decimal)v : default(Nullable<decimal>))),
-                keyComparer: new ListOfNullableValueTypesComparer<decimal?[], decimal>(new ValueComparer<decimal?>(
-                    (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<decimal> v) => v.HasValue ? ((object)(decimal)v).GetHashCode() : 0,
-                    (Nullable<decimal> v) => v.HasValue ? (Nullable<decimal>)(decimal)v : default(Nullable<decimal>))),
+                comparer: new ListOfNullableValueTypesComparer<decimal?[], decimal>(new NullableValueComparer<decimal>(new ValueComparer<decimal>(
+                    (decimal v1, decimal v2) => v1 == v2,
+                    (decimal v) => ((object)v).GetHashCode(),
+                    (decimal v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<decimal?[], decimal>(new NullableValueComparer<decimal>(new ValueComparer<decimal>(
+                    (decimal v1, decimal v2) => v1 == v2,
+                    (decimal v) => ((object)v).GetHashCode(),
+                    (decimal v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8568,18 +8578,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDouble.TypeMapping = SqlServerDoubleTypeMapping.Default.Clone(
-                comparer: new ValueComparer<double?>(
-                    (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<double> v) => v.HasValue ? ((object)(double)v).GetHashCode() : 0,
-                    (Nullable<double> v) => v.HasValue ? (Nullable<double>)(double)v : default(Nullable<double>)),
-                keyComparer: new ValueComparer<double?>(
-                    (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<double> v) => v.HasValue ? ((object)(double)v).GetHashCode() : 0,
-                    (Nullable<double> v) => v.HasValue ? (Nullable<double>)(double)v : default(Nullable<double>)),
-                providerValueComparer: new ValueComparer<double?>(
-                    (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<double> v) => v.HasValue ? ((object)(double)v).GetHashCode() : 0,
-                    (Nullable<double> v) => v.HasValue ? (Nullable<double>)(double)v : default(Nullable<double>)));
+                comparer: new ValueComparer<double>(
+                    (double v1, double v2) => v1.Equals(v2),
+                    (double v) => ((object)v).GetHashCode(),
+                    (double v) => v),
+                keyComparer: new ValueComparer<double>(
+                    (double v1, double v2) => v1.Equals(v2),
+                    (double v) => ((object)v).GetHashCode(),
+                    (double v) => v),
+                providerValueComparer: new ValueComparer<double>(
+                    (double v1, double v2) => v1.Equals(v2),
+                    (double v) => ((object)v).GetHashCode(),
+                    (double v) => v));
+            nullableDouble.SetValueComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
+            nullableDouble.SetKeyValueComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.KeyComparer));
             nullableDouble.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableDouble.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableDouble", "TestNamespace") });
 
@@ -8610,14 +8622,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableDoubleArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<double?[], double>(new ValueComparer<double?>(
-                    (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<double> v) => v.HasValue ? ((object)(double)v).GetHashCode() : 0,
-                    (Nullable<double> v) => v.HasValue ? (Nullable<double>)(double)v : default(Nullable<double>))),
-                keyComparer: new ListOfNullableValueTypesComparer<double?[], double>(new ValueComparer<double?>(
-                    (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<double> v) => v.HasValue ? ((object)(double)v).GetHashCode() : 0,
-                    (Nullable<double> v) => v.HasValue ? (Nullable<double>)(double)v : default(Nullable<double>))),
+                comparer: new ListOfNullableValueTypesComparer<double?[], double>(new NullableValueComparer<double>(new ValueComparer<double>(
+                    (double v1, double v2) => v1.Equals(v2),
+                    (double v) => ((object)v).GetHashCode(),
+                    (double v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<double?[], double>(new NullableValueComparer<double>(new ValueComparer<double>(
+                    (double v1, double v2) => v1.Equals(v2),
+                    (double v) => ((object)v).GetHashCode(),
+                    (double v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8675,14 +8687,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum16.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
@@ -8695,6 +8707,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
                         (CompiledModelTestBase.Enum16 value) => (short)value,
                         (short value) => (CompiledModelTestBase.Enum16)value)));
+            nullableEnum16.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
+            nullableEnum16.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
             nullableEnum16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum16.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum16", "TestNamespace") });
 
@@ -8725,14 +8739,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8806,14 +8820,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum16AsString.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
@@ -8826,6 +8840,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
                         (CompiledModelTestBase.Enum16 value) => (short)value,
                         (short value) => (CompiledModelTestBase.Enum16)value)));
+            nullableEnum16AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
+            nullableEnum16AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
             nullableEnum16AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum16AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum16AsString", "TestNamespace") });
 
@@ -8856,14 +8872,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum16AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -8936,14 +8952,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum16AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9016,14 +9032,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum16Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
-                    (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)v : default(Nullable<CompiledModelTestBase.Enum16>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(new NullableValueComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
+                    (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9097,14 +9113,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
@@ -9117,6 +9133,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
                         (CompiledModelTestBase.Enum32 value) => (int)value,
                         (int value) => (CompiledModelTestBase.Enum32)value)));
+            nullableEnum32.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
+            nullableEnum32.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
             nullableEnum32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum32.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum32", "TestNamespace") });
 
@@ -9147,14 +9165,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9228,14 +9246,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32AsString.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
@@ -9248,6 +9266,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
                         (CompiledModelTestBase.Enum32 value) => (int)value,
                         (int value) => (CompiledModelTestBase.Enum32)value)));
+            nullableEnum32AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
+            nullableEnum32AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
             nullableEnum32AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum32AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum32AsString", "TestNamespace") });
 
@@ -9278,14 +9298,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9358,14 +9378,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9438,14 +9458,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9518,14 +9538,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum32NestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][][], CompiledModelTestBase.Enum32?[][]>(new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))))),
-                keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][][], CompiledModelTestBase.Enum32?[][]>(new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                    (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))))),
+                comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][][], CompiledModelTestBase.Enum32?[][]>(new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))))),
+                keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][][], CompiledModelTestBase.Enum32?[][]>(new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                    (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum32 v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9552,14 +9572,14 @@ namespace TestNamespace
                                     (CompiledModelTestBase.Enum32 value) => (int)value,
                                     (int value) => (CompiledModelTestBase.Enum32)value))))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                        (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                        (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                        (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>)))),
-                    keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                        (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                        (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                        (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>)))),
+                    comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                        (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                        (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                        (CompiledModelTestBase.Enum32 v) => v)))),
+                    keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum32?[][], CompiledModelTestBase.Enum32?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                        (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                        (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                        (CompiledModelTestBase.Enum32 v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -9584,14 +9604,14 @@ namespace TestNamespace
                                     (CompiledModelTestBase.Enum32 value) => (int)value,
                                     (int value) => (CompiledModelTestBase.Enum32)value)))),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                            (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                            (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                            (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
-                        keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
-                            (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
-                            (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum32)v).GetHashCode() : 0,
-                            (Nullable<CompiledModelTestBase.Enum32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)v : default(Nullable<CompiledModelTestBase.Enum32>))),
+                        comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                            (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                            (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                            (CompiledModelTestBase.Enum32 v) => v))),
+                        keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(new NullableValueComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
+                            (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
+                            (CompiledModelTestBase.Enum32 v) => ((object)v).GetHashCode(),
+                            (CompiledModelTestBase.Enum32 v) => v))),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
                             (string v) => ((object)v).GetHashCode(),
@@ -9665,14 +9685,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum64.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
                     (long v) => ((object)v).GetHashCode(),
@@ -9685,6 +9705,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
                         (CompiledModelTestBase.Enum64 value) => (long)value,
                         (long value) => (CompiledModelTestBase.Enum64)value)));
+            nullableEnum64.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
+            nullableEnum64.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
             nullableEnum64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum64.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum64", "TestNamespace") });
 
@@ -9715,14 +9737,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9796,14 +9818,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum64AsString.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
                     (long v) => ((object)v).GetHashCode(),
@@ -9816,6 +9838,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
                         (CompiledModelTestBase.Enum64 value) => (long)value,
                         (long value) => (CompiledModelTestBase.Enum64)value)));
+            nullableEnum64AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
+            nullableEnum64AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
             nullableEnum64AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum64AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum64AsString", "TestNamespace") });
 
@@ -9846,14 +9870,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum64AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -9926,14 +9950,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum64AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10006,14 +10030,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum64Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
-                    (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)v : default(Nullable<CompiledModelTestBase.Enum64>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(new NullableValueComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
+                    (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10087,14 +10111,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
@@ -10107,6 +10131,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum8, short>(
                         (CompiledModelTestBase.Enum8 value) => (short)value,
                         (short value) => (CompiledModelTestBase.Enum8)value)));
+            nullableEnum8.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
+            nullableEnum8.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
             nullableEnum8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum8.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum8", "TestNamespace") });
 
@@ -10137,14 +10163,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10218,14 +10244,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8AsString.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>)),
+                comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
@@ -10238,6 +10264,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum8, short>(
                         (CompiledModelTestBase.Enum8 value) => (short)value,
                         (short value) => (CompiledModelTestBase.Enum8)value)));
+            nullableEnum8AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
+            nullableEnum8AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
             nullableEnum8AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnum8AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnum8AsString", "TestNamespace") });
 
@@ -10268,14 +10296,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10348,14 +10376,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10428,14 +10456,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10508,14 +10536,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnum8NestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum8?[][], CompiledModelTestBase.Enum8?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>)))),
-                keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum8?[][], CompiledModelTestBase.Enum8?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                    (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>)))),
+                comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum8?[][], CompiledModelTestBase.Enum8?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v)))),
+                keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.Enum8?[][], CompiledModelTestBase.Enum8?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                    (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.Enum8 v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10540,14 +10568,14 @@ namespace TestNamespace
                                 (CompiledModelTestBase.Enum8 value) => (short)value,
                                 (short value) => (CompiledModelTestBase.Enum8)value)))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                        (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                        (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                        (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
-                    keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
-                        (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
-                        (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? ((object)(CompiledModelTestBase.Enum8)v).GetHashCode() : 0,
-                        (Nullable<CompiledModelTestBase.Enum8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)v : default(Nullable<CompiledModelTestBase.Enum8>))),
+                    comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                        (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                        (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                        (CompiledModelTestBase.Enum8 v) => v))),
+                    keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(new NullableValueComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
+                        (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
+                        (CompiledModelTestBase.Enum8 v) => ((object)v).GetHashCode(),
+                        (CompiledModelTestBase.Enum8 v) => v))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -10621,14 +10649,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU16.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
@@ -10641,6 +10669,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU16, int>(
                         (CompiledModelTestBase.EnumU16 value) => (int)value,
                         (int value) => (CompiledModelTestBase.EnumU16)value)));
+            nullableEnumU16.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
+            nullableEnumU16.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
             nullableEnumU16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU16.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU16", "TestNamespace") });
 
@@ -10671,14 +10701,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10752,14 +10782,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU16AsString.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
@@ -10772,6 +10802,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU16, int>(
                         (CompiledModelTestBase.EnumU16 value) => (int)value,
                         (int value) => (CompiledModelTestBase.EnumU16)value)));
+            nullableEnumU16AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
+            nullableEnumU16AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
             nullableEnumU16AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU16AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU16AsString", "TestNamespace") });
 
@@ -10802,14 +10834,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU16AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10882,14 +10914,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU16AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -10962,14 +10994,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU16Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
-                    (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU16)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU16> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)v : default(Nullable<CompiledModelTestBase.EnumU16>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(new NullableValueComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
+                    (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU16 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU16 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11043,14 +11075,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU32.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
                     (long v) => ((object)v).GetHashCode(),
@@ -11063,6 +11095,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU32, long>(
                         (CompiledModelTestBase.EnumU32 value) => (long)value,
                         (long value) => (CompiledModelTestBase.EnumU32)value)));
+            nullableEnumU32.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
+            nullableEnumU32.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
             nullableEnumU32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU32.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU32", "TestNamespace") });
 
@@ -11093,14 +11127,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11174,14 +11208,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU32AsString.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
                     (long v) => ((object)v).GetHashCode(),
@@ -11194,6 +11228,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU32, long>(
                         (CompiledModelTestBase.EnumU32 value) => (long)value,
                         (long value) => (CompiledModelTestBase.EnumU32)value)));
+            nullableEnumU32AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
+            nullableEnumU32AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
             nullableEnumU32AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU32AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU32AsString", "TestNamespace") });
 
@@ -11224,14 +11260,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU32AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11304,14 +11340,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU32AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11384,14 +11420,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU32Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
-                    (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU32)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU32> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)v : default(Nullable<CompiledModelTestBase.EnumU32>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(new NullableValueComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
+                    (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU32 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU32 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11465,14 +11501,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
                     (decimal v) => ((object)v).GetHashCode(),
@@ -11489,6 +11525,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU64, decimal>(
                         (CompiledModelTestBase.EnumU64 value) => (decimal)(long)value,
                         (decimal value) => (CompiledModelTestBase.EnumU64)(long)value)));
+            nullableEnumU64.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
+            nullableEnumU64.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
             nullableEnumU64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU64.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU64", "TestNamespace") });
 
@@ -11519,14 +11557,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11604,14 +11642,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64AsString.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v),
                 providerValueComparer: new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
                     (decimal v) => ((object)v).GetHashCode(),
@@ -11628,6 +11666,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU64, decimal>(
                         (CompiledModelTestBase.EnumU64 value) => (decimal)(long)value,
                         (decimal value) => (CompiledModelTestBase.EnumU64)(long)value)));
+            nullableEnumU64AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
+            nullableEnumU64AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
             nullableEnumU64AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU64AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU64AsString", "TestNamespace") });
 
@@ -11658,14 +11698,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11742,14 +11782,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11826,14 +11866,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11910,14 +11950,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU64NestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.EnumU64?[][], CompiledModelTestBase.EnumU64?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>)))),
-                keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.EnumU64?[][], CompiledModelTestBase.EnumU64?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                    (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>)))),
+                comparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.EnumU64?[][], CompiledModelTestBase.EnumU64?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v)))),
+                keyComparer: new ListOfReferenceTypesComparer<CompiledModelTestBase.EnumU64?[][], CompiledModelTestBase.EnumU64?[]>(new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                    (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU64 v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -11942,14 +11982,14 @@ namespace TestNamespace
                                 (CompiledModelTestBase.EnumU64 value) => (decimal)(long)value,
                                 (decimal value) => (CompiledModelTestBase.EnumU64)(long)value)))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                        (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                        (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                        (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
-                    keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
-                        (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
-                        (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU64)v).GetHashCode() : 0,
-                        (Nullable<CompiledModelTestBase.EnumU64> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)v : default(Nullable<CompiledModelTestBase.EnumU64>))),
+                    comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                        (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                        (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                        (CompiledModelTestBase.EnumU64 v) => v))),
+                    keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(new NullableValueComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
+                        (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
+                        (CompiledModelTestBase.EnumU64 v) => ((object)v).GetHashCode(),
+                        (CompiledModelTestBase.EnumU64 v) => v))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -12027,14 +12067,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU8.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
@@ -12047,6 +12087,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                         (CompiledModelTestBase.EnumU8 value) => (byte)value,
                         (byte value) => (CompiledModelTestBase.EnumU8)value)));
+            nullableEnumU8.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
+            nullableEnumU8.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
             nullableEnumU8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU8.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU8", "TestNamespace") });
 
@@ -12077,14 +12119,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12158,14 +12200,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU8AsString.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>)),
-                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>)),
+                comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v),
+                keyComparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v),
                 providerValueComparer: new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
                     (byte v) => (int)v,
@@ -12178,6 +12220,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                         (CompiledModelTestBase.EnumU8 value) => (byte)value,
                         (byte value) => (CompiledModelTestBase.EnumU8)value)));
+            nullableEnumU8AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
+            nullableEnumU8AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
             nullableEnumU8AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableEnumU8AsString.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableEnumU8AsString", "TestNamespace") });
 
@@ -12208,14 +12252,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU8AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
+                comparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12288,14 +12332,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU8AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12368,14 +12412,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableEnumU8Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
-                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
-                    (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? ((object)(CompiledModelTestBase.EnumU8)v).GetHashCode() : 0,
-                    (Nullable<CompiledModelTestBase.EnumU8> v) => v.HasValue ? (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)v : default(Nullable<CompiledModelTestBase.EnumU8>))),
+                comparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(new NullableValueComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
+                    (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
+                    (CompiledModelTestBase.EnumU8 v) => ((object)v).GetHashCode(),
+                    (CompiledModelTestBase.EnumU8 v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12449,18 +12493,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableFloat.TypeMapping = SqlServerFloatTypeMapping.Default.Clone(
-                comparer: new ValueComparer<float?>(
-                    (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<float> v) => v.HasValue ? ((object)(float)v).GetHashCode() : 0,
-                    (Nullable<float> v) => v.HasValue ? (Nullable<float>)(float)v : default(Nullable<float>)),
-                keyComparer: new ValueComparer<float?>(
-                    (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<float> v) => v.HasValue ? ((object)(float)v).GetHashCode() : 0,
-                    (Nullable<float> v) => v.HasValue ? (Nullable<float>)(float)v : default(Nullable<float>)),
-                providerValueComparer: new ValueComparer<float?>(
-                    (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<float> v) => v.HasValue ? ((object)(float)v).GetHashCode() : 0,
-                    (Nullable<float> v) => v.HasValue ? (Nullable<float>)(float)v : default(Nullable<float>)));
+                comparer: new ValueComparer<float>(
+                    (float v1, float v2) => v1.Equals(v2),
+                    (float v) => ((object)v).GetHashCode(),
+                    (float v) => v),
+                keyComparer: new ValueComparer<float>(
+                    (float v1, float v2) => v1.Equals(v2),
+                    (float v) => ((object)v).GetHashCode(),
+                    (float v) => v),
+                providerValueComparer: new ValueComparer<float>(
+                    (float v1, float v2) => v1.Equals(v2),
+                    (float v) => ((object)v).GetHashCode(),
+                    (float v) => v));
+            nullableFloat.SetValueComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
+            nullableFloat.SetKeyValueComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.KeyComparer));
             nullableFloat.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableFloat.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableFloat", "TestNamespace") });
 
@@ -12491,14 +12537,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableFloatArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<float?[], float>(new ValueComparer<float?>(
-                    (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<float> v) => v.HasValue ? ((object)(float)v).GetHashCode() : 0,
-                    (Nullable<float> v) => v.HasValue ? (Nullable<float>)(float)v : default(Nullable<float>))),
-                keyComparer: new ListOfNullableValueTypesComparer<float?[], float>(new ValueComparer<float?>(
-                    (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
-                    (Nullable<float> v) => v.HasValue ? ((object)(float)v).GetHashCode() : 0,
-                    (Nullable<float> v) => v.HasValue ? (Nullable<float>)(float)v : default(Nullable<float>))),
+                comparer: new ListOfNullableValueTypesComparer<float?[], float>(new NullableValueComparer<float>(new ValueComparer<float>(
+                    (float v1, float v2) => v1.Equals(v2),
+                    (float v) => ((object)v).GetHashCode(),
+                    (float v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<float?[], float>(new NullableValueComparer<float>(new ValueComparer<float>(
+                    (float v1, float v2) => v1.Equals(v2),
+                    (float v) => ((object)v).GetHashCode(),
+                    (float v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12556,20 +12602,22 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableGuid.TypeMapping = GuidTypeMapping.Default.Clone(
-                comparer: new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>)),
-                keyComparer: new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>)),
-                providerValueComparer: new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>)),
+                comparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v),
+                keyComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v),
+                providerValueComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "uniqueidentifier"));
+            nullableGuid.SetValueComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.Comparer));
+            nullableGuid.SetKeyValueComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.KeyComparer));
             nullableGuid.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableGuid.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableGuid", "TestNamespace") });
 
@@ -12600,14 +12648,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableGuidArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>))),
-                keyComparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>))),
+                comparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new NullableValueComparer<Guid>(new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new NullableValueComparer<Guid>(new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12666,14 +12714,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableGuidNestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<Guid?[][], Guid?[]>(new ListOfNullableValueTypesComparer<Guid?[], Guid>(new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>)))),
-                keyComparer: new ListOfReferenceTypesComparer<Guid?[][], Guid?[]>(new ListOfNullableValueTypesComparer<Guid?[], Guid>(new ValueComparer<Guid?>(
-                    (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                    (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>)))),
+                comparer: new ListOfReferenceTypesComparer<Guid?[][], Guid?[]>(new ListOfNullableValueTypesComparer<Guid?[], Guid>(new NullableValueComparer<Guid>(new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v)))),
+                keyComparer: new ListOfReferenceTypesComparer<Guid?[][], Guid?[]>(new ListOfNullableValueTypesComparer<Guid?[], Guid>(new NullableValueComparer<Guid>(new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => ((object)v).GetHashCode(),
+                    (Guid v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -12690,14 +12738,14 @@ namespace TestNamespace
                     new JsonCollectionOfNullableStructsReaderWriter<Guid?[], Guid>(
                         JsonGuidReaderWriter.Instance)),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new ValueComparer<Guid?>(
-                        (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                        (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>))),
-                    keyComparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new ValueComparer<Guid?>(
-                        (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<Guid> v) => v.HasValue ? ((object)(Guid)v).GetHashCode() : 0,
-                        (Nullable<Guid> v) => v.HasValue ? (Nullable<Guid>)(Guid)v : default(Nullable<Guid>))),
+                    comparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new NullableValueComparer<Guid>(new ValueComparer<Guid>(
+                        (Guid v1, Guid v2) => v1 == v2,
+                        (Guid v) => ((object)v).GetHashCode(),
+                        (Guid v) => v))),
+                    keyComparer: new ListOfNullableValueTypesComparer<Guid?[], Guid>(new NullableValueComparer<Guid>(new ValueComparer<Guid>(
+                        (Guid v1, Guid v2) => v1 == v2,
+                        (Guid v) => ((object)v).GetHashCode(),
+                        (Guid v) => v))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -12898,18 +12946,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt16.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<short?>(
-                    (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<short> v) => v.HasValue ? (int)(short)v : 0,
-                    (Nullable<short> v) => v.HasValue ? (Nullable<short>)(short)v : default(Nullable<short>)),
-                keyComparer: new ValueComparer<short?>(
-                    (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<short> v) => v.HasValue ? (int)(short)v : 0,
-                    (Nullable<short> v) => v.HasValue ? (Nullable<short>)(short)v : default(Nullable<short>)),
-                providerValueComparer: new ValueComparer<short?>(
-                    (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<short> v) => v.HasValue ? (int)(short)v : 0,
-                    (Nullable<short> v) => v.HasValue ? (Nullable<short>)(short)v : default(Nullable<short>)));
+                comparer: new ValueComparer<short>(
+                    (short v1, short v2) => v1 == v2,
+                    (short v) => (int)v,
+                    (short v) => v),
+                keyComparer: new ValueComparer<short>(
+                    (short v1, short v2) => v1 == v2,
+                    (short v) => (int)v,
+                    (short v) => v),
+                providerValueComparer: new ValueComparer<short>(
+                    (short v1, short v2) => v1 == v2,
+                    (short v) => (int)v,
+                    (short v) => v));
+            nullableInt16.SetValueComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
+            nullableInt16.SetKeyValueComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.KeyComparer));
             nullableInt16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableInt16.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableInt16", "TestNamespace") });
 
@@ -12940,14 +12990,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<short?[], short>(new ValueComparer<short?>(
-                    (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<short> v) => v.HasValue ? (int)(short)v : 0,
-                    (Nullable<short> v) => v.HasValue ? (Nullable<short>)(short)v : default(Nullable<short>))),
-                keyComparer: new ListOfNullableValueTypesComparer<short?[], short>(new ValueComparer<short?>(
-                    (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<short> v) => v.HasValue ? (int)(short)v : 0,
-                    (Nullable<short> v) => v.HasValue ? (Nullable<short>)(short)v : default(Nullable<short>))),
+                comparer: new ListOfNullableValueTypesComparer<short?[], short>(new NullableValueComparer<short>(new ValueComparer<short>(
+                    (short v1, short v2) => v1 == v2,
+                    (short v) => (int)v,
+                    (short v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<short?[], short>(new NullableValueComparer<short>(new ValueComparer<short>(
+                    (short v1, short v2) => v1 == v2,
+                    (short v) => (int)v,
+                    (short v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -13005,18 +13055,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt32.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)),
-                keyComparer: new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)),
-                providerValueComparer: new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)));
+                comparer: new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
+                keyComparer: new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v),
+                providerValueComparer: new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v));
+            nullableInt32.SetValueComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
+            nullableInt32.SetKeyValueComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.KeyComparer));
             nullableInt32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableInt32.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableInt32", "TestNamespace") });
 
@@ -13047,14 +13099,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<int?[], int>(new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>))),
-                keyComparer: new ListOfNullableValueTypesComparer<int?[], int>(new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>))),
+                comparer: new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -13111,14 +13163,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt32NestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ListOfNullableValueTypesComparer<int?[], int>(new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)))),
-                keyComparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ListOfNullableValueTypesComparer<int?[], int>(new ValueComparer<int?>(
-                    (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                    (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>)))),
+                comparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v)))),
+                keyComparer: new ListOfReferenceTypesComparer<int?[][], int?[]>(new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                    (int v1, int v2) => v1 == v2,
+                    (int v) => v,
+                    (int v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -13135,14 +13187,14 @@ namespace TestNamespace
                     new JsonCollectionOfNullableStructsReaderWriter<int?[], int>(
                         JsonInt32ReaderWriter.Instance)),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfNullableValueTypesComparer<int?[], int>(new ValueComparer<int?>(
-                        (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                        (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>))),
-                    keyComparer: new ListOfNullableValueTypesComparer<int?[], int>(new ValueComparer<int?>(
-                        (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<int> v) => v.HasValue ? (int)v : 0,
-                        (Nullable<int> v) => v.HasValue ? (Nullable<int>)(int)v : default(Nullable<int>))),
+                    comparer: new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                        (int v1, int v2) => v1 == v2,
+                        (int v) => v,
+                        (int v) => v))),
+                    keyComparer: new ListOfNullableValueTypesComparer<int?[], int>(new NullableValueComparer<int>(new ValueComparer<int>(
+                        (int v1, int v2) => v1 == v2,
+                        (int v) => v,
+                        (int v) => v))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -13200,18 +13252,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt64.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-                comparer: new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
-                keyComparer: new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
-                providerValueComparer: new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)));
+                comparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v),
+                keyComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v),
+                providerValueComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v));
+            nullableInt64.SetValueComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
+            nullableInt64.SetKeyValueComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.KeyComparer));
             nullableInt64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableInt64.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableInt64", "TestNamespace") });
 
@@ -13242,14 +13296,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>))),
-                keyComparer: new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>))),
+                comparer: new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -13306,14 +13360,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt64NestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>))))),
-                keyComparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>))))),
+                comparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v))))),
+                keyComparer: new ListOfReferenceTypesComparer<List<long?[][]>, long?[][]>(new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v))))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -13332,14 +13386,14 @@ namespace TestNamespace
                         new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                             JsonInt64ReaderWriter.Instance))),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                        (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                        (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)))),
-                    keyComparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                        (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                        (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)))),
+                    comparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                        (long v1, long v2) => v1 == v2,
+                        (long v) => ((object)v).GetHashCode(),
+                        (long v) => v)))),
+                    keyComparer: new ListOfReferenceTypesComparer<long?[][], long?[]>(new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                        (long v1, long v2) => v1 == v2,
+                        (long v) => ((object)v).GetHashCode(),
+                        (long v) => v)))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -13356,14 +13410,14 @@ namespace TestNamespace
                         new JsonCollectionOfNullableStructsReaderWriter<long?[], long>(
                             JsonInt64ReaderWriter.Instance)),
                     elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                        comparer: new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                            (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                            (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                            (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>))),
-                        keyComparer: new ListOfNullableValueTypesComparer<long?[], long>(new ValueComparer<long?>(
-                            (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                            (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                            (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>))),
+                        comparer: new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                            (long v1, long v2) => v1 == v2,
+                            (long v) => ((object)v).GetHashCode(),
+                            (long v) => v))),
+                        keyComparer: new ListOfNullableValueTypesComparer<long?[], long>(new NullableValueComparer<long>(new ValueComparer<long>(
+                            (long v1, long v2) => v1 == v2,
+                            (long v) => ((object)v).GetHashCode(),
+                            (long v) => v))),
                         providerValueComparer: new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
                             (string v) => ((object)v).GetHashCode(),
@@ -13421,14 +13475,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt8.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
-                comparer: new ValueComparer<sbyte?>(
-                    (Nullable<sbyte> v1, Nullable<sbyte> v2) => v1.HasValue && v2.HasValue && (sbyte)v1 == (sbyte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<sbyte> v) => v.HasValue ? (int)(sbyte)v : 0,
-                    (Nullable<sbyte> v) => v.HasValue ? (Nullable<sbyte>)(sbyte)v : default(Nullable<sbyte>)),
-                keyComparer: new ValueComparer<sbyte?>(
-                    (Nullable<sbyte> v1, Nullable<sbyte> v2) => v1.HasValue && v2.HasValue && (sbyte)v1 == (sbyte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<sbyte> v) => v.HasValue ? (int)(sbyte)v : 0,
-                    (Nullable<sbyte> v) => v.HasValue ? (Nullable<sbyte>)(sbyte)v : default(Nullable<sbyte>)),
+                comparer: new ValueComparer<sbyte>(
+                    (sbyte v1, sbyte v2) => v1 == v2,
+                    (sbyte v) => (int)v,
+                    (sbyte v) => v),
+                keyComparer: new ValueComparer<sbyte>(
+                    (sbyte v1, sbyte v2) => v1 == v2,
+                    (sbyte v) => (int)v,
+                    (sbyte v) => v),
                 providerValueComparer: new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
                     (short v) => (int)v,
@@ -13441,6 +13495,8 @@ namespace TestNamespace
                     new ValueConverter<sbyte, short>(
                         (sbyte v) => (short)v,
                         (short v) => (sbyte)v)));
+            nullableInt8.SetValueComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
+            nullableInt8.SetKeyValueComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.KeyComparer));
             nullableInt8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableInt8.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableInt8", "TestNamespace") });
 
@@ -13471,14 +13527,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableInt8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<sbyte?[], sbyte>(new ValueComparer<sbyte?>(
-                    (Nullable<sbyte> v1, Nullable<sbyte> v2) => v1.HasValue && v2.HasValue && (sbyte)v1 == (sbyte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<sbyte> v) => v.HasValue ? (int)(sbyte)v : 0,
-                    (Nullable<sbyte> v) => v.HasValue ? (Nullable<sbyte>)(sbyte)v : default(Nullable<sbyte>))),
-                keyComparer: new ListOfNullableValueTypesComparer<sbyte?[], sbyte>(new ValueComparer<sbyte?>(
-                    (Nullable<sbyte> v1, Nullable<sbyte> v2) => v1.HasValue && v2.HasValue && (sbyte)v1 == (sbyte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<sbyte> v) => v.HasValue ? (int)(sbyte)v : 0,
-                    (Nullable<sbyte> v) => v.HasValue ? (Nullable<sbyte>)(sbyte)v : default(Nullable<sbyte>))),
+                comparer: new ListOfNullableValueTypesComparer<sbyte?[], sbyte>(new NullableValueComparer<sbyte>(new ValueComparer<sbyte>(
+                    (sbyte v1, sbyte v2) => v1 == v2,
+                    (sbyte v) => (int)v,
+                    (sbyte v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<sbyte?[], sbyte>(new NullableValueComparer<sbyte>(new ValueComparer<sbyte>(
+                    (sbyte v1, sbyte v2) => v1 == v2,
+                    (sbyte v) => (int)v,
+                    (sbyte v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14054,18 +14110,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableTimeOnly.TypeMapping = SqlServerTimeOnlyTypeMapping.Default.Clone(
-                comparer: new ValueComparer<TimeOnly?>(
-                    (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeOnly> v) => v.HasValue ? ((object)(TimeOnly)v).GetHashCode() : 0,
-                    (Nullable<TimeOnly> v) => v.HasValue ? (Nullable<TimeOnly>)(TimeOnly)v : default(Nullable<TimeOnly>)),
-                keyComparer: new ValueComparer<TimeOnly?>(
-                    (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeOnly> v) => v.HasValue ? ((object)(TimeOnly)v).GetHashCode() : 0,
-                    (Nullable<TimeOnly> v) => v.HasValue ? (Nullable<TimeOnly>)(TimeOnly)v : default(Nullable<TimeOnly>)),
-                providerValueComparer: new ValueComparer<TimeOnly?>(
-                    (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeOnly> v) => v.HasValue ? ((object)(TimeOnly)v).GetHashCode() : 0,
-                    (Nullable<TimeOnly> v) => v.HasValue ? (Nullable<TimeOnly>)(TimeOnly)v : default(Nullable<TimeOnly>)));
+                comparer: new ValueComparer<TimeOnly>(
+                    (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
+                    (TimeOnly v) => ((object)v).GetHashCode(),
+                    (TimeOnly v) => v),
+                keyComparer: new ValueComparer<TimeOnly>(
+                    (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
+                    (TimeOnly v) => ((object)v).GetHashCode(),
+                    (TimeOnly v) => v),
+                providerValueComparer: new ValueComparer<TimeOnly>(
+                    (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
+                    (TimeOnly v) => ((object)v).GetHashCode(),
+                    (TimeOnly v) => v));
+            nullableTimeOnly.SetValueComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.Comparer));
+            nullableTimeOnly.SetKeyValueComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.KeyComparer));
             nullableTimeOnly.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableTimeOnly.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableTimeOnly", "TestNamespace") });
 
@@ -14096,14 +14154,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableTimeOnlyArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<TimeOnly?[], TimeOnly>(new ValueComparer<TimeOnly?>(
-                    (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeOnly> v) => v.HasValue ? ((object)(TimeOnly)v).GetHashCode() : 0,
-                    (Nullable<TimeOnly> v) => v.HasValue ? (Nullable<TimeOnly>)(TimeOnly)v : default(Nullable<TimeOnly>))),
-                keyComparer: new ListOfNullableValueTypesComparer<TimeOnly?[], TimeOnly>(new ValueComparer<TimeOnly?>(
-                    (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeOnly> v) => v.HasValue ? ((object)(TimeOnly)v).GetHashCode() : 0,
-                    (Nullable<TimeOnly> v) => v.HasValue ? (Nullable<TimeOnly>)(TimeOnly)v : default(Nullable<TimeOnly>))),
+                comparer: new ListOfNullableValueTypesComparer<TimeOnly?[], TimeOnly>(new NullableValueComparer<TimeOnly>(new ValueComparer<TimeOnly>(
+                    (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
+                    (TimeOnly v) => ((object)v).GetHashCode(),
+                    (TimeOnly v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<TimeOnly?[], TimeOnly>(new NullableValueComparer<TimeOnly>(new ValueComparer<TimeOnly>(
+                    (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
+                    (TimeOnly v) => ((object)v).GetHashCode(),
+                    (TimeOnly v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14161,18 +14219,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableTimeSpan.TypeMapping = SqlServerTimeSpanTypeMapping.Default.Clone(
-                comparer: new ValueComparer<TimeSpan?>(
-                    (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeSpan> v) => v.HasValue ? ((object)(TimeSpan)v).GetHashCode() : 0,
-                    (Nullable<TimeSpan> v) => v.HasValue ? (Nullable<TimeSpan>)(TimeSpan)v : default(Nullable<TimeSpan>)),
-                keyComparer: new ValueComparer<TimeSpan?>(
-                    (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeSpan> v) => v.HasValue ? ((object)(TimeSpan)v).GetHashCode() : 0,
-                    (Nullable<TimeSpan> v) => v.HasValue ? (Nullable<TimeSpan>)(TimeSpan)v : default(Nullable<TimeSpan>)),
-                providerValueComparer: new ValueComparer<TimeSpan?>(
-                    (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeSpan> v) => v.HasValue ? ((object)(TimeSpan)v).GetHashCode() : 0,
-                    (Nullable<TimeSpan> v) => v.HasValue ? (Nullable<TimeSpan>)(TimeSpan)v : default(Nullable<TimeSpan>)));
+                comparer: new ValueComparer<TimeSpan>(
+                    (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
+                    (TimeSpan v) => ((object)v).GetHashCode(),
+                    (TimeSpan v) => v),
+                keyComparer: new ValueComparer<TimeSpan>(
+                    (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
+                    (TimeSpan v) => ((object)v).GetHashCode(),
+                    (TimeSpan v) => v),
+                providerValueComparer: new ValueComparer<TimeSpan>(
+                    (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
+                    (TimeSpan v) => ((object)v).GetHashCode(),
+                    (TimeSpan v) => v));
+            nullableTimeSpan.SetValueComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.Comparer));
+            nullableTimeSpan.SetKeyValueComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.KeyComparer));
             nullableTimeSpan.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableTimeSpan.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableTimeSpan", "TestNamespace") });
 
@@ -14203,14 +14263,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableTimeSpanArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<TimeSpan?[], TimeSpan>(new ValueComparer<TimeSpan?>(
-                    (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeSpan> v) => v.HasValue ? ((object)(TimeSpan)v).GetHashCode() : 0,
-                    (Nullable<TimeSpan> v) => v.HasValue ? (Nullable<TimeSpan>)(TimeSpan)v : default(Nullable<TimeSpan>))),
-                keyComparer: new ListOfNullableValueTypesComparer<TimeSpan?[], TimeSpan>(new ValueComparer<TimeSpan?>(
-                    (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<TimeSpan> v) => v.HasValue ? ((object)(TimeSpan)v).GetHashCode() : 0,
-                    (Nullable<TimeSpan> v) => v.HasValue ? (Nullable<TimeSpan>)(TimeSpan)v : default(Nullable<TimeSpan>))),
+                comparer: new ListOfNullableValueTypesComparer<TimeSpan?[], TimeSpan>(new NullableValueComparer<TimeSpan>(new ValueComparer<TimeSpan>(
+                    (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
+                    (TimeSpan v) => ((object)v).GetHashCode(),
+                    (TimeSpan v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<TimeSpan?[], TimeSpan>(new NullableValueComparer<TimeSpan>(new ValueComparer<TimeSpan>(
+                    (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
+                    (TimeSpan v) => ((object)v).GetHashCode(),
+                    (TimeSpan v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14268,14 +14328,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt16.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<ushort?>(
-                    (Nullable<ushort> v1, Nullable<ushort> v2) => v1.HasValue && v2.HasValue && (ushort)v1 == (ushort)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ushort> v) => v.HasValue ? (int)(ushort)v : 0,
-                    (Nullable<ushort> v) => v.HasValue ? (Nullable<ushort>)(ushort)v : default(Nullable<ushort>)),
-                keyComparer: new ValueComparer<ushort?>(
-                    (Nullable<ushort> v1, Nullable<ushort> v2) => v1.HasValue && v2.HasValue && (ushort)v1 == (ushort)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ushort> v) => v.HasValue ? (int)(ushort)v : 0,
-                    (Nullable<ushort> v) => v.HasValue ? (Nullable<ushort>)(ushort)v : default(Nullable<ushort>)),
+                comparer: new ValueComparer<ushort>(
+                    (ushort v1, ushort v2) => v1 == v2,
+                    (ushort v) => (int)v,
+                    (ushort v) => v),
+                keyComparer: new ValueComparer<ushort>(
+                    (ushort v1, ushort v2) => v1 == v2,
+                    (ushort v) => (int)v,
+                    (ushort v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
@@ -14288,6 +14348,8 @@ namespace TestNamespace
                     new ValueConverter<ushort, int>(
                         (ushort v) => (int)v,
                         (int v) => (ushort)v)));
+            nullableUInt16.SetValueComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
+            nullableUInt16.SetKeyValueComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.KeyComparer));
             nullableUInt16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableUInt16.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableUInt16", "TestNamespace") });
 
@@ -14318,14 +14380,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<ushort?[], ushort>(new ValueComparer<ushort?>(
-                    (Nullable<ushort> v1, Nullable<ushort> v2) => v1.HasValue && v2.HasValue && (ushort)v1 == (ushort)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ushort> v) => v.HasValue ? (int)(ushort)v : 0,
-                    (Nullable<ushort> v) => v.HasValue ? (Nullable<ushort>)(ushort)v : default(Nullable<ushort>))),
-                keyComparer: new ListOfNullableValueTypesComparer<ushort?[], ushort>(new ValueComparer<ushort?>(
-                    (Nullable<ushort> v1, Nullable<ushort> v2) => v1.HasValue && v2.HasValue && (ushort)v1 == (ushort)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ushort> v) => v.HasValue ? (int)(ushort)v : 0,
-                    (Nullable<ushort> v) => v.HasValue ? (Nullable<ushort>)(ushort)v : default(Nullable<ushort>))),
+                comparer: new ListOfNullableValueTypesComparer<ushort?[], ushort>(new NullableValueComparer<ushort>(new ValueComparer<ushort>(
+                    (ushort v1, ushort v2) => v1 == v2,
+                    (ushort v) => (int)v,
+                    (ushort v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<ushort?[], ushort>(new NullableValueComparer<ushort>(new ValueComparer<ushort>(
+                    (ushort v1, ushort v2) => v1 == v2,
+                    (ushort v) => (int)v,
+                    (ushort v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14399,14 +14461,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt32.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
-                comparer: new ValueComparer<uint?>(
-                    (Nullable<uint> v1, Nullable<uint> v2) => v1.HasValue && v2.HasValue && (uint)v1 == (uint)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<uint> v) => v.HasValue ? (int)(uint)v : 0,
-                    (Nullable<uint> v) => v.HasValue ? (Nullable<uint>)(uint)v : default(Nullable<uint>)),
-                keyComparer: new ValueComparer<uint?>(
-                    (Nullable<uint> v1, Nullable<uint> v2) => v1.HasValue && v2.HasValue && (uint)v1 == (uint)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<uint> v) => v.HasValue ? (int)(uint)v : 0,
-                    (Nullable<uint> v) => v.HasValue ? (Nullable<uint>)(uint)v : default(Nullable<uint>)),
+                comparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
+                keyComparer: new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v),
                 providerValueComparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
                     (long v) => ((object)v).GetHashCode(),
@@ -14419,6 +14481,8 @@ namespace TestNamespace
                     new ValueConverter<uint, long>(
                         (uint v) => (long)v,
                         (long v) => (uint)v)));
+            nullableUInt32.SetValueComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
+            nullableUInt32.SetKeyValueComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.KeyComparer));
             nullableUInt32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableUInt32.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableUInt32", "TestNamespace") });
 
@@ -14449,14 +14513,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<uint?[], uint>(new ValueComparer<uint?>(
-                    (Nullable<uint> v1, Nullable<uint> v2) => v1.HasValue && v2.HasValue && (uint)v1 == (uint)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<uint> v) => v.HasValue ? (int)(uint)v : 0,
-                    (Nullable<uint> v) => v.HasValue ? (Nullable<uint>)(uint)v : default(Nullable<uint>))),
-                keyComparer: new ListOfNullableValueTypesComparer<uint?[], uint>(new ValueComparer<uint?>(
-                    (Nullable<uint> v1, Nullable<uint> v2) => v1.HasValue && v2.HasValue && (uint)v1 == (uint)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<uint> v) => v.HasValue ? (int)(uint)v : 0,
-                    (Nullable<uint> v) => v.HasValue ? (Nullable<uint>)(uint)v : default(Nullable<uint>))),
+                comparer: new ListOfNullableValueTypesComparer<uint?[], uint>(new NullableValueComparer<uint>(new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<uint?[], uint>(new NullableValueComparer<uint>(new ValueComparer<uint>(
+                    (uint v1, uint v2) => v1 == v2,
+                    (uint v) => (int)v,
+                    (uint v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14530,14 +14594,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt64.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
-                comparer: new ValueComparer<ulong?>(
-                    (Nullable<ulong> v1, Nullable<ulong> v2) => v1.HasValue && v2.HasValue && (ulong)v1 == (ulong)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ulong> v) => v.HasValue ? ((object)(ulong)v).GetHashCode() : 0,
-                    (Nullable<ulong> v) => v.HasValue ? (Nullable<ulong>)(ulong)v : default(Nullable<ulong>)),
-                keyComparer: new ValueComparer<ulong?>(
-                    (Nullable<ulong> v1, Nullable<ulong> v2) => v1.HasValue && v2.HasValue && (ulong)v1 == (ulong)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ulong> v) => v.HasValue ? ((object)(ulong)v).GetHashCode() : 0,
-                    (Nullable<ulong> v) => v.HasValue ? (Nullable<ulong>)(ulong)v : default(Nullable<ulong>)),
+                comparer: new ValueComparer<ulong>(
+                    (ulong v1, ulong v2) => v1 == v2,
+                    (ulong v) => ((object)v).GetHashCode(),
+                    (ulong v) => v),
+                keyComparer: new ValueComparer<ulong>(
+                    (ulong v1, ulong v2) => v1 == v2,
+                    (ulong v) => ((object)v).GetHashCode(),
+                    (ulong v) => v),
                 providerValueComparer: new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
                     (decimal v) => ((object)v).GetHashCode(),
@@ -14554,6 +14618,8 @@ namespace TestNamespace
                     new ValueConverter<ulong, decimal>(
                         (ulong v) => (decimal)v,
                         (decimal v) => (ulong)v)));
+            nullableUInt64.SetValueComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
+            nullableUInt64.SetKeyValueComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.KeyComparer));
             nullableUInt64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableUInt64.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableUInt64", "TestNamespace") });
 
@@ -14584,14 +14650,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<ulong?[], ulong>(new ValueComparer<ulong?>(
-                    (Nullable<ulong> v1, Nullable<ulong> v2) => v1.HasValue && v2.HasValue && (ulong)v1 == (ulong)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ulong> v) => v.HasValue ? ((object)(ulong)v).GetHashCode() : 0,
-                    (Nullable<ulong> v) => v.HasValue ? (Nullable<ulong>)(ulong)v : default(Nullable<ulong>))),
-                keyComparer: new ListOfNullableValueTypesComparer<ulong?[], ulong>(new ValueComparer<ulong?>(
-                    (Nullable<ulong> v1, Nullable<ulong> v2) => v1.HasValue && v2.HasValue && (ulong)v1 == (ulong)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<ulong> v) => v.HasValue ? ((object)(ulong)v).GetHashCode() : 0,
-                    (Nullable<ulong> v) => v.HasValue ? (Nullable<ulong>)(ulong)v : default(Nullable<ulong>))),
+                comparer: new ListOfNullableValueTypesComparer<ulong?[], ulong>(new NullableValueComparer<ulong>(new ValueComparer<ulong>(
+                    (ulong v1, ulong v2) => v1 == v2,
+                    (ulong v) => ((object)v).GetHashCode(),
+                    (ulong v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<ulong?[], ulong>(new NullableValueComparer<ulong>(new ValueComparer<ulong>(
+                    (ulong v1, ulong v2) => v1 == v2,
+                    (ulong v) => ((object)v).GetHashCode(),
+                    (ulong v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14669,18 +14735,20 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt8.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
-                comparer: new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)),
-                keyComparer: new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)),
-                providerValueComparer: new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)));
+                comparer: new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v),
+                keyComparer: new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v),
+                providerValueComparer: new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v));
+            nullableUInt8.SetValueComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
+            nullableUInt8.SetKeyValueComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.KeyComparer));
             nullableUInt8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
             nullableUInt8.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("ManyTypesEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_ManyTypes_NullableUInt8", "TestNamespace") });
 
@@ -14711,14 +14779,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>))),
-                keyComparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>))),
+                comparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v))),
+                keyComparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14775,14 +14843,14 @@ namespace TestNamespace
                 relationshipIndex: -1,
                 storeGenerationIndex: -1);
             nullableUInt8NestedCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ListOfReferenceTypesComparer<byte?[][], byte?[]>(new ListOfNullableValueTypesComparer<byte?[], byte>(new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)))),
-                keyComparer: new ListOfReferenceTypesComparer<byte?[][], byte?[]>(new ListOfNullableValueTypesComparer<byte?[], byte>(new ValueComparer<byte?>(
-                    (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                    (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>)))),
+                comparer: new ListOfReferenceTypesComparer<byte?[][], byte?[]>(new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v)))),
+                keyComparer: new ListOfReferenceTypesComparer<byte?[][], byte?[]>(new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
+                    (byte v1, byte v2) => v1 == v2,
+                    (byte v) => (int)v,
+                    (byte v) => v)))),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -14799,14 +14867,14 @@ namespace TestNamespace
                     new JsonCollectionOfNullableStructsReaderWriter<byte?[], byte>(
                         JsonByteReaderWriter.Instance)),
                 elementMapping: SqlServerStringTypeMapping.Default.Clone(
-                    comparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new ValueComparer<byte?>(
-                        (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                        (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>))),
-                    keyComparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new ValueComparer<byte?>(
-                        (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
-                        (Nullable<byte> v) => v.HasValue ? (int)(byte)v : 0,
-                        (Nullable<byte> v) => v.HasValue ? (Nullable<byte>)(byte)v : default(Nullable<byte>))),
+                    comparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
+                        (byte v1, byte v2) => v1 == v2,
+                        (byte v) => (int)v,
+                        (byte v) => v))),
+                    keyComparer: new ListOfNullableValueTypesComparer<byte?[], byte>(new NullableValueComparer<byte>(new ValueComparer<byte>(
+                        (byte v1, byte v2) => v1 == v2,
+                        (byte v) => (int)v,
+                        (byte v) => v))),
                     providerValueComparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
                         (string v) => ((object)v).GetHashCode(),
@@ -17626,6 +17694,9 @@ namespace TestNamespace
             var uri = runtimeEntityType.FindProperty("Uri")!;
             var uriArray = runtimeEntityType.FindProperty("UriArray")!;
             var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty")!;
+            var key = runtimeEntityType.FindKey(new[] { id });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<CompiledModelTestBase.ManyTypesId>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<CompiledModelTestBase.ManyTypesId>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

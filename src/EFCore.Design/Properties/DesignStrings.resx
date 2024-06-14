@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -150,6 +150,9 @@
   <data name="CircularBaseClassDependency" xml:space="preserve">
     <value>You cannot add a migration with the name 'Migration'.</value>
   </data>
+  <data name="CompilationErrors" xml:space="preserve">
+    <value>Compilation failed with errors:</value>
+  </data>
   <data name="CompilationMustBeLoaded" xml:space="preserve">
     <value>A compilation must be loaded.</value>
   </data>
@@ -176,6 +179,10 @@
   </data>
   <data name="ConnectionDescription" xml:space="preserve">
     <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
+  </data>
+  <data name="ContextAssemblyMismatch" xml:space="preserve">
+    <value>Your target project '{assembly}' doesn't match the assembly containing '{contextType}' - '{contextAssembly}'. This is not recommended as it will cause the compiled model to not be discovered automatically.
+Consider changing your target project to the DbContext project by using the Package Manager Console's Default project drop-down list, by executing "dotnet ef" from the directory containing the DbContext project or by supplying it with the '--project' option.</value>
   </data>
   <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
     <value>The context class name '{contextClassName}' is not a valid C# identifier.</value>
@@ -296,6 +303,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="MultipleContextsWithQualifiedName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
   </data>
+  <data name="NoAnonymousSymbol" xml:space="preserve">
+    <value>Could not find symbol for anonymous object creation initializer:</value>
+  </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
   </data>
@@ -368,6 +378,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="QueryComprehensionSyntaxNotSupportedInPrecompiledQueries" xml:space="preserve">
     <value>LINQ query comprehension syntax is currently not supported in precompiled queries.</value>
   </data>
+  <data name="QueryPrecompilationErrors" xml:space="preserve">
+    <value>Query precompilation failed with errors:</value>
+  </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files were generated in directory '{outputDirectoryName}'. The following file(s) already exist(s) and must be made writeable to continue: {readOnlyFiles}.</value>
   </data>
@@ -404,6 +417,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
+  </data>
+  <data name="UncompilableProject" xml:space="preserve">
+    <value>The project '{project}' does not support compilation.</value>
   </data>
   <data name="UnhandledEnumValue" xml:space="preserve">
     <value>Unhandled enum value '{enumValue}'.</value>

@@ -119,7 +119,7 @@ stages:
                 - script: "echo ##vso[build.addbuildtag]CodeQL3000"
                   displayName: 'Set CI CodeQL3000 tag'
                   condition: ne(variables.CODEQL_DIST,'')
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine /bl:artifacts\log\$(_BuildConfig)\Build.binlog $(_InternalBuildArgs)
                   $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -138,12 +138,12 @@ stages:
           - job: macOS
             enablePublishTestResults: true
             pool:
-              vmImage: macOS-11
+              vmImage: macOS-12
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
             steps:
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
@@ -168,7 +168,7 @@ stages:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
             steps:
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine /bl:artifacts/log/$(_BuildConfig)/Build.binlog $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
@@ -194,7 +194,7 @@ stages:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: OSX.1100.Amd64.Open;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: OSX.1200.Amd64.Open;OSX.1200.ARM64.Open;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 value: '' # Needed for public queues
             steps:
@@ -206,7 +206,7 @@ stages:
                   arguments: 'locals all -clear'
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
                 displayName: Send job to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)

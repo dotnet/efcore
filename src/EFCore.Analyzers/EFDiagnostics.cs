@@ -16,4 +16,5 @@ public static class EFDiagnostics
     public const string ExperimentalApi = "EF9001";
     public const string ProviderExperimentalApi = "EF9002";
     public const string PrecompiledQueryExperimental = "EF9100";
+    public const string MetricsExperimental = "EF9101";
 }

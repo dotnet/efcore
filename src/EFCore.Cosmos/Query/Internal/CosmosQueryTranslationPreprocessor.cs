@@ -27,4 +27,8 @@ public class CosmosQueryTranslationPreprocessor(
 
         return query;
     }
+
+    /// <inheritdoc />
+    protected override Expression ProcessQueryRoots(Expression expression)
+        => new CosmosQueryRootProcessor(Dependencies, QueryCompilationContext).Visit(expression);
 }

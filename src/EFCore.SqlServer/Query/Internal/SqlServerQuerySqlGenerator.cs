@@ -506,7 +506,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             switch (pathSegment)
             {
                 case { PropertyName: string propertyName }:
-                    Sql.Append(".").Append(propertyName);
+                    Sql.Append(".").Append(Dependencies.SqlGenerationHelper.DelimitJsonPathElement(propertyName));
                     break;
 
                 case { ArrayIndex: SqlExpression arrayIndex }:
@@ -649,16 +649,16 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 ExpressionType.Multiply => (900, true),
                 ExpressionType.Divide => (900, false),
                 ExpressionType.Modulo => (900, false),
-                ExpressionType.Add => (800, true),
-                ExpressionType.Subtract => (800, false),
+                ExpressionType.Add => (700, true),
+                ExpressionType.Subtract => (700, false),
                 ExpressionType.And => (700, true),
                 ExpressionType.Or => (700, true),
                 ExpressionType.LeftShift => (700, true),
                 ExpressionType.RightShift => (700, true),
-                ExpressionType.LessThan => (600, false),
-                ExpressionType.LessThanOrEqual => (600, false),
-                ExpressionType.GreaterThan => (600, false),
-                ExpressionType.GreaterThanOrEqual => (600, false),
+                ExpressionType.LessThan => (500, false),
+                ExpressionType.LessThanOrEqual => (500, false),
+                ExpressionType.GreaterThan => (500, false),
+                ExpressionType.GreaterThanOrEqual => (500, false),
                 ExpressionType.Equal => (500, false),
                 ExpressionType.NotEqual => (500, false),
                 ExpressionType.AndAlso => (200, true),

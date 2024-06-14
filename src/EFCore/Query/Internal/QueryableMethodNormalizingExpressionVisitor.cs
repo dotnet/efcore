@@ -138,11 +138,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         if (method.DeclaringType is { IsGenericType: true }
-            && (method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
-                || method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
-            && method.Name == nameof(List<int>.Contains))
+            && method.DeclaringType.TryGetElementType(typeof(ICollection<>)) is not null
+            && method.Name == nameof(ICollection<int>.Contains))
         {
-            visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
+            visitedExpression = TryConvertCollectionContainsToQueryableContains(methodCallExpression);
         }
 
         if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
@@ -451,7 +450,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
     }
 
-    private Expression TryConvertListContainsToQueryableContains(MethodCallExpression methodCallExpression)
+    private Expression TryConvertCollectionContainsToQueryableContains(MethodCallExpression methodCallExpression)
     {
         if (methodCallExpression.Object is MemberInitExpression or NewExpression)
         {

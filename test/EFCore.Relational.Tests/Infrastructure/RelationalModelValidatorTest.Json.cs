@@ -282,7 +282,7 @@ public partial class RelationalModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Json_entity_with_defalt_value_on_a_property()
+    public void Json_entity_with_default_value_on_a_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<ValidatorJsonEntityBasic>(

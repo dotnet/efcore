@@ -25,7 +25,7 @@ SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."Cont
 FROM (
     SELECT * FROM "Customers"
 ) AS "m"
-WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
@@ -75,7 +75,7 @@ FROM (
     )
     SELECT * FROM "Customers2"
 ) AS "m"
-WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 

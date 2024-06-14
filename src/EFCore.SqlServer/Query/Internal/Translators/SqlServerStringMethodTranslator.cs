@@ -336,27 +336,31 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 method.ReturnType);
         }
 
-        charIndexExpression = _sqlExpressionFactory.Subtract(charIndexExpression, _sqlExpressionFactory.Constant(1));
-
         // If the pattern is an empty string, we need to special case to always return 0 (since CHARINDEX return 0, which we'd subtract to
         // -1). Handle separately for constant and non-constant patterns.
-        if (searchExpression is SqlConstantExpression { Value : string constantSearchPattern })
+        if (searchExpression is SqlConstantExpression { Value: "" })
         {
-            return constantSearchPattern == string.Empty
-                ? _sqlExpressionFactory.Constant(0, typeof(int))
-                : charIndexExpression;
+            return _sqlExpressionFactory.Case(
+                [new(_sqlExpressionFactory.IsNotNull(instance), _sqlExpressionFactory.Constant(0))],
+                elseResult: null
+            );
         }
 
-        return _sqlExpressionFactory.Case(
-            new[]
-            {
-                new CaseWhenClause(
-                    _sqlExpressionFactory.Equal(
-                        searchExpression,
-                        _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
-                    _sqlExpressionFactory.Constant(0))
-            },
-            charIndexExpression);
+        SqlExpression offsetExpression = searchExpression is SqlConstantExpression
+            ? _sqlExpressionFactory.Constant(1)
+            : _sqlExpressionFactory.Case(
+                new[]
+                {
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Equal(
+                            searchExpression,
+                            _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
+                        _sqlExpressionFactory.Constant(0))
+                },
+                _sqlExpressionFactory.Constant(1));
+
+
+        return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
 
     private SqlExpression? ProcessTrimMethod(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)

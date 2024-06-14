@@ -18,8 +18,6 @@ variables:
     - name: PostBuildSign
       value: true
   - group: DotNet-HelixApi-Access
-  - group: DotNetBuilds storage account read tokens
-  - group: AzureDevOps-Artifact-Feeds-Pats
   - name: _InternalRuntimeDownloadArgs
     value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
   - name: LC_ALL
@@ -72,7 +70,6 @@ extends:
           enablePublishTestResults: true
           enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
           publishAssetsImmediately: true
-          enableSourceIndex: ${{ eq(variables['Build.SourceBranch'], 'refs/heads/main') }}
           enableTelemetry: true
           helixRepo: dotnet/efcore
           jobs:
@@ -111,13 +108,8 @@ extends:
                 displayName: 'Set CI tags'
               - powershell: SqlLocalDB start
                 displayName: Start LocalDB
-              - task: PowerShell@2
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                  arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -144,19 +136,14 @@ extends:
           - job: macOS
             pool:
               name: Azure Pipelines
-              image: macOS-11
+              image: macOS-12
               os: macOS
             variables:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
             steps:
-              - task: Bash@3
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                  arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -193,13 +180,8 @@ extends:
                   echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
                 displayName: Prepare to run Cosmos tests on ef-pr-test
                 condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
-              - task: Bash@3
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
-                  arguments: $(Build.SourcesDirectory)/NuGet.config $Token
-                env:
-                  Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -224,7 +206,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: OSX.1200.Amd64;OSX.1200.ARM64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 # Needed for internal queues
                 value: $(HelixApiAccessToken)
@@ -235,13 +217,8 @@ extends:
                 inputs:
                   command: custom
                   arguments: 'locals all -clear'
-              - task: PowerShell@2
-                displayName: Setup Private Feeds Credentials
-                inputs:
-                  filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
-                  arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
-                env:
-                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-sources.yml
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)

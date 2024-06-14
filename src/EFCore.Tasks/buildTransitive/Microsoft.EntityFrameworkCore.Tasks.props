@@ -4,8 +4,10 @@
     <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' == 'core'">net8.0</_TaskTargetFramework>
     <_TaskTargetFramework Condition="'$(MSBuildRuntimeType)' != 'core'">net472</_TaskTargetFramework>
     <_EFCustomTasksAssembly>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), '..\tasks\$(_TaskTargetFramework)\$(MSBuildThisFileName).dll'))</_EFCustomTasksAssembly>
-    <EFOptimizeContext Condition="'$(EFOptimizeContext)'==''">false</EFOptimizeContext>
+    <EFScaffoldModelStage Condition="'$(EFScaffoldModelStage)'==''">publish</EFScaffoldModelStage>
+    <EFPrecompileQueriesStage Condition="'$(EFPrecompileQueriesStage)'==''">publish</EFPrecompileQueriesStage>
     <EFStartupProject Condition="'$(EFStartupProject)'==''">$(MSBuildProjectFullPath)</EFStartupProject>
+    <DbContextType Condition="'$(DbContextType)'==''">*</DbContextType>
   </PropertyGroup>
 
   <UsingTask TaskName="$(MSBuildThisFileName).OptimizeDbContext" AssemblyFile="$(_EFCustomTasksAssembly)"/>

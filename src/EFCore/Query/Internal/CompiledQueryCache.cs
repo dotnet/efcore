@@ -42,7 +42,7 @@ public class CompiledQueryCache : ICompiledQueryCache
         // ReSharper disable once InconsistentlySynchronizedField
         if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult>? compiledQuery))
         {
-            EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+            EntityFrameworkMetricsData.ReportCompiledQueryCacheHit();
             return compiledQuery!;
         }
 
@@ -57,11 +57,11 @@ public class CompiledQueryCache : ICompiledQueryCache
             {
                 if (_memoryCache.TryGetValue(cacheKey, out compiledQuery))
                 {
-                    EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
+                    EntityFrameworkMetricsData.ReportCompiledQueryCacheHit();
                 }
                 else
                 {
-                    EntityFrameworkEventSource.Log.CompiledQueryCacheMiss();
+                    EntityFrameworkMetricsData.ReportCompiledQueryCacheMiss();
 
                     compiledQuery = compiler();
                     _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });

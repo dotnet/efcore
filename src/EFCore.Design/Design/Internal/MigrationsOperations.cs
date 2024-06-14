@@ -47,6 +47,7 @@ public class MigrationsOperations
             reporter,
             assembly,
             startupAssembly,
+            project: "",
             projectDir,
             rootNamespace,
             language,

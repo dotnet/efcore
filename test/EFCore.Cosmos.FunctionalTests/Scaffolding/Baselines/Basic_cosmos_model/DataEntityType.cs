@@ -76,14 +76,14 @@ namespace TestNamespace
                 relationshipIndex: 1,
                 storeGenerationIndex: -1);
             partitionId.TypeMapping = CosmosTypeMapping.Default.Clone(
-                comparer: new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
-                keyComparer: new ValueComparer<long?>(
-                    (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
-                    (Nullable<long> v) => v.HasValue ? ((object)(long)v).GetHashCode() : 0,
-                    (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
+                comparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v),
+                keyComparer: new ValueComparer<long>(
+                    (long v1, long v2) => v1 == v2,
+                    (long v) => ((object)v).GetHashCode(),
+                    (long v) => v),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => ((object)v).GetHashCode(),
@@ -96,6 +96,8 @@ namespace TestNamespace
                     new ValueConverter<long, string>(
                         (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
                         (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
+            partitionId.SetValueComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
+            partitionId.SetKeyValueComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
             partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
 
             var blob = runtimeEntityType.AddProperty(
@@ -255,6 +257,12 @@ namespace TestNamespace
             var __id = runtimeEntityType.FindProperty("__id")!;
             var __jObject = runtimeEntityType.FindProperty("__jObject")!;
             var _etag = runtimeEntityType.FindProperty("_etag")!;
+            var key = runtimeEntityType.FindKey(new[] { id, partitionId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
+            var key0 = runtimeEntityType.FindKey(new[] { __id, partitionId });
+            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key0));
+            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
                 {

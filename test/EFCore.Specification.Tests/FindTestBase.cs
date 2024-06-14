@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
@@ -335,7 +336,18 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Find_int_key_from_store_async(CancellationType cancellationType)
         {
             using var context = CreateContext();
-            Assert.Equal("Smokey", (await Finder.FindAsync<IntKey>(cancellationType, context, [77])).Foo);
+
+            var entity = await Finder.FindAsync<IntKey>(cancellationType, context, [77]);
+
+            Assert.Equal("Smokey", entity.Foo);
+            Assert.Equal(7, entity.OwnedReference.Prop);
+            Assert.Equal(2, entity.OwnedCollection.Count);
+            Assert.Contains(71, entity.OwnedCollection.Select(e => e.Prop));
+            Assert.Contains(72, entity.OwnedCollection.Select(e => e.Prop));
+            Assert.Equal("7", entity.OwnedReference.NestedOwned.Prop);
+            Assert.Equal(2, entity.OwnedReference.NestedOwnedCollection.Count);
+            Assert.Contains("71", entity.OwnedReference.NestedOwnedCollection.Select(e => e.Prop));
+            Assert.Contains("72", entity.OwnedReference.NestedOwnedCollection.Select(e => e.Prop));
         }
 
         [ConditionalTheory]
@@ -736,6 +748,9 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
 
             public string Foo { get; set; }
+
+            public Owned1 OwnedReference { get; set; }
+            public List<Owned1> OwnedCollection { get; set; }
         }
 
         protected class NullableIntKey
@@ -765,6 +780,21 @@ namespace Microsoft.EntityFrameworkCore
             public string Foo { get; set; }
         }
 
+        [Owned]
+        protected class Owned1
+        {
+            public int Prop { get; set; }
+            public Owned2 NestedOwned { get; set; }
+            public List<Owned2> NestedOwnedCollection { get; set; }
+        }
+
+        [Owned]
+        protected class Owned2
+        {
+            [Required]
+            public string Prop { get; set; }
+        }
+
         protected DbContext CreateContext()
             => Fixture.CreateContext();
 
@@ -788,7 +818,18 @@ namespace Microsoft.EntityFrameworkCore
             protected override Task SeedAsync(PoolableDbContext context)
             {
                 context.AddRange(
-                    new IntKey { Id = 77, Foo = "Smokey" },
+                    new IntKey
+                    {
+                        Id = 77,
+                        Foo = "Smokey",
+                        OwnedReference = new()
+                        {
+                            Prop = 7,
+                            NestedOwned = new() { Prop = "7" },
+                            NestedOwnedCollection = new() { new() { Prop = "71" }, new() { Prop = "72" } }
+                        },
+                        OwnedCollection = new() { new() { Prop = 71 }, new() { Prop = 72 } }
+                    },
                     new NullableIntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },
                     new CompositeKey
@@ -847,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore
                 };
         }
 
-        public class FindViaContextFinder : TestFinder
+        public class FindViaNonGenericContextFinder : TestFinder
         {
             public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
                 => (TEntity)context.Find(typeof(TEntity), keyValues);
@@ -868,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore
                 };
         }
 
-        public class FindViaNonGenericContextFinder : TestFinder
+        public class FindViaContextFinder : TestFinder
         {
             public override TEntity Find<TEntity>(DbContext context, params object[] keyValues)
                 => context.Find<TEntity>(keyValues);

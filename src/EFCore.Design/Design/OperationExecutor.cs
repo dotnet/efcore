@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Design;
 /// </remarks>
 public class OperationExecutor : MarshalByRefObject
 {
+    private readonly string _project;
     private readonly string _projectDir;
     private readonly string _targetAssemblyName;
     private readonly string _startupTargetAssemblyName;
@@ -38,6 +39,7 @@ public class OperationExecutor : MarshalByRefObject
     ///     <para>The arguments supported by <paramref name="args" /> are:</para>
     ///     <para><c>targetName</c>--The assembly name of the target project.</para>
     ///     <para><c>startupTargetName</c>--The assembly name of the startup project.</para>
+    ///     <para><c>project</c>--The target project.</para>
     ///     <para><c>projectDir</c>--The target project's root directory.</para>
     ///     <para><c>rootNamespace</c>--The target project's root namespace.</para>
     ///     <para><c>language</c>--The programming language to be used to generate classes.</para>
@@ -54,6 +56,7 @@ public class OperationExecutor : MarshalByRefObject
         _reporter = new OperationReporter(reportHandler);
         _targetAssemblyName = (string)args["targetName"]!;
         _startupTargetAssemblyName = (string)args["startupTargetName"]!;
+        _project = (string)args["project"]!;
         _projectDir = (string)args["projectDir"]!;
         _rootNamespace = (string?)args["rootNamespace"];
         _language = (string?)args["language"];
@@ -121,6 +124,7 @@ public class OperationExecutor : MarshalByRefObject
                 _reporter,
                 Assembly,
                 StartupAssembly,
+                _project,
                 _projectDir,
                 _rootNamespace,
                 _language,
@@ -503,7 +507,7 @@ public class OperationExecutor : MarshalByRefObject
     }
 
     /// <summary>
-    ///     Represents an operation to generate a compiled model from the DbContext.
+    ///     Represents an operation to generate optimized code for a DbContext.
     /// </summary>
     public class OptimizeContext : OperationBase
     {
@@ -513,8 +517,11 @@ public class OperationExecutor : MarshalByRefObject
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
-        ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated model.</para>
-        ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+        ///     <para><c>modelNamespace</c>--The namespace of the generated model.</para>
+        ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
+        ///     <para><c>suffix</c>--The suffix to add to all the generated files.</para>
+        ///     <para><c>scaffoldModel</c>--Whether to generate a compiled model from the DbContext.</para>
+        ///     <para><c>precompileQueries</c>--Whether to generate code for precompiled queries.</para>
         /// </remarks>
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
@@ -532,13 +539,15 @@ public class OperationExecutor : MarshalByRefObject
             var modelNamespace = (string?)args["modelNamespace"];
             var contextType = (string?)args["contextType"];
             var suffix = (string?)args["suffix"];
+            var scaffoldModel = (bool)(args["scaffoldModel"] ?? true);
+            var precompileQueries = (bool)(args["precompileQueries"] ?? false);
 
-            Execute(() => executor.OptimizeContextImpl(outputDir, modelNamespace, contextType, suffix));
+            Execute(() => executor.OptimizeContextImpl(outputDir, modelNamespace, contextType, suffix, scaffoldModel, precompileQueries));
         }
     }
-
-    private IReadOnlyList<string> OptimizeContextImpl(string? outputDir, string? modelNamespace, string? contextType, string? suffix)
-        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix);
+    private IReadOnlyList<string> OptimizeContextImpl(
+        string? outputDir, string? modelNamespace, string? contextType, string? suffix, bool scaffoldModel, bool precompileQueries)
+        => ContextOperations.Optimize(outputDir, modelNamespace, contextType, suffix, scaffoldModel, precompileQueries);
 
     /// <summary>
     ///     Represents an operation to scaffold a <see cref="DbContext" /> and entity types for a database.

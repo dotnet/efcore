@@ -394,8 +394,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     var entityType = model.GetEntityTypes().Single();
 
+                    var providerValueComparer = entityType.FindProperty("Id")!.GetProviderValueComparer();
                     Assert.True(
-                        entityType.FindProperty("Id")!.GetProviderValueComparer().SnapshotExpression
+                        providerValueComparer.SnapshotExpression
                             is Expression<Func<int, int>> lambda
                         && lambda.Body is ConstantExpression constant
                         && ((int)constant.Value!) == 1);

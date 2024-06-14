@@ -433,11 +433,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return result;
         }
 
+        var isBooleanExpression = binaryExpression.Type == typeof(bool) || binaryExpression.Type == typeof(bool?);
         var uncheckedNodeTypeVariant = binaryExpression.NodeType switch
         {
             ExpressionType.AddChecked => ExpressionType.Add,
             ExpressionType.SubtractChecked => ExpressionType.Subtract,
             ExpressionType.MultiplyChecked => ExpressionType.Multiply,
+            ExpressionType.And when isBooleanExpression => ExpressionType.AndAlso,
+            ExpressionType.Or when isBooleanExpression => ExpressionType.OrElse,
             _ => binaryExpression.NodeType
         };
 
@@ -646,12 +649,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     ((SelectExpression)projectionBindingExpression.QueryExpression)
                     .GetProjection(projectionBindingExpression));
 
-            case ShapedQueryExpression shapedQueryExpression:
-                if (shapedQueryExpression.ResultCardinality == ResultCardinality.Enumerable)
-                {
-                    return QueryCompilationContext.NotTranslatedExpression;
-                }
-
+            // This case is for a subquery embedded in a lambda, returning a scalar, e.g. Where(b => b.Posts.Count() > 0).
+            // For most cases, generate a scalar subquery (WHERE (SELECT COUNT(*) FROM Posts) > 0).
+            case ShapedQueryExpression { ResultCardinality: not ResultCardinality.Enumerable } shapedQueryExpression:
                 var shaperExpression = shapedQueryExpression.ShaperExpression;
                 ProjectionBindingExpression? mappedProjectionBindingExpression = null;
 
@@ -1022,7 +1022,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        var translation = enumerableExpression != null
+        Expression? translation = enumerableExpression != null
             ? TranslateAggregateMethod(enumerableExpression, method, scalarArguments)
             : Dependencies.MethodCallTranslatorProvider.Translate(
                 _model, sqlObject, method, scalarArguments, _queryCompilationContext.Logger);
@@ -1032,26 +1032,26 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return translation;
         }
 
-        var subqueryTranslation = TranslateAsSubquery(methodCallExpression);
-        if (subqueryTranslation == QueryCompilationContext.NotTranslatedExpression)
+        translation = TranslateAsSubquery(methodCallExpression);
+        if (translation != QueryCompilationContext.NotTranslatedExpression)
         {
-            if (method == StringEqualsWithStringComparison
-                || method == StringEqualsWithStringComparisonStatic)
-            {
-                AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-            }
-            else
-            {
-                AddTranslationErrorDetails(
-                    CoreStrings.QueryUnableToTranslateMethod(
-                        method.DeclaringType?.DisplayName(),
-                        method.Name));
-            }
-
-            return QueryCompilationContext.NotTranslatedExpression;
+            return translation;
         }
 
-        return subqueryTranslation;
+        if (method == StringEqualsWithStringComparison
+            || method == StringEqualsWithStringComparisonStatic)
+        {
+            AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+        else
+        {
+            AddTranslationErrorDetails(
+                CoreStrings.QueryUnableToTranslateMethod(
+                    method.DeclaringType?.DisplayName(),
+                    method.Name));
+        }
+
+        return QueryCompilationContext.NotTranslatedExpression;
 
         Expression TranslateAsSubquery(Expression expression)
         {

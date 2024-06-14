@@ -498,9 +498,7 @@ public class SqlNullabilityProcessor
     /// <returns>An optimized sql expression.</returns>
     protected virtual SqlExpression VisitCase(CaseExpression caseExpression, bool allowOptimizedExpansion, out bool nullable)
     {
-        // if there is no 'else' there is a possibility of null, when none of the conditions are met
-        // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
-        nullable = caseExpression.ElseResult == null;
+        nullable = false;
         var currentNonNullableColumnsCount = _nonNullableColumns.Count;
         var currentNullValueColumnsCount = _nullValueColumns.Count;
 
@@ -515,11 +513,16 @@ public class SqlNullabilityProcessor
             var test = Visit(
                 whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
 
-            if (IsTrue(test))
+            var testCondition = testIsCondition
+                ? test
+                : Visit(_sqlExpressionFactory.Equal(operand!, test),
+                    allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
+
+            if (IsTrue(testCondition))
             {
                 testEvaluatesToTrue = true;
             }
-            else if (IsFalse(test))
+            else if (IsFalse(testCondition))
             {
                 // if test evaluates to 'false' we can remove the WhenClause
                 RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
@@ -538,6 +541,12 @@ public class SqlNullabilityProcessor
             // if test evaluates to 'true' we can remove every condition that comes after, including ElseResult
             if (testEvaluatesToTrue)
             {
+                // if the first When clause is always satisfied, simply return its result
+                if (whenClauses.Count == 1)
+                {
+                    return whenClauses[0].Result;
+                }
+
                 break;
             }
         }
@@ -547,6 +556,10 @@ public class SqlNullabilityProcessor
         {
             elseResult = Visit(caseExpression.ElseResult, out var elseResultNullable);
             nullable |= elseResultNullable;
+
+            // if there is no 'else' there is a possibility of null, when none of the conditions are met
+            // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
+            nullable |= elseResult == null;
         }
 
         RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
@@ -560,12 +573,7 @@ public class SqlNullabilityProcessor
             return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
-        // if there is only one When clause and it's test evaluates to 'true' AND there is no else block, simply return the result
-        return elseResult == null
-            && whenClauses.Count == 1
-            && IsTrue(whenClauses[0].Test)
-                ? whenClauses[0].Result
-                : caseExpression.Update(operand, whenClauses, elseResult);
+        return caseExpression.Update(operand, whenClauses, elseResult);
     }
 
     /// <summary>
@@ -1327,6 +1335,28 @@ public class SqlNullabilityProcessor
         nullable = leftNullable || rightNullable;
         var result = sqlBinaryExpression.Update(left, right);
 
+        if (nullable && !optimize && result.OperatorType
+            is ExpressionType.GreaterThan
+            or ExpressionType.GreaterThanOrEqual
+            or ExpressionType.LessThan
+            or ExpressionType.LessThanOrEqual)
+        {
+            // https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/nullable-value-types#lifted-operators
+            // For the comparison operators <, >, <=, and >=, if one or both
+            // operands are null, the result is false; otherwise, the contained
+            // values of operands are compared.
+
+            // if either operand is NULL, the SQL comparison would return NULL;
+            // to match the C# semantics, replace expr with
+            // CASE WHEN expr THEN TRUE ELSE FALSE
+
+            nullable = false;
+            return _sqlExpressionFactory.Case(
+                [new(result, _sqlExpressionFactory.Constant(true, result.TypeMapping))],
+                _sqlExpressionFactory.Constant(false, result.TypeMapping)
+            );
+        }
+
         return result is SqlBinaryExpression sqlBinaryResult
             && sqlBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse
                 ? SimplifyLogicalSqlBinaryExpression(sqlBinaryResult)
@@ -1400,18 +1430,26 @@ public class SqlNullabilityProcessor
             return sqlFunctionExpression.Update(sqlFunctionExpression.Instance, coalesceArguments);
         }
 
-        var instance = Visit(sqlFunctionExpression.Instance, out _);
-        nullable = sqlFunctionExpression.IsNullable;
+        var useNullabilityPropagation = sqlFunctionExpression is { InstancePropagatesNullability: true };
+
+        var instance = Visit(sqlFunctionExpression.Instance, out var nullableInstance);
+        var hasNullableArgument = nullableInstance && sqlFunctionExpression is { InstancePropagatesNullability: true };
 
         if (sqlFunctionExpression.IsNiladic)
         {
-            return sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
+            sqlFunctionExpression = sqlFunctionExpression.Update(instance, sqlFunctionExpression.Arguments);
         }
-
-        var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
-        for (var i = 0; i < arguments.Length; i++)
+        else
         {
-            arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out _);
+            var arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out var nullableArgument);
+                useNullabilityPropagation |= sqlFunctionExpression.ArgumentsPropagateNullability[i];
+                hasNullableArgument |= nullableArgument && sqlFunctionExpression.ArgumentsPropagateNullability[i];
+            }
+
+            sqlFunctionExpression = sqlFunctionExpression.Update(instance, arguments);
         }
 
         if (sqlFunctionExpression.IsBuiltIn
@@ -1420,12 +1458,15 @@ public class SqlNullabilityProcessor
             nullable = false;
 
             return _sqlExpressionFactory.Coalesce(
-                sqlFunctionExpression.Update(instance, arguments),
+                sqlFunctionExpression,
                 _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
                 sqlFunctionExpression.TypeMapping);
         }
 
-        return sqlFunctionExpression.Update(instance, arguments);
+        // if some of the {Instance,Arguments}PropagateNullability are true, use
+        // the computed nullability information; otherwise rely only on IsNullable
+        nullable = sqlFunctionExpression.IsNullable && (!useNullabilityPropagation || hasNullableArgument);
+        return sqlFunctionExpression;
     }
 
     /// <summary>
@@ -1991,7 +2032,30 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-                break;
+            break;
+
+            case CaseExpression caseExpression:
+            {
+                if (caseExpression.Type == typeof(bool)
+                    && caseExpression.ElseResult is SqlConstantExpression elseResult
+                    && caseExpression.WhenClauses.All(clause => clause.Result is SqlConstantExpression)
+                )
+                {
+                    var clauses = caseExpression.WhenClauses
+                        .Select(clause => new CaseWhenClause(
+                            clause.Test,
+                            _sqlExpressionFactory.Constant(!(bool)(clause.Result as SqlConstantExpression)!.Value!, clause.Result.TypeMapping))
+                        )
+                        .ToList();
+                    var newElseResult = _sqlExpressionFactory.Constant(!(bool)elseResult.Value!, elseResult.TypeMapping);
+
+                    return caseExpression.Operand is null
+                        ? _sqlExpressionFactory.Case(clauses, newElseResult)
+                        : _sqlExpressionFactory.Case(caseExpression.Operand, clauses, newElseResult);
+                }
+            }
+
+            break;
         }
 
         return sqlUnaryExpression;
@@ -2328,7 +2392,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
