@@ -72,6 +72,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             m => m.Name == nameof(Enumerable.LastOrDefault)
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
+    private static readonly MethodInfo PatIndexMethodInfo
+        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.PatIndex),
+            [typeof(DbFunctions), typeof(string), typeof(string)])!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -285,6 +290,20 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 nullable: true,
                 argumentsPropagateNullability: new[] { true, true, true },
                 method.ReturnType);
+        }
+
+        if (PatIndexMethodInfo.Equals(method))
+        {
+            var pattern = arguments[1];
+            var expression = arguments[2];
+
+            return _sqlExpressionFactory.Function(
+                "PATINDEX",
+                new[] { pattern, expression },
+                nullable: true,
+                argumentsPropagateNullability: new[] { true, true },
+                method.ReturnType
+            );
         }
 
         return null;
