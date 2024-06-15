@@ -1,9 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// ReSharper disable once CheckNamespace
+
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
+namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class IdValueGenerator : ValueGenerator
+public class CosmosModelRuntimeInitializer : ModelRuntimeInitializer
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,8 +21,13 @@ public class IdValueGenerator : ValueGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool GeneratesTemporaryValues
-        => false;
+    public CosmosModelRuntimeInitializer(
+        ModelRuntimeInitializerDependencies dependencies,
+        CosmosModelRuntimeInitializerDependencies cosmosDependencies)
+        : base(dependencies)
+    {
+        CosmosDependencies = cosmosDependencies;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,8 +35,7 @@ public class IdValueGenerator : ValueGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool GeneratesStableValues
-        => true;
+    protected virtual CosmosModelRuntimeInitializerDependencies CosmosDependencies { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,6 +43,13 @@ public class IdValueGenerator : ValueGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override object NextValue(EntityEntry entry)
-        => entry.Metadata.GetJsonIdDefinition()!.GenerateIdString(entry);
+    protected override void InitializeModel(IModel model, bool designTime, bool prevalidation)
+    {
+        base.InitializeModel(model, designTime, prevalidation);
+
+        if (prevalidation || !designTime)
+        {
+            model.SetRuntimeAnnotation(CosmosAnnotationNames.ModelDependencies, CosmosDependencies);
+        }
+    }
 }

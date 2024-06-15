@@ -4,8 +4,8 @@
 #nullable disable
 
 using System.Collections;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -95,30 +95,37 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
         private bool TryGetResourceId(out string resourceId)
         {
-            var idProperty = _readItemInfo.EntityType.GetProperties()
-                .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+            var entityType = _readItemInfo.EntityType;
+            var jsonIdDefinition = entityType.GetJsonIdDefinition();
+            Check.DebugAssert(jsonIdDefinition != null,
+                "Should not be using this enumerable if not using ReadItem, which needs an id definition.");
 
-            if (TryGetParameterValue(idProperty, out var value))
+            var values = new List<object>(jsonIdDefinition.Properties.Count);
+            foreach (var property in jsonIdDefinition.Properties)
             {
-                resourceId = GetString(idProperty, value);
-
-                if (string.IsNullOrEmpty(resourceId))
+                if (!TryGetParameterValue(property, out var value))
                 {
-                    throw new InvalidOperationException(CosmosStrings.InvalidResourceId);
+                    var discriminatorProperty = entityType.FindDiscriminatorProperty();
+                    if (discriminatorProperty == property)
+                    {
+                        value = entityType.GetDiscriminatorValue();
+                    }
+                    else
+                    {
+                        Check.DebugFail("Parameters should cover all properties or we should not be using ReadItem.");
+                    }
                 }
 
-                return true;
+                values.Add(value);
             }
 
-            if (TryGenerateIdFromKeys(idProperty, out var generatedValue))
+            resourceId = jsonIdDefinition.GenerateIdString(values);
+            if (string.IsNullOrEmpty(resourceId))
             {
-                resourceId = GetString(idProperty, generatedValue);
-
-                return true;
+                throw new InvalidOperationException(CosmosStrings.InvalidResourceId);
             }
 
-            resourceId = null;
-            return false;
+            return true;
         }
 
         private bool TryGetParameterValue(IProperty property, out object value)
@@ -128,47 +135,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 && _cosmosQueryContext.ParameterValues.TryGetValue(parameterName, out value);
         }
 
-        private static string GetString(IProperty property, object value)
-        {
-            var converter = property.GetTypeMapping().Converter;
-
-            return converter is null
-                ? (string)value
-                : (string)converter.ConvertToProvider(value);
-        }
-
-        private bool TryGenerateIdFromKeys(IProperty idProperty, out object value)
-        {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            // The idea here is that if a `IdValueGeneratorFactory` has been configured to generate an `id` value from the
-            // values of other properties, then we need an entity instance to use with the value generator.
-            var entityInstance = _readItemInfo.EntityType.GetOrCreateEmptyMaterializer(_cosmosQueryContext.EntityMaterializerSource)
-                (new MaterializationContext(ValueBuffer.Empty, _cosmosQueryContext.Context));
-
-            var internalEntityEntry = new InternalEntityEntry(
-                _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemInfo.EntityType, entityInstance);
-
-            foreach (var keyProperty in _readItemInfo.EntityType.FindPrimaryKey().Properties)
-            {
-                var property = _readItemInfo.EntityType.FindProperty(keyProperty.Name);
-
-                if (TryGetParameterValue(property, out var parameterValue))
-                {
-                    internalEntityEntry[property] = parameterValue;
-                }
-            }
-
-            internalEntityEntry.SetEntityState(EntityState.Added);
-            value = internalEntityEntry[idProperty];
-            internalEntityEntry.SetEntityState(EntityState.Detached);
-
-            return value != null;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-        }
         private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
-            private readonly ReadItemInfo _readItemInfo;
             private readonly string _cosmosContainer;
             private readonly Func<CosmosQueryContext, JObject, T> _shaper;
             private readonly Type _contextType;
@@ -185,7 +154,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             public Enumerator(ReadItemQueryingEnumerable<T> readItemEnumerable, CancellationToken cancellationToken = default)
             {
                 _cosmosQueryContext = readItemEnumerable._cosmosQueryContext;
-                _readItemInfo = readItemEnumerable._readItemInfo;
                 _cosmosContainer = readItemEnumerable._cosmosContainer;
                 _shaper = readItemEnumerable._shaper;
                 _contextType = readItemEnumerable._contextType;
