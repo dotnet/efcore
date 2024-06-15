@@ -46,6 +46,10 @@ public class CosmosModelRuntimeInitializer : ModelRuntimeInitializer
     protected override void InitializeModel(IModel model, bool designTime, bool prevalidation)
     {
         base.InitializeModel(model, designTime, prevalidation);
-        model.SetRuntimeAnnotation(CosmosAnnotationNames.ModelDependencies, CosmosDependencies);
+
+        if (prevalidation || !designTime)
+        {
+            model.SetRuntimeAnnotation(CosmosAnnotationNames.ModelDependencies, CosmosDependencies);
+        }
     }
 }

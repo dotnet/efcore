@@ -31,7 +31,6 @@ public static class CosmosEntityTypeExtensions
     public static IJsonIdDefinition? GetJsonIdDefinition(this IEntityType entityType)
         => entityType.GetOrAddRuntimeAnnotationValue(CosmosAnnotationNames.JsonIdDefinition,
             static e =>
-                // new JsonIdDefinitionFactory().Create(e!),
                 ((CosmosModelRuntimeInitializerDependencies)e!.Model.FindRuntimeAnnotationValue(
                     CosmosAnnotationNames.ModelDependencies)!).JsonIdDefinitionFactory.Create(e),
             entityType);
