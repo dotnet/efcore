@@ -191,7 +191,7 @@ public static class CosmosQueryUtils
                     {
                         WithIn: true,
                         Alias: var sourceAlias,
-                        ContainerExpression: SelectExpression
+                        Expression: SelectExpression
                         {
                             Sources: [],
                             Predicate: null,
@@ -212,7 +212,7 @@ public static class CosmosQueryUtils
 
             // For properties: SELECT i FROM i IN c.SomeArray
             // So just match any SelectExpression with IN.
-            case { Sources: [{ WithIn: true, ContainerExpression: var a, Alias: var sourceAlias }] }
+            case { Sources: [{ WithIn: true, Expression: var a, Alias: var sourceAlias }] }
                 when projectedReferenceName == sourceAlias:
             {
                 array = a;

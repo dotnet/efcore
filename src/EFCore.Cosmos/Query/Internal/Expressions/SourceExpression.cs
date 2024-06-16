@@ -12,9 +12,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 /// <seealso href="https://learn.microsoft.com/azure/cosmos-db/nosql/query/from">FROM clause (NoSQL query)</seealso>
 [DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
-public class SourceExpression(Expression containerExpression, string alias, bool withIn = false)
-    : Expression, IAccessExpression, IPrintableExpression
+public class SourceExpression : Expression, IAccessExpression, IPrintableExpression
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public SourceExpression(Expression expression, string alias, bool withIn = false)
+    {
+        if (!IsCompatible(expression))
+        {
+            throw new ArgumentException($"Expression type '{expression.GetType().Name}' cannot appear directly in a source expression");
+        }
+
+        Expression = expression;
+        Alias = alias;
+        WithIn = withIn;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -31,7 +48,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Type Type
-        => ContainerExpression.Type;
+        => Expression.Type;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +56,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression ContainerExpression { get; } = containerExpression;
+    public virtual Expression Expression { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +64,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Alias { get; } = alias;
+    public virtual string Alias { get; }
 
     /// <summary>
     ///     Specifies that the source uses IN, and will be generated as <c>FROM x IN c.Tags</c>
@@ -58,7 +75,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public virtual bool WithIn { get; } = withIn;
+    public virtual bool WithIn { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,7 +93,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => Update(visitor.Visit(ContainerExpression));
+        => Update(visitor.Visit(Expression));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,9 +102,32 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SourceExpression Update(Expression containerExpression)
-        => ReferenceEquals(containerExpression, ContainerExpression)
+        => ReferenceEquals(containerExpression, Expression)
             ? this
             : new SourceExpression(containerExpression, Alias);
+
+    /// <summary>
+    ///     Returns whether the given expression type can appear directly within a source expression.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public static bool IsCompatible(Expression expression)
+        => expression switch
+        {
+            ObjectReferenceExpression => true,
+            ScalarReferenceExpression => true,
+            ObjectArrayAccessExpression => true,
+            ScalarAccessExpression => true,
+
+            SelectExpression => true,
+            FromSqlExpression => true,
+
+            _ => false
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,11 +149,11 @@ public class SourceExpression(Expression containerExpression, string alias, bool
             expressionPrinter
                 .Append(Alias)
                 .Append(" IN ");
-            expressionPrinter.Visit(ContainerExpression);
+            expressionPrinter.Visit(Expression);
         }
         else
         {
-            expressionPrinter.Visit(ContainerExpression);
+            expressionPrinter.Visit(Expression);
             expressionPrinter
                 .Append(" AS ")
                 .Append(Alias);
@@ -134,7 +174,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
             || (other is not null
                 && Alias == other.Alias
                 && WithIn == other.WithIn
-                && ContainerExpression.Equals(other.ContainerExpression));
+                && Expression.Equals(other.Expression));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,7 +185,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     public override int GetHashCode()
     {
         var hashCode = new HashCode();
-        hashCode.Add(ContainerExpression);
+        hashCode.Add(Expression);
         hashCode.Add(Alias);
         hashCode.Add(WithIn);
         return hashCode.ToHashCode();

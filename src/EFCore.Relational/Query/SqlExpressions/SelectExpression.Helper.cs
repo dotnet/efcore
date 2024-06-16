@@ -55,35 +55,26 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class ProjectionMemberRemappingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionMemberRemappingExpressionVisitor(
+        SelectExpression queryExpression,
+        Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
+        : ExpressionVisitor
     {
-        private readonly SelectExpression _queryExpression;
-        private readonly Dictionary<ProjectionMember, ProjectionMember> _projectionMemberMappings;
-
-        public ProjectionMemberRemappingExpressionVisitor(
-            SelectExpression queryExpression,
-            Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
-        {
-            _queryExpression = queryExpression;
-            _projectionMemberMappings = projectionMemberMappings;
-        }
-
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        protected override Expression VisitExtension(Expression expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression)
             {
                 Check.DebugAssert(
-                    projectionBindingExpression.ProjectionMember != null,
+                    projectionBindingExpression.ProjectionMember is not null,
                     "ProjectionBindingExpression must have projection member.");
 
                 return new ProjectionBindingExpression(
-                    _queryExpression,
-                    _projectionMemberMappings[projectionBindingExpression.ProjectionMember],
+                    queryExpression,
+                    projectionMemberMappings[projectionBindingExpression.ProjectionMember],
                     projectionBindingExpression.Type);
             }
 
-            return base.Visit(expression);
+            return base.VisitExtension(expression);
         }
     }
 
