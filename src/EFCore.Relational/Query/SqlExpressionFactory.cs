@@ -488,19 +488,25 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ?? ExpressionExtensions.InferTypeMapping(left, right)
             ?? _typeMappingSource.FindMapping(resultType, Dependencies.Model);
 
-        var typeMappedArguments = new List<SqlExpression>
-        {
-            ApplyTypeMapping(left, inferredTypeMapping), ApplyTypeMapping(right, inferredTypeMapping)
-        };
+        left = ApplyTypeMapping(left, inferredTypeMapping);
+        right = ApplyTypeMapping(right, inferredTypeMapping);
 
-        return new SqlFunctionExpression(
-            "COALESCE",
-            typeMappedArguments,
-            nullable: true,
-            // COALESCE is handled separately since it's only nullable if *all* arguments are null
-            argumentsPropagateNullability: [false, false],
-            resultType,
-            inferredTypeMapping);
+        return left switch
+        {
+            SqlConstantExpression { Value: null } => right,
+
+            SqlConstantExpression { Value: not null } or
+            ColumnExpression { IsNullable: false } => left,
+
+            _ => new SqlFunctionExpression(
+                "COALESCE",
+                [left, right],
+                nullable: true,
+                // COALESCE is handled separately since it's only nullable if *all* arguments are null
+                argumentsPropagateNullability: [false, false],
+                resultType,
+                inferredTypeMapping)
+        };
     }
 
     /// <inheritdoc />
