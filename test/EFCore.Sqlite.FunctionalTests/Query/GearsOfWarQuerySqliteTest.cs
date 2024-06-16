@@ -3312,7 +3312,7 @@ WHERE instr("s"."Banner", char("l"."ThreatLevelByte")) > 0
         AssertSql(
             """
 SELECT CASE
-    WHEN "g"."LeaderNickname" IS NOT NULL THEN COALESCE(length("g"."Nickname") = 5, 0)
+    WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."Nickname") = 5
     ELSE NULL
 END
 FROM "Gears" AS "g"
@@ -3440,7 +3440,7 @@ ORDER BY "s"."Id", "g"."Nickname"
         await base.ToString_enum_property_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE "g"."Rank"
     WHEN 0 THEN 'None'
     WHEN 1 THEN 'Private'
@@ -3451,7 +3451,7 @@ SELECT CASE "g"."Rank"
     WHEN 32 THEN 'Major'
     WHEN 64 THEN 'Colonel'
     WHEN 128 THEN 'General'
-    ELSE COALESCE(CAST("g"."Rank" AS TEXT), '')
+    ELSE CAST("g"."Rank" AS TEXT)
 END
 FROM "Gears" AS "g"
 """);
@@ -5629,7 +5629,7 @@ SELECT COALESCE((
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName"
     ORDER BY "w"."Id"
-    LIMIT 1), 0, 42)
+    LIMIT 1), 0)
 FROM "Gears" AS "g"
 """);
     }

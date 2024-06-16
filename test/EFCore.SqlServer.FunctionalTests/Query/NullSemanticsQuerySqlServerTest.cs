@@ -2202,10 +2202,7 @@ WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE(CASE
-    WHEN [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END, [e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)
+WHERE [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit)
 """);
     }
 
@@ -2220,7 +2217,7 @@ FROM [Entities1] AS [e]
 WHERE COALESCE([e].[NullableBoolA], CASE
     WHEN [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END, [e].[NullableBoolB], [e].[BoolB]) = CAST(1 AS bit)
+END) = CAST(1 AS bit)
 """);
     }
 
