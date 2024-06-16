@@ -565,7 +565,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
     public virtual Task Where_equal_with_coalesce_both_sides(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.NullableStringA ?? e.NullableStringB) == (e.StringA ?? e.StringB))
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => (e.NullableStringA ?? e.NullableStringB) == (e.NullableStringC ?? e.StringA))
                 .Select(e => e.Id));
 
     [ConditionalTheory]
