@@ -35,7 +35,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlFunctionExpression Strftime(
+    public virtual SqlExpression Strftime(
         Type returnType,
         string format,
         SqlExpression timestring,
@@ -82,7 +82,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlFunctionExpression Date(
+    public virtual SqlExpression Date(
         Type returnType,
         SqlExpression timestring,
         IEnumerable<SqlExpression>? modifiers = null,

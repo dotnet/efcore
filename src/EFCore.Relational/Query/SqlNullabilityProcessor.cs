@@ -801,7 +801,7 @@ public class SqlNullabilityProcessor
                         subquery.Offset,
                         subquery.Limit);
 
-                    var predicate = VisitSqlBinary(
+                    var predicate = Visit(
                         _sqlExpressionFactory.Equal(subqueryProjection, item), allowOptimizedExpansion: true, out _);
                     subquery.ApplyPredicate(predicate);
                     subquery.ClearOrdering();
@@ -908,7 +908,7 @@ public class SqlNullabilityProcessor
             result,
             (expr, nullableValue) => _sqlExpressionFactory.OrElse(
                 expr,
-                VisitSqlBinary(_sqlExpressionFactory.Equal(item, nullableValue), allowOptimizedExpansion, out _)));
+                Visit(_sqlExpressionFactory.Equal(item, nullableValue), allowOptimizedExpansion, out _)));
 
         InExpression ProcessInExpressionValues(
             InExpression inExpression,
@@ -1873,8 +1873,13 @@ public class SqlNullabilityProcessor
         return sqlBinaryExpression.Update(left, right);
     }
 
-    private SqlExpression SimplifyLogicalSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
+    private SqlExpression SimplifyLogicalSqlBinaryExpression(SqlExpression expression)
     {
+        if (expression is not SqlBinaryExpression sqlBinaryExpression)
+        {
+            return expression;
+        }
+
         if (sqlBinaryExpression is
             {
                 Left: SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary,
@@ -1930,13 +1935,14 @@ public class SqlNullabilityProcessor
     /// <summary>
     ///     Attempts to simplify a unary not operation on a non-nullable operand.
     /// </summary>
-    /// <param name="sqlUnaryExpression">The expression to simplify.</param>
+    /// <param name="expression">The expression to simplify.</param>
     /// <returns>The simplified expression, or the original expression if it cannot be simplified.</returns>
-    protected virtual SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
+    protected virtual SqlExpression OptimizeNonNullableNotExpression(SqlExpression expression)
     {
-        if (sqlUnaryExpression.OperatorType != ExpressionType.Not)
+        if (expression is not SqlUnaryExpression sqlUnaryExpression
+            || sqlUnaryExpression.OperatorType != ExpressionType.Not)
         {
-            return sqlUnaryExpression;
+            return expression;
         }
 
         switch (sqlUnaryExpression.Operand)
@@ -2207,8 +2213,13 @@ public class SqlNullabilityProcessor
         SqlParameterExpression newCollectionParameter)
         => throw new InvalidOperationException();
 
-    private SqlExpression ProcessNullNotNull(SqlUnaryExpression sqlUnaryExpression, bool operandNullable)
+    private SqlExpression ProcessNullNotNull(SqlExpression sqlExpression, bool operandNullable)
     {
+        if (sqlExpression is not SqlUnaryExpression sqlUnaryExpression)
+        {
+            return sqlExpression;
+        }
+
         if (!operandNullable)
         {
             // when we know that operand is non-nullable:
