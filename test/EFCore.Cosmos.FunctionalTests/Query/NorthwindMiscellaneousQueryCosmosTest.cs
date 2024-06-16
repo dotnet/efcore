@@ -1937,7 +1937,7 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CompanyName"] != null) ? c["CompanyName"] : c["ContactName"]) = "The Big Cheese"))
+WHERE ((c["Discriminator"] = "Customer") AND (((c["ContactName"] != null) ? c["ContactName"] : c["CompanyName"]) = "Liz Nixon"))
 """);
             });
 

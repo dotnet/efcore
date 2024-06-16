@@ -3819,8 +3819,9 @@ WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (
 
         AssertSql(
             """
-SELECT "w"."AmmunitionType" = 1 AND "w"."AmmunitionType" IS NOT NULL AND COALESCE("w"."IsAutomatic", 0)
-FROM "Weapons" AS "w"
+SELECT ("t"."Note" <> 'K.I.A.' OR "t"."Note" IS NULL) AND COALESCE("g"."HasSoulPatch", 0)
+FROM "Tags" AS "t"
+LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 """);
     }
 
@@ -4682,9 +4683,10 @@ ORDER BY "g"."Nickname", "g"."SquadId", "g0"."Nickname", "g0"."SquadId", "w"."Id
 
         AssertSql(
             """
-SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-FROM "Weapons" AS "w"
-WHERE "w"."AmmunitionType" = 1 AND COALESCE("w"."IsAutomatic", 0)
+SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
+FROM "Tags" AS "t"
+LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
+WHERE ("t"."Note" <> 'K.I.A.' OR "t"."Note" IS NULL) AND COALESCE("g"."HasSoulPatch", 0)
 """);
     }
 
@@ -6194,9 +6196,10 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
-FROM "Weapons" AS "w"
-WHERE COALESCE("w"."IsAutomatic", 0)
+SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
+FROM "Tags" AS "t"
+LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
+WHERE COALESCE("g"."HasSoulPatch", 0)
 """);
     }
 
