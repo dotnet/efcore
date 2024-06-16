@@ -25,7 +25,7 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE COALESCE("e"."BoolA" OR "e"."BoolB", "e"."NullableBoolA", 1)
+WHERE "e"."BoolA" OR "e"."BoolB"
 """);
     }
 
@@ -37,7 +37,7 @@ WHERE COALESCE("e"."BoolA" OR "e"."BoolB", "e"."NullableBoolA", 1)
             """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
-WHERE COALESCE("e"."NullableBoolA", "e"."BoolA" OR "e"."BoolB", "e"."NullableBoolB", "e"."BoolB")
+WHERE COALESCE("e"."NullableBoolA", "e"."BoolA" OR "e"."BoolB")
 """);
     }
 
