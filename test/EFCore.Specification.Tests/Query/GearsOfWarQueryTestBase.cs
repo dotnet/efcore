@@ -2704,7 +2704,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                   where f is LocustHorde
                   let horde = (LocustHorde)f
                   orderby f.Name
-                  select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated") },
+                  select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool?>((LocustHorde)f, "Eradicated") },
             assertOrder: true);
 
     [ConditionalTheory]
