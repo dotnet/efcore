@@ -241,14 +241,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
                 // CONCAT_WS filters out nulls, but string.Join treats them as empty strings; so coalesce (which is a no-op for non-nullable
                 // arguments).
-                arguments[i + 1] = sqlArgument switch
-                {
-                    ColumnExpression { IsNullable: false } => sqlArgument,
-                    SqlConstantExpression constantExpression => constantExpression.Value is null
-                        ? _sqlExpressionFactory.Constant(string.Empty)
-                        : constantExpression,
-                    _ => Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty))
-                };
+                arguments[i + 1] = Dependencies.SqlExpressionFactory.Coalesce(sqlArgument, _sqlExpressionFactory.Constant(string.Empty));
             }
 
             // CONCAT_WS never returns null; a null delimiter is interpreted as an empty string, and null arguments are skipped

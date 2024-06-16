@@ -60,12 +60,9 @@ public class SqliteStringAggregateMethodTranslator : IAggregateMethodCallTransla
             return null;
         }
 
-        if (sqlExpression is not ColumnExpression { IsNullable: false })
-        {
-            sqlExpression = _sqlExpressionFactory.Coalesce(
-                sqlExpression,
-                _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
-        }
+        sqlExpression = _sqlExpressionFactory.Coalesce(
+            sqlExpression,
+            _sqlExpressionFactory.Constant(string.Empty, typeof(string)));
 
         if (source.Predicate != null)
         {
