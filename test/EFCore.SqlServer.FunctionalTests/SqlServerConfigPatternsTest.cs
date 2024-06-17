@@ -446,7 +446,9 @@ public class SqlServerConfigPatternsTest
                         {
                             if (_azureConfigured)
                             {
+#pragma warning disable CS0618 // Type or member is obsolete
                                 a.UseAzureSqlDefaults(false);
+#pragma warning restore CS0618 // Type or member is obsolete
                             }
                         });
 
@@ -480,17 +482,20 @@ public class SqlServerConfigPatternsTest
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .EnableServiceProviderCaching(false)
-                    .UseSqlServer(
-                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
-                        a =>
-                        {
-                            if (_isAzure)
-                            {
-                                a.UseAzureSqlDefaults();
-                            }
-                        });
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false);
+                if (_isAzure)
+                {
+                    optionsBuilder
+                        .UseAzureSql(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+                }
+                else
+                {
+                    optionsBuilder
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+                }
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerOptionsExtensionTest
+public class AzureSqlOptionsExtensionTest
 {
     [ConditionalFact]
     public void Compiled_model_is_thread_safe()
@@ -31,7 +31,7 @@ public class SqlServerOptionsExtensionTest
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer().UseModel(EmptyContextModel.Instance);
+                optionsBuilder.UseAzureSql().UseModel(EmptyContextModel.Instance);
             }
         }
     }
@@ -56,17 +56,17 @@ public class SqlServerOptionsExtensionTest
     {
         var services = new ServiceCollection();
 
-        new SqlServerOptionsExtension().ApplyServices(services);
+        new AzureSqlOptionsExtension().ApplyServices(services);
 
         Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
-        Assert.Contains(services, sd => sd.ImplementationType?.IsAssignableTo(typeof(ISqlServerSingletonOptions)) ?? false);
+        Assert.Contains(services, sd => sd.ImplementationType?.IsAssignableTo(typeof(IAzureSqlSingletonOptions)) ?? false);
     }
 
     private class ChangedRowNumberContext(bool setInternalServiceProvider) : DbContext
     {
         private static readonly IServiceProvider _serviceProvider
             = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
+                .AddEntityFrameworkAzureSql()
                 .BuildServiceProvider(validateScopes: true);
 
         private readonly bool _setInternalServiceProvider = setInternalServiceProvider;
@@ -78,7 +78,7 @@ public class SqlServerOptionsExtensionTest
                 optionsBuilder.UseInternalServiceProvider(_serviceProvider);
             }
 
-            optionsBuilder.UseSqlServer("Database=Maltesers");
+            optionsBuilder.UseAzureSql("Database=Maltesers");
         }
     }
 }

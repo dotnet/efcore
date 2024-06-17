@@ -15,17 +15,17 @@ using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-///     SQL Server specific extension methods for <see cref="IServiceCollection" />.
+///     Azure Synapse specific extension methods for <see cref="IServiceCollection" />.
 /// </summary>
-public static class SqlServerServiceCollectionExtensions
+public static class AzureSynapseServiceCollectionExtensions
 {
     /// <summary>
     ///     Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
-    ///     and configures it to connect to a SQL Server database.
+    ///     and configures it to connect to a Azure Synapse database.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This method is a shortcut for configuring a <see cref="DbContext" /> to use SQL Server. It does not support all options.
+    ///         This method is a shortcut for configuring a <see cref="DbContext" /> to use Azure Synapse. It does not support all options.
     ///         Use <see cref="O:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> and related methods for full control of
     ///         this process.
     ///     </para>
@@ -33,7 +33,7 @@ public static class SqlServerServiceCollectionExtensions
     ///         Use this method when using dependency injection in your application, such as with ASP.NET Core.
     ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
     ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
-    ///         overridden to configure the SQL Server provider and connection string.
+    ///         overridden to configure the Azure Synapse provider and connection string.
     ///     </para>
     ///     <para>
     ///         To configure the <see cref="DbContextOptions{TContext}" /> for the context, either override the
@@ -45,37 +45,37 @@ public static class SqlServerServiceCollectionExtensions
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
+    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing Azure Synapse databases with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TContext">The type of context to be registered.</typeparam>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddSqlServer<TContext>(
+    public static IServiceCollection AddAzureSynapse<TContext>(
         this IServiceCollection serviceCollection,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null,
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
         => serviceCollection.AddDbContext<TContext>(
             (_, options) =>
             {
                 optionsAction?.Invoke(options);
-                options.UseSqlServer(connectionString, sqlServerOptionsAction);
+                options.UseAzureSynapse(connectionString, azureSynapseOptionsAction);
             });
 
     /// <summary>
     ///     <para>
-    ///         Adds the services required by the Microsoft SQL Server database provider for Entity Framework
+    ///         Adds the services required by the Microsoft Azure Synapse database provider for Entity Framework
     ///         to an <see cref="IServiceCollection" />.
     ///     </para>
     ///     <para>
     ///         Warning: Do not call this method accidentally. It is much more likely you need
-    ///         to call <see cref="AddSqlServer{TContext}" />.
+    ///         to call <see cref="AddAzureSynapse{TContext}" />.
     ///     </para>
     /// </summary>
     /// <remarks>
@@ -90,11 +90,11 @@ public static class SqlServerServiceCollectionExtensions
     ///     The same service collection so that multiple calls can be chained.
     /// </returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IServiceCollection AddEntityFrameworkSqlServer(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddEntityFrameworkAzureSynapse(this IServiceCollection serviceCollection)
     {
         new EntityFrameworkRelationalServicesBuilder(serviceCollection)
             .TryAdd<LoggingDefinitions, SqlServerLoggingDefinitions>()
-            .TryAdd<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>()
+            .TryAdd<IDatabaseProvider, DatabaseProvider<AzureSynapseOptionsExtension>>()
             .TryAdd<IValueGeneratorCache>(p => p.GetRequiredService<ISqlServerValueGeneratorCache>())
             .TryAdd<IRelationalTypeMappingSource, SqlServerTypeMappingSource>()
             .TryAdd<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
@@ -130,7 +130,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<ISingletonOptions, ISqlEngineSingletonOptions>(p => p.GetRequiredService<ISqlEngineSingletonOptions>())
             .TryAddProviderSpecificServices(
                 b => b
-                    .TryAddSingleton<ISqlEngineSingletonOptions, SqlServerSingletonOptions>()
+                    .TryAddSingleton<ISqlEngineSingletonOptions, AzureSynapseSingletonOptions>()
                     .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .TryAddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                     .TryAddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()

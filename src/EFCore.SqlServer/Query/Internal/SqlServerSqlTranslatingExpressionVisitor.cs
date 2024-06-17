@@ -21,7 +21,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlEngineSingletonOptions _sqlEngineSingletonOptions;
 
     private static readonly HashSet<string> DateTimeDataTypes
         =
@@ -81,13 +81,13 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
         SqlServerQueryCompilationContext queryCompilationContext,
         QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        ISqlEngineSingletonOptions sqlEngineSingletonOptions)
         : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
     {
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _typeMappingSource = dependencies.TypeMappingSource;
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlEngineSingletonOptions = sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -211,7 +211,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
         if (method == StringJoinMethodInfo
             && methodCallExpression.Arguments[1] is NewArrayExpression newArrayExpression
-            && _sqlServerCompatibilityLevel >= 140)
+            && (_sqlEngineSingletonOptions is ISqlServerSingletonOptions { CompatibilityLevel: >= 140 }
+                || _sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: >= 140 }
+                || _sqlEngineSingletonOptions is IAzureSynapseSingletonOptions))
         {
             if (TranslationFailed(methodCallExpression.Arguments[0], Visit(methodCallExpression.Arguments[0]), out var delimiter))
             {

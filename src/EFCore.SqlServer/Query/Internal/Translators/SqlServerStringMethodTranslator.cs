@@ -87,7 +87,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly ISqlEngineSingletonOptions _sqlEngineSingletonOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,11 +95,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, ISqlServerSingletonOptions sqlServerSingletonOptions)
+    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, ISqlEngineSingletonOptions sqlEngineSingletonOptions)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
 
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
+        _sqlEngineSingletonOptions = sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -202,7 +202,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             // an overload that accepts the characters to trim.
             if (method == TrimStartMethodInfoWithoutArgs
                 || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                || ((_sqlEngineSingletonOptions is ISqlServerSingletonOptions { CompatibilityLevel: >= 160 }
+                        || _sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: >= 160 }
+                        || _sqlEngineSingletonOptions is IAzureSynapseSingletonOptions)
                     && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
             {
                 return ProcessTrimStartEnd(instance, arguments, "LTRIM");
@@ -210,7 +212,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
             if (method == TrimEndMethodInfoWithoutArgs
                 || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                || ((_sqlEngineSingletonOptions is ISqlServerSingletonOptions { CompatibilityLevel: >= 160 }
+                        || _sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: >= 160 }
+                        || _sqlEngineSingletonOptions is IAzureSynapseSingletonOptions)
                     && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
             {
                 return ProcessTrimStartEnd(instance, arguments, "RTRIM");

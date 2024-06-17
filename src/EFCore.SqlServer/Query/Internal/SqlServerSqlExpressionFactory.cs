@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerSqlExpressionFactory : SqlExpressionFactory
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlEngineSingletonOptions _sqlEngineSingletonOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,11 +26,11 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     /// </summary>
     public SqlServerSqlExpressionFactory(
         SqlExpressionFactoryDependencies dependencies,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        ISqlEngineSingletonOptions sqlEngineSingletonOptions)
         : base(dependencies)
     {
         _typeMappingSource = dependencies.TypeMappingSource;
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlEngineSingletonOptions = sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -74,7 +74,9 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
         Type resultType,
         [NotNullWhen(true)] out SqlExpression? leastExpression)
     {
-        if (_sqlServerCompatibilityLevel >= 160)
+        if (_sqlEngineSingletonOptions is ISqlServerSingletonOptions { CompatibilityLevel: >= 160 }
+            || _sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: >= 160 }
+            || _sqlEngineSingletonOptions is IAzureSynapseSingletonOptions)
         {
             return base.TryCreateLeast(expressions, resultType, out leastExpression);
         }
@@ -89,7 +91,9 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
         Type resultType,
         [NotNullWhen(true)] out SqlExpression? greatestExpression)
     {
-        if (_sqlServerCompatibilityLevel >= 160)
+        if (_sqlEngineSingletonOptions is ISqlServerSingletonOptions { CompatibilityLevel: >= 160 }
+            || _sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: >= 160 }
+            || _sqlEngineSingletonOptions is IAzureSynapseSingletonOptions)
         {
             return base.TryCreateGreatest(expressions, resultType, out greatestExpression);
         }

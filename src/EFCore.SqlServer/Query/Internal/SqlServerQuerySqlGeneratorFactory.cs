@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerQuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+    private readonly ISqlEngineSingletonOptions _sqlEngineSingletonOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,11 +25,11 @@ public class SqlServerQuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     public SqlServerQuerySqlGeneratorFactory(
         QuerySqlGeneratorDependencies dependencies,
         IRelationalTypeMappingSource typeMappingSource,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        ISqlEngineSingletonOptions sqlEngineSingletonOptions)
     {
         Dependencies = dependencies;
         _typeMappingSource = typeMappingSource;
-        _sqlServerSingletonOptions = sqlServerSingletonOptions;
+        _sqlEngineSingletonOptions = sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -44,5 +44,5 @@ public class SqlServerQuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual QuerySqlGenerator Create()
-        => new SqlServerQuerySqlGenerator(Dependencies, _typeMappingSource, _sqlServerSingletonOptions);
+        => new SqlServerQuerySqlGenerator(Dependencies, _typeMappingSource, _sqlEngineSingletonOptions);
 }
