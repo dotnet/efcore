@@ -33,6 +33,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             ScalarSubqueryExpression scalarSubqueryExpression => VisitScalarSubquery(scalarSubqueryExpression),
             SqlBinaryExpression sqlBinaryExpression => VisitSqlBinary(sqlBinaryExpression),
             SqlConstantExpression sqlConstantExpression => VisitSqlConstant(sqlConstantExpression),
+            FragmentExpression jsonFragmentExpression => VisitFragment(jsonFragmentExpression),
             SqlUnaryExpression sqlUnaryExpression => VisitSqlUnary(sqlUnaryExpression),
             SqlConditionalExpression sqlConditionalExpression => VisitSqlConditional(sqlConditionalExpression),
             SqlParameterExpression sqlParameterExpression => VisitSqlParameter(sqlParameterExpression),
@@ -143,6 +144,14 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected abstract Expression VisitFragment(FragmentExpression fragmentExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

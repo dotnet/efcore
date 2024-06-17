@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -411,6 +412,52 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .IsConcurrencyToken();
 
         VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", nameof(Customer), "int"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_multi_property_vector_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.HasIndex(e => new { e.Name, e.OtherName }).ForVectors(VectorIndexType.Flat);
+            });
+
+        VerifyError(CosmosStrings.CompositeVectorIndex(nameof(Customer), "Name,OtherName"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_vector_index_on_non_vector_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.HasIndex(e => new { e.Name }).ForVectors(VectorIndexType.Flat);
+            });
+
+        VerifyError(CosmosStrings.VectorIndexOnNonVector(nameof(Customer), "Name"), modelBuilder);
+    }
+
+
+    [ConditionalFact]
+    public virtual void Detects_vector_property_with_unknown_data_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<NonVector>(
+            b =>
+            {
+                b.Property(e => e.Vector).IsVector(DistanceFunction.Cosine, dimensions: 10);
+            });
+
+        VerifyError(CosmosStrings.BadVectorDataType("double[]"), modelBuilder);
+    }
+
+    private class NonVector
+    {
+        public Guid Id { get; set; }
+        public double[] Vector { get; set; }
     }
 
     protected override TestHelpers TestHelpers

@@ -1501,7 +1501,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         if (CosmosQueryUtils.TryConvertToArray(source1, _typeMappingSource, out var array1, out var projection1, ignoreOrderings)
             && CosmosQueryUtils.TryConvertToArray(source2, _typeMappingSource, out var array2, out var projection2, ignoreOrderings)
             && projection1.Type == projection2.Type
-            && (projection1.TypeMapping ?? projection2.TypeMapping) is CoreTypeMapping typeMapping)
+            && (projection1.TypeMapping ?? projection2.TypeMapping) is { } typeMapping)
         {
             var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], projection1.Type, typeMapping);
             var select = SelectExpression.CreateForPrimitiveCollection(

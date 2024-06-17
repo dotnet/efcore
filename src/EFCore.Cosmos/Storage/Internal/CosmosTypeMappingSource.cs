@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -35,6 +36,28 @@ public class CosmosTypeMappingSource : TypeMappingSource
             };
     }
 
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override CoreTypeMapping? FindMapping(IProperty property)
+    {
+        // A provider should typically not override this because using the property directly causes problems with Migrations where
+        // the property does not exist. However, since the Cosmos provider doesn't have Migrations, it should be okay to use the property
+        // directly.
+        var mapping = (CosmosTypeMapping?)base.FindMapping(property);
+        if (mapping is not null
+            && property.FindAnnotation(CosmosAnnotationNames.VectorType)?.Value is CosmosVectorType vectorType)
+        {
+            mapping = new CosmosVectorTypeMapping(mapping, vectorType);
+        }
+
+        return mapping;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -62,7 +85,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
             || clrType == typeof(string))
         {
             return new CosmosTypeMapping(
-                clrType, jsonValueReaderWriter: Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType));
+                clrType,
+                jsonValueReaderWriter: Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType));
         }
 
         return null;
@@ -81,12 +105,19 @@ public class CosmosTypeMappingSource : TypeMappingSource
 
         // First attempt to resolve this as a primitive collection (e.g. List<int>). This does not handle Dictionary.
         if (TryFindJsonCollectionMapping(
-                mappingInfo, clrType, providerClrType: null, ref elementMapping, out var elementComparer,
+                mappingInfo,
+                clrType,
+                providerClrType: null,
+                ref elementMapping,
+                out var elementComparer,
                 out var collectionReaderWriter)
             && elementMapping is not null)
         {
             return new CosmosTypeMapping(
-                clrType, elementComparer, elementMapping: elementMapping, jsonValueReaderWriter: collectionReaderWriter);
+                clrType,
+                elementComparer,
+                elementMapping: elementMapping,
+                jsonValueReaderWriter: collectionReaderWriter);
         }
 
         // Next, attempt to resolve this as a dictionary (e.g. Dictionary<string, int>).
@@ -123,7 +154,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 return elementMapping == null
                     ? null
                     : new CosmosTypeMapping(
-                        clrType, CreateStringDictionaryComparer(elementMapping, elementType, clrType),
+                        clrType,
+                        CreateStringDictionaryComparer(elementMapping, elementType, clrType),
                         jsonValueReaderWriter: jsonValueReaderWriter);
             }
         }

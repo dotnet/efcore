@@ -3,13 +3,13 @@
 
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.CosmosDB;
 using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -384,6 +384,8 @@ public class CosmosTestStore : TestStore
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
+            var indexes = new List<IIndex>();
+            var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -394,6 +396,15 @@ public class CosmosTestStore : TestStore
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
+                indexes.AddRange(entityType.GetIndexes());
+
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                    {
+                        vectors.Add((property, vectorTypeMapping.VectorType));
+                    }
+                }
             }
 
             yield return new(
@@ -401,7 +412,9 @@ public class CosmosTestStore : TestStore
                 partitionKeyStoreNames,
                 analyticalTtl,
                 defaultTtl,
-                throughput);
+                throughput,
+                indexes,
+                vectors);
         }
     }
 
