@@ -250,9 +250,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     {
                         Method: { Name: "Select", IsGenericMethod: true }
                     } innerMethodCall
+                    && method.GetGenericMethodDefinition() is var genericDefinition
+                    && (genericDefinition == QueryableMethods.ElementAt || genericDefinition == QueryableMethods.ElementAtOrDefault)
                     && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select:
                 {
-                    var returnDefault = method.Name.EndsWith("OrDefault", StringComparison.Ordinal);
+                    var returnDefault = method.Name == nameof(Queryable.ElementAtOrDefault);
                     if (Visit(innerMethodCall) is ShapedQueryExpression translatedSelect
                         && CosmosQueryUtils.TryExtractBareArray(translatedSelect, out _, out _, out _, out var boundMember)
                         && boundMember is IAccessExpression { PropertyName: string boundPropertyName }
@@ -277,6 +279,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                                 returnDefault ? ResultCardinality.SingleOrDefault : ResultCardinality.Single);
                         }
                     }
+
                     break;
                 }
             }
