@@ -1711,7 +1711,7 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
         {
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Project_multiple_collections(async));
 
-            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
