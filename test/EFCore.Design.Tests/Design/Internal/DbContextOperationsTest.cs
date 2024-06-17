@@ -270,7 +270,7 @@ public class DbContextOperationsTest
 
         Assert.Equal("Test", info.DatabaseName);
         Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
-        Assert.Equal("None", info.Options);
+        Assert.Equal("EngineType=SqlServer LegacyAzureSql=False", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 
@@ -291,7 +291,7 @@ public class DbContextOperationsTest
 
         Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DatabaseName);
         Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DataSource);
-        Assert.Equal("None", info.Options);
+        Assert.Equal("EngineType=SqlServer LegacyAzureSql=False", info.Options);
         Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
     }
 

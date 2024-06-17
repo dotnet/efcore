@@ -21,7 +21,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
     private static readonly HashSet<string> DateTimeDataTypes
         =
@@ -87,7 +87,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         _typeMappingSource = dependencies.TypeMappingSource;
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -211,7 +211,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
         if (method == StringJoinMethodInfo
             && methodCallExpression.Arguments[1] is NewArrayExpression newArrayExpression
-            && _sqlServerCompatibilityLevel >= 140)
+            && ((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140)
+                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140)
+                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse)))
         {
             if (TranslationFailed(methodCallExpression.Arguments[0], Visit(methodCallExpression.Arguments[0]), out var delimiter))
             {

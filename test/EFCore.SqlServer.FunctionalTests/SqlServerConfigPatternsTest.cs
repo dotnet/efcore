@@ -424,16 +424,16 @@ public class SqlServerConfigPatternsTest
         [InlineData(true)]
         [InlineData(false)]
         [ConditionalTheory]
-        public void Retry_on_failure_not_enabled_by_default_on_Azure_SQL(bool configured)
+        public void Retry_on_failure_not_enabled_by_default_on_Azure_SQL(bool useAzure)
         {
-            using var context = new NorthwindContext(configured);
+            using var context = new NorthwindContext(useAzure);
 
             Assert.IsType<SqlServerExecutionStrategy>(context.Database.CreateExecutionStrategy());
         }
 
-        private class NorthwindContext(bool configured) : DbContext
+        private class NorthwindContext(bool useAzure) : DbContext
         {
-            private readonly bool _azureConfigured = configured;
+            private readonly bool _useAzure = useAzure;
 
             public DbSet<Customer> Customers { get; set; }
 
@@ -444,9 +444,11 @@ public class SqlServerConfigPatternsTest
                         @"Server=test.database.windows.net:4040;Database=Test;ConnectRetryCount=0",
                         a =>
                         {
-                            if (_azureConfigured)
+                            if (_useAzure)
                             {
+#pragma warning disable CS0618 // Type or member is obsolete
                                 a.UseAzureSqlDefaults(false);
+#pragma warning restore CS0618 // Type or member is obsolete
                             }
                         });
 
@@ -460,10 +462,10 @@ public class SqlServerConfigPatternsTest
         [InlineData(true)]
         [InlineData(false)]
         [ConditionalTheory]
-        public void Retry_on_failure_enabled_if_Azure_SQL_configured(bool configured)
+        public void Retry_on_failure_enabled_if_Azure_SQL_configured(bool useAzure)
         {
-            using var context = new NorthwindContext(configured);
-            if (configured)
+            using var context = new NorthwindContext(useAzure);
+            if (useAzure)
             {
                 Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
             }
@@ -473,24 +475,302 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext(bool azure) : DbContext
+        private class NorthwindContext(bool useAzure) : DbContext
         {
-            private readonly bool _isAzure = azure;
+            private readonly bool _useAzure = useAzure;
 
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false);
+                if (_useAzure)
+                {
+                    optionsBuilder
+                        .UseAzureSql(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+                }
+                else
+                {
+                    optionsBuilder
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+                }
+            }
+        }
+    }
+
+    public class ExplicitExecutionStrategies_SqlServer
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
                     .EnableServiceProviderCaching(false)
-                    .UseSqlServer(
-                        SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
-                        a =>
+                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                        b =>
                         {
-                            if (_isAzure)
+                            if (before)
                             {
-                                a.UseAzureSqlDefaults();
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            b.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
                             }
                         });
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+    public class ExplicitExecutionStrategies_AzureSql
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseAzureSql(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                        b =>
+                        {
+                            if (before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            b.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                        });
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+    public class ExplicitExecutionStrategies_AzureSynapse
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseAzureSynapse(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                        b =>
+                        {
+                            if (before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            b.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                        });
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+    public class ExplicitExecutionStrategies_ConfigureSqlEngine_AzureSql
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .ConfigureSqlEngine(
+                        b =>
+                        {
+                            if (before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            b.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                b.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                        })
+                    .UseAzureSql();
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+
+    public class ConfigureTwoEngines
+    {
+        [Fact]
+        public void Throws_when_two_engines_used()
+        {
+            using var context = new NorthwindContext();
+            Assert.Throws<InvalidOperationException>(() => { _ = context.Model; });
+        }
+
+        private class NorthwindContext : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer()
+                    .UseAzureSql();
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+
+    public class NoEngineConfigured
+    {
+        [Fact]
+        public void Throws_when_no_engine_configured()
+        {
+            using var context = new NorthwindContext();
+            Assert.Throws<InvalidOperationException>(() => { _ = context.Model; });
+        }
+
+        private class NorthwindContext : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .ConfigureSqlEngine();
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+
+    public class AddConfigureDbContext
+    {
+        [Fact]
+        public void Does_not_throw_for_Add_Configure()
+        {
+            using var scope = new ServiceCollection()
+                .AddDbContext<NorthwindContext>(b => b.UseSqlServer())
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.EnableRetryOnFailure()))
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
+
+            var serviceProvider = scope.ServiceProvider;
+
+            var exception = Record.Exception(serviceProvider.GetRequiredService<NorthwindContext>);
+            Assert.Null(exception);
+        }
+
+        [Fact]
+        public void Proper_execution_strategy()
+        {
+            using var scope = new ServiceCollection()
+                .AddDbContext<NorthwindContext>(b => b.UseSqlServer())
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.EnableRetryOnFailure()))
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
+
+            var serviceProvider = scope.ServiceProvider;
+
+            var context = serviceProvider.GetRequiredService<NorthwindContext>();
+            Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+        }
+
+        private class NorthwindContext : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            public NorthwindContext(DbContextOptions options)
+                : base(options)
+            { }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -516,4 +796,12 @@ public class SqlServerConfigPatternsTest
                 b.HasKey(c => c.CustomerID);
                 b.ToTable("Customers");
             });
+
+    private class DummyExecutionStrategy : IExecutionStrategy
+    {
+        public bool RetriesOnFailure => true;
+
+        public TResult Execute<TState, TResult>(TState state, Func<DbContext, TState, TResult> operation, Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded) => throw new NotImplementedException();
+        public Task<TResult> ExecuteAsync<TState, TResult>(TState state, Func<DbContext, TState, CancellationToken, Task<TResult>> operation, Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    }
 }

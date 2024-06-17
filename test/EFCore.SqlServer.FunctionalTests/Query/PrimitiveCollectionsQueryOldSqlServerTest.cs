@@ -1059,6 +1059,6 @@ END IN (N'one', N'two', N'three')
 
         // Compatibility level 120 (SQL Server 2014) doesn't support OPENJSON
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(o => o.UseCompatibilityLevel(120));
+            => base.AddOptions(builder).UseSqlServer(o => o.UseSqlServerCompatibilityLevel(120));
     }
 }

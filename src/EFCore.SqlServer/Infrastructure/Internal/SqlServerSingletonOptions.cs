@@ -17,7 +17,7 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int CompatibilityLevel { get; private set; } = SqlServerOptionsExtension.DefaultCompatibilityLevel;
+    public virtual SqlServerEngineType EngineType { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +25,47 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int? CompatibilityLevelWithoutDefault { get; private set; }
+    public virtual int SqlServerCompatibilityLevel { get; private set; } = SqlServerOptionsExtension.SqlServerDefaultCompatibilityLevel;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? SqlServerCompatibilityLevelWithoutDefault { get; private set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int AzureSqlCompatibilityLevel { get; private set; } = SqlServerOptionsExtension.AzureSqlDefaultCompatibilityLevel;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? AzureSqlCompatibilityLevelWithoutDefault { get; private set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int AzureSynapseCompatibilityLevel { get; private set; } = SqlServerOptionsExtension.AzureSynapseDefaultCompatibilityLevel;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? AzureSynapseCompatibilityLevelWithoutDefault { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,8 +78,13 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
         var sqlServerOptions = options.FindExtension<SqlServerOptionsExtension>();
         if (sqlServerOptions != null)
         {
-            CompatibilityLevel = sqlServerOptions.CompatibilityLevel;
-            CompatibilityLevelWithoutDefault = sqlServerOptions.CompatibilityLevelWithoutDefault;
+            EngineType = sqlServerOptions.EngineType;
+            SqlServerCompatibilityLevel = sqlServerOptions.SqlServerCompatibilityLevel;
+            SqlServerCompatibilityLevelWithoutDefault = sqlServerOptions.SqlServerCompatibilityLevelWithoutDefault;
+            AzureSqlCompatibilityLevel = sqlServerOptions.AzureSqlCompatibilityLevel;
+            AzureSqlCompatibilityLevelWithoutDefault = sqlServerOptions.AzureSqlCompatibilityLevelWithoutDefault;
+            AzureSynapseCompatibilityLevel = sqlServerOptions.AzureSynapseCompatibilityLevel;
+            AzureSynapseCompatibilityLevelWithoutDefault = sqlServerOptions.AzureSynapseCompatibilityLevelWithoutDefault;
         }
     }
 
@@ -51,15 +96,20 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
     /// </summary>
     public virtual void Validate(IDbContextOptions options)
     {
-        var sqlserverOptions = options.FindExtension<SqlServerOptionsExtension>();
+        var sqlServerOptions = options.FindExtension<SqlServerOptionsExtension>();
 
-        if (sqlserverOptions != null
-            && (CompatibilityLevelWithoutDefault != sqlserverOptions.CompatibilityLevelWithoutDefault
-                || CompatibilityLevel != sqlserverOptions.CompatibilityLevel))
+        if (sqlServerOptions != null
+            && (EngineType != sqlServerOptions.EngineType
+                || SqlServerCompatibilityLevelWithoutDefault != sqlServerOptions.SqlServerCompatibilityLevelWithoutDefault
+                || SqlServerCompatibilityLevel != sqlServerOptions.SqlServerCompatibilityLevel
+                || AzureSqlCompatibilityLevelWithoutDefault != sqlServerOptions.AzureSqlCompatibilityLevelWithoutDefault
+                || AzureSqlCompatibilityLevel != sqlServerOptions.AzureSqlCompatibilityLevel
+                || AzureSynapseCompatibilityLevelWithoutDefault != sqlServerOptions.AzureSynapseCompatibilityLevelWithoutDefault
+                || AzureSynapseCompatibilityLevel != sqlServerOptions.AzureSynapseCompatibilityLevel))
         {
             throw new InvalidOperationException(
                 CoreStrings.SingletonOptionChanged(
-                    nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
+                    $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSql)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSynapse)}",
                     nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
         }
     }
