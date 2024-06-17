@@ -17,6 +17,30 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task Where_coalesce_shortcircuit(bool async)
+    {
+        await base.Where_coalesce_shortcircuit(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE COALESCE("e"."BoolA" OR "e"."BoolB", "e"."NullableBoolA", 1)
+""");
+    }
+
+    public override async Task Where_coalesce_shortcircuit_many(bool async)
+    {
+        await base.Where_coalesce_shortcircuit_many(async);
+
+        AssertSql(
+            """
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE COALESCE("e"."NullableBoolA", "e"."BoolA" OR "e"."BoolB", "e"."NullableBoolB", "e"."BoolB")
+""");
+    }
+
     public override async Task Join_uses_database_semantics(bool async)
     {
         await base.Join_uses_database_semantics(async);
