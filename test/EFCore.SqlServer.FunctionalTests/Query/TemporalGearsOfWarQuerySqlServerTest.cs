@@ -8317,7 +8317,7 @@ LEFT JOIN (
 SELECT CASE [f].[Eradicated]
     WHEN CAST(0 AS bit) THEN N'False'
     WHEN CAST(1 AS bit) THEN N'True'
-    ELSE NULL
+    ELSE N''
 END
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 """);
