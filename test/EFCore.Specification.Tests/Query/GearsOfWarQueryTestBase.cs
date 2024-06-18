@@ -84,7 +84,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<Weapon>().Select(w => w.IsAutomatic.ToString()));
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue #33941 Nullable<bool>.ToString() does not match C#")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ToString_boolean_property_nullable(bool async)
         => AssertQuery(
