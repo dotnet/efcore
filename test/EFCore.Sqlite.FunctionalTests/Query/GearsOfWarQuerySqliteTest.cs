@@ -6023,7 +6023,7 @@ WHERE "g"."HasSoulPatch" AND (
 SELECT CASE "f"."Eradicated"
     WHEN 0 THEN 'False'
     WHEN 1 THEN 'True'
-    ELSE NULL
+    ELSE ''
 END
 FROM "Factions" AS "f"
 """);

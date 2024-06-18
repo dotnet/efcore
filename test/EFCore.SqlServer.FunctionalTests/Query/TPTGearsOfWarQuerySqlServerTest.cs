@@ -10792,7 +10792,7 @@ GROUP BY [m].[CodeName]
 SELECT CASE [l].[Eradicated]
     WHEN CAST(0 AS bit) THEN N'False'
     WHEN CAST(1 AS bit) THEN N'True'
-    ELSE NULL
+    ELSE N''
 END
 FROM [Factions] AS [f]
 INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
