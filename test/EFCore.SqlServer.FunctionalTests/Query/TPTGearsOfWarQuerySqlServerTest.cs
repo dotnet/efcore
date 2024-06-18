@@ -2696,9 +2696,13 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s].[Nickname], [s].[SquadId], [w].[Id],
 
         AssertSql(
             """
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-FROM [Weapons] AS [w]
-WHERE COALESCE([w].[IsAutomatic], CAST(0 AS bit)) = CAST(1 AS bit)
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
+WHERE COALESCE([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit)
 """);
     }
 
@@ -2708,9 +2712,13 @@ WHERE COALESCE([w].[IsAutomatic], CAST(0 AS bit)) = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-FROM [Weapons] AS [w]
-WHERE [w].[AmmunitionType] = 1 AND COALESCE([w].[IsAutomatic], CAST(0 AS bit)) = CAST(1 AS bit)
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
+WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND COALESCE([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit)
 """);
     }
 
@@ -2721,10 +2729,14 @@ WHERE [w].[AmmunitionType] = 1 AND COALESCE([w].[IsAutomatic], CAST(0 AS bit)) =
         AssertSql(
             """
 SELECT CASE
-    WHEN [w].[AmmunitionType] = 1 AND [w].[AmmunitionType] IS NOT NULL AND COALESCE([w].[IsAutomatic], CAST(0 AS bit)) = CAST(1 AS bit) THEN CAST(1 AS bit)
+    WHEN ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND COALESCE([s].[HasSoulPatch], CAST(0 AS bit)) = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
-FROM [Weapons] AS [w]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [s] ON [t].[GearNickName] = [s].[Nickname] AND [t].[GearSquadId] = [s].[SquadId]
 """);
     }
 

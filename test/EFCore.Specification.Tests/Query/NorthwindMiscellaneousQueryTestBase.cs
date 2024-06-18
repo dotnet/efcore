@@ -2698,7 +2698,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .Where(c => (c.CompanyName ?? c.ContactName) == "The Big Cheese"));
+                .Where(c => (c.ContactName ?? c.CompanyName) == "Liz Nixon"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
