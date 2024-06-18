@@ -93,6 +93,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_boolean_computed_nullable(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>().Select(lh => (lh.Eradicated | lh.CommanderName == "Unknown").ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task ToString_enum_property_projection(bool async)
         => AssertQuery(
             async,
