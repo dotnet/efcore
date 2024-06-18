@@ -433,8 +433,8 @@ public class RelationalCommandTest
         Assert.Equal(3, dataReaderDisposingEventData.ReadCount);
     }
 
-    public static TheoryData CommandActions
-        => new TheoryData<Delegate, DbCommandMethod, bool>
+    public static TheoryData<Delegate, DbCommandMethod, bool> CommandActions
+        => new()
         {
             {
                 new CommandAction(
@@ -484,9 +484,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_parameter_values_is_null(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -523,9 +521,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -564,9 +560,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_type_mapped_parameters(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -629,9 +623,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Configures_DbCommand_with_composite_parameters(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -695,9 +687,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_missing(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -742,9 +732,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Throws_when_composite_parameters_are_configured_and_value_is_not_object_array(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var fakeConnection = CreateConnection();
@@ -786,9 +774,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Disposes_command_on_exception(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var exception = new InvalidOperationException();
@@ -894,9 +880,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Closes_managed_connections_on_exception(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var exception = new InvalidOperationException();
@@ -943,9 +927,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Does_not_close_unmanaged_connections_on_exception(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string telemetryName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var exception = new InvalidOperationException();
@@ -992,9 +974,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Logs_commands_without_parameter_values(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string diagnosticName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var options = CreateOptions();
@@ -1050,9 +1030,7 @@ public class RelationalCommandTest
     [MemberData(nameof(CommandActions))]
     public async Task Logs_commands_parameter_values(
         Delegate commandDelegate,
-#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
-        string diagnosticName,
-#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+        DbCommandMethod _,
         bool async)
     {
         var optionsExtension = new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString);
