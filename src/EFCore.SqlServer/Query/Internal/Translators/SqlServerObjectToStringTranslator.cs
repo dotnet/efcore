@@ -92,7 +92,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(true),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     },
-                    _sqlExpressionFactory.Constant(null, typeof(string)));
+                    _sqlExpressionFactory.Constant(string.Empty));
             }
 
             return _sqlExpressionFactory.Case(
