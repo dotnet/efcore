@@ -6029,6 +6029,21 @@ FROM "Factions" AS "f"
 """);
     }
 
+    public override async Task ToString_boolean_computed_nullable(bool async)
+    {
+        await base.ToString_boolean_computed_nullable(async);
+
+        AssertSql(
+            """
+SELECT CASE "f"."Eradicated" OR ("f"."CommanderName" = 'Unknown' AND "f"."CommanderName" IS NOT NULL)
+    WHEN 0 THEN 'False'
+    WHEN 1 THEN 'True'
+    ELSE ''
+END
+FROM "Factions" AS "f"
+""");
+    }
+
     public override async Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join3(bool async)
     {
         await base.Filtered_collection_projection_with_order_comparison_predicate_converted_to_join3(async);

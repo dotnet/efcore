@@ -3994,6 +3994,25 @@ FROM [Factions] AS [f]
 """);
     }
 
+    [ConditionalTheory(Skip = "Issue #34001 SqlServer never returns null for bool?")]
+    public override async Task ToString_boolean_computed_nullable(bool async)
+    {
+        await base.ToString_boolean_computed_nullable(async);
+
+        AssertSql(
+            """
+SELECT CASE CASE
+    WHEN NOT ([f].[Eradicated] = CAST(1 AS bit) OR ([f].[CommanderName] = N'Unknown' AND [f].[CommanderName] IS NOT NULL)) THEN CAST(0 AS bit)
+    WHEN [f].[Eradicated] = CAST(1 AS bit) OR ([f].[CommanderName] = N'Unknown' AND [f].[CommanderName] IS NOT NULL) THEN CAST(1 AS bit)
+END
+    WHEN CAST(0 AS bit) THEN N'False'
+    WHEN CAST(1 AS bit) THEN N'True'
+    ELSE N''
+END
+FROM [Factions] AS [f]
+""");
+    }
+
     public override async Task ToString_enum_property_projection(bool async)
     {
         await base.ToString_enum_property_projection(async);
