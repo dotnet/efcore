@@ -79,7 +79,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
 
         if (instance.Type == typeof(bool))
         {
-            if (instance is ColumnExpression { IsNullable: true })
+            if (instance is not ColumnExpression { IsNullable: false })
             {
                 return _sqlExpressionFactory.Case(
                     instance,
