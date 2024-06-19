@@ -27,8 +27,7 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
     /// <summary>
     ///     The startup assembly to use.
     /// </summary>
-    [Required]
-    public ITaskItem StartupAssembly { get; set; } = null!;
+    public ITaskItem? StartupAssembly { get; set; }
 
     /// <summary>
     ///     The target framework moniker.
@@ -92,7 +91,7 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
 
     protected override bool ValidateParameters()
     {
-        var startupAssemblyName = Path.GetFileNameWithoutExtension(StartupAssembly.ItemSpec);
+        var startupAssemblyName = Path.GetFileNameWithoutExtension(StartupAssembly?.ItemSpec ?? Assembly.ItemSpec);
 
         var targetFramework = new FrameworkName(TargetFrameworkMoniker);
         if (targetFramework.Identifier == ".NETStandard")
@@ -113,7 +112,8 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
             return false;
         }
 
-        if (Path.GetExtension(StartupAssembly.ItemSpec) != ".exe")
+        if (StartupAssembly != null
+            && Path.GetExtension(StartupAssembly.ItemSpec) != ".exe")
         {
             Log.LogError(Resources.NotExecutableStartupProject(startupAssemblyName));
             return false;
@@ -139,13 +139,13 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
     {
         var args = new List<string>();
 
-        var startupAssemblyName = Path.GetFileNameWithoutExtension(StartupAssembly.ItemSpec);
-        var targetDir = Path.GetDirectoryName(Path.GetFullPath(StartupAssembly.ItemSpec))!;
+        var startupAssemblyName = Path.GetFileNameWithoutExtension(StartupAssembly?.ItemSpec ?? Assembly.ItemSpec);
+        var startupDir = Path.GetDirectoryName(Path.GetFullPath(StartupAssembly?.ItemSpec ?? Assembly.ItemSpec))!;
         var depsFile = Path.Combine(
-            targetDir,
+            startupDir,
             startupAssemblyName + ".deps.json");
         var runtimeConfig = Path.Combine(
-            targetDir,
+            startupDir,
             startupAssemblyName + ".runtimeconfig.json");
         var projectAssetsFile = MsBuildUtilities.TrimAndGetNullForEmpty(ProjectAssetsFile);
 

@@ -7,9 +7,9 @@
     <_FullIntermediateOutputPath Condition="'$(AppendRuntimeIdentifierToOutputPath)' == 'true' And '$(RuntimeIdentifier)' != '' And '$(_UsingDefaultRuntimeIdentifier)' != 'true' And '$(UseArtifactsIntermediateOutput)' != 'true'">$([MSBuild]::NormalizePath('$(_FullIntermediateOutputPath)', '../'))</_FullIntermediateOutputPath>
     <EFGeneratedSourcesBuildFile Condition="'$(EFGeneratedSourcesBuildFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.Build.txt</EFGeneratedSourcesBuildFile>
     <EFGeneratedSourcesPublishFile Condition="'$(EFGeneratedSourcesPublishFile)' == ''">$(_FullIntermediateOutputPath)$(AssemblyName).EFGeneratedSources.Publish.txt</EFGeneratedSourcesPublishFile>
-    <EFProjectsToOptimizePath Condition="'$(EFProjectsToOptimizePath)' == ''">$(_FullIntermediateOutputPath)EFProjectsToOptimize\</EFProjectsToOptimizePath>
     <_AssemblyFullName>$(_FullOutputPath)$(AssemblyName).dll</_AssemblyFullName>
     <CoreCompileDependsOn>$(CoreCompileDependsOn);_EFPrepareForCompile</CoreCompileDependsOn>
+    <TargetsTriggeredByCompilation>$(TargetsTriggeredByCompilation);_EFGenerateFilesAfterBuild</TargetsTriggeredByCompilation>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(OutputType)'=='Exe' Or '$(OutputType)'=='WinExe'">
@@ -18,9 +18,9 @@
 
   <!-- Usage:
   For the compiled model and precompiled queries to be generated when publishing with $(PublishAOT) set to true the only action needed is to reference Microsoft.EntityFrameworkCore.Tasks from all projects containing a derived DbContext or a query.
-  For solutions where specifying the startup project is necessary, $(EFStartupProject) should be set.
+  For solutions where specifying the startup project is necessary, IDesignTimeDbContextFactory<> should be implemented.
 $(EFOptimizeContext) can be set to true to enable code generation outside of NativeAOT.
-$(EFScaffoldModelStage) and $(EFPrecompileQueriesStage) can be set to either publish or build to control at what stage will the code be generated. Any other value will disable the corresponding generation (in case the code is generated manually using dotnet ef dbcontext optimize)
+$(EFScaffoldModelStage) and $(EFPrecompileQueriesStage) can be set to either publish or build to control at what stage will the code be generated. Any other value will disable the corresponding generation (in case the code is generated manually using `dotnet ef dbcontext optimize`)
 If there's more than one context and $(DbContextType) is not set, then the compiled model will be generated for all of them.
 $(EFTargetNamespace) and $(EFOutputDir) can be used to further fine-tune the generation.
   -->
@@ -29,19 +29,18 @@ $(EFTargetNamespace) and $(EFOutputDir) can be used to further fine-tune the gen
   For Build:
 
 1. _EFReadGeneratedFilesList and _EFProcessGeneratedFiles add the files generated previously to @(Compile) to make incremental build work.
-2. If compilation needs to be performed again then _EFPrepareForCompile removes the previously generated files from @(Compile) as they are probably outdated. And if EFOptimizeContext is true it also calls _EFRegisterProjectToOptimize on the startup project to mark the current project for optimization. Startup project could also be the same as the project containing the derived DbContext, but if it's not the tooling needs the compiled startup assembly to be able to generate code for any other project.
-3. If any project was marked then _EFGenerateFilesAfterBuild in the startup project calls _EFGenerateFiles which in turn calls OptimizeDbContext on the marked projects.
+2. If compilation needs to be performed again then _EFPrepareForCompile removes the previously generated files from @(Compile) as they are probably outdated.
+3. After the project is compiled _EFGenerateFilesAfterBuild calls _EFGenerateFiles which in turn calls OptimizeDbContext.
 4. OptimizeDbContext generates NativeAOT-compatible code and writes the list of generated files for _EFReadGeneratedFilesList to read when recompiling.
 
 For Publish:
 
-1. If PublishAOT is true _EFPrepareDependenciesForPublishAOT in the startup project invokes _EFPrepareForPublish on all dependencies to mark them for optimization even if they don't set EFOptimizeContext to true. Otherwise _EFPrepareForPublish runs on the projects before Publish.
-2. If any project was marked then _EFGenerateFilesBeforePublish in the startup project calls _EFGenerateFiles and the rest is similar to the Build flow.
+1. If PublishAOT is true _EFPrepareDependenciesForPublishAOT in the startup project invokes _EFGenerateFilesBeforePublish on all dependencies even if they don't set EFOptimizeContext to true. Otherwise _EFGenerateFilesBeforePublish runs on the projects before Publish.
+2. _EFGenerateFilesBeforePublish calls _EFGenerateFiles and the rest is similar to the Build flow.
   -->
 
   <Target Name="_EFGenerateFilesAfterBuild"
-        AfterTargets="Build"
-        Condition="Exists($(EFProjectsToOptimizePath)) And '$(_EFGenerationStage)'==''">
+          Condition="'$(_EFGenerationStage)'=='' And '$(EFOptimizeContext)'=='true' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -50,9 +49,9 @@ For Publish:
   </Target>
 
   <Target Name="_EFGenerateFilesBeforePublish"
-        AfterTargets="GetCopyToPublishDirectoryItems"
-        BeforeTargets="GeneratePublishDependencyFile"
-        Condition="Exists($(EFProjectsToOptimizePath)) And '$(_EFGenerationStage)'==''">
+          AfterTargets="GetCopyToPublishDirectoryItems"
+          BeforeTargets="GeneratePublishDependencyFile"
+          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish') And ('$(EFOptimizeContext)'=='true' Or ('$(EFOptimizeContext)'=='' And ('$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')))">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="_EFGenerateFiles"
              BuildInParallel="$(BuildInParallel)"
@@ -62,17 +61,7 @@ For Publish:
 
   <!-- Invokes OptimizeDbContext on projects that had changes since the last time they were optimized -->
   <Target Name="_EFGenerateFiles">
-    <ItemGroup>
-      <_EFProjectsToOptimizeFiles Include="$(EFProjectsToOptimizePath)*.*" />
-    </ItemGroup>
-
-    <ReadLinesFromFile File="%(_EFProjectsToOptimizeFiles.Identity)">
-      <Output TaskParameter="Lines" ItemName="_EFProjectsToOptimize"/>
-    </ReadLinesFromFile>
-
-    <RemoveDir Directories="$(EFProjectsToOptimizePath)" />
-
-    <!-- The startup assembly used for file generation should be compiled without using AOT mode -->
+    <!-- The assembly used for file generation should be compiled without using AOT mode -->
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Build"
              BuildInParallel="$(BuildInParallel)"
@@ -80,22 +69,10 @@ For Publish:
              Condition="'$(PublishAot)'=='true'"
              Properties="Configuration=$(Configuration);Platform=$(Platform);PublishAot=false;_EFGenerationStage=$(_EFGenerationStage)" />
 
-    <MSBuild Projects="@(_EFProjectsToOptimize)"
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="OptimizeDbContext"
              BuildInParallel="$(BuildInParallel)"
              ContinueOnError="$(ContinueOnError)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);EFStartupAssembly=$(_AssemblyFullName);_EFGenerationStage=$(_EFGenerationStage)" />
-
-    <ItemGroup>
-      <_EFProjectsToOptimize Remove="$(MSBuildProjectFullPath)" />
-    </ItemGroup>
-
-    <!-- This assumes that the optimized projects are dependencies, so the current project needs to be recompiled too -->
-    <MSBuild Projects="$(MSBuildProjectFullPath)"
-             Targets="Build"
-             BuildInParallel="$(BuildInParallel)"
-             ContinueOnError="$(ContinueOnError)"
-             Condition="@(_EFProjectsToOptimize->Count()) &gt; 0"
              Properties="Configuration=$(Configuration);Platform=$(Platform);_EFGenerationStage=$(_EFGenerationStage)" />
   </Target>
 
@@ -139,6 +116,7 @@ For Publish:
 
     <CallTarget Targets="Build"/>
 
+    <!-- The files are written after the build to indicate that they are up to date with the assembly used for code generation -->
     <WriteLinesToFile File="$(EFGeneratedSourcesBuildFile)"
                       Lines="$(_EFGeneratedFiles)"
                       Condition="'$(_EFGenerationStage)'=='build'"/>
@@ -178,7 +156,7 @@ For Publish:
     </ItemGroup>
   </Target>
 
-  <!-- Removes the outdated generated files from compilation and registers this project for after-compile optimization
+  <!-- Removes the outdated generated files from compilation.
        This target has the same Inputs and Outputs as CoreCompile to run only if CoreCompile isn't going to be skipped -->
   <Target Name="_EFPrepareForCompile"
           DependsOnTargets="_EFProcessGeneratedFiles"
@@ -213,20 +191,6 @@ For Publish:
 
     <Delete Files="$(EFGeneratedSourcesBuildFile)" />
     <Delete Files="$(EFGeneratedSourcesPublishFile)" />
-
-    <MSBuild Projects="$(EFStartupProject)"
-             Targets="_EFRegisterProjectToOptimize"
-             Condition="'$(EFOptimizeContext)'=='true' And ('$(EFScaffoldModelStage)'=='build' Or '$(EFPrecompileQueriesStage)'=='build')"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);_EFProjectToOptimize=$(MSBuildProjectFullPath)" />
-  </Target>
-
-  <!-- Registers this project for before-publish optimization -->
-  <Target Name="_EFPrepareForPublish"
-          BeforeTargets="GetCopyToPublishDirectoryItems"
-          Condition="'$(_EFGenerationStage)'=='' And ('$(EFScaffoldModelStage)'=='publish' Or '$(EFPrecompileQueriesStage)'=='publish') And ('$(EFOptimizeContext)'=='true' Or ('$(EFOptimizeContext)'=='' And ('$(_EFPublishAOT)'=='true' Or '$(PublishAOT)'=='true')))">
-    <MSBuild Projects="$(EFStartupProject)"
-             Targets="_EFRegisterProjectToOptimize"
-             Properties="Configuration=$(Configuration);Platform=$(Platform);_EFProjectToOptimize=$(MSBuildProjectFullPath)" />
   </Target>
 
   <!-- Go through the dependencies to check whether they need code generated for Native AOT -->
@@ -235,7 +199,7 @@ For Publish:
           Condition="'$(PublishAOT)'=='true' And '$(_EFGenerationStage)'=='' and '@(_MSBuildProjectReferenceExistent)' != ''">
     <MSBuild
       Projects="@(_MSBuildProjectReferenceExistent)"
-      Targets="_EFPrepareForPublish"
+      Targets="_EFGenerateFilesBeforePublish"
       BuildInParallel="$(BuildInParallel)"
       Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework);_EFPublishAOT=true"
       Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' "
@@ -244,19 +208,10 @@ For Publish:
       RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)"/>
   </Target>
 
-  <Target Name="_EFRegisterProjectToOptimize">
-    <PropertyGroup>
-      <_ProjectName>$([System.IO.Path]::GetFileName('$(_EFProjectToOptimize)'))</_ProjectName>
-    </PropertyGroup>
-    <MakeDir Directories="$(EFProjectsToOptimizePath)" />
-    <WriteLinesToFile File="$(EFProjectsToOptimizePath)$(_ProjectName).txt" Lines="$(_EFProjectToOptimize)" Overwrite="true"/>
-  </Target>
-
   <Target Name="_EFCleanGeneratedFiles" AfterTargets="Clean">
     <Delete Files="@(_EFGeneratedFiles)" />
     <Delete Files="$(EFGeneratedSourcesBuildFile)" />
     <Delete Files="$(EFGeneratedSourcesPublishFile)" />
-    <RemoveDir Directories="$(EFProjectsToOptimizePath)" />
   </Target>
 
 </Project>

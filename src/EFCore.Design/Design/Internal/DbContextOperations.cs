@@ -474,8 +474,19 @@ public class DbContextOperations
                 }
             }
 
-            // Look for DbContext classes registered in the service provider
+            // Look for DbContextAttribute on the assembly
             var appServices = _appServicesFactory.Create(_args);
+            foreach (var contextAttribute in _startupAssembly.GetCustomAttributes<DbContextAttribute>())
+            {
+                var context = contextAttribute.ContextType;
+                _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
+                contexts.Add(
+                    context,
+                    FindContextFactory(context)
+                    ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
+            }
+
+            // Look for DbContext classes registered in the service provider
             var registeredContexts = appServices.GetServices<DbContextOptions>()
                 .Select(o => o.ContextType);
             foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
@@ -583,7 +594,7 @@ public class DbContextOperations
     {
         var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType);
         var factory = contextType.Assembly.GetConstructibleTypes()
-            .FirstOrDefault(t => factoryInterface.IsAssignableFrom(t));
+            .FirstOrDefault(factoryInterface.IsAssignableFrom);
         return factory == null ? null : (() => CreateContextFromFactory(factory.AsType(), contextType));
     }
 
