@@ -61,7 +61,7 @@ public static class CosmosQueryUtils
                     return true;
 
                 // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
-                // value conversion).
+                // value conversion). #34026.
                 case SqlExpression sqlExpression:
                     var arrayTypeMapping = typeMappingSource.FindMapping(arrayClrType);
 

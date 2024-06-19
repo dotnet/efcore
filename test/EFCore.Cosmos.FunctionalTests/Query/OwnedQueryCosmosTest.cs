@@ -918,6 +918,22 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public override Task ElementAtOrDefault_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.ElementAtOrDefault_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["Orders"][10] ?? null)["Id"] = -11))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
     {
         // Always throws for sync.

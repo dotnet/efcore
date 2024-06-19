@@ -163,7 +163,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.ArrayIndex:
             {
                 // TODO: This infers based on the CLR type; need to properly infer based on the element type mapping
-                // TODO: being applied here (e.g. WHERE @p[1] = c.PropertyWithValueConverter)
+                // TODO: being applied here (e.g. WHERE @p[1] = c.PropertyWithValueConverter). #34026
                 var arrayTypeMapping = left.TypeMapping
                     ?? (typeMapping is null ? null : typeMappingSource.FindMapping(typeMapping.ClrType.MakeArrayType()));
                 return new SqlBinaryExpression(

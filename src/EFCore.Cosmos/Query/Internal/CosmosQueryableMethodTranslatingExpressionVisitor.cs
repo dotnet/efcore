@@ -502,7 +502,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
-            && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types
+            && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
             && TranslateExpression(item) is SqlExpression translatedItem)
         {
             if (array is ArrayConstantExpression arrayConstant)
@@ -594,6 +594,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 SqlExpression translation = _sqlExpressionFactory.ArrayIndex(
                     scalarArray, translatedIndex, element.Type, element.TypeMapping);
 
+                // ElementAt may access indexes beyond the end of the array; Cosmos returns undefined for those cases.
+                // If ElementAtOrDefault is used, add the Cosmos undefined-coalescing operator (??) to return a default value instead.
                 if (returnDefault)
                 {
                     translation = _sqlExpressionFactory.CoalesceUndefined(
@@ -606,15 +608,21 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     new ProjectionBindingExpression(translatedSelect, new ProjectionMember(), element.Type));
             }
 
-            // ElementAtOrDefault over an array os structural types
+            // ElementAtOrDefault over an array of structural types
             case not null when projectedStructuralTypeShaper is not null:
             {
-                var translation = new ObjectArrayIndexExpression(array, translatedIndex, projectedStructuralTypeShaper.Type);
+                Expression translation = new ObjectArrayIndexExpression(array, translatedIndex, projectedStructuralTypeShaper.Type);
 
+                // ElementAt may access indexes beyond the end of the array; Cosmos returns undefined for those cases.
+                // If ElementAtOrDefault is used, add the Cosmos undefined-coalescing operator (??) to return a default value instead.
                 if (returnDefault)
                 {
-                    // TODO
-                    throw new InvalidOperationException("ElementAtOrDefault over array of entity types is not supported.");
+                    // TODO: The following uses SqlConstantExpression as a hack to produce a null for the structural type (#33999)
+                    translation = new ObjectBinaryExpression(
+                        ExpressionType.Coalesce,
+                        translation,
+                        new SqlConstantExpression(Expression.Constant(null, typeof(object)), _typeMappingSource.FindMapping(typeof(int))),
+                        translation.Type);
                 }
 
                 var translatedSelect =
@@ -1537,9 +1545,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             translatedItems[i] = translatedItem;
         }
 
-        // TODO: Do we need full-on type mapping inference like in relational?
-        // TODO: The following currently just gets the type mapping from the CLR type, which ignores e.g. value converters on
-        // TODO: properties compared against
+        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
+        // value conversion). #34026.
         var elementClrType = inlineQueryRootExpression.ElementType;
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
         var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
@@ -1568,9 +1575,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        // TODO: Do we need full-on type mapping inference like in relational?
-        // TODO: The following currently just gets the type mapping from the CLR type, which ignores e.g. value converters on
-        // TODO: properties compared against
+        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
+        // value conversion). #34026.
         var elementClrType = parameterQueryRootExpression.ElementType;
         var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;

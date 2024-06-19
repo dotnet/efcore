@@ -1554,6 +1554,13 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
         AssertSql();
     }
 
+    public override async Task ElementAtOrDefault_over_owned_collection(bool async)
+    {
+        await base.ElementAtOrDefault_over_owned_collection(async);
+
+        AssertSql();
+    }
+
     public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
     {
         await base.OrderBy_ElementAt_over_owned_collection(async);

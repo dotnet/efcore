@@ -23,6 +23,10 @@ public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBas
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.ElementAt_over_owned_collection(async));
 
     // The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator.
+    public override Task ElementAtOrDefault_over_owned_collection(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.ElementAtOrDefault_over_owned_collection(async));
+
+    // The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator.
     public override Task Skip_Take_over_owned_collection(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Skip_Take_over_owned_collection(async));
 
