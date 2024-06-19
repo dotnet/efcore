@@ -236,8 +236,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     return QueryCompilationContext.NotTranslatedExpression;
                 }
 
-                if (!(includeExpression.Navigation is INavigation includableNavigation
-                        && includableNavigation.IsEmbedded()))
+                if (includeExpression.Navigation is not INavigation includableNavigation || !includableNavigation.IsEmbedded())
                 {
                     throw new InvalidOperationException(
                         CosmosStrings.NonEmbeddedIncludeNotSupported(includeExpression.Navigation));
@@ -459,26 +458,16 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             StructuralTypeShaperExpression? shaperExpression;
             switch (visitedSource)
             {
-                case StructuralTypeShaperExpression shaper:
-                    shaperExpression = shaper;
+                case StructuralTypeShaperExpression s:
+                    shaperExpression = s;
                     break;
 
-                case UnaryExpression unaryExpression:
-                    shaperExpression = unaryExpression.Operand as StructuralTypeShaperExpression;
-                    if (shaperExpression == null
-                        || unaryExpression.NodeType != ExpressionType.Convert)
-                    {
-                        return QueryCompilationContext.NotTranslatedExpression;
-                    }
-
+                case UnaryExpression { NodeType: ExpressionType.Convert, Operand: StructuralTypeShaperExpression s }:
+                    shaperExpression = s;
                     break;
 
-                case ParameterExpression parameterExpression:
-                    if (!_collectionShaperMapping.TryGetValue(parameterExpression, out var collectionShaper))
-                    {
-                        return QueryCompilationContext.NotTranslatedExpression;
-                    }
-
+                case ParameterExpression parameterExpression
+                    when _collectionShaperMapping.TryGetValue(parameterExpression, out var collectionShaper):
                     shaperExpression = (StructuralTypeShaperExpression)collectionShaper.InnerShaper;
                     break;
 
@@ -507,8 +496,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 navigationProjection = innerEntityProjection.BindMember(
                     memberName, visitedSource.Type, clientEval: true, out var propertyBase);
 
-                if (propertyBase is not INavigation projectedNavigation
-                    || !projectedNavigation.IsEmbedded())
+                if (propertyBase is not INavigation projectedNavigation || !projectedNavigation.IsEmbedded())
                 {
                     return QueryCompilationContext.NotTranslatedExpression;
                 }

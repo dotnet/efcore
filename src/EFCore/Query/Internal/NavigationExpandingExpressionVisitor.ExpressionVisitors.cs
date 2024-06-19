@@ -564,6 +564,7 @@ public partial class NavigationExpandingExpressionVisitor
 
                 case MaterializeCollectionNavigationExpression:
                 case IncludeExpression:
+                case PrimitiveCollectionReference:
                     return extensionExpression;
             }
 
