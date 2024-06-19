@@ -415,6 +415,13 @@ public class GearsOfWarData : ISetSource
                 ThreatLevel = 0,
                 ThreatLevelByte = 0,
                 ThreatLevelNullableByte = null
+            },
+            new LocustCommander
+            {
+                Name = "Reyna Diaz",
+                ThreatLevel = 4,
+                ThreatLevelByte = 4,
+                ThreatLevelNullableByte = 4
             }
         };
 
@@ -435,6 +442,13 @@ public class GearsOfWarData : ISetSource
                 Name = "Swarm",
                 Eradicated = false,
                 CommanderName = "Unknown"
+            },
+            new LocustHorde
+            {
+                Id = 3,
+                Name = "Future Locust",
+                Eradicated = null,
+                CommanderName = "Reyna Diaz"
             }
         };
 
@@ -588,17 +602,26 @@ public class GearsOfWarData : ISetSource
 
         ((LocustCommander)locustLeaders[3]).CommandingFaction = ((LocustHorde)factions[0]);
         ((LocustCommander)locustLeaders[5]).CommandingFaction = ((LocustHorde)factions[1]);
+        ((LocustCommander)locustLeaders[6]).CommandingFaction = ((LocustHorde)factions[2]);
 
         ((LocustHorde)factions[0]).Commander = ((LocustCommander)locustLeaders[3]);
         ((LocustHorde)factions[1]).Commander = ((LocustCommander)locustLeaders[5]);
+        ((LocustHorde)factions[2]).Commander = ((LocustCommander)locustLeaders[6]);
 
-        locustHighCommands[0].Commanders = [(LocustCommander)locustLeaders[3], (LocustCommander)locustLeaders[5]];
+        locustHighCommands[0].Commanders = [
+            (LocustCommander)locustLeaders[3],
+            (LocustCommander)locustLeaders[5],
+            (LocustCommander)locustLeaders[6],
+        ];
 
         ((LocustCommander)locustLeaders[3]).HighCommand = locustHighCommands[0];
         ((LocustCommander)locustLeaders[3]).HighCommandId = 1;
 
         ((LocustCommander)locustLeaders[5]).HighCommand = locustHighCommands[0];
         ((LocustCommander)locustLeaders[5]).HighCommandId = 1;
+
+        ((LocustCommander)locustLeaders[6]).HighCommand = locustHighCommands[0];
+        ((LocustCommander)locustLeaders[6]).HighCommandId = 1;
     }
 
     public static void WireUp2(
@@ -613,5 +636,6 @@ public class GearsOfWarData : ISetSource
             locustLeaders[3]
         ];
         ((LocustHorde)factions[1]).Leaders = [locustLeaders[4], locustLeaders[5]];
+        ((LocustHorde)factions[2]).Leaders = [locustLeaders[6]];
     }
 }

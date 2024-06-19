@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 
 /// <summary>
@@ -17,8 +19,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public CosmosConventionSetBuilder(
-        ProviderConventionSetBuilderDependencies dependencies)
+    public CosmosConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
     }

@@ -166,8 +166,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         {
             foreach (var targetSeed in entityType.GetSeedData())
             {
-                updateAdapter.Model.FindEntityType(entityType.Name);
-                var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                var runtimeEntityType = updateAdapter.Model.FindEntityType(entityType.Name)!;
+                var entry = updateAdapter.CreateEntry(targetSeed, runtimeEntityType);
                 entry.EntityState = EntityState.Added;
             }
         }
@@ -212,24 +212,11 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
     /// <summary>
-    ///     Returns the store name of the property that is used to store the partition key.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property name for.</param>
-    /// <returns>The name of the partition key property.</returns>
-    [Obsolete("Use GetPartitionKeyStoreNames")]
-    private static string GetPartitionKeyStoreName(IEntityType entityType)
-    {
-        var name = entityType.GetPartitionKeyPropertyName();
-        return name != null
-            ? entityType.FindProperty(name)!.GetJsonPropertyName()
-            : CosmosClientWrapper.DefaultPartitionKey;
-    }
-
-    /// <summary>
-    ///     Returns the store names of the properties that is used to store the partition keys.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the partition key property names for.</param>
-    /// <returns>The names of the partition key property.</returns>
     private static IReadOnlyList<string> GetPartitionKeyStoreNames(IEntityType entityType)
     {
         var properties = entityType.GetPartitionKeyProperties();

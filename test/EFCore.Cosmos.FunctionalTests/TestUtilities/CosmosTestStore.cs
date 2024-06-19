@@ -3,6 +3,7 @@
 
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -34,7 +35,7 @@ public class CosmosTestStore : TestStore
         Action<CosmosDbContextOptionsBuilder>? extensionConfiguration = null)
     {
         var testStore = Create(name, extensionConfiguration);
-        await testStore.InitializeAsync(null, (Func<DbContext>?)null);
+        await testStore.InitializeAsync(null, (Func<DbContext>?)null).ConfigureAwait(false);
         return testStore;
     }
 
@@ -95,7 +96,7 @@ public class CosmosTestStore : TestStore
     {
         if (_connectionAvailable == null)
         {
-            _connectionAvailable = await TryConnectAsync();
+            _connectionAvailable = await TryConnectAsync().ConfigureAwait(false);
         }
 
         return _connectionAvailable.Value;
@@ -106,7 +107,7 @@ public class CosmosTestStore : TestStore
         CosmosTestStore? testStore = null;
         try
         {
-            testStore = await CreateInitializedAsync("NonExistent");
+            testStore = await CreateInitializedAsync("NonExistent").ConfigureAwait(false);
 
             return true;
         }
@@ -132,7 +133,7 @@ public class CosmosTestStore : TestStore
         {
             if (testStore != null)
             {
-                await testStore.DisposeAsync();
+                await testStore.DisposeAsync().ConfigureAwait(false);
             }
         }
     }
@@ -158,20 +159,20 @@ public class CosmosTestStore : TestStore
 
         if (_dataFilePath == null)
         {
-            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean);
+            await base.InitializeAsync(createContext ?? (() => _storeContext), seed, clean).ConfigureAwait(false);
         }
         else
         {
             using var context = createContext();
-            await CreateFromFile(context);
+            await CreateFromFile(context).ConfigureAwait(false);
         }
     }
 
     private async Task CreateFromFile(DbContext context)
     {
-        if (await EnsureCreatedAsync(context))
+        if (await EnsureCreatedAsync(context).ConfigureAwait(false))
         {
-            await context.Database.EnsureCreatedAsync();
+            await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
             var cosmosClient = context.GetService<ICosmosClientWrapper>();
             var serializer = CosmosClientWrapper.Serializer;
             using var fs = new FileStream(_dataFilePath!, FileMode.Open, FileAccess.Read);
@@ -208,7 +209,7 @@ public class CosmosTestStore : TestStore
                                                     document["Discriminator"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        "NorthwindContext", document, new FakeUpdateEntry());
+                                                        "NorthwindContext", document, new FakeUpdateEntry()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -234,104 +235,80 @@ public class CosmosTestStore : TestStore
         if (!TestEnvironment.UseTokenCredential)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken);
+            return await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null, cancellationToken).ConfigureAwait(false);
         }
 
-        var databaseAccount = await GetDBAccount(cancellationToken);
+        var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
         var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
         var sqlDatabaseCreateUpdateOptions = new CosmosDBSqlDatabaseCreateOrUpdateContent(TestEnvironment.AzureLocation,
             new CosmosDBSqlDatabaseResourceInfo(Name));
+        if (await collection.ExistsAsync(Name, cancellationToken))
+        {
+            return false;
+        }
+
         var databaseResponse = (await collection.CreateOrUpdateAsync(
-            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.Created;
+            WaitUntil.Completed, Name, sqlDatabaseCreateUpdateOptions, cancellationToken).ConfigureAwait(false)).GetRawResponse();
+        return databaseResponse.Status == (int)HttpStatusCode.OK;
     }
 
     private async Task<bool> EnsureDeletedAsync(DbContext context, CancellationToken cancellationToken = default)
     {
         if (!TestEnvironment.UseTokenCredential)
         {
-            return await context.Database.EnsureDeletedAsync(cancellationToken);
+            return await context.Database.EnsureDeletedAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        var databaseAccount = await GetDBAccount(cancellationToken);
-        var databaseResponse = (await databaseAccount.Value.GetCosmosDBSqlDatabase(Name, cancellationToken).Value.DeleteAsync(
-            WaitUntil.Completed, cancellationToken)).GetRawResponse();
-        return databaseResponse.Status == (int)HttpStatusCode.Created;
+        var databaseAccount = await GetDBAccount(cancellationToken).ConfigureAwait(false);
+        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+        var database = (await collection.GetIfExistsAsync(Name, cancellationToken).ConfigureAwait(false));
+        if (database == null
+            || !database.HasValue)
+        {
+            return false;
+        }
+
+        var databaseResponse = (await database.Value!.DeleteAsync(WaitUntil.Completed, cancellationToken).ConfigureAwait(false)).GetRawResponse();
+        return databaseResponse.Status == (int)HttpStatusCode.OK;
     }
 
-    private async Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken)
+    private Task<global::Azure.Response<CosmosDBAccountResource>> GetDBAccount(CancellationToken cancellationToken = default)
     {
         var accountName = new Uri(ConnectionUri).Host.Split('.').First();
         var databaseAccountIdentifier = CosmosDBAccountResource.CreateResourceIdentifier(
             TestEnvironment.SubscriptionId, TestEnvironment.ResourceGroup, accountName);
-        return await _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
+        return _armClient.GetCosmosDBAccountResource(databaseAccountIdentifier).GetAsync(cancellationToken);
     }
 
     public override async Task CleanAsync(DbContext context)
     {
-        var created = await EnsureCreatedAsync(context);
+        var created = await EnsureCreatedAsync(context).ConfigureAwait(false);
         try
         {
             if (!created)
             {
-                var cosmosClient = context.Database.GetCosmosClient();
-                var database = cosmosClient.GetDatabase(Name);
-                var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
-                while (containerIterator.HasMoreResults)
-                {
-                    foreach (var containerProperties in await containerIterator.ReadNextAsync())
-                    {
-                        var container = database.GetContainer(containerProperties.Id);
-                        var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
-                        var itemIterator = container.GetItemQueryIterator<JObject>(
-                            new QueryDefinition("SELECT * FROM c"));
+                await DeleteContainers(context).ConfigureAwait(false);
+            }
 
-                        var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
-                        while (itemIterator.HasMoreResults)
-                        {
-                            foreach (var item in await itemIterator.ReadNextAsync())
-                            {
-                                var partitionKeyValue = PartitionKey.None;
-                                if (partitionKeys.Count >= 1
-                                    && item[partitionKeys[0]] is not null)
-                                {
-                                    var builder = new PartitionKeyBuilder();
-                                    foreach (var partitionKey in partitionKeys)
-                                    {
-                                        builder.Add((string?)item[partitionKey]);
-                                    }
-
-                                    partitionKeyValue = builder.Build();
-                                }
-
-                                items.Add((item["id"]!.ToString(), partitionKeyValue));
-                            }
-                        }
-
-                        foreach (var item in items)
-                        {
-                            await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue);
-                        }
-                    }
-                }
-
-                created = await context.Database.EnsureCreatedAsync();
+            if (!TestEnvironment.UseTokenCredential)
+            {
+                created = await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
                 if (!created)
                 {
-                    var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
-                    await creator.SeedAsync();
+                    await SeedAsync(context).ConfigureAwait(false);
                 }
             }
             else
             {
-                await context.Database.EnsureCreatedAsync();
+                await CreateContainersAsync(context).ConfigureAwait(false);
+                await SeedAsync(context).ConfigureAwait(false);
             }
         }
         catch (Exception)
         {
             try
             {
-                await EnsureDeletedAsync(context);
+                await EnsureDeletedAsync(context).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -339,6 +316,165 @@ public class CosmosTestStore : TestStore
 
             throw;
         }
+    }
+
+    private async Task CreateContainersAsync(DbContext context)
+    {
+        var databaseAccount = await GetDBAccount().ConfigureAwait(false);
+        var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+        var database = await collection.GetAsync(Name).ConfigureAwait(false);
+        var model = context.GetService<IDesignTimeModel>().Model;
+
+        foreach (var container in GetContainersToCreate(model))
+        {
+            var resource = new CosmosDBSqlContainerResourceInfo(container.Id)
+            {
+                AnalyticalStorageTtl = container.AnalyticalStoreTimeToLiveInSeconds,
+                DefaultTtl = container.DefaultTimeToLive,
+                PartitionKey = new CosmosDBContainerPartitionKey
+                {
+                    Version = 2
+                }
+            };
+
+            if (container.PartitionKeyStoreNames.Count > 1)
+            {
+                resource.PartitionKey.Kind = "MultiHash";
+            }
+            foreach (var partitionKey in container.PartitionKeyStoreNames)
+            {
+                resource.PartitionKey.Paths.Add("/" + partitionKey);
+            }
+
+            var content = new CosmosDBSqlContainerCreateOrUpdateContent(TestEnvironment.AzureLocation, resource);
+            if (container.Throughput != null)
+            {
+                content.Options.AutoscaleMaxThroughput = container.Throughput.AutoscaleMaxThroughput;
+                content.Options.Throughput = container.Throughput.Throughput;
+            }
+
+            await database.Value.GetCosmosDBSqlContainers().CreateOrUpdateAsync(
+                WaitUntil.Completed, container.Id, content).ConfigureAwait(false);
+        }
+    }
+
+    private static IEnumerable<Cosmos.Storage.Internal.ContainerProperties> GetContainersToCreate(IModel model)
+    {
+        var containers = new Dictionary<string, List<IEntityType>>();
+        foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+        {
+            var container = entityType.GetContainer();
+            if (container == null)
+            {
+                continue;
+            }
+
+            if (!containers.TryGetValue(container, out var mappedTypes))
+            {
+                mappedTypes = [];
+                containers[container] = mappedTypes;
+            }
+
+            mappedTypes.Add(entityType);
+        }
+
+        foreach (var (containerName, mappedTypes) in containers)
+        {
+            IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
+            int? analyticalTtl = null;
+            int? defaultTtl = null;
+            ThroughputProperties? throughput = null;
+
+            foreach (var entityType in mappedTypes)
+            {
+                if (!partitionKeyStoreNames.Any())
+                {
+                    partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
+                }
+                analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
+                defaultTtl ??= entityType.GetDefaultTimeToLive();
+                throughput ??= entityType.GetThroughput();
+            }
+
+            yield return new(
+                containerName,
+                partitionKeyStoreNames,
+                analyticalTtl,
+                defaultTtl,
+                throughput);
+        }
+    }
+
+    private static IReadOnlyList<string> GetPartitionKeyStoreNames(IEntityType entityType)
+    {
+        var properties = entityType.GetPartitionKeyProperties();
+        return properties.Any()
+            ? properties.Select(p => p.GetJsonPropertyName()).ToList()
+            : [CosmosClientWrapper.DefaultPartitionKey];
+    }
+
+    private async Task DeleteContainers(DbContext context)
+    {
+        if (!TestEnvironment.UseTokenCredential)
+        {
+            var cosmosClient = context.Database.GetCosmosClient();
+            var database = cosmosClient.GetDatabase(Name);
+            var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
+            while (containerIterator.HasMoreResults)
+            {
+                foreach (var containerProperties in await containerIterator.ReadNextAsync().ConfigureAwait(false))
+                {
+                    var container = database.GetContainer(containerProperties.Id);
+                    var partitionKeys = containerProperties.PartitionKeyPaths.Select(p => p[1..]).ToList();
+                    var itemIterator = container.GetItemQueryIterator<JObject>(
+                        new QueryDefinition("SELECT * FROM c"));
+
+                    var items = new List<(string Id, PartitionKey PartitionKeyValue)>();
+                    while (itemIterator.HasMoreResults)
+                    {
+                        foreach (var item in await itemIterator.ReadNextAsync().ConfigureAwait(false))
+                        {
+                            var partitionKeyValue = PartitionKey.None;
+                            if (partitionKeys.Count >= 1
+                                && item[partitionKeys[0]] is not null)
+                            {
+                                var builder = new PartitionKeyBuilder();
+                                foreach (var partitionKey in partitionKeys)
+                                {
+                                    builder.Add((string?)item[partitionKey]);
+                                }
+
+                                partitionKeyValue = builder.Build();
+                            }
+
+                            items.Add((item["id"]!.ToString(), partitionKeyValue));
+                        }
+                    }
+
+                    foreach (var item in items)
+                    {
+                        await container.DeleteItemAsync<object>(item.Id, item.PartitionKeyValue).ConfigureAwait(false);
+                    }
+                }
+            }
+        }
+        else
+        {
+            var databaseAccount = await GetDBAccount().ConfigureAwait(false);
+            var collection = databaseAccount.Value.GetCosmosDBSqlDatabases();
+            var database = await collection.GetAsync(Name).ConfigureAwait(false);
+            var containers = await database.Value.GetCosmosDBSqlContainers().GetAllAsync().ToListAsync().ConfigureAwait(false);
+            foreach (var container in containers)
+            {
+                await container.DeleteAsync(WaitUntil.Completed).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private static async Task SeedAsync(DbContext context)
+    {
+        var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
+        await creator.SeedAsync().ConfigureAwait(false);
     }
 
     public override void Dispose()
@@ -359,7 +495,7 @@ public class CosmosTestStore : TestStore
                 GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
             }
 
-            await EnsureDeletedAsync(_storeContext);
+            await EnsureDeletedAsync(_storeContext).ConfigureAwait(false);
         }
 
         _storeContext.Dispose();

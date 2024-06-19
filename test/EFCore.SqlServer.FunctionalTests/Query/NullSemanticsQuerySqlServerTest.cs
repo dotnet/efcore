@@ -1118,7 +1118,7 @@ WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableSt
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[StringA], [e].[StringB])
+WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[NullableStringC], [e].[StringA])
 """);
     }
 

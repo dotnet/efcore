@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable UnusedMember.Local
@@ -1165,7 +1166,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
     {
         var contextFactory = await InitializeAsync<PartitionKeyContextCustomValueGenerator>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)),
+            addServices: s => s.AddSingleton<IJsonIdDefinitionFactory, CustomJsonIdDefinitionFactory>());
 
         const int pk1 = 1;
         const int pk2 = 2;
@@ -1232,7 +1234,8 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
     {
         var contextFactory = await InitializeAsync<PartitionKeyContextCustomValueGenerator>(
             shouldLogCategory: _ => true,
-            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)));
+            onConfiguring: o => o.ConfigureWarnings(w => w.Log(CosmosEventId.SyncNotSupported)),
+            addServices: s => s.AddSingleton<IJsonIdDefinitionFactory, CustomJsonIdDefinitionFactory>());
 
         const int pk1 = 1;
         const int pk2 = 2;

@@ -84,7 +84,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<Weapon>().Select(w => w.IsAutomatic.ToString()));
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue #33941 Nullable<bool>.ToString() does not match C#")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ToString_boolean_property_nullable(bool async)
         => AssertQuery(
@@ -1793,21 +1793,21 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Coalesce_operator_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Where(w => (bool?)w.IsAutomatic ?? false));
+            ss => ss.Set<CogTag>().Where(x => (bool?)x.Gear.HasSoulPatch ?? false));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_operator_in_predicate_with_other_conditions(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Weapon>().Where(w => w.AmmunitionType == AmmunitionType.Cartridge && ((bool?)w.IsAutomatic ?? false)));
+            ss => ss.Set<CogTag>().Where(x => x.Note != "K.I.A." && ((bool?)x.Gear.HasSoulPatch ?? false)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Coalesce_operator_in_projection_with_other_conditions(bool async)
         => AssertQueryScalar(
             async,
-            ss => ss.Set<Weapon>().Select(w => w.AmmunitionType == AmmunitionType.Cartridge && ((bool?)w.IsAutomatic ?? false)));
+            ss => ss.Set<CogTag>().Select(x => x.Note != "K.I.A." && ((bool?)x.Gear.HasSoulPatch ?? false)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2704,7 +2704,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                   where f is LocustHorde
                   let horde = (LocustHorde)f
                   orderby f.Name
-                  select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated") },
+                  select new { Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool?>((LocustHorde)f, "Eradicated") },
             assertOrder: true);
 
     [ConditionalTheory]

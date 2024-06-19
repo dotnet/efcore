@@ -39,6 +39,7 @@ public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureB
                     {
                         case 1:
                         case 2:
+                        case 3:
                             return "LocustHorde";
 
                         default:
@@ -59,6 +60,7 @@ public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureB
 
                         case "Queen Myrrah":
                         case "Unknown":
+                        case "Reyna Diaz":
                             return "LocustCommander";
 
                         default:

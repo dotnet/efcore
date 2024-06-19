@@ -88,7 +88,8 @@ public class StoreKeyConvention :
 
             if (idProperty != null)
             {
-                if (idProperty.ClrType == typeof(string))
+                var converter = idProperty.GetValueConverter();
+                if ((converter == null ? idProperty.ClrType : converter.ProviderClrType) == typeof(string))
                 {
                     if (idProperty.IsPrimaryKey())
                     {
