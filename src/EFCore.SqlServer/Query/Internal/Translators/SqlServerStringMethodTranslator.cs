@@ -198,22 +198,21 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (_sqlServerSingletonOptions.CompatibilityLevel >= 160)
+            if (TrimStartMethodInfoWithoutArgs.Equals(method)
+                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                    && (TrimStartMethodInfoWithCharArg.Equals(method)
+                        || TrimStartMethodInfoWithCharArrayArg.Equals(method))))
             {
-                if (TrimStartMethodInfoWithoutArgs.Equals(method)
-                    || TrimStartMethodInfoWithCharArg.Equals(method)
-                    || TrimStartMethodInfoWithCharArrayArg.Equals(method))
-                {
-                    return ProcessTrimMethod(instance, arguments, "LTRIM");
-                }
+                return ProcessTrimMethod(instance, arguments, "LTRIM");
+            }
 
-                if (TrimEndMethodInfoWithoutArgs.Equals(method)
-                    || TrimEndMethodInfoWithCharArg.Equals(method)
-                    || TrimEndMethodInfoWithCharArrayArg.Equals(method))
-                {
-                    return ProcessTrimMethod(instance, arguments, "RTRIM");
-                }
-            }            
+            if (TrimEndMethodInfoWithoutArgs.Equals(method)
+                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                    && (TrimEndMethodInfoWithCharArg.Equals(method)
+                        || TrimEndMethodInfoWithCharArrayArg.Equals(method))))
+            {
+                return ProcessTrimMethod(instance, arguments, "RTRIM");
+            }
 
             if (TrimMethodInfoWithoutArgs.Equals(method)
                 || (TrimMethodInfoWithCharArrayArg.Equals(method)
@@ -397,17 +396,16 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             var constantValue = (arguments[0] as SqlConstantExpression)?.Value;
             var charactersToTrim = new StringBuilder();
 
-            if (constantValue is char singleChar)
+            switch(constantValue)
             {
-                charactersToTrim.Append(singleChar);
-            }
-            else if (constantValue is char[] charArray)
-            {
-                charactersToTrim.Append(charArray);
-            }
-            else
-            {
-                return null;
+                case char singleChar:
+                    charactersToTrim.Append(singleChar);
+                    break;
+                case char[] charArray:
+                    charactersToTrim.Append(charArray);
+                    break;
+                default:
+                    return null;
             }
 
             if (charactersToTrim.Length > 0)
