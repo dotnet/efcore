@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -257,7 +258,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 {
                     var returnDefault = method.Name == nameof(Queryable.ElementAtOrDefault);
                     if (Visit(innerMethodCall) is ShapedQueryExpression translatedSelect
-                        && CosmosQueryUtils.TryExtractBareArray(translatedSelect, out _, out _, out _, out var boundMember)
+                        && translatedSelect.TryExtractArray(out _, out _, out _, out var boundMember)
                         && boundMember is IAccessExpression { PropertyName: string boundPropertyName }
                         && Visit(innerMethodCall.Arguments[0]) is ShapedQueryExpression innerSource
                         && TranslateElementAtOrDefault(
@@ -418,7 +419,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         }
 
         // Simplify x.Array.Any() => ARRAY_LENGTH(x.Array) > 0 instead of (EXISTS(SELECT 1 FROM i IN x.Array))
-        if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true))
+        if (source.TryExtractArray(out var array, ignoreOrderings: true))
         {
             var simplifiedTranslation = _sqlExpressionFactory.GreaterThan(
                 _sqlExpressionFactory.Function(
@@ -502,7 +503,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
-        if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
+        if (source.TryExtractArray(out var array, ignoreOrderings: true)
             && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
             && TranslateExpression(item) is SqlExpression translatedItem)
         {
@@ -579,10 +580,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // subquery+OFFSET (which isn't supported by Cosmos).
         // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
         // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
-        var array = CosmosQueryUtils.TryExtractBareArray(
-            source, out var a, out var projection, out var projectedStructuralTypeShaper, out _)
+        var array = source.TryExtractArray(out var a, out var projection, out var projectedStructuralTypeShaper, out _)
             ? a
-            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projection)
+            : _subquery && source.TryConvertToArray(_typeMappingSource, out a, out projection)
                 ? a
                 : null;
 
@@ -1114,10 +1114,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // subquery+OFFSET (which isn't supported by Cosmos).
         // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
         // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
-        var array = CosmosQueryUtils.TryExtractBareArray(
-            source, out var a, out var projection, out var projectedStructuralTypeShaper, out _)
+        var array = source.TryExtractArray(out var a, out var projection, out var projectedStructuralTypeShaper, out _)
             ? a
-            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projection)
+            : _subquery && source.TryConvertToArray(_typeMappingSource, out a, out projection)
                 ? a
                 : null;
 
@@ -1235,10 +1234,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // subquery+LIMIT (which isn't supported by Cosmos).
         // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
         // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
-        var array = CosmosQueryUtils.TryExtractBareArray(
-            source, out var a, out var projection, out var projectedStructuralTypeShaper, out _)
+        var array = source.TryExtractArray(out var a, out var projection, out var projectedStructuralTypeShaper, out _)
             ? a
-            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projection)
+            : _subquery && source.TryConvertToArray(_typeMappingSource, out a, out projection)
                 ? a
                 : null;
 
@@ -1633,8 +1631,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private ShapedQueryExpression? TranslateCountLongCount(ShapedQueryExpression source, LambdaExpression? predicate, Type returnType)
     {
         // Simplify x.Array.Count() => ARRAY_LENGTH(x.Array) instead of (SELECT COUNT(1) FROM i IN x.Array))
-        if (predicate is null
-            && CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true))
+        if (predicate is null && source.TryExtractArray(out var array, ignoreOrderings: true))
         {
             var simplifiedTranslation = _sqlExpressionFactory.Function(
                 "ARRAY_LENGTH", new[] { array }, typeof(int), _typeMappingSource.FindMapping(typeof(int)));
@@ -1682,8 +1679,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         string functionName,
         bool ignoreOrderings = false)
     {
-        if (CosmosQueryUtils.TryConvertToArray(source1, _typeMappingSource, out var array1, out var projection1, ignoreOrderings)
-            && CosmosQueryUtils.TryConvertToArray(source2, _typeMappingSource, out var array2, out var projection2, ignoreOrderings)
+        if (source1.TryConvertToArray(_typeMappingSource, out var array1, out var projection1, ignoreOrderings)
+            && source2.TryConvertToArray(_typeMappingSource, out var array2, out var projection2, ignoreOrderings)
             && projection1.Type == projection2.Type)
         {
             // Set operation over arrays of scalars

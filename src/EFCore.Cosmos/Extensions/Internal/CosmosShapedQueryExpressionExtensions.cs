@@ -2,8 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,35 +13,45 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public static class CosmosQueryUtils
+public static class CosmosShapedQueryExpressionExtensions
 {
     /// <summary>
+    ///     If the given <paramref name="source" /> represents wraps an array-returning expression without any additional clauses
+    ///     (e.g. filter, ordering...), returns that expression. Otherwise, converts it to an ARRAY() subquery that returns the results
+    ///     of the subquery as an array.
+    /// </summary>
+    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// </remarks>
     public static bool TryConvertToArray(
-        ShapedQueryExpression source,
+        this ShapedQueryExpression source,
         ITypeMappingSource typeMappingSource,
         [NotNullWhen(true)] out Expression? array,
         bool ignoreOrderings = false)
         => TryConvertToArray(source, typeMappingSource, out array, out _, ignoreOrderings);
 
     /// <summary>
+    ///     If the given <paramref name="source" /> represents wraps an array-returning expression without any additional clauses
+    ///     (e.g. filter, ordering...), returns that expression. Otherwise, converts it to an ARRAY() subquery that returns the results
+    ///     of the subquery as an array.
+    /// </summary>
+    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// </remarks>
     public static bool TryConvertToArray(
-        ShapedQueryExpression source,
+        this ShapedQueryExpression source,
         ITypeMappingSource typeMappingSource,
         [NotNullWhen(true)] out Expression? array,
         [NotNullWhen(true)] out Expression? projection,
         bool ignoreOrderings = false)
     {
-        if (TryExtractBareArray(source, out array, out var projectedScalar, ignoreOrderings))
+        if (TryExtractArray(source, out array, out var projectedScalar, ignoreOrderings))
         {
             projection = projectedScalar;
             return true;
@@ -76,16 +88,20 @@ public static class CosmosQueryUtils
     }
 
     /// <summary>
+    ///     If the given <paramref name="source" /> represents wraps an array-returning expression without any additional clauses
+    ///     (e.g. filter, ordering...), returns that expression.
+    /// </summary>
+    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static bool TryExtractBareArray(
-        ShapedQueryExpression source,
+    /// </remarks>
+    public static bool TryExtractArray(
+        this ShapedQueryExpression source,
         [NotNullWhen(true)] out Expression? array,
         bool ignoreOrderings = false)
-        => TryExtractBareArray(source, out array, out _, ignoreOrderings);
+        => TryExtractArray(source, out array, out _, ignoreOrderings);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,12 +109,12 @@ public static class CosmosQueryUtils
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static bool TryExtractBareArray(
-        ShapedQueryExpression source,
+    public static bool TryExtractArray(
+        this ShapedQueryExpression source,
         [NotNullWhen(true)] out Expression? array,
         [NotNullWhen(true)] out Expression? projection,
         bool ignoreOrderings = false)
-        => TryExtractBareArray(source, out array, out projection, out _, out var boundMember, ignoreOrderings)
+        => TryExtractArray(source, out array, out projection, out _, out var boundMember, ignoreOrderings)
             && boundMember is null;
 
     /// <summary>
@@ -107,8 +123,8 @@ public static class CosmosQueryUtils
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static bool TryExtractBareArray(
-        ShapedQueryExpression source,
+    public static bool TryExtractArray(
+        this ShapedQueryExpression source,
         [NotNullWhen(true)] out Expression? array,
         [NotNullWhen(true)] out Expression? projection,
         out StructuralTypeShaperExpression? projectedStructuralTypeShaper,
@@ -234,9 +250,7 @@ public static class CosmosQueryUtils
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static bool TryGetProjection(
-        ShapedQueryExpression shapedQueryExpression,
-        [NotNullWhen(true)] out Expression? projection)
+    private static bool TryGetProjection(ShapedQueryExpression shapedQueryExpression, [NotNullWhen(true)] out Expression? projection)
     {
         var shaperExpression = shapedQueryExpression.ShaperExpression;
         // No need to check ConvertChecked since this is convert node which we may have added during projection
