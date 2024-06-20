@@ -751,6 +751,12 @@ WHERE (
     public override Task Column_collection_SelectMany(bool async)
         => AssertTranslationFailed(() => base.Column_collection_SelectMany(async));
 
+    public override Task Column_collection_SelectMany_with_filter(bool async)
+        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_filter(async));
+
+    public override Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
+        => AssertTranslationFailed(() => base.Column_collection_SelectMany_with_Select_to_anonymous_type(async));
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);

@@ -1299,12 +1299,50 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
         AssertSql();
     }
 
-    public override async Task Column_collection_SelectMany(bool async)
-    {
-        // TODO: SelectMany
-        await AssertTranslationFailed(() => base.Column_collection_SelectMany(async));
+    public override Task Column_collection_SelectMany(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_SelectMany(a);
 
-        AssertSql();
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Ints"]
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+""");
+            });
+
+    public override Task Column_collection_SelectMany_with_filter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Column_collection_SelectMany_with_filter(a);
+
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN (
+    SELECT VALUE i
+    FROM i IN c["Ints"]
+    WHERE (i > 1)) a
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+""");
+            });
+
+    public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // TODO: #34004
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany_with_Select_to_anonymous_type(async));
+
+            Assert.Equal(CosmosStrings.ComplexProjectionInSubqueryNotSupported, exception.Message);
+        }
     }
 
     public override Task Column_collection_projection_from_top_level(bool async)

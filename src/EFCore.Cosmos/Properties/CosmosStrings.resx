@@ -123,6 +123,9 @@
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
+  <data name="ComplexProjectionInSubqueryNotSupported" xml:space="preserve">
+    <value>Complex projections in subqueries are currently unsupported.</value>
+  </data>
   <data name="ConnectionInfoMissing" xml:space="preserve">
     <value>None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.</value>
   </data>

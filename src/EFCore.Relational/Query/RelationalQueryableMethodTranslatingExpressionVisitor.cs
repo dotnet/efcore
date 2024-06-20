@@ -1094,6 +1094,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         LambdaExpression collectionSelector,
         LambdaExpression resultSelector)
     {
+        var select = (SelectExpression)source.QueryExpression;
         var (newCollectionSelector, correlated, defaultIfEmpty)
             = new CorrelationFindingExpressionVisitor().IsCorrelated(collectionSelector);
         if (correlated)
@@ -1101,10 +1102,9 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             var collectionSelectorBody = RemapLambdaBody(source, newCollectionSelector);
             if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
             {
-                var innerSelectExpression = (SelectExpression)source.QueryExpression;
                 var shaper = defaultIfEmpty
-                    ? innerSelectExpression.AddOuterApply(inner, source.ShaperExpression)
-                    : innerSelectExpression.AddCrossApply(inner, source.ShaperExpression);
+                    ? select.AddOuterApply(inner, source.ShaperExpression)
+                    : select.AddCrossApply(inner, source.ShaperExpression);
 
                 return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
             }
@@ -1124,8 +1124,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     inner = translatedInner;
                 }
 
-                var innerSelectExpression = (SelectExpression)source.QueryExpression;
-                var shaper = innerSelectExpression.AddCrossJoin(inner, source.ShaperExpression);
+                var shaper = select.AddCrossJoin(inner, source.ShaperExpression);
 
                 return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
             }

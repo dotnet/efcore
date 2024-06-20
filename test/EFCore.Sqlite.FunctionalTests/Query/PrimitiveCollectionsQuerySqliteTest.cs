@@ -1253,6 +1253,18 @@ WHERE (
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Column_collection_SelectMany(async))).Message);
 
+    public override async Task Column_collection_SelectMany_with_filter(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany_with_filter(async))).Message);
+
+    public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany_with_Select_to_anonymous_type(async))).Message);
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);

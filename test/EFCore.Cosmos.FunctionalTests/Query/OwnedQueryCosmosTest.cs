@@ -21,7 +21,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
     public override Task Query_loads_reference_nav_automatically_in_projection(bool async)
         => AssertTranslationFailed(() => base.Query_loads_reference_nav_automatically_in_projection(async));
 
-    // TODO: SelectMany, #17246
+    // Non-correlated queries not supported by Cosmos
     public override Task Query_with_owned_entity_equality_operator(bool async)
         => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_operator(async));
 
@@ -223,23 +223,36 @@ WHERE (c["Discriminator"] = "LeafA")
         => AssertTranslationFailed(
             () => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async));
 
-    // TODO: SelectMany, #17246
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public override Task SelectMany_on_owned_collection(bool async)
-        => AssertTranslationFailed(() => base.SelectMany_on_owned_collection(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.SelectMany_on_owned_collection(a);
 
-    // TODO: SelectMany, #17246
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
+            });
+
+    // TODO: Fake LeftJoin, #33969
     public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         => AssertTranslationFailed(() => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async));
 
-    // TODO: SelectMany, #17246
+    // TODO: Fake LeftJoin, #33969
     public override Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
         => AssertTranslationFailed(() => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async));
 
-    // TODO: SelectMany, #17246
+    // Non-correlated queries not supported by Cosmos
     public override Task Query_with_owned_entity_equality_method(bool async)
         => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_method(async));
 
-    // TODO: SelectMany, #17246
+    // Non-correlated queries not supported by Cosmos
     public override Task Query_with_owned_entity_equality_object_method(bool async)
         => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_object_method(async));
 
@@ -290,25 +303,140 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
     }
 
-    // TODO: SelectMany, #17246
     public override Task Where_owned_collection_navigation_ToList_Count(bool async)
-        => AssertTranslationFailed(() => base.Where_owned_collection_navigation_ToList_Count(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                // TODO: #34011
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
+                // as null instead of [].
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<OwnedPerson>()
+                        .OrderBy(p => p.Id)
+                        .SelectMany(p => p.Orders)
+                        .Select(p => p.Details.ToList())
+                        .Where(e => e.Count() == 1),
+                    assertOrder: true,
+                    elementAsserter: (e, a) => AssertCollection(e, a));
 
-    // TODO: SelectMany, #17246
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+ORDER BY c["Id"]
+""");
+            });
+
     public override Task Where_collection_navigation_ToArray_Count(bool async)
-        => AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Count(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                // TODO: #34011
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
+                // as null instead of [].
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<OwnedPerson>()
+                        .OrderBy(p => p.Id)
+                        .SelectMany(p => p.Orders)
+                        .Select(p => p.Details.AsEnumerable().ToArray())
+                        .Where(e => e.Count() == 1),
+                    assertOrder: true,
+                    elementAsserter: (e, a) => AssertCollection(e, a));
 
-    // TODO: SelectMany, #17246
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+ORDER BY c["Id"]
+""");
+            });
+
     public override Task Where_collection_navigation_AsEnumerable_Count(bool async)
-        => AssertTranslationFailed(() => base.Where_collection_navigation_AsEnumerable_Count(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                // TODO: #34011
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
+                // as null instead of [].
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<OwnedPerson>()
+                        .OrderBy(p => p.Id)
+                        .SelectMany(p => p.Orders)
+                        .Select(p => p.Details.AsEnumerable())
+                        .Where(e => e.Count() == 1),
+                    assertOrder: true,
+                    elementAsserter: (e, a) => AssertCollection(e, a));
 
-    // TODO: SelectMany, #17246
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+ORDER BY c["Id"]
+""");
+            });
+
     public override Task Where_collection_navigation_ToList_Count_member(bool async)
-        => AssertTranslationFailed(() => base.Where_collection_navigation_ToList_Count_member(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                // TODO: #34011
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
+                // as null instead of [].
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<OwnedPerson>()
+                        .OrderBy(p => p.Id)
+                        .SelectMany(p => p.Orders)
+                        .Select(p => p.Details.ToList())
+                        .Where(e => e.Count == 1),
+                    assertOrder: true,
+                    elementAsserter: (e, a) => AssertCollection(e, a));
 
-    // TODO: SelectMany, #17246
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+ORDER BY c["Id"]
+""");
+            });
+
     public override Task Where_collection_navigation_ToArray_Length_member(bool async)
-        => AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Length_member(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                // TODO: #34011
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
+                // as null instead of [].
+                await AssertQuery(
+                    a,
+                    ss => ss.Set<OwnedPerson>()
+                        .OrderBy(p => p.Id)
+                        .SelectMany(p => p.Orders)
+                        .Select(p => p.Details.AsEnumerable().ToArray())
+                        .Where(e => e.Length == 1),
+                    assertOrder: true,
+                    elementAsserter: (e, a) => AssertCollection(e, a));
+
+                AssertSql(
+                    """
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+ORDER BY c["Id"]
+""");
+            });
 
     // TODO: GroupBy, #17313
     public override Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
@@ -559,7 +687,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
         AssertSql();
     }
 
-    // TODO: SelectMany, #17246
+    // TODO: Fake LeftJoin, #33969
     public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(
         bool async,
         bool useAsTracking)
@@ -594,9 +722,29 @@ ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
         }
     }
 
-    // TODO: SelectMany, #17246
     public override Task Query_on_collection_entry_works_for_owned_collection(bool async)
-        => AssertTranslationFailed(() => base.Query_on_collection_entry_works_for_owned_collection(async));
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Query_on_collection_entry_works_for_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
+OFFSET 0 LIMIT 2
+""",
+                    //
+                    """
+@__p_0='1'
+
+SELECT a
+FROM root c
+JOIN a IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (a["ClientId"] = @__p_0))
+""");
+            });
 
     // Non-correlated queries not supported by Cosmos
     public override Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(

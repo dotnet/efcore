@@ -283,15 +283,10 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         {
             // If the SELECT projects a single value out, we just project that with the Cosmos VALUE keyword (without VALUE,
             // Cosmos projects a JSON object containing the value).
-            if (selectExpression.UsesSingleValueProjection)
+            // TODO: Ideally, just always use VALUE for all single-projection SELECTs - but this like requires shaper changes.
+            if (selectExpression.UsesSingleValueProjection && projection is [var singleProjection])
             {
                 _sqlBuilder.Append("VALUE ");
-
-                if (projection is not [var singleProjection])
-                {
-                    throw new UnreachableException(
-                        $"Encountered SelectExpression with UsesValueProject=true and Projection.Count={projection.Count}.");
-                }
 
                 Visit(singleProjection.Expression);
             }
@@ -319,16 +314,19 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             _sqlBuilder.Append('1');
         }
 
-        if (selectExpression.Sources.Count > 0)
+        var sources = selectExpression.Sources;
+        if (sources.Count > 0)
         {
-            if (selectExpression.Sources.Count > 1)
-            {
-                throw new NotImplementedException("JOINs not yet supported");
-            }
-
             _sqlBuilder.AppendLine().Append("FROM ");
 
-            Visit(selectExpression.Sources[0]);
+            Visit(sources[0]);
+
+            for (var i = 1; i < sources.Count; i++)
+            {
+                _sqlBuilder.AppendLine().Append("JOIN ");
+
+                Visit(sources[i]);
+            }
         }
 
         if (selectExpression.Predicate != null)
@@ -752,11 +750,11 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 .Append(" IN ");
 
 
-            VisitContainerExpression(sourceExpression.ContainerExpression);
+            VisitContainerExpression(sourceExpression.Expression);
         }
         else
         {
-            VisitContainerExpression(sourceExpression.ContainerExpression);
+            VisitContainerExpression(sourceExpression.Expression);
 
             if (sourceExpression.Alias is not null)
             {
@@ -795,7 +793,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 }
             }
 
-            Visit(sourceExpression.ContainerExpression);
+            Visit(sourceExpression.Expression);
 
             if (subquery)
             {

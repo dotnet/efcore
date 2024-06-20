@@ -22,7 +22,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
-    private readonly bool _subquery;
+    private bool _subquery;
     private ReadItemInfo? _readItemExpression;
 
     /// <summary>
@@ -237,7 +237,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-        if (method.DeclaringType == typeof(Queryable))
+        if (method.DeclaringType == typeof(Queryable) && method.IsGenericMethod)
         {
             switch (methodCallExpression.Method.Name)
             {
@@ -370,7 +370,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             new StructuralTypeShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(queryExpression, new ProjectionMember(), typeof(ValueBuffer)),
-                false));
+                nullable: false));
     }
 
     private ShapedQueryExpression CreateShapedQueryExpression(SelectExpression select, Type elementClrType)
@@ -994,7 +994,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null!;
         }
 
-        var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
+        var newSelectorBody = RemapLambdaBody(source, selector);
 
         return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
     }
@@ -1009,16 +1009,53 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         ShapedQueryExpression source,
         LambdaExpression collectionSelector,
         LambdaExpression resultSelector)
-        => null;
+    {
+        var collectionSelectorBody = RemapLambdaBody(source, collectionSelector);
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+        // The collection selector gets translated in subquery context; specifically, if an uncorrelated SelectMany() is attempted
+        // (from b in context.Blogs from p in context.Posts...), we want to detect that and fail translation as an uncorrelated query
+        // (see VisitExtension visitation for EntityQueryRootExpression)
+        var previousSubquery = _subquery;
+        _subquery = true;
+        try
+        {
+            if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
+            {
+                var select = (SelectExpression)source.QueryExpression;
+                var shaper = select.AddJoin(inner, source.ShaperExpression);
+
+                return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
+            }
+
+            return null;
+        }
+        finally
+        {
+            _subquery = previousSubquery;
+        }
+    }
+
+    /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
-        => null;
+    {
+        // TODO: Note that we currently never actually seem to get SelectMany without a result selector, because nav expansion rewrites
+        // that to a more complex variant with a result selector (see https://github.com/dotnet/efcore/issues/32957#issuecomment-2170950767)
+        // blogs.SelectMany(c => c.Ints) becomes:
+        // blogs
+        //     .SelectMany(p => Property(p, "Ints").AsQueryable(), (p, c) => new TransparentIdentifier`2(Outer = p, Inner = c))
+        //     .Select(ti => ti.Inner)
+
+        // TODO: In Cosmos, we currently always add a predicate for the discriminator (unless HasNoDiscriminator is explicitly specified),
+        // so the source is almost never a bare array.
+        // If we stop doing that (see #34005, #20268), and we remove the result selector problem (see just above), we should check if the
+        // source is a bare array, and simply return the ShapedQueryExpression returned from visiting the collection selector. This would
+        // remove the extra unneeded JOIN we'd currently generate.
+        var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
+        var resultSelector = Expression.Lambda(
+            innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);
+
+        return TranslateSelectMany(source, selector, resultSelector);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1691,14 +1728,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private SqlExpression? TranslateLambdaExpression(
         ShapedQueryExpression shapedQueryExpression,
         LambdaExpression lambdaExpression)
-    {
-        var lambdaBody = RemapLambdaBody(shapedQueryExpression.ShaperExpression, lambdaExpression);
+        => TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression));
 
-        return TranslateExpression(lambdaBody);
-    }
-
-    private static Expression RemapLambdaBody(Expression shaperBody, LambdaExpression lambdaExpression)
-        => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters.Single(), shaperBody, lambdaExpression.Body);
+    private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
+        => ReplacingExpressionVisitor.Replace(
+            lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
     private static ShapedQueryExpression AggregateResultShaper(
         ShapedQueryExpression source,
@@ -1743,4 +1777,28 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         return source.UpdateShaperExpression(shaper);
     }
+
+    private ShapedQueryExpression TranslateTwoParameterSelector(ShapedQueryExpression source, LambdaExpression resultSelector)
+    {
+        var transparentIdentifierType = source.ShaperExpression.Type;
+        var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
+
+        Expression original1 = resultSelector.Parameters[0];
+        var replacement1 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Outer");
+        Expression original2 = resultSelector.Parameters[1];
+        var replacement2 = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
+        var newResultSelector = Expression.Lambda(
+            new ReplacingExpressionVisitor(
+                    new[] { original1, original2 }, new[] { replacement1, replacement2 })
+                .Visit(resultSelector.Body),
+            transparentIdentifierParameter);
+
+        return TranslateSelect(source, newResultSelector);
+    }
+
+    private static Expression AccessField(
+        Type transparentIdentifierType,
+        Expression targetExpression,
+        string fieldName)
+        => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
 }

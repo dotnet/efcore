@@ -38,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
+        ///     Complex projections in subqueries are currently unsupported.
+        /// </summary>
+        public static string ComplexProjectionInSubqueryNotSupported
+            => GetString("ComplexProjectionInSubqueryNotSupported");
+
+        /// <summary>
         ///     None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.
         /// </summary>
         public static string ConnectionInfoMissing

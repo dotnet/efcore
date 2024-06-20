@@ -225,23 +225,20 @@ public class QueryCompilationContext
     public virtual Expression<Func<QueryContext, TResult>> CreateQueryExecutorExpression<TResult>(Expression query)
     {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
-        query = queryAndEventData.Query;
+        var interceptedQuery = queryAndEventData.Query;
 
-        query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
-        // Convert EntityQueryable to ShapedQueryExpression
-        query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(query);
-        query = _queryTranslationPostprocessorFactory.Create(this).Process(query);
+        var preprocessedQuery = _queryTranslationPreprocessorFactory.Create(this).Process(interceptedQuery);
+        var translatedQuery = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(preprocessedQuery);
+        var postprocessedQuery = _queryTranslationPostprocessorFactory.Create(this).Process(translatedQuery);
 
-        // Inject actual entity materializer
-        // Inject tracking
-        query = _shapedQueryCompilingExpressionVisitorFactory.Create(this).Visit(query);
+        var compiledQuery = _shapedQueryCompilingExpressionVisitorFactory.Create(this).Visit(postprocessedQuery);
 
         // If any additional parameters were added during the compilation phase (e.g. entity equality ID expression),
         // wrap the query with code adding those parameters to the query context
-        query = InsertRuntimeParameters(query);
+        var compiledQueryWithRuntimeParameters = InsertRuntimeParameters(compiledQuery);
 
         return Expression.Lambda<Func<QueryContext, TResult>>(
-            query,
+            compiledQueryWithRuntimeParameters,
             QueryContextParameter);
     }
 

@@ -1273,6 +1273,34 @@ CROSS APPLY OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
 """);
     }
 
+    public override async Task Column_collection_SelectMany_with_filter(bool async)
+    {
+        await base.Column_collection_SelectMany_with_filter(async);
+
+        AssertSql(
+            """
+SELECT [i0].[value]
+FROM [PrimitiveCollectionsEntity] AS [p]
+CROSS APPLY (
+    SELECT [i].[value]
+    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+    WHERE [i].[value] > 1
+) AS [i0]
+""");
+    }
+
+    public override async Task Column_collection_SelectMany_with_Select_to_anonymous_type(bool async)
+    {
+        await base.Column_collection_SelectMany_with_Select_to_anonymous_type(async);
+
+        AssertSql(
+            """
+SELECT [i].[value] AS [Original], [i].[value] + 1 AS [Incremented]
+FROM [PrimitiveCollectionsEntity] AS [p]
+CROSS APPLY OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+""");
+    }
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);
