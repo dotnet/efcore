@@ -6,7 +6,6 @@
     <_EFCustomTasksAssembly>$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory), '..\tasks\$(_TaskTargetFramework)\$(MSBuildThisFileName).dll'))</_EFCustomTasksAssembly>
     <EFScaffoldModelStage Condition="'$(EFScaffoldModelStage)'==''">publish</EFScaffoldModelStage>
     <EFPrecompileQueriesStage Condition="'$(EFPrecompileQueriesStage)'==''">publish</EFPrecompileQueriesStage>
-    <EFStartupProject Condition="'$(EFStartupProject)'==''">$(MSBuildProjectFullPath)</EFStartupProject>
     <DbContextType Condition="'$(DbContextType)'==''">*</DbContextType>
   </PropertyGroup>
 
