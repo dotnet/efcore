@@ -955,9 +955,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["NullableStrin
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (EXISTS (
-    SELECT 1
-    FROM i IN c["Strings"]) AND (c["Strings"][1] = c["NullableString"])))
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"])))
 """);
             });
 
@@ -1289,15 +1287,13 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
-    SELECT 1
-    FROM i IN c["Ints"]))
+WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) > 0))
 """);
             });
 
     public override async Task Column_collection_Distinct(bool async)
     {
-        // TODO: Count after Distinct requires subquery pushdown
+        // TODO: Subquery pushdown, #33968
         await AssertTranslationFailed(() => base.Column_collection_Distinct(async));
 
         AssertSql();

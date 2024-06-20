@@ -7,15 +7,13 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
-///     Represents a property access on a CosmosJSON object, which returns a JSON object (structural type) (e.g. <c>c.Address</c>).
-/// </summary>
-/// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </remarks>
-public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessExpression
+/// </summary>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
+public class ObjectBinaryExpression : Expression, IPrintableExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,15 +21,19 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ObjectAccessExpression(Expression @object, INavigation navigation)
+    public ObjectBinaryExpression(ExpressionType operatorType, Expression left, Expression right, Type type)
     {
-        PropertyName = navigation.TargetEntityType.GetContainingPropertyName()
-            ?? throw new InvalidOperationException(
-                CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
-                    navigation.DeclaringEntityType.DisplayName(), navigation.Name));
+        if (!IsValidOperator(operatorType))
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.UnsupportedOperatorForSqlExpression(
+                    operatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
+        }
 
-        Navigation = navigation;
-        Object = @object;
+        Type = type;
+        OperatorType = operatorType;
+        Left = left;
+        Right = right;
     }
 
     /// <summary>
@@ -49,8 +51,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Type Type
-        => Navigation.ClrType;
+    public override Type Type { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,7 +59,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression Object { get; }
+    public virtual ExpressionType OperatorType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +67,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string PropertyName { get; }
+    public virtual Expression Left { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +75,7 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual INavigation Navigation { get; }
+    public virtual Expression Right { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +84,12 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-        => Update(visitor.Visit(Object));
+    {
+        var left = (Expression)visitor.Visit(Left);
+        var right = (Expression)visitor.Visit(Right);
+
+        return Update(left, right);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,19 +97,13 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ObjectAccessExpression Update(Expression outerExpression)
-        => outerExpression != Object
-            ? new ObjectAccessExpression(outerExpression, Navigation)
+    public virtual ObjectBinaryExpression Update(Expression left, Expression right)
+        => left != Left || right != Right
+            ? new ObjectBinaryExpression(OperatorType, left, right, Type)
             : this;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append(ToString());
+    internal static bool IsValidOperator(ExpressionType operatorType)
+        => operatorType is ExpressionType.Coalesce;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,8 +111,41 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override string ToString()
-        => $"{Object}[\"{PropertyName}\"]";
+    public void Print(ExpressionPrinter expressionPrinter)
+    {
+        var requiresBrackets = RequiresBrackets(Left);
+
+        if (requiresBrackets)
+        {
+            expressionPrinter.Append("(");
+        }
+
+        expressionPrinter.Visit(Left);
+
+        if (requiresBrackets)
+        {
+            expressionPrinter.Append(")");
+        }
+
+        expressionPrinter.Append(expressionPrinter.GenerateBinaryOperator(OperatorType));
+
+        requiresBrackets = RequiresBrackets(Right);
+
+        if (requiresBrackets)
+        {
+            expressionPrinter.Append("(");
+        }
+
+        expressionPrinter.Visit(Right);
+
+        if (requiresBrackets)
+        {
+            expressionPrinter.Append(")");
+        }
+
+        static bool RequiresBrackets(Expression expression)
+            => expression is ObjectBinaryExpression;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -123,12 +156,14 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
-                || obj is ObjectAccessExpression objectAccessExpression
-                && Equals(objectAccessExpression));
+                || obj is ObjectBinaryExpression other
+                && Equals(other));
 
-    private bool Equals(ObjectAccessExpression objectAccessExpression)
-        => Navigation == objectAccessExpression.Navigation
-            && Object.Equals(objectAccessExpression.Object);
+    private bool Equals(ObjectBinaryExpression other)
+        => Type == other.Type
+            && OperatorType == other.OperatorType
+            && Left.Equals(other.Left)
+            && Right.Equals(other.Right);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,5 +172,5 @@ public class ObjectAccessExpression : Expression, IPrintableExpression, IAccessE
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(Navigation, Object);
+        => HashCode.Combine(Type, OperatorType, Left, Right);
 }

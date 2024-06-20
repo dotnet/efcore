@@ -30,7 +30,7 @@ public class ScalarSubqueryExpression : SqlExpression
             subquery,
             subquery.Projection[0].Expression is SqlExpression sqlExpression
                 ? sqlExpression.TypeMapping
-                : throw new UnreachableException("Can't construct scalar subquery over SelectExpresison with non-SqlExpression projection"))
+                : throw new UnreachableException("Can't construct scalar subquery over SelectExpression with non-SqlExpression projection"))
     {
         Subquery = subquery;
     }

@@ -916,9 +916,9 @@ ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
 """);
     }
 
-    public override async Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+    public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
-        await base.Can_OrderBy_owened_indexer_properties_converted(async);
+        await base.Can_OrderBy_owned_indexer_properties_converted(async);
 
         AssertSql(
             """

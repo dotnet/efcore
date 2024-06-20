@@ -273,19 +273,21 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.AppendLine(nameof(StructuralTypeShaperExpression) + ": ");
+        expressionPrinter.AppendLine(nameof(StructuralTypeShaperExpression) + "(");
         using (expressionPrinter.Indent())
         {
-            expressionPrinter.AppendLine(StructuralType.Name);
-            expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
-            using (expressionPrinter.Indent())
-            {
-                expressionPrinter.Visit(ValueBufferExpression);
-                expressionPrinter.AppendLine();
-            }
+            expressionPrinter
+                .Append(nameof(StructuralType) + ": ")
+                .AppendLine(StructuralType.Name);
 
-            expressionPrinter.Append(nameof(IsNullable) + ": ");
-            expressionPrinter.AppendLine(IsNullable.ToString());
+            expressionPrinter.Append(nameof(ValueBufferExpression) + ": ");
+            expressionPrinter.Visit(ValueBufferExpression);
+            expressionPrinter.AppendLine();
+
+            expressionPrinter
+                .Append(nameof(IsNullable) + ": ")
+                .Append(IsNullable.ToString())
+                .Append(")");
         }
     }
 

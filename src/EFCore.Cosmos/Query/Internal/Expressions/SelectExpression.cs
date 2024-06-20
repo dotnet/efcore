@@ -48,7 +48,7 @@ public class SelectExpression : Expression, IPrintableExpression
         // TODO: Redo aliasing
         _sources = [new SourceExpression(new ObjectReferenceExpression(entityType, "root"), RootAlias)];
         _projectionMapping[new ProjectionMember()]
-            = new EntityProjectionExpression(entityType, new ObjectReferenceExpression(entityType, RootAlias));
+            = new EntityProjectionExpression(new ObjectReferenceExpression(entityType, RootAlias), entityType);
     }
 
     /// <summary>
@@ -61,8 +61,7 @@ public class SelectExpression : Expression, IPrintableExpression
     {
         var fromSql = new FromSqlExpression(entityType.ClrType, sql, argument);
         _sources = [new SourceExpression(fromSql, RootAlias)];
-        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(
-            entityType, new ObjectReferenceExpression(entityType, RootAlias));
+        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(new ObjectReferenceExpression(entityType, RootAlias), entityType);
     }
 
     /// <summary>
@@ -87,7 +86,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ReadItemInfo? ReadItemInfo { get; }
+    public virtual ReadItemInfo? ReadItemInfo { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,8 +94,20 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(SqlExpression projection)
+    public SelectExpression(Expression projection)
         => _projectionMapping[new ProjectionMember()] = projection;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public SelectExpression(SourceExpression source, Expression projection)
+    {
+        _sources.Add(source);
+        _projectionMapping[new ProjectionMember()] = projection;
+    }
 
     private SelectExpression()
     {
@@ -108,19 +119,41 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SelectExpression CreateForPrimitiveCollection(
-        SourceExpression source,
-        Type elementClrType,
-        CoreTypeMapping elementTypeMapping)
-        => new()
+    public static SelectExpression CreateForCollection(Expression containerExpression, string sourceAlias, Expression projection)
+    {
+        // SelectExpressions representing bare arrays are of the form SELECT VALUE i FROM i IN x.
+        // Unfortunately, Cosmos doesn't support x being anything but a root container or a property access
+        // (e.g. SELECT VALUE i FROM i IN c.SomeArray).
+        // For example, x cannot be a function invocation (SELECT VALUE i FROM i IN SetUnion(...)) or an array constant
+        // (SELECT VALUE i FROM i IN [1,2,3]).
+        // So we wrap any non-property in a subquery as follows: SELECT i FROM i IN (SELECT VALUE [1,2,3])
+        switch (containerExpression)
+        {
+            case ObjectReferenceExpression:
+            case ScalarReferenceExpression:
+            case ObjectArrayAccessExpression:
+            case ScalarAccessExpression:
+                break;
+            default:
+                containerExpression = new SelectExpression(
+                    [new ProjectionExpression(containerExpression, null!)],
+                    sources: [],
+                    orderings: [])
+                {
+                    UsesSingleValueProjection = true
+                };
+                break;
+        }
+
+        var source = new SourceExpression(containerExpression, sourceAlias, withIn: true);
+
+        return new SelectExpression
         {
             _sources = { source },
-            _projectionMapping =
-            {
-                [new ProjectionMember()] = new ScalarReferenceExpression(source.Alias, elementClrType, elementTypeMapping)
-            },
+            _projectionMapping = { [new ProjectionMember()] = projection },
             UsesSingleValueProjection = true
         };
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -314,8 +347,8 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int AddToProjection(ObjectArrayProjectionExpression objectArrayProjection)
-        => AddToProjection(objectArrayProjection, null);
+    public virtual int AddToProjection(ObjectArrayAccessExpression objectArrayAccess)
+        => AddToProjection(objectArrayAccess, null);
 
     private int AddToProjection(Expression expression, string? alias)
     {
@@ -326,7 +359,7 @@ public class SelectExpression : Expression, IPrintableExpression
         }
 
         var baseAlias = alias
-            ?? (expression as IAccessExpression)?.Name
+            ?? (expression as IAccessExpression)?.PropertyName
             ?? "c";
 
         var currentAlias = baseAlias;
@@ -605,7 +638,34 @@ public class SelectExpression : Expression, IPrintableExpression
             Predicate = predicate,
             Offset = offset,
             Limit = limit,
-            IsDistinct = IsDistinct
+            IsDistinct = IsDistinct,
+            UsesSingleValueProjection = UsesSingleValueProjection,
+            ReadItemInfo = ReadItemInfo
+        };
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SelectExpression WithSingleValueProjection()
+    {
+        var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+        foreach (var (projectionMember, expression) in _projectionMapping)
+        {
+            projectionMapping[projectionMember] = expression;
+        }
+
+        return new SelectExpression(Projection.ToList(), Sources.ToList(), Orderings.ToList())
+        {
+            _projectionMapping = projectionMapping,
+            Predicate = Predicate,
+            Offset = Offset,
+            Limit = Limit,
+            IsDistinct = IsDistinct,
+            UsesSingleValueProjection = true
         };
     }
 

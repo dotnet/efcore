@@ -266,7 +266,7 @@ public interface ISqlExpressionFactory
     /// </summary>
     SqlFunctionExpression Function(
         string functionName,
-        IEnumerable<SqlExpression> arguments,
+        IEnumerable<Expression> arguments,
         Type returnType,
         CoreTypeMapping? typeMapping = null);
 

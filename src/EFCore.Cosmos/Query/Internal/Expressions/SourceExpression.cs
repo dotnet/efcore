@@ -66,7 +66,7 @@ public class SourceExpression(Expression containerExpression, string alias, bool
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    string IAccessExpression.Name
+    string IAccessExpression.PropertyName
         => Alias;
 
     /// <summary>

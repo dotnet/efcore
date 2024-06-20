@@ -596,7 +596,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+    public virtual Task Can_OrderBy_owned_indexer_properties_converted(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().OrderBy(c => (int)c.PersonAddress["ZipCode"]).ThenBy(c => c.Id).Select(c => (string)c["Name"]),
@@ -762,7 +762,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         using var context = CreateContext();
 
-        var ownedPerson = context.Set<OwnedPerson>().AsTracking().Single(e => e.Id == 1);
+        var ownedPerson = await context.Set<OwnedPerson>().AsTracking().SingleAsync(e => e.Id == 1);
         var collectionQuery = context.Entry(ownedPerson).Collection(e => e.Orders).Query().AsNoTracking();
 
         var actualOrders = async
@@ -899,6 +899,91 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 AssertEqual(e.Key, a.Key);
                 AssertEqual(e.Sum, a.Sum);
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Count_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count == 2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_without_predicate_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Any()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_with_predicate_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Any(i => i.Id == -30)));
+
+    // TODO: proper owned entity containment, #34027
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Contains(new Order { Id = -30 })),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Any(o => o.Id == -30)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAt_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.ElementAt(1).Id == -11),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 2 && p.Orders.ElementAt(1).Id == -11));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAtOrDefault_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.ElementAtOrDefault(10).Id == -11),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 11 && p.Orders.ElementAtOrDefault(1).Id == -11),
+            assertEmpty: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task OrderBy_ElementAt_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.OrderBy(o => o.Id).ElementAt(1).Id == -10),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count >= 2 && p.Orders.OrderBy(o => o.Id).ElementAt(1).Id == -10));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Skip_Take_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Skip(1).Take(1).Count() == 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FirstOrDefault_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018),
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.FirstOrDefault(o => o.Id > -20) != null && ((DateTime)p.Orders.FirstOrDefault(o => o.Id > -20)["OrderDate"]).Year == 2018));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Distinct_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Distinct().Count() == 2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_over_owned_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                .Where(p => p.Orders.Where(o => o.Id == -10).Union(p.Orders.Where(o => o.Id == -11)).Count() == 2));
 
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();

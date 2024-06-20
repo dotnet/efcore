@@ -84,7 +84,7 @@ public class CosmosValueConverterCompensatingExpressionVisitor(ISqlExpressionFac
     private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
         => sqlExpression switch
         {
-            KeyAccessExpression keyAccessExpression
+            ScalarAccessExpression keyAccessExpression
                 when keyAccessExpression.TypeMapping!.ClrType == typeof(bool) && keyAccessExpression.TypeMapping!.Converter != null
                 => sqlExpressionFactory.Equal(sqlExpression, sqlExpressionFactory.Constant(true, sqlExpression.TypeMapping)),
 

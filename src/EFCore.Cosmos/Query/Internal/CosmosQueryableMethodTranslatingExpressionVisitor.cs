@@ -234,6 +234,62 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     }
 
     /// <inheritdoc />
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        var method = methodCallExpression.Method;
+        if (method.DeclaringType == typeof(Queryable))
+        {
+            switch (methodCallExpression.Method.Name)
+            {
+                // The following is a bad hack to account for https://github.com/dotnet/efcore/issues/32957#issuecomment-2165864086.
+                // Basically for the query form Where(b => b.Posts.GetElementAt(0).Id == 1), nav expansion moves the property access
+                // forward, generating Where(b => b.Posts.Select(p => p.Id).GetElementAt(0)); unfortunately that means that GetElementAt()
+                // over a bare array in Cosmos doesn't get translated to a simple indexer as it should (b["Posts"][0].Id), since the
+                // reordering messes things up.
+                case nameof(Queryable.ElementAt) or nameof(Queryable.ElementAtOrDefault)
+                    when methodCallExpression.Arguments[0] is MethodCallExpression
+                    {
+                        Method: { Name: "Select", IsGenericMethod: true }
+                    } innerMethodCall
+                    && method.GetGenericMethodDefinition() is var genericDefinition
+                    && (genericDefinition == QueryableMethods.ElementAt || genericDefinition == QueryableMethods.ElementAtOrDefault)
+                    && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select:
+                {
+                    var returnDefault = method.Name == nameof(Queryable.ElementAtOrDefault);
+                    if (Visit(innerMethodCall) is ShapedQueryExpression translatedSelect
+                        && CosmosQueryUtils.TryExtractBareArray(translatedSelect, out _, out _, out _, out var boundMember)
+                        && boundMember is IAccessExpression { PropertyName: string boundPropertyName }
+                        && Visit(innerMethodCall.Arguments[0]) is ShapedQueryExpression innerSource
+                        && TranslateElementAtOrDefault(
+                            innerSource, methodCallExpression.Arguments[1], returnDefault) is ShapedQueryExpression elementAtTranslation)
+                    {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        var translation = _sqlTranslator.Translate(
+                            Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions.CreateEFPropertyExpression(
+                                elementAtTranslation.ShaperExpression,
+                                elementAtTranslation.ShaperExpression.Type,
+                                boundMember.Type,
+                                boundPropertyName,
+                                makeNullable: true));
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                        if (translation is not null)
+                        {
+                            var finalShapedQuery = CreateShapedQueryExpression(new SelectExpression(translation), boundMember.Type);
+                            return finalShapedQuery.UpdateResultCardinality(
+                                returnDefault ? ResultCardinality.SingleOrDefault : ResultCardinality.Single);
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
+    }
+
+    /// <inheritdoc />
     protected override Expression VisitExtension(Expression extensionExpression)
     {
         switch (extensionExpression)
@@ -317,6 +373,22 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 false));
     }
 
+    private ShapedQueryExpression CreateShapedQueryExpression(SelectExpression select, Type elementClrType)
+    {
+        var shaperExpression = (Expression)new ProjectionBindingExpression(
+            select, new ProjectionMember(), elementClrType.MakeNullable());
+        if (shaperExpression.Type != elementClrType)
+        {
+            Check.DebugAssert(
+                elementClrType.MakeNullable() == shaperExpression.Type,
+                "expression.Type must be nullable of targetType");
+
+            shaperExpression = Expression.Convert(shaperExpression, elementClrType);
+        }
+
+        return new ShapedQueryExpression(select, shaperExpression);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -343,6 +415,18 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             }
 
             source = translatedSource;
+        }
+
+        // Simplify x.Array.Any() => ARRAY_LENGTH(x.Array) > 0 instead of (EXISTS(SELECT 1 FROM i IN x.Array))
+        if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true))
+        {
+            var simplifiedTranslation = _sqlExpressionFactory.GreaterThan(
+                _sqlExpressionFactory.Function(
+                    "ARRAY_LENGTH", new[] { array }, typeof(int), _typeMappingSource.FindMapping(typeof(int))),
+                    _sqlExpressionFactory.Constant(0));
+            var select = new SelectExpression(simplifiedTranslation);
+
+            return source.Update(select, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(int)));
         }
 
         var subquery = (SelectExpression)source.QueryExpression;
@@ -419,6 +503,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         // Simplify x.Array.Contains[1] => ARRAY_CONTAINS(x.Array, 1) insert of IN+subquery
         if (CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true)
+            && array is SqlExpression scalarArray // TODO: Contains over arrays of structural types, #34027
             && TranslateExpression(item) is SqlExpression translatedItem)
         {
             if (array is ArrayConstantExpression arrayConstant)
@@ -427,8 +512,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 return source.Update(new SelectExpression(inExpression), source.ShaperExpression);
             }
 
-            (translatedItem, array) = _sqlExpressionFactory.ApplyTypeMappingsOnItemAndArray(translatedItem, array);
-            var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_CONTAINS", new[] { array, translatedItem }, typeof(bool));
+            (translatedItem, scalarArray) = _sqlExpressionFactory.ApplyTypeMappingsOnItemAndArray(translatedItem, scalarArray);
+            var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_CONTAINS", [scalarArray, translatedItem], typeof(bool));
             return source.UpdateQueryExpression(new SelectExpression(simplifiedTranslation));
         }
 
@@ -448,45 +533,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
-    {
-        // Simplify x.Array.Count() => ARRAY_LENGTH(x.Array) instead of (SELECT COUNT(1) FROM i IN x.Array))
-        if (predicate is null
-            && CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true))
-        {
-            var simplifiedTranslation = _sqlExpressionFactory.Function("ARRAY_LENGTH", new[] { array }, typeof(int));
-            return source.UpdateQueryExpression(new SelectExpression(simplifiedTranslation));
-        }
-
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
-        {
-            return null;
-        }
-
-        if (predicate != null)
-        {
-            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
-            {
-                return null;
-            }
-
-            source = translatedSource;
-        }
-
-        var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-            _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Constant(1) }, typeof(int)));
-
-        var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
-
-        selectExpression.ClearOrdering();
-        selectExpression.ReplaceProjectionMapping(projectionMapping);
-        return source.UpdateShaperExpression(
-            Expression.Convert(
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int?)),
-                typeof(int)));
-    }
+        => TranslateCountLongCount(source, predicate, typeof(int));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -532,28 +579,65 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // subquery+OFFSET (which isn't supported by Cosmos).
         // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
         // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
-        var array = CosmosQueryUtils.TryExtractBareArray(source, out var a, out var projectedScalarReference)
+        var array = CosmosQueryUtils.TryExtractBareArray(
+            source, out var a, out var projection, out var projectedStructuralTypeShaper, out _)
             ? a
-            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projectedScalarReference)
+            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projection)
                 ? a
                 : null;
 
         // Simplify x.Array[1] => x.Array[1] (using the Cosmos array subscript operator) instead of a subquery with LIMIT/OFFSET
-        if (array is SqlExpression scalarArray) // TODO: ElementAt over arrays of structural types
+        switch (array)
         {
-            SqlExpression translation = _sqlExpressionFactory.ArrayIndex(
-                array, translatedIndex, projectedScalarReference!.Type, projectedScalarReference.TypeMapping);
-
-            if (returnDefault)
+            // ElementAtOrDefault over an array of scalars
+            case SqlExpression scalarArray when projection is SqlExpression element:
             {
-                translation = _sqlExpressionFactory.CoalesceUndefined(
-                    translation, TranslateExpression(translation.Type.GetDefaultValueConstant())!);
+                SqlExpression translation = _sqlExpressionFactory.ArrayIndex(
+                    scalarArray, translatedIndex, element.Type, element.TypeMapping);
+
+                // ElementAt may access indexes beyond the end of the array; Cosmos returns undefined for those cases.
+                // If ElementAtOrDefault is used, add the Cosmos undefined-coalescing operator (??) to return a default value instead.
+                if (returnDefault)
+                {
+                    translation = _sqlExpressionFactory.CoalesceUndefined(
+                        translation, TranslateExpression(translation.Type.GetDefaultValueConstant())!);
+                }
+
+                var translatedSelect = new SelectExpression(translation);
+                return source.Update(
+                    translatedSelect,
+                    new ProjectionBindingExpression(translatedSelect, new ProjectionMember(), element.Type));
             }
 
-            return source.UpdateQueryExpression(new SelectExpression(translation));
+            // ElementAtOrDefault over an array of structural types
+            case not null when projectedStructuralTypeShaper is not null:
+            {
+                Expression translation = new ObjectArrayIndexExpression(array, translatedIndex, projectedStructuralTypeShaper.Type);
+
+                // ElementAt may access indexes beyond the end of the array; Cosmos returns undefined for those cases.
+                // If ElementAtOrDefault is used, add the Cosmos undefined-coalescing operator (??) to return a default value instead.
+                if (returnDefault)
+                {
+                    // TODO: The following uses SqlConstantExpression as a hack to produce a null for the structural type (#33999)
+                    translation = new ObjectBinaryExpression(
+                        ExpressionType.Coalesce,
+                        translation,
+                        new SqlConstantExpression(Expression.Constant(null, typeof(object)), _typeMappingSource.FindMapping(typeof(int))),
+                        translation.Type);
+                }
+
+                var translatedSelect =
+                    new SelectExpression(new EntityProjectionExpression(translation, (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                return source.Update(
+                    translatedSelect,
+                    new StructuralTypeShaperExpression(
+                        projectedStructuralTypeShaper.StructuralType,
+                        new ProjectionBindingExpression(translatedSelect, new ProjectionMember(), typeof(ValueBuffer)),
+                        nullable: true));
+            }
         }
 
-        // Translate using OFFSET/LIMIT, except in subqueries where it isn't supported
+        // Simplification to indexing failed, translate using OFFSET/LIMIT, except in subqueries where it isn't supported.
         if (_subquery)
         {
             AddTranslationErrorDetails(CosmosStrings.LimitOffsetNotSupportedInSubqueries);
@@ -732,36 +816,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
-    {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.IsDistinct
-            || selectExpression.Limit != null
-            || selectExpression.Offset != null)
-        {
-            return null;
-        }
-
-        if (predicate != null)
-        {
-            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
-            {
-                return null;
-            }
-
-            source = translatedSource;
-        }
-
-        var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-            _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Constant(1) }, typeof(long)));
-        var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
-
-        selectExpression.ClearOrdering();
-        selectExpression.ReplaceProjectionMapping(projectionMapping);
-        return source.UpdateShaperExpression(
-            Expression.Convert(
-                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long?)),
-                typeof(long)));
-    }
+        => TranslateCountLongCount(source, predicate, typeof(long));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1022,23 +1077,47 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // subquery+OFFSET (which isn't supported by Cosmos).
         // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
         // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
-        var array = CosmosQueryUtils.TryExtractBareArray(source, out var a, out var projectedScalarReference)
+        var array = CosmosQueryUtils.TryExtractBareArray(
+            source, out var a, out var projection, out var projectedStructuralTypeShaper, out _)
             ? a
-            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projectedScalarReference)
+            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projection)
                 ? a
                 : null;
 
-        if (array is SqlExpression scalarArray) // TODO: Take over arrays of structural types
+        switch (array)
         {
-            var slice = _sqlExpressionFactory.Function(
-                "ARRAY_SLICE", [scalarArray, translatedCount], scalarArray.Type, scalarArray.TypeMapping);
+            // ElementAtOrDefault over an array of scalars
+            case SqlExpression scalarArray when projection is SqlExpression element:
+            {
+                var slice = _sqlExpressionFactory.Function(
+                    "ARRAY_SLICE", [scalarArray, translatedCount], scalarArray.Type, scalarArray.TypeMapping);
 
-            // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
-            select = SelectExpression.CreateForPrimitiveCollection(
-                new SourceExpression(slice, "i", withIn: true),
-                projectedScalarReference!.Type,
-                projectedScalarReference.TypeMapping!);
-            return source.UpdateQueryExpression(select);
+                // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
+                var translatedSelect = SelectExpression.CreateForCollection(
+                    slice,
+                    "i",
+                    new ScalarReferenceExpression("i", element.Type, element.TypeMapping));
+                return source.UpdateQueryExpression(translatedSelect);
+            }
+
+            // ElementAtOrDefault over an array os structural types
+            case not null when projectedStructuralTypeShaper is not null:
+            {
+                // TODO: Proper alias management (#33894).
+                var slice = new ObjectFunctionExpression("ARRAY_SLICE", [array, translatedCount], projectedStructuralTypeShaper.Type);
+                var translatedSelect = SelectExpression.CreateForCollection(
+                    slice,
+                    "i",
+                    new EntityProjectionExpression(
+                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, "i"),
+                        (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                return source.Update(
+                    translatedSelect,
+                    new StructuralTypeShaperExpression(
+                        projectedStructuralTypeShaper.StructuralType,
+                        new ProjectionBindingExpression(translatedSelect, new ProjectionMember(), typeof(ValueBuffer)),
+                        nullable: true));
+            }
         }
 
         // Translate using OFFSET/LIMIT, except in subqueries where it isn't supported
@@ -1119,27 +1198,56 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // subquery+LIMIT (which isn't supported by Cosmos).
         // Even if the source is a full query (not a bare array), convert it to an array via the Cosmos ARRAY() operator; we do this
         // only in subqueries, because Cosmos supports OFFSET/LIMIT at the top-level but not in subqueries.
-        var array = CosmosQueryUtils.TryExtractBareArray(source, out var a, out var projectedScalarReference)
+        var array = CosmosQueryUtils.TryExtractBareArray(
+            source, out var a, out var projection, out var projectedStructuralTypeShaper, out _)
             ? a
-            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projectedScalarReference)
+            : _subquery && CosmosQueryUtils.TryConvertToArray(source, _typeMappingSource, out a, out projection)
                 ? a
                 : null;
 
-        if (array is SqlExpression scalarArray) // TODO: Take over arrays of structural types
+        switch (array)
         {
-            // Take() is composed over Skip(), combine the two together to a single ARRAY_SLICE()
-            var slice = array is SqlFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var nestedArray, var skipCount] } previousSlice
-                ? previousSlice.Update([nestedArray, skipCount, translatedCount])
-                : _sqlExpressionFactory.Function(
-                    "ARRAY_SLICE", [scalarArray, TranslateExpression(Expression.Constant(0))!, translatedCount], scalarArray.Type,
-                    scalarArray.TypeMapping);
+            // ElementAtOrDefault over an array of scalars
+            case SqlExpression scalarArray when projection is SqlExpression element:
+            {
+                // Take() is composed over Skip(), combine the two together to a single ARRAY_SLICE()
+                var slice = array is SqlFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var nestedArray, var skipCount] } previousSlice
+                    ? previousSlice.Update([nestedArray, skipCount, translatedCount])
+                    : _sqlExpressionFactory.Function(
+                        "ARRAY_SLICE", [scalarArray, TranslateExpression(Expression.Constant(0))!, translatedCount], scalarArray.Type,
+                        scalarArray.TypeMapping);
 
-            // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
-            select = SelectExpression.CreateForPrimitiveCollection(
-                new SourceExpression(slice, "i", withIn: true),
-                projectedScalarReference!.Type,
-                projectedScalarReference.TypeMapping!);
-            return source.UpdateQueryExpression(select);
+                // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
+                select = SelectExpression.CreateForCollection(
+                    slice,
+                    "i",
+                    new ScalarReferenceExpression("i", element.Type, element.TypeMapping));
+                return source.UpdateQueryExpression(select);
+            }
+
+            // ElementAtOrDefault over an array os structural types
+            case not null when projectedStructuralTypeShaper is not null:
+            {
+                // TODO: Proper alias management (#33894).
+                // Take() is composed over Skip(), combine the two together to a single ARRAY_SLICE()
+                var slice = array is ObjectFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var nestedArray, var skipCount] } previousSlice
+                    ? previousSlice.Update([nestedArray, skipCount, translatedCount])
+                    : new ObjectFunctionExpression(
+                        "ARRAY_SLICE", [array, TranslateExpression(Expression.Constant(0))!, translatedCount], projectedStructuralTypeShaper.Type);
+
+                var translatedSelect = SelectExpression.CreateForCollection(
+                    slice,
+                    "i",
+                    new EntityProjectionExpression(
+                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, "i"),
+                        (IEntityType)projectedStructuralTypeShaper.StructuralType));
+                return source.Update(
+                    translatedSelect,
+                    new StructuralTypeShaperExpression(
+                        projectedStructuralTypeShaper.StructuralType,
+                        new ProjectionBindingExpression(translatedSelect, new ProjectionMember(), typeof(ValueBuffer)),
+                        nullable: true));
+            }
         }
 
         // Translate using OFFSET/LIMIT, except in subqueries where it isn't supported
@@ -1365,21 +1473,50 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
     {
-        // TODO: the below immediately wraps the JSON array property in a subquery (SELECT VALUE i FROM i IN c.Array).
-        // TODO: This isn't strictly necessary, as c.Array can be referenced directly; however, that would mean producing a
-        // TODO: ShapedQueryExpression that doesn't wrap a SelectExpression, but rather a KeyAccessExpression directly; this isn't currently
-        // TODO: supported.
-
         // Attempt to translate access into a primitive collection property
-        if (_sqlTranslator.TryBindMember(_sqlTranslator.Visit(source), member, out var translatedExpression, out var property)
-            && property is IProperty { IsPrimitiveCollection: true }
-            && translatedExpression is SqlExpression sqlExpression
-            && WrapPrimitiveCollectionAsShapedQuery(
-                sqlExpression,
-                sqlExpression.Type.GetSequenceType(),
-                sqlExpression.TypeMapping!.ElementTypeMapping!) is { } primitiveCollectionTranslation)
+        if (_sqlTranslator.TryBindMember(
+                _sqlTranslator.Visit(source),
+                member,
+                out var translatedExpression,
+                out var property,
+                wrapResultExpressionInReferenceExpression: false))
         {
-            return primitiveCollectionTranslation;
+            // TODO: TryBindMember returns EntityReferenceExpression, which is internal to SqlTranslatingEV.
+            // Maybe have it return the StructuralTypeShaperExpression instead, and only when binding from within SqlTranslatingEV,
+            // wrap with ERE?
+            // Check: how is this currently working in relational?
+            switch (translatedExpression)
+            {
+                case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }:
+                {
+                    // TODO: Alias management #33894
+                    var targetEntityType = (IEntityType)shaper.StructuralType;
+                    var sourceAlias = "t";
+                    var projection = new EntityProjectionExpression(
+                        new ObjectReferenceExpression(targetEntityType, sourceAlias), targetEntityType);
+                    var select = SelectExpression.CreateForCollection(
+                        shaper.ValueBufferExpression,
+                        sourceAlias,
+                        projection);
+                    return CreateShapedQueryExpression(targetEntityType, select);
+                }
+
+                // TODO: Collection of complex type (#31253)
+
+                // Note that non-collection navigations/complex types are handled in CosmosSqlTranslatingExpressionVisitor
+                // (no collection -> no queryable operators)
+
+                case SqlExpression sqlExpression when property is IProperty { IsPrimitiveCollection: true }:
+                {
+                    var elementClrType = sqlExpression.Type.GetSequenceType();
+                    // TODO: Do proper alias management: #33894
+                    var select = SelectExpression.CreateForCollection(
+                        sqlExpression,
+                        "i",
+                        new ScalarReferenceExpression("i", elementClrType, sqlExpression.TypeMapping!.ElementTypeMapping!));
+                    return CreateShapedQueryExpression(select, elementClrType);
+                }
+            }
         }
 
         return null;
@@ -1409,25 +1546,19 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             translatedItems[i] = translatedItem;
         }
 
-        // TODO: Do we need full-on type mapping inference like in relational?
-        // TODO: The following currently just gets the type mapping from the CLR type, which ignores e.g. value converters on
-        // TODO: properties compared against
+        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
+        // value conversion). #34026.
         var elementClrType = inlineQueryRootExpression.ElementType;
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
         var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
         var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
 
-        // Unfortunately, Cosmos doesn't support selecting directly from an inline array: SELECT i FROM i IN [1,2,3] (syntax error)
-        // We must wrap the inline array in a subquery: SELECT VALUE i FROM (SELECT VALUE [1,2,3])
-        var innerSelect = new SelectExpression(
-            [new ProjectionExpression(inlineArray, null!)],
-            sources: [],
-            orderings: [])
-        {
-            UsesSingleValueProjection = true
-        };
-
-        return WrapPrimitiveCollectionAsShapedQuery(innerSelect, elementClrType, elementTypeMapping);
+        // TODO: Do proper alias management: #33894
+        var select = SelectExpression.CreateForCollection(
+            inlineArray,
+            "i",
+            new ScalarReferenceExpression("i", elementClrType, elementTypeMapping));
+        return CreateShapedQueryExpression(select, elementClrType);
     }
 
     /// <summary>
@@ -1445,52 +1576,68 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        // TODO: Do we need full-on type mapping inference like in relational?
-        // TODO: The following currently just gets the type mapping from the CLR type, which ignores e.g. value converters on
-        // TODO: properties compared against
+        // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
+        // value conversion). #34026.
         var elementClrType = parameterQueryRootExpression.ElementType;
         var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
         var sqlParameterExpression = new SqlParameterExpression(parameterQueryRootExpression.ParameterExpression, arrayTypeMapping);
 
-        // Unfortunately, Cosmos doesn't support selecting directly from an inline array: SELECT i FROM i IN [1,2,3] (syntax error)
-        // We must wrap the inline array in a subquery: SELECT VALUE i FROM (SELECT VALUE [1,2,3])
-        var innerSelect = new SelectExpression(
-            [new ProjectionExpression(sqlParameterExpression, null!)],
-            sources: [],
-            orderings: [])
-        {
-            UsesSingleValueProjection = true
-        };
-
-        return WrapPrimitiveCollectionAsShapedQuery(innerSelect, elementClrType, elementTypeMapping);
-    }
-
-    private ShapedQueryExpression WrapPrimitiveCollectionAsShapedQuery(
-        Expression array,
-        Type elementClrType,
-        CoreTypeMapping elementTypeMapping)
-    {
         // TODO: Do proper alias management: #33894
-        var select = SelectExpression.CreateForPrimitiveCollection(
-            new SourceExpression(array, "i", withIn: true),
-            elementClrType,
-            elementTypeMapping);
-        var shaperExpression = (Expression)new ProjectionBindingExpression(
-            select, new ProjectionMember(), elementClrType.MakeNullable());
-        if (shaperExpression.Type != elementClrType)
-        {
-            Check.DebugAssert(
-                elementClrType.MakeNullable() == shaperExpression.Type,
-                "expression.Type must be nullable of targetType");
-
-            shaperExpression = Expression.Convert(shaperExpression, elementClrType);
-        }
-
-        return new ShapedQueryExpression(select, shaperExpression);
+        var select = SelectExpression.CreateForCollection(
+            sqlParameterExpression,
+            "i",
+            new ScalarReferenceExpression("i", elementClrType, elementTypeMapping));
+        return CreateShapedQueryExpression(select, elementClrType);
     }
 
     #endregion Queryable collection support
+
+    private ShapedQueryExpression? TranslateCountLongCount(ShapedQueryExpression source, LambdaExpression? predicate, Type returnType)
+    {
+        // Simplify x.Array.Count() => ARRAY_LENGTH(x.Array) instead of (SELECT COUNT(1) FROM i IN x.Array))
+        if (predicate is null
+            && CosmosQueryUtils.TryExtractBareArray(source, out var array, ignoreOrderings: true))
+        {
+            var simplifiedTranslation = _sqlExpressionFactory.Function(
+                "ARRAY_LENGTH", new[] { array }, typeof(int), _typeMappingSource.FindMapping(typeof(int)));
+            var select = new SelectExpression(simplifiedTranslation);
+
+            return source.Update(select, new ProjectionBindingExpression(select, new ProjectionMember(), typeof(int)));
+        }
+
+        var selectExpression = (SelectExpression)source.QueryExpression;
+
+        // TODO: Subquery pushdown, #33968
+        if (selectExpression.IsDistinct
+            || selectExpression.Limit != null
+            || selectExpression.Offset != null)
+        {
+            return null;
+        }
+
+        if (predicate != null)
+        {
+            if (TranslateWhere(source, predicate) is not ShapedQueryExpression translatedSource)
+            {
+                return null;
+            }
+
+            source = translatedSource;
+        }
+
+        var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
+            _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Constant(1) }, typeof(int)));
+
+        var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
+
+        selectExpression.ClearOrdering();
+        selectExpression.ReplaceProjectionMapping(projectionMapping);
+        return source.UpdateShaperExpression(
+            Expression.Convert(
+                new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), returnType.MakeNullable()),
+                returnType));
+    }
 
     private ShapedQueryExpression? TranslateSetOperation(
         ShapedQueryExpression source1,
@@ -1500,18 +1647,33 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         if (CosmosQueryUtils.TryConvertToArray(source1, _typeMappingSource, out var array1, out var projection1, ignoreOrderings)
             && CosmosQueryUtils.TryConvertToArray(source2, _typeMappingSource, out var array2, out var projection2, ignoreOrderings)
-            && projection1.Type == projection2.Type
-            && (projection1.TypeMapping ?? projection2.TypeMapping) is CoreTypeMapping typeMapping)
+            && projection1.Type == projection2.Type)
         {
-            var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], projection1.Type, typeMapping);
-            var select = SelectExpression.CreateForPrimitiveCollection(
-                new SourceExpression(translation, "i", withIn: true),
-                projection1.Type,
-                typeMapping);
-            return source1.UpdateQueryExpression(select);
+            // Set operation over arrays of scalars
+            if (projection1 is SqlExpression sqlProjection1
+                && projection2 is SqlExpression sqlProjection2
+                && (sqlProjection1.TypeMapping ?? sqlProjection2.TypeMapping) is CoreTypeMapping typeMapping)
+            {
+                // TODO: Proper alias management (#33894).
+                var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], projection1.Type, typeMapping);
+                var select = SelectExpression.CreateForCollection(
+                    translation, "i", new ScalarReferenceExpression("i", projection1.Type, typeMapping));
+                return source1.UpdateQueryExpression(select);
+            }
+
+            // Set operation over arrays of structural types
+            if (source1.ShaperExpression is StructuralTypeShaperExpression { StructuralType: var structuralType1 }
+                && source2.ShaperExpression is StructuralTypeShaperExpression { StructuralType: var structuralType2 }
+                && structuralType1 == structuralType2)
+            {
+                // TODO: Proper alias management (#33894).
+                var translation = new ObjectFunctionExpression(functionName, [array1, array2], projection1.Type);
+                var select = SelectExpression.CreateForCollection(
+                    translation, "i", new ObjectReferenceExpression((IEntityType)structuralType1, "i"));
+                return CreateShapedQueryExpression(select, structuralType1.ClrType);
+            }
         }
 
-        // TODO: can also handle subqueries via ARRAY()
         return null;
     }
 

@@ -36,8 +36,8 @@ public class StructuralTypeProjectionExpression : Expression
         : this(
             type,
             propertyExpressionMap,
-            [],
-            null,
+            ownedNavigationMap: [],
+            complexPropertyCache: null,
             tableMap,
             nullable,
             discriminatorExpression)
@@ -61,7 +61,7 @@ public class StructuralTypeProjectionExpression : Expression
         : this(
             type,
             propertyExpressionMap,
-            [],
+            ownedNavigationMap: [],
             complexPropertyCache,
             tableMap,
             nullable,
@@ -423,10 +423,7 @@ public class StructuralTypeProjectionExpression : Expression
             : null;
     }
 
-    /// <summary>
-    ///     Creates a <see cref="string"/> representation of the Expression.
-    /// </summary>
-    /// <returns>A <see cref="string"/> representation of the Expression.</returns>
+    /// <inheritdoc />
     public override string ToString()
-        => $"EntityProjectionExpression: {StructuralType.ShortName()}";
+        => $"StructuralTypeProjectionExpression: {StructuralType.ShortName()}";
 }

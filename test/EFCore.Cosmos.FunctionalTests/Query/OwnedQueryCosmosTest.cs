@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -11,18 +14,18 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         : base(fixture)
     {
         ClearLog();
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Query_loads_reference_nav_automatically_in_projection(bool async)
-        => base.Query_loads_reference_nav_automatically_in_projection(async);
+        => AssertTranslationFailed(() => base.Query_loads_reference_nav_automatically_in_projection(async));
 
-    [ConditionalTheory(Skip = "SelectMany #17246")]
+    // TODO: SelectMany, #17246
     public override Task Query_with_owned_entity_equality_operator(bool async)
-        => base.Query_with_owned_entity_equality_operator(async);
+        => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_operator(async));
 
-    [ConditionalTheory(Skip = "Count #16146")]
+    [ConditionalTheory]
     public override Task Navigation_rewrite_on_owned_collection(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -33,29 +36,46 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
                     """
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
+ORDER BY c["Id"]
 """);
             });
 
-    [ConditionalTheory(Skip = "Issue#16926")]
-    public override Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_collection_with_composition(a);
+    [ConditionalTheory]
+    public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Navigation_rewrite_on_owned_collection_with_composition(async));
 
-                AssertSql(" ");
-            });
+            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
 
-    [ConditionalTheory(Skip = "Issue#16926")]
-    public override Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Navigation_rewrite_on_owned_collection_with_composition_complex(a);
+            AssertSql(
+                """
+SELECT (ARRAY(
+    SELECT VALUE (t["Id"] != 42)
+    FROM t IN c["Orders"]
+    ORDER BY t["Id"])[0] ?? false) AS c
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["Id"]
+""");
+        }
+    }
 
-                AssertSql(" ");
-            });
+    public override async Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // TODO: #33995
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Navigation_rewrite_on_owned_collection_with_composition_complex(async));
+
+            AssertSql();
+        }
+    }
 
     public override Task Navigation_rewrite_on_owned_reference_projecting_entity(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -141,71 +161,87 @@ WHERE (c["Discriminator"] = "LeafA")
 """);
             });
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
-        => base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
+        => AssertTranslationFailed(
+            () => base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    public override async Task Set_throws_for_owned_type(bool async)
+    {
+        await base.Set_throws_for_owned_type(async);
+
+        AssertSql();
+    }
+
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
-    public override Task
-        Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
-        => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
-            async);
+    // TODO: Fake LeftJoin, #33969
+    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
+        => AssertTranslationFailed(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Project_multiple_owned_navigations(bool async)
-        => base.Project_multiple_owned_navigations(async);
+        => AssertTranslationFailed(
+            () => base.Project_multiple_owned_navigations(async));
 
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
+    // TODO: Fake LeftJoin, #33969
     public override Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
-        => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
+        => AssertTranslationFailed(
+            () => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async));
 
-    [ConditionalTheory(Skip = "SelectMany #17246")]
+    // TODO: SelectMany, #17246
     public override Task SelectMany_on_owned_collection(bool async)
-        => base.SelectMany_on_owned_collection(async);
+        => AssertTranslationFailed(() => base.SelectMany_on_owned_collection(async));
 
-    [ConditionalTheory(Skip = "SelectMany #17246")]
+    // TODO: SelectMany, #17246
     public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
+        => AssertTranslationFailed(() => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async));
 
-    [ConditionalTheory(Skip = "SelectMany #17246")]
+    // TODO: SelectMany, #17246
     public override Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
-        => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
+        => AssertTranslationFailed(() => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async));
 
-    [ConditionalTheory(Skip = "SelectMany #17246")]
+    // TODO: SelectMany, #17246
     public override Task Query_with_owned_entity_equality_method(bool async)
-        => base.Query_with_owned_entity_equality_method(async);
+        => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_method(async));
 
-    [ConditionalTheory(Skip = "SelectMany #17246")]
+    // TODO: SelectMany, #17246
     public override Task Query_with_owned_entity_equality_object_method(bool async)
-        => base.Query_with_owned_entity_equality_object_method(async);
+        => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_object_method(async));
 
     public override Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -221,45 +257,62 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 """);
             });
 
-    [ConditionalTheory(Skip = "Distinct ordering #16156")]
+    // TODO: Subquery pushdown, #33968
     public override Task Query_when_subquery(bool async)
-        => base.Query_when_subquery(async);
+        => AssertTranslationFailed(() => base.Query_when_subquery(async));
 
-    [ConditionalTheory(Skip = "Count #16146")]
     public override Task No_ignored_include_warning_when_implicit_load(bool async)
-        => base.No_ignored_include_warning_when_implicit_load(async);
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.No_ignored_include_warning_when_implicit_load(a);
 
-    [ConditionalTheory(Skip = "Skip withouth Take #18923")]
-    public override Task Client_method_skip_loads_owned_navigations(bool async)
-        => base.Client_method_skip_loads_owned_navigations(async);
+                AssertSql(
+                    """
+SELECT COUNT(1) AS c
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
+            });
 
-    [ConditionalTheory(Skip = "Skip withouth Take #18923")]
-    public override Task Client_method_skip_loads_owned_navigations_variation_2(bool async)
-        => base.Client_method_skip_loads_owned_navigations_variation_2(async);
+    public override async Task Client_method_skip_loads_owned_navigations(bool async)
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations(async));
 
-    [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+        Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
+    }
+
+    public override async Task Client_method_skip_loads_owned_navigations_variation_2(bool async)
+    {
+        var exception =
+            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Client_method_skip_loads_owned_navigations_variation_2(async));
+
+        Assert.Equal(CosmosStrings.OffsetRequiresLimit, exception.Message);
+    }
+
+    // TODO: SelectMany, #17246
     public override Task Where_owned_collection_navigation_ToList_Count(bool async)
-        => base.Where_owned_collection_navigation_ToList_Count(async);
+        => AssertTranslationFailed(() => base.Where_owned_collection_navigation_ToList_Count(async));
 
-    [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+    // TODO: SelectMany, #17246
     public override Task Where_collection_navigation_ToArray_Count(bool async)
-        => base.Where_collection_navigation_ToArray_Count(async);
+        => AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Count(async));
 
-    [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+    // TODO: SelectMany, #17246
     public override Task Where_collection_navigation_AsEnumerable_Count(bool async)
-        => base.Where_collection_navigation_AsEnumerable_Count(async);
+        => AssertTranslationFailed(() => base.Where_collection_navigation_AsEnumerable_Count(async));
 
-    [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+    // TODO: SelectMany, #17246
     public override Task Where_collection_navigation_ToList_Count_member(bool async)
-        => base.Where_collection_navigation_ToList_Count_member(async);
+        => AssertTranslationFailed(() => base.Where_collection_navigation_ToList_Count_member(async));
 
-    [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+    // TODO: SelectMany, #17246
     public override Task Where_collection_navigation_ToArray_Length_member(bool async)
-        => base.Where_collection_navigation_ToArray_Length_member(async);
+        => AssertTranslationFailed(() => base.Where_collection_navigation_ToArray_Length_member(async));
 
-    [ConditionalTheory(Skip = "Issue #16146")]
+    // TODO: GroupBy, #17313
     public override Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
-        => base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
+        => AssertTranslationFailed(() => base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async));
 
     public override Task Can_query_on_indexer_properties(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -345,77 +398,109 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
-    [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
     public override async Task Can_OrderBy_indexer_properties(bool async)
     {
-        await base.Can_OrderBy_indexer_properties(async);
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Can_OrderBy_indexer_properties(async));
 
-        AssertSql(" ");
+            Assert.Contains(
+                "The order by query does not have a corresponding composite index that it can be served from.",
+                exception.Message);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["Name"], c["Id"]
+""");
+        }
     }
 
-    [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
     public override async Task Can_OrderBy_indexer_properties_converted(bool async)
     {
-        await base.Can_OrderBy_indexer_properties_converted(async);
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Can_OrderBy_indexer_properties_converted(async));
 
-        AssertSql(" ");
+            Assert.Contains(
+                "The order by query does not have a corresponding composite index that it can be served from.",
+                exception.Message);
+
+            AssertSql(
+                """
+SELECT c["Name"]
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["Name"], c["Id"]
+""");
+        }
     }
 
-    [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
     public override async Task Can_OrderBy_owned_indexer_properties(bool async)
     {
-        await base.Can_OrderBy_owned_indexer_properties(async);
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Can_OrderBy_owned_indexer_properties(async));
 
-        AssertSql(" ");
+            Assert.Contains(
+                "The order by query does not have a corresponding composite index that it can be served from.",
+                exception.Message);
+
+            AssertSql(
+                """
+SELECT c["Name"]
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
+""");
+        }
     }
 
-    [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
-    public override async Task Can_OrderBy_owened_indexer_properties_converted(bool async)
+    public override async Task Can_OrderBy_owned_indexer_properties_converted(bool async)
     {
-        await base.Can_OrderBy_owened_indexer_properties_converted(async);
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Can_OrderBy_owned_indexer_properties_converted(async));
 
-        AssertSql(" ");
+            Assert.Contains(
+                "The order by query does not have a corresponding composite index that it can be served from.",
+                exception.Message);
+
+            AssertSql(
+                """
+SELECT c["Name"]
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
+""");
+        }
     }
 
-    [ConditionalTheory(Skip = "GroupBy #17246")]
-    public override async Task Can_group_by_indexer_property(bool isAsync)
-    {
-        await base.Can_group_by_indexer_property(isAsync);
+    // TODO: GroupBy, #17313
+    public override Task Can_group_by_indexer_property(bool async)
+        => AssertTranslationFailed(() => base.Can_group_by_indexer_property(async));
 
-        AssertSql(" ");
-    }
+    // TODO: GroupBy, #17313
+    public override Task Can_group_by_converted_indexer_property(bool async)
+        => AssertTranslationFailed(() => base.Can_group_by_converted_indexer_property(async));
 
-    [ConditionalTheory(Skip = "GroupBy #17246")]
-    public override async Task Can_group_by_converted_indexer_property(bool isAsync)
-    {
-        await base.Can_group_by_converted_indexer_property(isAsync);
+    // TODO: GroupBy, #17313
+    public override Task Can_group_by_owned_indexer_property(bool async)
+        => AssertTranslationFailed(() => base.Can_group_by_owned_indexer_property(async));
 
-        AssertSql(" ");
-    }
+    // TODO: GroupBy, #17313
+    public override Task Can_group_by_converted_owned_indexer_property(bool async)
+        => AssertTranslationFailed(() => base.Can_group_by_converted_owned_indexer_property(async));
 
-    [ConditionalTheory(Skip = "GroupBy #17246")]
-    public override async Task Can_group_by_owned_indexer_property(bool isAsync)
-    {
-        await base.Can_group_by_owned_indexer_property(isAsync);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "GroupBy #17246")]
-    public override async Task Can_group_by_converted_owned_indexer_property(bool isAsync)
-    {
-        await base.Can_group_by_converted_owned_indexer_property(isAsync);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "Join #17246")]
-    public override async Task Can_join_on_indexer_property_on_query(bool async)
-    {
-        await base.Can_join_on_indexer_property_on_query(async);
-
-        AssertSql(" ");
-    }
+    // Uncorrelated JOINS aren't supported by Cosmos
+    public override Task Can_join_on_indexer_property_on_query(bool async)
+        => AssertTranslationFailed(() => base.Can_group_by_converted_owned_indexer_property(async));
 
     public override Task Projecting_indexer_property_ignores_include(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -445,76 +530,93 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
-    [ConditionalTheory(Skip = "Subquery #17246")]
-    public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+    public override Task Indexer_property_is_pushdown_into_subquery(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Indexer_property_is_pushdown_into_subquery(async),
+            CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+
+    public override Task Can_query_indexer_property_on_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Can_query_indexer_property_on_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c["Name"]
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
+    SELECT VALUE COUNT(1)
+    FROM t IN c["Orders"]
+    WHERE (DateTimePart("yyyy", t["OrderDate"]) = 2018)) = 1))
+""");
+            });
+
+    public override async Task NoTracking_Include_with_cycles_throws(bool async)
     {
-        await base.Indexer_property_is_pushdown_into_subquery(isAsync);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "Composition over owned collection #17246")]
-    public override async Task Can_query_indexer_property_on_owned_collection(bool isAsync)
-    {
-        await base.Can_query_indexer_property_on_owned_collection(isAsync);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "No SelectMany, No Ability to Include navigation back to owner #17246")]
-    public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(
-        bool async,
-        bool useAsTracking)
-        => base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking);
-
-    [ConditionalTheory(Skip = "No Composite index to process custom ordering #17246")]
-    public override async Task Ordering_by_identifying_projection(bool async)
-    {
-        await base.Ordering_by_identifying_projection(async);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "Composition over owned collection #17246")]
-    public override async Task Query_on_collection_entry_works_for_owned_collection(bool isAsync)
-    {
-        await base.Query_on_collection_entry_works_for_owned_collection(isAsync);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "issue #17246")]
-    public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(
-        bool isAsync)
-    {
-        await base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(isAsync);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
-    public override async Task Left_join_on_entity_with_owned_navigations(bool async)
-    {
-        await base.Left_join_on_entity_with_owned_navigations(async);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "LeftJoin #17314")]
-    public override async Task Left_join_on_entity_with_owned_navigations_complex(bool async)
-    {
-        await base.Left_join_on_entity_with_owned_navigations_complex(async);
-
-        AssertSql(" ");
-    }
-
-    [ConditionalTheory(Skip = "GroupBy #17314")]
-    public override async Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
-    {
-        await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
+        await base.NoTracking_Include_with_cycles_throws(async);
 
         AssertSql();
     }
+
+    // TODO: SelectMany, #17246
+    public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(
+        bool async,
+        bool useAsTracking)
+        => AssertTranslationFailed(
+            () => base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking));
+
+    public override async Task Trying_to_access_non_existent_indexer_property_throws_meaningful_exception(bool async)
+    {
+        await base.Trying_to_access_non_existent_indexer_property_throws_meaningful_exception(async);
+
+        AssertSql();
+    }
+
+    public override async Task Ordering_by_identifying_projection(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Ordering_by_identifying_projection(async));
+
+            Assert.Contains(
+                "The order by query does not have a corresponding composite index that it can be served from.",
+                exception.Message);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
+""");
+        }
+    }
+
+    // TODO: SelectMany, #17246
+    public override Task Query_on_collection_entry_works_for_owned_collection(bool async)
+        => AssertTranslationFailed(() => base.Query_on_collection_entry_works_for_owned_collection(async));
+
+    // Non-correlated queries not supported by Cosmos
+    public override Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(
+        bool async)
+        => AssertTranslationFailed(
+            () => base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async));
+
+    // Non-correlated queries not supported by Cosmos
+    public override Task Left_join_on_entity_with_owned_navigations(bool async)
+        => AssertTranslationFailed(
+            () => base.Left_join_on_entity_with_owned_navigations(async));
+
+    // Non-correlated queries not supported by Cosmos
+    public override Task Left_join_on_entity_with_owned_navigations_complex(bool async)
+        => AssertTranslationFailed(
+            () => base.Left_join_on_entity_with_owned_navigations_complex(async));
+
+    // TODO: GroupBy, #17313
+    public override Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+        => AssertTranslationFailed(() => base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async));
 
     public override Task Filter_on_indexer_using_closure(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -544,6 +646,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 """);
             });
 
+    // Non-correlated queries not supported by Cosmos
     public override Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
         => AssertTranslationFailed(() => base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(async));
 
@@ -726,6 +829,206 @@ ORDER BY c["Id"]
 OFFSET 0 LIMIT @__p_0
 """);
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Count_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Count_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) = 2))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Any_without_predicate_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Any_without_predicate_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Any_with_predicate_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Any_with_predicate_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
+    SELECT 1
+    FROM t IN c["Orders"]
+    WHERE (t["Id"] = -30)))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Contains_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Contains_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
+    SELECT 1
+    FROM t IN c["Orders"]
+    WHERE (t["Id"] = -30)))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task ElementAt_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.ElementAt_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Orders"][1]["Id"] = -11))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task ElementAtOrDefault_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.ElementAtOrDefault_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["Orders"][10] ?? null)["Id"] = -11))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override async Task OrderBy_ElementAt_over_owned_collection(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt_over_owned_collection(async));
+
+            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(
+    SELECT VALUE t["Id"]
+    FROM t IN c["Orders"]
+    ORDER BY t["Id"])[1] = -10))
+""");
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Skip_Take_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Skip_Take_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Orders"], 1, 1)) = 1))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task FirstOrDefault_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.FirstOrDefault_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
+    SELECT VALUE t["OrderDate"]
+    FROM t IN c["Orders"]
+    WHERE (t["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
+""");
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override async Task Distinct_over_owned_collection(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // TODO: Subquery pushdown, #33968
+            await AssertTranslationFailed(() => base.Distinct_over_owned_collection(async));
+
+            AssertSql();
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Union_over_owned_collection(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Union_over_owned_collection(a);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(SetUnion(ARRAY(
+    SELECT VALUE t
+    FROM t IN c["Orders"]
+    WHERE (t["Id"] = -10)), ARRAY(
+    SELECT VALUE t
+    FROM t IN c["Orders"]
+    WHERE (t["Id"] = -11)))) = 2))
+""");
+            });
+
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
