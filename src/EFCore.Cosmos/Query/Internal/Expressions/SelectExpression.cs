@@ -132,10 +132,7 @@ public class SelectExpression : Expression, IPrintableExpression
             sourceExpression = new SelectExpression(
                 [new ProjectionExpression(sourceExpression, null!)],
                 sources: [],
-                orderings: [])
-            {
-                UsesSingleValueProjection = true
-            };
+                orderings: []);
         }
 
         var source = new SourceExpression(sourceExpression, sourceAlias, withIn: true);
@@ -143,8 +140,7 @@ public class SelectExpression : Expression, IPrintableExpression
         return new SelectExpression
         {
             _sources = { source },
-            _projectionMapping = { [new ProjectionMember()] = projection },
-            UsesSingleValueProjection = true
+            _projectionMapping = { [new ProjectionMember()] = projection }
         };
     }
 
@@ -156,18 +152,6 @@ public class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual IReadOnlyList<ProjectionExpression> Projection
         => _projection;
-
-    /// <summary>
-    ///     If set, indicates that the <see cref="SelectExpression" /> has a Cosmos VALUE projection, which does not get wrapped in a
-    ///     JSON object. If <see langword="true" />, <see cref="Projection" /> must contain a single item.
-    /// </summary>
-    /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
-    public virtual bool UsesSingleValueProjection { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -712,7 +696,6 @@ public class SelectExpression : Expression, IPrintableExpression
             Offset = offset,
             Limit = limit,
             IsDistinct = IsDistinct,
-            UsesSingleValueProjection = UsesSingleValueProjection,
             ReadItemInfo = ReadItemInfo
         };
     }
@@ -738,7 +721,6 @@ public class SelectExpression : Expression, IPrintableExpression
             Offset = Offset,
             Limit = Limit,
             IsDistinct = IsDistinct,
-            UsesSingleValueProjection = true
         };
     }
 
@@ -791,18 +773,18 @@ public class SelectExpression : Expression, IPrintableExpression
             expressionPrinter.Append("DISTINCT ");
         }
 
-        if (Projection.Any())
+        switch (Projection)
         {
-            if (UsesSingleValueProjection)
-            {
+            case []:
+                expressionPrinter.Append("1");
+                break;
+            case [var singleProjection]:
                 expressionPrinter.Append("VALUE ");
-            }
-
-            expressionPrinter.VisitCollection(Projection);
-        }
-        else
-        {
-            expressionPrinter.Append("1");
+                expressionPrinter.Visit(singleProjection);
+                break;
+            default:
+                expressionPrinter.VisitCollection(Projection);
+                break;
         }
 
         if (Sources.Count > 0)

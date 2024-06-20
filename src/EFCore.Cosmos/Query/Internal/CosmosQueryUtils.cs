@@ -199,7 +199,6 @@ public static class CosmosQueryUtils
                             Limit: null,
                             Orderings: [],
                             IsDistinct: false,
-                            UsesSingleValueProjection: true,
                             Projection: [{ Expression: var a }]
                         },
                     }

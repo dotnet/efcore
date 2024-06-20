@@ -283,8 +283,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
         {
             // If the SELECT projects a single value out, we just project that with the Cosmos VALUE keyword (without VALUE,
             // Cosmos projects a JSON object containing the value).
-            // TODO: Ideally, just always use VALUE for all single-projection SELECTs - but this like requires shaper changes.
-            if (selectExpression.UsesSingleValueProjection && projection is [var singleProjection])
+            if (projection is [var singleProjection])
             {
                 _sqlBuilder.Append("VALUE ");
 
@@ -777,7 +776,6 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
                 Limit: null,
                 Orderings: [],
                 IsDistinct: false,
-                UsesSingleValueProjection: true,
                 Projection.Count: 1
             };
 
