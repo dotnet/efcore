@@ -2656,20 +2656,30 @@ WHERE LTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimStart_with_char_argument_in_predicate(bool async)
     {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_argument_in_predicate(async));
+        await base.TrimStart_with_char_argument_in_predicate(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE LTRIM([c].[ContactTitle], N'O') = N'wner'
+""");
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
     {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
+        await base.TrimStart_with_char_array_argument_in_predicate(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE LTRIM([c].[ContactTitle], N'Ow') = N'ner'
+""");
     }
 
     public override async Task TrimEnd_without_arguments_in_predicate(bool async)
@@ -2684,20 +2694,30 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
     {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument_in_predicate(async));
+        await  base.TrimEnd_with_char_argument_in_predicate(async);
 
-        AssertSql();
+        AssertSql(
+           """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE RTRIM([c].[ContactTitle], N'r') = N'Owne'
+""");
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
     {
-        // String.Trim with parameters. Issue #22927.
-        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument_in_predicate(async));
+        await base.TrimEnd_with_char_array_argument_in_predicate(async);
 
-        AssertSql();
+        AssertSql(
+           """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE RTRIM([c].[ContactTitle], N'er') = N'Own'
+""");
     }
 
     public override async Task Trim_without_argument_in_predicate(bool async)

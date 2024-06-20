@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 // ReSharper disable once CheckNamespace
@@ -62,6 +64,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
         = typeof(string).GetRuntimeMethod(nameof(string.Trim), [typeof(char[])])!;
 
+    private static readonly MethodInfo TrimStartMethodInfoWithCharArg
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char)])!;
+
+    private static readonly MethodInfo TrimEndMethodInfoWithCharArg
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char)])!;
+
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
             m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -79,15 +87,19 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory, ISqlServerSingletonOptions sqlServerSingletonOptions)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
+
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -186,38 +198,26 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimStartMethodInfoWithoutArgs.Equals(method)
-                || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
-                    // SqlServer LTRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+            // There's single-parameter LTRIM/RTRIM for all versions (trims whitespace), but startin with SQL Server 2022 there's also
+            // an overload that accepts the characters to trim.
+            if (method == TrimStartMethodInfoWithoutArgs
+                || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
+                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                    && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
             {
-                return _sqlExpressionFactory.Function(
-                    "LTRIM",
-                    new[] { instance },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true },
-                    instance.Type,
-                    instance.TypeMapping);
+                return ProcessTrimStartEnd(instance, arguments, "LTRIM");
             }
 
-            if (TrimEndMethodInfoWithoutArgs.Equals(method)
-                || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
-                    // SqlServer RTRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+            if (method == TrimEndMethodInfoWithoutArgs
+                || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
+                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                    && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
             {
-                return _sqlExpressionFactory.Function(
-                    "RTRIM",
-                    new[] { instance },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true },
-                    instance.Type,
-                    instance.TypeMapping);
+                return ProcessTrimStartEnd(instance, arguments, "RTRIM");
             }
 
-            if (TrimMethodInfoWithoutArgs.Equals(method)
-                || (TrimMethodInfoWithCharArrayArg.Equals(method)
-                    // SqlServer LTRIM/RTRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+            if (method == TrimMethodInfoWithoutArgs
+                || (method == TrimMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } }))
             {
                 return _sqlExpressionFactory.Function(
                     "LTRIM",
@@ -380,5 +380,27 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
 
         return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
+    }
+
+    private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
+    {
+        SqlConstantExpression? charactersToTrim = null;
+        if (arguments.Count > 0 && arguments[0] is SqlConstantExpression { Value: var charactersToTrimValue })
+        {
+            charactersToTrim = charactersToTrimValue switch
+            {
+                char singleChar => _sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
+                char[] charArray => _sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
+                _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
+            };
+        }
+
+        return _sqlExpressionFactory.Function(
+            functionName,
+            arguments: charactersToTrim is null ? [instance] : [instance, charactersToTrim],
+            nullable: true,
+            argumentsPropagateNullability: charactersToTrim is null ? [true] : [true, true],
+            instance.Type,
+            instance.TypeMapping);
     }
 }
