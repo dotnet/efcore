@@ -159,17 +159,6 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
                 return IdentityMapFactoryFactory.Create(key);
             });
 
-    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
-        .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
-
-    [UsedImplicitly]
-    private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
-        where TKey : notnull
-    {
-        EnsureReadOnly();
-        return KeyValueFactoryFactory.Create<TKey>(this);
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -340,11 +329,17 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
 
     IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
         => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, this, static key => key.CreatePrincipalKeyValueFactory<TKey>());
+            ref _principalKeyValueFactory, this, static key =>
+            {
+                key.EnsureReadOnly();
+                return KeyValueFactoryFactory.Create(key);
+            });
 
     IPrincipalKeyValueFactory IKey.GetPrincipalKeyValueFactory()
         => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
-                .MakeGenericMethod(key.GetKeyType())
-                .Invoke(key, [])!);
+            ref _principalKeyValueFactory, this, static key =>
+            {
+                key.EnsureReadOnly();
+                return KeyValueFactoryFactory.Create(key);
+            });
 }

@@ -364,7 +364,6 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             AddNamespace(converter.ModelClrType, parameters.Namespaces);
             AddNamespace(converter.ProviderClrType, parameters.Namespaces);
 
-            // TODO
             var unsafeAccessors = new HashSet<string>();
 
             mainBuilder
@@ -379,6 +378,9 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .AppendLine(",")
                 .AppendLines(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true);
+
+            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " +
+                string.Join(Environment.NewLine, unsafeAccessors));
 
             if (converter.ConvertsNulls)
             {
@@ -432,7 +434,6 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
             AddNamespace(comparer.Type, parameters.Namespaces);
 
-            // TODO
             var unsafeAccessors = new HashSet<string>();
 
             mainBuilder
@@ -450,6 +451,9 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                     skipFinalNewline: true)
                 .Append(")")
                 .DecrementIndent();
+
+            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " +
+                string.Join(Environment.NewLine, unsafeAccessors));
         }
         else
         {

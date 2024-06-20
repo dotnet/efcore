@@ -84,6 +84,12 @@ namespace TestNamespace
                 valueConverter: new CastingConverter<Point, Point>(),
                 valueComparer: new CompiledModelTestBase.CustomValueComparer<Point>(),
                 providerValueComparer: new CompiledModelTestBase.CustomValueComparer<Point>());
+            point.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Point>(1) : entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<Point>(0) == null ? entry.ReadTemporaryValue<Point>(1) : entry.ReadShadowValue<Point>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Point>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Point>(point, 1),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Point>(point),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             point.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -107,7 +113,7 @@ namespace TestNamespace
             var id = runtimeEntityType.FindProperty("Id")!;
             var point = runtimeEntityType.FindProperty("Point")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
@@ -150,6 +156,6 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(CompiledModelRelationalTestBase.SpatialTypes @this);
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_AbstractBase_Id(CompiledModelTestBase.AbstractBase @this);
     }
 }

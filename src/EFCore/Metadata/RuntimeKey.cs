@@ -17,7 +17,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
 {
     // Warning: Never access these fields directly as access needs to be thread-safe
     private Func<bool, IIdentityMap>? _identityMapFactory;
-    private object? _principalKeyValueFactory;
+    private IPrincipalKeyValueFactory? _principalKeyValueFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,20 +131,12 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
     /// <inheritdoc />
     IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
         => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, this, static key => key.CreatePrincipalKeyValueFactory<TKey>());
+            ref _principalKeyValueFactory, this, static key => KeyValueFactoryFactory.Create(key));
 
     /// <inheritdoc />
     IPrincipalKeyValueFactory IKey.GetPrincipalKeyValueFactory()
-        => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
-                .MakeGenericMethod(key.GetKeyType())
-                .Invoke(key, [])!);
-
-    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
-        .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
-
-    private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
-        where TKey : notnull => KeyValueFactoryFactory.Create<TKey>(this);
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _principalKeyValueFactory, (IKey)this, static key => KeyValueFactoryFactory.Create(key));
 
     /// <inheritdoc />
     Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()

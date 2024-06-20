@@ -41,6 +41,12 @@ namespace TestNamespace
                 typeof(int),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
+            id.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<int>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<int>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
+                (ValueBuffer valueBuffer) => valueBuffer[0]);
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -69,6 +75,12 @@ namespace TestNamespace
                 typeof(long?),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 providerPropertyType: typeof(string));
+            partitionId.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Nullable<long>>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Nullable<long>>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(partitionId, 1),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Nullable<long>>(partitionId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             partitionId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -156,6 +168,12 @@ namespace TestNamespace
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new IdValueGeneratorFactory().Create);
+            __id.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(2),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(2),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 3),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 2),
+                (ValueBuffer valueBuffer) => valueBuffer[3]);
             __id.SetPropertyIndexes(
                 index: 3,
                 originalValueIndex: 3,
@@ -187,6 +205,12 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAddOrUpdate,
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
+            __jObject.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(4) ? entry.ReadStoreGeneratedValue<JObject>(0) : entry.FlaggedAsTemporary(4) && entry.ReadShadowValue<JObject>(3) == null ? entry.ReadTemporaryValue<JObject>(0) : entry.ReadShadowValue<JObject>(3),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<JObject>(3),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<JObject>(__jObject, 4),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<JObject>(__jObject),
+                (ValueBuffer valueBuffer) => valueBuffer[4]);
             __jObject.SetPropertyIndexes(
                 index: 4,
                 originalValueIndex: 4,
@@ -217,6 +241,12 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAddOrUpdate,
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
+            _etag.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(5) ? entry.ReadStoreGeneratedValue<string>(1) : entry.FlaggedAsTemporary(5) && entry.ReadShadowValue<string>(4) == null ? entry.ReadTemporaryValue<string>(1) : entry.ReadShadowValue<string>(4),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(4),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(_etag, 5),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(_etag),
+                (ValueBuffer valueBuffer) => valueBuffer[5]);
             _etag.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,
@@ -258,10 +288,10 @@ namespace TestNamespace
             var __jObject = runtimeEntityType.FindProperty("__jObject")!;
             var _etag = runtimeEntityType.FindProperty("_etag")!;
             var key = runtimeEntityType.FindKey(new[] { id, partitionId });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             var key0 = runtimeEntityType.FindKey(new[] { __id, partitionId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key0));
+            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key0));
             key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

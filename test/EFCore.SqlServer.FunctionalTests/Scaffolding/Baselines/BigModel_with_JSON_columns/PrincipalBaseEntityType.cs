@@ -139,6 +139,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 maxLength: 55,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<string>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(discriminator, 2),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(discriminator),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
             discriminator.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -1029,10 +1035,10 @@ namespace TestNamespace
             var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
             var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<long?>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<long?, long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long?>(key));
             var key0 = runtimeEntityType.FindKey(new[] { id, alternateId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key0));
+            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key0));
             key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
             var owned = runtimeEntityType.FindNavigation("Owned")!;
             runtimeEntityType.SetOriginalValuesFactory(
@@ -1118,10 +1124,10 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeList>k__BackingField")]
         public static extern ref List<short> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_ValueTypeList(CompiledModelTestBase.PrincipalBase @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Deriveds>k__BackingField")]
-        public static extern ref ICollection<CompiledModelTestBase.PrincipalBase> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(CompiledModelTestBase.PrincipalBase @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_ownedField")]
         public static extern ref CompiledModelTestBase.OwnedType UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase__ownedField(CompiledModelTestBase.PrincipalBase @this);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Deriveds>k__BackingField")]
+        public static extern ref ICollection<CompiledModelTestBase.PrincipalBase> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalBase_Deriveds(CompiledModelTestBase.PrincipalBase @this);
     }
 }

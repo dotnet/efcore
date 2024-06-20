@@ -44,6 +44,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
+            principalBaseId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<long>(0) == 0L ? entry.ReadTemporaryValue<long>(0) : entry.ReadShadowValue<long>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<long>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(principalBaseId, 0),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long>(principalBaseId, 0),
+                (ValueBuffer valueBuffer) => valueBuffer[0]);
             principalBaseId.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -73,6 +79,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            principalBaseAlternateId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Guid>(1) : entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<Guid>(1) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(1) : entry.ReadShadowValue<Guid>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Guid>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(principalBaseAlternateId, 1),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Guid>(principalBaseAlternateId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             principalBaseAlternateId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -722,7 +734,7 @@ namespace TestNamespace
             var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
             var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
             var key = runtimeEntityType.FindKey(new[] { principalBaseId, principalBaseAlternateId });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

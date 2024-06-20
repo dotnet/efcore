@@ -392,7 +392,7 @@ namespace TestNamespace
             var principalsAlternateId = runtimeEntityType.FindProperty("PrincipalsAlternateId")!;
             var rowid = runtimeEntityType.FindProperty("rowid")!;
             var key = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

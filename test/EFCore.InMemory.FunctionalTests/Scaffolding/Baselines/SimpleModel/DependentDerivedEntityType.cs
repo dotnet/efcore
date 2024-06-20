@@ -132,7 +132,7 @@ namespace TestNamespace
             var id = runtimeEntityType.FindProperty("Id")!;
             var data = runtimeEntityType.FindProperty("Data")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
@@ -169,7 +169,7 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
-        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(CompiledModelTestBase.DependentDerived<int> @this);
+        public static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Id(CompiledModelTestBase.DependentBase<int> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Data>k__BackingField")]
         public static extern ref string UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentDerived1_Data(CompiledModelTestBase.DependentDerived<int> @this);

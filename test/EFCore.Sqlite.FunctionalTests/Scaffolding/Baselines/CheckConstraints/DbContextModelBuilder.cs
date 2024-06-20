@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -55,25 +56,28 @@ namespace TestNamespace
             var dataTable = new Table("Data", null, relationalModel);
             var idColumn = new Column("Id", "INTEGER", dataTable);
             dataTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn);
             var blobColumn = new Column("Blob", "BLOB", dataTable)
             {
                 IsNullable = true
             };
             dataTable.Columns.Add("Blob", blobColumn);
-            var pK_Data = new UniqueConstraint("PK_Data", dataTable, new[] { idColumn });
-            dataTable.PrimaryKey = pK_Data;
-            var pK_DataKey = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
-                new[] { "Id" });
-            pK_Data.MappedKeys.Add(pK_DataKey);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DataKey).Add(pK_Data);
-            dataTable.UniqueConstraints.Add("PK_Data", pK_Data);
+            blobColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<byte[]>(blobColumn);
             relationalModel.Tables.Add(("Data", null), dataTable);
             var dataTableMapping = new TableMapping(data, dataTable, null);
             dataTable.AddTypeMapping(dataTableMapping, false);
             tableMappings.Add(dataTableMapping);
             RelationalModel.CreateColumnMapping(idColumn, data.FindProperty("Id")!, dataTableMapping);
             RelationalModel.CreateColumnMapping(blobColumn, data.FindProperty("Blob")!, dataTableMapping);
+            var pK_Data = new UniqueConstraint("PK_Data", dataTable, new[] { idColumn });
+            dataTable.PrimaryKey = pK_Data;
+            pK_Data.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_Data));
+            var pK_DataKey = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+Data",
+                new[] { "Id" });
+            pK_Data.MappedKeys.Add(pK_DataKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_DataKey).Add(pK_Data);
+            dataTable.UniqueConstraints.Add("PK_Data", pK_Data);
             return relationalModel.MakeReadOnly();
         }
     }

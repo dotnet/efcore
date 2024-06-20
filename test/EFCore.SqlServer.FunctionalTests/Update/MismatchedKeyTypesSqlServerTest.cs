@@ -353,7 +353,7 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
         Assert.Equal(
             RelationalStrings.StoredKeyTypesNotConvertable(
                 nameof(OptionalSingleBad.PrincipalId), "uniqueidentifier", "bigint", nameof(PrincipalBad.Id)),
-            Assert.Throws<TargetInvocationException>(() => context.SaveChanges()).InnerException!.InnerException!.Message);
+            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
     }
 
     protected class MismatchedKeyTypesContextNoFks(MismatchedKeyTypesSqlServerFixture fixture) : MismatchedKeyTypesContext(fixture)

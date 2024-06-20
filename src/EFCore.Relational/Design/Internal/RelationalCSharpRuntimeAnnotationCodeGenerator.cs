@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -378,18 +379,12 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     public virtual void Generate(ITableBase table, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         => GenerateSimpleAnnotations(parameters);
 
-    private string GetOrCreate(
+    private string Create(
         ITable table,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
-        var metadataVariables = parameters.ScopeVariables;
-        if (metadataVariables.TryGetValue(table, out var tableVariable))
-        {
-            return tableVariable;
-        }
-
         var code = Dependencies.CSharpHelper;
-        tableVariable = code.Identifier(table.Name + "Table", table, parameters.ScopeObjects, capitalize: false);
+        var tableVariable = code.Identifier(table.Name + "Table", table, parameters.ScopeObjects, capitalize: false);
         var mainBuilder = parameters.MainBuilder;
         mainBuilder
             .Append($"var {tableVariable} = new Table({code.Literal(table.Name)}, {code.Literal(table.Schema)}, ")
@@ -400,26 +395,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         foreach (var column in table.Columns)
         {
             Create(column, tableParameters);
-        }
-
-        foreach (var uniqueConstraint in table.UniqueConstraints)
-        {
-            Create(uniqueConstraint, uniqueConstraint.Columns.Select(c => metadataVariables[c]), tableParameters);
-        }
-
-        foreach (var index in table.Indexes)
-        {
-            Create(index, index.Columns.Select(c => metadataVariables[c]), tableParameters);
-        }
-
-        foreach (var trigger in table.Triggers)
-        {
-            var entityTypeVariable = metadataVariables[trigger.EntityType];
-
-            var triggerName = trigger.GetDatabaseName(StoreObjectIdentifier.Table(table.Name, table.Schema));
-            mainBuilder
-                .Append($"{tableVariable}.Triggers.Add({code.Literal(triggerName)}, ")
-                .AppendLine($"{entityTypeVariable}.FindDeclaredTrigger({code.Literal(trigger.ModelName)}));");
         }
 
         CreateAnnotations(
@@ -746,6 +721,13 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .AppendLine(";")
             .AppendLine($"{parameters.TargetName}.Columns.Add({code.Literal(column.Name)}, {columnVariable});");
 
+        AddNamespace(typeof(ColumnAccessorsFactory), parameters.Namespaces);
+        AddNamespace(column.ProviderClrType, parameters.Namespaces);
+        var columnClrType = code.Reference(column.ProviderClrType);
+        mainBuilder
+            .Append(columnVariable).Append(".").Append(nameof(Column.Accessors)).Append(" = ")
+            .AppendLine($"{nameof(ColumnAccessorsFactory)}.CreateGeneric<{columnClrType}>({columnVariable});");
+
         CreateAnnotations(
             column,
             Generate,
@@ -936,7 +918,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var uniqueConstraintVariable = code.Identifier(uniqueConstraint.Name, uniqueConstraint, parameters.ScopeObjects, capitalize: false);
         var mainBuilder = parameters.MainBuilder;
         mainBuilder
-            .Append("var ").Append(uniqueConstraintVariable).Append(" = new ").Append("UniqueConstraint").Append("(")
+            .Append("var ").Append(uniqueConstraintVariable).Append(" = new UniqueConstraint(")
             .Append(code.Literal(uniqueConstraint.Name)).Append(", ")
             .Append(parameters.TargetName).Append(", ")
             .Append("new[] { ").AppendJoin(columns).AppendLine(" });");
@@ -946,6 +928,22 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             mainBuilder
                 .Append(parameters.TargetName).Append(".PrimaryKey = ").Append(uniqueConstraintVariable).AppendLine(";");
         }
+
+        AddNamespace(typeof(CompositeRowKeyValueFactory), parameters.Namespaces);
+        mainBuilder
+            .Append(uniqueConstraintVariable).Append(".").Append(nameof(UniqueConstraint.SetRowKeyValueFactory)).Append("(");
+        if (uniqueConstraint.Columns.Count == 1)
+        {
+            var type = uniqueConstraint.Columns.First().ProviderClrType;
+            mainBuilder
+                .Append($"new SimpleRowKeyValueFactory<{code.Reference(type)}>({uniqueConstraintVariable})");
+        }
+        else
+        {
+            mainBuilder
+                .Append($"new CompositeRowKeyValueFactory({uniqueConstraintVariable})");
+        }
+        mainBuilder.AppendLine(");");
 
         CreateAnnotations(
             uniqueConstraint,
@@ -996,6 +994,22 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(parameters.TargetName).Append(", ")
             .Append("new[] { ").AppendJoin(columns).Append(" }, ")
             .Append(code.Literal(index.IsUnique)).AppendLine(");");
+
+        AddNamespace(typeof(CompositeRowIndexValueFactory), parameters.Namespaces);
+        mainBuilder
+            .Append(indexVariable).Append(".").Append(nameof(TableIndex.SetRowIndexValueFactory)).Append("(");
+        if (index.Columns.Count == 1)
+        {
+            var type = index.Columns.First().ProviderClrType;
+            mainBuilder
+                .Append($"new SimpleRowIndexValueFactory<{code.Reference(type)}>({indexVariable})");
+        }
+        else
+        {
+            mainBuilder
+                .Append($"new CompositeRowIndexValueFactory({indexVariable})");
+        }
+        mainBuilder.AppendLine(");");
 
         CreateAnnotations(
             index,
@@ -1051,6 +1065,25 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append("new[] { ").AppendJoin(foreignKey.Columns.Select(c => metadataVariables[c])).AppendLine(" },")
             .Append($"{principalTableVariable}.FindUniqueConstraint({code.Literal(foreignKey.PrincipalUniqueConstraint.Name)})!, ")
             .Append(code.Literal(foreignKey.OnDeleteAction)).AppendLine(");").DecrementIndent();
+
+        AddNamespace(typeof(CompositeRowForeignKeyValueFactory), parameters.Namespaces);
+        mainBuilder
+            .Append(foreignKeyConstraintVariable).Append(".").Append(nameof(ForeignKeyConstraint.SetRowForeignKeyValueFactory)).Append("(");
+        var createRowForeignKeyValueFactoryMethod = "new CompositeRowForeignKeyValueFactory(";
+        if (foreignKey.Columns.Count == 1)
+        {
+            var principalColumn = foreignKey.PrincipalColumns.First();
+            var dependentColumn = foreignKey.Columns.First();
+            createRowForeignKeyValueFactoryMethod = principalColumn.ProviderClrType.IsNullableType() || principalColumn.IsNullable
+                ? $"{nameof(RowForeignKeyValueFactoryFactory)}.{nameof(RowForeignKeyValueFactoryFactory.CreateSimpleNullableFactory)}"
+                : $"{nameof(RowForeignKeyValueFactoryFactory)}.{nameof(RowForeignKeyValueFactoryFactory.CreateSimpleNonNullableFactory)}";
+            createRowForeignKeyValueFactoryMethod +=
+                $"<{code.Reference(principalColumn.ProviderClrType)}, {code.Reference(dependentColumn.ProviderClrType)}>(";
+        }
+
+        mainBuilder
+            .Append($"{createRowForeignKeyValueFactoryMethod}{foreignKeyConstraintVariable})");
+        mainBuilder.AppendLine(");");
 
         CreateAnnotations(
             foreignKey,
@@ -1149,7 +1182,12 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var typeBaseVariable = metadataVariables[typeBase];
 
         var table = tableMapping.Table;
-        var tableVariable = GetOrCreate(table, parameters);
+        if (!parameters.ScopeVariables.TryGetValue(table, out var tableVariable))
+        {
+            tableVariable = Create(table, parameters);
+        }
+
+        var tableParameters = parameters with { TargetName = tableVariable };
         var tableMappingVariable = code.Identifier(table.Name + "TableMapping", tableMapping, parameters.ScopeObjects, capitalize: false);
 
         GenerateAddMapping(
@@ -1172,6 +1210,29 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 .Append($"RelationalModel.CreateColumnMapping({metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(tableMappingVariable).AppendLine(");");
+        }
+
+        if (tableMapping == table.EntityTypeMappings.Last())
+        {
+            foreach (var uniqueConstraint in table.UniqueConstraints)
+            {
+                Create(uniqueConstraint, uniqueConstraint.Columns.Select(c => metadataVariables[c]), tableParameters);
+            }
+
+            foreach (var index in table.Indexes)
+            {
+                Create(index, index.Columns.Select(c => metadataVariables[c]), tableParameters);
+            }
+
+            foreach (var trigger in table.Triggers)
+            {
+                var entityTypeVariable = metadataVariables[trigger.EntityType];
+
+                var triggerName = trigger.GetDatabaseName(StoreObjectIdentifier.Table(table.Name, table.Schema));
+                mainBuilder
+                    .Append($"{tableVariable}.Triggers.Add({code.Literal(triggerName)}, ")
+                    .AppendLine($"{entityTypeVariable}.FindDeclaredTrigger({code.Literal(trigger.ModelName)}));");
+            }
         }
     }
 

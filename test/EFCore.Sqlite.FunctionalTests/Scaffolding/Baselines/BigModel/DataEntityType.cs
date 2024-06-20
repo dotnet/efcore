@@ -38,6 +38,12 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
+            id.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<int>(0) : entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<int>(0) == 0 ? entry.ReadTemporaryValue<int>(0) : entry.ReadShadowValue<int>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<int>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 0),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 0),
+                (ValueBuffer valueBuffer) => valueBuffer[0]);
             id.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -107,6 +113,12 @@ namespace TestNamespace
                 "Point",
                 typeof(Point),
                 nullable: true);
+            point.SetAccessors(
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Point>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Point>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Point>(point, 2),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Point>(point),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
             point.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -128,7 +140,7 @@ namespace TestNamespace
             var blob = runtimeEntityType.FindProperty("Blob")!;
             var point = runtimeEntityType.FindProperty("Point")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

@@ -20,17 +20,10 @@ public class SimpleNonNullableRowForeignKeyValueFactory<TKey, TForeignKey> : Row
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SimpleNonNullableRowForeignKeyValueFactory(
-        IForeignKeyConstraint foreignKey,
-        IColumn column,
-        ColumnAccessors columnAccessors,
-        IValueConverterSelector valueConverterSelector)
-        : base(foreignKey, column, columnAccessors, valueConverterSelector)
+        IForeignKeyConstraint foreignKey, IColumn column, ColumnAccessors columnAccessors)
+        : base(foreignKey, column, columnAccessors)
     {
-        EqualityComparer = CreateKeyEqualityComparer(column);
     }
-
-    /// <inheritdoc />
-    public override IEqualityComparer<TKey> EqualityComparer { get; }
 
     /// <inheritdoc />
     public override bool TryCreateDependentKeyValue(object?[] keyValues, [NotNullWhen(true)] out TKey? key)

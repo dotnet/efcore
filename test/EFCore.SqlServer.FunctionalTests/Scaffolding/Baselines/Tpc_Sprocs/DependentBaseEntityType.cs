@@ -83,6 +83,12 @@ namespace TestNamespace
                 "PrincipalId",
                 typeof(long?),
                 nullable: true);
+            principalId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Nullable<long>>(0) : entry.FlaggedAsTemporary(1) && !entry.ReadShadowValue<Nullable<long>>(0).HasValue ? entry.ReadTemporaryValue<Nullable<long>>(0) : entry.ReadShadowValue<Nullable<long>>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Nullable<long>>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(principalId, 1),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Nullable<long>>(principalId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             principalId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -136,17 +142,17 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.DependentBase<byte?>).GetField("<Principal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             principal.SetGetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity),
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) == null,
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(instance),
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(instance) == null);
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity),
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) == null,
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(instance),
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(instance) == null);
             principal.SetSetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) = value);
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) = value);
             principal.SetMaterializationSetter(
-                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) = value);
+                (CompiledModelTestBase.DependentBase<Nullable<byte>> entity, CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>> value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal(entity) = value);
             principal.SetAccessors(
-                (InternalEntityEntry entry) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
-                (InternalEntityEntry entry) => DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal((CompiledModelTestBase.DependentBase<Nullable<byte>>)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<Nullable<byte>>>>(principal),
                 null);
@@ -156,6 +162,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: 2,
                 storeGenerationIndex: -1);
+            principal.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DependentBaseEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_DependentBase1_Principal", "TestNamespace") });
             var dependent = principalEntityType.AddNavigation("Dependent",
                 runtimeForeignKey,
                 onDependent: false,
@@ -192,7 +199,7 @@ namespace TestNamespace
             var id = runtimeEntityType.FindProperty("Id")!;
             var principalId = runtimeEntityType.FindProperty("PrincipalId")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<byte?>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<byte?, byte>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<byte?>(key));
             var principal = runtimeEntityType.FindNavigation("Principal")!;
             runtimeEntityType.SetOriginalValuesFactory(

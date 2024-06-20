@@ -87,6 +87,12 @@ namespace TestNamespace
                 "ReferenceNavigationId",
                 typeof(int?),
                 nullable: true);
+            referenceNavigationId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Nullable<int>>(1) : entry.FlaggedAsTemporary(1) && !entry.ReadShadowValue<Nullable<int>>(0).HasValue ? entry.ReadTemporaryValue<Nullable<int>>(1) : entry.ReadShadowValue<Nullable<int>>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Nullable<int>>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<int>>(referenceNavigationId, 1),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Nullable<int>>(referenceNavigationId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             referenceNavigationId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -148,17 +154,17 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field);
 
             referenceNavigation.SetGetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity),
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) == null,
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(instance),
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(instance) == null);
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity),
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) == null,
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(instance),
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(instance) == null);
             referenceNavigation.SetSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) = value);
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) = value);
             referenceNavigation.SetMaterializationSetter(
-                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) = value);
+                (CompiledModelInMemoryTest.LazyProxiesEntity1 entity, CompiledModelInMemoryTest.LazyProxiesEntity2 value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation(entity) = value);
             referenceNavigation.SetAccessors(
-                (InternalEntityEntry entry) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
-                (InternalEntityEntry entry) => LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
+                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation((CompiledModelInMemoryTest.LazyProxiesEntity1)entry.Entity),
                 null,
                 (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelInMemoryTest.LazyProxiesEntity2>(referenceNavigation),
                 null);
@@ -168,6 +174,7 @@ namespace TestNamespace
                 shadowIndex: -1,
                 relationshipIndex: 2,
                 storeGenerationIndex: -1);
+            referenceNavigation.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("LazyProxiesEntity1EntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_LazyProxiesEntity1_ReferenceNavigation", "TestNamespace") });
             var collectionNavigation = principalEntityType.AddNavigation("CollectionNavigation",
                 runtimeForeignKey,
                 onDependent: false,
@@ -211,7 +218,7 @@ namespace TestNamespace
             var id = runtimeEntityType.FindProperty("Id")!;
             var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<int>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
             var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation")!;
             runtimeEntityType.SetOriginalValuesFactory(

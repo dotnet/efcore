@@ -41,6 +41,12 @@ namespace TestNamespace
                 typeof(long),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
+            principalDerivedId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<long>(0) : entry.FlaggedAsTemporary(0) && entry.ReadShadowValue<long>(0) == 0L ? entry.ReadTemporaryValue<long>(0) : entry.ReadShadowValue<long>(0),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<long>(0),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(principalDerivedId, 0),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<long>(principalDerivedId, 0),
+                (ValueBuffer valueBuffer) => valueBuffer[0]);
             principalDerivedId.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -68,6 +74,12 @@ namespace TestNamespace
                 typeof(Guid),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            principalDerivedAlternateId.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(1) ? entry.ReadStoreGeneratedValue<Guid>(1) : entry.FlaggedAsTemporary(1) && entry.ReadShadowValue<Guid>(1) == new Guid("00000000-0000-0000-0000-000000000000") ? entry.ReadTemporaryValue<Guid>(1) : entry.ReadShadowValue<Guid>(1),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<Guid>(1),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(principalDerivedAlternateId, 1),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Guid>(principalDerivedAlternateId, 1),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
             principalDerivedAlternateId.SetPropertyIndexes(
                 index: 1,
                 originalValueIndex: 1,
@@ -98,6 +110,12 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
+            id.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(2) ? entry.ReadStoreGeneratedValue<int>(2) : entry.FlaggedAsTemporary(2) && entry.ReadShadowValue<int>(2) == 0 ? entry.ReadTemporaryValue<int>(2) : entry.ReadShadowValue<int>(2),
+                (InternalEntityEntry entry) => entry.ReadShadowValue<int>(2),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(id, 2),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<int>(id, 2),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
             id.SetPropertyIndexes(
                 index: 2,
                 originalValueIndex: 2,
@@ -863,7 +881,7 @@ namespace TestNamespace
             var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
             var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
             var key = runtimeEntityType.FindKey(new[] { principalDerivedId, principalDerivedAlternateId, id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<IReadOnlyList<object>>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>

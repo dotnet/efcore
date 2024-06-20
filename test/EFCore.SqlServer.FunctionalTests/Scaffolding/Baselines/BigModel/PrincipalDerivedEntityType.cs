@@ -159,13 +159,13 @@ namespace TestNamespace
 
         static partial void Customize(RuntimeEntityType runtimeEntityType);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Principals>k__BackingField")]
-        public static extern ref ICollection<CompiledModelTestBase.PrincipalBase> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Dependent>k__BackingField")]
         public static extern ref CompiledModelTestBase.DependentBase<byte?> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Dependent(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "ManyOwned")]
         public static extern ref ICollection<CompiledModelTestBase.OwnedType> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_ManyOwned(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Principals>k__BackingField")]
+        public static extern ref ICollection<CompiledModelTestBase.PrincipalBase> UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_PrincipalDerived1_Principals(CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> @this);
     }
 }

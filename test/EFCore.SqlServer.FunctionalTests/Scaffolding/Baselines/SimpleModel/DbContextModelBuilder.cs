@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable disable
@@ -57,25 +58,28 @@ namespace TestNamespace
             var dependentDerivedintTable = new Table("DependentDerived<int>", null, relationalModel);
             var idColumn = new Column("Id", "int", dependentDerivedintTable);
             dependentDerivedintTable.Columns.Add("Id", idColumn);
+            idColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<int>(idColumn);
             var dataColumn = new Column("Data", "nvarchar(max)", dependentDerivedintTable)
             {
                 IsNullable = true
             };
             dependentDerivedintTable.Columns.Add("Data", dataColumn);
-            var pK_DependentDerivedint = new UniqueConstraint("PK_DependentDerived<int>", dependentDerivedintTable, new[] { idColumn });
-            dependentDerivedintTable.PrimaryKey = pK_DependentDerivedint;
-            var pK_DependentDerivedintKey = RelationalModel.GetKey(this,
-                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<int>",
-                new[] { "Id" });
-            pK_DependentDerivedint.MappedKeys.Add(pK_DependentDerivedintKey);
-            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentDerivedintKey).Add(pK_DependentDerivedint);
-            dependentDerivedintTable.UniqueConstraints.Add("PK_DependentDerived<int>", pK_DependentDerivedint);
+            dataColumn.Accessors = ColumnAccessorsFactory.CreateGeneric<string>(dataColumn);
             relationalModel.Tables.Add(("DependentDerived<int>", null), dependentDerivedintTable);
             var dependentDerivedintTableMapping = new TableMapping(dependentDerived, dependentDerivedintTable, null);
             dependentDerivedintTable.AddTypeMapping(dependentDerivedintTableMapping, false);
             tableMappings.Add(dependentDerivedintTableMapping);
             RelationalModel.CreateColumnMapping(idColumn, dependentDerived.FindProperty("Id")!, dependentDerivedintTableMapping);
             RelationalModel.CreateColumnMapping(dataColumn, dependentDerived.FindProperty("Data")!, dependentDerivedintTableMapping);
+            var pK_DependentDerivedint = new UniqueConstraint("PK_DependentDerived<int>", dependentDerivedintTable, new[] { idColumn });
+            dependentDerivedintTable.PrimaryKey = pK_DependentDerivedint;
+            pK_DependentDerivedint.SetRowKeyValueFactory(new SimpleRowKeyValueFactory<int>(pK_DependentDerivedint));
+            var pK_DependentDerivedintKey = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentDerived<int>",
+                new[] { "Id" });
+            pK_DependentDerivedint.MappedKeys.Add(pK_DependentDerivedintKey);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_DependentDerivedintKey).Add(pK_DependentDerivedint);
+            dependentDerivedintTable.UniqueConstraints.Add("PK_DependentDerived<int>", pK_DependentDerivedint);
             return relationalModel.MakeReadOnly();
         }
     }

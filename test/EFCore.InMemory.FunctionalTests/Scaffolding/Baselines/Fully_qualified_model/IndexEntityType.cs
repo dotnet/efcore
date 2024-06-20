@@ -88,7 +88,7 @@ namespace Scaffolding
         {
             var id = runtimeEntityType.FindProperty("Id")!;
             var key = runtimeEntityType.FindKey(new[] { id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.Create<Guid>(key));
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<Guid>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<Guid>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 (InternalEntityEntry source) =>
