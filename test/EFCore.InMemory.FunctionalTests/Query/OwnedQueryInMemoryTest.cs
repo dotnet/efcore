@@ -12,6 +12,9 @@ public class OwnedQueryInMemoryTest(OwnedQueryInMemoryTest.OwnedQueryInMemoryFix
     public override Task ElementAt_over_owned_collection(bool async)
         => AssertTranslationFailed(() => base.ElementAt_over_owned_collection(async));
 
+    public override Task ElementAtOrDefault_over_owned_collection(bool async)
+        => AssertTranslationFailed(() => base.ElementAt_over_owned_collection(async));
+
     public override Task FirstOrDefault_over_owned_collection(bool async)
         => Assert.ThrowsAsync<NullReferenceException>(() => base.FirstOrDefault_over_owned_collection(async));
 

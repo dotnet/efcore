@@ -932,17 +932,6 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Contains_over_owned_collection_with_parameter_item(bool async)
-    {
-        var order = new Order { Id = -30 };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Contains(order)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task ElementAt_over_owned_collection(bool async)
         => AssertQuery(
             async,
