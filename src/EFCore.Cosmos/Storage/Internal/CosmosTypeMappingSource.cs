@@ -48,24 +48,26 @@ public class CosmosTypeMappingSource : TypeMappingSource
 
         return _clrTypeMappings.TryGetValue(clrType, out var mapping)
             ? mapping
-            : (FindPrimitiveMapping(mappingInfo)
-                ?? FindCollectionMapping(mappingInfo)
-                ?? base.FindMapping(mappingInfo));
+            : (base.FindMapping(mappingInfo) // This will find a mapping from plugins, and so must happen first. See #34041.
+                ?? FindPrimitiveMapping(mappingInfo)
+                ?? FindCollectionMapping(mappingInfo));
     }
 
     private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
-        if ((clrType.IsValueType
-                && clrType != typeof(Guid)
-                && !clrType.IsEnum)
-            || clrType == typeof(string))
-        {
-            return new CosmosTypeMapping(
-                clrType, jsonValueReaderWriter: Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType));
-        }
 
-        return null;
+        return clrType.IsNumeric()
+            || clrType == typeof(bool)
+            || clrType == typeof(DateOnly)
+            || clrType == typeof(TimeOnly)
+            || clrType == typeof(DateTime)
+            || clrType == typeof(DateTimeOffset)
+            || clrType == typeof(TimeSpan)
+            || clrType == typeof(string)
+                ? new CosmosTypeMapping(
+                    clrType, jsonValueReaderWriter: Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType))
+                : null;
     }
 
     private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
