@@ -198,26 +198,26 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimStartMethodInfoWithoutArgs.Equals(method)
+            // There's single-parameter LTRIM/RTRIM for all versions (trims whitespace), but startin with SQL Server 2022 there's also
+            // an overload that accepts the characters to trim.
+            if (method == TrimStartMethodInfoWithoutArgs
+                || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
                 || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
-                    && (TrimStartMethodInfoWithCharArg.Equals(method)
-                        || TrimStartMethodInfoWithCharArrayArg.Equals(method))))
+                    && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
             {
-                return ProcessTrimMethod(instance, arguments, "LTRIM");
+                return ProcessTrimStartEnd(instance, arguments, "LTRIM");
             }
 
-            if (TrimEndMethodInfoWithoutArgs.Equals(method)
+            if (method == TrimEndMethodInfoWithoutArgs
+                || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
                 || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
-                    && (TrimEndMethodInfoWithCharArg.Equals(method)
-                        || TrimEndMethodInfoWithCharArrayArg.Equals(method))))
+                    && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
             {
-                return ProcessTrimMethod(instance, arguments, "RTRIM");
+                return ProcessTrimStartEnd(instance, arguments, "RTRIM");
             }
 
-            if (TrimMethodInfoWithoutArgs.Equals(method)
-                || (TrimMethodInfoWithCharArrayArg.Equals(method)
-                    // SqlServer LTRIM/RTRIM does not take arguments
-                    && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+            if (method == TrimMethodInfoWithoutArgs
+                || (method == TrimMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } }))
             {
                 return _sqlExpressionFactory.Function(
                     "LTRIM",
@@ -382,44 +382,25 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
         return _sqlExpressionFactory.Subtract(charIndexExpression, offsetExpression);
     }
 
-    private SqlExpression? ProcessTrimMethod(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
+    private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {
-        var typeMapping = instance.TypeMapping;
-        if (typeMapping == null)
+        SqlConstantExpression? charactersToTrim = null;
+        if (arguments.Count > 0 && arguments[0] is SqlConstantExpression { Value: var charactersToTrimValue })
         {
-            return null;
-        }
-
-        var sqlArguments = new List<SqlExpression> { instance };
-        if (arguments.Count == 1)
-        {
-            var constantValue = (arguments[0] as SqlConstantExpression)?.Value;
-            var charactersToTrim = new StringBuilder();
-
-            switch(constantValue)
+            charactersToTrim = charactersToTrimValue switch
             {
-                case char singleChar:
-                    charactersToTrim.Append(singleChar);
-                    break;
-                case char[] charArray:
-                    charactersToTrim.Append(charArray);
-                    break;
-                default:
-                    return null;
-            }
-
-            if (charactersToTrim.Length > 0)
-            {
-                sqlArguments.Add(_sqlExpressionFactory.Constant(new string(charactersToTrim.ToString()), typeMapping));
-            }
+                char singleChar => _sqlExpressionFactory.Constant(singleChar.ToString(), instance.TypeMapping),
+                char[] charArray => _sqlExpressionFactory.Constant(new string(charArray), instance.TypeMapping),
+                _ => throw new UnreachableException("Invalid parameter type for string.TrimStart/TrimEnd")
+            };
         }
 
         return _sqlExpressionFactory.Function(
             functionName,
-            sqlArguments,
+            arguments: charactersToTrim is null ? [instance] : [instance, charactersToTrim],
             nullable: true,
-            argumentsPropagateNullability: sqlArguments.Select(_ => true).ToList(),
+            argumentsPropagateNullability: charactersToTrim is null ? [true] : [true, true],
             instance.Type,
-            typeMapping);
+            instance.TypeMapping);
     }
 }
