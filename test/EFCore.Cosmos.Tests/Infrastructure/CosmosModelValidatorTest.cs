@@ -413,6 +413,36 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", nameof(Customer), "int"), modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void Detects_unmappable_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<RememberMyName<ReadOnlyMemory<float>>>().ToContainer("Orders");
+
+        VerifyError(CoreStrings.PropertyNotAdded(
+            typeof(RememberMyName<ReadOnlyMemory<float>>).ShortDisplayName(),
+            nameof(RememberMyName<float>.ForgetMeNot),
+            typeof(ReadOnlyMemory<float>).ShortDisplayName()), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_unmappable_list_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<RememberMyName<ReadOnlyMemory<float>[]>>().ToContainer("Orders");
+
+        VerifyError(CoreStrings.PropertyNotAdded(
+            typeof(RememberMyName<ReadOnlyMemory<float>[]>).ShortDisplayName(),
+            nameof(RememberMyName<float>.ForgetMeNot),
+            typeof(ReadOnlyMemory<float>[]).ShortDisplayName()), modelBuilder);
+    }
+
+    private class RememberMyName<T>
+    {
+        public string Id { get; set; }
+        public T ForgetMeNot { get; set; }
+    }
+
     protected override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 }
