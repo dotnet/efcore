@@ -417,8 +417,16 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Order.CustomerId), chainedOwnership.Properties.Single().Name);
             Assert.Equal(nameof(Order.OrderId), chainedOwned.FindPrimaryKey().Properties.Single().Name);
             Assert.Single(chainedOwned.GetForeignKeys());
-            Assert.Equal(nameof(Order.CustomerId), chainedOwned.GetIndexes().Single().Properties.Single().Name);
-            Assert.Same(entityBuilder.OwnedEntityType, chainedOwned);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(nameof(Order.CustomerId), chainedOwned.GetIndexes().Single().Properties.Single().Name);
+                Assert.Same(entityBuilder.OwnedEntityType, chainedOwned);
+            }
+            else
+            {
+                Assert.Empty(chainedOwned.GetIndexes());
+            }
 
             Assert.Equal(3, model.GetEntityTypes().Count());
         }
@@ -453,8 +461,17 @@ public abstract partial class ModelBuilderTest
 
             Assert.Null(owner.FindProperty("foo"));
             Assert.Equal(nameof(Order.AnotherCustomerId), owned.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(2, owned.GetIndexes().Count());
-            Assert.Equal("CustomerAlternateKey", owned.GetIndexes().First().Properties.Single().Name);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(2, owned.GetIndexes().Count());
+                Assert.Equal("CustomerAlternateKey", owned.GetIndexes().First().Properties.Single().Name);
+            }
+            else
+            {
+                Assert.Single(owned.GetIndexes());
+            }
+
             Assert.Equal("foo", owned.GetIndexes().Last().Properties.Single().Name);
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, owned.GetPropertyAccessMode());
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, owned.GetChangeTrackingStrategy());
@@ -496,9 +513,18 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", owned.FindAnnotation("foo").Value);
             Assert.Single(owned.GetForeignKeys());
             Assert.Equal("Id", owned.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(2, owned.GetIndexes().Count());
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(2, owned.GetIndexes().Count());
+                Assert.Equal("DifferentCustomerId", owned.GetIndexes().Last().Properties.Single().Name);
+            }
+            else
+            {
+                Assert.Single(owned.GetIndexes());
+            }
+
             Assert.Equal(nameof(Order.AnotherCustomerId), owned.GetIndexes().First().Properties.Single().Name);
-            Assert.Equal("DifferentCustomerId", owned.GetIndexes().Last().Properties.Single().Name);
             Assert.False(owned.FindProperty(nameof(Order.AnotherCustomerId)).IsNullable);
             Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
         }
@@ -672,9 +698,18 @@ public abstract partial class ModelBuilderTest
             Assert.False(chainedOwnership.IsUnique);
             Assert.Equal("OrderId", chainedOwnership.Properties.Single().Name);
             Assert.Equal(nameof(Product.Id), chainedOwned.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(
-                "OrderId",
-                chainedOwned.GetIndexes().Single().Properties.Single().Name);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(
+                    "OrderId",
+                    chainedOwned.GetIndexes().Single().Properties.Single().Name);
+            }
+            else
+            {
+                Assert.Empty(chainedOwned.GetIndexes());
+            }
+
             Assert.Equal(nameof(Product.Order), chainedOwnership.DependentToPrincipal.Name);
 
             Assert.Equal(4, model.GetEntityTypes().Count());
@@ -1805,7 +1840,7 @@ public abstract partial class ModelBuilderTest
 
             var bill2 = owner.FindNavigation(nameof(BillingOwner.Bill2)).TargetEntityType;
             Assert.Equal(2, bill2.GetForeignKeys().Count());
-            Assert.Single(bill2.GetIndexes());
+            Assert.Equal(Fixture.ForeignKeysHaveIndexes ? 1 : 0, bill2.GetIndexes().Count());
         }
 
         [ConditionalFact]

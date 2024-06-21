@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore;
 public class AspNetIdentityDefaultInMemoryTest(AspNetIdentityDefaultInMemoryTest.AspNetDefaultIdentityInMemoryFixture fixture)
     : AspNetIdentityDefaultTestBase<AspNetIdentityDefaultInMemoryTest.AspNetDefaultIdentityInMemoryFixture>(fixture)
 {
+    protected override bool HasForeignKeyIndexes
+        => false;
+
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
     }

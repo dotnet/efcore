@@ -153,6 +153,9 @@
   <data name="IdNonStringStoreType" xml:space="preserve">
     <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.</value>
   </data>
+  <data name="IndexesExist" xml:space="preserve">
+    <value>The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core does not support index definitions.</value>
+  </data>
   <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
     <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
   </data>

@@ -7,6 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class GrpcInMemoryTest(GrpcInMemoryTest.GrpcInMemoryFixture fixture) : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixture>(fixture)
 {
+    protected override bool HasForeignKeyIndexes
+        => false;
+
     public class GrpcInMemoryFixture : GrpcFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
