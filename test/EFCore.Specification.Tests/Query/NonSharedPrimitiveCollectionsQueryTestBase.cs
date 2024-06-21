@@ -210,6 +210,43 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         Assert.Equal(2, result.Id);
     }
 
+    [ConditionalFact]
+    public virtual async Task Project_collection_from_entity_type_with_owned()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntityWithOwned>(
+                b =>
+                {
+                    b.Property(b => b.Id).ValueGeneratedNever();
+                    b.OwnsOne(b => b.Owned);
+                }),
+            seed: context =>
+            {
+                context.AddRange(
+                    new TestEntityWithOwned { Id = 1, Ints = [1, 2], Owned = new Owned { Foo = 0 } },
+                    new TestEntityWithOwned { Id = 2, Ints = [3, 4], Owned = new Owned { Foo = 1 } });
+                return context.SaveChangesAsync();
+            });
+
+        await using var context = contextFactory.CreateContext();
+
+        var results = await context.Set<TestEntityWithOwned>().Select(t => t.Ints).ToListAsync();
+        Assert.True(results.Any(r => r?.SequenceEqual([1, 2]) == true));
+        Assert.True(results.Any(r => r?.SequenceEqual([3, 4]) == true));
+    }
+
+    private class TestEntityWithOwned
+    {
+        public int Id { get; set; }
+        public int[]? Ints { get; set; }
+        public Owned Owned { get; set; } = default!;
+    }
+
+    private class Owned
+    {
+        public int Foo { get; set; }
+    }
+
     /// <summary>
     ///     A utility that allows easy testing of querying out arbitrary element types from a primitive collection, provided two distinct
     ///     element values.

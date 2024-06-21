@@ -768,6 +768,17 @@ WHERE JSON_VALUE([t].[Owned], '$.Strings[1]') = N'bar'
 """);
     }
 
+    public override async Task Project_collection_from_entity_type_with_owned()
+    {
+        await base.Project_collection_from_entity_type_with_owned();
+
+        AssertSql(
+            """
+SELECT [t].[Ints]
+FROM [TestEntityWithOwned] AS [t]
+""");
+    }
+
     [ConditionalFact]
     public virtual async Task Same_parameter_with_different_type_mappings()
     {
