@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -440,7 +441,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
             // If the subquery represents a bare array (without any operators composed on top), simply extract and return that.
             // Otherwise, wrap the subquery with an ARRAY() operator, converting the subquery to an array first.
             case ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } shapedQuery
-                when CosmosQueryUtils.TryConvertToArray(shapedQuery, typeMappingSource, out var array):
+                when shapedQuery.TryConvertToArray(typeMappingSource, out var array):
                 return array;
 
             default:

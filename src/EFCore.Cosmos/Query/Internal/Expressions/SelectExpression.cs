@@ -523,7 +523,7 @@ public class SelectExpression : Expression, IPrintableExpression
         // TODO: Proper alias management (#33894).
         // Create a new source (JOIN) for the server side of the query; if the inner query represents a bare array, unwrap it and
         // add the JOIN directly
-        var joinSource = CosmosQueryUtils.TryExtractBareArray(inner, out var bareArray) && SourceExpression.IsCompatible(bareArray)
+        var joinSource = inner.TryExtractArray(out var bareArray) && SourceExpression.IsCompatible(bareArray)
             ? new SourceExpression(bareArray, "a", withIn: true)
             : new SourceExpression(innerSelect, "a");
 
