@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -54,7 +55,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             _methodCallTranslatorProvider,
             this);
         _projectionBindingExpressionVisitor =
-            new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
+            new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);
         _subquery = false;
     }
 
@@ -81,7 +82,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             _methodCallTranslatorProvider,
             parentVisitor);
         _projectionBindingExpressionVisitor =
-            new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, _sqlTranslator);
+            new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);
         _subquery = true;
     }
 
@@ -1131,8 +1132,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             // ElementAtOrDefault over an array of scalars
             case SqlExpression scalarArray when projection is SqlExpression element:
             {
-                var slice = _sqlExpressionFactory.Function(
-                    "ARRAY_SLICE", [scalarArray, translatedCount], scalarArray.Type, scalarArray.TypeMapping);
+                var arrayType = typeof(IEnumerable<>).MakeGenericType(projection.Type);
+                var arrayTypeMapping = _typeMappingSource.FindMapping(arrayType, _queryCompilationContext.Model, element.TypeMapping);
+
+                var slice = _sqlExpressionFactory.Function("ARRAY_SLICE", [scalarArray, translatedCount], arrayType, arrayTypeMapping);
 
                 // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
                 var translatedSelect = SelectExpression.CreateForCollection(
@@ -1145,8 +1148,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             // ElementAtOrDefault over an array os structural types
             case not null when projectedStructuralTypeShaper is not null:
             {
+                var arrayType = typeof(IEnumerable<>).MakeGenericType(projectedStructuralTypeShaper.Type);
+
                 // TODO: Proper alias management (#33894).
-                var slice = new ObjectFunctionExpression("ARRAY_SLICE", [array, translatedCount], projectedStructuralTypeShaper.Type);
+                var slice = new ObjectFunctionExpression("ARRAY_SLICE", [array, translatedCount], arrayType);
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
                     "i",
@@ -1591,7 +1596,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // value conversion). #34026.
         var elementClrType = inlineQueryRootExpression.ElementType;
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
-        var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
+        var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
         var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
 
         // TODO: Do proper alias management: #33894
@@ -1620,7 +1625,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // TODO: Temporary hack - need to perform proper derivation of the array type mapping from the element (e.g. for
         // value conversion). #34026.
         var elementClrType = parameterQueryRootExpression.ElementType;
-        var arrayTypeMapping = _typeMappingSource.FindMapping(elementClrType.MakeArrayType()); // TODO: IEnumerable?
+        var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
         var sqlParameterExpression = new SqlParameterExpression(parameterQueryRootExpression.ParameterExpression, arrayTypeMapping);
 
@@ -1689,13 +1694,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             && source2.TryConvertToArray(_typeMappingSource, out var array2, out var projection2, ignoreOrderings)
             && projection1.Type == projection2.Type)
         {
+            var arrayType = typeof(IEnumerable<>).MakeGenericType(projection1.Type);
+
             // Set operation over arrays of scalars
             if (projection1 is SqlExpression sqlProjection1
                 && projection2 is SqlExpression sqlProjection2
-                && (sqlProjection1.TypeMapping ?? sqlProjection2.TypeMapping) is CoreTypeMapping typeMapping)
+                && (sqlProjection1.TypeMapping ?? sqlProjection2.TypeMapping) is CosmosTypeMapping typeMapping)
             {
+                var arrayTypeMapping = _typeMappingSource.FindMapping(arrayType, _queryCompilationContext.Model, typeMapping);
+
                 // TODO: Proper alias management (#33894).
-                var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], projection1.Type, typeMapping);
+                var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], arrayType, arrayTypeMapping);
                 var select = SelectExpression.CreateForCollection(
                     translation, "i", new ScalarReferenceExpression("i", projection1.Type, typeMapping));
                 return source1.UpdateQueryExpression(select);
@@ -1707,7 +1716,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 && structuralType1 == structuralType2)
             {
                 // TODO: Proper alias management (#33894).
-                var translation = new ObjectFunctionExpression(functionName, [array1, array2], projection1.Type);
+                var translation = new ObjectFunctionExpression(functionName, [array1, array2], arrayType);
                 var select = SelectExpression.CreateForCollection(
                     translation, "i", new ObjectReferenceExpression((IEntityType)structuralType1, "i"));
                 return CreateShapedQueryExpression(select, structuralType1.ClrType);

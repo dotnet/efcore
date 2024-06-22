@@ -166,7 +166,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
                 // TODO: This infers based on the CLR type; need to properly infer based on the element type mapping
                 // TODO: being applied here (e.g. WHERE @p[1] = c.PropertyWithValueConverter). #34026
                 var arrayTypeMapping = left.TypeMapping
-                    ?? (typeMapping is null ? null : typeMappingSource.FindMapping(typeMapping.ClrType.MakeArrayType()));
+                    ?? (typeMapping is null ? null : typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(typeMapping.ClrType)));
                 return new SqlBinaryExpression(
                     ExpressionType.ArrayIndex,
                     ApplyTypeMapping(left, arrayTypeMapping),
@@ -291,7 +291,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             var arrayClrType = arrayExpression.Type switch
             {
                 var t when t.TryGetSequenceType() != typeof(object) => t,
-                { IsArray: true } => itemExpression.Type.MakeArrayType(),
+                { IsArray: true } => typeof(IEnumerable<>).MakeGenericType(itemExpression.Type),
                 { IsConstructedGenericType: true, GenericTypeArguments.Length: 1 } t
                     => t.GetGenericTypeDefinition().MakeGenericType(itemExpression.Type),
                 _ => throw new InvalidOperationException(

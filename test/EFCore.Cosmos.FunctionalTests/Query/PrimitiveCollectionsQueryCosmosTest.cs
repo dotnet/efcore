@@ -1647,15 +1647,23 @@ ORDER BY c["Id"]
         }
     }
 
-    // TODO: Project out primitive collection subquery: #33797
-    public override async Task Project_collection_of_datetimes_filtered(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<InvalidCastException>(() => base.Project_collection_of_datetimes_filtered(async));
-        }
-    }
+    public override Task Project_collection_of_datetimes_filtered(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Project_collection_of_datetimes_filtered(a);
+
+                AssertSql(
+                    """
+SELECT ARRAY(
+    SELECT VALUE i
+    FROM i IN c["DateTimes"]
+    WHERE (DateTimePart("dd", i) != 1)) AS c
+FROM root c
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+ORDER BY c["Id"]
+""");
+            });
 
     public override async Task Project_collection_of_nullable_ints_with_paging(bool async)
     {
@@ -1693,15 +1701,22 @@ ORDER BY c["Id"]
         AssertSql();
     }
 
-    // TODO: Project out primitive collection subquery: #33797
-    public override async Task Project_collection_of_ints_with_distinct(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<InvalidCastException>(() => base.Project_collection_of_ints_with_distinct(async));
-        }
-    }
+    public override Task Project_collection_of_ints_with_distinct(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Project_collection_of_ints_with_distinct(a);
+
+                AssertSql(
+                    """
+SELECT ARRAY(
+    SELECT DISTINCT VALUE i
+    FROM i IN c["Ints"]) AS c
+FROM root c
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+ORDER BY c["Id"]
+""");
+            });
 
     public override Task Project_collection_of_nullable_ints_with_distinct(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -1717,26 +1732,49 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 """);
             });
 
-    // TODO: Project out primitive collection subquery: #33797
-    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<InvalidCastException>(() => base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(async));
-        }
-    }
+    public override Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(a);
 
-    // TODO: Project out primitive collection subquery: #33797
-    public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<InvalidCastException>(
-                () => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async));
-        }
-    }
+                // TODO: Improve SQL, #34081
+                AssertSql(
+                    """
+SELECT ARRAY(
+    SELECT VALUE i
+    FROM i IN c["Ints"]) AS c
+FROM root c
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+            });
+
+    public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(a);
+
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "c" : ARRAY(
+        SELECT VALUE i
+        FROM i IN c["NullableInts"]
+        WHERE false),
+    "c0" : ARRAY(
+        SELECT VALUE i
+        FROM i IN c["NullableInts"]
+        WHERE (i = null))
+}
+FROM root c
+WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+ORDER BY c["Id"]
+""");
+            });
 
     public override async Task Project_multiple_collections(bool async)
     {
@@ -1747,20 +1785,23 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
+            // TODO: Improve SQL, #34081
             AssertSql(
                 """
 SELECT VALUE
 {
-    "Ints" : c["Ints"],
     "c" : ARRAY(
+        SELECT VALUE i
+        FROM i IN c["Ints"]),
+    "c0" : ARRAY(
         SELECT VALUE i
         FROM i IN c["Ints"]
         ORDER BY i DESC),
-    "c0" : ARRAY(
+    "c1" : ARRAY(
         SELECT VALUE i
         FROM i IN c["DateTimes"]
         WHERE (DateTimePart("dd", i) != 1)),
-    "c1" : ARRAY(
+    "c2" : ARRAY(
         SELECT VALUE i
         FROM i IN c["DateTimes"]
         WHERE (i > "2000-01-01T00:00:00"))
@@ -1807,23 +1848,23 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 """);
             });
 
+    // Non-correlated queries not supported by Cosmos
     public override async Task Project_inline_collection_with_Union(bool async)
     {
         // Always throws for sync.
         if (async)
         {
-            // TODO: Project out primitive collection subquery: #33797
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_inline_collection_with_Union(async));
+            await AssertTranslationFailed(() => base.Project_inline_collection_with_Union(async));
         }
     }
 
+    // Non-correlated queries not supported by Cosmos
     public override async Task Project_inline_collection_with_Concat(bool async)
     {
         // Always throws for sync.
         if (async)
         {
-            // TODO: Project out primitive collection subquery: #33797
-            await Assert.ThrowsAsync<InvalidOperationException>(() => base.Project_inline_collection_with_Concat(async));
+            await AssertTranslationFailed(() => base.Project_inline_collection_with_Concat(async));
         }
     }
 
