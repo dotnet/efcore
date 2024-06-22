@@ -57,9 +57,9 @@ ORDER BY c["Id"]
             AssertSql(
                 """
 SELECT (ARRAY(
-    SELECT VALUE (t["Id"] != 42)
-    FROM t IN c["Orders"]
-    ORDER BY t["Id"])[0] ?? false) AS c
+    SELECT VALUE (o["Id"] != 42)
+    FROM o IN c["Orders"]
+    ORDER BY o["Id"])[0] ?? false) AS c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -247,9 +247,9 @@ WHERE (c["Discriminator"] = "LeafA")
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
+JOIN o IN c["Orders"]
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
@@ -267,10 +267,10 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 SELECT VALUE
 {
     "PersonId" : c["Id"],
-    "OrderId" : a["Id"]
+    "OrderId" : o["Id"]
 }
 FROM root c
-JOIN a IN c["Orders"]
+JOIN o IN c["Orders"]
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
@@ -388,10 +388,10 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                 // TODO: The following should project out a["Details"], not a: #34067
                 AssertSql(
                     """
-SELECT a["Details"]
+SELECT o["Details"]
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -415,10 +415,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -442,10 +442,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -469,10 +469,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a["Details"]
+SELECT o["Details"]
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -496,10 +496,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -741,8 +741,8 @@ SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
     SELECT VALUE COUNT(1)
-    FROM t IN c["Orders"]
-    WHERE (DateTimePart("yyyy", t["OrderDate"]) = 2018)) = 1))
+    FROM o IN c["Orders"]
+    WHERE (DateTimePart("yyyy", o["OrderDate"]) = 2018)) = 1))
 """);
             });
 
@@ -806,10 +806,10 @@ OFFSET 0 LIMIT 2
                     """
 @__p_0='1'
 
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (a["ClientId"] = @__p_0))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @__p_0))
 """);
             });
 
@@ -1091,8 +1091,8 @@ SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -30)))
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] = -30)))
 """);
             });
 
@@ -1110,8 +1110,8 @@ SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -30)))
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] = -30)))
 """);
             });
 
@@ -1163,9 +1163,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(
-    SELECT VALUE t["Id"]
-    FROM t IN c["Orders"]
-    ORDER BY t["Id"])[1] = -10))
+    SELECT VALUE o["Id"]
+    FROM o IN c["Orders"]
+    ORDER BY o["Id"])[1] = -10))
 """);
         }
     }
@@ -1199,9 +1199,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
-    SELECT VALUE t["OrderDate"]
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
+    SELECT VALUE o["OrderDate"]
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
 """);
             });
 
@@ -1232,12 +1232,12 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (Da
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(SetUnion(ARRAY(
-    SELECT VALUE t
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -10)), ARRAY(
-    SELECT VALUE t
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -11)))) = 2))
+    SELECT VALUE o
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] = -10)), ARRAY(
+    SELECT VALUE o0
+    FROM o0 IN c["Orders"]
+    WHERE (o0["Id"] = -11)))) = 2))
 """);
             });
 
@@ -1265,6 +1265,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.HasDefaultContainer("OwnedQueryTest");
+
             modelBuilder.Entity<OwnedPerson>(
                 eb =>
                 {

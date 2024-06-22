@@ -1659,8 +1659,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
     SELECT 1
-    FROM i IN (SELECT VALUE ["ABCDE", "ALFKI"])
-    WHERE ((i != null) AND (i = c["CustomerID"]))))
+    FROM a IN (SELECT VALUE ["ABCDE", "ALFKI"])
+    WHERE ((a != null) AND (a = c["CustomerID"]))))
 """);
             });
 
@@ -1678,8 +1678,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
     SELECT 1
-    FROM i IN (SELECT VALUE @__p_0)
-    WHERE ((i != null) AND (i = c["CustomerID"]))))
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE ((p != null) AND (p = c["CustomerID"]))))
 """,
                     //
                     """
@@ -1689,8 +1689,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
     SELECT 1
-    FROM i IN (SELECT VALUE @__p_0)
-    WHERE ((i != null) AND (i = c["CustomerID"]))))
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE ((p != null) AND (p = c["CustomerID"]))))
 """);
             });
 
@@ -1761,8 +1761,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
@@ -1810,8 +1809,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_object_read_only_collection_closure(bool async)
@@ -1827,8 +1825,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
@@ -1858,8 +1855,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
@@ -1876,15 +1872,14 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__AsReadOnly_0, c["CustomerID"]))
 """,
-                //
-                """
+                    //
+                    """
 @__AsReadOnly_0='["ABCDE","ANATR"]'
 
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__AsReadOnly_0, c["CustomerID"]))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_collection_false(bool async)
