@@ -762,7 +762,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         LambdaExpression outerKeySelector,
         LambdaExpression innerKeySelector,
         LambdaExpression resultSelector)
-        => null;
+    {
+        AddTranslationErrorDetails(CosmosStrings.CrossDocumentJoinNotSupported);
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -807,7 +810,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         LambdaExpression outerKeySelector,
         LambdaExpression innerKeySelector,
         LambdaExpression resultSelector)
-        => null;
+    {
+        AddTranslationErrorDetails(CosmosStrings.CrossDocumentJoinNotSupported);
+        return null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

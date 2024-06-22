@@ -64,6 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CosmosNotInUse");
 
         /// <summary>
+        ///     Joins across documents aren't supported in Cosmos; consider modeling your data differently so that related data is in the same document. Alternatively, perform two separate queries to query the two documents.
+        /// </summary>
+        public static string CrossDocumentJoinNotSupported
+            => GetString("CrossDocumentJoinNotSupported");
+
+        /// <summary>
         ///     The default time to live was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same default time to live.
         /// </summary>
         public static string DefaultTTLMismatch(object? ttl1, object? entityType1, object? entityType2, object? ttl2, object? container)

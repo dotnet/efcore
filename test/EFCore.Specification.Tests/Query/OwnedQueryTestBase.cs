@@ -132,6 +132,20 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_owned_reference_navigation_which_owns_additional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().OrderBy(o => o.Id).Select(p => p.PersonAddress));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().OrderBy(o => o.Id).Select(p => p.PersonAddress.Country));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
         => AssertQuery(
             async,
@@ -176,6 +190,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>().SelectMany(p => p.Orders));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_with_result_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>().SelectMany(o => o.Orders, (p, o) => new { PersonId = p.Id, OrderId = o.Id }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

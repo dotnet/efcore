@@ -191,6 +191,30 @@ ORDER BY [o3].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 """);
     }
 
+    public override async Task Project_owned_reference_navigation_which_owns_additional(bool async)
+    {
+        await base.Project_owned_reference_navigation_which_owns_additional(async);
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId]
+FROM [OwnedPerson] AS [o]
+ORDER BY [o].[Id]
+""");
+    }
+
+    public override async Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
+    {
+        await base.Project_owned_reference_navigation_which_does_not_own_additional(async);
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId]
+FROM [OwnedPerson] AS [o]
+ORDER BY [o].[Id]
+""");
+    }
+
     public override async Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
     {
         await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
@@ -288,6 +312,18 @@ FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[OrderId]
+""");
+    }
+
+    public override async Task SelectMany_with_result_selector(bool async)
+    {
+        await base.SelectMany_with_result_selector(async);
+
+        AssertSql(
+            """
+SELECT [o].[Id] AS [PersonId], [o0].[Id] AS [OrderId]
+FROM [OwnedPerson] AS [o]
+INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 """);
     }
 
