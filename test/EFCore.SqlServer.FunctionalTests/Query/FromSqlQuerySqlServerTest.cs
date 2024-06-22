@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<FromSqlQuerySqlServerTest.FromSqlQuerySqlServerTestFixture>
 {
     public FromSqlQuerySqlServerTest(FromSqlQuerySqlServerTestFixture fixture, ITestOutputHelper testOutputHelper)
@@ -71,7 +69,9 @@ WHERE [m].[ContactName] LIKE N'%z%'
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
 
-        
+
+""" + "        " + """
+
 
 
     SELECT
@@ -439,7 +439,7 @@ SELECT * FROM "Employees" WHERE "ReportsTo" = @p0 OR ("ReportsTo" IS NULL AND @p
 """);
     }
 
-    public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+    public override async Task<string?> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
         await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 

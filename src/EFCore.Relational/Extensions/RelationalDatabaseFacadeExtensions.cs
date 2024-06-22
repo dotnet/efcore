@@ -178,8 +178,8 @@ public static class RelationalDatabaseFacadeExtensions
     public static int ExecuteSqlRaw(
         this DatabaseFacade databaseFacade,
         string sql,
-        params object[] parameters)
-        => ExecuteSqlRaw(databaseFacade, sql, (IEnumerable<object>)parameters);
+        params object?[] parameters)
+        => ExecuteSqlRaw(databaseFacade, sql, (IEnumerable<object?>)parameters);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -211,7 +211,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static int ExecuteSqlInterpolated(
         this DatabaseFacade databaseFacade,
         FormattableString sql)
-        => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments()!);
+        => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments());
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -243,7 +243,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static int ExecuteSql(
         this DatabaseFacade databaseFacade,
         FormattableString sql)
-        => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments()!);
+        => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments());
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -281,7 +281,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static int ExecuteSqlRaw(
         this DatabaseFacade databaseFacade,
         string sql,
-        IEnumerable<object> parameters)
+        IEnumerable<object?> parameters)
     {
         Check.NotNull(sql, nameof(sql));
         Check.NotNull(parameters, nameof(parameters));
