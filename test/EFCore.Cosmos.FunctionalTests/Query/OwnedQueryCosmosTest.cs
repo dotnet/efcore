@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
@@ -49,7 +50,7 @@ ORDER BY c["Id"]
         {
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Navigation_rewrite_on_owned_collection_with_composition(async));
 
-            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
@@ -1089,7 +1090,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c
         {
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt_over_owned_collection(async));
 
-            Assert.Contains("'ORDER BY' is not supported in subqueries.", exception.Message);
+            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
 
             AssertSql(
                 """
