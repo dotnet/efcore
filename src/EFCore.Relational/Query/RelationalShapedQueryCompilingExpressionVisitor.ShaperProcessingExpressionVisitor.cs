@@ -3248,57 +3248,69 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     var entityProjection = selectExpression.GetProjection(entityProjectionBindingExpression).GetConstantValue<object>();
 
-                    if (entityProjection is QueryableJsonProjectionInfo || (_insideCollection && entityProjection is JsonProjectionInfo))
+                    switch (entityProjection)
                     {
-                        throw new InvalidOperationException(
-                            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
-                    }
+                        case QueryableJsonProjectionInfo:
+                        case JsonProjectionInfo when _insideCollection:
+                            throw new InvalidOperationException(
+                                RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
+                                    nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
 
-                    if (entityProjection is JsonProjectionInfo jsonEntityProjectionInfo)
-                    {
-                        var jsonEntityType = (IEntityType)entityShaperExpression.StructuralType;
-                        if (_insideInclude)
+                        case JsonProjectionInfo jsonEntityProjectionInfo:
                         {
-                            if (!_includedJsonEntityTypes.Contains(jsonEntityType))
+                            var jsonEntityType = (IEntityType)entityShaperExpression.StructuralType;
+                            if (_insideInclude)
                             {
-                                _includedJsonEntityTypes.Add(jsonEntityType);
+                                if (!_includedJsonEntityTypes.Contains(jsonEntityType))
+                                {
+                                    _includedJsonEntityTypes.Add(jsonEntityType);
+                                }
                             }
-                        }
-                        else
-                        {
-                            _projectedKeyAccessInfos.Add((jsonEntityType, jsonEntityProjectionInfo.KeyAccessInfo));
-                        }
-                    }
+                            else
+                            {
+                                _projectedKeyAccessInfos.Add((jsonEntityType, jsonEntityProjectionInfo.KeyAccessInfo));
+                            }
 
-                    return extensionExpression;
+                            break;
+                        }
+
+                        default:
+                            return extensionExpression;
+                    }
                 }
 
                 if (extensionExpression is CollectionResultExpression { ProjectionBindingExpression: ProjectionBindingExpression collectionProjectionBindingExpression } collectionResultExpression)
                 {
                     var collectionProjection = selectExpression.GetProjection(collectionProjectionBindingExpression).GetConstantValue<object>();
-                    if (collectionProjection is QueryableJsonProjectionInfo || (_insideCollection && collectionProjection is JsonProjectionInfo))
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
-                    }
 
-                    if (collectionProjection is JsonProjectionInfo jsonCollectionProjectionInfo)
+                    switch (collectionProjection)
                     {
-                        var jsonEntityType = collectionResultExpression.Navigation!.TargetEntityType;
-                        if (_insideInclude)
+                        case QueryableJsonProjectionInfo:
+                        case JsonProjectionInfo when _insideCollection:
+                            throw new InvalidOperationException(
+                                RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+
+                        case JsonProjectionInfo jsonCollectionProjectionInfo:
                         {
-                            if (!_includedJsonEntityTypes.Contains(jsonEntityType))
+                            var jsonEntityType = collectionResultExpression.Navigation!.TargetEntityType;
+                            if (_insideInclude)
                             {
-                                _includedJsonEntityTypes.Add(jsonEntityType);
+                                if (!_includedJsonEntityTypes.Contains(jsonEntityType))
+                                {
+                                    _includedJsonEntityTypes.Add(jsonEntityType);
+                                }
                             }
-                        }
-                        else
-                        {
-                            _projectedKeyAccessInfos.Add((jsonEntityType, jsonCollectionProjectionInfo.KeyAccessInfo));
-                        }
-                    }
+                            else
+                            {
+                                _projectedKeyAccessInfos.Add((jsonEntityType, jsonCollectionProjectionInfo.KeyAccessInfo));
+                            }
 
-                    return extensionExpression;
+                            break;
+                        }
+
+                        default:
+                            return extensionExpression;
+                    }
                 }
 
                 return base.VisitExtension(extensionExpression);

@@ -314,79 +314,63 @@ public sealed partial class SelectExpression
 
     private sealed class ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap) : ExpressionVisitor
     {
-        private readonly List<object> _clientProjectionIndexMap = clientProjectionIndexMap;
-
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
+        protected override Expression VisitExtension(Expression expression)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            switch (expression)
             {
-                var value = _clientProjectionIndexMap[projectionBindingExpression.Index!.Value];
-                if (value is int intValue)
+                case ProjectionBindingExpression projectionBindingExpression:
                 {
-                    return new ProjectionBindingExpression(
-                        projectionBindingExpression.QueryExpression, intValue, projectionBindingExpression.Type);
+                    var value = clientProjectionIndexMap[projectionBindingExpression.Index!.Value];
+                    return value switch
+                    {
+                        int intValue => new ProjectionBindingExpression(
+                            projectionBindingExpression.QueryExpression, intValue, projectionBindingExpression.Type),
+
+                        Expression innerShaper => Visit(innerShaper),
+
+                        _ => throw new InvalidCastException()
+                    };
                 }
 
-                if (value is Expression innerShaper)
+                case CollectionResultExpression collectionResultExpression:
                 {
-                    return Visit(innerShaper);
+                    var innerProjectionBindingExpression = collectionResultExpression.ProjectionBindingExpression;
+                    var value = clientProjectionIndexMap[innerProjectionBindingExpression.Index!.Value];
+                    return value switch
+                    {
+                        SingleCollectionInfo singleCollectionInfo
+                            => new RelationalCollectionShaperExpression(
+                                singleCollectionInfo.ParentIdentifier, singleCollectionInfo.OuterIdentifier,
+                                singleCollectionInfo.SelfIdentifier, singleCollectionInfo.ParentIdentifierValueComparers,
+                                singleCollectionInfo.OuterIdentifierValueComparers, singleCollectionInfo.SelfIdentifierValueComparers,
+                                singleCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                                collectionResultExpression.ElementType),
+
+                        SplitCollectionInfo splitCollectionInfo
+                            => new RelationalSplitCollectionShaperExpression(
+                                splitCollectionInfo.ParentIdentifier, splitCollectionInfo.ChildIdentifier,
+                                splitCollectionInfo.IdentifierValueComparers, splitCollectionInfo.SelectExpression,
+                                splitCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                                collectionResultExpression.ElementType),
+
+                        int => collectionResultExpression.Update(
+                            (ProjectionBindingExpression)Visit(collectionResultExpression.ProjectionBindingExpression)),
+
+                        _ => throw new InvalidOperationException()
+                    };
                 }
 
-                throw new InvalidCastException();
+                case RelationalGroupByResultExpression relationalGroupByResultExpression:
+                    // Only element shaper needs remapping
+                    return new RelationalGroupByResultExpression(
+                        relationalGroupByResultExpression.KeyIdentifier,
+                        relationalGroupByResultExpression.KeyIdentifierValueComparers,
+                        relationalGroupByResultExpression.KeyShaper,
+                        Visit(relationalGroupByResultExpression.ElementShaper));
+
+                default:
+                    return base.VisitExtension(expression);
             }
-
-            if (expression is CollectionResultExpression collectionResultExpression)
-            {
-                var innerProjectionBindingExpression = collectionResultExpression.ProjectionBindingExpression;
-                var value = _clientProjectionIndexMap[innerProjectionBindingExpression.Index!.Value];
-                if (value is SingleCollectionInfo singleCollectionInfo)
-                {
-                    return new RelationalCollectionShaperExpression(
-                        singleCollectionInfo.ParentIdentifier,
-                        singleCollectionInfo.OuterIdentifier,
-                        singleCollectionInfo.SelfIdentifier,
-                        singleCollectionInfo.ParentIdentifierValueComparers,
-                        singleCollectionInfo.OuterIdentifierValueComparers,
-                        singleCollectionInfo.SelfIdentifierValueComparers,
-                        singleCollectionInfo.ShaperExpression,
-                        collectionResultExpression.Navigation,
-                        collectionResultExpression.ElementType);
-                }
-
-                if (value is SplitCollectionInfo splitCollectionInfo)
-                {
-                    return new RelationalSplitCollectionShaperExpression(
-                        splitCollectionInfo.ParentIdentifier,
-                        splitCollectionInfo.ChildIdentifier,
-                        splitCollectionInfo.IdentifierValueComparers,
-                        splitCollectionInfo.SelectExpression,
-                        splitCollectionInfo.ShaperExpression,
-                        collectionResultExpression.Navigation,
-                        collectionResultExpression.ElementType);
-                }
-
-                if (value is int)
-                {
-                    var binding = (ProjectionBindingExpression)Visit(collectionResultExpression.ProjectionBindingExpression);
-
-                    return collectionResultExpression.Update(binding);
-                }
-
-                throw new InvalidOperationException();
-            }
-
-            if (expression is RelationalGroupByResultExpression relationalGroupByResultExpression)
-            {
-                // Only element shaper needs remapping
-                return new RelationalGroupByResultExpression(
-                    relationalGroupByResultExpression.KeyIdentifier,
-                    relationalGroupByResultExpression.KeyIdentifierValueComparers,
-                    relationalGroupByResultExpression.KeyShaper,
-                    Visit(relationalGroupByResultExpression.ElementShaper));
-            }
-
-            return base.Visit(expression);
         }
     }
 

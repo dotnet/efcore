@@ -527,22 +527,19 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             foreach (var projection in _clientProjections)
             {
-                if (projection is ShapedQueryExpression sqe)
+                switch (projection)
                 {
-                    if (sqe.ResultCardinality == ResultCardinality.Enumerable)
-                    {
+                    case ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable }:
                         containsCollection = true;
-                    }
+                        break;
 
-                    if (sqe.ResultCardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
-                    {
+                    case ShapedQueryExpression { ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault }:
                         containsSingleResult = true;
-                    }
-                }
+                        break;
 
-                if (projection is JsonQueryExpression)
-                {
-                    jsonClientProjectionsCount++;
+                    case JsonQueryExpression:
+                        jsonClientProjectionsCount++;
+                        break;
                 }
             }
 
