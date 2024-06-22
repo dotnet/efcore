@@ -2020,7 +2020,7 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
                 await base.String_Contains_negated_in_predicate(a);
 
                 AssertSql(
-"""
+                    """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND NOT(CONTAINS(c["CompanyName"], c["ContactName"])))

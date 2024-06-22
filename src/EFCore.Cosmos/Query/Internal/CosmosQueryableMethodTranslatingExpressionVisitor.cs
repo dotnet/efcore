@@ -25,8 +25,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
     private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
     private readonly CosmosProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
+    private readonly CosmosAliasManager _aliasManager;
     private bool _subquery;
-    private ReadItemInfo? _readItemExpression;
+    private ReadItemInfo? _readItemInfo;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,6 +58,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             this);
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);
+        _aliasManager = queryCompilationContext.AliasManager;
         _subquery = false;
     }
 
@@ -84,6 +86,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             parentVisitor);
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);
+        _aliasManager = parentVisitor._aliasManager;
         _subquery = true;
     }
 
@@ -225,7 +228,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                                 (property, parameter) => (property, parameter))
                             .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
 
-                        _readItemExpression = new ReadItemInfo(entityType, propertyParameterList, clrType);
+                        _readItemInfo = new ReadItemInfo(entityType, propertyParameterList, clrType);
                     }
                 }
             }
@@ -359,11 +362,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 AddTranslationErrorDetails(CosmosStrings.NonCorrelatedSubqueriesNotSupported);
                 return QueryCompilationContext.NotTranslatedExpression;
 
-            case FromSqlQueryRootExpression fromSqlQueryRootExpression:
-                return CreateShapedQueryExpression(
-                    fromSqlQueryRootExpression.EntityType,
-                    _sqlExpressionFactory.Select(
-                        fromSqlQueryRootExpression.EntityType, fromSqlQueryRootExpression.Sql, fromSqlQueryRootExpression.Argument));
+            case FromSqlQueryRootExpression fromSqlQueryRoot:
+                var entityType = fromSqlQueryRoot.EntityType;
+                var fromSql = new FromSqlExpression(entityType.ClrType, fromSqlQueryRoot.Sql, fromSqlQueryRoot.Argument);
+                var alias = _aliasManager.GenerateSourceAlias(fromSql);
+                var selectExpression = new SelectExpression(
+                    new SourceExpression(fromSql, alias),
+                    new EntityProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType));
+                return CreateShapedQueryExpression(entityType, selectExpression);
 
             default:
                 return base.VisitExtension(extensionExpression);
@@ -404,13 +410,49 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
-        => CreateShapedQueryExpression(
-            entityType,
-            _readItemExpression == null
-                ? _sqlExpressionFactory.Select(entityType)
-                : _sqlExpressionFactory.ReadItem(entityType, _readItemExpression));
+    {
+        Check.DebugAssert(!entityType.IsOwned(), "Can't create ShapedQueryExpression for owned entity type");
 
-    private ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
+        var alias = _aliasManager.GenerateSourceAlias("c");
+        var selectExpression = new SelectExpression(
+            new SourceExpression(new ObjectReferenceExpression(entityType, "root"), alias),
+            new EntityProjectionExpression(new ObjectReferenceExpression(entityType, alias), entityType),
+            _readItemInfo);
+
+        // Add discriminator predicate
+        var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
+        if (concreteEntityTypes.Count == 1)
+        {
+            var concreteEntityType = concreteEntityTypes[0];
+            var discriminatorProperty = concreteEntityType.FindDiscriminatorProperty();
+            if (discriminatorProperty != null)
+            {
+                var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
+                    .BindProperty(discriminatorProperty, clientEval: false);
+
+                selectExpression.ApplyPredicate(
+                    _sqlExpressionFactory.Equal(
+                        (SqlExpression)discriminatorColumn,
+                        _sqlExpressionFactory.Constant(concreteEntityType.GetDiscriminatorValue())));
+            }
+        }
+        else
+        {
+            var discriminatorProperty = concreteEntityTypes[0].FindDiscriminatorProperty();
+            Check.DebugAssert(discriminatorProperty is not null, "Missing discriminator property in hierarchy");
+            var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
+                .BindProperty(discriminatorProperty, clientEval: false);
+
+            selectExpression.ApplyPredicate(
+                _sqlExpressionFactory.In(
+                    (SqlExpression)discriminatorColumn,
+                    concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray()));
+        }
+
+        return CreateShapedQueryExpression(entityType, selectExpression);
+    }
+
+    private ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression queryExpression)
     {
         if (!entityType.IsOwned())
         {
@@ -1088,7 +1130,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             if (Visit(collectionSelectorBody) is ShapedQueryExpression inner)
             {
                 var select = (SelectExpression)source.QueryExpression;
-                var shaper = select.AddJoin(inner, source.ShaperExpression);
+                var shaper = select.AddJoin(inner, source.ShaperExpression, _aliasManager);
 
                 return TranslateTwoParameterSelector(source.UpdateShaperExpression(shaper), resultSelector);
             }
@@ -1196,11 +1238,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
                 var slice = _sqlExpressionFactory.Function("ARRAY_SLICE", [scalarArray, translatedCount], arrayType, arrayTypeMapping);
 
-                // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
+                var alias = _aliasManager.GenerateSourceAlias(slice);
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
-                    "i",
-                    new ScalarReferenceExpression("i", element.Type, element.TypeMapping));
+                    alias,
+                    new ScalarReferenceExpression(alias, element.Type, element.TypeMapping));
                 return source.UpdateQueryExpression(translatedSelect);
             }
 
@@ -1208,14 +1250,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             case not null when projectedStructuralTypeShaper is not null:
             {
                 var arrayType = typeof(IEnumerable<>).MakeGenericType(projectedStructuralTypeShaper.Type);
-
-                // TODO: Proper alias management (#33894).
                 var slice = new ObjectFunctionExpression("ARRAY_SLICE", [array, translatedCount], arrayType);
+                var alias = _aliasManager.GenerateSourceAlias(slice);
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
-                    "i",
+                    alias,
                     new EntityProjectionExpression(
-                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, "i"),
+                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, alias),
                         (IEntityType)projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
@@ -1322,29 +1363,29 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                         "ARRAY_SLICE", [scalarArray, TranslateExpression(Expression.Constant(0))!, translatedCount], scalarArray.Type,
                         scalarArray.TypeMapping);
 
-                // TODO: Proper alias management (#33894). Ideally reach into the source of the original SelectExpression and use that alias.
+                var alias = _aliasManager.GenerateSourceAlias(slice);
                 select = SelectExpression.CreateForCollection(
                     slice,
-                    "i",
-                    new ScalarReferenceExpression("i", element.Type, element.TypeMapping));
+                    alias,
+                    new ScalarReferenceExpression(alias, element.Type, element.TypeMapping));
                 return source.UpdateQueryExpression(select);
             }
 
             // ElementAtOrDefault over an array os structural types
             case not null when projectedStructuralTypeShaper is not null:
             {
-                // TODO: Proper alias management (#33894).
                 // Take() is composed over Skip(), combine the two together to a single ARRAY_SLICE()
                 var slice = array is ObjectFunctionExpression { Name: "ARRAY_SLICE", Arguments: [var nestedArray, var skipCount] } previousSlice
                     ? previousSlice.Update([nestedArray, skipCount, translatedCount])
                     : new ObjectFunctionExpression(
                         "ARRAY_SLICE", [array, TranslateExpression(Expression.Constant(0))!, translatedCount], projectedStructuralTypeShaper.Type);
 
+                var alias = _aliasManager.GenerateSourceAlias(slice);
                 var translatedSelect = SelectExpression.CreateForCollection(
                     slice,
-                    "i",
+                    alias,
                     new EntityProjectionExpression(
-                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, "i"),
+                        new ObjectReferenceExpression((IEntityType)projectedStructuralTypeShaper.StructuralType, alias),
                         (IEntityType)projectedStructuralTypeShaper.StructuralType));
                 return source.Update(
                     translatedSelect,
@@ -1590,13 +1631,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             // Maybe have it return the StructuralTypeShaperExpression instead, and only when binding from within SqlTranslatingEV,
             // wrap with ERE?
             // Check: how is this currently working in relational?
+
+            var sourceAlias = _aliasManager.GenerateSourceAlias(property.Name);
+
             switch (translatedExpression)
             {
                 case StructuralTypeShaperExpression shaper when property is INavigation { IsCollection: true }:
                 {
-                    // TODO: Alias management #33894
                     var targetEntityType = (IEntityType)shaper.StructuralType;
-                    var sourceAlias = "t";
                     var projection = new EntityProjectionExpression(
                         new ObjectReferenceExpression(targetEntityType, sourceAlias), targetEntityType);
                     var select = SelectExpression.CreateForCollection(
@@ -1614,11 +1656,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 case SqlExpression sqlExpression when property is IProperty { IsPrimitiveCollection: true }:
                 {
                     var elementClrType = sqlExpression.Type.GetSequenceType();
-                    // TODO: Do proper alias management: #33894
                     var select = SelectExpression.CreateForCollection(
                         sqlExpression,
-                        "i",
-                        new ScalarReferenceExpression("i", elementClrType, sqlExpression.TypeMapping!.ElementTypeMapping!));
+                        sourceAlias,
+                        new ScalarReferenceExpression(sourceAlias, elementClrType, sqlExpression.TypeMapping!.ElementTypeMapping!));
                     return CreateShapedQueryExpression(select, elementClrType);
                 }
             }
@@ -1635,7 +1676,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateInlineQueryRoot(InlineQueryRootExpression inlineQueryRootExpression)
     {
-        // The below produces an InlineArrayExpression ([1,2,3]), wrapped by a SelectExpression (SELECT VALUE [1,2,3]).
+        // The below produces an ArrayConstantExpression ([1,2,3]), wrapped by a SelectExpression (SELECT VALUE [1,2,3]).
         // This is because a bare inline array can only appear in the projection. For example, the following is wrong:
         // SELECT i FROM i IN [1,2,3] (syntax error)
         var values = inlineQueryRootExpression.Values;
@@ -1658,11 +1699,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
         var inlineArray = new ArrayConstantExpression(elementClrType, translatedItems, arrayTypeMapping);
 
-        // TODO: Do proper alias management: #33894
+        var sourceAlias = _aliasManager.GenerateSourceAlias(inlineArray);
         var select = SelectExpression.CreateForCollection(
             inlineArray,
-            "i",
-            new ScalarReferenceExpression("i", elementClrType, elementTypeMapping));
+            sourceAlias,
+            new ScalarReferenceExpression(sourceAlias, elementClrType, elementTypeMapping));
         return CreateShapedQueryExpression(select, elementClrType);
     }
 
@@ -1688,11 +1729,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
         var sqlParameterExpression = new SqlParameterExpression(parameterQueryRootExpression.ParameterExpression, arrayTypeMapping);
 
-        // TODO: Do proper alias management: #33894
+        var sourceAlias = _aliasManager.GenerateSourceAlias(sqlParameterExpression.Name.TrimStart('_'));
         var select = SelectExpression.CreateForCollection(
             sqlParameterExpression,
-            "i",
-            new ScalarReferenceExpression("i", elementClrType, elementTypeMapping));
+            sourceAlias,
+            new ScalarReferenceExpression(sourceAlias, elementClrType, elementTypeMapping));
         return CreateShapedQueryExpression(select, elementClrType);
     }
 
@@ -1761,11 +1802,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 && (sqlProjection1.TypeMapping ?? sqlProjection2.TypeMapping) is CosmosTypeMapping typeMapping)
             {
                 var arrayTypeMapping = _typeMappingSource.FindMapping(arrayType, _queryCompilationContext.Model, typeMapping);
-
-                // TODO: Proper alias management (#33894).
                 var translation = _sqlExpressionFactory.Function(functionName, [array1, array2], arrayType, arrayTypeMapping);
+                var alias = _aliasManager.GenerateSourceAlias(translation);
                 var select = SelectExpression.CreateForCollection(
-                    translation, "i", new ScalarReferenceExpression("i", projection1.Type, typeMapping));
+                    translation, alias, new ScalarReferenceExpression(alias, projection1.Type, typeMapping));
                 return source1.UpdateQueryExpression(select);
             }
 
@@ -1774,10 +1814,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 && source2.ShaperExpression is StructuralTypeShaperExpression { StructuralType: var structuralType2 }
                 && structuralType1 == structuralType2)
             {
-                // TODO: Proper alias management (#33894).
                 var translation = new ObjectFunctionExpression(functionName, [array1, array2], arrayType);
+                var alias = _aliasManager.GenerateSourceAlias(translation);
                 var select = SelectExpression.CreateForCollection(
-                    translation, "i", new ObjectReferenceExpression((IEntityType)structuralType1, "i"));
+                    translation, alias, new ObjectReferenceExpression((IEntityType)structuralType1, alias));
                 return CreateShapedQueryExpression(select, structuralType1.ClrType);
             }
         }

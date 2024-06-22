@@ -16,8 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 [DebuggerDisplay("{PrintShortSql(), nq}")]
 public class SelectExpression : Expression, IPrintableExpression
 {
-    private const string RootAlias = "c";
-
     private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
     private readonly List<SourceExpression> _sources = [];
     private readonly List<ProjectionExpression> _projection = [];
@@ -31,38 +29,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(IEntityType entityType, ReadItemInfo readItemInfo)
-        : this(entityType)
-    {
-        ReadItemInfo = readItemInfo;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SelectExpression(IEntityType entityType)
-    {
-        // TODO: Redo aliasing
-        _sources = [new SourceExpression(new ObjectReferenceExpression(entityType, "root"), RootAlias)];
-        _projectionMapping[new ProjectionMember()]
-            = new EntityProjectionExpression(new ObjectReferenceExpression(entityType, RootAlias), entityType);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SelectExpression(IEntityType entityType, string sql, Expression argument)
-    {
-        var fromSql = new FromSqlExpression(entityType.ClrType, sql, argument);
-        _sources = [new SourceExpression(fromSql, RootAlias)];
-        _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(new ObjectReferenceExpression(entityType, RootAlias), entityType);
-    }
+    public virtual ReadItemInfo? ReadItemInfo { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,14 +53,6 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ReadItemInfo? ReadItemInfo { get; init; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public SelectExpression(Expression projection)
         => _projectionMapping[new ProjectionMember()] = projection;
 
@@ -103,14 +62,11 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(SourceExpression source, Expression projection)
+    public SelectExpression(SourceExpression source, Expression projection, ReadItemInfo? readItemInfo = null)
     {
         _sources.Add(source);
         _projectionMapping[new ProjectionMember()] = projection;
-    }
-
-    private SelectExpression()
-    {
+        ReadItemInfo = readItemInfo;
     }
 
     /// <summary>
@@ -140,10 +96,8 @@ public class SelectExpression : Expression, IPrintableExpression
 
         var source = new SourceExpression(sourceExpression, sourceAlias, withIn: true);
 
-        return new SelectExpression
+        return new SelectExpression(source, projection)
         {
-            _sources = { source },
-            _projectionMapping = { [new ProjectionMember()] = projection },
             UsesSingleValueProjection = true
         };
     }
@@ -498,16 +452,29 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression AddJoin(ShapedQueryExpression inner, Expression outerShaper)
+    public virtual Expression AddJoin(ShapedQueryExpression inner, Expression outerShaper, CosmosAliasManager aliasManager)
     {
         var (innerSelect, innerShaper) = ((SelectExpression)inner.QueryExpression, inner.ShaperExpression);
 
-        // TODO: Proper alias management (#33894).
         // Create a new source (JOIN) for the server side of the query; if the inner query represents a bare array, unwrap it and
         // add the JOIN directly
-        var joinSource = inner.TryExtractArray(out var bareArray) && SourceExpression.IsCompatible(bareArray)
-            ? new SourceExpression(bareArray, "a", withIn: true)
-            : new SourceExpression(innerSelect, "a");
+        SourceExpression? joinSource = null;
+        string sourceAlias;
+        if (inner.TryExtractArray(out var bareArray) && SourceExpression.IsCompatible(bareArray))
+        {
+            sourceAlias = aliasManager.GenerateSourceAlias(bareArray);
+
+            if (SourceExpression.IsCompatible(bareArray))
+            {
+                joinSource = new SourceExpression(bareArray, sourceAlias, withIn: true);
+            }
+        }
+        else
+        {
+            sourceAlias = aliasManager.GenerateSourceAlias("join");
+        }
+
+        joinSource ??= new SourceExpression(innerSelect, sourceAlias);
 
         // Make the necessary modifications to the shaper side, projecting out a TransparentIdentifier (outer/inner)
         var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaper.Type, innerShaper.Type);
@@ -658,7 +625,8 @@ public class SelectExpression : Expression, IPrintableExpression
                 Predicate = predicate,
                 Offset = offset,
                 Limit = limit,
-                IsDistinct = IsDistinct
+                IsDistinct = IsDistinct,
+                UsesSingleValueProjection = UsesSingleValueProjection
             };
 
             return newSelectExpression;

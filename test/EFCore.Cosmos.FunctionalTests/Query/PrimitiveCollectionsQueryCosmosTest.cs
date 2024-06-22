@@ -73,8 +73,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [])
+    WHERE (a > c["Id"])) = 1))
 """);
             });
 
@@ -90,8 +90,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [2])
+    WHERE (a > c["Id"])) = 1))
 """);
             });
 
@@ -107,8 +107,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2, 999])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [2, 999])
+    WHERE (a > c["Id"])) = 1))
 """);
             });
 
@@ -124,8 +124,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2, 999, 1000])
-    WHERE (i > c["Id"])) = 2))
+    FROM a IN (SELECT VALUE [2, 999, 1000])
+    WHERE (a > c["Id"])) = 2))
 """);
             });
 
@@ -303,8 +303,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] NOT IN (2
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30))
 """);
             });
 
@@ -319,8 +319,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30))
 """);
             });
 
@@ -335,8 +335,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30))
 """);
             });
 
@@ -351,8 +351,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30))
 """);
             });
 
@@ -369,8 +369,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
 """);
             });
 
@@ -387,8 +387,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
 """);
             });
 
@@ -405,8 +405,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
 """);
             });
 
@@ -423,8 +423,8 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
 """);
             });
 
@@ -1307,9 +1307,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
 
                 AssertSql(
                     """
-SELECT a
+SELECT i AS i0
 FROM root c
-JOIN a IN c["Ints"]
+JOIN i IN c["Ints"]
 WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 """);
             });
@@ -1322,12 +1322,12 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
                 AssertSql(
                     """
-SELECT a
+SELECT j
 FROM root c
 JOIN (
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)) a
+    WHERE (i > 1)) j
 WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 """);
             });
@@ -1656,9 +1656,9 @@ ORDER BY c["Id"]
                 AssertSql(
                     """
 SELECT ARRAY(
-    SELECT VALUE i
-    FROM i IN c["DateTimes"]
-    WHERE (DateTimePart("dd", i) != 1)) AS c
+    SELECT VALUE d
+    FROM d IN c["DateTimes"]
+    WHERE (DateTimePart("dd", d) != 1)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
@@ -1762,13 +1762,13 @@ OFFSET 0 LIMIT 1
 SELECT VALUE
 {
     "c" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["NullableInts"]
+        SELECT VALUE n
+        FROM n IN c["NullableInts"]
         WHERE false),
     "c0" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["NullableInts"]
-        WHERE (i = null))
+        SELECT VALUE n0
+        FROM n0 IN c["NullableInts"]
+        WHERE (n0 = null))
 }
 FROM root c
 WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
@@ -1794,17 +1794,17 @@ SELECT VALUE
         SELECT VALUE i
         FROM i IN c["Ints"]),
     "c0" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["Ints"]
-        ORDER BY i DESC),
+        SELECT VALUE i0
+        FROM i0 IN c["Ints"]
+        ORDER BY i0 DESC),
     "c1" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["DateTimes"]
-        WHERE (DateTimePart("dd", i) != 1)),
+        SELECT VALUE d
+        FROM d IN c["DateTimes"]
+        WHERE (DateTimePart("dd", d) != 1)),
     "c2" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["DateTimes"]
-        WHERE (i > "2000-01-01T00:00:00"))
+        SELECT VALUE d0
+        FROM d0 IN c["DateTimes"]
+        WHERE (d0 > "2000-01-01T00:00:00"))
 }
 FROM root c
 WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
