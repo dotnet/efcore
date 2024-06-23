@@ -515,10 +515,17 @@ WHERE 0 = 1
 
     public override async Task Where_bitwise_xor(bool async)
     {
-        // Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'. Issue #16645.
-        await AssertTranslationFailed(() => base.Where_bitwise_xor(async));
+        await base.Where_bitwise_xor(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END ^ CAST(1 AS bit) = CAST(1 AS bit)
+""");
     }
 
     public override async Task Where_simple_shadow(bool async)
