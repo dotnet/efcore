@@ -3265,6 +3265,16 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Where(o => (o.OrderID | 10248) == 10248));
 
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_bitwise_binary_xor(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => (o.OrderID ^ 1) == 10249));
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_bitwise_or_with_logical_or(bool async)

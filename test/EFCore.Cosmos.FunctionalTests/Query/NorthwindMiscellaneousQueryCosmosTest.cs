@@ -2372,6 +2372,20 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] | 10248) = 10248))
 """);
             });
 
+    public override Task Where_bitwise_binary_xor(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_bitwise_binary_xor(async);
+
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] ^ 1) = 10249))
+""");
+            });
+
     public override async Task Select_bitwise_or_with_logical_or(bool async)
     {
         // Always throws for sync.
