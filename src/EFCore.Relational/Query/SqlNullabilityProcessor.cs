@@ -1780,36 +1780,6 @@ public class SqlNullabilityProcessor
         var rightIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(right), rightNullable);
         var rightIsNotNull = OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(rightIsNull));
 
-        // optimized expansion which doesn't distinguish between null and false
-        if (optimize
-            && sqlBinaryExpression.OperatorType == ExpressionType.Equal
-            && !leftNegated
-            && !rightNegated)
-        {
-            // when we use optimized form, the result can still be nullable
-            if (leftNullable && rightNullable)
-            {
-                nullable = true;
-
-                return SimplifyLogicalSqlBinaryExpression(
-                    _sqlExpressionFactory.OrElse(
-                        _sqlExpressionFactory.Equal(left, right),
-                        SimplifyLogicalSqlBinaryExpression(
-                            _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull))));
-            }
-
-            if ((leftNullable && !rightNullable)
-                || (!leftNullable && rightNullable))
-            {
-                nullable = true;
-
-                return _sqlExpressionFactory.Equal(left, right);
-            }
-        }
-
-        // doing a full null semantics rewrite - removing all nulls from truth table
-        nullable = false;
-
         SqlExpression body;
         if (leftNegated == rightNegated)
         {
@@ -1820,6 +1790,21 @@ public class SqlNullabilityProcessor
             // a == !b and !a == b in SQL evaluate the same as a != b
             body = _sqlExpressionFactory.NotEqual(left, right);
         }
+
+        // optimized expansion which doesn't distinguish between null and false
+        if (optimize && sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+        {
+            nullable = leftNullable || rightNullable;
+
+            return SimplifyLogicalSqlBinaryExpression(
+                _sqlExpressionFactory.OrElse(
+                    body,
+                    SimplifyLogicalSqlBinaryExpression(
+                        _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull))));
+        }
+
+        // doing a full null semantics rewrite - removing all nulls from truth table
+        nullable = false;
 
         // (a == b && (a != null && b != null)) || (a == null && b == null)
         body = SimplifyLogicalSqlBinaryExpression(
