@@ -1812,62 +1812,16 @@ public class SqlNullabilityProcessor
 
         if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
         {
-            if (leftNullable && rightNullable)
-            {
-                // ?a == ?b <=> !(?a) == !(?b) -> [(a == b) && (a != null && b != null)] || (a == null && b == null))
-                // !(?a) == ?b <=> ?a == !(?b) -> [(a != b) && (a != null && b != null)] || (a == null && b == null)
-                return leftNegated == rightNegated
-                    ? ExpandNullableEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull)
-                    : ExpandNegatedNullableEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull);
-            }
-
-            if (leftNullable && !rightNullable)
-            {
-                // ?a == b <=> !(?a) == !b -> (a == b) && (a != null)
-                // !(?a) == b <=> ?a == !b -> (a != b) && (a != null)
-                return leftNegated == rightNegated
-                    ? ExpandNullableEqualNonNullable(left, right, leftIsNotNull)
-                    : ExpandNegatedNullableEqualNonNullable(left, right, leftIsNotNull);
-            }
-
-            if (rightNullable && !leftNullable)
-            {
-                // a == ?b <=> !a == !(?b) -> (a == b) && (b != null)
-                // !a == ?b <=> a == !(?b) -> (a != b) && (b != null)
-                return leftNegated == rightNegated
-                    ? ExpandNullableEqualNonNullable(left, right, rightIsNotNull)
-                    : ExpandNegatedNullableEqualNonNullable(left, right, rightIsNotNull);
-            }
+            return leftNegated == rightNegated
+                ? ExpandNullableEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull)
+                : ExpandNegatedNullableEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull);
         }
 
         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
         {
-            if (leftNullable && rightNullable)
-            {
-                // ?a != ?b <=> !(?a) != !(?b) -> [(a != b) || (a == null || b == null)] && (a != null || b != null)
-                // !(?a) != ?b <=> ?a != !(?b) -> [(a == b) || (a == null || b == null)] && (a != null || b != null)
-                return leftNegated == rightNegated
-                    ? ExpandNullableNotEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull)
-                    : ExpandNegatedNullableNotEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull);
-            }
-
-            if (leftNullable && !rightNullable)
-            {
-                // ?a != b <=> !(?a) != !b -> (a != b) || (a == null)
-                // !(?a) != b <=> ?a != !b -> (a == b) || (a == null)
-                return leftNegated == rightNegated
-                    ? ExpandNullableNotEqualNonNullable(left, right, leftIsNull)
-                    : ExpandNegatedNullableNotEqualNonNullable(left, right, leftIsNull);
-            }
-
-            if (rightNullable && !leftNullable)
-            {
-                // a != ?b <=> !a != !(?b) -> (a != b) || (b == null)
-                // !a != ?b <=> a != !(?b) -> (a == b) || (b == null)
-                return leftNegated == rightNegated
-                    ? ExpandNullableNotEqualNonNullable(left, right, rightIsNull)
-                    : ExpandNegatedNullableNotEqualNonNullable(left, right, rightIsNull);
-            }
+            return leftNegated == rightNegated
+                ? ExpandNullableNotEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull)
+                : ExpandNegatedNullableNotEqualNullable(left, right, leftIsNull, leftIsNotNull, rightIsNull, rightIsNotNull);
         }
 
         return sqlBinaryExpression.Update(left, right);
@@ -2485,44 +2439,6 @@ public class SqlNullabilityProcessor
                 SimplifyLogicalSqlBinaryExpression(
                     _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull))));
 
-    // ?a == b -> (a == b) && (a != null)
-    //
-    // a | b | F1 = a == b | F2 = (a != null) | Final = F1 && F2 |
-    //   |   |             |                  |                  |
-    // 0 | 0 | 1           | 1                | 1                |
-    // 0 | 1 | 0           | 1                | 0                |
-    // 1 | 0 | 0           | 1                | 0                |
-    // 1 | 1 | 1           | 1                | 1                |
-    // N | 0 | N           | 0                | 0                |
-    // N | 1 | N           | 0                | 0                |
-    private SqlExpression ExpandNullableEqualNonNullable(
-        SqlExpression left,
-        SqlExpression right,
-        SqlExpression leftIsNotNull)
-        => SimplifyLogicalSqlBinaryExpression(
-            _sqlExpressionFactory.AndAlso(
-                _sqlExpressionFactory.Equal(left, right),
-                leftIsNotNull));
-
-    // !(?a) == b -> (a != b) && (a != null)
-    //
-    // a | b | F1 = a != b | F2 = (a != null) | Final = F1 && F2 |
-    //   |   |             |                  |                  |
-    // 0 | 0 | 0           | 1                | 0                |
-    // 0 | 1 | 1           | 1                | 1                |
-    // 1 | 0 | 1           | 1                | 1                |
-    // 1 | 1 | 0           | 1                | 0                |
-    // N | 0 | N           | 0                | 0                |
-    // N | 1 | N           | 0                | 0                |
-    private SqlExpression ExpandNegatedNullableEqualNonNullable(
-        SqlExpression left,
-        SqlExpression right,
-        SqlExpression leftIsNotNull)
-        => SimplifyLogicalSqlBinaryExpression(
-            _sqlExpressionFactory.AndAlso(
-                _sqlExpressionFactory.NotEqual(left, right),
-                leftIsNotNull));
-
     // ?a != ?b -> [(a != b) || (a == null || b == null)] && (a != null || b != null)
     //
     // a | b | F1 = a != b | F2 = (a == null || b == null) | F3 = F1 || F2 |
@@ -2606,42 +2522,4 @@ public class SqlNullabilityProcessor
                             _sqlExpressionFactory.OrElse(leftIsNull, rightIsNull)))),
                 SimplifyLogicalSqlBinaryExpression(
                     _sqlExpressionFactory.OrElse(leftIsNotNull, rightIsNotNull))));
-
-    // ?a != b -> (a != b) || (a == null)
-    //
-    // a | b | F1 = a != b | F2 = (a == null) | Final = F1 OR F2 |
-    //   |   |             |                  |                  |
-    // 0 | 0 | 0           | 0                | 0                |
-    // 0 | 1 | 1           | 0                | 1                |
-    // 1 | 0 | 1           | 0                | 1                |
-    // 1 | 1 | 0           | 0                | 0                |
-    // N | 0 | N           | 1                | 1                |
-    // N | 1 | N           | 1                | 1                |
-    private SqlExpression ExpandNullableNotEqualNonNullable(
-        SqlExpression left,
-        SqlExpression right,
-        SqlExpression leftIsNull)
-        => SimplifyLogicalSqlBinaryExpression(
-            _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.NotEqual(left, right),
-                leftIsNull));
-
-    // !(?a) != b -> (a == b) || (a == null)
-    //
-    // a | b | F1 = a == b | F2 = (a == null) | F3 = F1 OR F2 |
-    //   |   |             |                  |               |
-    // 0 | 0 | 1           | 0                | 1             |
-    // 0 | 1 | 0           | 0                | 0             |
-    // 1 | 0 | 0           | 0                | 0             |
-    // 1 | 1 | 1           | 0                | 1             |
-    // N | 0 | N           | 1                | 1             |
-    // N | 1 | N           | 1                | 1             |
-    private SqlExpression ExpandNegatedNullableNotEqualNonNullable(
-        SqlExpression left,
-        SqlExpression right,
-        SqlExpression leftIsNull)
-        => SimplifyLogicalSqlBinaryExpression(
-            _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.Equal(left, right),
-                leftIsNull));
 }
