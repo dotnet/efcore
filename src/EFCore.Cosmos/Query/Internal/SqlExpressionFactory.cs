@@ -152,6 +152,7 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.RightShift:
             case ExpressionType.And:
             case ExpressionType.Or:
+            case ExpressionType.ExclusiveOr:
             case ExpressionType.Coalesce:
             {
                 inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);

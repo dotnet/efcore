@@ -1096,6 +1096,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             ExpressionType.Modulo => " % ",
             ExpressionType.And => " & ",
             ExpressionType.Or => " | ",
+            ExpressionType.ExclusiveOr => " ^ ",
 
             _ => throw new UnreachableException($"Unsupported unary OperatorType: {binaryExpression.OperatorType}")
         };

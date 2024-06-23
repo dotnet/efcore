@@ -256,6 +256,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             case ExpressionType.Modulo:
             case ExpressionType.And:
             case ExpressionType.Or:
+            case ExpressionType.ExclusiveOr:
             {
                 inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
                 resultType = inferredTypeMapping?.ClrType ?? left.Type;

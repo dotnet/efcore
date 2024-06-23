@@ -100,6 +100,7 @@ public class SqlBinaryExpression : SqlExpression
             case ExpressionType.Equal:
             case ExpressionType.NotEqual:
             case ExpressionType.Coalesce:
+            case ExpressionType.ExclusiveOr:
                 return true;
             default:
                 return false;

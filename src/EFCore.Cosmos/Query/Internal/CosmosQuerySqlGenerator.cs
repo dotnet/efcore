@@ -476,8 +476,8 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             // Arithmetic
             ExpressionType.Add => " + ",
             ExpressionType.Subtract => " - ",
-            ExpressionType.Multiply => " * " ,
-            ExpressionType.Divide => " / " ,
+            ExpressionType.Multiply => " * ",
+            ExpressionType.Divide => " / ",
             ExpressionType.Modulo => " % ",
 
             // Bitwise >>> (zero-fill right shift) not available in C#
@@ -512,6 +512,11 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             && sqlBinaryExpression.Left.Type == typeof(string))
         {
             op = " || ";
+        }
+        else if (sqlBinaryExpression.OperatorType == ExpressionType.ExclusiveOr
+            && sqlBinaryExpression.Type == typeof(bool))
+        {
+            op = " != ";
         }
 
         _sqlBuilder.Append(op);
