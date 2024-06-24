@@ -108,13 +108,15 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
         // Enums are handled by EnumMethodTranslator
 
         return TypeMapping.TryGetValue(instance.Type, out var storeType)
-            ? _sqlExpressionFactory.Function(
-                "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(storeType), instance },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
-                typeof(string),
-                _typeMappingSource.GetMapping(storeType))
+            ? _sqlExpressionFactory.Coalesce(
+                _sqlExpressionFactory.Function(
+                    "CONVERT",
+                    new[] { _sqlExpressionFactory.Fragment(storeType), instance },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false, true },
+                    typeof(string),
+                    _typeMappingSource.GetMapping(storeType)),
+                _sqlExpressionFactory.Constant(string.Empty))
             : null;
     }
 }
