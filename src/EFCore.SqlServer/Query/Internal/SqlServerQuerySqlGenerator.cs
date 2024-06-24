@@ -653,6 +653,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 ExpressionType.Subtract => (700, false),
                 ExpressionType.And => (700, true),
                 ExpressionType.Or => (700, true),
+                ExpressionType.ExclusiveOr => (700, true),
                 ExpressionType.LeftShift => (700, true),
                 ExpressionType.RightShift => (700, true),
                 ExpressionType.LessThan => (500, false),

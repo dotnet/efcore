@@ -150,15 +150,21 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = "ALFKI") & (c["
 """);
             });
 
-    public override async Task Where_bitwise_xor(bool async)
-    {
-        // Bitwise operators on booleans. Issue #13168.
-        Assert.Equal(
-            CosmosStrings.UnsupportedOperatorForSqlExpression("ExclusiveOr", "SqlBinaryExpression"),
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_bitwise_xor(async))).Message);
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task Where_bitwise_xor(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Where_bitwise_xor(a);
 
-        AssertSql();
-    }
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = "ALFKI") != true))
+""");
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

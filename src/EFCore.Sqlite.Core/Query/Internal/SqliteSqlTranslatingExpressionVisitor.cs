@@ -211,6 +211,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
 
         if (visitedExpression is SqlBinaryExpression sqlBinary)
         {
+            if (sqlBinary.OperatorType == ExpressionType.ExclusiveOr)
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
             if (sqlBinary.OperatorType == ExpressionType.Modulo
                 && (ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Left), out var function)
                     || ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Right), out function)))
