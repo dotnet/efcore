@@ -770,10 +770,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-SELECT [w].[Id], CASE
-    WHEN [w].[IsAutomatic] = CAST(0 AS bit) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Manual]
+SELECT [w].[Id], [w].[IsAutomatic] ^ CAST(1 AS bit) AS [Manual]
 FROM [Weapons] AS [w]
 WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 """);
@@ -5179,12 +5176,9 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s].[Nickname]
         AssertSql(
             """
 SELECT CASE
-    WHEN CASE
-        WHEN [g].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
-        ELSE COALESCE([g].[HasSoulPatch], CAST(1 AS bit))
-    END = CAST(0 AS bit) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [c]
+    WHEN [g].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
+    ELSE COALESCE([g].[HasSoulPatch], CAST(1 AS bit))
+END ^ CAST(1 AS bit) AS [c]
 FROM [Tags] AS [t]
 LEFT JOIN [Gears] AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 """);

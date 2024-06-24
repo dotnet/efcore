@@ -1676,10 +1676,7 @@ WHERE [e].[Id] = 1
         AssertSql(
             """
 SELECT CASE
-    WHEN [c0].[Id] IS NOT NULL THEN CASE
-        WHEN [c0].[Processed] = CAST(0 AS bit) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [c0].[Id] IS NOT NULL THEN [c0].[Processed] ^ CAST(1 AS bit)
     ELSE NULL
 END AS [Processing]
 FROM [Carts] AS [c]

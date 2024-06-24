@@ -2344,10 +2344,7 @@ FROM [JsonEntitiesAllTypes] AS [j]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN CAST(JSON_VALUE([j].[Reference], '$.TestBoolean') AS bit) = CAST(0 AS bit) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(JSON_VALUE([j].[Reference], '$.TestBoolean') AS bit) ^ CAST(1 AS bit)
 FROM [JsonEntitiesAllTypes] AS [j]
 """);
     }
