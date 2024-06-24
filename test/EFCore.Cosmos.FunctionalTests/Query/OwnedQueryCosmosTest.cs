@@ -18,9 +18,11 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    // TODO: Fake LeftJoin, #33969
+    // Fink.Barton is a non-owned navigation, cross-document join
     public override Task Query_loads_reference_nav_automatically_in_projection(bool async)
-        => AssertTranslationFailed(() => base.Query_loads_reference_nav_automatically_in_projection(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Query_loads_reference_nav_automatically_in_projection(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
     // Non-correlated queries not supported by Cosmos
     public override Task Query_with_owned_entity_equality_operator(bool async)
@@ -162,10 +164,11 @@ WHERE (c["Discriminator"] = "LeafA")
 """);
             });
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
     public override async Task Set_throws_for_owned_type(bool async)
     {
@@ -174,55 +177,65 @@ WHERE (c["Discriminator"] = "LeafA")
         AssertSql();
     }
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
-        => AssertTranslationFailed(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Project_multiple_owned_navigations(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_multiple_owned_navigations(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Project_multiple_owned_navigations(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
-    // TODO: Fake LeftJoin, #33969
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
-        => AssertTranslationFailed(
-            () => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -241,13 +254,38 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
-    // TODO: Fake LeftJoin, #33969
-    public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        => AssertTranslationFailed(() => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public override Task SelectMany_with_result_selector(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.SelectMany_with_result_selector(a);
 
-    // TODO: Fake LeftJoin, #33969
+                AssertSql(
+                    """
+SELECT VALUE
+{
+    "PersonId" : c["Id"],
+    "OrderId" : a["Id"]
+}
+FROM root c
+JOIN a IN c["Orders"]
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
+            });
+
+    // Address.Planet is a non-owned navigation, cross-document join
+    public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
+
+    // Address.Planet is a non-owned navigation, cross-document join
     public override Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
-        => AssertTranslationFailed(() => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async));
+        => AssertTranslationFailedWithDetails(
+            () => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
     // Non-correlated queries not supported by Cosmos
     public override Task Query_with_owned_entity_equality_method(bool async)
@@ -274,6 +312,32 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
     // TODO: Subquery pushdown, #33968
     public override Task Query_when_subquery(bool async)
         => AssertTranslationFailed(() => base.Query_when_subquery(async));
+
+    public override Task Project_owned_reference_navigation_which_owns_additional(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Project_owned_reference_navigation_which_owns_additional(a);
+
+                // TODO: The following should project out c["PersonAddress"], not c: #34067
+                AssertSql(
+                    """
+SELECT c
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["Id"]
+""");
+            });
+
+    // TODO: #34068
+    public override async Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<NullReferenceException>(() => base.Project_owned_reference_navigation_which_does_not_own_additional(async));
+        }
+    }
 
     public override Task No_ignored_include_warning_when_implicit_load(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
@@ -321,6 +385,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
 
+                // TODO: The following should project out a["Details"], not a: #34067
                 AssertSql(
                     """
 SELECT a
@@ -688,12 +753,13 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
         AssertSql();
     }
 
-    // TODO: Fake LeftJoin, #33969
+    // Order.Client is a non-owned navigation, cross-document join
     public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(
         bool async,
         bool useAsTracking)
-        => AssertTranslationFailed(
-            () => base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking));
+        => AssertTranslationFailedWithDetails(
+            () => base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking),
+            CosmosStrings.CrossDocumentJoinNotSupported);
 
     public override async Task Trying_to_access_non_existent_indexer_property_throws_meaningful_exception(bool async)
     {
