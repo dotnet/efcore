@@ -6378,7 +6378,7 @@ WHERE COALESCE([w].[SynergyWithId], 0) = 0
             """
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE COALESCE([w].[Id], 0) = 0
+WHERE [w].[Id] = 0
 """);
     }
 

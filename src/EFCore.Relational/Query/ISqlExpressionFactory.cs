@@ -37,28 +37,28 @@ public interface ISqlExpressionFactory
     SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlUnaryExpression" /> with the given arguments.
+    ///     Creates a new <see cref="SqlExpression" /> with the given arguments.
     /// </summary>
     /// <param name="operatorType">An <see cref="ExpressionType" /> representing SQL unary operator.</param>
     /// <param name="operand">A <see cref="SqlExpression" /> to apply unary operator on.</param>
     /// <param name="type">The type of the created expression.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
-    /// <returns>A <see cref="SqlUnaryExpression" /> with the given arguments.</returns>
-    SqlUnaryExpression? MakeUnary(
+    /// <returns>A <see cref="SqlExpression" /> with the given arguments.</returns>
+    SqlExpression? MakeUnary(
         ExpressionType operatorType,
         SqlExpression operand,
         Type type,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlBinaryExpression" /> with the given arguments.
+    ///     Creates a new <see cref="SqlExpression" /> with the given arguments.
     /// </summary>
     /// <param name="operatorType">An <see cref="ExpressionType" /> representing SQL unary operator.</param>
     /// <param name="left">The left operand of binary operation.</param>
     /// <param name="right">The right operand of binary operation.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
-    /// <returns>A <see cref="SqlBinaryExpression" /> with the given arguments.</returns>
-    SqlBinaryExpression? MakeBinary(
+    /// <returns>A <see cref="SqlExpression" /> with the given arguments.</returns>
+    SqlExpression? MakeBinary(
         ExpressionType operatorType,
         SqlExpression left,
         SqlExpression right,
@@ -66,208 +66,208 @@ public interface ISqlExpressionFactory
 
     // Comparison
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents an equality comparison.
+    ///     Creates a <see cref="SqlExpression" /> which represents an equality comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL equality comparison.</returns>
-    SqlBinaryExpression Equal(SqlExpression left, SqlExpression right);
+    SqlExpression Equal(SqlExpression left, SqlExpression right);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents an inequality comparison.
+    ///     Creates a <see cref="SqlExpression" /> which represents an inequality comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL inequality comparison.</returns>
-    SqlBinaryExpression NotEqual(SqlExpression left, SqlExpression right);
+    SqlExpression NotEqual(SqlExpression left, SqlExpression right);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a greater than comparison.
+    ///     Creates a <see cref="SqlExpression" /> which represents a greater than comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL greater than comparison.</returns>
-    SqlBinaryExpression GreaterThan(SqlExpression left, SqlExpression right);
+    SqlExpression GreaterThan(SqlExpression left, SqlExpression right);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a greater than or equal comparison.
+    ///     Creates a <see cref="SqlExpression" /> which represents a greater than or equal comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL greater than or equal comparison.</returns>
-    SqlBinaryExpression GreaterThanOrEqual(SqlExpression left, SqlExpression right);
+    SqlExpression GreaterThanOrEqual(SqlExpression left, SqlExpression right);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a less than comparison.
+    ///     Creates a <see cref="SqlExpression" /> which represents a less than comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL less than comparison.</returns>
-    SqlBinaryExpression LessThan(SqlExpression left, SqlExpression right);
+    SqlExpression LessThan(SqlExpression left, SqlExpression right);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a less than or equal comparison.
+    ///     Creates a <see cref="SqlExpression" /> which represents a less than or equal comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL less than or equal comparison.</returns>
-    SqlBinaryExpression LessThanOrEqual(SqlExpression left, SqlExpression right);
+    SqlExpression LessThanOrEqual(SqlExpression left, SqlExpression right);
 
     // Logical
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a logical AND operation.
+    ///     Creates a <see cref="SqlExpression" /> which represents a logical AND operation.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL AND operation.</returns>
-    SqlBinaryExpression AndAlso(SqlExpression left, SqlExpression right);
+    SqlExpression AndAlso(SqlExpression left, SqlExpression right);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a logical OR operation.
+    ///     Creates a <see cref="SqlExpression" /> which represents a logical OR operation.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>An expression representing a SQL OR operation.</returns>
-    SqlBinaryExpression OrElse(SqlExpression left, SqlExpression right);
+    SqlExpression OrElse(SqlExpression left, SqlExpression right);
 
     // Arithmetic
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents an addition.
+    ///     Creates a <see cref="SqlExpression" /> which represents an addition.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL addition.</returns>
-    SqlBinaryExpression Add(
+    SqlExpression Add(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a subtraction.
+    ///     Creates a <see cref="SqlExpression" /> which represents a subtraction.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL subtraction.</returns>
-    SqlBinaryExpression Subtract(
+    SqlExpression Subtract(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a multiplication.
+    ///     Creates a <see cref="SqlExpression" /> which represents a multiplication.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL multiplication.</returns>
-    SqlBinaryExpression Multiply(
+    SqlExpression Multiply(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a division.
+    ///     Creates a <see cref="SqlExpression" /> which represents a division.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL division.</returns>
-    SqlBinaryExpression Divide(
+    SqlExpression Divide(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a modulo operation.
+    ///     Creates a <see cref="SqlExpression" /> which represents a modulo operation.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL modulo operation.</returns>
-    SqlBinaryExpression Modulo(
+    SqlExpression Modulo(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     // Bitwise
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a bitwise AND operation.
+    ///     Creates a <see cref="SqlExpression" /> which represents a bitwise AND operation.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL bitwise AND operation.</returns>
-    SqlBinaryExpression And(
+    SqlExpression And(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a <see cref="SqlBinaryExpression" /> which represents a bitwise OR operation.
+    ///     Creates a <see cref="SqlExpression" /> which represents a bitwise OR operation.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL bitwise OR operation.</returns>
-    SqlBinaryExpression Or(
+    SqlExpression Or(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     // Other
     /// <summary>
-    ///     Creates a <see cref="SqlFunctionExpression" /> which represents a COALESCE operation.
+    ///     Creates a <see cref="SqlExpression" /> which represents a COALESCE operation.
     /// </summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL COALESCE operation.</returns>
-    SqlFunctionExpression Coalesce(
+    SqlExpression Coalesce(
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlUnaryExpression" /> which represent equality to null.
+    ///     Creates a new <see cref="SqlExpression" /> which represent equality to null.
     /// </summary>
     /// <param name="operand">A <see cref="SqlExpression" /> to compare to null.</param>
     /// <returns>An expression representing IS NULL construct in a SQL tree.</returns>
-    SqlUnaryExpression IsNull(SqlExpression operand);
+    SqlExpression IsNull(SqlExpression operand);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlUnaryExpression" /> which represent inequality to null.
+    ///     Creates a new <see cref="SqlExpression" /> which represent inequality to null.
     /// </summary>
     /// <param name="operand">A <see cref="SqlExpression" /> to compare to non null.</param>
     /// <returns>An expression representing IS NOT NULL construct in a SQL tree.</returns>
-    SqlUnaryExpression IsNotNull(SqlExpression operand);
+    SqlExpression IsNotNull(SqlExpression operand);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlUnaryExpression" /> which represent casting a SQL expression to different type.
+    ///     Creates a new <see cref="SqlExpression" /> which represent casting a SQL expression to different type.
     /// </summary>
     /// <param name="operand">A <see cref="SqlExpression" /> to cast.</param>
     /// <param name="type">The return type of the expression after cast.</param>
     /// <param name="typeMapping">A relational type mapping to use for conversion.</param>
     /// <returns>An expression representing cast operation in a SQL tree.</returns>
-    SqlUnaryExpression Convert(
+    SqlExpression Convert(
         SqlExpression operand,
         Type type,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlUnaryExpression" /> which represent a NOT operation in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represent a NOT operation in a SQL tree.
     /// </summary>
     /// <param name="operand">A <see cref="SqlExpression" /> to apply NOT on.</param>
     /// <returns>An expression representing a NOT operation in a SQL tree.</returns>
-    SqlUnaryExpression Not(SqlExpression operand);
+    SqlExpression Not(SqlExpression operand);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlUnaryExpression" /> which represent a negation operation in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represent a negation operation in a SQL tree.
     /// </summary>
     /// <param name="operand">A <see cref="SqlExpression" /> to apply NOT on.</param>
     /// <returns>An expression representing a negation operation in a SQL tree.</returns>
-    SqlUnaryExpression Negate(SqlExpression operand);
+    SqlExpression Negate(SqlExpression operand);
 
     /// <summary>
     ///     Creates a new <see cref="CaseExpression" /> which represent a CASE statement in a SQL tree.
@@ -276,7 +276,7 @@ public interface ISqlExpressionFactory
     /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to compare and get result from.</param>
     /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
     /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
-    CaseExpression Case(
+    SqlExpression Case(
         SqlExpression operand,
         IReadOnlyList<CaseWhenClause> whenClauses,
         SqlExpression? elseResult);
@@ -287,10 +287,10 @@ public interface ISqlExpressionFactory
     /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to evaluate condition and get result from.</param>
     /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
     /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
-    CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult);
+    SqlExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a function call in a SQL tree.
     /// </summary>
     /// <param name="name">The name of the function.</param>
     /// <param name="arguments">The arguments of the function.</param>
@@ -299,7 +299,7 @@ public interface ISqlExpressionFactory
     /// <param name="returnType">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a function call in a SQL tree.</returns>
-    SqlFunctionExpression Function(
+    SqlExpression Function(
         string name,
         IEnumerable<SqlExpression> arguments,
         bool nullable,
@@ -308,7 +308,7 @@ public interface ISqlExpressionFactory
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a function call in a SQL tree.
     /// </summary>
     /// <param name="schema">The schema in which the function is defined.</param>
     /// <param name="name">The name of the function.</param>
@@ -318,7 +318,7 @@ public interface ISqlExpressionFactory
     /// <param name="returnType">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a function call in a SQL tree.</returns>
-    SqlFunctionExpression Function(
+    SqlExpression Function(
         string? schema,
         string name,
         IEnumerable<SqlExpression> arguments,
@@ -328,7 +328,7 @@ public interface ISqlExpressionFactory
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a function call in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a function call in a SQL tree.
     /// </summary>
     /// <param name="instance">An expression on which the function is applied.</param>
     /// <param name="name">The name of the function.</param>
@@ -339,7 +339,7 @@ public interface ISqlExpressionFactory
     /// <param name="returnType">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a function call in a SQL tree.</returns>
-    SqlFunctionExpression Function(
+    SqlExpression Function(
         SqlExpression instance,
         string name,
         IEnumerable<SqlExpression> arguments,
@@ -350,21 +350,21 @@ public interface ISqlExpressionFactory
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a niladic function call in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a niladic function call in a SQL tree.
     /// </summary>
     /// <param name="name">The name of the function.</param>
     /// <param name="nullable">A bool value indicating whether this function can return null.</param>
     /// <param name="returnType">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a function call in a SQL tree.</returns>
-    SqlFunctionExpression NiladicFunction(
+    SqlExpression NiladicFunction(
         string name,
         bool nullable,
         Type returnType,
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a niladic function call in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a niladic function call in a SQL tree.
     /// </summary>
     /// <param name="schema">The schema in which the function is defined.</param>
     /// <param name="name">The name of the function.</param>
@@ -372,7 +372,7 @@ public interface ISqlExpressionFactory
     /// <param name="returnType">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a function call in a SQL tree.</returns>
-    SqlFunctionExpression NiladicFunction(
+    SqlExpression NiladicFunction(
         string schema,
         string name,
         bool nullable,
@@ -380,7 +380,7 @@ public interface ISqlExpressionFactory
         RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFunctionExpression" /> which represents a niladic function call in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a niladic function call in a SQL tree.
     /// </summary>
     /// <param name="instance">An expression on which the function is applied.</param>
     /// <param name="name">The name of the function.</param>
@@ -389,7 +389,7 @@ public interface ISqlExpressionFactory
     /// <param name="returnType">The <see cref="Type" /> of the expression.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a function call in a SQL tree.</returns>
-    SqlFunctionExpression NiladicFunction(
+    SqlExpression NiladicFunction(
         SqlExpression instance,
         string name,
         bool nullable,
@@ -402,7 +402,7 @@ public interface ISqlExpressionFactory
     /// </summary>
     /// <param name="subquery">A subquery to check existence of.</param>
     /// <returns>An expression representing an EXISTS operation in a SQL tree.</returns>
-    ExistsExpression Exists(SelectExpression subquery);
+    SqlExpression Exists(SelectExpression subquery);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
@@ -410,7 +410,7 @@ public interface ISqlExpressionFactory
     /// <param name="item">An item to look into values.</param>
     /// <param name="subquery">A subquery in which item is searched.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, SelectExpression subquery);
+    SqlExpression In(SqlExpression item, SelectExpression subquery);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
@@ -418,7 +418,7 @@ public interface ISqlExpressionFactory
     /// <param name="item">An item to look into values.</param>
     /// <param name="values">A list of values in which item is searched.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values);
+    SqlExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
@@ -426,7 +426,7 @@ public interface ISqlExpressionFactory
     /// <param name="item">An item to look into values.</param>
     /// <param name="valuesParameter">A parameterized list of values in which the item is searched.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, SqlParameterExpression valuesParameter);
+    SqlExpression In(SqlExpression item, SqlParameterExpression valuesParameter);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents a LIKE in a SQL tree.
@@ -435,31 +435,31 @@ public interface ISqlExpressionFactory
     /// <param name="pattern">A pattern to search.</param>
     /// <param name="escapeChar">An optional escape character to use in LIKE.</param>
     /// <returns>An expression representing a LIKE in a SQL tree.</returns>
-    LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression? escapeChar = null);
+    SqlExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression? escapeChar = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlConstantExpression" /> which represents a constant in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a constant in a SQL tree.
     /// </summary>
     /// <param name="value">A value.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a constant in a SQL tree.</returns>
-    SqlConstantExpression Constant(object value, RelationalTypeMapping? typeMapping = null);
+    SqlExpression Constant(object value, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlConstantExpression" /> which represents a constant in a SQL tree.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a constant in a SQL tree.
     /// </summary>
     /// <param name="value">A value.</param>
     /// <param name="type">The type for the constant. Useful when value is null.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <returns>An expression representing a constant in a SQL tree.</returns>
-    SqlConstantExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null);
+    SqlExpression Constant(object? value, Type type, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
-    ///     Creates a new <see cref="SqlFragmentExpression" /> which represents a SQL token.
+    ///     Creates a new <see cref="SqlExpression" /> which represents a SQL token.
     /// </summary>
     /// <param name="sql">A string token to print in SQL tree.</param>
     /// <returns>An expression representing a SQL token.</returns>
-    SqlFragmentExpression Fragment(string sql);
+    SqlExpression Fragment(string sql);
 
     /// <summary>
     ///     Attempts to creates a new expression that returns the smallest value from a list of expressions, e.g. an invocation of the

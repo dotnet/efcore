@@ -112,7 +112,7 @@ public class SqlServerDateTimeMemberTranslator(
             _ => null
         };
 
-        SqlFunctionExpression DatePart(string part)
+        SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function(
                 "DATEPART",
                 arguments: [sqlExpressionFactory.Fragment(part), instance!],
