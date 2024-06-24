@@ -3428,7 +3428,7 @@ ORDER BY (
             """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND CONVERT(varchar(10), [o].[EmployeeID]) LIKE '%7%'
+WHERE [o].[OrderDate] IS NOT NULL AND COALESCE(CONVERT(varchar(10), [o].[EmployeeID]), '') LIKE '%7%'
 """);
     }
 
@@ -3480,7 +3480,7 @@ WHERE [o].[OrderDate] IS NOT NULL
 
         AssertSql(
             """
-SELECT CONVERT(varchar(100), [o].[OrderDate]) AS [ShipName]
+SELECT COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '') AS [ShipName]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL
 """);

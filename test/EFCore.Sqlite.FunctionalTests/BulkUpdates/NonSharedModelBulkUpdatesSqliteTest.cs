@@ -118,7 +118,7 @@ WHERE "o"."Id" = "o0"."Id"
             """
 UPDATE "Owner" AS "o"
 SET "OwnedReference_Number" = length("o"."Title"),
-    "Title" = CAST("o"."OwnedReference_Number" AS TEXT)
+    "Title" = COALESCE(CAST("o"."OwnedReference_Number" AS TEXT), '')
 """);
     }
 
