@@ -374,6 +374,18 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             case ExpressionType.Not
                 when sqlUnaryExpression.Type == typeof(bool):
             {
+                // when possible, avoid converting to/from predicate form
+                if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
+                {
+                    var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
+                    return _sqlExpressionFactory.MakeBinary(
+                        ExpressionType.ExclusiveOr,
+                        negatedOperand,
+                        _sqlExpressionFactory.Constant(true, negatedOperand.TypeMapping),
+                        negatedOperand.TypeMapping
+                    )!;
+                }
+
                 _isSearchCondition = true;
                 resultCondition = true;
                 break;
