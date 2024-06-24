@@ -1019,18 +1019,7 @@ WHERE [CustomerID] LIKE 'A%'"));
             e => e.c,
             s => s.SetProperty(c => c.c.City, c => c.LastOrder.OrderDate.Value.Year.ToString()),
             rowsAffectedCount: 8,
-            (b, a) => Assert.All(
-                a, c =>
-                {
-                    if (c.CustomerID == "FISSA")
-                    {
-                        Assert.Null(c.City);
-                    }
-                    else
-                    {
-                        Assert.NotNull(c.City);
-                    }
-                }));
+            (b, a) => Assert.All(a, c => Assert.NotNull(c.City)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1055,18 +1044,7 @@ WHERE [CustomerID] LIKE 'A%'"));
             e => e.c,
             s => s.SetProperty(c => c.c.City, c => c.LastOrderDate.ToString()),
             rowsAffectedCount: 8,
-            (b, a) => Assert.All(
-                a, c =>
-                {
-                    if (c.CustomerID == "FISSA")
-                    {
-                        Assert.Null(c.City);
-                    }
-                    else
-                    {
-                        Assert.NotNull(c.City);
-                    }
-                }));
+            (b, a) => Assert.All(a, c => Assert.NotNull(c.City)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
