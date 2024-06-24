@@ -120,7 +120,7 @@ INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
             """
 UPDATE [o]
 SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
-    [o].[Title] = CONVERT(varchar(11), [o].[OwnedReference_Number])
+    [o].[Title] = COALESCE(CONVERT(varchar(11), [o].[OwnedReference_Number]), '')
 FROM [Owner] AS [o]
 """);
     }

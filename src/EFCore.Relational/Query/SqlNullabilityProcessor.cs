@@ -1422,12 +1422,33 @@ public class SqlNullabilityProcessor
             foreach (var argument in sqlFunctionExpression.Arguments)
             {
                 coalesceArguments.Add(Visit(argument, out var argumentNullable));
-                coalesceNullable = coalesceNullable && argumentNullable;
+                if (!argumentNullable)
+                {
+                    coalesceNullable = false;
+                    break;
+                }
             }
 
             nullable = coalesceNullable;
 
-            return sqlFunctionExpression.Update(sqlFunctionExpression.Instance, coalesceArguments);
+            if (coalesceArguments.Count == 1)
+            {
+                return coalesceArguments[0];
+            }
+            else if (coalesceArguments.Count == sqlFunctionExpression.Arguments.Count)
+            {
+                return sqlFunctionExpression.Update(sqlFunctionExpression.Instance, coalesceArguments);
+            }
+            else
+            {
+                return _sqlExpressionFactory.Function(
+                    sqlFunctionExpression.Name,
+                    coalesceArguments,
+                    sqlFunctionExpression.IsNullable,
+                    argumentsPropagateNullability: coalesceArguments.Select(_ => false).ToArray(),
+                    sqlFunctionExpression.Type,
+                    sqlFunctionExpression.TypeMapping);
+            }
         }
 
         var useNullabilityPropagation = sqlFunctionExpression is { InstancePropagatesNullability: true };

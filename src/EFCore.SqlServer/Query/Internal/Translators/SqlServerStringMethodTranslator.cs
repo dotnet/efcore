@@ -384,7 +384,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
     private SqlExpression? ProcessTrimStartEnd(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)
     {
-        SqlConstantExpression? charactersToTrim = null;
+        SqlExpression? charactersToTrim = null;
         if (arguments.Count > 0 && arguments[0] is SqlConstantExpression { Value: var charactersToTrimValue })
         {
             charactersToTrim = charactersToTrimValue switch

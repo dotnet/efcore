@@ -1328,12 +1328,12 @@ WHERE "o1"."OrderID" = "s"."OrderID"
         AssertExecuteUpdateSql(
             """
 UPDATE "Customers" AS "c"
-SET "City" = CAST(CAST(strftime('%Y', (
+SET "City" = COALESCE(CAST(CAST(strftime('%Y', (
     SELECT "o"."OrderDate"
     FROM "Orders" AS "o"
     WHERE "c"."CustomerID" = "o"."CustomerID"
     ORDER BY "o"."OrderDate" DESC
-    LIMIT 1)) AS INTEGER) AS TEXT)
+    LIMIT 1)) AS INTEGER) AS TEXT), '')
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
@@ -1362,12 +1362,12 @@ WHERE "c"."CustomerID" LIKE 'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE "Customers" AS "c"
-SET "City" = CAST(CAST(strftime('%Y', (
+SET "City" = COALESCE(CAST(CAST(strftime('%Y', (
     SELECT "o"."OrderDate"
     FROM "Orders" AS "o"
     WHERE "c"."CustomerID" = "o"."CustomerID"
     ORDER BY "o"."OrderDate" DESC
-    LIMIT 1)) AS INTEGER) AS TEXT)
+    LIMIT 1)) AS INTEGER) AS TEXT), '')
 WHERE "c"."CustomerID" LIKE 'F%'
 """);
     }
