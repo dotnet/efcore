@@ -373,8 +373,8 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             async, async a =>
             {
                 // TODO: #34011
-                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
-                // as null instead of [].
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets
+                // persisted as null instead of [] when there are no Details. So we change the Count we check to 1.
                 await AssertQuery(
                     a,
                     ss => ss.Set<OwnedPerson>()
@@ -388,7 +388,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                 // TODO: The following should project out a["Details"], not a: #34067
                 AssertSql(
                     """
-SELECT a
+SELECT a["Details"]
 FROM root c
 JOIN a IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
@@ -401,8 +401,8 @@ ORDER BY c["Id"]
             async, async a =>
             {
                 // TODO: #34011
-                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
-                // as null instead of [].
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets
+                // persisted as null instead of [] when there are no Details. So we change the Count we check to 1.
                 await AssertQuery(
                     a,
                     ss => ss.Set<OwnedPerson>()
@@ -428,8 +428,8 @@ ORDER BY c["Id"]
             async, async a =>
             {
                 // TODO: #34011
-                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
-                // as null instead of [].
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets
+                // persisted as null instead of [] when there are no Details. So we change the Count we check to 1.
                 await AssertQuery(
                     a,
                     ss => ss.Set<OwnedPerson>()
@@ -455,8 +455,8 @@ ORDER BY c["Id"]
             async, async a =>
             {
                 // TODO: #34011
-                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets persisted
-                // as null instead of [].
+                // We override this test because the test data for this class gets saved incorrectly - the Order.Details collection gets
+                // persisted as null instead of [] when there are no Details. So we change the Count we check to 1.
                 await AssertQuery(
                     a,
                     ss => ss.Set<OwnedPerson>()
@@ -469,7 +469,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT a["Details"]
 FROM root c
 JOIN a IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))

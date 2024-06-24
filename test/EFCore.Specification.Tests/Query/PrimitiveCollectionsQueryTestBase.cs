@@ -1068,7 +1068,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(
                 x => new
                 {
-                    Empty = x.NullableInts.Where(x => false).ToList(), OnlyNull = x.NullableInts.Where(x => x == null).ToList(),
+                    Empty = x.NullableInts.Where(x => false).ToList(),
+                    OnlyNull = x.NullableInts.Where(x => x == null).ToList(),
                 }),
             assertOrder: true,
             elementAsserter: (e, a) =>

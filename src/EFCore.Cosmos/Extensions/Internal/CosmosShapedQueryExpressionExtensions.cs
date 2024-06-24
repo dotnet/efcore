@@ -63,8 +63,7 @@ public static class CosmosShapedQueryExpressionExtensions
         {
             subquery.ApplyProjection();
 
-            // TODO: Should the type be an array, or enumerable/queryable?
-            var arrayClrType = projection.Type.MakeArrayType();
+            var arrayClrType = typeof(IEnumerable<>).MakeGenericType(projection.Type);
 
             switch (projection)
             {
