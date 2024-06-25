@@ -5,8 +5,6 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
     public FromSqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
@@ -29,19 +27,21 @@ WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
-    public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+    public override async Task<string?> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
         var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
         Assert.Equal(
-            @".param set p0 'London'
+            """
+.param set p0 'London'
 .param set @__contactTitle_1 'Sales Representative'
 
-SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
-    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+    SELECT * FROM "Customers" WHERE "City" = @p0
+) AS "m"
+WHERE "m"."ContactTitle" = @__contactTitle_1
+""", queryString, ignoreLineEndingDifferences: true);
 
         return queryString;
     }

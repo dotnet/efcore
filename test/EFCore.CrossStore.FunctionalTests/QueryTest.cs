@@ -91,7 +91,7 @@ public class QueryTest
     public async Task FromSql_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();
-        var query = context.Blogs.FromSql($"Select 1");
+        var query = RelationalQueryableExtensions.FromSql(context.Blogs, $"Select 1");
 
         var message = async
             ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message

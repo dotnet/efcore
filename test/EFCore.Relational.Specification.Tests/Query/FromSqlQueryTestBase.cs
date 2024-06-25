@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
 public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
@@ -348,7 +346,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 (NorthwindContext context) => context.Set<Customer>()
                     .FromSqlRaw(
                         NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                        CreateDbParameter(null, "CONSH"))
+                        CreateDbParameter(null!, "CONSH"))
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -364,7 +362,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 (NorthwindContext context) => context.Set<Customer>()
                     .FromSqlRaw(
                         NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                        CreateDbParameter(null, "CONSH"))
+                        CreateDbParameter(null!, "CONSH"))
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -687,7 +685,7 @@ FROM [Customers]"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+    public virtual async Task<string?> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
         var city = "London";
         var contactTitle = "Sales Representative";
@@ -763,7 +761,7 @@ FROM [Customers]"))
     public virtual async Task FromSqlRaw_queryable_simple_projection_composed(bool async)
     {
         using var context = CreateContext();
-        var boolMapping = (RelationalTypeMapping)context.GetService<ITypeMappingSource>().FindMapping(typeof(bool));
+        var boolMapping = (RelationalTypeMapping)context.GetService<ITypeMappingSource>().FindMapping(typeof(bool))!;
         var boolLiteral = boolMapping.GenerateSqlLiteral(true);
 
         await AssertQuery(
@@ -1305,7 +1303,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .FromSqlRaw(
                         NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
                         // ReSharper disable once FormatStringProblem
-                        CreateDbParameter(null, "London"))
+                        CreateDbParameter(null!, "London"))
                     .Select(c => c.CustomerID)
                     .Contains(o.CustomerID)),
             ss => ss.Set<Order>().Where(
