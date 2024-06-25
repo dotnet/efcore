@@ -232,6 +232,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
             return null;
         }
+        if (_sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: < 130 } azureSqlSingletonOptions)
+        {
+            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(azureSqlSingletonOptions.CompatibilityLevel));
+
+            return null;
+        }
 
         // Generate the OPENJSON function expression, and wrap it in a SelectExpression.
 
