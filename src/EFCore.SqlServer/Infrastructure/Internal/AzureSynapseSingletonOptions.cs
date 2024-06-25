@@ -59,7 +59,7 @@ public class AzureSynapseSingletonOptions : IAzureSynapseSingletonOptions
         {
             throw new InvalidOperationException(
                 CoreStrings.SingletonOptionChanged(
-                    nameof(AzureSynapseDbContextOptionsExtensions.UseAzureSynapse),
+                    nameof(SqlServerDbContextOptionsExtensions.UseAzureSynapse),
                     nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
         }
     }

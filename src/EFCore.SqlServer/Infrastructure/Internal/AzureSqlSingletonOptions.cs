@@ -59,7 +59,7 @@ public class AzureSqlSingletonOptions : IAzureSqlSingletonOptions
         {
             throw new InvalidOperationException(
                 CoreStrings.SingletonOptionChanged(
-                    nameof(AzureSqlDbContextOptionsExtensions.UseAzureSql),
+                    nameof(SqlServerDbContextOptionsExtensions.UseAzureSql),
                     nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
         }
     }
