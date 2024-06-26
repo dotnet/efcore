@@ -496,6 +496,139 @@ public class SqlServerConfigPatternsTest
                         .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
                 }
             }
+        }
+    }
+
+    public class ExplicitExecutionStrategies_SqlServer
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                        x =>
+                        {
+                            if (before)
+                            {
+                                x.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            x.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                x.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                        });
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+    public class ExplicitExecutionStrategies_AzureSql
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseAzureSql(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                        x =>
+                        {
+                            if (before)
+                            {
+                                x.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            x.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                x.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                        });
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => ConfigureModel(modelBuilder);
+        }
+    }
+    public class ExplicitExecutionStrategies_AzureSynapse
+    {
+        [InlineData(true)]
+        [InlineData(false)]
+        [ConditionalTheory]
+        public void Retry_strategy_properly_handled(bool before)
+        {
+            using var context = new NorthwindContext(before);
+            if (before)
+            {
+                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+            else
+            {
+                Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+            }
+        }
+
+        private class NorthwindContext(bool before) : DbContext
+        {
+            public DbSet<Customer> Customers { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .EnableServiceProviderCaching(false)
+                    .UseAzureSynapse(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString,
+                        x =>
+                        {
+                            if (before)
+                            {
+                                x.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                            x.EnableRetryOnFailure();
+                            if (!before)
+                            {
+                                x.ExecutionStrategy(_ => new DummyExecutionStrategy());
+                            }
+                        });
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);
@@ -521,4 +654,12 @@ public class SqlServerConfigPatternsTest
                 b.HasKey(c => c.CustomerID);
                 b.ToTable("Customers");
             });
+
+    private class DummyExecutionStrategy : IExecutionStrategy
+    {
+        public bool RetriesOnFailure => true;
+
+        public TResult Execute<TState, TResult>(TState state, Func<DbContext, TState, TResult> operation, Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded) => throw new NotImplementedException();
+        public Task<TResult> ExecuteAsync<TState, TResult>(TState state, Func<DbContext, TState, CancellationToken, Task<TResult>> operation, Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    }
 }
