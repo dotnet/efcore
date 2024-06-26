@@ -912,6 +912,16 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
 
+                            // Deterministic orderings are applied before subquery pushdown
+                            // so that we don't have to dig into the subquery to add them to `outerSelectExpression`.
+                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
+                            for (var j = 0; j < actualParentIdentifier.Count; j++)
+                            {
+                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                outerSelectExpression.AppendOrdering(
+                                    new OrderingExpression(outerSelectExpression._identifier[j].Column, ascending: true));
+                            }
+
                             if (outerSelectExpression.Limit != null
                                 || outerSelectExpression.Offset != null
                                 || outerSelectExpression.IsDistinct
@@ -923,7 +933,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
                             }
 
-                            var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             var containsOrdering = innerSelectExpression.Orderings.Count > 0;
                             List<OrderingExpression>? orderingsToBeErased = null;
                             if (containsOrdering
@@ -940,13 +949,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                             outerSelectExpression._clientProjections.AddRange(innerSelectExpression._clientProjections);
                             outerSelectExpression._aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
                             innerSelectExpression = outerSelectExpression;
-
-                            for (var j = 0; j < actualParentIdentifier.Count; j++)
-                            {
-                                AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
-                                innerSelectExpression.AppendOrdering(
-                                    new OrderingExpression(innerSelectExpression._identifier[j].Column, ascending: true));
-                            }
 
                             // Copy over any nested ordering if there were any
                             if (containsOrdering)
