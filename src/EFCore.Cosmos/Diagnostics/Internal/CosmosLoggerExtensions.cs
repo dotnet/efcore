@@ -54,7 +54,7 @@ public static class CosmosLoggerExtensions
     public static void ExecutingSqlQuery(
         this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
         string containerId,
-        PartitionKey partitionKeyValue,
+        PartitionKey? partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery)
     {
         var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
@@ -66,7 +66,7 @@ public static class CosmosLoggerExtensions
             definition.Log(
                 diagnostics,
                 containerId,
-                logSensitiveData ? partitionKeyValue.ToString() : "?",
+                logSensitiveData ? partitionKeyValue?.ToString() : "?",
                 FormatParameters(cosmosSqlQuery.Parameters, logSensitiveData && cosmosSqlQuery.Parameters.Count > 0),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);
@@ -158,7 +158,7 @@ public static class CosmosLoggerExtensions
         double requestCharge,
         string activityId,
         string containerId,
-        PartitionKey partitionKeyValue,
+        PartitionKey? partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery)
     {
         var definition = CosmosResources.LogExecutedReadNext(diagnostics);
@@ -177,7 +177,7 @@ public static class CosmosLoggerExtensions
                     requestCharge,
                     activityId,
                     containerId,
-                    logSensitiveData ? partitionKeyValue.ToString() : "?",
+                    logSensitiveData ? partitionKeyValue?.ToString() : "?",
                     FormatParameters(cosmosSqlQuery.Parameters, logSensitiveData && cosmosSqlQuery.Parameters.Count > 0),
                     Environment.NewLine,
                     cosmosSqlQuery.Query));

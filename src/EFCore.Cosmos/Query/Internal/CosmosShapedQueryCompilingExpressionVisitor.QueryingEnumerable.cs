@@ -158,10 +158,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             EntityFrameworkMetricsData.ReportQueryExecuting();
 
                             _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQuery(
-                                    _cosmosContainer,
-                                    _cosmosPartitionKeyValue,
-                                    sqlQuery)
+                                .ExecuteSqlQuery(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery)
                                 .GetEnumerator();
                             _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                         }
@@ -256,10 +253,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             EntityFrameworkMetricsData.ReportQueryExecuting();
 
                             _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQueryAsync(
-                                    _cosmosContainer,
-                                    _cosmosPartitionKeyValue,
-                                    sqlQuery)
+                                .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery)
                                 .GetAsyncEnumerator(_cancellationToken);
                             _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                         }

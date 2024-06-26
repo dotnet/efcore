@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Azure;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -17,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosQueryableExtensions
 {
+    #region WithPartitionKey
+
     internal static readonly MethodInfo WithPartitionKeyMethodInfo
         = typeof(CosmosQueryableExtensions).GetTypeInfo()
             .GetDeclaredMethods(nameof(WithPartitionKey))
@@ -73,6 +76,10 @@ public static class CosmosQueryableExtensions
                         Expression.Constant(additionalPartitionKeyValues, typeof(object[]))))
                 : source;
     }
+
+    #endregion WithPartitionKey
+
+    #region FromSql
 
     /// <summary>
     ///     Creates a LINQ query based on an interpolated string representing a SQL query.
@@ -177,4 +184,95 @@ public static class CosmosQueryableExtensions
             sql,
             Expression.Constant(arguments));
     }
+
+    #endregion FromSql
+
+    #region ToPage
+
+    internal static readonly MethodInfo ToPageAsyncMethodInfo
+        = typeof(CosmosQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(ToPageAsync))
+            .Single();
+
+    internal static readonly MethodInfo ToPageMethodInfo
+        = typeof(CosmosQueryableExtensions).GetTypeInfo()
+            .GetDeclaredMethods(nameof(ToPage))
+            .Single();
+
+    /// <summary>
+    ///     Allows paginating through query results by repeatedly executing the same query, passing continuation tokens to retrieve
+    ///     successive pages of the result set, and specifying the maximum number of results per page.
+    /// </summary>
+    /// <param name="source">The source query.</param>
+    /// <param name="continuationToken">
+    ///     An optional continuation token returned from a previous execution of this query via <see cref="Page{T}.ContinuationToken" />.
+    ///     If <see langword="null" />, retrieves query results from the start.
+    /// </param>
+    /// <param name="maxItemCount">
+    ///     The maximum number of results in the returned <see cref="Page{T}" />. The page may contain fewer results of the database
+    ///     did not contain enough matching results.
+    /// </param>
+    /// <param name="responseContinuationTokenLimitInKb">Limits the length of continuation token in the query response.</param>
+    /// <returns>A <see cref="Page{T}" /> containing at most <paramref name="maxItemCount" /> results.</returns>
+    public static Page<TSource> ToPage<TSource>(
+        this IQueryable<TSource> source,
+        string? continuationToken = null,
+        int? maxItemCount = null,
+        int? responseContinuationTokenLimitInKb = null)
+        => source.Provider.Execute<Page<TSource>>(
+            Expression.Call(
+                instance: null,
+                method: ToPageMethodInfo.MakeGenericMethod(typeof(TSource)),
+                arguments:
+                [
+                    source.Expression,
+                    Expression.Constant(continuationToken, typeof(string)),
+                    Expression.Constant(maxItemCount, typeof(int?)),
+                    Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?))
+                ]));
+
+    /// <summary>
+    ///     Allows paginating through query results by repeatedly executing the same query, passing continuation tokens to retrieve
+    ///     successive pages of the result set, and specifying the maximum number of results per page.
+    /// </summary>
+    /// <param name="source">The source query.</param>
+    /// <param name="continuationToken">
+    ///     An optional continuation token returned from a previous execution of this query via <see cref="Page{T}.ContinuationToken" />.
+    ///     If <see langword="null" />, retrieves query results from the start.
+    /// </param>
+    /// <param name="maxItemCount">
+    ///     The maximum number of results in the returned <see cref="Page{T}" />. The page may contain fewer results of the database
+    ///     did not contain enough matching results.
+    /// </param>
+    /// <param name="responseContinuationTokenLimitInKb">Limits the length of continuation token in the query response.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Page{T}" /> containing at most <paramref name="maxItemCount" /> results.</returns>
+    public static Task<Page<TSource>> ToPageAsync<TSource>(
+        this IQueryable<TSource> source,
+        string? continuationToken = null,
+        int? maxItemCount = null,
+        int? responseContinuationTokenLimitInKb = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (source.Provider is not IAsyncQueryProvider provider)
+        {
+            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+        }
+
+        return provider.ExecuteAsync<Task<Page<TSource>>>(
+            Expression.Call(
+                instance: null,
+                method: ToPageAsyncMethodInfo.MakeGenericMethod(typeof(TSource)),
+                arguments:
+                [
+                    source.Expression,
+                    Expression.Constant(continuationToken, typeof(string)),
+                    Expression.Constant(maxItemCount, typeof(int?)),
+                    Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?)),
+                    Expression.Constant(default(CancellationToken), typeof(CancellationToken))
+                ]),
+            cancellationToken);
+    }
+
+    #endregion ToPage
 }
