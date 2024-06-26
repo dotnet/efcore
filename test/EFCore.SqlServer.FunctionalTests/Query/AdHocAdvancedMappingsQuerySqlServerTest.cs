@@ -277,6 +277,7 @@ FROM (
     SELECT TOP(1) [o].[Id]
     FROM [Offers] AS [o]
     WHERE [o].[Id] = 1
+    ORDER BY [o].[Id]
 ) AS [o0]
 INNER JOIN (
     SELECT [v].[Id], [v].[NestedId], [v].[OfferId], [v].[payment_brutto], [v].[payment_netto], [n].[Id] AS [Id0], [n].[payment_brutto] AS [payment_brutto0], [n].[payment_netto] AS [payment_netto0]
