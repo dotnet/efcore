@@ -28,8 +28,6 @@ variables:
     value: true
   - name: _PublishUsingPipelines
     value: true
-  - name: _DotNetArtifactsCategory
-    value: ENTITYFRAMEWORKCORE
   - name: _CosmosConnectionUrl
     value: https://localhost:8081
   - name: _CosmosToken
@@ -38,13 +36,6 @@ variables:
     value: true
   - ${{ if ne(variables['System.TeamProject'], 'public') }}:
     - group: DotNet-HelixApi-Access
-    - group: DotNet-MSRC-Storage
-    - name: _InternalRuntimeDownloadArgs
-      value: /p:DotNetRuntimeSourceFeed=https://dotnetclimsrc.blob.core.windows.net/dotnet
-             /p:DotNetRuntimeSourceFeedKey=$(dotnetclimsrc-read-sas-token-base64)
-  - ${{ if eq(variables['System.TeamProject'], 'public') }}:
-    - name: _InternalRuntimeDownloadArgs
-      value: ''
   - name: LC_ALL
     value: 'en_US.UTF-8'
   - name: LANG
@@ -100,11 +91,8 @@ stages:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-                - group: DotNet-Blob-Feed
                 - _SignType: real
-                - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
-                - _DotNetPublishToBlobFeed: true
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
               - ${{ if eq(variables.runCodeQL3000, 'true') }}:
                 - _AdditionalBuildArgs: /p:Test=false /p:Sign=false /p:Pack=false /p:Publish=false /p:UseSharedCompilation=false
                 # Security analysis is included in normal runs. Disable its auto-injection.
@@ -148,8 +136,7 @@ stages:
                 - script: "echo ##vso[build.addbuildtag]CodeQL3000"
                   displayName: 'Set CI CodeQL3000 tag'
                   condition: ne(variables.CODEQL_DIST,'')
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
-                  $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
@@ -184,7 +171,7 @@ stages:
                       arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                     env:
                       Token: $(dn-bot-dnceng-artifact-feeds-rw)
-                - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
                   env:
                     Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   name: Build
@@ -232,7 +219,7 @@ stages:
                       arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                     env:
                       Token: $(dn-bot-dnceng-artifact-feeds-rw)
-                - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+                - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
                   env:
                     Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                     Test__Cosmos__AuthToken: $(_CosmosToken)

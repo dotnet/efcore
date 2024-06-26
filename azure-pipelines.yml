@@ -18,9 +18,6 @@ variables:
     - name: PostBuildSign
       value: true
   - group: DotNet-HelixApi-Access
-  - group: DotNet-MSRC-Storage
-  - name: _InternalRuntimeDownloadArgs
-    value: /p:DotNetRuntimeSourceFeed=https://dotnetclimsrc.blob.core.windows.net/dotnet /p:DotNetRuntimeSourceFeedKey=$(dotnetclimsrc-read-sas-token-base64)
   - name: LC_ALL
     value: 'en_US.UTF-8'
   - name: LANG
@@ -86,11 +83,8 @@ extends:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
               - ${{ if notin(variables['Build.Reason'], 'PullRequest') }}:
-                - group: DotNet-Blob-Feed
                 - _SignType: real
-                - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
-                - _DotNetPublishToBlobFeed: true
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
               # Ignore test and infrastructure code.
               - Codeql.SourceRoot: src
               # CodeQL3000 needs this plumbed along as a variable to enable TSA.
@@ -119,7 +113,7 @@ extends:
                   arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
@@ -146,7 +140,7 @@ extends:
                   arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
@@ -174,7 +168,7 @@ extends:
                   arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
@@ -215,9 +209,9 @@ extends:
                   arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
-              - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+              - script: restore.cmd -ci /p:configuration=$(_BuildConfig)
                 displayName: Restore packages
-              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+              - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
                 displayName: Send job to helix
                 env:
                   HelixAccessToken: $(_HelixAccessToken)
