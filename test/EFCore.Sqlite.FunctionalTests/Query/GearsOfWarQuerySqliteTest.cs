@@ -6157,6 +6157,17 @@ WHERE "w"."IsAutomatic"
 """);
     }
 
+    public override async Task Select_inverted_nullable_boolean(bool async)
+    {
+        await base.Select_inverted_nullable_boolean(async);
+
+        AssertSql(
+            """
+SELECT "f"."Id", NOT ("f"."Eradicated") AS "Alive"
+FROM "Factions" AS "f"
+""");
+    }
+
     public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys(bool async)
     {
         await base.Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys(async);

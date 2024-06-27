@@ -3021,6 +3021,17 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Select_inverted_nullable_boolean(bool async)
+    {
+        await base.Select_inverted_nullable_boolean(async);
+
+        AssertSql(
+            """
+SELECT [f].[Id], [f].[Eradicated] ^ CAST(1 AS bit) AS [Alive]
+FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
+""");
+    }
+
     public override async Task Where_datetimeoffset_millisecond_component(bool async)
     {
         await base.Where_datetimeoffset_millisecond_component(async);

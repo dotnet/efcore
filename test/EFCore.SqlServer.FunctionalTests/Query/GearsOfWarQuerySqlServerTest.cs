@@ -779,6 +779,17 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Select_inverted_nullable_boolean(bool async)
+    {
+        await base.Select_inverted_nullable_boolean(async);
+
+        AssertSql(
+            """
+SELECT [f].[Id], [f].[Eradicated] ^ CAST(1 AS bit) AS [Alive]
+FROM [Factions] AS [f]
+""");
+    }
+
     public override async Task Select_comparison_with_null(bool async)
     {
         await base.Select_comparison_with_null(async);

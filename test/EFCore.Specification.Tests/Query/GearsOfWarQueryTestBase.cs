@@ -712,6 +712,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_inverted_nullable_boolean(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>().Select(w => new { w.Id, Alive = !w.Eradicated }),
+            elementSorter: e => e.Id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Select_comparison_with_null(bool async)
     {
         AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
