@@ -311,20 +311,39 @@ public class SqlFunctionExpression : SqlExpression
     /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual SqlFunctionExpression Update(SqlExpression? instance, IReadOnlyList<SqlExpression>? arguments)
-        => instance != Instance || (arguments != null && Arguments != null && !arguments.SequenceEqual(Arguments))
-            ? new SqlFunctionExpression(
+        => Update(instance, arguments, ArgumentsPropagateNullability);
+
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="instance">The <see cref="Instance" /> property of the result.</param>
+    /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
+    /// <param name="argumentsPropagateNullability">The <see cref="ArgumentsPropagateNullability" /> property of the result. If omitted,
+    /// the current ArgumentsPropagateNullability will be used.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public virtual SqlFunctionExpression Update(
+        SqlExpression? instance,
+        IReadOnlyList<SqlExpression>? arguments,
+        IReadOnlyList<bool>? argumentsPropagateNullability)
+        => instance == Instance
+            && ((arguments == Arguments) || (arguments != null && Arguments != null && arguments.SequenceEqual(Arguments)))
+            && ((argumentsPropagateNullability == ArgumentsPropagateNullability)
+                || (argumentsPropagateNullability != null
+                    && ArgumentsPropagateNullability != null
+                    && argumentsPropagateNullability.SequenceEqual(ArgumentsPropagateNullability)))
+            ? this
+            : new SqlFunctionExpression(
                 instance,
                 Schema,
                 Name,
-                IsNiladic,
                 arguments,
                 IsNullable,
                 InstancePropagatesNullability,
-                ArgumentsPropagateNullability,
+                argumentsPropagateNullability,
                 IsBuiltIn,
                 Type,
-                TypeMapping)
-            : this;
+                TypeMapping);
 
     /// <inheritdoc />
     public override Expression Quote()
