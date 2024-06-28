@@ -9,6 +9,8 @@ public abstract class RelationalTestStore(string name, bool shared, DbConnection
 {
     public virtual string ConnectionString { get; } = connection.ConnectionString;
 
+    public virtual bool UseConnectionString { get; set; }
+
     public ConnectionState ConnectionState
         => Connection.State;
 
