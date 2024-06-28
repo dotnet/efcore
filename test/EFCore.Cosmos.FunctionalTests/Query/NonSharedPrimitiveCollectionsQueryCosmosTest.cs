@@ -71,13 +71,10 @@ OFFSET 0 LIMIT 2
 """);
     }
 
-    public override async Task Array_of_byte()
-    {
-        // TODO
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte());
-
-        AssertSql();
-    }
+    // byte[] gets mapped to base64, which isn't queryable as a regular primitive collection.
+    [ConditionalFact]
+    public override Task Array_of_byte()
+        => AssertTranslationFailed(() => TestArray((byte)1, (byte)2));
 
     public override async Task Array_of_double()
     {
@@ -289,7 +286,7 @@ OFFSET 0 LIMIT 2
 
     public override async Task Array_of_byte_array()
     {
-        // TODO
+        // TODO: primitive collection over value-converted element, #34153
         await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte_array());
 
         AssertSql(
@@ -350,8 +347,8 @@ OFFSET 0 LIMIT 2
 
     public override async Task Constant_with_inferred_value_converter()
     {
-        // TODO
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Constant_with_inferred_value_converter());
+        // TODO: advanced type mapping inference for inline scalar collection, #34026
+        await AssertTranslationFailed(() => base.Constant_with_inferred_value_converter());
 
         AssertSql();
     }

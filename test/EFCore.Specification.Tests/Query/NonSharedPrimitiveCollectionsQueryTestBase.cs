@@ -299,7 +299,6 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 Constant(2)),
             entityParam);
 
-        // context.Set<TestEntity>().SingleAsync(m => EF.Property<int[]>(m, "SomeArray").Count(a => a == <value1>) == 2)
         var result = await context.Set<TestEntity>().SingleAsync(predicate);
         Assert.Equal(1, result.Id);
     }

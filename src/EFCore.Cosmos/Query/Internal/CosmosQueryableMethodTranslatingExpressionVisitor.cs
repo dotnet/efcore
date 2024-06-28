@@ -440,7 +440,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     selectExpression,
                     _sqlExpressionFactory.Equal(
                         (SqlExpression)discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityType.GetDiscriminatorValue())));
+                        _sqlExpressionFactory.Constant(concreteEntityType.GetDiscriminatorValue(), discriminatorColumn.Type)));
                 Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
             }
         }
@@ -455,7 +455,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 selectExpression,
                 _sqlExpressionFactory.In(
                     (SqlExpression)discriminatorColumn,
-                    concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray()));
+                    concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                        .ToArray()));
             Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
         }
 
@@ -743,7 +744,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     translation = new ObjectBinaryExpression(
                         ExpressionType.Coalesce,
                         translation,
-                        new SqlConstantExpression(Expression.Constant(null, typeof(object)), _typeMappingSource.FindMapping(typeof(int))),
+                        new SqlConstantExpression(null, typeof(object), _typeMappingSource.FindMapping(typeof(int))),
                         translation.Type);
                 }
 
@@ -1754,9 +1755,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
     {
-        if (parameterQueryRootExpression.ParameterExpression.Name?.StartsWith(
-                QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-            != true)
+        var parameter = parameterQueryRootExpression.ParameterExpression;
+        if (parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) != true)
         {
             return null;
         }
@@ -1766,7 +1766,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var elementClrType = parameterQueryRootExpression.ElementType;
         var arrayTypeMapping = _typeMappingSource.FindMapping(typeof(IEnumerable<>).MakeGenericType(elementClrType));
         var elementTypeMapping = _typeMappingSource.FindMapping(elementClrType)!;
-        var sqlParameterExpression = new SqlParameterExpression(parameterQueryRootExpression.ParameterExpression, arrayTypeMapping);
+        var sqlParameterExpression = new SqlParameterExpression(parameter.Name, parameter.Type, arrayTypeMapping);
 
         var sourceAlias = _aliasManager.GenerateSourceAlias(sqlParameterExpression.Name.TrimStart('_'));
         var select = SelectExpression.CreateForCollection(

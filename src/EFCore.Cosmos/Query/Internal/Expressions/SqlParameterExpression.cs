@@ -10,34 +10,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public sealed class SqlParameterExpression : SqlExpression
+public sealed class SqlParameterExpression(string name, Type type, CoreTypeMapping? typeMapping)
+    : SqlExpression(type, typeMapping)
 {
-    private readonly ParameterExpression _parameterExpression;
-    private readonly string _name;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlParameterExpression(ParameterExpression parameterExpression, CoreTypeMapping? typeMapping)
-        : base(parameterExpression.Type, typeMapping)
-    {
-        Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
-
-        _parameterExpression = parameterExpression;
-        _name = parameterExpression.Name;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public string Name
-        => _name;
+    public string Name { get; } = name;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +28,7 @@ public sealed class SqlParameterExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
-        => new SqlParameterExpression(_parameterExpression, typeMapping ?? TypeMapping);
+        => new SqlParameterExpression(Name, Type, typeMapping ?? TypeMapping);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +46,7 @@ public sealed class SqlParameterExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override void Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append("@" + _parameterExpression.Name);
+        => expressionPrinter.Append("@" + Name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
