@@ -9352,7 +9352,7 @@ WHERE CAST(DATEADD(hour, CAST(CAST(CAST(LEN([t].[Note]) AS int) AS float) AS int
 """
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE CAST([m].[Duration] AS time) < [m].[Time]
+WHERE [m].[Duration] < [m].[Time]
 """);
     }
 
@@ -9366,7 +9366,7 @@ WHERE CAST([m].[Duration] AS time) < [m].[Time]
 
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE CAST([m].[Duration] AS time) = @__time_0
+WHERE [m].[Duration] = @__time_0
 """);
     }
 
@@ -9378,7 +9378,7 @@ WHERE CAST([m].[Duration] AS time) = @__time_0
 """
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-ORDER BY CAST([m].[Duration] AS time)
+ORDER BY [m].[Duration]
 """);
     }
 
