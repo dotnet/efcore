@@ -20,10 +20,7 @@ public abstract class TestStore(string name, bool shared) : IDisposable
         Func<DbContext, Task>? clean = null)
     {
         ServiceProvider = serviceProvider;
-        if (createContext == null)
-        {
-            createContext = CreateDefaultContext;
-        }
+        createContext ??= CreateDefaultContext;
 
         if (Shared)
         {
@@ -56,8 +53,8 @@ public abstract class TestStore(string name, bool shared) : IDisposable
             serviceProvider,
             () => createContext(this),
             // ReSharper disable twice RedundantCast
-            seed == null ? (Func<DbContext, Task>?)null : c => seed((TContext)c),
-            clean == null ? (Func<DbContext, Task>?)null : c => clean((TContext)c));
+            seed == null ? null : c => seed((TContext)c),
+            clean == null ? null : c => clean((TContext)c));
 
     protected virtual async Task InitializeAsync(Func<DbContext> createContext, Func<DbContext, Task>? seed, Func<DbContext, Task>? clean)
     {
