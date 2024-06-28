@@ -3,7 +3,6 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-[SpatialiteRequired]
 public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 {
     public override Task Can_read_write_array_of_list_of_GUID_JSON_values(string expected)
