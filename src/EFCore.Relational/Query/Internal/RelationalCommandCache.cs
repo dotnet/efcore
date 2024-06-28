@@ -154,6 +154,6 @@ public class RelationalCommandCache : IPrintableExpression
         }
 
         public override int GetHashCode()
-            => 0;
+            => _queryExpression.GetHashCode();
     }
 }
