@@ -27,6 +27,97 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Rewrite_compare_int_with_int(bool async)
+    {
+        var bools = new bool[] { false, true };
+
+        foreach (var neq in bools)
+        {
+            foreach (var negated in bools)
+            {
+                foreach (var nullableB in bools)
+                {
+                    foreach (var nullableA in bools)
+                    {
+                        var queryBuilder = (ISetSource ss) =>
+                        {
+                            var data = nullableA
+                                ? ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = e.NullableIntA, e.IntB, e.NullableIntB })
+                                : ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = (int?)e.IntA, e.IntB, e.NullableIntB });
+
+                            var query = nullableB
+                                ? data.Select(e => new { e.Id, e.A, B = e.NullableIntB })
+                                : data.Select(e => new { e.Id, e.A, B = (int?)e.IntB });
+
+                            var result = neq
+                                ? query.Select(e => new { e.Id, X = e.A != e.B })
+                                : query.Select(e => new { e.Id, X = e.A == e.B });
+
+                            return negated
+                                ? result.Select(e => new { e.Id, X = !e.X })
+                                : result;
+                        };
+
+                        await AssertQuery(async, queryBuilder);
+                        await AssertQueryScalar(async, ss => queryBuilder(ss).Where(e => e.X).Select(e => e.Id));
+                    }
+                }
+            }
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Rewrite_compare_bool_with_bool(bool async)
+    {
+        var bools = new bool[] { false, true };
+
+        foreach (var neq in bools)
+        {
+            foreach (var negated in bools)
+            {
+                foreach (var negateB in bools)
+                {
+                    foreach (var nullableA in bools)
+                    {
+                        foreach (var negateA in bools)
+                        {
+                            foreach (var nullableB in bools)
+                            {
+                                var queryBuilder = (ISetSource ss) =>
+                                {
+                                    var data = nullableA
+                                        ? ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = e.NullableBoolA, e.BoolB, e.NullableBoolB })
+                                        : ss.Set<NullSemanticsEntity1>().Select(e => new { e.Id, A = (bool?)e.BoolA, e.BoolB, e.NullableBoolB });
+
+                                    var query = nullableB
+                                        ? data.Select(e => new { e.Id, e.A, B = e.NullableBoolB })
+                                        : data.Select(e => new { e.Id, e.A, B = (bool?)e.BoolB });
+
+                                    query = negateA ? query.Select(e => new { e.Id, A = !e.A, e.B }) : query;
+                                    query = negateB ? query.Select(e => new { e.Id, e.A, B = !e.B }) : query;
+
+                                    var result = neq
+                                        ? query.Select(e => new { e.Id, X = e.A != e.B })
+                                        : query.Select(e => new { e.Id, X = e.A == e.B });
+
+                                    return negated
+                                        ? result.Select(e => new { e.Id, X = !e.X })
+                                        : result;
+                                };
+
+                                await AssertQuery(async, queryBuilder);
+                                await AssertQueryScalar(async, ss => queryBuilder(ss).Where(e => e.X).Select(e => e.Id));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Compare_bool_with_bool_equal(bool async)
     {
         await AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => e.BoolA == e.BoolB).Select(e => e.Id));

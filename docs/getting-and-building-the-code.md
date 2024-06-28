@@ -97,7 +97,6 @@ Tests can be run on the command line (after build) by running `test`:
 ```console
 test
 ```
-> Warning: Some tests may fail when the development machine is not configured for United States English by default. (That is, the current culture is not "en-US".) These failures can usually be ignored; the tests will run on the C.I. machine when the PR is submitted. See [Issue #22901: Fix tests using current culture](https://github.com/dotnet/efcore/issues/22901) for more information.
 
 ### Solving common build errors
 
