@@ -176,7 +176,7 @@ stages:
             - job: macOS
               enablePublishTestResults: true
               pool:
-                vmImage: macOS-11
+                vmImage: macOS-12
               variables:
                 # Rely on task Arcade injects, not auto-injected build step.
                 - skipComponentGovernanceDetection: true
