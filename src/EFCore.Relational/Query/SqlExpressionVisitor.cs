@@ -34,6 +34,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             ExistsExpression existsExpression => VisitExists(existsExpression),
             FromSqlExpression fromSqlExpression => VisitFromSql(fromSqlExpression),
             InExpression inExpression => VisitIn(inExpression),
+            IsExpression isExpression => VisitIs(isExpression),
             IntersectExpression intersectExpression => VisitIntersect(intersectExpression),
             InnerJoinExpression innerJoinExpression => VisitInnerJoin(innerJoinExpression),
             LeftJoinExpression leftJoinExpression => VisitLeftJoin(leftJoinExpression),
@@ -143,6 +144,13 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="inExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitIn(InExpression inExpression);
+
+    /// <summary>
+    ///     Visits the children of the is expression.
+    /// </summary>
+    /// <param name="isExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitIs(IsExpression isExpression);
 
     /// <summary>
     ///     Visits the children of the intersect expression.

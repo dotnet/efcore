@@ -53,6 +53,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ColumnExpression e => e.ApplyTypeMapping(typeMapping),
             DistinctExpression e => ApplyTypeMappingOnDistinct(e, typeMapping),
             InExpression e => ApplyTypeMappingOnIn(e),
+            IsExpression e => ApplyTypeMappingOnIs(e),
 
             // We only do type inference for JSON scalar expression which represent a single array indexing operation; we can infer the
             // array's mapping from the element or vice versa, allowing e.g. parameter primitive collections to get inferred when an
@@ -355,6 +356,21 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             : inExpression.ApplyTypeMapping(_boolTypeMapping);
     }
 
+    private IsExpression ApplyTypeMappingOnIs(IsExpression inExpression)
+    {
+        var left = inExpression.Left;
+        var right = inExpression.Right;
+        var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
+            // We avoid object here since the result does not get typeMapping from outside.
+            ?? _typeMappingSource.FindMapping(
+                left.Type != typeof(object) ? left.Type : right.Type,
+                Dependencies.Model);
+        return new IsExpression(
+            ApplyTypeMapping(left, inferredTypeMapping),
+            ApplyTypeMapping(right, inferredTypeMapping),
+            _boolTypeMapping);
+    }
+
     private SqlExpression ApplyTypeMappingOnJsonScalar(
         JsonScalarExpression jsonScalarExpression,
         RelationalTypeMapping? typeMapping)
@@ -420,6 +436,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         return ApplyTypeMapping(
             new SqlBinaryExpression(operatorType, left, right, returnType, null), typeMapping);
     }
+
+    /// <inheritdoc />
+    public virtual SqlExpression Is(SqlExpression left, SqlExpression right)
+        => ApplyTypeMapping(new IsExpression(left, right, null), null);
 
     /// <inheritdoc />
     public virtual SqlExpression Equal(SqlExpression left, SqlExpression right)

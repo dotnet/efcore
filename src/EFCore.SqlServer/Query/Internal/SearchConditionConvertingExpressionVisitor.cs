@@ -255,6 +255,23 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         return ApplyConversion(inExpression.Update(item, subquery, newValues ?? values, valuesParameter), condition: true);
     }
 
+    /// <inheritdoc/>
+    protected override Expression VisitIs(IsExpression isExpression)
+    {
+        var parentIsSearchCondition = _isSearchCondition;
+
+        _isSearchCondition = false;
+
+        var newLeft = (SqlExpression)Visit(isExpression.Left);
+        var newRight = (SqlExpression)Visit(isExpression.Right);
+
+        _isSearchCondition = parentIsSearchCondition;
+
+        isExpression = isExpression.Update(newLeft, newRight);
+
+        return ApplyConversion(isExpression, condition: true);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
