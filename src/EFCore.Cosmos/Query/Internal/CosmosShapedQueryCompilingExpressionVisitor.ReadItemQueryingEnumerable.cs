@@ -177,38 +177,31 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_hasExecuted)
                     {
-                        if (!_hasExecuted)
-                        {
-                            if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                            }
-
-                            if (!_readItemEnumerable.TryGetPartitionKey(out var partitionKeyValue))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
-                            }
-
-                            EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                            _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
-                                _cosmosContainer,
-                                partitionKeyValue,
-                                resourceId);
-
-                            return ShapeResult();
-                        }
-
                         return false;
                     }
-                    finally
+
+                    if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                     {
-                        _concurrencyDetector?.ExitCriticalSection();
+                        throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                     }
+
+                    if (!_readItemEnumerable.TryGetPartitionKey(out var partitionKeyValue))
+                    {
+                        throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
+                    }
+
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
+                        _cosmosContainer,
+                        partitionKeyValue,
+                        resourceId);
+
+                    return ShapeResult();
                 }
                 catch (Exception exception)
                 {
@@ -229,40 +222,33 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_hasExecuted)
                     {
-                        if (!_hasExecuted)
-                        {
-                            if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                            }
-
-                            if (!_readItemEnumerable.TryGetPartitionKey(out var partitionKeyValue))
-                            {
-                                throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
-                            }
-
-                            EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                            _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
-                                    _cosmosContainer,
-                                    partitionKeyValue,
-                                    resourceId,
-                                    _cancellationToken)
-                                .ConfigureAwait(false);
-
-                            return ShapeResult();
-                        }
-
                         return false;
                     }
-                    finally
+
+                    if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                     {
-                        _concurrencyDetector?.ExitCriticalSection();
+                        throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                     }
+
+                    if (!_readItemEnumerable.TryGetPartitionKey(out var partitionKeyValue))
+                    {
+                        throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
+                    }
+
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
+                            _cosmosContainer,
+                            partitionKeyValue,
+                            resourceId,
+                            _cancellationToken)
+                        .ConfigureAwait(false);
+
+                    return ShapeResult();
                 }
                 catch (Exception exception)
                 {

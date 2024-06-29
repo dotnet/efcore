@@ -134,85 +134,78 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_hasExecuted)
                     {
-                        if (_hasExecuted)
-                        {
-                            return false;
-                        }
-
-                        _hasExecuted = true;
-
-                        var maxItemCount = (int)_cosmosQueryContext.ParameterValues[_queryingEnumerable._maxItemCountParameterName];
-                        var continuationToken =
-                            (string)_cosmosQueryContext.ParameterValues[_queryingEnumerable._continuationTokenParameterName];
-                        var responseContinuationTokenLimitInKb = (int?)
-                            _cosmosQueryContext.ParameterValues[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
-
-                        var sqlQuery = _queryingEnumerable.GenerateQuery();
-
-                        EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                        var queryRequestOptions = new QueryRequestOptions
-                        {
-                            ResponseContinuationTokenLimitInKb = responseContinuationTokenLimitInKb
-                        };
-
-                        if (_cosmosPartitionKeyValue != PartitionKey.None)
-                        {
-                            queryRequestOptions.PartitionKey = _cosmosPartitionKeyValue;
-                        }
-
-                        var cosmosClient = _cosmosQueryContext.CosmosClient;
-                        _commandLogger.ExecutingSqlQuery(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery);
-                        _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
-
-                        var results = new List<T>(maxItemCount);
-
-                        while (maxItemCount > 0)
-                        {
-                            queryRequestOptions.MaxItemCount = maxItemCount;
-                            using var feedIterator = cosmosClient.CreateQuery(
-                                _cosmosContainer, sqlQuery, continuationToken, queryRequestOptions);
-
-                            using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
-
-                            _commandLogger.ExecutedReadNext(
-                                responseMessage.Diagnostics.GetClientElapsedTime(),
-                                responseMessage.Headers.RequestCharge,
-                                responseMessage.Headers.ActivityId,
-                                _cosmosContainer,
-                                _cosmosPartitionKeyValue,
-                                sqlQuery);
-
-                            responseMessage.EnsureSuccessStatusCode();
-
-                            var responseMessageEnumerable = cosmosClient.GetResponseMessageEnumerable(responseMessage);
-                            foreach (var resultObject in responseMessageEnumerable)
-                            {
-                                results.Add(_shaper(_cosmosQueryContext, resultObject));
-                                maxItemCount--;
-                            }
-
-                            continuationToken = responseMessage.ContinuationToken;
-
-                            if (responseMessage.ContinuationToken is null)
-                            {
-                                break;
-                            }
-                        }
-
-                        Current = new CosmosPage<T>(results, continuationToken);
-
-                        _hasExecuted = true;
-                        return true;
+                        return false;
                     }
-                    finally
+
+                    _hasExecuted = true;
+
+                    var maxItemCount = (int)_cosmosQueryContext.ParameterValues[_queryingEnumerable._maxItemCountParameterName];
+                    var continuationToken =
+                        (string)_cosmosQueryContext.ParameterValues[_queryingEnumerable._continuationTokenParameterName];
+                    var responseContinuationTokenLimitInKb = (int?)
+                        _cosmosQueryContext.ParameterValues[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
+
+                    var sqlQuery = _queryingEnumerable.GenerateQuery();
+
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var queryRequestOptions = new QueryRequestOptions
                     {
-                        _concurrencyDetector?.ExitCriticalSection();
+                        ResponseContinuationTokenLimitInKb = responseContinuationTokenLimitInKb
+                    };
+
+                    if (_cosmosPartitionKeyValue != PartitionKey.None)
+                    {
+                        queryRequestOptions.PartitionKey = _cosmosPartitionKeyValue;
                     }
+
+                    var cosmosClient = _cosmosQueryContext.CosmosClient;
+                    _commandLogger.ExecutingSqlQuery(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery);
+                    _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
+
+                    var results = new List<T>(maxItemCount);
+
+                    while (maxItemCount > 0)
+                    {
+                        queryRequestOptions.MaxItemCount = maxItemCount;
+                        using var feedIterator = cosmosClient.CreateQuery(
+                            _cosmosContainer, sqlQuery, continuationToken, queryRequestOptions);
+
+                        using var responseMessage = await feedIterator.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
+
+                        _commandLogger.ExecutedReadNext(
+                            responseMessage.Diagnostics.GetClientElapsedTime(),
+                            responseMessage.Headers.RequestCharge,
+                            responseMessage.Headers.ActivityId,
+                            _cosmosContainer,
+                            _cosmosPartitionKeyValue,
+                            sqlQuery);
+
+                        responseMessage.EnsureSuccessStatusCode();
+
+                        var responseMessageEnumerable = cosmosClient.GetResponseMessageEnumerable(responseMessage);
+                        foreach (var resultObject in responseMessageEnumerable)
+                        {
+                            results.Add(_shaper(_cosmosQueryContext, resultObject));
+                            maxItemCount--;
+                        }
+
+                        continuationToken = responseMessage.ContinuationToken;
+
+                        if (responseMessage.ContinuationToken is null)
+                        {
+                            break;
+                        }
+                    }
+
+                    Current = new CosmosPage<T>(results, continuationToken);
+
+                    _hasExecuted = true;
+                    return true;
                 }
                 catch (Exception exception)
                 {

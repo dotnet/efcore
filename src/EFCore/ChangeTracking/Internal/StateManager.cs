@@ -1278,18 +1278,11 @@ public class StateManager : IStateManager
     /// </summary>
     protected virtual int SaveChanges(IList<IUpdateEntry> entriesToSave)
     {
-        _concurrencyDetector?.EnterCriticalSection();
+        using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-        try
-        {
-            EntityFrameworkMetricsData.ReportSavingChanges();
+        EntityFrameworkMetricsData.ReportSavingChanges();
 
-            return _database.SaveChanges(entriesToSave);
-        }
-        finally
-        {
-            _concurrencyDetector?.ExitCriticalSection();
-        }
+        return _database.SaveChanges(entriesToSave);
     }
 
     /// <summary>
@@ -1302,19 +1295,12 @@ public class StateManager : IStateManager
         IList<IUpdateEntry> entriesToSave,
         CancellationToken cancellationToken = default)
     {
-        _concurrencyDetector?.EnterCriticalSection();
+        using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-        try
-        {
-            EntityFrameworkMetricsData.ReportSavingChanges();
+        EntityFrameworkMetricsData.ReportSavingChanges();
 
-            return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            _concurrencyDetector?.ExitCriticalSection();
-        }
+        return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <summary>

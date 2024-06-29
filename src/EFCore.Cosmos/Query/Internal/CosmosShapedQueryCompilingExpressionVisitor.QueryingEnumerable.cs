@@ -147,35 +147,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_enumerator == null)
                     {
-                        if (_enumerator == null)
-                        {
-                            var sqlQuery = _queryingEnumerable.GenerateQuery();
+                        var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkMetricsData.ReportQueryExecuting();
+                        EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQuery(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery)
-                                .GetEnumerator();
-                            _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
-                        }
-
-                        var hasNext = _enumerator.MoveNext();
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
+                        _enumerator = _cosmosQueryContext.CosmosClient
+                            .ExecuteSqlQuery(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery)
+                            .GetEnumerator();
+                        _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
-                    }
+
+                    var hasNext = _enumerator.MoveNext();
+
+                    Current
+                        = hasNext
+                            ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                            : default;
+
+                    return hasNext;
                 }
                 catch (Exception exception)
                 {
@@ -242,35 +235,28 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
+                    if (_enumerator == null)
                     {
-                        if (_enumerator == null)
-                        {
-                            var sqlQuery = _queryingEnumerable.GenerateQuery();
+                        var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkMetricsData.ReportQueryExecuting();
+                        EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery)
-                                .GetAsyncEnumerator(_cancellationToken);
-                            _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
-                        }
-
-                        var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
+                        _enumerator = _cosmosQueryContext.CosmosClient
+                            .ExecuteSqlQueryAsync(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery)
+                            .GetAsyncEnumerator(_cancellationToken);
+                        _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
                     }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
-                    }
+
+                    var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+
+                    Current
+                        = hasNext
+                            ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                            : default;
+
+                    return hasNext;
                 }
                 catch (Exception exception)
                 {

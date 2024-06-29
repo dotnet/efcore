@@ -205,42 +205,35 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        _relationalQueryContext.ExecutionStrategy.Execute(
-                            this, static (_, enumerator) => InitializeReader(enumerator), null);
-                    }
+                    _relationalQueryContext.ExecutionStrategy.Execute(
+                        this, static (_, enumerator) => InitializeReader(enumerator), null);
+                }
 
-                    var hasNext = _dataReader!.Read();
+                var hasNext = _dataReader!.Read();
 
-                    if (hasNext)
+                if (hasNext)
+                {
+                    _resultCoordinator!.ResultContext.Values = null;
+                    Current = _shaper(
+                        _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                    if (_relatedDataLoaders != null)
                     {
-                        _resultCoordinator!.ResultContext.Values = null;
+                        _relatedDataLoaders.Invoke(
+                            _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
                         Current = _shaper(
                             _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                        if (_relatedDataLoaders != null)
-                        {
-                            _relatedDataLoaders.Invoke(
-                                _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
-                            Current = _shaper(
-                                _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                        }
                     }
-                    else
-                    {
-                        Current = default!;
-                    }
-
-                    return hasNext;
                 }
-                finally
+                else
                 {
-                    _concurrencyDetector?.ExitCriticalSection();
+                    Current = default!;
                 }
+
+                return hasNext;
             }
             catch (Exception exception)
             {
@@ -355,47 +348,40 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
+                    await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                            this,
+                            static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
+                            null,
+                            _cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                var hasNext = await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
+
+                if (hasNext)
+                {
+                    _resultCoordinator!.ResultContext.Values = null;
+                    Current = _shaper(
+                        _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                    if (_relatedDataLoaders != null)
                     {
-                        await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                                this,
-                                static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
-                                null,
-                                _cancellationToken)
+                        await _relatedDataLoaders(
+                                _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
                             .ConfigureAwait(false);
+                        Current =
+                            _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                     }
-
-                    var hasNext = await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
-
-                    if (hasNext)
-                    {
-                        _resultCoordinator!.ResultContext.Values = null;
-                        Current = _shaper(
-                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                        if (_relatedDataLoaders != null)
-                        {
-                            await _relatedDataLoaders(
-                                    _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
-                                .ConfigureAwait(false);
-                            Current =
-                                _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                        }
-                    }
-                    else
-                    {
-                        Current = default!;
-                    }
-
-                    return hasNext;
                 }
-                finally
+                else
                 {
-                    _concurrencyDetector?.ExitCriticalSection();
+                    Current = default!;
                 }
+
+                return hasNext;
             }
             catch (Exception exception)
             {

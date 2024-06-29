@@ -255,71 +255,64 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        _relationalQueryContext.ExecutionStrategy.Execute(
-                            this, static (_, enumerator) => InitializeReader(enumerator), null);
-                    }
+                    _relationalQueryContext.ExecutionStrategy.Execute(
+                        this, static (_, enumerator) => InitializeReader(enumerator), null);
+                }
 
-                    var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
+                var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
 
-                    if (hasNext)
+                if (hasNext)
+                {
+                    var key = _keySelector(_relationalQueryContext, _dbDataReader!);
+                    var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
+                    var group = new InternalGrouping(key);
+                    do
                     {
-                        var key = _keySelector(_relationalQueryContext, _dbDataReader!);
-                        var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
-                        var group = new InternalGrouping(key);
-                        do
+                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator!.ResultContext.Values = null;
+                        var element = _elementSelector(
+                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                        if (_relatedDataLoaders != null)
                         {
-                            _resultCoordinator.HasNext = null;
-                            _resultCoordinator!.ResultContext.Values = null;
-                            var element = _elementSelector(
+                            _relatedDataLoaders.Invoke(
+                                _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
+                            element = _elementSelector(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            if (_relatedDataLoaders != null)
-                            {
-                                _relatedDataLoaders.Invoke(
-                                    _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
-                                element = _elementSelector(
-                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            }
+                        }
 
-                            group.Add(element);
+                        group.Add(element);
 
-                            if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
+                        if (_resultCoordinator!.HasNext ?? _dbDataReader!.Read())
+                        {
+                            // Check if grouping key changed
+                            if (!CompareIdentifiers(
+                                    _keyIdentifierValueComparers, keyIdentifier,
+                                    _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                // Check if grouping key changed
-                                if (!CompareIdentifiers(
-                                        _keyIdentifierValueComparers, keyIdentifier,
-                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
-                                {
-                                    _resultCoordinator.HasNext = true;
-                                    Current = group;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                // End of enumeration
+                                _resultCoordinator.HasNext = true;
                                 Current = group;
                                 break;
                             }
                         }
-                        while (true);
+                        else
+                        {
+                            // End of enumeration
+                            Current = group;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        Current = default!;
-                    }
-
-                    return hasNext;
+                    while (true);
                 }
-                finally
+                else
                 {
-                    _concurrencyDetector?.ExitCriticalSection();
+                    Current = default!;
                 }
+
+                return hasNext;
             }
             catch (Exception exception)
             {
@@ -428,76 +421,69 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         {
             try
             {
-                _concurrencyDetector?.EnterCriticalSection();
+                using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                                this,
-                                static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
-                                null,
-                                _cancellationToken)
-                            .ConfigureAwait(false);
-                    }
+                    await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                            this,
+                            static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
+                            null,
+                            _cancellationToken)
+                        .ConfigureAwait(false);
+                }
 
-                    var hasNext = _resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
+                var hasNext = _resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
 
-                    if (hasNext)
+                if (hasNext)
+                {
+                    var key = _keySelector(_relationalQueryContext, _dbDataReader!);
+                    var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
+                    var group = new InternalGrouping(key);
+                    do
                     {
-                        var key = _keySelector(_relationalQueryContext, _dbDataReader!);
-                        var keyIdentifier = _keyIdentifier(_relationalQueryContext, _dbDataReader!);
-                        var group = new InternalGrouping(key);
-                        do
+                        _resultCoordinator.HasNext = null;
+                        _resultCoordinator!.ResultContext.Values = null;
+                        var element = _elementSelector(
+                            _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
+                        if (_relatedDataLoaders != null)
                         {
-                            _resultCoordinator.HasNext = null;
-                            _resultCoordinator!.ResultContext.Values = null;
-                            var element = _elementSelector(
+                            await _relatedDataLoaders(
+                                    _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
+                                .ConfigureAwait(false);
+                            element = _elementSelector(
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            if (_relatedDataLoaders != null)
-                            {
-                                await _relatedDataLoaders(
-                                        _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
-                                    .ConfigureAwait(false);
-                                element = _elementSelector(
-                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
-                            }
+                        }
 
-                            group.Add(element);
+                        group.Add(element);
 
-                            if (_resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
+                        if (_resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))
+                        {
+                            // Check if grouping key changed
+                            if (!CompareIdentifiers(
+                                    _keyIdentifierValueComparers, keyIdentifier,
+                                    _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                             {
-                                // Check if grouping key changed
-                                if (!CompareIdentifiers(
-                                        _keyIdentifierValueComparers, keyIdentifier,
-                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
-                                {
-                                    _resultCoordinator.HasNext = true;
-                                    Current = group;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                // End of enumeration
+                                _resultCoordinator.HasNext = true;
                                 Current = group;
                                 break;
                             }
                         }
-                        while (true);
+                        else
+                        {
+                            // End of enumeration
+                            Current = group;
+                            break;
+                        }
                     }
-                    else
-                    {
-                        Current = default!;
-                    }
-
-                    return hasNext;
+                    while (true);
                 }
-                finally
+                else
                 {
-                    _concurrencyDetector?.ExitCriticalSection();
+                    Current = default!;
                 }
+
+                return hasNext;
             }
             catch (Exception exception)
             {
