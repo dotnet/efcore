@@ -739,9 +739,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             private JObject? _current;
             private ResponseMessage? _responseMessage;
-            private Stream? _responseStream;
-            private StreamReader? _reader;
-            private JsonTextReader? _jsonReader;
+            private IEnumerator<JObject>? _responseMessageEnumerator;
 
             private FeedIterator? _query;
 
@@ -754,7 +752,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                if (_jsonReader == null)
+                if (_responseMessageEnumerator == null)
                 {
                     if (_query is null)
                     {
@@ -786,14 +784,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                     _responseMessage.EnsureSuccessStatusCode();
 
-                    _responseStream = _responseMessage.Content;
-                    _reader = new StreamReader(_responseStream);
-                    _jsonReader = CreateJsonReader(_reader);
+                    _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetEnumerator();
                 }
 
-                if (TryReadJObject(_jsonReader, out var jObject))
+                if (_responseMessageEnumerator.MoveNext())
                 {
-                    _current = jObject;
+                    _current = _responseMessageEnumerator.Current;
                     return true;
                 }
 
@@ -804,20 +800,15 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             private void ResetRead()
             {
-                _jsonReader?.Close();
-                _jsonReader = null;
-                _reader?.Dispose();
-                _reader = null;
-                _responseStream?.Dispose();
-                _responseStream = null;
+                _responseMessageEnumerator?.Dispose();
+                _responseMessageEnumerator = null;
+                _responseMessage?.Dispose();
             }
 
             public void Dispose()
             {
                 ResetRead();
-
-                _responseMessage?.Dispose();
-                _responseMessage = null;
+                _query?.Dispose();
             }
 
             public void Reset()
@@ -850,9 +841,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             private JObject? _current;
             private ResponseMessage? _responseMessage;
-            private Stream? _responseStream;
-            private StreamReader? _reader;
-            private JsonTextReader? _jsonReader;
+            private IAsyncEnumerator<JObject>? _responseMessageEnumerator;
 
             private FeedIterator? _query;
 
@@ -864,7 +853,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (_jsonReader == null)
+                if (_responseMessageEnumerator == null)
                 {
                     if (_query is null)
                     {
@@ -896,14 +885,12 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
                     _responseMessage.EnsureSuccessStatusCode();
 
-                    _responseStream = _responseMessage.Content;
-                    _reader = new StreamReader(_responseStream);
-                    _jsonReader = CreateJsonReader(_reader);
+                    _responseMessageEnumerator = new ResponseMessageEnumerable(_responseMessage).GetAsyncEnumerator(cancellationToken);
                 }
 
-                if (TryReadJObject(_jsonReader, out var jObject))
+                if (await _responseMessageEnumerator.MoveNextAsync().ConfigureAwait(false))
                 {
-                    _current = jObject;
+                    _current = _responseMessageEnumerator.Current;
                     return true;
                 }
 
@@ -914,20 +901,19 @@ public class CosmosClientWrapper : ICosmosClientWrapper
 
             private async Task ResetReadAsync()
             {
-                _jsonReader?.Close();
-                _jsonReader = null;
-                await _reader.DisposeAsyncIfAvailable().ConfigureAwait(false);
-                _reader = null;
-                await _responseStream.DisposeAsyncIfAvailable().ConfigureAwait(false);
-                _responseStream = null;
+                if (_responseMessageEnumerator is not null)
+                {
+                    await _responseMessageEnumerator.DisposeAsync().ConfigureAwait(false);
+                    _responseMessageEnumerator = null;
+                }
+
+                _responseMessage?.Dispose();
             }
 
             public async ValueTask DisposeAsync()
             {
                 await ResetReadAsync().ConfigureAwait(false);
-
-                await _responseMessage.DisposeAsyncIfAvailable().ConfigureAwait(false);
-                _responseMessage = null;
+                _query?.Dispose();
             }
         }
     }
