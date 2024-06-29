@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 /// </summary>
 public class PagingExpression(
     Expression expression,
-    SqlParameterExpression continuationToken,
     SqlParameterExpression maxItemCount,
+    SqlParameterExpression continuationToken,
     SqlParameterExpression responseContinuationTokenLimitInKb,
     Type type)
     : Expression, IPrintableExpression
@@ -48,7 +48,7 @@ public class PagingExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlParameterExpression ContinuationToken { get; } = continuationToken;
+    public virtual SqlParameterExpression MaxItemCount { get; } = maxItemCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,7 +56,7 @@ public class PagingExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlParameterExpression MaxItemCount { get; } = maxItemCount;
+    public virtual SqlParameterExpression ContinuationToken { get; } = continuationToken;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

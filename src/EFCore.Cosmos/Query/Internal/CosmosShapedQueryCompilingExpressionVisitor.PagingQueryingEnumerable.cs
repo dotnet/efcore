@@ -33,8 +33,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
         private readonly bool _standAloneStateManager;
         private readonly bool _threadSafetyChecksEnabled;
-        private readonly string _continuationTokenParameterName;
         private readonly string _maxItemCountParameterName;
+        private readonly string _continuationTokenParameterName;
         private readonly string _responseContinuationTokenLimitInKbParameterName;
 
         public PagingQueryingEnumerable(
@@ -48,8 +48,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             PartitionKey partitionKeyValueFromExtension,
             bool standAloneStateManager,
             bool threadSafetyChecksEnabled,
-            string continuationTokenParameterName,
             string maxItemCountParameterName,
+            string continuationTokenParameterName,
             string responseContinuationTokenLimitInKbParameterName)
         {
             _cosmosQueryContext = cosmosQueryContext;
@@ -62,8 +62,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _commandLogger = cosmosQueryContext.CommandLogger;
             _standAloneStateManager = standAloneStateManager;
             _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
-            _continuationTokenParameterName = continuationTokenParameterName;
             _maxItemCountParameterName = maxItemCountParameterName;
+            _continuationTokenParameterName = continuationTokenParameterName;
             _responseContinuationTokenLimitInKbParameterName = responseContinuationTokenLimitInKbParameterName;
 
             var partitionKey = selectExpression.GetPartitionKeyValue(cosmosQueryContext.ParameterValues);
@@ -159,9 +159,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         _hasExecuted = true;
 
+                        var maxItemCount = (int)_cosmosQueryContext.ParameterValues[_queryingEnumerable._maxItemCountParameterName];
                         var continuationToken =
                             (string)_cosmosQueryContext.ParameterValues[_queryingEnumerable._continuationTokenParameterName];
-                        var maxItemCount = (int?)_cosmosQueryContext.ParameterValues[_queryingEnumerable._maxItemCountParameterName];
                         var responseContinuationTokenLimitInKb = (int?)
                             _cosmosQueryContext.ParameterValues[_queryingEnumerable._responseContinuationTokenLimitInKbParameterName];
 
@@ -183,9 +183,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         _commandLogger.ExecutingSqlQuery(_cosmosContainer, _cosmosPartitionKeyValue, sqlQuery);
                         _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 
-                        var results = maxItemCount.HasValue ? new List<T>(maxItemCount.Value) : [];
+                        var results = new List<T>(maxItemCount);
 
-                        while (maxItemCount is null or > 0)
+                        while (maxItemCount > 0)
                         {
                             queryRequestOptions.MaxItemCount = maxItemCount;
                             using var feedIterator = cosmosClient.CreateQuery(

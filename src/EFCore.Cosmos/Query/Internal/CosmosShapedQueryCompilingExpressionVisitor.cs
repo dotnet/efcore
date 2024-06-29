@@ -45,7 +45,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
 
-        var (paging, continuationToken, maxItemCount, responseContinuationTokenLimitInKb) =
+        var (paging, maxItemCount, continuationToken, responseContinuationTokenLimitInKb) =
             (false, (SqlParameterExpression)null, (SqlParameterExpression)null, (SqlParameterExpression)null);
 
         // If the query is terminated ToPageAsync(), CosmosQueryableMethodTranslatingExpressionVisitor composed a PagingExpression on top
@@ -54,8 +54,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         if (shaperBody is PagingExpression pagingExpression)
         {
             paging = true;
-            continuationToken = pagingExpression.ContinuationToken;
             maxItemCount = pagingExpression.MaxItemCount;
+            continuationToken = pagingExpression.ContinuationToken;
             responseContinuationTokenLimitInKb = pagingExpression.ResponseContinuationTokenLimitInKb;
 
             shaperBody = pagingExpression.Expression;
@@ -113,8 +113,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
-                Constant(continuationToken.Name),
                 Constant(maxItemCount.Name),
+                Constant(continuationToken.Name),
                 Constant(responseContinuationTokenLimitInKb.Name)),
 
             _ => New(

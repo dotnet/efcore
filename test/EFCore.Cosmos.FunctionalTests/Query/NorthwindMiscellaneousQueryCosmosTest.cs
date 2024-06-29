@@ -5340,7 +5340,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
 
         var page2 = await context.Set<Customer>()
             .OrderBy(c => c.CustomerID)
-            .ToPageAsync(continuationToken: page1.ContinuationToken, maxItemCount: 2);
+            .ToPageAsync(maxItemCount: 2, page1.ContinuationToken);
 
         Assert.Collection(
             page2.Values,
@@ -5349,7 +5349,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
 
         var page3 = await context.Set<Customer>()
             .OrderBy(c => c.CustomerID)
-            .ToPageAsync(continuationToken: page2.ContinuationToken);
+            .ToPageAsync(maxItemCount: totalCustomers, page2.ContinuationToken);
 
         Assert.Equal(totalCustomers - 3, page3.Values.Count);
         Assert.Null(page3.ContinuationToken);
@@ -5373,6 +5373,36 @@ SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
+""",
+            //
+            """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+ORDER BY c["CustomerID"]
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task ToPageAsync_with_exact_maxItemCount()
+    {
+        await using var context = CreateContext();
+
+        var totalCustomers = await context.Set<Customer>().CountAsync();
+
+        var onlyPage = await context.Set<Customer>()
+            .OrderBy(c => c.CustomerID)
+            .ToPageAsync(maxItemCount: totalCustomers);
+
+        Assert.Equal("ALFKI", onlyPage.Values[0].CustomerID);
+        Assert.Equal("WOLZA", onlyPage.Values[^1].CustomerID);
+        Assert.Null(onlyPage.ContinuationToken);
+
+        AssertSql(
+            """
+SELECT COUNT(1) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
 """,
             //
             """

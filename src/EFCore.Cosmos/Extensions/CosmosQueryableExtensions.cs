@@ -211,8 +211,8 @@ public static class CosmosQueryableExtensions
     /// <returns>A <see cref="CosmosPage{T}" /> containing at most <paramref name="maxItemCount" /> results.</returns>
     public static CosmosPage<TSource> ToPage<TSource>(
         this IQueryable<TSource> source,
+        int maxItemCount,
         string? continuationToken = null,
-        int? maxItemCount = null,
         int? responseContinuationTokenLimitInKb = null)
         => source.Provider.Execute<CosmosPage<TSource>>(
             Expression.Call(
@@ -221,8 +221,8 @@ public static class CosmosQueryableExtensions
                 arguments:
                 [
                     source.Expression,
+                    Expression.Constant(maxItemCount, typeof(int)),
                     Expression.Constant(continuationToken, typeof(string)),
-                    Expression.Constant(maxItemCount, typeof(int?)),
                     Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?))
                 ]));
 
@@ -244,8 +244,8 @@ public static class CosmosQueryableExtensions
     /// <returns>A <see cref="CosmosPage{T}" /> containing at most <paramref name="maxItemCount" /> results.</returns>
     public static Task<CosmosPage<TSource>> ToPageAsync<TSource>(
         this IQueryable<TSource> source,
+        int maxItemCount,
         string? continuationToken = null,
-        int? maxItemCount = null,
         int? responseContinuationTokenLimitInKb = null,
         CancellationToken cancellationToken = default)
     {
@@ -261,8 +261,8 @@ public static class CosmosQueryableExtensions
                 arguments:
                 [
                     source.Expression,
+                    Expression.Constant(maxItemCount, typeof(int)),
                     Expression.Constant(continuationToken, typeof(string)),
-                    Expression.Constant(maxItemCount, typeof(int?)),
                     Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?)),
                     Expression.Constant(default(CancellationToken), typeof(CancellationToken))
                 ]),

@@ -117,13 +117,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             if (arguments is not
                 [
                     _, // source
-                    ParameterExpression continuationToken,
                     ParameterExpression maxItemCount,
+                    ParameterExpression continuationToken,
                     ParameterExpression responseContinuationTokenLimitInKb,
                     ..
                 ]
-                || _sqlTranslator.Translate(continuationToken) is not SqlParameterExpression translatedContinuationToken
                 || _sqlTranslator.Translate(maxItemCount) is not SqlParameterExpression translatedMaxItemCount
+                || _sqlTranslator.Translate(continuationToken) is not SqlParameterExpression translatedContinuationToken
                 || _sqlTranslator.Translate(responseContinuationTokenLimitInKb) is not SqlParameterExpression
                     translatedResponseContinuationTokenLimitInKb)
             {
@@ -135,8 +135,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return shapedQuery
                 .UpdateShaperExpression(new PagingExpression(
                     shapedQuery.ShaperExpression,
-                    translatedContinuationToken,
                     translatedMaxItemCount,
+                    translatedContinuationToken,
                     translatedResponseContinuationTokenLimitInKb,
                     typeof(CosmosPage<>).MakeGenericType(shapedQuery.ShaperExpression.Type)))
                 .UpdateResultCardinality(ResultCardinality.Single);
