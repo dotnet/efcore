@@ -137,7 +137,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     shapedQuery.ShaperExpression,
                     translatedContinuationToken,
                     translatedMaxItemCount,
-                    translatedResponseContinuationTokenLimitInKb))
+                    translatedResponseContinuationTokenLimitInKb,
+                    typeof(CosmosPage<>).MakeGenericType(shapedQuery.ShaperExpression.Type)))
                 .UpdateResultCardinality(ResultCardinality.Single);
         }
 

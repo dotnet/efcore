@@ -13,7 +13,8 @@ public class PagingExpression(
     Expression expression,
     SqlParameterExpression continuationToken,
     SqlParameterExpression maxItemCount,
-    SqlParameterExpression responseContinuationTokenLimitInKb)
+    SqlParameterExpression responseContinuationTokenLimitInKb,
+    Type type)
     : Expression, IPrintableExpression
 {
     /// <summary>
@@ -31,8 +32,7 @@ public class PagingExpression(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Type Type
-        => Expression.Type;
+    public override Type Type { get; } = type;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -84,7 +84,9 @@ public class PagingExpression(
     public virtual PagingExpression Update(Expression expression)
         => expression == Expression
             ? this
-            : new PagingExpression(expression, ContinuationToken, MaxItemCount, ResponseContinuationTokenLimitInKb);
+            : expression.Type == Expression.Type
+                ? new PagingExpression(expression, ContinuationToken, MaxItemCount, ResponseContinuationTokenLimitInKb, Type)
+                : throw new UnreachableException("Can't change the Type of a PagingExpression");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

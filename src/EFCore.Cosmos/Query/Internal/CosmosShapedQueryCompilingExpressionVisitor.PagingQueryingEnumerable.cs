@@ -4,14 +4,9 @@
 #nullable disable
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Azure;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -24,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    private sealed class PagingQueryingEnumerable<T> : IEnumerable<Page<T>>, IAsyncEnumerable<Page<T>>
+    private sealed class PagingQueryingEnumerable<T> : IEnumerable<CosmosPage<T>>, IAsyncEnumerable<CosmosPage<T>>
     {
         private readonly CosmosQueryContext _cosmosQueryContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -83,13 +78,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             _cosmosContainer = cosmosContainer;
         }
 
-        public IEnumerator<Page<T>> GetEnumerator()
+        public IEnumerator<CosmosPage<T>> GetEnumerator()
             => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        public IAsyncEnumerator<Page<T>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public IAsyncEnumerator<CosmosPage<T>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new Enumerator(this, cancellationToken);
 
         private CosmosSqlQuery GenerateQuery()
@@ -100,7 +95,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     .Visit(_selectExpression),
                 _cosmosQueryContext.ParameterValues);
 
-        private sealed class Enumerator : IEnumerator<Page<T>>, IAsyncEnumerator<Page<T>>
+        private sealed class Enumerator : IEnumerator<CosmosPage<T>>, IAsyncEnumerator<CosmosPage<T>>
         {
             private readonly PagingQueryingEnumerable<T> _queryingEnumerable;
             private readonly CosmosQueryContext _cosmosQueryContext;
@@ -137,7 +132,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     : null;
             }
 
-            public Page<T> Current { get; private set; }
+            public CosmosPage<T> Current { get; private set; }
 
             object IEnumerator.Current => Current;
 
@@ -223,7 +218,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             }
                         }
 
-                        Current = Page<T>.FromValues(results, continuationToken, null!); // TODO: Response...
+                        Current = new CosmosPage<T>(results, continuationToken);
 
                         _hasExecuted = true;
                         return true;
