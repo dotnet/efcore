@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
 {
+    private static readonly bool _useIsDistinctFrom = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 8, 11);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -103,6 +106,32 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
                 result,
                 sqlExpressionFactory.Constant(0, resultFunctionExpression.TypeMapping),
                 resultFunctionExpression.TypeMapping);
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    protected override SqlExpression ApplyEqualityNullSemantics(
+        SqlBinaryExpression sqlBinaryExpression,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
+        var result = base.ApplyEqualityNullSemantics(sqlBinaryExpression, leftNullable, rightNullable, optimize, out nullable);
+
+        if (_useIsDistinctFrom
+            && sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+            && result is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse })
+        {
+            var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+            nullable = false;
+            result = sqlExpressionFactory.IsDistinctFrom(sqlBinaryExpression.Left, sqlBinaryExpression.Right);
+            if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+            {
+                result = sqlExpressionFactory.Not(result);
+            }
         }
 
         return result;
