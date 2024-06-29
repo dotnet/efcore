@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
 {
+    private static readonly bool _useIs = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 8, 11);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -103,6 +106,39 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
                 result,
                 sqlExpressionFactory.Constant(0, resultFunctionExpression.TypeMapping),
                 resultFunctionExpression.TypeMapping);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override SqlExpression RewriteNullSemantics(
+        SqlBinaryExpression sqlBinaryExpression,
+        SqlExpression left,
+        SqlExpression right,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
+        var result = base.RewriteNullSemantics(sqlBinaryExpression, left, right, leftNullable, rightNullable, optimize, out nullable);
+
+        if (_useIs
+            && sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+            && result is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse })
+        {
+            var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+            nullable = false;
+            result = sqlExpressionFactory.Is(left, right);
+            if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+            {
+                result = sqlExpressionFactory.Not(result);
+            }
         }
 
         return result;
