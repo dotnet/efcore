@@ -255,6 +255,23 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         return ApplyConversion(inExpression.Update(item, subquery, newValues ?? values, valuesParameter), condition: true);
     }
 
+    /// <inheritdoc/>
+    protected override Expression VisitIsDistinctFrom(IsDistinctFromExpression isDistinctFromExpression)
+    {
+        var parentIsSearchCondition = _isSearchCondition;
+
+        _isSearchCondition = false;
+
+        var newLeft = (SqlExpression)Visit(isDistinctFromExpression.Left);
+        var newRight = (SqlExpression)Visit(isDistinctFromExpression.Right);
+
+        _isSearchCondition = parentIsSearchCondition;
+
+        isDistinctFromExpression = isDistinctFromExpression.Update(newLeft, newRight);
+
+        return ApplyConversion(isDistinctFromExpression, condition: true);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -401,7 +418,8 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 when sqlUnaryExpression.Type == typeof(bool):
             {
                 // when possible, avoid converting to/from predicate form
-                if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
+                if (!_isSearchCondition && sqlUnaryExpression.Operand
+                    is not (ExistsExpression or InExpression or IsDistinctFromExpression or LikeExpression))
                 {
                     var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
                     return _sqlExpressionFactory.MakeBinary(

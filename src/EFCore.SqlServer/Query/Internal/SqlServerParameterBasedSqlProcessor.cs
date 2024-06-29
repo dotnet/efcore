@@ -1,5 +1,7 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -11,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerParameterBasedSqlProcessor(
     RelationalParameterBasedSqlProcessorDependencies dependencies,
+    ISqlServerSingletonOptions sqlServerSingletonOptions,
     bool useRelationalNulls
 ) : RelationalParameterBasedSqlProcessor(dependencies, useRelationalNulls)
 {
@@ -45,7 +48,7 @@ public class SqlServerParameterBasedSqlProcessor(
         Check.NotNull(selectExpression, nameof(selectExpression));
         Check.NotNull(parametersValues, nameof(parametersValues));
 
-        return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(
+        return new SqlServerSqlNullabilityProcessor(Dependencies, sqlServerSingletonOptions, UseRelationalNulls).Process(
             selectExpression, parametersValues, out canCache);
     }
 }

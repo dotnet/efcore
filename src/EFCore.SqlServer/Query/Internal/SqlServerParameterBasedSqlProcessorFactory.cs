@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -9,7 +11,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerParameterBasedSqlProcessorFactory(RelationalParameterBasedSqlProcessorDependencies dependencies) : IRelationalParameterBasedSqlProcessorFactory
+public class SqlServerParameterBasedSqlProcessorFactory(
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    ISqlServerSingletonOptions sqlServerSingletonOptions
+) : IRelationalParameterBasedSqlProcessorFactory
 {
 
     /// <summary>
@@ -24,5 +29,5 @@ public class SqlServerParameterBasedSqlProcessorFactory(RelationalParameterBased
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
-        => new SqlServerParameterBasedSqlProcessor(Dependencies, useRelationalNulls);
+        => new SqlServerParameterBasedSqlProcessor(Dependencies, sqlServerSingletonOptions, useRelationalNulls);
 }
