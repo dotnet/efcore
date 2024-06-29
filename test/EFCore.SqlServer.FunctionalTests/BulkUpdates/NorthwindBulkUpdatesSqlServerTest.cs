@@ -214,7 +214,7 @@ WHERE [o].[OrderID] < (
     SELECT TOP(1) (
         SELECT TOP(1) [o1].[OrderID]
         FROM [Orders] AS [o1]
-        WHERE [o0].[CustomerID] = [o1].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o1].[CustomerID] IS NULL))
+        WHERE [o0].[CustomerID] IS NOT DISTINCT FROM [o1].[CustomerID])
     FROM [Orders] AS [o0]
     GROUP BY [o0].[CustomerID]
     HAVING COUNT(*) > 11)
@@ -234,7 +234,7 @@ WHERE [o0].[OrderID] IN (
     SELECT (
         SELECT TOP(1) [o2].[OrderID]
         FROM [Orders] AS [o2]
-        WHERE [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+        WHERE [o1].[CustomerID] IS NOT DISTINCT FROM [o2].[CustomerID])
     FROM [Orders] AS [o1]
     GROUP BY [o1].[CustomerID]
     HAVING COUNT(*) > 9
@@ -921,7 +921,7 @@ WHERE [c].[CustomerID] = (
     SELECT TOP(1) (
         SELECT TOP(1) [o0].[CustomerID]
         FROM [Orders] AS [o0]
-        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+        WHERE [o].[CustomerID] IS NOT DISTINCT FROM [o0].[CustomerID])
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 11)
@@ -949,7 +949,7 @@ WHERE [c].[CustomerID] IN (
         SELECT TOP(1) [c0].[CustomerID]
         FROM [Orders] AS [o0]
         LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+        WHERE [o].[CustomerID] IS NOT DISTINCT FROM [o0].[CustomerID])
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 11

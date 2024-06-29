@@ -368,7 +368,7 @@ FROM [Employees] AS [e]
 LEFT JOIN (
     SELECT [d].[Id], [d].[Device], [d].[EmployeeId]
     FROM [Devices] AS [d]
-    WHERE [d].[Device] <> N'foo' OR [d].[Device] IS NULL
+    WHERE [d].[Device] IS DISTINCT FROM N'foo'
 ) AS [d0] ON [e].[Id] = [d0].[EmployeeId]
 ORDER BY [e].[Id]
 """);

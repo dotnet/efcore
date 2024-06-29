@@ -2463,7 +2463,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
+    WHERE [o].[CustomerID] IS DISTINCT FROM [c].[CustomerID]
     ORDER BY [c].[CustomerID]
 ) AS [o0]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -2476,7 +2476,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
+    WHERE [o].[CustomerID] IS DISTINCT FROM [c].[CustomerID]
     ORDER BY [c].[CustomerID]
 ) AS [o0]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]

@@ -616,7 +616,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE [o].[CustomerID] IS DISTINCT FROM N'ALFKI') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -1247,7 +1247,7 @@ WHERE [o].[CustomerID] = N'ALFKI'
             """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] > 10 AND ([o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL)
+WHERE [o].[OrderID] > 10 AND [o].[CustomerID] IS DISTINCT FROM N'ALFKI'
 """);
     }
 
@@ -2552,7 +2552,7 @@ END = CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE ([o1].[CustomerID] <> N'VINET' OR [o1].[CustomerID] IS NULL) AND [o1].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
+        WHERE [o1].[CustomerID] IS DISTINCT FROM N'VINET' AND [o1].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);

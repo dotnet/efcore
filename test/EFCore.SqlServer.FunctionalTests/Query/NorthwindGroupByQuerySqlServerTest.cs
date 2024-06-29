@@ -1519,7 +1519,7 @@ GROUP BY [s].[Key]
 SELECT [o0].[Key] AS [Month], COALESCE(SUM([o0].[OrderID]), 0) AS [Total], (
     SELECT COALESCE(SUM([o1].[OrderID]), 0)
     FROM [Orders] AS [o1]
-    WHERE DATEPART(month, [o1].[OrderDate]) = [o0].[Key] OR ([o1].[OrderDate] IS NULL AND [o0].[Key] IS NULL)) AS [Payment]
+    WHERE DATEPART(month, [o1].[OrderDate]) IS NOT DISTINCT FROM [o0].[Key]) AS [Payment]
 FROM (
     SELECT [o].[OrderID], DATEPART(month, [o].[OrderDate]) AS [Key]
     FROM [Orders] AS [o]
@@ -1591,7 +1591,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
     GROUP BY [o0].[CustomerID]
-    HAVING COUNT(*) > 30 AND ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))
+    HAVING COUNT(*) > 30 AND [o0].[CustomerID] IS NOT DISTINCT FROM [o].[CustomerID])
 """);
     }
 
@@ -2050,7 +2050,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING [o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        HAVING [o].[CustomerID] IS DISTINCT FROM N'ALFKI') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2282,7 +2282,7 @@ SELECT (
     SELECT MAX([c].[Region])
     FROM [Orders] AS [o0]
     LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [max]
+    WHERE [o].[EmployeeID] IS NOT DISTINCT FROM [o0].[EmployeeID]) AS [max]
 FROM [Orders] AS [o]
 GROUP BY [o].[EmployeeID]
 """);
@@ -2297,7 +2297,7 @@ GROUP BY [o].[EmployeeID]
 SELECT [o].[EmployeeID] AS [Key], (
     SELECT MAX([o0].[OrderID])
     FROM [Orders] AS [o0]
-    WHERE CAST([o0].[EmployeeID] AS bigint) = CAST(MAX([o].[OrderID]) * 6 AS bigint) OR ([o0].[EmployeeID] IS NULL AND MAX([o].[OrderID]) IS NULL)) AS [Max]
+    WHERE CAST([o0].[EmployeeID] AS bigint) IS NOT DISTINCT FROM CAST(MAX([o].[OrderID]) * 6 AS bigint)) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[EmployeeID]
 """);
@@ -2312,7 +2312,7 @@ GROUP BY [o].[EmployeeID]
 SELECT (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    WHERE [e0].[Title] = N'Sales Representative' AND [e0].[EmployeeID] = 1 AND ([e].[Title] = [e0].[Title] OR ([e].[Title] IS NULL AND [e0].[Title] IS NULL)))
+    WHERE [e0].[Title] = N'Sales Representative' AND [e0].[EmployeeID] = 1 AND [e].[Title] IS NOT DISTINCT FROM [e0].[Title])
 FROM [Employees] AS [e]
 WHERE [e].[Title] = N'Sales Representative' AND [e].[EmployeeID] = 1
 GROUP BY [e].[Title]
@@ -3024,7 +3024,7 @@ FROM (
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [o1]
-INNER JOIN [Orders] AS [o0] ON ([o1].[Key] = [o0].[CustomerID] OR ([o1].[Key] IS NULL AND [o0].[CustomerID] IS NULL)) AND ([o1].[LastOrderDate] = [o0].[OrderDate] OR ([o1].[LastOrderDate] IS NULL AND [o0].[OrderDate] IS NULL))
+INNER JOIN [Orders] AS [o0] ON [o1].[Key] IS NOT DISTINCT FROM [o0].[CustomerID] AND [o1].[LastOrderDate] IS NOT DISTINCT FROM [o0].[OrderDate]
 """);
     }
 
@@ -3575,7 +3575,7 @@ OUTER APPLY (
             WHERE [c].[CustomerID] = [o0].[CustomerID]
         ) AS [s0]
         LEFT JOIN [Customers] AS [c2] ON [s0].[CustomerID] = [c2].[CustomerID]
-        WHERE ([s].[Key] = [s0].[Key] OR ([s].[Key] IS NULL AND [s0].[Key] IS NULL)) AND COALESCE([c2].[City], N'') + COALESCE([s0].[CustomerID], N'') LIKE N'Lon%') AS [Count], [s].[Key]
+        WHERE [s].[Key] IS NOT DISTINCT FROM [s0].[Key] AND COALESCE([c2].[City], N'') + COALESCE([s0].[CustomerID], N'') LIKE N'Lon%') AS [Count], [s].[Key]
     FROM (
         SELECT [o].[OrderID], COALESCE([c0].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
         FROM [Orders] AS [o]
