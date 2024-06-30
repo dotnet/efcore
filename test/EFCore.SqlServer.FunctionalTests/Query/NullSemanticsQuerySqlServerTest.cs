@@ -4501,6 +4501,79 @@ END = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Is_not_null_optimizes_unary_op(bool async)
+    {
+        await base.Is_not_null_optimizes_unary_op(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableIntA] IS NOT NULL THEN ~[e].[NullableIntA]
+    ELSE NULL
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableIntA] IS NOT NULL AND [e].[NullableIntB] IS NOT NULL THEN [e].[NullableIntA] + [e].[NullableIntB]
+    ELSE NULL
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op_with_partial_checks(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op_with_partial_checks(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL THEN [e].[NullableStringA] + [e].[NullableStringB] + COALESCE([e].[NullableStringC], N'')
+    ELSE NULL
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op_with_nested_checks(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op_with_nested_checks(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableStringA] IS NOT NULL THEN CASE
+        WHEN [e].[NullableStringB] IS NOT NULL THEN [e].[NullableStringA] + [e].[NullableStringB]
+        ELSE NULL
+    END
+    ELSE NULL
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
+    public override async Task Is_not_null_optimizes_binary_op_with_mixed_checks(bool async)
+    {
+        await base.Is_not_null_optimizes_binary_op_with_mixed_checks(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [e].[NullableStringA] IS NOT NULL AND [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableStringA] + COALESCE([e].[NullableStringB], N'')
+    ELSE NULL
+END
+FROM [Entities1] AS [e]
+""");
+    }
+
     public override async Task Sum_function_is_always_considered_non_nullable(bool async)
     {
         await base.Sum_function_is_always_considered_non_nullable(async);
