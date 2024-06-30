@@ -346,6 +346,32 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentIsSearchCondition;
 
+        if (!parentIsSearchCondition
+            && newLeft.Type == typeof(bool) && newRight.Type == typeof(bool)
+            && sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
+        {
+            // on BIT, "lhs != rhs" is the same as "lhs ^ rhs", except that the
+            // first is a boolean, the second is a BIT
+            var result = _sqlExpressionFactory.MakeBinary(
+                ExpressionType.ExclusiveOr,
+                newLeft,
+                newRight,
+                sqlBinaryExpression.TypeMapping)!;
+
+            // "lhs == rhs" is the same as "NOT(lhs == rhs)" aka "lhs ^ rhs ^ 1"
+            if (sqlBinaryExpression.OperatorType is ExpressionType.Equal)
+            {
+                result = _sqlExpressionFactory.MakeBinary(
+                    ExpressionType.ExclusiveOr,
+                    result,
+                    _sqlExpressionFactory.Constant(true, result.TypeMapping),
+                    result.TypeMapping
+                )!;
+            }
+
+            return result;
+        }
+
         sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
         var condition = sqlBinaryExpression.OperatorType is ExpressionType.AndAlso
             or ExpressionType.OrElse
