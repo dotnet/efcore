@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 [DebuggerDisplay("{PrintShortSql(), nq}")]
-public class SelectExpression : Expression, IPrintableExpression
+public sealed class SelectExpression : Expression, IPrintableExpression
 {
     private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
     private readonly List<SourceExpression> _sources = [];
@@ -29,7 +29,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ReadItemInfo? ReadItemInfo { get; init; }
+    public ReadItemInfo? ReadItemInfo { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,7 +108,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<ProjectionExpression> Projection
+    public IReadOnlyList<ProjectionExpression> Projection
         => _projection;
 
     /// <summary>
@@ -121,7 +121,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public virtual bool UsesSingleValueProjection { get; init; }
+    public bool UsesSingleValueProjection { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -129,7 +129,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<SourceExpression> Sources
+    public IReadOnlyList<SourceExpression> Sources
         => _sources;
 
     /// <summary>
@@ -138,7 +138,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<OrderingExpression> Orderings
+    public IReadOnlyList<OrderingExpression> Orderings
         => _orderings;
 
     /// <summary>
@@ -147,7 +147,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Predicate { get; private set; }
+    public SqlExpression? Predicate { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,7 +155,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Limit { get; private set; }
+    public SqlExpression? Limit { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -163,7 +163,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Offset { get; private set; }
+    public SqlExpression? Offset { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -171,7 +171,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsDistinct { get; private set; }
+    public bool IsDistinct { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,7 +179,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression GetMappedProjection(ProjectionMember projectionMember)
+    public Expression GetMappedProjection(ProjectionMember projectionMember)
         => _projectionMapping[projectionMember];
 
     /// <summary>
@@ -188,7 +188,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ClearProjection()
+    public void ClearProjection()
         => _projectionMapping.Clear();
 
     /// <summary>
@@ -197,7 +197,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AddPartitionKey(IProperty partitionKeyProperty, Expression expression)
+    public void AddPartitionKey(IProperty partitionKeyProperty, Expression expression)
         => _partitionKeyValues.Add((expression, partitionKeyProperty));
 
     /// <summary>
@@ -206,7 +206,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual PartitionKey GetPartitionKeyValue(IReadOnlyDictionary<string, object> parameterValues)
+    public PartitionKey GetPartitionKeyValue(IReadOnlyDictionary<string, object> parameterValues)
     {
         if (!_partitionKeyValues.Any())
         {
@@ -236,7 +236,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ApplyProjection()
+    public void ApplyProjection()
     {
         if (Projection.Any())
         {
@@ -261,7 +261,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
+    public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
     {
         _projectionMapping.Clear();
         foreach (var (projectionMember, expression) in projectionMapping)
@@ -276,7 +276,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int AddToProjection(Expression sqlExpression)
+    public int AddToProjection(Expression sqlExpression)
         => AddToProjection(sqlExpression, null);
 
     private int AddToProjection(Expression expression, string? alias)
@@ -309,7 +309,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ApplyDistinct()
+    public void ApplyDistinct()
         => IsDistinct = true;
 
     /// <summary>
@@ -318,7 +318,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ClearOrdering()
+    public void ClearOrdering()
         => _orderings.Clear();
 
     /// <summary>
@@ -327,7 +327,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ApplyPredicate(SqlExpression expression)
+    public void ApplyPredicate(SqlExpression expression)
     {
         if (expression is SqlConstantExpression { Value: true })
         {
@@ -350,18 +350,8 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ApplyLimit(SqlExpression sqlExpression)
-    {
-        if (Limit != null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailedWithDetails(
-                    sqlExpression.Print(),
-                    CosmosStrings.NoSubqueryPushdown));
-        }
-
-        Limit = sqlExpression;
-    }
+    public void ApplyLimit(SqlExpression sqlExpression)
+        => Limit = sqlExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -369,19 +359,8 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ApplyOffset(SqlExpression sqlExpression)
-    {
-        if (Limit != null
-            || Offset != null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailedWithDetails(
-                    sqlExpression.Print(),
-                    CosmosStrings.NoSubqueryPushdown));
-        }
-
-        Offset = sqlExpression;
-    }
+    public void ApplyOffset(SqlExpression sqlExpression)
+        => Offset = sqlExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -389,18 +368,8 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ApplyOrdering(OrderingExpression orderingExpression)
+    public void ApplyOrdering(OrderingExpression orderingExpression)
     {
-        if (IsDistinct
-            || Limit != null
-            || Offset != null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.TranslationFailedWithDetails(
-                    orderingExpression.Print(),
-                    CosmosStrings.NoSubqueryPushdown));
-        }
-
         _orderings.Clear();
         _orderings.Add(orderingExpression);
     }
@@ -411,7 +380,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AppendOrdering(OrderingExpression orderingExpression)
+    public void AppendOrdering(OrderingExpression orderingExpression)
     {
         if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
         {
@@ -425,7 +394,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ReverseOrderings()
+    public void ReverseOrderings()
     {
         if (Limit != null
             || Offset != null)
@@ -452,7 +421,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Expression AddJoin(ShapedQueryExpression inner, Expression outerShaper, CosmosAliasManager aliasManager)
+    public Expression AddJoin(ShapedQueryExpression inner, Expression outerShaper, CosmosAliasManager aliasManager)
     {
         var (innerSelect, innerShaper) = ((SelectExpression)inner.QueryExpression, inner.ShaperExpression);
 
@@ -641,7 +610,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SelectExpression Update(
+    public SelectExpression Update(
         List<ProjectionExpression> projections,
         List<SourceExpression> sources,
         SqlExpression? predicate,
@@ -673,7 +642,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SelectExpression WithSingleValueProjection()
+    public SelectExpression WithSingleValueProjection()
     {
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
         foreach (var (projectionMember, expression) in _projectionMapping)
@@ -811,7 +780,7 @@ public class SelectExpression : Expression, IPrintableExpression
     ///     </para>
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual string DebugView
+    public string DebugView
         => this.Print();
 
     #endregion Print

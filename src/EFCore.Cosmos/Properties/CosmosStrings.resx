@@ -169,7 +169,7 @@
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
   </data>
   <data name="LimitOffsetNotSupportedInSubqueries" xml:space="preserve">
-    <value>Skip, Take, First/FirstOrDefault and Single/SingleOrDefault aren't supported in subqueries since Cosmos doesn't support LIMIT/OFFSET in subqueries.</value>
+    <value>The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.</value>
   </data>
   <data name="LogExecutedCreateItem" xml:space="preserve">
     <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
@@ -302,6 +302,9 @@
   </data>
   <data name="ThroughputTypeMismatch" xml:space="preserve">
     <value>The provisioned throughput was configured as manual on '{manualEntityType}', but on '{autoscaleEntityType}' it was configured as autoscale. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput type.</value>
+  </data>
+  <data name="ToPageAsyncAtTopLevelOnly" xml:space="preserve">
+    <value>'ToPageAsync' can only be used as the terminating operator of the top-level query.</value>
   </data>
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>The Cosmos database provider does not support transactions.</value>

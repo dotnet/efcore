@@ -103,6 +103,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             && method.DeclaringType == typeof(CosmosQueryableExtensions)
             && method.Name is nameof(CosmosQueryableExtensions.ToPageAsync))
         {
+            if (_subquery)
+            {
+                AddTranslationErrorDetails(CosmosStrings.ToPageAsyncAtTopLevelOnly);
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
             var source = base.Translate(arguments[0]);
 
             if (source == QueryCompilationContext.NotTranslatedExpression)
@@ -430,10 +436,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .BindProperty(discriminatorProperty, clientEval: false);
 
-                selectExpression.ApplyPredicate(
+                var success = TryApplyPredicate(
+                    selectExpression,
                     _sqlExpressionFactory.Equal(
                         (SqlExpression)discriminatorColumn,
                         _sqlExpressionFactory.Constant(concreteEntityType.GetDiscriminatorValue())));
+                Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
             }
         }
         else
@@ -443,10 +451,12 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                 .BindProperty(discriminatorProperty, clientEval: false);
 
-            selectExpression.ApplyPredicate(
+            var success = TryApplyPredicate(
+                selectExpression,
                 _sqlExpressionFactory.In(
                     (SqlExpression)discriminatorColumn,
                     concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray()));
+            Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
         }
 
         return CreateShapedQueryExpression(entityType, selectExpression);
@@ -653,9 +663,18 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
+    protected override ShapedQueryExpression? TranslateDistinct(ShapedQueryExpression source)
     {
-        ((SelectExpression)source.QueryExpression).ApplyDistinct();
+        var select = (SelectExpression)source.QueryExpression;
+
+        // TODO: #34123
+        // if ((select.IsDistinct || select.Limit is not null || select.Offset is not null)
+        //     && !TryPushdownIntoSubquery(select))
+        // {
+        //     return null;
+        // }
+
+        select.ApplyDistinct();
 
         return source;
     }
@@ -755,9 +774,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
 
-        select.ApplyOffset(translatedIndex);
-        select.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        if (!TryApplyOffset(select, translatedIndex)
+            || !TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!))
+        {
+            return null;
+        }
 
+        // TODO: ElementAt on top level
         return null;
     }
 
@@ -803,13 +826,17 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return TranslateElementAtOrDefault(source, Expression.Constant(0), returnDefault);
         }
 
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression is { Predicate: null, Orderings: [] })
+        var select = (SelectExpression)source.QueryExpression;
+
+        if (!TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!))
+        {
+            return null;
+        }
+
+        if (select is { Predicate: null, Orderings: [] })
         {
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
-
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -891,9 +918,13 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             source = translatedSource;
         }
 
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ReverseOrderings();
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+        var select = (SelectExpression)source.QueryExpression;
+        select.ReverseOrderings();
+
+        if (!TryApplyLimit(select, TranslateExpression(Expression.Constant(1))!))
+        {
+            return null;
+        }
 
         return source.ShaperExpression.Type != returnType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
@@ -1005,18 +1036,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return source;
         }
 
+        var select = (SelectExpression)source.QueryExpression;
+
         var parameterExpression = Expression.Parameter(entityShaperExpression.Type);
         var predicate = Expression.Lambda(Expression.TypeIs(parameterExpression, resultType), parameterExpression);
-        if (TranslateLambdaExpression(source, predicate) is not SqlExpression translation)
-        {
-            // EntityType is not part of hierarchy
-            return null;
-        }
 
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        if (translation is not SqlConstantExpression { Value: true })
+        if (!TryApplyPredicate(source, predicate))
         {
-            selectExpression.ApplyPredicate(translation);
+            return null;
         }
 
         var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
@@ -1031,8 +1058,8 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         var projectionMember = projectionBindingExpression.ProjectionMember;
         Check.DebugAssert(new ProjectionMember().Equals(projectionMember), "Invalid ProjectionMember when processing OfType");
 
-        var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetMappedProjection(projectionMember);
-        selectExpression.ReplaceProjectionMapping(
+        var entityProjectionExpression = (EntityProjectionExpression)select.GetMappedProjection(projectionMember);
+        select.ReplaceProjectionMapping(
             new Dictionary<ProjectionMember, Expression>
             {
                 { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
@@ -1052,6 +1079,14 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         LambdaExpression keySelector,
         bool ascending)
     {
+        var select = (SelectExpression)source.QueryExpression;
+
+        if ((select.IsDistinct || select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return null;
+        }
+
         if (TranslateLambdaExpression(source, keySelector) is SqlExpression translation)
         {
             ((SelectExpression)source.QueryExpression).ApplyOrdering(new OrderingExpression(translation, ascending));
@@ -1195,8 +1230,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return TranslateElementAtOrDefault(source, Expression.Constant(0), returnDefault);
         }
 
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2))!);
+        var select = (SelectExpression)source.QueryExpression;
+        if (!TryApplyLimit(select, TranslateExpression(Expression.Constant(2))!))
+        {
+            return null;
+        }
 
         return source.ShaperExpression.Type == returnType
             ? source
@@ -1274,6 +1312,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
+        if (!TryApplyOffset(select, translatedCount))
+        {
+            return null;
+        }
+
         // Ordering of documents is not guaranteed in Cosmos, so we warn for Skip without OrderBy.
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Skip without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
@@ -1282,8 +1325,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
-
-        select.ApplyOffset(translatedCount);
 
         return source;
     }
@@ -1403,6 +1444,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
+        if (!TryApplyLimit(select, translatedCount))
+        {
+            return null;
+        }
+
         // Ordering of documents is not guaranteed in Cosmos, so we warn for Take without OrderBy.
         // However, when querying on JSON arrays within documents, the order of elements is guaranteed, and Take without OrderBy is
         // fine. Since subqueries must be correlated (i.e. reference an array in the outer query), we use that to decide whether to
@@ -1411,8 +1457,6 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         {
             _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
         }
-
-        select.ApplyLimit(translatedCount);
 
         return source;
     }
@@ -1461,7 +1505,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression? TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
     {
-        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType } entityShaperExpression
+        var select = (SelectExpression)source.QueryExpression;
+
+        if (source.ShaperExpression is StructuralTypeShaperExpression { StructuralType: IEntityType entityType }
             && entityType.GetPartitionKeyPropertyNames().FirstOrDefault() != null)
         {
             List<(Expression Expression, IProperty Property)?> partitionKeyValues = new();
@@ -1489,14 +1535,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             }
         }
 
-        if (TranslateLambdaExpression(source, predicate) is SqlExpression translation)
-        {
-            ((SelectExpression)source.QueryExpression).ApplyPredicate(translation);
-
-            return source;
-        }
-
-        return null;
+        return TryApplyPredicate(source, predicate) ? source : null;
 
         bool TryExtractPartitionKey(
             Expression expression,
@@ -1738,6 +1777,77 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     }
 
     #endregion Queryable collection support
+
+    private bool TryApplyPredicate(ShapedQueryExpression source, LambdaExpression predicate)
+    {
+        var select = (SelectExpression)source.QueryExpression;
+
+        // TODO: #34123
+        // if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select))
+        // {
+        //     select.PushdownIntoSubquery();
+        // }
+
+        if (TranslateLambdaExpression(source, predicate) is SqlExpression translation)
+        {
+            if (translation is not SqlConstantExpression { Value: true })
+            {
+                select.ApplyPredicate(translation);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryApplyPredicate(SelectExpression select, SqlExpression predicate)
+    {
+        // TODO: #34123
+        // if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select, predicate))
+        // {
+        //     return false;
+        // }
+
+        select.ApplyPredicate(predicate);
+        return true;
+    }
+
+    private bool TryApplyOffset(SelectExpression select, SqlExpression offset)
+    {
+        if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select))
+        {
+            return false;
+        }
+
+        select.ApplyOffset(offset);
+        return true;
+    }
+
+    private bool TryApplyLimit(SelectExpression select, SqlExpression limit)
+    {
+        if (select.Limit is not null && !TryPushdownIntoSubquery(select))
+        {
+            return false;
+        }
+
+        select.ApplyLimit(limit);
+        return true;
+    }
+
+    private bool TryPushdownIntoSubquery(SelectExpression select)
+    {
+        if (select.Offset is not null || select.Limit is not null)
+        {
+            AddTranslationErrorDetails(CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+            return false;
+        }
+
+        // TODO: Implement subquery pushdown (#33968); though since Cosmos doesn't support OFFSET/LIMIT in subqueries, this isn't
+        // going to unlock many scenarios.
+        AddTranslationErrorDetails(CosmosStrings.NoSubqueryPushdown);
+        return false;
+    }
 
     private ShapedQueryExpression? TranslateCountLongCount(ShapedQueryExpression source, LambdaExpression? predicate, Type returnType)
     {
