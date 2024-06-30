@@ -69,8 +69,4 @@ public class ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixt
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Single_select_many_in_projection_with_take(async))).Message);
-
-    [ConditionalTheory(Skip = "issue #32559")]
-    public override Task Max_in_multi_level_nested_subquery(bool async)
-        => base.Max_in_multi_level_nested_subquery(async);
 }
