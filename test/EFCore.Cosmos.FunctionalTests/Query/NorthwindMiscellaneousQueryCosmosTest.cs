@@ -5333,14 +5333,14 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
 
         var page1 = await context.Set<Customer>()
             .OrderBy(c => c.CustomerID)
-            .ToPageAsync(maxItemCount: 1);
+            .ToPageAsync(pageSize: 1, continuationToken: null);
 
         var customer1 = Assert.Single(page1.Values);
         Assert.Equal("ALFKI", customer1.CustomerID);
 
         var page2 = await context.Set<Customer>()
             .OrderBy(c => c.CustomerID)
-            .ToPageAsync(maxItemCount: 2, page1.ContinuationToken);
+            .ToPageAsync(pageSize: 2, page1.ContinuationToken);
 
         Assert.Collection(
             page2.Values,
@@ -5349,7 +5349,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
 
         var page3 = await context.Set<Customer>()
             .OrderBy(c => c.CustomerID)
-            .ToPageAsync(maxItemCount: totalCustomers, page2.ContinuationToken);
+            .ToPageAsync(pageSize: totalCustomers, page2.ContinuationToken);
 
         Assert.Equal(totalCustomers - 3, page3.Values.Count);
         Assert.Null(page3.ContinuationToken);
@@ -5392,7 +5392,7 @@ ORDER BY c["CustomerID"]
 
         var onlyPage = await context.Set<Customer>()
             .OrderBy(c => c.CustomerID)
-            .ToPageAsync(maxItemCount: totalCustomers);
+            .ToPageAsync(pageSize: totalCustomers, continuationToken: null);
 
         Assert.Equal("ALFKI", onlyPage.Values[0].CustomerID);
         Assert.Equal("WOLZA", onlyPage.Values[^1].CustomerID);

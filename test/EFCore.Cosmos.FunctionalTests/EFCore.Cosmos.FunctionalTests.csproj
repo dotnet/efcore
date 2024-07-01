@@ -8,6 +8,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <!-- Avoid referencing EFCore.Relational -->
     <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    <NoWarn>$(NoWarn);EF9102</NoWarn> <!-- Paging is experimental -->
   </PropertyGroup>
 
   <ItemGroup>

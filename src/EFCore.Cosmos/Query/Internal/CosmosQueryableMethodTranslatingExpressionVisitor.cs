@@ -98,7 +98,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         // Handle ToPageAsync(), which can only ever be the top-level node in the query tree.
         if (expression is MethodCallExpression { Method: var method, Arguments: var arguments }
             && method.DeclaringType == typeof(CosmosQueryableExtensions)
-            && method.Name is nameof(CosmosQueryableExtensions.ToPage) or nameof(CosmosQueryableExtensions.ToPageAsync))
+            && method.Name is nameof(CosmosQueryableExtensions.ToPageAsync))
         {
             var source = base.Translate(arguments[0]);
 
@@ -120,7 +120,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     ParameterExpression maxItemCount,
                     ParameterExpression continuationToken,
                     ParameterExpression responseContinuationTokenLimitInKb,
-                    ..
+                    _ // cancellation token
                 ]
                 || _sqlTranslator.Translate(maxItemCount) is not SqlParameterExpression translatedMaxItemCount
                 || _sqlTranslator.Translate(continuationToken) is not SqlParameterExpression translatedContinuationToken

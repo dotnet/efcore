@@ -2,6 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
+using System.Diagnostics.CodeAnalysis;
+
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -14,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     results.
 /// </param>
 /// <typeparam name="T">The type of values contained in the page.</typeparam>
+[Experimental(EFDiagnostics.PagingExperimental)]
 public readonly struct CosmosPage<T>(IReadOnlyList<T> values, string? continuationToken)
 {
     /// <summary>
