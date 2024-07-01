@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -84,6 +85,64 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         _projectionBindingExpressionVisitor =
             new CosmosProjectionBindingExpressionVisitor(_queryCompilationContext.Model, this, _sqlTranslator, _typeMappingSource);
         _subquery = true;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Expression Translate(Expression expression)
+    {
+        // Handle ToPageAsync(), which can only ever be the top-level node in the query tree.
+        if (expression is MethodCallExpression { Method: var method, Arguments: var arguments }
+            && method.DeclaringType == typeof(CosmosQueryableExtensions)
+            && method.Name is nameof(CosmosQueryableExtensions.ToPageAsync))
+        {
+            var source = base.Translate(arguments[0]);
+
+            if (source == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return source;
+            }
+
+            if (source is not ShapedQueryExpression shapedQuery)
+            {
+                throw new UnreachableException($"Expected a ShapedQueryExpression but found {source.GetType().Name}");
+            }
+
+            // The arguments to ToPage/ToPageAsync must have been parameterized by the funcletizer, since they're non-lambda arguments to
+            // a top-level function (like Skip/Take). Translate to get these as SqlParameterExpressions.
+            if (arguments is not
+                [
+                    _, // source
+                    ParameterExpression maxItemCount,
+                    ParameterExpression continuationToken,
+                    ParameterExpression responseContinuationTokenLimitInKb,
+                    _ // cancellation token
+                ]
+                || _sqlTranslator.Translate(maxItemCount) is not SqlParameterExpression translatedMaxItemCount
+                || _sqlTranslator.Translate(continuationToken) is not SqlParameterExpression translatedContinuationToken
+                || _sqlTranslator.Translate(responseContinuationTokenLimitInKb) is not SqlParameterExpression
+                    translatedResponseContinuationTokenLimitInKb)
+            {
+                throw new UnreachableException("ToPageAsync without the appropriate parameterized arguments");
+            }
+
+            // Wrap the shaper for the entire query in a PagingExpression which also contains the paging arguments, and update
+            // the final cardinality to Single (since we'll be returning a single Page).
+            return shapedQuery
+                .UpdateShaperExpression(new PagingExpression(
+                    shapedQuery.ShaperExpression,
+                    translatedMaxItemCount,
+                    translatedContinuationToken,
+                    translatedResponseContinuationTokenLimitInKb,
+                    typeof(CosmosPage<>).MakeGenericType(shapedQuery.ShaperExpression.Type)))
+                .UpdateResultCardinality(ResultCardinality.Single);
+        }
+
+        return base.Translate(expression);
     }
 
     /// <summary>

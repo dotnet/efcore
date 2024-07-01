@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
@@ -43,55 +44,90 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var jObjectParameter = Parameter(typeof(JObject), "jObject");
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
+
+        var (paging, maxItemCount, continuationToken, responseContinuationTokenLimitInKb) =
+            (false, (SqlParameterExpression)null, (SqlParameterExpression)null, (SqlParameterExpression)null);
+
+        // If the query is terminated ToPageAsync(), CosmosQueryableMethodTranslatingExpressionVisitor composed a PagingExpression on top
+        // of the shaper. We remove that to get the shaper for each actual document being read (as opposed to the page of those documents),
+        // and extract the pagination arguments.
+        if (shaperBody is PagingExpression pagingExpression)
+        {
+            paging = true;
+            maxItemCount = pagingExpression.MaxItemCount;
+            continuationToken = pagingExpression.ContinuationToken;
+            responseContinuationTokenLimitInKb = pagingExpression.ResponseContinuationTokenLimitInKb;
+
+            shaperBody = pagingExpression.Expression;
+        }
+
         shaperBody = new JObjectInjectingExpressionVisitor().Visit(shaperBody);
         shaperBody = InjectEntityMaterializers(shaperBody);
 
-        switch (shapedQueryExpression.QueryExpression)
+        if (shapedQueryExpression.QueryExpression is not SelectExpression selectExpression)
         {
-            case SelectExpression selectExpression:
-                shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
-                        selectExpression, jObjectParameter,
-                        QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-                    .Visit(shaperBody);
-
-                var shaperLambda = Lambda(
-                    shaperBody,
-                    QueryCompilationContext.QueryContextParameter,
-                    jObjectParameter);
-
-                var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
-                var shaperConstant = Constant(shaperLambda.Compile());
-                var contextTypeConstant = Constant(_contextType);
-                var containerConstant = Constant(cosmosQueryCompilationContext.CosmosContainer);
-                var threadSafetyConstant = Constant(_threadSafetyChecksEnabled);
-                var standAloneStateManagerConstant = Constant(
-                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
-
-                return selectExpression.ReadItemInfo != null
-                    ? New(
-                        typeof(ReadItemQueryingEnumerable<>).MakeGenericType(selectExpression.ReadItemInfo.Type).GetConstructors()[0],
-                        cosmosQueryContextConstant,
-                        containerConstant,
-                        Constant(selectExpression.ReadItemInfo),
-                        shaperConstant,
-                        contextTypeConstant,
-                        standAloneStateManagerConstant,
-                        threadSafetyConstant)
-                    : New(
-                        typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
-                        cosmosQueryContextConstant,
-                        Constant(sqlExpressionFactory),
-                        Constant(querySqlGeneratorFactory),
-                        Constant(selectExpression),
-                        shaperConstant,
-                        contextTypeConstant,
-                        containerConstant,
-                        Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
-                        standAloneStateManagerConstant,
-                        threadSafetyConstant);
-
-            default:
-                throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
+            throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));
         }
+
+        shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
+                selectExpression, jObjectParameter,
+                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            .Visit(shaperBody);
+
+        var shaperLambda = Lambda(
+            shaperBody,
+            QueryCompilationContext.QueryContextParameter,
+            jObjectParameter);
+
+        var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
+        var shaperConstant = Constant(shaperLambda.Compile());
+        var contextTypeConstant = Constant(_contextType);
+        var containerConstant = Constant(cosmosQueryCompilationContext.CosmosContainer);
+        var threadSafetyConstant = Constant(_threadSafetyChecksEnabled);
+        var standAloneStateManagerConstant = Constant(
+            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+
+        Check.DebugAssert(!paging || selectExpression.ReadItemInfo is null, "ReadItem is being with paging, impossible.");
+
+        return selectExpression switch
+        {
+            { ReadItemInfo: ReadItemInfo readItemInfo } => New(
+                typeof(ReadItemQueryingEnumerable<>).MakeGenericType(readItemInfo.Type).GetConstructors()[0],
+                cosmosQueryContextConstant,
+                containerConstant,
+                Constant(readItemInfo),
+                shaperConstant,
+                contextTypeConstant,
+                standAloneStateManagerConstant,
+                threadSafetyConstant),
+
+            _ when paging => New(
+                typeof(PagingQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                cosmosQueryContextConstant,
+                Constant(sqlExpressionFactory),
+                Constant(querySqlGeneratorFactory),
+                Constant(selectExpression),
+                shaperConstant,
+                contextTypeConstant,
+                containerConstant,
+                Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                standAloneStateManagerConstant,
+                threadSafetyConstant,
+                Constant(maxItemCount.Name),
+                Constant(continuationToken.Name),
+                Constant(responseContinuationTokenLimitInKb.Name)),
+
+            _ => New(
+                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0], cosmosQueryContextConstant,
+                Constant(sqlExpressionFactory),
+                Constant(querySqlGeneratorFactory),
+                Constant(selectExpression),
+                shaperConstant,
+                contextTypeConstant,
+                containerConstant,
+                Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                standAloneStateManagerConstant,
+                threadSafetyConstant)
+        };
     }
 }

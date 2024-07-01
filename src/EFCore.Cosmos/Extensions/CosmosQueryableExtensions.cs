@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -176,5 +177,53 @@ public static class CosmosQueryableExtensions
             entityType,
             sql,
             Expression.Constant(arguments));
+    }
+
+    internal static readonly MethodInfo ToPageAsyncMethodInfo
+        = typeof(CosmosQueryableExtensions).GetMethod(nameof(ToPageAsync))!;
+
+
+    /// <summary>
+    ///     Allows paginating through query results by repeatedly executing the same query, passing continuation tokens to retrieve
+    ///     successive pages of the result set, and specifying the maximum number of results per page.
+    /// </summary>
+    /// <param name="source">The source query.</param>
+    /// <param name="continuationToken">
+    ///     An optional continuation token returned from a previous execution of this query via
+    ///     <see cref="CosmosPage{T}.ContinuationToken" />. If <see langword="null" />, retrieves query results from the start.
+    /// </param>
+    /// <param name="pageSize">
+    ///     The maximum number of results in the returned <see cref="CosmosPage{T}" />. The page may contain fewer results if the database
+    ///     did not contain enough matching results.
+    /// </param>
+    /// <param name="responseContinuationTokenLimitInKb">Limits the length of continuation token in the query response.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="CosmosPage{T}" /> containing at most <paramref name="pageSize" /> results.</returns>
+    [Experimental(EFDiagnostics.PagingExperimental)]
+    public static Task<CosmosPage<TSource>> ToPageAsync<TSource>(
+        this IQueryable<TSource> source,
+        int pageSize,
+        string? continuationToken,
+        int? responseContinuationTokenLimitInKb = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (source.Provider is not IAsyncQueryProvider provider)
+        {
+            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+        }
+
+        return provider.ExecuteAsync<Task<CosmosPage<TSource>>>(
+            Expression.Call(
+                instance: null,
+                method: ToPageAsyncMethodInfo.MakeGenericMethod(typeof(TSource)),
+                arguments:
+                [
+                    source.Expression,
+                    Expression.Constant(pageSize, typeof(int)),
+                    Expression.Constant(continuationToken, typeof(string)),
+                    Expression.Constant(responseContinuationTokenLimitInKb, typeof(int?)),
+                    Expression.Constant(default(CancellationToken), typeof(CancellationToken))
+                ]),
+            cancellationToken);
     }
 }

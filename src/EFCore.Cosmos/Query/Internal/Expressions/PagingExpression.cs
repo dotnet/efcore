@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Newtonsoft.Json.Linq;
-
-namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,7 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public interface ICosmosClientWrapper
+public class PagingExpression(
+    Expression expression,
+    SqlParameterExpression maxItemCount,
+    SqlParameterExpression continuationToken,
+    SqlParameterExpression responseContinuationTokenLimitInKb,
+    Type type)
+    : Expression, IPrintableExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,7 +23,8 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateDatabaseIfNotExists(ThroughputProperties? throughput);
+    public sealed override ExpressionType NodeType
+        => ExpressionType.Extension;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +32,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> CreateDatabaseIfNotExistsAsync(ThroughputProperties? throughput, CancellationToken cancellationToken = default);
+    public override Type Type { get; } = type;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +40,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateContainerIfNotExists(ContainerProperties properties);
+    public virtual Expression Expression { get; } = expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +48,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> CreateContainerIfNotExistsAsync(ContainerProperties properties, CancellationToken cancellationToken = default);
+    public virtual SqlParameterExpression MaxItemCount { get; } = maxItemCount;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +56,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool DeleteDatabase();
+    public virtual SqlParameterExpression ContinuationToken { get; } = continuationToken;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +64,7 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> DeleteDatabaseAsync(CancellationToken cancellationToken = default);
+    public virtual SqlParameterExpression ResponseContinuationTokenLimitInKb { get; } = responseContinuationTokenLimitInKb;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +72,8 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool CreateItem(string containerId, JToken document, IUpdateEntry entry);
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+        => Update(visitor.Visit(Expression));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,11 +81,12 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool ReplaceItem(
-        string collectionId,
-        string documentId,
-        JObject document,
-        IUpdateEntry entry);
+    public virtual PagingExpression Update(Expression expression)
+        => expression == Expression
+            ? this
+            : expression.Type == Expression.Type
+                ? new PagingExpression(expression, ContinuationToken, MaxItemCount, ResponseContinuationTokenLimitInKb, Type)
+                : throw new UnreachableException("Can't change the Type of a PagingExpression");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,10 +94,11 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool DeleteItem(
-        string containerId,
-        string documentId,
-        IUpdateEntry entry);
+    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+    {
+        expressionPrinter.Append("ToPage: ");
+        expressionPrinter.Visit(Expression);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,11 +106,17 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> CreateItemAsync(
-        string containerId,
-        JToken document,
-        IUpdateEntry updateEntry,
-        CancellationToken cancellationToken = default);
+    public override bool Equals(object? obj)
+        => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is PagingExpression other
+                && Equals(other));
+
+    private bool Equals(PagingExpression other)
+        => Expression.Equals(other.Expression)
+            && ContinuationToken.Equals(other.ContinuationToken)
+            && MaxItemCount.Equals(other.MaxItemCount)
+            && ResponseContinuationTokenLimitInKb.Equals(other.ResponseContinuationTokenLimitInKb);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -110,87 +124,6 @@ public interface ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task<bool> ReplaceItemAsync(
-        string collectionId,
-        string documentId,
-        JObject document,
-        IUpdateEntry updateEntry,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    Task<bool> DeleteItemAsync(
-        string containerId,
-        string documentId,
-        IUpdateEntry entry,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    FeedIterator CreateQuery(
-        string containerId,
-        CosmosSqlQuery query,
-        string? continuationToken = null,
-        QueryRequestOptions? queryRequestOptions = null);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    JObject? ExecuteReadItem(
-        string containerId,
-        PartitionKey partitionKeyValue,
-        string resourceId);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    Task<JObject?> ExecuteReadItemAsync(
-        string containerId,
-        PartitionKey partitionKeyValue,
-        string resourceId,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IEnumerable<JObject> ExecuteSqlQuery(
-        string containerId,
-        PartitionKey partitionKeyValue,
-        CosmosSqlQuery query);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
-        string containerId,
-        PartitionKey partitionKeyValue,
-        CosmosSqlQuery query);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    IEnumerable<JObject> GetResponseMessageEnumerable(ResponseMessage responseMessage);
+    public override int GetHashCode()
+        => Expression.GetHashCode();
 }
