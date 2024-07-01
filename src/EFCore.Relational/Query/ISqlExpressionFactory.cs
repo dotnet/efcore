@@ -57,12 +57,14 @@ public interface ISqlExpressionFactory
     /// <param name="left">The left operand of binary operation.</param>
     /// <param name="right">The right operand of binary operation.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
+    /// <param name="existingExpr">An optional expression that can be re-used if it matches the new expression.</param>
     /// <returns>A <see cref="SqlExpression" /> with the given arguments.</returns>
     SqlExpression? MakeBinary(
         ExpressionType operatorType,
         SqlExpression left,
         SqlExpression right,
-        RelationalTypeMapping? typeMapping);
+        RelationalTypeMapping? typeMapping,
+        SqlExpression? existingExpr = null);
 
     // Comparison
     /// <summary>
