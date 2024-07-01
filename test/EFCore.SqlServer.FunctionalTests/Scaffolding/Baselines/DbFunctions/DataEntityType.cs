@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -37,20 +36,20 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             blob.SetGetter(
-                (CompiledModelTestBase.Data entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity),
-                (CompiledModelTestBase.Data entity) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity) == null,
-                (CompiledModelTestBase.Data instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(instance),
-                (CompiledModelTestBase.Data instance) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(instance) == null);
+                byte[] (CompiledModelTestBase.Data entity) => DataUnsafeAccessors.Blob(entity),
+                bool (CompiledModelTestBase.Data entity) => DataUnsafeAccessors.Blob(entity) == null,
+                byte[] (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance),
+                bool (CompiledModelTestBase.Data instance) => DataUnsafeAccessors.Blob(instance) == null);
             blob.SetSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity) = value);
+                (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
             blob.SetMaterializationSetter(
-                (CompiledModelTestBase.Data entity, byte[] value) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(entity) = value);
+                (CompiledModelTestBase.Data entity, byte[] value) => DataUnsafeAccessors.Blob(entity) = value);
             blob.SetAccessors(
-                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob((CompiledModelTestBase.Data)entry.Entity),
-                (InternalEntityEntry entry) => UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob((CompiledModelTestBase.Data)entry.Entity),
-                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 0),
-                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(blob),
-                (ValueBuffer valueBuffer) => valueBuffer[0]);
+                byte[] (InternalEntityEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+                byte[] (InternalEntityEntry entry) => DataUnsafeAccessors.Blob(((CompiledModelTestBase.Data)(entry.Entity))),
+                byte[] (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(blob, 0),
+                byte[] (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(blob),
+                object (ValueBuffer valueBuffer) => valueBuffer[0]);
             blob.SetPropertyIndexes(
                 index: 0,
                 originalValueIndex: 0,
@@ -59,22 +58,21 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             blob.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (byte[] v) => ((object)v).GetHashCode(),
-                    (byte[] v) => v),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    int (byte[] v) => ((object)v).GetHashCode(),
+                    byte[] (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (byte[] source) => source.ToArray()),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    byte[] (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (byte[] source) => source.ToArray()),
+                    bool (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals(((object)(v1)), ((object)(v2))),
+                    int (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(((object)(v))),
+                    byte[] (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(max)"),
                 storeTypePostfix: StoreTypePostfix.None);
             blob.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
-            blob.AddRuntimeAnnotation("UnsafeAccessors", new[] { ("DataEntityType.UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob", "TestNamespace") });
 
             return runtimeEntityType;
         }
@@ -83,21 +81,21 @@ namespace TestNamespace
         {
             var blob = runtimeEntityType.FindProperty("Blob")!;
             runtimeEntityType.SetOriginalValuesFactory(
-                (InternalEntityEntry source) =>
+                ISnapshot (InternalEntityEntry source) =>
                 {
-                    var entity = (CompiledModelTestBase.Data)source.Entity;
-                    return (ISnapshot)new Snapshot<byte[]>(source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)((IProperty)blob).GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(blob)));
+                    var entity = ((CompiledModelTestBase.Data)(source.Entity));
+                    return ((ISnapshot)(new Snapshot<byte[]>((source.GetCurrentValue<byte[]>(blob) == null ? null : ((ValueComparer<byte[]>)(((IProperty)blob).GetValueComparer())).Snapshot(source.GetCurrentValue<byte[]>(blob))))));
                 });
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => Snapshot.Empty);
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetTemporaryValuesFactory(
-                (InternalEntityEntry source) => Snapshot.Empty);
+                ISnapshot (InternalEntityEntry source) => Snapshot.Empty);
             runtimeEntityType.SetShadowValuesFactory(
-                (IDictionary<string, object> source) => Snapshot.Empty);
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
-                () => Snapshot.Empty);
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                (InternalEntityEntry source) => Snapshot.Empty);
+                ISnapshot (InternalEntityEntry source) => Snapshot.Empty);
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 1,
                 navigationCount: 0,
@@ -117,8 +115,5 @@ namespace TestNamespace
         }
 
         static partial void Customize(RuntimeEntityType runtimeEntityType);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Blob>k__BackingField")]
-        public static extern ref byte[] UnsafeAccessor_Microsoft_EntityFrameworkCore_Scaffolding_Data_Blob(CompiledModelTestBase.Data @this);
     }
 }

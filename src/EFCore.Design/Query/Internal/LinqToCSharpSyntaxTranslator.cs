@@ -444,16 +444,6 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// </summary>
     public static string GetUnsafeAccessorName(MemberInfo member)
     {
-        StringBuilder stringBuilder = new();
-        stringBuilder.Clear().Append("UnsafeAccessor_");
-
-        if (member.DeclaringType?.Namespace?.Replace(".", "_") is string typeNamespace)
-        {
-            stringBuilder.Append(typeNamespace).Append('_');
-        }
-
-        stringBuilder.Append(member.DeclaringType!.Name.Replace("`", "")).Append('_');
-
         // If this is the backing field of an auto-property, extract the name of the property from its compiler-generated name
         // (e.g. <Name>k__BackingField)
         var memberName = member.Name;
@@ -464,9 +454,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             memberName = memberName[1..pos];
         }
 
-        stringBuilder.Append(memberName);
-
-        return stringBuilder.ToString();
+        var first = memberName[0];
+        return !char.IsUpper(first) ? char.ToUpperInvariant(first) + memberName[1..] : memberName;
     }
 
     /// <inheritdoc />
@@ -1319,14 +1308,23 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// </summary>
     protected virtual TypeSyntax Generate(Type type)
     {
+        if (type.IsAnonymousType())
+        {
+            return null!;
+        }
+
         if (type.IsGenericType)
         {
-            // This should produce terser code, but currently gets broken by the Simplifier
-            //if (type.IsConstructedGenericType
-            //    && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            //{
-            //    return NullableType(Translate(type.GenericTypeArguments[0]));
-            //}
+            if (type.IsConstructedGenericType
+                && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return NullableType(Generate(type.GenericTypeArguments[0]));
+            }
+
+            if (type.GenericTypeArguments.Any(t => t.IsAnonymousType()))
+            {
+                return null!;
+            }
 
             var generic = GenericName(
                 Identifier(type.Name.Substring(0, type.Name.IndexOf('`'))),
@@ -1466,15 +1464,19 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             stackFrame.VariableNames.Add(name);
         }
 
-        var body = (CSharpSyntaxNode)Translate(lambda.Body);
+        var body = Translate(lambda.Body);
+        var expressionBody = body as ExpressionSyntax;
+        var blockBody = body as BlockSyntax;
 
         // If the lambda body was an expression that had lifted statements (e.g. some block in expression context), we need to create
         // a block to contain these statements
         if (_liftedState.Statements.Count > 0)
         {
             Check.DebugAssert(lambda.ReturnType != typeof(void), "lambda.ReturnType != typeof(void)");
+            Check.DebugAssert(expressionBody != null, "expressionBody != null");
 
-            body = Block(_liftedState.Statements.Append(ReturnStatement((ExpressionSyntax)body)));
+            blockBody = Block(_liftedState.Statements.Append(ReturnStatement(expressionBody)));
+            expressionBody = null;
             _liftedState.Statements.Clear();
         }
 
@@ -1482,13 +1484,17 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         // This is because in some cases, the parameter isn't actually used in the lambda body, and the compiler can't infer its type.
         // However, we can't do that when the type is anonymous.
         Result = ParenthesizedLambdaExpression(
+            attributeLists: List<AttributeListSyntax>(),
+            modifiers: TokenList(),
+            returnType: lambda.ReturnType == typeof(void) ? null : Generate(lambda.ReturnType),
             ParameterList(
                 SeparatedList(
                     lambda.Parameters.Select(
                         p =>
                             Parameter(Identifier(LookupVariableName(p)))
                                 .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
-            body);
+            blockBody,
+            expressionBody);
 
         var popped = _stack.Pop();
         Check.DebugAssert(popped.Equals(stackFrame), "popped.Equals(stackFrame)");

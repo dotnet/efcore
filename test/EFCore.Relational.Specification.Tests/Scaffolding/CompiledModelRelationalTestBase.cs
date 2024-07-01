@@ -16,23 +16,22 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: true),
             model => AssertBigModel(model, jsonColumns: true),
-            // Blocked by dotnet/runtime/issues/89439
-            //c =>
-            //{
-            //    c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-            //        new PrincipalDerived<DependentBase<byte?>>
-            //        {
-            //            Id = 1,
-            //            AlternateId = new Guid(),
-            //            Dependent = new DependentDerived<byte?>(1, "one"),
-            //            Owned = new OwnedType(c)
-            //        });
+            async c =>
+            {
+                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                    new PrincipalDerived<DependentBase<byte?>>
+                    {
+                        Id = 1,
+                        AlternateId = new Guid(),
+                        Dependent = new DependentDerived<byte?>(1, "one"),
+                        Owned = new OwnedType(c)
+                    });
 
-            //    c.SaveChanges();
+                await c.SaveChangesAsync();
 
-            //    var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
-            //    Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
-            //},
+                var dependent = c.Set<PrincipalDerived<DependentBase<byte?>>>().Include(p => p.Dependent).Single().Dependent!;
+                Assert.Equal("one", ((DependentDerived<byte?>)dependent).GetData());
+            },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -47,6 +46,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     eb.Property(e => e.Id)
                         .Metadata.SetColumnName("DerivedId", StoreObjectIdentifier.Table("PrincipalDerived"));
                 }
+
+                eb.HasIndex(e => new { e.AlternateId, e.Id });
 
                 eb.HasKey(e => new { e.Id, e.AlternateId })
                     .HasName("PK");
@@ -159,19 +160,29 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
 
         Assert.Equal("Id", principalId.GetColumnName());
 
+        var principalAlternateId = principalBase.FindProperty(nameof(PrincipalBase.AlternateId))!;
+        Assert.Equal(PropertyAccessMode.FieldDuringConstruction, principalAlternateId.GetPropertyAccessMode());
+
         var compositeIndex = principalBase.GetIndexes().Single();
+        Assert.Empty(compositeIndex.GetAnnotations());
+        Assert.Equal([principalAlternateId, principalId], compositeIndex.Properties);
+        Assert.False(compositeIndex.IsUnique);
+        Assert.Null(compositeIndex.Name);
+        Assert.Equal([compositeIndex], principalAlternateId.GetContainingIndexes());
         Assert.Equal("IX_PrincipalBase_AlternateId_Id", compositeIndex.GetDatabaseName());
+
+        Assert.Equal(2, principalBase.GetKeys().Count());
 
         var principalAlternateKey = principalBase.GetKeys().First();
         Assert.Equal("AK_PrincipalBase_Id", principalAlternateKey.GetName());
 
         var principalKey = principalBase.GetKeys().Last();
         Assert.Equal(
-            new[] { RelationalAnnotationNames.Name },
+            [RelationalAnnotationNames.Name],
             principalKey.GetAnnotations().Select(a => a.Name));
         Assert.Equal("PK", principalKey.GetName());
 
-        Assert.Equal(new[] { principalAlternateKey, principalKey }, principalId.GetContainingKeys());
+        Assert.Equal([principalAlternateKey, principalKey], principalId.GetContainingKeys());
 
         Assert.Equal("PrincipalBase", principalBase.GetTableName());
         if (jsonColumns)
@@ -184,6 +195,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         }
 
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
+        Assert.Equal("PrincipalDerived<DependentBase<byte?>>", principalDerived.GetDiscriminatorValue());
+
         var dependentNavigation = principalDerived.GetDeclaredNavigations().First();
         var dependentForeignKey = dependentNavigation.ForeignKey;
 
@@ -239,7 +252,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Same(
             derivedSkipNavigation.Inverse, derivedSkipNavigation.Inverse.ForeignKey.GetReferencingSkipNavigations().Single());
 
-        Assert.Equal(new[] { derivedSkipNavigation.Inverse, derivedSkipNavigation }, principalDerived.GetSkipNavigations());
+        Assert.Equal([derivedSkipNavigation.Inverse, derivedSkipNavigation], principalDerived.GetSkipNavigations());
 
         var joinType = derivedSkipNavigation.JoinEntityType;
         Assert.Null(joinType[RelationalAnnotationNames.Comment]);
@@ -253,6 +266,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             Assert.Throws<InvalidOperationException>(() => joinType.IsTableExcludedFromMigrations()).Message);
 
         var rowid = joinType.GetProperties().Single(p => !p.IsForeignKey());
+        Assert.True(rowid.IsConcurrencyToken);
+        Assert.Equal(ValueGenerated.OnAddOrUpdate, rowid.ValueGenerated);
         Assert.Equal("rowid", rowid.GetColumnName());
         Assert.Null(rowid[RelationalAnnotationNames.Comment]);
         Assert.Equal(
@@ -284,18 +299,17 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         if (jsonColumns)
         {
             Assert.Equal(
-                new[]
-                {
+                [
                     derivedSkipNavigation.ForeignKey,
                     referenceOwnership,
                     collectionOwnership,
                     dependentForeignKey,
                     derivedSkipNavigation.Inverse.ForeignKey
-                },
+                ],
                 principalKey.GetReferencingForeignKeys());
 
             Assert.Equal(
-                new[] { dependentBaseForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey },
+                [dependentBaseForeignKey, referenceOwnership, derivedSkipNavigation.Inverse.ForeignKey],
                 principalBase.GetReferencingForeignKeys());
         }
         else
@@ -330,6 +344,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                     e => e.Owned, eb =>
                     {
                         eb.Property(c => c.Details)
+                            .IsRowVersion()
                             .HasColumnName("Deets")
                             .HasColumnOrder(1)
                             .HasColumnType("varchar")
@@ -396,8 +411,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         var complexProperty = principalBase.GetComplexProperties().Single();
         var complexType = complexProperty.ComplexType;
         Assert.Equal(
-            new[]
-            {
+            [
                 RelationalAnnotationNames.FunctionName,
                 RelationalAnnotationNames.Schema,
                 RelationalAnnotationNames.SqlQuery,
@@ -405,10 +419,14 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 RelationalAnnotationNames.ViewName,
                 RelationalAnnotationNames.ViewSchema,
                 "go"
-            },
+            ],
             complexType.GetAnnotations().Select(a => a.Name));
 
         var detailsProperty = complexType.FindProperty(nameof(OwnedType.Details))!;
+        Assert.True(detailsProperty.IsConcurrencyToken);
+        Assert.Equal(ValueGenerated.OnAddOrUpdate, detailsProperty.ValueGenerated);
+        Assert.Equal(PropertySaveBehavior.Ignore, detailsProperty.GetAfterSaveBehavior());
+        Assert.Equal(PropertySaveBehavior.Ignore, detailsProperty.GetBeforeSaveBehavior());
         Assert.Equal("Deets", detailsProperty.GetColumnName());
         Assert.Equal("varchar(64)", detailsProperty.GetColumnType());
         Assert.Null(detailsProperty.IsFixedLength());
@@ -624,14 +642,13 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal("PIX", alternateIndex.GetDatabaseName());
         Assert.Equal("AlternateId <> NULL", alternateIndex.GetFilter());
 
-        Assert.Equal(new[] { alternateIndex }, principalBaseId.GetContainingIndexes());
+        Assert.Equal([alternateIndex], principalBaseId.GetContainingIndexes());
 
         var insertSproc = principalBase.GetInsertStoredProcedure()!;
         Assert.Equal("PrincipalBase_Insert", insertSproc.Name);
         Assert.Equal("TPC", insertSproc.Schema);
         Assert.Equal(
-            new[]
-            {
+            [
                 "Id",
                 "PrincipalBaseId",
                 "PrincipalDerivedId",
@@ -647,7 +664,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 "RefTypeArray",
                 "RefTypeEnumerable",
                 "Enum1"
-            },
+            ],
             insertSproc.Parameters.Select(p => p.PropertyName));
         Assert.Empty(insertSproc.ResultColumns);
         Assert.False(insertSproc.IsRowsAffectedReturned);
@@ -664,8 +681,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal("PrincipalBase_Update", updateSproc.Name);
         Assert.Equal("TPC", updateSproc.Schema);
         Assert.Equal(
-            new[]
-            {
+            [
                 "PrincipalBaseId",
                 "PrincipalDerivedId",
                 "Enum1",
@@ -681,7 +697,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 "RefTypeArray",
                 "RefTypeEnumerable",
                 "Id"
-            },
+            ],
             updateSproc.Parameters.Select(p => p.PropertyName));
         Assert.Empty(updateSproc.ResultColumns);
         Assert.False(updateSproc.IsRowsAffectedReturned);
@@ -730,8 +746,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal("Derived_Insert", insertSproc.Name);
         Assert.Equal("TPC", insertSproc.Schema);
         Assert.Equal(
-            new[]
-            {
+            [
                 "Id",
                 "PrincipalBaseId",
                 "PrincipalDerivedId",
@@ -746,9 +761,9 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 "RefTypeIList",
                 "RefTypeArray",
                 "RefTypeEnumerable"
-            },
+            ],
             insertSproc.Parameters.Select(p => p.PropertyName));
-        Assert.Equal(new[] { "Enum1" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
+        Assert.Equal(["Enum1"], insertSproc.ResultColumns.Select(p => p.PropertyName));
         Assert.Null(insertSproc["foo"]);
         Assert.Same(principalDerived, insertSproc.EntityType);
         Assert.Equal("DerivedEnum", insertSproc.ResultColumns.Last().Name);
@@ -764,8 +779,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Equal("Derived_Update", updateSproc.Name);
         Assert.Equal("Derived", updateSproc.Schema);
         Assert.Equal(
-            new[]
-            {
+            [
                 "PrincipalBaseId",
                 "PrincipalDerivedId",
                 "Enum1",
@@ -781,7 +795,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 "RefTypeArray",
                 "RefTypeEnumerable",
                 "Id"
-            },
+            ],
             updateSproc.Parameters.Select(p => p.PropertyName));
         Assert.Empty(updateSproc.ResultColumns);
         Assert.Empty(updateSproc.GetAnnotations());
@@ -793,7 +807,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         deleteSproc = principalDerived.GetDeleteStoredProcedure()!;
         Assert.Equal("Derived_Delete", deleteSproc.Name);
         Assert.Equal("TPC", deleteSproc.Schema);
-        Assert.Equal(new[] { "Id" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+        Assert.Equal(["Id"], deleteSproc.Parameters.Select(p => p.PropertyName));
         Assert.Empty(deleteSproc.ResultColumns);
         Assert.Same(principalDerived, deleteSproc.EntityType);
         Assert.Equal("Id_Original", deleteSproc.Parameters.Last().Name);
@@ -832,7 +846,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Same(dependentNavigation.Inverse, dependentForeignKey.DependentToPrincipal);
         Assert.Same(dependentNavigation, dependentForeignKey.PrincipalToDependent);
         Assert.Equal(DeleteBehavior.ClientCascade, dependentForeignKey.DeleteBehavior);
-        Assert.Equal(new[] { "PrincipalId" }, dependentForeignKey.Properties.Select(p => p.Name));
+        Assert.Equal(["PrincipalId"], dependentForeignKey.Properties.Select(p => p.Name));
 
         var dependentBase = dependentNavigation.TargetEntityType;
 
@@ -842,7 +856,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.Same(dependentForeignKey, dependentBase.GetForeignKeys().Single());
 
         Assert.Equal(
-            new[] { dependentBase, principalBase, principalDerived },
+            [dependentBase, principalBase, principalDerived],
             model.GetEntityTypes());
     }
 
@@ -1031,7 +1045,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 Assert.Equal(getDataParameter.StoreType, getDataParameter.StoreFunctionParameter.StoreType);
 
                 var getDataParameterless = model.FindDbFunction(
-                    typeof(DbFunctionContext).GetMethod("GetData", new Type[0])!)!;
+                    typeof(DbFunctionContext).GetMethod("GetData", [])!)!;
                 Assert.Equal("GetAllData", getDataParameterless.Name);
                 //Assert.Equal("dbo", getDataParameterless.Schema);
                 Assert.Equal(typeof(DbFunctionContext).FullName + ".GetData()", getDataParameterless.ModelName);
@@ -1127,7 +1141,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 .Metadata.SetAnnotation("MyGuid", new Guid());
 
             modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(GetData), [typeof(int)])!);
-            modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(GetData), new Type[0])!);
+            modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(GetData), [])!);
 
             modelBuilder.Entity<Data>().ToFunction(typeof(DbFunctionContext).FullName + ".GetData()", f => f.HasName("GetAllData"))
                 .HasNoKey();

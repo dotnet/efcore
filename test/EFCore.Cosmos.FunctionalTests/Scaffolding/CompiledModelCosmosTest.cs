@@ -143,16 +143,16 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
 
                 Assert.Equal(2, dataEntity.GetKeys().Count());
 
-                Assert.Equal(new[] { id, partitionId, blob, storeId, jObject, eTag }, dataEntity.GetProperties());
+                Assert.Equal([id, partitionId, blob, storeId, jObject, eTag], dataEntity.GetProperties());
             });
 
-    [ConditionalFact(Skip = "Primitive collections not supported yet")]
-    public override Task BigModel()
-        => base.BigModel();
+    protected override void AssertBigModel(IModel model, bool jsonColumns)
+    {
+        base.AssertBigModel(model, jsonColumns);
 
-    [ConditionalFact(Skip = "Primitive collections not supported yet")]
-    public override Task ComplexTypes()
-        => base.ComplexTypes();
+        var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
+        Assert.Equal("PrincipalDerived", principalDerived.GetDiscriminatorValue());
+    }
 
     protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
     protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;

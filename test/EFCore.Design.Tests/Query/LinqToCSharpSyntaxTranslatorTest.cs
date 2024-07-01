@@ -150,10 +150,10 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             });
 
     [Theory]
-    [InlineData(ExpressionType.Negate, "-i")]
-    [InlineData(ExpressionType.NegateChecked, "-i")]
-    [InlineData(ExpressionType.Not, "~i")]
-    [InlineData(ExpressionType.OnesComplement, "~i")]
+    [InlineData(ExpressionType.Negate, "-(i)")]
+    [InlineData(ExpressionType.NegateChecked, "-(i)")]
+    [InlineData(ExpressionType.Not, "~(i)")]
+    [InlineData(ExpressionType.OnesComplement, "~(i)")]
     [InlineData(ExpressionType.UnaryPlus, "+i")]
     [InlineData(ExpressionType.Increment, "i + 1")]
     [InlineData(ExpressionType.Decrement, "i - 1")]
@@ -163,8 +163,8 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             expected);
 
     [Theory]
-    [InlineData(ExpressionType.Not, "!b")]
-    [InlineData(ExpressionType.IsFalse, "!b")]
+    [InlineData(ExpressionType.Not, "!(b)")]
+    [InlineData(ExpressionType.IsFalse, "!(b)")]
     [InlineData(ExpressionType.IsTrue, "b")]
     public void Unary_expression_bool(ExpressionType expressionType, string expected)
         => AssertExpression(
@@ -186,7 +186,7 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
                 MakeUnary(expressionType, i, typeof(int))),
             $$"""
 {
-    int i = default;
+    int i = default(int);
     {{expected}};
 }
 """);
@@ -204,7 +204,7 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
             Convert(
                 Parameter(typeof(object), "i"),
                 typeof(string)),
-            "(string)i");
+            "((string)(i))");
 
     [Fact]
     public void Unary_Throw()
@@ -222,7 +222,7 @@ private static extern ref int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query
     public void Unary_Quote()
         => AssertExpression(
             Quote((Expression<Func<string, int>>)(s => s.Length)),
-            "(string s) => s.Length");
+            "int (string s) => s.Length");
 
     [Fact]
     public void Unary_TypeAs()
@@ -309,7 +309,7 @@ private static extern int UnsafeAccessor_Microsoft_EntityFrameworkCore_Query_Blo
     public void Not()
         => AssertExpression(
             Expression.Not(Constant(true)),
-            "!true");
+            "!(true)");
 
     [Fact]
     public void MemberInit_with_MemberAssignment()
@@ -481,9 +481,9 @@ new LinqToCSharpSyntaxTranslatorTest.Blog("foo")
                 Call(WithInOutRefParameterMethod, [inParam, outParam, refParam])),
             """
 {
-    int inParam = default;
-    int outParam = default;
-    int refParam = default;
+    int inParam = default(int);
+    int outParam = default(int);
+    int refParam = default(int);
     LinqToCSharpSyntaxTranslatorTest.WithInOutRefParameter(in inParam, out outParam, ref refParam);
 }
 """);
@@ -543,7 +543,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
     public void Lambda_with_expression_body()
         => AssertExpression(
             Lambda<Func<bool>>(Constant(true)),
-            "() => true");
+            "bool () => true");
 
     [Fact]
     public void Lambda_with_block_body()
@@ -557,7 +557,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
                     Assign(i, Constant(8)),
                     i)),
             """
-() =>
+int () =>
 {
     var i = 8;
     return i;
@@ -569,7 +569,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
     public void Lambda_with_no_parameters()
         => AssertExpression(
             Lambda<Func<bool>>(Constant(true)),
-            "() => true");
+            "bool () => true");
 
     [Fact]
     public void Lambda_with_one_parameter()
@@ -578,7 +578,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
 
         AssertExpression(
             Lambda<Func<int, bool>>(Constant(true), i),
-            "(int i) => true");
+            "bool (int i) => true");
     }
 
     [Fact]
@@ -589,7 +589,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
 
         AssertExpression(
             Lambda<Func<int, int, int>>(Add(i, j), i, j),
-            "(int i, int j) => i + j");
+            "int (int i, int j) => i + j");
     }
 
     [Fact]
@@ -636,14 +636,14 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
     public void Conditional_expression()
         => AssertExpression(
             Condition(Constant(true), Constant(1), Constant(2)),
-            "true ? 1 : 2");
+            "(true ? 1 : 2)");
 
     [Fact]
     public void Conditional_without_false_value_fails()
         => Assert.Throws<NotSupportedException>(
             () => AssertExpression(
                 IfThen(Constant(true), Constant(8)),
-                "true ? 1 : 2"));
+                "(true ? 8)"));
 
     [Fact]
     public void Conditional_statement()
@@ -730,7 +730,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
                         Block(Assign(variable, Constant(3)))))),
             """
 {
-    int i = default;
+    int i = default(int);
     if (true)
     {
         i = 1;
@@ -758,7 +758,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
                         Constant(8)),
                     Constant(9))),
             """
-() =>
+int () =>
 {
     if (true)
     {
@@ -849,7 +849,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
                             Constant(200))))),
             """
 {
-    int k = default;
+    int k = default(int);
     var j = 8;
     var i = j switch
     {
@@ -874,7 +874,7 @@ private static extern LinqToCSharpSyntaxTranslatorTest.BlogWithRequiredPropertie
                 Constant(0),
                 SwitchCase(Constant(2), Parameter(typeof(Blog), "blog2")),
                 SwitchCase(Constant(3), Parameter(typeof(Blog), "blog3"))),
-            "blog1 == blog2 ? 2 : blog1 == blog3 ? 3 : 0");
+            "(blog1 == blog2 ? 2 : (blog1 == blog3 ? 3 : 0))");
 
     [Fact]
     public void Switch_statement_with_non_constant_label()
@@ -913,7 +913,7 @@ else
                     SwitchCase(Block(typeof(void), Assign(parameter, Constant(10))), Constant(-10)))),
             """
 {
-    int i = default;
+    int i = default(int);
     switch (7)
     {
         case -9:
@@ -947,7 +947,7 @@ else
                     SwitchCase(Assign(parameter, Constant(10)), Constant(-10)))),
             """
 {
-    int i = default;
+    int i = default(int);
     switch (7)
     {
         case -9:
@@ -979,7 +979,7 @@ else
                     SwitchCase(Assign(parameter, Constant(10)), Constant(-10)))),
             """
 {
-    int i = default;
+    int i = default(int);
     switch (7)
     {
         case -9:
@@ -1107,7 +1107,7 @@ else
             """
 {
     var i = 8;
-    f = (int i) => i == 5;
+    f = bool (int i) => i == 5;
 }
 """);
     }
@@ -1132,9 +1132,9 @@ else
                         Constant(true)),
                     i)),
             """
-f1 = (int i) =>
+f1 = bool (int i) =>
 {
-    f2 = (int i) => i == 5;
+    f2 = bool (int i) => i == 5;
     return true;
 }
 """);
@@ -1145,7 +1145,7 @@ f1 = (int i) =>
         => AssertStatement(Block(Add(Constant(1), Constant(2))),
             """
 {
-    _ = 1 + 2;
+    _ = (1 + 2);
 }
 """);
 
@@ -1397,7 +1397,7 @@ new int[]
                             Constant(9))))),
             """
 {
-    int j = default;
+    int j = default(int);
     LinqToCSharpSyntaxTranslatorTest.Foo();
     j = 8;
     var i = 9;
@@ -1416,7 +1416,7 @@ new int[]
                         Call(BarMethod))),
                 []),
             """
-() =>
+int () =>
 {
     LinqToCSharpSyntaxTranslatorTest.Foo();
     return LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(LinqToCSharpSyntaxTranslatorTest.Bar());
@@ -1430,7 +1430,7 @@ new int[]
                 Block(Block(Constant(8))),
                 []),
             """
-() =>
+int () =>
 {
     {
         return 8;
@@ -1480,7 +1480,7 @@ new int[]
                         SwitchCase(Constant(2), Constant(9))))),
             """
 {
-    int i = default;
+    int i = default(int);
     var j = 8;
     switch (j)
     {
@@ -1534,8 +1534,8 @@ new int[]
                             Constant(200))))),
             """
 {
-    int i = default;
-    int k = default;
+    int i = default(int);
+    int k = default(int);
     var j = 8;
     switch (j)
     {
@@ -1598,7 +1598,7 @@ new int[]
                         SwitchCase(Constant(3), Parameter(typeof(Blog), "blog4"))))),
             """
 {
-    int i = default;
+    int i = default(int);
     if (blog1 == blog2)
     {
         LinqToCSharpSyntaxTranslatorTest.ReturnsIntWithParam(8);
@@ -1613,7 +1613,7 @@ new int[]
         }
         else
         {
-            i = blog1 == blog4 ? 3 : 0;
+            i = (blog1 == blog4 ? 3 : 0);
         }
     }
 }

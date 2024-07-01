@@ -126,14 +126,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     }
 
     private static readonly MethodInfo SingleAsyncMethodInfo
-        = typeof(ShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-            .GetDeclaredMethods(nameof(SingleAsync))
-            .Single(mi => mi.GetParameters().Length == 2);
+        = typeof(ShapedQueryCompilingExpressionVisitor)
+            .GetMethods()
+            .Single(mi => mi.Name == nameof(SingleAsync) && mi.GetParameters().Length == 2);
 
     private static readonly MethodInfo SingleOrDefaultAsyncMethodInfo
-        = typeof(ShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-            .GetDeclaredMethods(nameof(SingleOrDefaultAsync))
-            .Single(mi => mi.GetParameters().Length == 2);
+        = typeof(ShapedQueryCompilingExpressionVisitor)
+            .GetMethods()
+            .Single(mi => mi.Name == nameof(SingleOrDefaultAsync) && mi.GetParameters().Length == 2);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

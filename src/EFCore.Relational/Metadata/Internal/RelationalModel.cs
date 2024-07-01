@@ -93,7 +93,6 @@ public class RelationalModel : Annotatable, IRelationalModel
     public virtual ITable? FindTable(string name, string? schema)
         => Tables.GetValueOrDefault((name, schema));
 
-    // TODO: Confirm that this makes sense
     /// <inheritdoc />
     public virtual TableBase? FindDefaultTable(string name)
         => DefaultTables.GetValueOrDefault(name);
