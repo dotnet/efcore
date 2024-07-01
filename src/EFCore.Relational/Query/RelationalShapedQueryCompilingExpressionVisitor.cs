@@ -133,39 +133,28 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     {
         try
         {
-            if (threadSafetyChecksEnabled)
-            {
-                relationalQueryContext.ConcurrencyDetector.EnterCriticalSection();
-            }
+            using var _ = threadSafetyChecksEnabled
+                ? (ConcurrencyDetectorCriticalSectionDisposer?)relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()
+                : null;
 
-            try
-            {
-                return relationalQueryContext.ExecutionStrategy.Execute(
-                    (relationalQueryContext, relationalCommandResolver, commandSource),
-                    static (_, state) =>
-                    {
-                        EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                        var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
-
-                        return relationalCommand.ExecuteNonQuery(
-                            new RelationalCommandParameterObject(
-                                state.relationalQueryContext.Connection,
-                                state.relationalQueryContext.ParameterValues,
-                                null,
-                                state.relationalQueryContext.Context,
-                                state.relationalQueryContext.CommandLogger,
-                                state.commandSource));
-                    },
-                    null);
-            }
-            finally
-            {
-                if (threadSafetyChecksEnabled)
+            return relationalQueryContext.ExecutionStrategy.Execute(
+                (relationalQueryContext, relationalCommandResolver, commandSource),
+                static (_, state) =>
                 {
-                    relationalQueryContext.ConcurrencyDetector.ExitCriticalSection();
-                }
-            }
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                    return relationalCommand.ExecuteNonQuery(
+                        new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.ParameterValues,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            state.commandSource));
+                },
+                null);
         }
         catch (Exception exception)
         {
@@ -211,41 +200,30 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     {
         try
         {
-            if (threadSafetyChecksEnabled)
-            {
-                relationalQueryContext.ConcurrencyDetector.EnterCriticalSection();
-            }
+            using var _ = threadSafetyChecksEnabled
+                ? (ConcurrencyDetectorCriticalSectionDisposer?)relationalQueryContext.ConcurrencyDetector.EnterCriticalSection()
+                : null;
 
-            try
-            {
-                return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                    (relationalQueryContext, relationalCommandResolver, commandSource),
-                    static (_, state, cancellationToken) =>
-                    {
-                        EntityFrameworkMetricsData.ReportQueryExecuting();
-
-                        var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
-
-                        return relationalCommand.ExecuteNonQueryAsync(
-                            new RelationalCommandParameterObject(
-                                state.relationalQueryContext.Connection,
-                                state.relationalQueryContext.ParameterValues,
-                                null,
-                                state.relationalQueryContext.Context,
-                                state.relationalQueryContext.CommandLogger,
-                                state.commandSource),
-                            cancellationToken);
-                    },
-                    null,
-                    relationalQueryContext.CancellationToken);
-            }
-            finally
-            {
-                if (threadSafetyChecksEnabled)
+            return relationalQueryContext.ExecutionStrategy.ExecuteAsync(
+                (relationalQueryContext, relationalCommandResolver, commandSource),
+                static (_, state, cancellationToken) =>
                 {
-                    relationalQueryContext.ConcurrencyDetector.ExitCriticalSection();
-                }
-            }
+                    EntityFrameworkMetricsData.ReportQueryExecuting();
+
+                    var relationalCommand = state.relationalCommandResolver.RentAndPopulateRelationalCommand(state.relationalQueryContext);
+
+                    return relationalCommand.ExecuteNonQueryAsync(
+                        new RelationalCommandParameterObject(
+                            state.relationalQueryContext.Connection,
+                            state.relationalQueryContext.ParameterValues,
+                            null,
+                            state.relationalQueryContext.Context,
+                            state.relationalQueryContext.CommandLogger,
+                            state.commandSource),
+                        cancellationToken);
+                },
+                null,
+                relationalQueryContext.CancellationToken);
         }
         catch (Exception exception)
         {

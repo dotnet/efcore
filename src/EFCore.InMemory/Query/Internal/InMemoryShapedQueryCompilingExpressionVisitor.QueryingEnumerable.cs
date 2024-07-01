@@ -93,16 +93,9 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
-                    {
-                        return MoveNextHelper();
-                    }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
-                    }
+                    return MoveNextHelper();
                 }
                 catch (Exception exception)
                 {
@@ -123,18 +116,11 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
 
-                    try
-                    {
-                        _cancellationToken.ThrowIfCancellationRequested();
+                    _cancellationToken.ThrowIfCancellationRequested();
 
-                        return ValueTask.FromResult(MoveNextHelper());
-                    }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
-                    }
+                    return ValueTask.FromResult(MoveNextHelper());
                 }
                 catch (Exception exception)
                 {
