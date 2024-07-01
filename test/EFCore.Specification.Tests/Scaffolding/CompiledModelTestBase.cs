@@ -1514,7 +1514,7 @@ namespace TestNamespace
         Directory.CreateDirectory(baselinesDirectory);
 
         var shouldRewrite = Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE";
-        List<(string Path, Exception Exception)> exceptions = [];
+        List<Exception> exceptions = [];
         foreach (var file in scaffoldedFiles)
         {
             var fullFilePath = Path.Combine(baselinesDirectory, file.Path);
@@ -1529,13 +1529,13 @@ namespace TestNamespace
                     File.WriteAllText(fullFilePath, file.Code);
                 }
 
-                exceptions.Add((file.Path, ex));
+                exceptions.Add(new Exception($"Difference found in {file.Path}", ex));
             }
         }
 
-        foreach (var (path, ex) in exceptions)
+        if (exceptions.Count > 0)
         {
-            throw new Exception($"Difference found in {path}", ex);
+            throw new AggregateException($"Differences found in {exceptions.Count} files", exceptions);
         }
     }
 }
