@@ -1465,7 +1465,8 @@ namespace TestNamespace
     {
         var build = new BuildSource
         {
-            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code), NullableReferenceTypes = options.UseNullableReferenceTypes
+            Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code),
+            NullableReferenceTypes = options.UseNullableReferenceTypes
         };
         AddReferences(build);
 
@@ -1491,42 +1492,50 @@ namespace TestNamespace
         string testName)
     {
         var testDirectory = Path.GetDirectoryName(_filePath);
-        if (string.IsNullOrEmpty(testDirectory)
-            || !Directory.Exists(testDirectory))
+        if (string.IsNullOrEmpty(testDirectory))
         {
-            return;
+            return; // cannot look for the baseline
+        }
+
+        var prefix = Path.DirectorySeparatorChar + "_" + Path.DirectorySeparatorChar;
+        if (testDirectory.StartsWith(prefix))
+        {
+            // assumes a current directory like /path/to/efcore/artifacts/bin/EFCore.Sqlite.FunctionalTests/Release/net9.0
+            // so that a path mangled by DeterministicSourcePaths such as /_/test/EFCore.Sqlite.FunctionalTests/Scaffolding becomes
+            // /path/to/efcore/test/EFCore.Sqlite.FunctionalTests/Scaffolding
+            testDirectory = string.Join(Path.DirectorySeparatorChar, Enumerable.Repeat("..", 5)) + testDirectory[2..];
+        }
+        if (!Directory.Exists(testDirectory))
+        {
+            throw new Exception($"Test directory '{testDirectory}' not found from '{Directory.GetCurrentDirectory()}'");
         }
 
         var baselinesDirectory = Path.Combine(testDirectory, "Baselines", testName);
-        try
-        {
-            Directory.CreateDirectory(baselinesDirectory);
-        }
-        catch
-        {
-            return;
-        }
+        Directory.CreateDirectory(baselinesDirectory);
 
         var shouldRewrite = Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE";
+        List<Exception> exceptions = [];
         foreach (var file in scaffoldedFiles)
         {
             var fullFilePath = Path.Combine(baselinesDirectory, file.Path);
-            if (!File.Exists(fullFilePath)
-                || shouldRewrite)
+            try
             {
-                File.WriteAllText(fullFilePath, file.Code);
+                Assert.Equal(File.ReadAllText(fullFilePath), file.Code, ignoreLineEndingDifferences: true);
             }
-            else
+            catch (Exception ex)
             {
-                try
+                if (shouldRewrite)
                 {
-                    Assert.Equal(File.ReadAllText(fullFilePath), file.Code, ignoreLineEndingDifferences: true);
+                    File.WriteAllText(fullFilePath, file.Code);
                 }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Difference found in {file.Path}", ex);
-                }
+
+                exceptions.Add(new Exception($"Difference found in {file.Path}", ex));
             }
+        }
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException($"Differences found in {exceptions.Count} files", exceptions);
         }
     }
 }
