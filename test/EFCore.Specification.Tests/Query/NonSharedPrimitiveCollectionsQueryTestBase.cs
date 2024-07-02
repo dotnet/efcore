@@ -231,8 +231,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         await using var context = contextFactory.CreateContext();
 
         var results = await context.Set<TestEntityWithOwned>().Select(t => t.Ints).ToListAsync();
-        Assert.True(results.Any(r => r?.SequenceEqual([1, 2]) == true));
-        Assert.True(results.Any(r => r?.SequenceEqual([3, 4]) == true));
+        Assert.Contains(results, r => r?.SequenceEqual([1, 2]) ?? false);
+        Assert.Contains(results, r => r?.SequenceEqual([3, 4]) ?? false);
     }
 
     private class TestEntityWithOwned

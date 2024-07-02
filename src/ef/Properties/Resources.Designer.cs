@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("ConnectionDescription");
 
         /// <summary>
-        ///     The DbContext to use.
+        ///     The DbContext to use. "*" can be used to run the command for all contexts found. This will also disable service discovery through the startup project if a corresponding IDesignTimeDbContextFactory implementation is found.
         /// </summary>
         public static string ContextDescription
             => GetString("ContextDescription");

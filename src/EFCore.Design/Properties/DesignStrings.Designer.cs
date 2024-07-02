@@ -497,6 +497,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 assembly);
 
         /// <summary>
+        ///     No type deriving from DbContext was found. Add [assembly: DbContext(typeof(*))] attribute for every context type used in this project.
+        /// </summary>
+        public static string NoContextsToOptimize
+            => GetString("NoContextsToOptimize");
+
+        /// <summary>
         ///     You must provide a DbContext.t4 file in order to scaffold using custom templates.
         /// </summary>
         public static string NoContextTemplate
@@ -613,6 +619,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NotExistDatabase", nameof(name)),
                 name);
+
+        /// <summary>
+        ///     No files were generated during the DbContext optimization. Ensure that the target project has code that uses DbContext and that the supplied options are correct.
+        /// </summary>
+        public static string OptimizeNoFilesGenerated
+            => GetString("OptimizeNoFilesGenerated");
 
         /// <summary>
         ///     Changes have been made to the model since the last migration. Add a new migration.
