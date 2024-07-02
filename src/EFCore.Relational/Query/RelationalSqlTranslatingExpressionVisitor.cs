@@ -1185,13 +1185,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                             .Aggregate(_sqlExpressionFactory.OrElse);
                 }
 
-                return discriminatorValues.Count == 1
-                    ? _sqlExpressionFactory.Equal(
-                        entityProjectionExpression.DiscriminatorExpression!,
-                        _sqlExpressionFactory.Constant(discriminatorValues[0]))
-                    : _sqlExpressionFactory.In(
-                        entityProjectionExpression.DiscriminatorExpression!,
-                        discriminatorValues.Select(d => _sqlExpressionFactory.Constant(d)).ToArray());
+                return _sqlExpressionFactory.In(
+                    entityProjectionExpression.DiscriminatorExpression!,
+                    discriminatorValues.Select(d => _sqlExpressionFactory.Constant(d)).ToArray());
             }
         }
         else
@@ -1202,15 +1198,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                 var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
-                return concreteEntityTypes.Count == 1
-                    ? _sqlExpressionFactory.Equal(
-                        discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
-                    : _sqlExpressionFactory.In(
-                        discriminatorColumn,
-                        concreteEntityTypes
-                            .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
-                            .ToArray());
+                return _sqlExpressionFactory.In(
+                    discriminatorColumn,
+                    concreteEntityTypes
+                        .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                        .ToArray());
             }
 
             return _sqlExpressionFactory.Constant(true);

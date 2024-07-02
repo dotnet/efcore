@@ -240,6 +240,19 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_conflicting_IsDiscriminatorMappingCompleteMismatch()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().ToContainer("Orders")
+            .Metadata.SetDiscriminatorMappingComplete(true);
+        modelBuilder.Entity<Order>().ToContainer("Orders")
+            .Metadata.SetDiscriminatorMappingComplete(false);
+
+        VerifyError(
+            CosmosStrings.IsDiscriminatorMappingCompleteMismatch(true, nameof(Customer), nameof(Order), false, "Orders"), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_conflicting_analytical_ttl()
     {
         var modelBuilder = CreateConventionModelBuilder();

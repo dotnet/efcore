@@ -2206,7 +2206,7 @@ WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
             });
 
@@ -2220,7 +2220,7 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
             });
 

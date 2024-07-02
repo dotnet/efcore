@@ -110,6 +110,8 @@ public class CosmosModelValidator : ModelValidator
         int? defaultTtl = null;
         ThroughputProperties? throughput = null;
         IEntityType? firstEntityType = null;
+        bool? isDiscriminatorMappingComplete = null;
+
         foreach (var entityType in mappedTypes)
         {
             Check.DebugAssert(entityType.IsDocumentRoot(), "Only document roots expected here.");
@@ -177,6 +179,19 @@ public class CosmosModelValidator : ModelValidator
                 }
 
                 discriminatorValues[discriminatorValue] = entityType;
+
+                var currentIsDiscriminatorMappingComplete = entityType.GetIsDiscriminatorMappingComplete();
+                if (isDiscriminatorMappingComplete == null)
+                {
+                    isDiscriminatorMappingComplete = currentIsDiscriminatorMappingComplete;
+                }
+                else if (currentIsDiscriminatorMappingComplete != isDiscriminatorMappingComplete)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.IsDiscriminatorMappingCompleteMismatch(
+                            isDiscriminatorMappingComplete, firstEntityType.DisplayName(), entityType.DisplayName(),
+                            currentIsDiscriminatorMappingComplete, container));
+                }
             }
 
             var currentAnalyticalTtl = entityType.GetAnalyticalStoreTimeToLive();

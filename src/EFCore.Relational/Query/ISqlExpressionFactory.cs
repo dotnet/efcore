@@ -142,10 +142,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL addition.</returns>
-    SqlExpression Add(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Add(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents a subtraction.
@@ -154,10 +151,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL subtraction.</returns>
-    SqlExpression Subtract(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Subtract(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents a multiplication.
@@ -166,10 +160,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL multiplication.</returns>
-    SqlExpression Multiply(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Multiply(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents a division.
@@ -178,10 +169,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL division.</returns>
-    SqlExpression Divide(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Divide(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents a modulo operation.
@@ -190,10 +178,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL modulo operation.</returns>
-    SqlExpression Modulo(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Modulo(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     // Bitwise
     /// <summary>
@@ -203,10 +188,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL bitwise AND operation.</returns>
-    SqlExpression And(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression And(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents a bitwise OR operation.
@@ -215,10 +197,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL bitwise OR operation.</returns>
-    SqlExpression Or(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Or(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     // Other
     /// <summary>
@@ -228,10 +207,7 @@ public interface ISqlExpressionFactory
     /// <param name="right">The right operand.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
     /// <returns>An expression representing a SQL COALESCE operation.</returns>
-    SqlExpression Coalesce(
-        SqlExpression left,
-        SqlExpression right,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> which represent equality to null.
@@ -254,10 +230,7 @@ public interface ISqlExpressionFactory
     /// <param name="type">The return type of the expression after cast.</param>
     /// <param name="typeMapping">A relational type mapping to use for conversion.</param>
     /// <returns>An expression representing cast operation in a SQL tree.</returns>
-    SqlExpression Convert(
-        SqlExpression operand,
-        Type type,
-        RelationalTypeMapping? typeMapping = null);
+    SqlExpression Convert(SqlExpression operand, Type type, RelationalTypeMapping? typeMapping = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> which represent a NOT operation in a SQL tree.
@@ -280,10 +253,7 @@ public interface ISqlExpressionFactory
     /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to compare or evaluate and get result from.</param>
     /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
     /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
-    SqlExpression Case(
-        SqlExpression? operand,
-        IReadOnlyList<CaseWhenClause> whenClauses,
-        SqlExpression? elseResult);
+    SqlExpression Case(SqlExpression? operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult);
 
     /// <summary>
     ///     Creates a new <see cref="CaseExpression" /> which represent a CASE statement in a SQL tree.

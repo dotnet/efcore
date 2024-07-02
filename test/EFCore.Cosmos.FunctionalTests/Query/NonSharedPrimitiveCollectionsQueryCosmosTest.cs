@@ -15,10 +15,10 @@ public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCo
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "a")) = 2))
+    WHERE (s = "a")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -31,10 +31,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 1)) = 2))
+    WHERE (s = 1)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -47,10 +47,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 1)) = 2))
+    WHERE (s = 1)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -63,10 +63,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 1)) = 2))
+    WHERE (s = 1)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -84,10 +84,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 1.0)) = 2))
+    WHERE (s = 1.0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -100,10 +100,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 1.0)) = 2))
+    WHERE (s = 1.0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -116,10 +116,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 1.0)) = 2))
+    WHERE (s = 1.0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -132,10 +132,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "2023-01-01T12:30:00")) = 2))
+    WHERE (s = "2023-01-01T12:30:00")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -148,10 +148,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "2023-01-01T12:30:00.123")) = 2))
+    WHERE (s = "2023-01-01T12:30:00.123")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -164,10 +164,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "2023-01-01T12:30:00.123456")) = 2))
+    WHERE (s = "2023-01-01T12:30:00.123456")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -180,10 +180,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "2023-01-01")) = 2))
+    WHERE (s = "2023-01-01")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -196,10 +196,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "12:30:00")) = 2))
+    WHERE (s = "12:30:00")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -212,10 +212,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "12:30:00.123")) = 2))
+    WHERE (s = "12:30:00.123")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -228,10 +228,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "12:30:00.123456")) = 2))
+    WHERE (s = "12:30:00.123456")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -244,10 +244,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "2023-01-01T12:30:00+02:00")) = 2))
+    WHERE (s = "2023-01-01T12:30:00+02:00")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -260,10 +260,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = true)) = 2))
+    WHERE (s = true)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -276,10 +276,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2))
+    WHERE (s = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -293,10 +293,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = "AQI=")) = 2))
+    WHERE (s = "AQI=")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -309,10 +309,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM s IN c["SomeArray"]
-    WHERE (s = 0)) = 2))
+    WHERE (s = 0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -333,7 +333,7 @@ OFFSET 0 LIMIT 2
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND (c["Ints"] = @__ints_0))
+WHERE (c["Ints"] = @__ints_0)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -361,10 +361,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM a IN (SELECT VALUE [1, 2, 3])
-    WHERE (a > c["Id"])) = 1))
+    WHERE (a > c["Id"])) = 1)
 OFFSET 0 LIMIT 2
 """);
     }

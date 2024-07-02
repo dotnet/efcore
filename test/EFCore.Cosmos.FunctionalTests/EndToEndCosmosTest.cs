@@ -1344,7 +1344,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["Id"] = @__p_3))
+WHERE (c["Id"] = @__p_3)
 OFFSET 0 LIMIT 1
 """);
 
@@ -1489,7 +1489,7 @@ OFFSET 0 LIMIT 1
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "CustomerWithResourceId") AND (c["id"] = @__p_0))
+WHERE (c["id"] = @__p_0)
 OFFSET 0 LIMIT 1
 """);
         }

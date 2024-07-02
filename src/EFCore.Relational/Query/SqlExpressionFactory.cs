@@ -831,7 +831,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
     /// <inheritdoc />
     public virtual SqlExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values)
-        => ApplyTypeMappingOnIn(new InExpression(item, values, _boolTypeMapping));
+        => values is [var singleValue]
+            ? Equal(item, singleValue)
+            : ApplyTypeMappingOnIn(new InExpression(item, values, _boolTypeMapping));
 
     /// <inheritdoc />
     public virtual SqlExpression In(SqlExpression item, SqlParameterExpression valuesParameter)

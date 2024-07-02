@@ -429,15 +429,11 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             var discriminatorColumn = GetMappedProjection(selectExpression).BindProperty(discriminatorProperty);
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-            var predicate = concreteEntityTypes.Count == 1
-                ? (SqlExpression)_sqlExpressionFactory.Equal(
-                    discriminatorColumn,
-                    _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
-                : _sqlExpressionFactory.In(
-                    discriminatorColumn,
-                    concreteEntityTypes
-                        .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
-                        .ToArray());
+            var predicate = _sqlExpressionFactory.In(
+                discriminatorColumn,
+                concreteEntityTypes
+                    .Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                    .ToArray());
 
             selectExpression.ApplyPredicate(predicate);
 

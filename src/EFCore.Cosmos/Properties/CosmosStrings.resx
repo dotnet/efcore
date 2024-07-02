@@ -165,6 +165,9 @@
   <data name="InvalidResourceId" xml:space="preserve">
     <value>Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.</value>
   </data>
+  <data name="IsDiscriminatorMappingCompleteMismatch" xml:space="preserve">
+    <value>The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.</value>
+  </data>
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
   </data>
