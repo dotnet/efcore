@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         ISqlExpressionFactory sqlExpressionFactory,
-        QueryCompilationContext queryCompilationContext)
+        CosmosQueryCompilationContext queryCompilationContext)
     : QueryTranslationPostprocessor(dependencies, queryCompilationContext)
 {
     /// <summary>
@@ -31,8 +31,9 @@ public class CosmosQueryTranslationPostprocessor(
             selectExpression.ApplyProjection();
         }
 
-        query = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
 
-        return query;
+        return afterAliases;
     }
 }
