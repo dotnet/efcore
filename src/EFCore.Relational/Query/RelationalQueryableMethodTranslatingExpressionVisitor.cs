@@ -1138,6 +1138,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         private ParameterExpression? _outerParameter;
         private bool _correlated;
         private bool _defaultIfEmpty;
+        private bool _topLevelSelectMany;
 
         public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
         {
@@ -1146,6 +1147,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
             _correlated = false;
             _defaultIfEmpty = false;
+            _topLevelSelectMany = true;
             _outerParameter = lambdaExpression.Parameters[0];
 
             var result = Visit(lambdaExpression.Body);
@@ -1165,8 +1167,18 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
+            if (methodCallExpression.Method.Name == nameof(Queryable.SelectMany))
+            {
+                var levelBuffer = _topLevelSelectMany;
+                _topLevelSelectMany = false;
+                var result = base.VisitMethodCall(methodCallExpression);
+                _topLevelSelectMany = levelBuffer;
+                return result;
+            }
+
+            if (_topLevelSelectMany
+                && methodCallExpression.Method.IsGenericMethod
+            && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
             {
                 _defaultIfEmpty = true;
                 return Visit(methodCallExpression.Arguments[0]);
