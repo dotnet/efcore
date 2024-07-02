@@ -619,6 +619,18 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_coalesce_shortcircuit(bool async)
+        => AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => (bool?)(e.BoolA | e.BoolB) ?? e.NullableBoolA ?? true)
+            .Select(e => e.Id));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_coalesce_shortcircuit_many(bool async)
+        => AssertQueryScalar(async, ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableBoolA ?? (bool?)(e.BoolA | e.BoolB) ?? e.NullableBoolB ?? e.BoolB)
+            .Select(e => e.Id));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_equal_nullable_with_null_value_parameter(bool async)
     {
         string prm = null;

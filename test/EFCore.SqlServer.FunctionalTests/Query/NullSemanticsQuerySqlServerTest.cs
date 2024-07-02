@@ -2194,6 +2194,33 @@ WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Where_coalesce_shortcircuit(bool async)
+    {
+        await base.Where_coalesce_shortcircuit(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Where_coalesce_shortcircuit_many(bool async)
+    {
+        await base.Where_coalesce_shortcircuit_many(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE COALESCE([e].[NullableBoolA], CASE
+    WHEN [e].[BoolA] = CAST(1 AS bit) OR [e].[BoolB] = CAST(1 AS bit) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END) = CAST(1 AS bit)
+""");
+    }
+
     public override async Task Where_equal_nullable_with_null_value_parameter(bool async)
     {
         await base.Where_equal_nullable_with_null_value_parameter(async);
