@@ -190,6 +190,9 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = 
             nullableShadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
 
             modelBuilder.Entity<SimpleCounter>(b => b.ToContainer("SimpleCounters"));
+
+            modelBuilder.Entity<Person>().Metadata.RemoveIndex(
+                modelBuilder.Entity<Person>().Property(e => e.SSN).Metadata.GetContainingIndexes().Single());
         }
     }
 }

@@ -11,6 +11,9 @@ public class AspNetIdentityCustomTypesDefaultInMemoryTest(AspNetIdentityCustomTy
     {
     }
 
+    protected override bool HasForeignKeyIndexes
+        => false;
+
     protected override async Task ExecuteWithStrategyInTransactionAsync(
         Func<CustomTypesIdentityContext, Task> testOperation,
         Func<CustomTypesIdentityContext, Task> nestedTestOperation1 = null,

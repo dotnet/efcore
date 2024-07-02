@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore;
 public class ConfigurationDbContextInMemoryTest(ConfigurationDbContextInMemoryTest.ConfigurationDbContextInMemoryFixture fixture)
     : ConfigurationDbContextTestBase<ConfigurationDbContextInMemoryTest.ConfigurationDbContextInMemoryFixture>(fixture)
 {
+    protected override bool HasForeignKeyIndexes
+        => false;
+
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
     }

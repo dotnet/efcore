@@ -349,6 +349,19 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.HasIndex(e => new { e.Name, e.OtherName });
+            });
+
+        VerifyError(CosmosStrings.IndexesExist(nameof(Customer), "Name,OtherName"), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_discriminator()
     {
         var modelBuilder = CreateConventionModelBuilder();

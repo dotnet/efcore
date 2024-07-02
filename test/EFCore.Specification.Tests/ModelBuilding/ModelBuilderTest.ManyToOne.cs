@@ -44,8 +44,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -103,8 +112,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -137,8 +155,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -174,8 +201,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -209,8 +245,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -248,8 +293,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -281,8 +335,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
             Assert.NotNull(dependentType.FindForeignKeys(fkProperty).SingleOrDefault());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -313,8 +376,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
             Assert.NotNull(dependentType.FindForeignKeys(fkProperty).SingleOrDefault());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -350,8 +422,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -391,8 +472,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -428,8 +518,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -466,8 +565,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -500,8 +608,17 @@ public abstract partial class ModelBuilderTest
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -536,8 +653,17 @@ public abstract partial class ModelBuilderTest
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -573,8 +699,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk!.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -610,8 +745,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -644,8 +788,17 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(Pickle.BigMak), dependentType.GetNavigations().Single().Name);
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -678,8 +831,17 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(nameof(BigMak.Pickles), fk.PrincipalToDependent.Name);
             Assert.Null(fk.DependentToPrincipal);
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -714,8 +876,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != fk));
             Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != fk));
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk!.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -748,8 +919,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -784,8 +964,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -839,8 +1028,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -892,8 +1090,16 @@ public abstract partial class ModelBuilderTest
             expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -934,8 +1140,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -976,8 +1191,17 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Empty(principalType.GetForeignKeys());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1023,8 +1247,16 @@ public abstract partial class ModelBuilderTest
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1070,8 +1302,16 @@ public abstract partial class ModelBuilderTest
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1117,8 +1357,16 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1164,8 +1412,16 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1246,8 +1502,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1289,8 +1554,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1345,8 +1619,16 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1401,8 +1683,16 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1442,8 +1732,17 @@ public abstract partial class ModelBuilderTest
             Assert.NotSame(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1483,8 +1782,17 @@ public abstract partial class ModelBuilderTest
             Assert.NotSame(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk!.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1531,8 +1839,17 @@ public abstract partial class ModelBuilderTest
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
             Assert.Empty(principalType.GetIndexes());
         }
 
@@ -1572,10 +1889,19 @@ public abstract partial class ModelBuilderTest
 
             var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
             Assert.NotSame(principalKey, fk.PrincipalKey);
-            Assert.Equal(principalType.GetForeignKeys().Count(), principalType.GetIndexes().Count());
-            Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
-            Assert.True(existingFk.DeclaringEntityType.FindIndex(existingFk.Properties).IsUnique);
-            Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Equal(principalType.GetForeignKeys().Count(), principalType.GetIndexes().Count());
+                Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
+                Assert.True(existingFk.DeclaringEntityType.FindIndex(existingFk.Properties)!.IsUnique);
+                Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(principalType.GetIndexes());
+                Assert.Empty(dependentType.GetIndexes());
+            }
+
 
             Assert.Equal(
                 CoreStrings.AmbiguousOneToOneRelationship(
@@ -1621,8 +1947,16 @@ public abstract partial class ModelBuilderTest
             var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
             Assert.NotSame(principalKey, fk.PrincipalKey);
             Assert.Empty(principalType.GetIndexes());
-            Assert.Single(dependentType.GetIndexes());
-            Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+
+            if (Fixture.ForeignKeysHaveIndexes)
+            {
+                Assert.Single(dependentType.GetIndexes());
+                Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties)!.IsUnique);
+            }
+            else
+            {
+                Assert.Empty(dependentType.GetIndexes());
+            }
         }
 
         [ConditionalFact]

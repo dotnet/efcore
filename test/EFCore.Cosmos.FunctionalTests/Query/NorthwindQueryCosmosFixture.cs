@@ -51,5 +51,23 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
         modelBuilder
             .Entity<CustomerQueryWithQueryFilter>()
             .HasDiscriminator<string>("Discriminator").HasValue("Customer");
+
+        modelBuilder.Entity<Customer>().Metadata.RemoveIndex(
+            modelBuilder.Entity<Customer>().Property(e => e.City).Metadata.GetContainingIndexes().Single());
+
+        modelBuilder.Entity<Customer>().Metadata.RemoveIndex(
+            modelBuilder.Entity<Customer>().Property(e => e.CompanyName).Metadata.GetContainingIndexes().Single());
+
+        modelBuilder.Entity<Customer>().Metadata.RemoveIndex(
+            modelBuilder.Entity<Customer>().Property(e => e.PostalCode).Metadata.GetContainingIndexes().Single());
+
+        modelBuilder.Entity<Customer>().Metadata.RemoveIndex(
+            modelBuilder.Entity<Customer>().Property(e => e.Region).Metadata.GetContainingIndexes().Single());
+
+        modelBuilder.Entity<Order>().Metadata.RemoveIndex(
+            modelBuilder.Entity<Order>().Property(e => e.OrderDate).Metadata.GetContainingIndexes().Single());
+
+        modelBuilder.Entity<Product>().Metadata.RemoveIndex(
+            modelBuilder.Entity<Product>().Property(e => e.ProductName).Metadata.GetContainingIndexes().Single());
     }
 }

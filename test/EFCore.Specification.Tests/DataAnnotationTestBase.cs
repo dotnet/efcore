@@ -22,6 +22,9 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
     protected TFixture Fixture { get; }
 
+    protected virtual bool HasForeignKeyIndexes
+        => true;
+
     protected DbContext CreateContext()
         => Fixture.CreateContext();
 
@@ -1653,17 +1656,25 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         var fk1 = entityType.GetForeignKeys().Single(fk => fk.Properties.Single().Name == nameof(Comment.ParentCommentID));
         Assert.Equal(nameof(Comment.ParentComment), fk1.DependentToPrincipal.Name);
         Assert.Null(fk1.PrincipalToDependent);
-        var index1 = entityType.FindIndex(fk1.Properties);
-        Assert.False(index1.IsUnique);
+
+        if (HasForeignKeyIndexes)
+        {
+            var index1 = entityType.FindIndex(fk1.Properties);
+            Assert.False(index1.IsUnique);
+        }
 
         var fk2 = entityType.GetForeignKeys().Single(fk => fk.Properties.Single().Name == nameof(Comment.ReplyCommentID));
         Assert.Equal(nameof(Comment.ReplyComment), fk2.DependentToPrincipal.Name);
         Assert.Null(fk2.PrincipalToDependent);
-        var index2 = entityType.FindIndex(fk2.Properties);
-        Assert.False(index2.IsUnique);
+
+        if (HasForeignKeyIndexes)
+        {
+            var index2 = entityType.FindIndex(fk2.Properties);
+            Assert.False(index2.IsUnique);
+        }
 
         Assert.Equal(2, entityType.GetForeignKeys().Count());
-        Assert.Equal(2, entityType.GetIndexes().Count());
+        Assert.Equal(HasForeignKeyIndexes ? 2 : 0, entityType.GetIndexes().Count());
     }
 
     private class Comment

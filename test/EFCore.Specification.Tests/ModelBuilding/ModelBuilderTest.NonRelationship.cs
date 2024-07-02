@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Dynamic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 // ReSharper disable InconsistentNaming

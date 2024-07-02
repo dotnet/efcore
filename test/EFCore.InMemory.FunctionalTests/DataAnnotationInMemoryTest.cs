@@ -9,6 +9,9 @@ public class DataAnnotationInMemoryTest(DataAnnotationInMemoryTest.DataAnnotatio
     protected override TestHelpers TestHelpers
         => InMemoryTestHelpers.Instance;
 
+    protected override bool HasForeignKeyIndexes
+        => false;
+
     public override Task ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
     {
         using var context = CreateContext();

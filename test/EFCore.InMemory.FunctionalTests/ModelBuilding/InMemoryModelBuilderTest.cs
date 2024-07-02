@@ -27,5 +27,8 @@ public class InMemoryModelBuilderTest : ModelBuilderTest
     public class InMemoryModelBuilderFixture : ModelBuilderFixtureBase
     {
         public override TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+
+        public override bool ForeignKeysHaveIndexes
+            => false;
     }
 }

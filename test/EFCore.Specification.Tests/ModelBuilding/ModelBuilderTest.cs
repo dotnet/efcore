@@ -51,6 +51,9 @@ public abstract partial class ModelBuilderTest
         public abstract TestHelpers TestHelpers { get; }
         public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder) => builder;
         public virtual IServiceCollection AddServices(IServiceCollection services) => services;
+
+        public virtual bool ForeignKeysHaveIndexes
+            => true;
     }
 
     public abstract class TestModelBuilder : IInfrastructure<ModelBuilder>
