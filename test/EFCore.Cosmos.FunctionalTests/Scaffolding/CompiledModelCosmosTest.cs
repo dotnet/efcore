@@ -146,13 +146,13 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.Equal(new[] { id, partitionId, blob, storeId, jObject, eTag }, dataEntity.GetProperties());
             });
 
-    // Primitive collections not supported yet
+    [ConditionalFact(Skip = "Primitive collections not supported yet")]
     public override Task BigModel()
-        => Task.CompletedTask;
+        => base.BigModel();
 
-    // Primitive collections not supported yet
+    [ConditionalFact(Skip = "Primitive collections not supported yet")]
     public override Task ComplexTypes()
-        => Task.CompletedTask;
+        => base.ComplexTypes();
 
     protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
     protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
