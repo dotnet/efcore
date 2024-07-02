@@ -93,6 +93,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new ConstructorBindingConvention(Dependencies));
         conventionSet.Add(new KeyAttributeConvention(Dependencies));
         conventionSet.Add(new IndexAttributeConvention(Dependencies));
+        conventionSet.Add(new ForeignKeyIndexConvention(Dependencies));
         conventionSet.Add(new ForeignKeyPropertyDiscoveryConvention(Dependencies));
         conventionSet.Add(new NonNullableReferencePropertyConvention(Dependencies));
         conventionSet.Add(new NonNullableNavigationConvention(Dependencies));

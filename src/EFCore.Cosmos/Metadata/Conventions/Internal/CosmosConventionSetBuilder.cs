@@ -35,6 +35,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
         conventionSet.Add(new ContextContainerConvention(Dependencies));
         conventionSet.Add(new ETagPropertyConvention());
         conventionSet.Add(new StoreKeyConvention(Dependencies));
+        conventionSet.Remove(typeof(ForeignKeyIndexConvention));
 
         conventionSet.Replace<ValueGenerationConvention>(new CosmosValueGenerationConvention(Dependencies));
         conventionSet.Replace<KeyDiscoveryConvention>(new CosmosKeyDiscoveryConvention(Dependencies));
