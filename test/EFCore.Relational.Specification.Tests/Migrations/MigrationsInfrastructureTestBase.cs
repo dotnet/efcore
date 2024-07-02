@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -21,6 +23,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
     protected string Sql { get; private set; }
 
     protected string ActiveProvider { get; private set; }
+
+    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     // Database deletion can happen as async file operation and SQLClient
     // doesn't account for this, so give some time for it to happen on slow C.I. machines
@@ -176,6 +180,92 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
             x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_apply_one_migration_in_parallel()
+    {
+        using var db = Fixture.CreateContext();
+        db.Database.EnsureDeleted();
+        GiveMeSomeTime(db);
+        db.GetService<IRelationalDatabaseCreator>().Create();
+
+        Parallel.For(0, Environment.ProcessorCount, i =>
+        {
+            using var context = Fixture.CreateContext();
+            var migrator = context.GetService<IMigrator>();
+            migrator.Migrate("Migration1");
+        });
+
+        var history = db.GetService<IHistoryRepository>();
+        Assert.Collection(
+            history.GetAppliedMigrations(),
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_apply_one_migration_in_parallel_async()
+    {
+        using var db = Fixture.CreateContext();
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+        await db.GetService<IRelationalDatabaseCreator>().CreateAsync();
+
+        await Parallel.ForAsync(0, Environment.ProcessorCount, async (i, _) =>
+        {
+            using var context = Fixture.CreateContext();
+            var migrator = context.GetService<IMigrator>();
+            await migrator.MigrateAsync("Migration1");
+        });
+
+        var history = db.GetService<IHistoryRepository>();
+        Assert.Collection(
+            await history.GetAppliedMigrationsAsync(),
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_apply_second_migration_in_parallel()
+    {
+        using var db = Fixture.CreateContext();
+        db.Database.EnsureDeleted();
+        GiveMeSomeTime(db);
+        db.GetService<IMigrator>().Migrate("Migration1");
+
+        Parallel.For(0, Environment.ProcessorCount, i =>
+        {
+            using var context = Fixture.CreateContext();
+            var migrator = context.GetService<IMigrator>();
+            migrator.Migrate("Migration2");
+        });
+
+        var history = db.GetService<IHistoryRepository>();
+        Assert.Collection(
+            history.GetAppliedMigrations(),
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+            x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_apply_second_migration_in_parallel_async()
+    {
+        using var db = Fixture.CreateContext();
+        await db.Database.EnsureDeletedAsync();
+        await GiveMeSomeTimeAsync(db);
+        await db.GetService<IMigrator>().MigrateAsync("Migration1");
+
+        await Parallel.ForAsync(0, Environment.ProcessorCount, async (i, _) =>
+        {
+            using var context = Fixture.CreateContext();
+            var migrator = context.GetService<IMigrator>();
+            await migrator.MigrateAsync("Migration2");
+        });
+
+        var history = db.GetService<IHistoryRepository>();
+        Assert.Collection(
+            await history.GetAppliedMigrationsAsync(),
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+            x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -343,13 +433,19 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         => Sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
 }
 
-public abstract class
-    MigrationsInfrastructureFixtureBase : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
+public abstract class MigrationsInfrastructureFixtureBase
+    : SharedStoreFixtureBase<MigrationsInfrastructureFixtureBase.MigrationsContext>
 {
     public static string ActiveProvider { get; set; }
 
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
+
+    protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+    {
+        TestStore.UseConnectionString = true;
+        return base.AddServices(serviceCollection);
+    }
 
     protected override string StoreName
         => "MigrationsTest";

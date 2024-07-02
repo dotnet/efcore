@@ -52,6 +52,7 @@ public sealed record HistoryRepositoryDependencies
         IDbContextOptions options,
         IMigrationsModelDiffer modelDiffer,
         IMigrationsSqlGenerator migrationsSqlGenerator,
+        IMigrationCommandExecutor migrationCommandExecutor,
         ISqlGenerationHelper sqlGenerationHelper,
         IConventionSetBuilder conventionSetBuilder,
         ModelDependencies modelDependencies,
@@ -66,6 +67,7 @@ public sealed record HistoryRepositoryDependencies
         Options = options;
         ModelDiffer = modelDiffer;
         MigrationsSqlGenerator = migrationsSqlGenerator;
+        MigrationCommandExecutor = migrationCommandExecutor;
         SqlGenerationHelper = sqlGenerationHelper;
         ConventionSetBuilder = conventionSetBuilder;
         ModelDependencies = modelDependencies;
@@ -109,6 +111,11 @@ public sealed record HistoryRepositoryDependencies
     ///     Helpers for generating update SQL.
     /// </summary>
     public ISqlGenerationHelper SqlGenerationHelper { get; init; }
+
+    /// <summary>
+    ///     The service for executing Migrations operations.
+    /// </summary>
+    public IMigrationCommandExecutor MigrationCommandExecutor { get; init; }
 
     /// <summary>
     ///     The core convention set to use when creating the model.

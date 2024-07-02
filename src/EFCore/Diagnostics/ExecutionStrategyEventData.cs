@@ -24,7 +24,7 @@ public class ExecutionStrategyEventData : EventData
     /// </param>
     /// <param name="delay">The delay before retrying the operation.</param>
     /// <param name="async">
-    ///     Indicates whether or not the command was executed asynchronously.
+    ///     Indicates whether the command was executed asynchronously.
     /// </param>
     public ExecutionStrategyEventData(
         EventDefinitionBase eventDefinition,
@@ -50,7 +50,7 @@ public class ExecutionStrategyEventData : EventData
     public virtual TimeSpan Delay { get; }
 
     /// <summary>
-    ///     Indicates whether or not the operation is being executed asynchronously.
+    ///     Indicates whether the operation is being executed asynchronously.
     /// </summary>
     public virtual bool IsAsync { get; }
 }
