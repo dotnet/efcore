@@ -9528,7 +9528,7 @@ FROM (
         SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
         FROM [Officers] AS [o]
     ) AS [u]
-    WHERE [u].[Nickname] <> @__prm_Inner_Nickname_0 AND [u].[Nickname] <> @__prm_Inner_Nickname_0
+    WHERE [u].[Nickname] <> @__prm_Inner_Nickname_0
 ) AS [u0]
 ORDER BY [u0].[FullName]
 """);

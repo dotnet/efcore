@@ -5185,7 +5185,7 @@ FROM [Customers] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [c].[CustomerID] = [o].[CustomerID]) > 0
+    WHERE [c].[CustomerID] = [o].[CustomerID]) > 0
 """);
     }
 
