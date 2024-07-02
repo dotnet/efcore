@@ -46,6 +46,8 @@ public class SqlServerDateTimeMemberTranslator(
             nameof(DateTime.Minute) => DatePart("minute"),
             nameof(DateTime.Second) => DatePart("second"),
             nameof(DateTime.Millisecond) => DatePart("millisecond"),
+            nameof(DateTime.Microsecond) => DatePart("microsecond"),
+            nameof(DateTime.Nanosecond) => DatePart("nanosecond"),
 
             nameof(DateTime.Date)
                 => sqlExpressionFactory.Function(

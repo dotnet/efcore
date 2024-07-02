@@ -19,7 +19,9 @@ public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
         { nameof(TimeSpan.Hours), "hour" },
         { nameof(TimeSpan.Minutes), "minute" },
         { nameof(TimeSpan.Seconds), "second" },
-        { nameof(TimeSpan.Milliseconds), "millisecond" }
+        { nameof(TimeSpan.Milliseconds), "millisecond" },
+        { nameof(TimeSpan.Microseconds), "microsecond" },
+        { nameof(TimeSpan.Nanoseconds), "nanosecond" }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
