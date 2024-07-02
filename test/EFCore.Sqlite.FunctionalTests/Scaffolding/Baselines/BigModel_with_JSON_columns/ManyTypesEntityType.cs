@@ -13374,11 +13374,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableUri.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v),
                 keyComparer: new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -13423,11 +13423,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             nullableUriArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<Uri[], Uri>(new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<Uri[], Uri>(new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v)),
                 providerValueComparer: new ValueComparer<string>(
@@ -13448,11 +13448,11 @@ namespace TestNamespace
                             (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))),
                 elementMapping: SqliteStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<Uri>(
-                        (Uri v1, Uri v2) => v1 == v2,
+                        (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                         (Uri v) => ((object)v).GetHashCode(),
                         (Uri v) => v),
                     keyComparer: new ValueComparer<Uri>(
-                        (Uri v1, Uri v2) => v1 == v2,
+                        (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                         (Uri v) => ((object)v).GetHashCode(),
                         (Uri v) => v),
                     providerValueComparer: new ValueComparer<string>(
@@ -15392,11 +15392,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             uri.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v),
                 keyComparer: new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
@@ -15441,11 +15441,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             uriArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListOfReferenceTypesComparer<Uri[], Uri>(new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v)),
                 keyComparer: new ListOfReferenceTypesComparer<Uri[], Uri>(new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v)),
                 providerValueComparer: new ValueComparer<string>(
@@ -15466,11 +15466,11 @@ namespace TestNamespace
                             (string v) => new Uri(v, UriKind.RelativeOrAbsolute)))),
                 elementMapping: SqliteStringTypeMapping.Default.Clone(
                     comparer: new ValueComparer<Uri>(
-                        (Uri v1, Uri v2) => v1 == v2,
+                        (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                         (Uri v) => ((object)v).GetHashCode(),
                         (Uri v) => v),
                     keyComparer: new ValueComparer<Uri>(
-                        (Uri v1, Uri v2) => v1 == v2,
+                        (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                         (Uri v) => ((object)v).GetHashCode(),
                         (Uri v) => v),
                     providerValueComparer: new ValueComparer<string>(
@@ -15516,11 +15516,11 @@ namespace TestNamespace
                 storeGenerationIndex: -1);
             uriToStringConverterProperty.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v),
                 keyComparer: new ValueComparer<Uri>(
-                    (Uri v1, Uri v2) => v1 == v2,
+                    (Uri v1, Uri v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
                     (Uri v) => ((object)v).GetHashCode(),
                     (Uri v) => v),
                 providerValueComparer: new ValueComparer<string>(
