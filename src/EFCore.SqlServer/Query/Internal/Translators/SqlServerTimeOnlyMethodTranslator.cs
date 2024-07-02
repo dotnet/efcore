@@ -62,7 +62,8 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
 
         if ((method == FromDateTime || method == FromTimeSpan)
             && instance is null
-            && arguments.Count == 1)
+            && arguments.Count == 1
+            && arguments[0].Type != typeof(TimeSpan))
         {
             return _sqlExpressionFactory.Convert(arguments[0], typeof(TimeOnly));
         }
