@@ -84,12 +84,19 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<Weapon>().Select(w => w.IsAutomatic.ToString()));
 
-    [ConditionalTheory(Skip = "Issue #33941 Nullable<bool>.ToString() does not match C#")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ToString_boolean_property_nullable(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<LocustHorde>().Select(lh => lh.Eradicated.ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_boolean_computed_nullable(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<LocustHorde>().Select(lh => (lh.Eradicated | lh.CommanderName == "Unknown").ToString()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
