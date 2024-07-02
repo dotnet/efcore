@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -154,6 +155,6 @@ public class RelationalCommandCache : IPrintableExpression
         }
 
         public override int GetHashCode()
-            => 0;
+            => RuntimeHelpers.GetHashCode(_queryExpression);
     }
 }
