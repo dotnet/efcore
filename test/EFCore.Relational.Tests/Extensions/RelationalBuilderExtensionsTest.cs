@@ -1020,7 +1020,6 @@ public class RelationalBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -1117,7 +1116,6 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(2222, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Equal(20, sequence.CacheSize);
     }
 
@@ -1483,7 +1481,6 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(111, sequence.MinValue);
         Assert.Equal(2222, sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Equal(20, sequence.CacheSize);
         Assert.Same(typeof(int), sequence.Type);
     }

@@ -310,7 +310,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -339,7 +338,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -458,7 +456,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -526,7 +523,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(111, sequence.MinValue);
         Assert.Equal(2222, sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Equal(20, sequence.CacheSize);
         Assert.Same(typeof(int), sequence.Type);
     }
@@ -633,7 +629,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -666,7 +661,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -840,7 +834,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
@@ -875,7 +868,6 @@ public class SqlServerBuilderExtensionsTest
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
         Assert.False(sequence.IsCyclic);
-        Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }

@@ -48,11 +48,6 @@ public interface IMutableSequence : IReadOnlySequence, IMutableAnnotatable
     new bool IsCyclic { get; set; }
 
     /// <summary>
-    ///     Gets or sets the value indicating whether the sequence use preallocated values.
-    /// </summary>
-    new bool IsCached { get; set; }
-
-    /// <summary>
     ///     Gets or sets the amount of preallocated values, or <see langword="null" /> if none has been set.
     /// </summary>
     new int? CacheSize { get; set; }

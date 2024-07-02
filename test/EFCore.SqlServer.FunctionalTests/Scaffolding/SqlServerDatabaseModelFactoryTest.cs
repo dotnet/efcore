@@ -50,7 +50,6 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                 Assert.Null(defaultSequence.StartValue);
                 Assert.Null(defaultSequence.MinValue);
                 Assert.Null(defaultSequence.MaxValue);
-                Assert.True(defaultSequence.IsCached);
                 Assert.Null(defaultSequence.CacheSize);
 
                 var customSequence = dbModel.Sequences.First(ds => ds.Name == "CustomFacetsSequence");
@@ -89,7 +88,6 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                         Assert.Null(s.MinValue);
                         Assert.Null(s.MaxValue);
                     });
-                Assert.True(customSequence.IsCached);
                 Assert.Equal(20, customSequence.CacheSize);
             },
             @"
@@ -122,7 +120,6 @@ CREATE SEQUENCE db2.CacheSequence
             Assert.Null(defaultCacheSequence.StartValue);
             Assert.Null(defaultCacheSequence.MinValue);
             Assert.Null(defaultCacheSequence.MaxValue);
-            Assert.True(defaultCacheSequence.IsCached);
             Assert.Null(defaultCacheSequence.CacheSize);
 
             var noCacheSequence = dbModel.Sequences.First(ds => ds.Name == "NoCacheSequence");
@@ -134,8 +131,7 @@ CREATE SEQUENCE db2.CacheSequence
             Assert.Null(noCacheSequence.StartValue);
             Assert.Null(noCacheSequence.MinValue);
             Assert.Null(noCacheSequence.MaxValue);
-            Assert.False(noCacheSequence.IsCached);
-            Assert.Null(noCacheSequence.CacheSize);
+            Assert.Equal(1, noCacheSequence.CacheSize);
 
             var cacheSequence = dbModel.Sequences.First(ds => ds.Name == "CacheSequence");
             Assert.Equal("db2", cacheSequence.Schema);
@@ -146,7 +142,6 @@ CREATE SEQUENCE db2.CacheSequence
             Assert.Null(cacheSequence.StartValue);
             Assert.Null(cacheSequence.MinValue);
             Assert.Null(cacheSequence.MaxValue);
-            Assert.True(cacheSequence.IsCached);
             Assert.Equal(20, cacheSequence.CacheSize);
         },
         @"
@@ -180,7 +175,6 @@ CREATE SEQUENCE [BigIntSequence] AS bigint;",
                         Assert.Null(s.MinValue);
                         Assert.Null(s.MaxValue);
                         Assert.False(s.IsCyclic);
-                        Assert.True(s.IsCached);
                         Assert.Null(s.CacheSize);
                     });
 
@@ -261,7 +255,6 @@ CREATE SEQUENCE [NumericSequence] AS numeric;",
                         Assert.NotNull(s.MinValue);
                         Assert.NotNull(s.MaxValue);
                         Assert.False(s.IsCyclic);
-                        Assert.True(s.IsCached);
                         Assert.Null(s.CacheSize);
                     });
 
@@ -322,7 +315,6 @@ CREATE SEQUENCE [dbo].[HighDecimalSequence]
                         Assert.Equal(long.MinValue, s.MinValue);
                         Assert.NotNull(s.MaxValue);
                         Assert.Equal(long.MaxValue, s.MaxValue);
-                        Assert.True(s.IsCached);
                         Assert.Null(s.CacheSize);
                     });
 
@@ -369,7 +361,6 @@ CREATE SEQUENCE [TypeAliasSequence] AS [dbo].[TestTypeAlias];",
                 Assert.Null(sequence.StartValue);
                 Assert.Null(sequence.MinValue);
                 Assert.Null(sequence.MaxValue);
-                Assert.True(sequence.IsCached);
                 Assert.Null(sequence.CacheSize);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -409,7 +400,6 @@ CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
                 Assert.Equal("decimal(10, 0)", sequence.StoreType);
                 Assert.False(sequence.IsCyclic);
                 Assert.Equal(1, sequence.IncrementBy);
-                Assert.True(sequence.IsCached);
                 Assert.Null(sequence.CacheSize);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -449,7 +439,6 @@ CREATE SEQUENCE [db2].[Sequence]",
                 Assert.Equal("bigint", sequence.StoreType);
                 Assert.False(sequence.IsCyclic);
                 Assert.Equal(1, sequence.IncrementBy);
-                Assert.True(sequence.IsCached);
                 Assert.Null(sequence.CacheSize);
 
                 var model = scaffoldingFactory.Create(dbModel, new());

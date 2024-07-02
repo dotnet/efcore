@@ -130,7 +130,7 @@ public class ExceptionTest
         public object GetOriginalValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
-        public object GetOriginalOrCurrentValue(IPropertyBase propertyBase)
+        public bool CanHaveOriginalValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
         public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
