@@ -312,7 +312,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
     private IEnumerable<RuntimeProperty> FindDerivedProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeProperty>()
@@ -458,7 +458,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
 
     private IEnumerable<RuntimeComplexProperty> FindDerivedComplexProperties(string propertyName)
     {
-        Check.NotNull(propertyName, nameof(propertyName));
+        Check.NotNull(propertyName);
 
         return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeComplexProperty>()

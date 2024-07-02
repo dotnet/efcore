@@ -642,8 +642,8 @@ public class ConventionSet
         TImplementation newConvention)
         where TImplementation : TConvention
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         return Replace(conventionsList, newConvention, typeof(TImplementation));
     }
@@ -653,8 +653,8 @@ public class ConventionSet
         TConvention newConvention,
         Type oldConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         var replaced = false;
         for (var i = 0; i < conventionsList.Count; i++)
@@ -965,8 +965,8 @@ public class ConventionSet
         TConvention newConvention,
         Type existingConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         for (var i = 0; i < conventionsList.Count; i++)
         {
@@ -993,8 +993,8 @@ public class ConventionSet
         TConvention newConvention,
         Type existingConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
-        Check.NotNull(newConvention, nameof(newConvention));
+        Check.NotNull(conventionsList);
+        Check.NotNull(newConvention);
 
         for (var i = 0; i < conventionsList.Count; i++)
         {
@@ -1301,7 +1301,7 @@ public class ConventionSet
         List<TConvention> conventionsList,
         Type existingConventionType)
     {
-        Check.NotNull(conventionsList, nameof(conventionsList));
+        Check.NotNull(conventionsList);
 
         var removed = false;
         for (var i = 0; i < conventionsList.Count; i++)

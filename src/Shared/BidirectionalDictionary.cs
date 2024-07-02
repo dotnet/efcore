@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             get => _dictionary[key];
             set
             {
-                Check.NotNull(value, nameof(value));
+                Check.NotNull(value);
 
                 if (TryGetValue(key, out var oldValue))
                 {

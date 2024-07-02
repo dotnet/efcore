@@ -397,8 +397,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
         Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
         => HasConversion(
             new ValueConverter<TProperty, TProvider>(
-                Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression)),
-                Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression))));
+                Check.NotNull(convertToProviderExpression),
+                Check.NotNull(convertFromProviderExpression)));
 
     /// <summary>
     ///     Configures the property so that the property value is converted to and from the database
@@ -488,8 +488,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
         ValueComparer? valueComparer)
         => HasConversion(
             new ValueConverter<TProperty, TProvider>(
-                Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression)),
-                Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression))),
+                Check.NotNull(convertToProviderExpression),
+                Check.NotNull(convertFromProviderExpression)),
             valueComparer);
 
     /// <summary>
@@ -509,8 +509,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
         ValueComparer? providerComparer)
         => HasConversion(
             new ValueConverter<TProperty, TProvider>(
-                Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression)),
-                Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression))),
+                Check.NotNull(convertToProviderExpression),
+                Check.NotNull(convertFromProviderExpression)),
             valueComparer,
             providerComparer);
 

@@ -143,7 +143,7 @@ public static class ProxiesExtensions
         this DbContextOptionsBuilder optionsBuilder,
         Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
     {
-        Check.NotNull(lazyLoadingProxiesOptionsAction, nameof(lazyLoadingProxiesOptionsAction));
+        Check.NotNull(lazyLoadingProxiesOptionsAction);
 
         var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
             ?? new ProxiesOptionsExtension();
@@ -221,9 +221,9 @@ public static class ProxiesExtensions
         Type entityType,
         params object[] constructorArguments)
     {
-        Check.NotNull(context, nameof(context));
-        Check.NotNull(entityType, nameof(entityType));
-        Check.NotNull(constructorArguments, nameof(constructorArguments));
+        Check.NotNull(context);
+        Check.NotNull(entityType);
+        Check.NotNull(constructorArguments);
 
         return context.GetInfrastructure().CreateProxy(entityType, constructorArguments);
     }
@@ -287,8 +287,8 @@ public static class ProxiesExtensions
         params object[] constructorArguments)
         where TEntity : class
     {
-        Check.NotNull(set, nameof(set));
-        Check.NotNull(constructorArguments, nameof(constructorArguments));
+        Check.NotNull(set);
+        Check.NotNull(constructorArguments);
 
         var entity = (TEntity)set.GetInfrastructure().CreateProxy(set.EntityType, constructorArguments);
 

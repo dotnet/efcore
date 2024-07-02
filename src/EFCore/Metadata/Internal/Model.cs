@@ -147,7 +147,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool owned,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         var entityType = new EntityType(name, this, owned, configurationSource);
 
@@ -165,7 +165,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool owned,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         var entityType = new EntityType(type, this, owned, configurationSource);
 
@@ -184,8 +184,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         bool owned,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
-        Check.NotNull(type, nameof(type));
+        Check.NotEmpty(name);
+        Check.NotNull(type);
 
         if (GetDisplayName(type) == name)
         {
@@ -348,7 +348,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         EntityType definingEntityType,
         ConfigurationSource configurationSource)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         name = definingEntityType.GetOwnedName(name, definingNavigationName);
         var entityType = new EntityType(name, DefaultPropertyBagType, this, owned: true, configurationSource);
@@ -368,7 +368,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         EntityType definingEntityType,
         ConfigurationSource configurationSource)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         var name = definingEntityType.GetOwnedName(type.ShortDisplayName(), definingNavigationName);
         var entityType = new EntityType(name, type, this, owned: true, configurationSource);
@@ -510,7 +510,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual string? AddIgnored(
         Type type,
         ConfigurationSource configurationSource)
-        => AddIgnored(GetDisplayName(Check.NotNull(type, nameof(type))), type, configurationSource);
+        => AddIgnored(GetDisplayName(Check.NotNull(type)), type, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -521,7 +521,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual string? AddIgnored(
         string name,
         ConfigurationSource configurationSource)
-        => AddIgnored(Check.NotNull(name, nameof(name)), null, configurationSource);
+        => AddIgnored(Check.NotNull(name), null, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -562,7 +562,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual ConfigurationSource? FindIgnoredConfigurationSource(Type type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
 
         return FindIgnoredConfigurationSource(GetDisplayName(type));
     }
@@ -574,7 +574,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
-        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+        => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name), out var ignoredConfigurationSource)
             ? ignoredConfigurationSource
             : null;
 
@@ -613,7 +613,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual string? RemoveIgnored(Type type)
     {
-        Check.NotNull(type, nameof(type));
+        Check.NotNull(type);
         return RemoveIgnored(GetDisplayName(type));
     }
 
@@ -625,7 +625,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual string? RemoveIgnored(string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
         EnsureMutable();
 
         return _ignoredTypeNames.Remove(name) ? name : null;

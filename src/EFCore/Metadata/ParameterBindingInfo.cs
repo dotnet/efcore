@@ -20,8 +20,8 @@ public readonly struct ParameterBindingInfo
         ITypeBase structuralType,
         Expression materializationContextExpression)
     {
-        Check.NotNull(structuralType, nameof(structuralType));
-        Check.NotNull(structuralType, nameof(materializationContextExpression));
+        Check.NotNull(structuralType);
+        Check.NotNull(structuralType);
 
         StructuralType = structuralType;
         InstanceName = "instance";

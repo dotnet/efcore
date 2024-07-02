@@ -43,7 +43,7 @@ public abstract class EntryPropertyValues : PropertyValues
     /// </summary>
     public override void SetValues(object obj)
     {
-        Check.NotNull(obj, nameof(obj));
+        Check.NotNull(obj);
 
         if (obj.GetType() == EntityType.ClrType)
         {
@@ -90,7 +90,7 @@ public abstract class EntryPropertyValues : PropertyValues
     /// </summary>
     public override void SetValues(PropertyValues propertyValues)
     {
-        Check.NotNull(propertyValues, nameof(propertyValues));
+        Check.NotNull(propertyValues);
 
         foreach (var property in Properties)
         {
