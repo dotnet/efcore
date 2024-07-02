@@ -214,7 +214,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] = [e].[IntB] AND [e].[NullableIntA] IS NOT NULL
+WHERE [e].[NullableIntA] = [e].[IntB]
 """,
             //
             """
@@ -228,7 +228,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[IntA] = [e].[NullableIntB] AND [e].[NullableIntB] IS NOT NULL
+WHERE [e].[IntA] = [e].[NullableIntB]
 """,
             //
             """
@@ -242,7 +242,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableIntA] = [e].[NullableIntB] AND [e].[NullableIntA] IS NOT NULL AND [e].[NullableIntB] IS NOT NULL) OR ([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL)
+WHERE [e].[NullableIntA] = [e].[NullableIntB] OR ([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL)
 """);
     }
 
@@ -948,7 +948,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] = [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] = [e].[NullableBoolB]
 """,
             //
             """
@@ -976,7 +976,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] <> [e].[NullableBoolB]
 """,
             //
             """
@@ -990,7 +990,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] = [e].[BoolB]
 """,
             //
             """
@@ -1004,7 +1004,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """,
             //
             """
@@ -1018,7 +1018,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] <> [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] <> [e].[BoolB]
 """,
             //
             """
@@ -1032,7 +1032,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """,
             //
             """
@@ -1060,7 +1060,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] <> [e].[NullableBoolB]
 """,
             //
             """
@@ -1088,7 +1088,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] = [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] = [e].[NullableBoolB]
 """,
             //
             """
@@ -1102,7 +1102,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] <> [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] <> [e].[BoolB]
 """,
             //
             """
@@ -1116,7 +1116,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """,
             //
             """
@@ -1130,7 +1130,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] = [e].[BoolB]
 """,
             //
             """
@@ -1144,7 +1144,7 @@ FROM [Entities1] AS [e]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """);
     }
 
@@ -1522,19 +1522,19 @@ WHERE [e].[BoolA] = [e].[BoolB]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] = [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] = [e].[NullableBoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] = [e].[BoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """);
     }
 
@@ -1552,19 +1552,19 @@ WHERE [e].[BoolA] <> [e].[BoolB]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] <> [e].[NullableBoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] <> [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] <> [e].[BoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """);
     }
 
@@ -1582,19 +1582,19 @@ WHERE [e].[BoolA] <> [e].[BoolB]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] <> [e].[NullableBoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] <> [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] <> [e].[BoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] <> [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """);
     }
 
@@ -1612,19 +1612,19 @@ WHERE [e].[BoolA] = [e].[BoolB]
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[BoolA] = [e].[NullableBoolB] AND [e].[NullableBoolB] IS NOT NULL
+WHERE [e].[BoolA] = [e].[NullableBoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = [e].[BoolB] AND [e].[NullableBoolA] IS NOT NULL
+WHERE [e].[NullableBoolA] = [e].[BoolB]
 """,
             //
             """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[NullableBoolB] AND [e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
 """);
     }
 
@@ -4387,7 +4387,7 @@ WHERE [e].[NullableStringA] IS NOT NULL AND [e].[NullableStringA] = N'Foo'
             """
 SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] IS NOT NULL OR ([e].[NullableStringA] = N'Foo' AND [e].[NullableStringA] IS NOT NULL)
+WHERE [e].[NullableStringA] IS NOT NULL OR [e].[NullableStringA] = N'Foo'
 """);
     }
 
