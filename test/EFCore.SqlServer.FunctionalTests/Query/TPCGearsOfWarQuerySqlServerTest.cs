@@ -1709,10 +1709,10 @@ LEFT JOIN [Cities] AS [c] ON [u].[AssignedCityName] = [c].[Name]
         AssertSql(
             """
 SELECT CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN COALESCE(CASE
+    WHEN [u].[LeaderNickname] IS NOT NULL THEN CASE
         WHEN CAST(LEN([u].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END, CAST(0 AS bit))
+    END
     ELSE NULL
 END
 FROM (
@@ -5414,7 +5414,7 @@ LEFT JOIN (
         await base.ToString_enum_property_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE [u].[Rank]
     WHEN 0 THEN N'None'
     WHEN 1 THEN N'Private'
@@ -5425,7 +5425,7 @@ SELECT CASE [u].[Rank]
     WHEN 32 THEN N'Major'
     WHEN 64 THEN N'Colonel'
     WHEN 128 THEN N'General'
-    ELSE COALESCE(CAST([u].[Rank] AS nvarchar(max)), N'')
+    ELSE CAST([u].[Rank] AS nvarchar(max))
 END
 FROM (
     SELECT [g].[Rank]
@@ -7861,7 +7861,7 @@ SELECT COALESCE((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [u].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), 0, 42)
+    ORDER BY [w].[Id]), 0)
 FROM (
     SELECT [g].[FullName]
     FROM [Gears] AS [g]

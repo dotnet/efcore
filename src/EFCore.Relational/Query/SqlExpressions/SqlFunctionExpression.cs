@@ -88,7 +88,7 @@ public class SqlFunctionExpression : SqlExpression
         Type type,
         RelationalTypeMapping? typeMapping)
         : this(
-            instance, schema, name, niladic: true, arguments: null, nullable, instancePropagatesNullability,
+            instance, schema, name, arguments: null, nullable, instancePropagatesNullability,
             argumentsPropagateNullability: null, builtIn, type, typeMapping)
     {
     }
@@ -165,24 +165,6 @@ public class SqlFunctionExpression : SqlExpression
     {
     }
 
-    private SqlFunctionExpression(
-        SqlExpression? instance,
-        string? schema,
-        string name,
-        IEnumerable<SqlExpression> arguments,
-        bool nullable,
-        bool? instancePropagatesNullability,
-        IEnumerable<bool> argumentsPropagateNullability,
-        bool builtIn,
-        Type type,
-        RelationalTypeMapping? typeMapping)
-        : this(
-            instance, schema, name, niladic: false, arguments, nullable,
-            instancePropagatesNullability, argumentsPropagateNullability, builtIn,
-            type, typeMapping)
-    {
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -194,7 +176,6 @@ public class SqlFunctionExpression : SqlExpression
         SqlExpression? instance,
         string? schema,
         string name,
-        bool niladic,
         IEnumerable<SqlExpression>? arguments,
         bool nullable,
         bool? instancePropagatesNullability,
@@ -207,7 +188,6 @@ public class SqlFunctionExpression : SqlExpression
         Instance = instance;
         Name = name;
         Schema = schema;
-        IsNiladic = niladic;
         IsBuiltIn = builtIn;
         Arguments = arguments?.ToList();
         IsNullable = nullable;
@@ -240,7 +220,7 @@ public class SqlFunctionExpression : SqlExpression
     ///     A bool value indicating if the function is niladic.
     /// </summary>
     [MemberNotNullWhen(false, nameof(Arguments), nameof(ArgumentsPropagateNullability))]
-    public virtual bool IsNiladic { get; }
+    public virtual bool IsNiladic => Arguments is null;
 
     /// <summary>
     ///     A bool value indicating if the function is built-in.
@@ -295,7 +275,6 @@ public class SqlFunctionExpression : SqlExpression
                 instance,
                 Schema,
                 Name,
-                IsNiladic,
                 arguments,
                 IsNullable,
                 InstancePropagatesNullability,
@@ -316,7 +295,6 @@ public class SqlFunctionExpression : SqlExpression
             Instance,
             Schema,
             Name,
-            IsNiladic,
             Arguments,
             IsNullable,
             InstancePropagatesNullability,
@@ -333,33 +311,51 @@ public class SqlFunctionExpression : SqlExpression
     /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual SqlFunctionExpression Update(SqlExpression? instance, IReadOnlyList<SqlExpression>? arguments)
-        => instance != Instance || (arguments != null && Arguments != null && !arguments.SequenceEqual(Arguments))
-            ? new SqlFunctionExpression(
+        => Update(instance, arguments, ArgumentsPropagateNullability);
+
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="instance">The <see cref="Instance" /> property of the result.</param>
+    /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
+    /// <param name="argumentsPropagateNullability">The <see cref="ArgumentsPropagateNullability" /> property of the result. If omitted,
+    /// the current ArgumentsPropagateNullability will be used.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public virtual SqlFunctionExpression Update(
+        SqlExpression? instance,
+        IReadOnlyList<SqlExpression>? arguments,
+        IReadOnlyList<bool>? argumentsPropagateNullability)
+        => instance == Instance
+            && ((arguments == Arguments) || (arguments != null && Arguments != null && arguments.SequenceEqual(Arguments)))
+            && ((argumentsPropagateNullability == ArgumentsPropagateNullability)
+                || (argumentsPropagateNullability != null
+                    && ArgumentsPropagateNullability != null
+                    && argumentsPropagateNullability.SequenceEqual(ArgumentsPropagateNullability)))
+            ? this
+            : new SqlFunctionExpression(
                 instance,
                 Schema,
                 Name,
-                IsNiladic,
                 arguments,
                 IsNullable,
                 InstancePropagatesNullability,
-                ArgumentsPropagateNullability,
+                argumentsPropagateNullability,
                 IsBuiltIn,
                 Type,
-                TypeMapping)
-            : this;
+                TypeMapping);
 
     /// <inheritdoc />
     public override Expression Quote()
         => New(
             _quotingConstructor ??= typeof(SqlFunctionExpression).GetConstructor(
             [
-                typeof(SqlExpression), typeof(string), typeof(string), typeof(bool), typeof(IEnumerable<SqlExpression>),
+                typeof(SqlExpression), typeof(string), typeof(string), typeof(IEnumerable<SqlExpression>),
                 typeof(bool), typeof(bool), typeof(IEnumerable<bool>), typeof(bool), typeof(Type), typeof(RelationalTypeMapping)
             ])!,
             RelationalExpressionQuotingUtilities.QuoteOrNull(Instance),
             Constant(Schema, typeof(string)),
             Constant(Name),
-            Constant(IsNiladic),
             Arguments is null
                 ? Constant(null, typeof(IEnumerable<SqlExpression>))
                 : NewArrayInit(typeof(SqlExpression), initializers: Arguments.Select(a => a.Quote())),
@@ -408,7 +404,6 @@ public class SqlFunctionExpression : SqlExpression
 
     private bool Equals(SqlFunctionExpression sqlFunctionExpression)
         => base.Equals(sqlFunctionExpression)
-            && IsNiladic == sqlFunctionExpression.IsNiladic
             && Name == sqlFunctionExpression.Name
             && Schema == sqlFunctionExpression.Schema
             && ((Instance == null && sqlFunctionExpression.Instance == null)
