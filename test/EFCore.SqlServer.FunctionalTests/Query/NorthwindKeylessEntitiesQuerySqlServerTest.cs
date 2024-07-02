@@ -183,7 +183,7 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c]
-    WHERE [c].[City] = [m].[City] OR ([c].[City] IS NULL AND [m].[City] IS NULL))
+    WHERE [c].[City] IS NOT DISTINCT FROM [m].[City])
 ORDER BY [m].[ContactName]
 """);
     }

@@ -66,6 +66,14 @@ public interface ISqlExpressionFactory
 
     // Comparison
     /// <summary>
+    ///     Creates a <see cref="SqlExpression" /> which represents an identity comparison.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>An expression representing a SQL identity comparison.</returns>
+    SqlExpression Is(SqlExpression left, SqlExpression right);
+
+    /// <summary>
     ///     Creates a <see cref="SqlExpression" /> which represents an equality comparison.
     /// </summary>
     /// <param name="left">The left operand.</param>

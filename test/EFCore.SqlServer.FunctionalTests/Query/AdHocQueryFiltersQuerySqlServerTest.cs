@@ -214,7 +214,7 @@ SELECT [e].[Id], [e].[Name]
 FROM [EntitiesWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)
+    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND [e].[Name] IS DISTINCT FROM N'Foo'
 """,
             //
             """
@@ -225,7 +225,7 @@ WHERE EXISTS (
     FROM [EntitiesWithQueryFilterSelfReference] AS [e0]
     WHERE EXISTS (
         SELECT 1
-        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)
+        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND [e].[Name] IS DISTINCT FROM N'Foo'
 """);
     }
 
@@ -239,7 +239,7 @@ WHERE EXISTS (
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0
+WHERE [e].[Name] IS DISTINCT FROM N'Foo' AND [e].[TenantId] = @__ef_filter__p_0
 """,
             //
             """
@@ -247,7 +247,7 @@ WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_fi
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0
+WHERE [e].[Name] IS DISTINCT FROM N'Foo' AND [e].[TenantId] = @__ef_filter__p_0
 """);
     }
 

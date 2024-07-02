@@ -671,7 +671,7 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL
+    WHERE [e0].[EmployeeID] IS DISTINCT FROM [e].[ReportsTo]
     ORDER BY [e0].[EmployeeID]) = 1
 """);
     }
@@ -687,7 +687,7 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE [e0].[EmployeeID] IS DISTINCT FROM [e].[ReportsTo]) = 0
 """);
     }
 
@@ -702,7 +702,7 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE [e0].[EmployeeID] IS DISTINCT FROM [e].[ReportsTo]) = 0
 """);
     }
 
@@ -717,7 +717,7 @@ FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE [e0].[EmployeeID] IS DISTINCT FROM [e].[ReportsTo]) = 0
 """);
     }
 
@@ -872,21 +872,12 @@ WHERE (
         SELECT TOP(1) [c].[Country]
         FROM [Customers] AS [c]
         WHERE [c].[CustomerID] = [o3].[CustomerID]
-        ORDER BY [c].[CustomerID]) = (
+        ORDER BY [c].[CustomerID]) IS NOT DISTINCT FROM (
         SELECT TOP(1) [c0].[Country]
         FROM [Orders] AS [o1]
         INNER JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
         WHERE [o1].[OrderID] = [o2].[OrderID]
-        ORDER BY [o1].[OrderID], [c0].[CustomerID]) OR ((
-        SELECT TOP(1) [c].[Country]
-        FROM [Customers] AS [c]
-        WHERE [c].[CustomerID] = [o3].[CustomerID]
-        ORDER BY [c].[CustomerID]) IS NULL AND (
-        SELECT TOP(1) [c0].[Country]
-        FROM [Orders] AS [o1]
-        INNER JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
-        WHERE [o1].[OrderID] = [o2].[OrderID]
-        ORDER BY [o1].[OrderID], [c0].[CustomerID]) IS NULL)) > 0
+        ORDER BY [o1].[OrderID], [c0].[CustomerID])) > 0
 ORDER BY [o3].[OrderID]
 """);
     }
@@ -1513,7 +1504,7 @@ WHERE NOT EXISTS (
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
+WHERE [c].[City] IS DISTINCT FROM N'London' AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] LIKE N'ABC%')
@@ -1531,7 +1522,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'ABC%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'ABC%') AND [c].[City] IS DISTINCT FROM N'London'
 """);
     }
 
@@ -1558,7 +1549,7 @@ WHERE EXISTS (
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND EXISTS (
+WHERE [c].[City] IS DISTINCT FROM N'London' AND EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] LIKE N'A%')
@@ -1576,7 +1567,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'A%') AND [c].[City] IS DISTINCT FROM N'London'
 """);
     }
 
@@ -2024,7 +2015,7 @@ ORDER BY [c].[CustomerID]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[City]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] = [e].[City] OR ([c].[City] IS NULL AND [e].[City] IS NULL)
+WHERE [c].[City] IS NOT DISTINCT FROM [e].[City]
 ORDER BY [e].[City], [c].[CustomerID] DESC
 """);
     }
@@ -2483,7 +2474,7 @@ END, [c].[CustomerID]
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= 10250 AND ((
+WHERE [o].[OrderID] <= 10250 AND (
     SELECT TOP(1) [c].[City]
     FROM [Customers] AS [c]
     ORDER BY CASE
@@ -2492,16 +2483,7 @@ WHERE [o].[OrderID] <= 10250 AND ((
             FROM [Customers] AS [c0]
             WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END) <> N'Nowhere' OR (
-    SELECT TOP(1) [c].[City]
-    FROM [Customers] AS [c]
-    ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Customers] AS [c0]
-            WHERE [c0].[CustomerID] = N'ALFKI') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END) IS NULL)
+    END) IS DISTINCT FROM N'Nowhere'
 """);
     }
 
@@ -2836,7 +2818,7 @@ ORDER BY [c].[City]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY CASE
-    WHEN [c].[Region] = N'ASK' AND [c].[Region] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NOT DISTINCT FROM N'ASK' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -4791,7 +4773,7 @@ FROM [Orders] AS [o]
 CROSS JOIN [Orders] AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
+WHERE [o].[CustomerID] LIKE N'A%' AND [c].[CustomerID] IS NOT DISTINCT FROM [c0].[CustomerID]
 ORDER BY [o].[OrderID], [o0].[OrderID]
 """);
     }
@@ -4807,7 +4789,7 @@ FROM [Orders] AS [o]
 CROSS JOIN [Orders] AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
+WHERE [o].[CustomerID] LIKE N'A%' AND [c].[CustomerID] IS NOT DISTINCT FROM [c0].[CustomerID]
 ORDER BY [o].[OrderID], [o0].[OrderID]
 """);
     }
@@ -5123,15 +5105,11 @@ SELECT [c].[CustomerID], (
     WHERE [c].[CustomerID] = [o0].[CustomerID]
     ORDER BY [o0].[OrderDate]) AS [A]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%' AND ((
+WHERE [c].[CustomerID] LIKE N'A%' AND (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate]) <> 0 OR (
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderDate]) IS NULL)
+    ORDER BY [o].[OrderDate]) IS DISTINCT FROM 0
 """);
     }
 
@@ -5740,17 +5718,12 @@ SELECT CASE
             FROM [Orders] AS [o0]
             LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
             WHERE [c].[CustomerID] = [o0].[CustomerID]
-            ORDER BY [o0].[OrderDate]) IS NOT NULL AND ((
+            ORDER BY [o0].[OrderDate]) IS NOT NULL AND (
             SELECT TOP(1) [c1].[CustomerID]
             FROM [Orders] AS [o1]
             LEFT JOIN [Customers] AS [c1] ON [o1].[CustomerID] = [c1].[CustomerID]
             WHERE [c].[CustomerID] = [o1].[CustomerID]
-            ORDER BY [o1].[OrderDate]) = [o].[CustomerID] OR ((
-            SELECT TOP(1) [c1].[CustomerID]
-            FROM [Orders] AS [o1]
-            LEFT JOIN [Customers] AS [c1] ON [o1].[CustomerID] = [c1].[CustomerID]
-            WHERE [c].[CustomerID] = [o1].[CustomerID]
-            ORDER BY [o1].[OrderDate]) IS NULL AND [o].[CustomerID] IS NULL)) AND [o].[OrderID] < 11000) THEN CAST(1 AS bit)
+            ORDER BY [o1].[OrderDate]) IS NOT DISTINCT FROM [o].[CustomerID] AND [o].[OrderID] < 11000) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Complex]
 FROM [Customers] AS [c]
@@ -5900,12 +5873,12 @@ FROM (
 CROSS APPLY (
     SELECT TOP(9) [e].[City], [c1].[City] AS [c1]
     FROM [Employees] AS [e]
-    WHERE [c1].[City] = [e].[City] OR ([c1].[City] IS NULL AND [e].[City] IS NULL)
+    WHERE [c1].[City] IS NOT DISTINCT FROM [e].[City]
 ) AS [e0]
 CROSS APPLY (
     SELECT TOP(9) 1 AS empty
     FROM [Employees] AS [e1]
-    WHERE [e0].[City] = [e1].[City] OR ([e0].[City] IS NULL AND [e1].[City] IS NULL)
+    WHERE [e0].[City] IS NOT DISTINCT FROM [e1].[City]
 ) AS [e2]
 """);
     }
@@ -6676,7 +6649,7 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] = @__firstOrder_OrderID_0 AND ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))
+    WHERE [o0].[OrderID] = @__firstOrder_OrderID_0 AND [o0].[CustomerID] IS NOT DISTINCT FROM [o].[CustomerID])
 """);
     }
 
@@ -6778,7 +6751,7 @@ ORDER BY [c0].[CustomerID]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] = [e].[City] OR ([c].[City] IS NULL AND [e].[City] IS NULL)
+WHERE [c].[City] IS NOT DISTINCT FROM [e].[City]
 ORDER BY [c].[CustomerID], [e].[EmployeeID]
 """);
     }

@@ -862,6 +862,10 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                         GenerateIn(inExpression, negated: true);
                         break;
 
+                    case IsExpression isExpression:
+                        GenerateIs(isExpression, negated: true);
+                        break;
+
                     case ExistsExpression existsExpression:
                         GenerateExists(existsExpression, negated: true);
                         break;
@@ -1032,6 +1036,54 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         _relationalCommandBuilder.Append(")");
+    }
+
+    /// <summary>
+    ///     Generates SQL for an IN expression.
+    /// </summary>
+    /// <param name="isExpression">The <see cref="InExpression" /> for which to generate SQL.</param>
+    protected sealed override Expression VisitIs(IsExpression isExpression)
+    {
+        GenerateIs(isExpression, negated: false);
+
+        return isExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for an IS expression.
+    /// </summary>
+    /// <param name="isExpression">The <see cref="InExpression" /> for which to generate SQL.</param>
+    /// <param name="negated">Whether the given <paramref name="isExpression" /> is negated.</param>
+    protected virtual void GenerateIs(IsExpression isExpression, bool negated)
+    {
+        var requiresBrackets = RequiresParentheses(isExpression, isExpression.Left);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(isExpression.Left);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
+
+        _relationalCommandBuilder.Append(negated
+            ? " IS DISTINCT FROM "
+            : " IS NOT DISTINCT FROM "
+        );
+
+        requiresBrackets = RequiresParentheses(isExpression, isExpression.Right);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(isExpression.Right);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
     }
 
     /// <summary>
@@ -1720,7 +1772,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 return true;
             }
 
-            case CollateExpression or LikeExpression or AtTimeZoneExpression or JsonScalarExpression:
+            case CollateExpression or LikeExpression or AtTimeZoneExpression or JsonScalarExpression or IsExpression:
                 return !TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
                     || !TryGetOperatorInfo(innerExpression, out innerPrecedence, out _)
                     || outerPrecedence >= innerPrecedence;

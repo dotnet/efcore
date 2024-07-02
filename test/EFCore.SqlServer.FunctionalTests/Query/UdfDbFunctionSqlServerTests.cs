@@ -300,7 +300,7 @@ ORDER BY [c].[Id]
             """
 SELECT [c].[Id], [c].[FirstName], [c].[LastName]
 FROM [Customers] AS [c]
-WHERE ([dbo].[StringLength]([c].[FirstName]) <> [dbo].[StringLength]([c].[LastName]) OR [c].[FirstName] IS NULL OR [c].[LastName] IS NULL) AND ([c].[FirstName] IS NOT NULL OR [c].[LastName] IS NOT NULL)
+WHERE [dbo].[StringLength]([c].[FirstName]) IS DISTINCT FROM [dbo].[StringLength]([c].[LastName])
 ORDER BY [c].[Id]
 """);
     }
@@ -915,7 +915,7 @@ SELECT [c].[LastName], (
     WHERE NOT EXISTS (
         SELECT 1
         FROM [dbo].[GetTopTwoSellingProducts]() AS [g0]
-        WHERE [g0].[ProductId] = 25) AND ([c].[LastName] = [c0].[LastName] OR ([c].[LastName] IS NULL AND [c0].[LastName] IS NULL))) AS [SumOfLengths]
+        WHERE [g0].[ProductId] = 25) AND [c].[LastName] IS NOT DISTINCT FROM [c0].[LastName]) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
 WHERE NOT EXISTS (
@@ -943,7 +943,7 @@ SELECT [c0].[LastName], (
             SELECT TOP(1) [c2].[Id]
             FROM [Customers] AS [c2]
             ORDER BY [c2].[Id])) AS [g0]
-    ) AND ([c0].[LastName] = [c1].[LastName] OR ([c0].[LastName] IS NULL AND [c1].[LastName] IS NULL))) AS [SumOfLengths]
+    ) AND [c0].[LastName] IS NOT DISTINCT FROM [c1].[LastName]) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c0] ON [o].[CustomerId] = [c0].[Id]
 WHERE 25 NOT IN (
@@ -994,7 +994,7 @@ ORDER BY [g].[Year]
 SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Addresses] AS [a]
 CROSS APPLY [dbo].[GetCustomerOrderCountByYearOnlyFrom2000](1, CASE
-    WHEN ([a].[City] = [a].[State] AND [a].[City] IS NOT NULL AND [a].[State] IS NOT NULL) OR ([a].[City] IS NULL AND [a].[State] IS NULL) THEN CAST(1 AS bit)
+    WHEN [a].[City] IS NOT DISTINCT FROM [a].[State] THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END) AS [g]
 ORDER BY [a].[Id], [g].[Year]

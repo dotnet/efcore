@@ -560,13 +560,10 @@ WHERE [e].[Title] = N'Sales Representative'
             """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE [e].[Title] = (
+WHERE [e].[Title] IS NOT DISTINCT FROM (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[Title]) OR ([e].[Title] IS NULL AND (
-    SELECT TOP(1) [e0].[Title]
-    FROM [Employees] AS [e0]
-    ORDER BY [e0].[Title]) IS NULL)
+    ORDER BY [e0].[Title])
 """);
     }
 
@@ -795,7 +792,7 @@ WHERE CAST(LEN([c].[City]) AS int) = 6
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CHARINDEX(N'Sea', [c].[City]) - 1 <> -1 OR [c].[City] IS NULL
+WHERE CHARINDEX(N'Sea', [c].[City]) - 1 IS DISTINCT FROM -1
 """);
     }
 
@@ -1018,7 +1015,7 @@ WHERE CAST([o].[OrderDate] AS datetimeoffset) < SYSDATETIMEOFFSET()
             """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CAST([o].[OrderDate] AS datetimeoffset) <> CAST(SYSUTCDATETIME() AS datetimeoffset) OR [o].[OrderDate] IS NULL
+WHERE CAST([o].[OrderDate] AS datetimeoffset) IS DISTINCT FROM CAST(SYSUTCDATETIME() AS datetimeoffset)
 """);
     }
 
@@ -1112,7 +1109,7 @@ FROM [Customers] AS [c]
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] = [c].[City] OR [c].[City] IS NULL
+WHERE [c].[City] IS NOT DISTINCT FROM [c].[City]
 """);
     }
 
@@ -1138,7 +1135,7 @@ WHERE [c].[City] IN (N'London', N'Berlin') OR [c].[CustomerID] = N'ALFKI' OR [c]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND ([e].[City] <> N'London' OR [e].[City] IS NULL)
+WHERE [c].[City] IS DISTINCT FROM N'London' AND [e].[City] IS DISTINCT FROM N'London'
 """);
     }
 

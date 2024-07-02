@@ -41,7 +41,7 @@ WHERE [o].[OrderDate] = @__myDatetime_0
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
+WHERE [o].[OrderDate] IS DISTINCT FROM @__myDatetime_0
 """,
             //
             """
@@ -667,7 +667,7 @@ WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)
+WHERE [c].[ContactTitle] = N'Owner' AND [c].[Country] IS DISTINCT FROM N'USA'
 """);
     }
 
@@ -901,7 +901,7 @@ WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'
             """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)
+WHERE [c].[ContactTitle] = N'Owner' AND [c].[Country] IS DISTINCT FROM N'USA'
 """);
     }
 
@@ -923,7 +923,7 @@ WHERE [o].[OrderDate] = @__myDatetime_0
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
+WHERE [o].[OrderDate] IS DISTINCT FROM @__myDatetime_0
 """,
             //
             """

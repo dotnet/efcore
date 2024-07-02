@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -13,20 +14,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
+public class SqlServerSqlNullabilityProcessor(
+    RelationalParameterBasedSqlProcessorDependencies dependencies,
+    ISqlServerSingletonOptions sqlServerSingletonOptions,
+    bool useRelationalNulls) : SqlNullabilityProcessor(dependencies, useRelationalNulls)
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public SqlServerSqlNullabilityProcessor(
-        RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
-    {
-    }
+    private readonly bool _useIs = sqlServerSingletonOptions.CompatibilityLevel >= 160;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -105,6 +98,49 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
                 arguments ?? aggregateFunctionExpression.Arguments,
                 orderings ?? aggregateFunctionExpression.Orderings)
             : aggregateFunctionExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override SqlExpression RewriteNullSemantics(
+        SqlBinaryExpression sqlBinaryExpression,
+        SqlExpression left,
+        SqlExpression right,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
+        var result = base.RewriteNullSemantics(sqlBinaryExpression, left, right, leftNullable, rightNullable, optimize, out nullable);
+
+        if (_useIs
+            && IsSupportedSubExpression(left, leftNullable) && IsSupportedSubExpression(right, rightNullable)
+            && sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+            && result is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse })
+        {
+            var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+            nullable = false;
+            result = sqlExpressionFactory.Is(left, right);
+            if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+            {
+                result = sqlExpressionFactory.Not(result);
+            }
+        }
+
+        return result;
+
+        // The provider for SqlServer is unable to translate `bool?` expressions
+        // when they are on Boolean values instead of `BIT`s. See #34001
+        static bool IsSupportedSubExpression(SqlExpression sqlExpression, bool nullable) =>
+            !nullable
+            || sqlExpression.Type != typeof(bool)
+            || sqlExpression is ColumnExpression or SqlConstantExpression or SqlParameterExpression
+            || sqlExpression is SqlUnaryExpression { OperatorType: ExpressionType.Not } unary
+                && IsSupportedSubExpression(unary.Operand, nullable);
     }
 
     /// <summary>
