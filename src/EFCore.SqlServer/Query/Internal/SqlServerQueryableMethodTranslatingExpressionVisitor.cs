@@ -20,7 +20,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlEngineSingletonOptions _sqlEngineSingletonOptions;
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
 
@@ -34,14 +34,13 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
         RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
         SqlServerQueryCompilationContext queryCompilationContext,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        ISqlEngineSingletonOptions sqlEngineSingletonOptions)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
         _queryCompilationContext = queryCompilationContext;
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlEngineSingletonOptions = sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -57,8 +56,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         _queryCompilationContext = parentVisitor._queryCompilationContext;
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
-
-        _sqlServerCompatibilityLevel = parentVisitor._sqlServerCompatibilityLevel;
+        _sqlEngineSingletonOptions = parentVisitor._sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -228,9 +226,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         IProperty? property,
         string tableAlias)
     {
-        if (_sqlServerCompatibilityLevel < 130)
+        if (_sqlEngineSingletonOptions is ISqlServerSingletonOptions { CompatibilityLevel: < 130 } sqlServerSingletonOptions)
         {
-            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerCompatibilityLevel));
+            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(sqlServerSingletonOptions.CompatibilityLevel));
+
+            return null;
+        }
+        if (_sqlEngineSingletonOptions is IAzureSqlSingletonOptions { CompatibilityLevel: < 130 } azureSqlSingletonOptions)
+        {
+            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(azureSqlSingletonOptions.CompatibilityLevel));
 
             return null;
         }

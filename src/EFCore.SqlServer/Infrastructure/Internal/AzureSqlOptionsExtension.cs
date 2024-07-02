@@ -11,11 +11,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextOptionsExtension
+public class AzureSqlOptionsExtension : RelationalOptionsExtension, IDbContextOptionsExtension
 {
     private DbContextOptionsExtensionInfo? _info;
     private int? _compatibilityLevel;
-    private bool? _azureSql;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +36,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerOptionsExtension()
+    public AzureSqlOptionsExtension()
     {
     }
 
@@ -49,11 +48,10 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqlServerOptionsExtension(SqlServerOptionsExtension copyFrom)
+    protected AzureSqlOptionsExtension(AzureSqlOptionsExtension copyFrom)
         : base(copyFrom)
     {
         _compatibilityLevel = copyFrom._compatibilityLevel;
-        _azureSql = copyFrom._azureSql;
     }
 
     /// <summary>
@@ -72,7 +70,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalOptionsExtension Clone()
-        => new SqlServerOptionsExtension(this);
+        => new AzureSqlOptionsExtension(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,35 +96,11 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlServerOptionsExtension WithCompatibilityLevel(int? compatibilityLevel)
+    public virtual AzureSqlOptionsExtension WithCompatibilityLevel(int? compatibilityLevel)
     {
-        var clone = (SqlServerOptionsExtension)Clone();
+        var clone = (AzureSqlOptionsExtension)Clone();
 
         clone._compatibilityLevel = compatibilityLevel;
-
-        return clone;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual bool IsAzureSql
-        => _azureSql ?? false;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SqlServerOptionsExtension WithAzureSql(bool enable)
-    {
-        var clone = (SqlServerOptionsExtension)Clone();
-
-        clone._azureSql = enable;
 
         return clone;
     }
@@ -134,11 +108,6 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     /// <inheritdoc />
     public virtual IDbContextOptionsExtension ApplyDefaults(IDbContextOptions options)
     {
-        if (!IsAzureSql)
-        {
-            return this;
-        }
-
         if (ExecutionStrategyFactory == null)
         {
             return WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c));
@@ -154,7 +123,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override void ApplyServices(IServiceCollection services)
-        => services.AddEntityFrameworkSqlServer();
+        => services.AddEntityFrameworkAzureSql();
 
     private sealed class ExtensionInfo : RelationalExtensionInfo
     {
@@ -165,8 +134,8 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         {
         }
 
-        private new SqlServerOptionsExtension Extension
-            => (SqlServerOptionsExtension)base.Extension;
+        private new AzureSqlOptionsExtension Extension
+            => (AzureSqlOptionsExtension)base.Extension;
 
         public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
             => other is ExtensionInfo otherInfo
@@ -198,7 +167,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
 
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
-            debugInfo["SqlServer"] = "1";
+            debugInfo["AzureSql"] = "1";
 
             if (Extension.CompatibilityLevel is int compatibilityLevel)
             {

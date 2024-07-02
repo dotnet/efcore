@@ -19,7 +19,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlEngineSingletonOptions _sqlEngineSingletonOptions;
 
     private bool _withinTable;
 
@@ -32,12 +32,12 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     public SqlServerQuerySqlGenerator(
         QuerySqlGeneratorDependencies dependencies,
         IRelationalTypeMappingSource typeMappingSource,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        ISqlEngineSingletonOptions sqlEngineSingletonOptions)
         : base(dependencies)
     {
         _typeMappingSource = typeMappingSource;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlEngineSingletonOptions = sqlEngineSingletonOptions;
     }
 
     /// <summary>
@@ -518,18 +518,23 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     {
                         Visit(arrayIndex);
                     }
-                    else if (_sqlServerCompatibilityLevel >= 140)
-                    {
-                        Sql.Append("' + CAST(");
-                        Visit(arrayIndex);
-                        Sql.Append(" AS ");
-                        Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
-                        Sql.Append(") + '");
-                    }
                     else
                     {
-                        throw new InvalidOperationException(
-                            SqlServerStrings.JsonValuePathExpressionsNotSupported(_sqlServerCompatibilityLevel));
+                        switch (_sqlEngineSingletonOptions)
+                        {
+                            case ISqlServerSingletonOptions { CompatibilityLevel: >= 140 }:
+                            case IAzureSqlSingletonOptions { CompatibilityLevel: >= 140 }:
+                            case IAzureSynapseSingletonOptions:
+                                Sql.Append("' + CAST(");
+                                Visit(arrayIndex);
+                                Sql.Append(" AS ");
+                                Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
+                                Sql.Append(") + '");
+                                break;
+                            case ISqlServerSingletonOptions sqlServerSingletonOptions:
+                                throw new InvalidOperationException(
+                                    SqlServerStrings.JsonValuePathExpressionsNotSupported(sqlServerSingletonOptions.CompatibilityLevel));
+                        }
                     }
 
                     Sql.Append("]");
