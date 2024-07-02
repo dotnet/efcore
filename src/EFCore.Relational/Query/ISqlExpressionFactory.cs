@@ -43,12 +43,14 @@ public interface ISqlExpressionFactory
     /// <param name="operand">A <see cref="SqlExpression" /> to apply unary operator on.</param>
     /// <param name="type">The type of the created expression.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
+    /// <param name="existingExpr">An optional expression that can be re-used if it matches the new expression.</param>
     /// <returns>A <see cref="SqlExpression" /> with the given arguments.</returns>
     SqlExpression? MakeUnary(
         ExpressionType operatorType,
         SqlExpression operand,
         Type type,
-        RelationalTypeMapping? typeMapping = null);
+        RelationalTypeMapping? typeMapping = null,
+        SqlExpression? existingExpr = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> with the given arguments.
