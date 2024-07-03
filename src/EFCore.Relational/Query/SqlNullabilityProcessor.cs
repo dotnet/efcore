@@ -1067,10 +1067,9 @@ public class SqlNullabilityProcessor
         return result;
 
         SqlExpression GenerateNotNullCheck(SqlExpression operand)
-            => OptimizeNonNullableNotExpression(
-                _sqlExpressionFactory.Not(
-                    ProcessNullNotNull(
-                        _sqlExpressionFactory.IsNull(operand), operandNullable: true)));
+            => _sqlExpressionFactory.Not(
+                ProcessNullNotNull(
+                    _sqlExpressionFactory.IsNull(operand), operandNullable: true));
     }
 
     /// <summary>
@@ -1543,9 +1542,7 @@ public class SqlNullabilityProcessor
 
         nullable = operandNullable;
 
-        return !operandNullable && sqlUnaryExpression.OperatorType == ExpressionType.Not
-            ? OptimizeNonNullableNotExpression(updated)
-            : updated;
+        return OptimizeNotExpression(updated);
     }
 
     /// <summary>
@@ -1695,7 +1692,7 @@ public class SqlNullabilityProcessor
             // a != true -> !a
             // a != false -> a
             return sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ rightBoolValue
-                ? OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(left))
+                ? OptimizeNotExpression(_sqlExpressionFactory.Not(left))
                 : left;
         }
 
@@ -1711,7 +1708,7 @@ public class SqlNullabilityProcessor
             // true != a -> !a
             // false != a -> a
             return sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftBoolValue
-                ? OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(right))
+                ? OptimizeNotExpression(_sqlExpressionFactory.Not(right))
                 : right;
         }
 
@@ -1791,10 +1788,10 @@ public class SqlNullabilityProcessor
         }
 
         var leftIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(left), leftNullable);
-        var leftIsNotNull = OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(leftIsNull));
+        var leftIsNotNull = _sqlExpressionFactory.Not(leftIsNull);
 
         var rightIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(right), rightNullable);
-        var rightIsNotNull = OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(rightIsNull));
+        var rightIsNotNull = _sqlExpressionFactory.Not(rightIsNull);
 
         SqlExpression body;
         if (leftNegated == rightNegated)
@@ -1825,152 +1822,51 @@ public class SqlNullabilityProcessor
 
         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
         {
-            // simplify using DeMorgan
-            body = OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(body));
+            // the factory takes care of simplifying using DeMorgan
+            body = _sqlExpressionFactory.Not(body);
         }
 
         return body;
     }
 
     /// <summary>
-    ///     Attempts to simplify a unary not operation on a non-nullable operand.
+    ///     Attempts to simplify a unary not operation.
     /// </summary>
     /// <param name="expression">The expression to simplify.</param>
     /// <returns>The simplified expression, or the original expression if it cannot be simplified.</returns>
-    protected virtual SqlExpression OptimizeNonNullableNotExpression(SqlExpression expression)
+    protected virtual SqlExpression OptimizeNotExpression(SqlExpression expression)
     {
-        if (expression is not SqlUnaryExpression sqlUnaryExpression
-            || sqlUnaryExpression.OperatorType != ExpressionType.Not)
+        if (expression is not SqlUnaryExpression { OperatorType: ExpressionType.Not } sqlUnaryExpression)
         {
             return expression;
         }
 
-        switch (sqlUnaryExpression.Operand)
+        // !(a > b) -> a <= b
+        // !(a >= b) -> a < b
+        // !(a < b) -> a >= b
+        // !(a <= b) -> a > b
+        if (sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
+            && TryNegate(sqlBinaryOperand.OperatorType, out var negated))
         {
-            // !(true) -> false
-            // !(false) -> true
-            case SqlConstantExpression { Value: bool value }:
-            {
-                return _sqlExpressionFactory.Constant(!value, sqlUnaryExpression.TypeMapping);
-            }
-
-            case SqlUnaryExpression sqlUnaryOperand:
-            {
-                switch (sqlUnaryOperand.OperatorType)
-                {
-                    // !(!a) -> a
-                    case ExpressionType.Not:
-                        return sqlUnaryOperand.Operand;
-
-                    //!(a IS NULL) -> a IS NOT NULL
-                    case ExpressionType.Equal:
-                        return _sqlExpressionFactory.IsNotNull(sqlUnaryOperand.Operand);
-
-                    //!(a IS NOT NULL) -> a IS NULL
-                    case ExpressionType.NotEqual:
-                        return _sqlExpressionFactory.IsNull(sqlUnaryOperand.Operand);
-                }
-
-                break;
-            }
-
-            case SqlBinaryExpression sqlBinaryOperand:
-            {
-                // optimizations below are only correct in 2-value logic
-                // De Morgan's
-                if (sqlBinaryOperand.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse)
-                {
-                    // since entire AndAlso/OrElse expression is non-nullable, both sides of it (left and right) must also be non-nullable
-                    // so it's safe to perform recursive optimization here
-                    var left = OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(sqlBinaryOperand.Left));
-                    var right = OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(sqlBinaryOperand.Right));
-
-                    return _sqlExpressionFactory.MakeBinary(
-                        sqlBinaryOperand.OperatorType == ExpressionType.AndAlso
-                            ? ExpressionType.OrElse
-                            : ExpressionType.AndAlso,
-                        left,
-                        right,
-                        sqlBinaryOperand.TypeMapping)!;
-                }
-
-                // use equality where possible
-                // !(a == true) -> a == false
-                // !(a == false) -> a == true
-                // !(true == a) -> false == a
-                // !(false == a) -> true == a
-                if (sqlBinaryOperand.OperatorType == ExpressionType.Equal)
-                {
-                    if (sqlBinaryOperand.Left is SqlConstantExpression leftConstant
-                        && leftConstant.Type == typeof(bool))
-                    {
-                        return _sqlExpressionFactory.MakeBinary(
-                            ExpressionType.Equal,
-                            _sqlExpressionFactory.Constant(!(bool)leftConstant.Value!, leftConstant.TypeMapping),
-                            sqlBinaryOperand.Right,
-                            sqlBinaryOperand.TypeMapping)!;
-                    }
-
-                    if (sqlBinaryOperand.Right is SqlConstantExpression rightConstant
-                        && rightConstant.Type == typeof(bool))
-                    {
-                        return _sqlExpressionFactory.MakeBinary(
-                            ExpressionType.Equal,
-                            sqlBinaryOperand.Left,
-                            _sqlExpressionFactory.Constant(!(bool)rightConstant.Value!, rightConstant.TypeMapping),
-                            sqlBinaryOperand.TypeMapping)!;
-                    }
-                }
-
-                // !(a == b) -> a != b
-                // !(a != b) -> a == b
-                // !(a > b) -> a <= b
-                // !(a >= b) -> a < b
-                // !(a < b) -> a >= b
-                // !(a <= b) -> a > b
-                if (TryNegate(sqlBinaryOperand.OperatorType, out var negated))
-                {
-                    return _sqlExpressionFactory.MakeBinary(
-                        negated,
-                        sqlBinaryOperand.Left,
-                        sqlBinaryOperand.Right,
-                        sqlBinaryOperand.TypeMapping)!;
-                }
-            }
-            break;
-
-            case CaseExpression caseExpression:
-            {
-                if (caseExpression.Type == typeof(bool)
-                    && caseExpression.ElseResult is SqlConstantExpression elseResult
-                    && caseExpression.WhenClauses.All(clause => clause.Result is SqlConstantExpression)
-                )
-                {
-                    var clauses = caseExpression.WhenClauses
-                        .Select(clause => new CaseWhenClause(
-                            clause.Test,
-                            _sqlExpressionFactory.Constant(!(bool)(clause.Result as SqlConstantExpression)!.Value!, clause.Result.TypeMapping))
-                        )
-                        .ToList();
-                    var newElseResult = _sqlExpressionFactory.Constant(!(bool)elseResult.Value!, elseResult.TypeMapping);
-
-                    return caseExpression.Operand is null
-                        ? _sqlExpressionFactory.Case(clauses, newElseResult)
-                        : _sqlExpressionFactory.Case(caseExpression.Operand, clauses, newElseResult);
-                }
-            }
-
-            break;
+            return _sqlExpressionFactory.MakeBinary(
+                negated,
+                sqlBinaryOperand.Left,
+                sqlBinaryOperand.Right,
+                sqlBinaryOperand.TypeMapping)!;
         }
 
-        return sqlUnaryExpression;
+        // the factory can optimize most `NOT` expressions
+        return _sqlExpressionFactory.MakeUnary(
+            sqlUnaryExpression.OperatorType,
+            sqlUnaryExpression.Operand,
+            sqlUnaryExpression.Type,
+            sqlUnaryExpression.TypeMapping,
+            sqlUnaryExpression)!;
 
         static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
         {
             var negated = expressionType switch
             {
-                ExpressionType.Equal => ExpressionType.NotEqual,
-                ExpressionType.NotEqual => ExpressionType.Equal,
                 ExpressionType.GreaterThan => ExpressionType.LessThanOrEqual,
                 ExpressionType.GreaterThanOrEqual => ExpressionType.LessThan,
                 ExpressionType.LessThan => ExpressionType.GreaterThanOrEqual,

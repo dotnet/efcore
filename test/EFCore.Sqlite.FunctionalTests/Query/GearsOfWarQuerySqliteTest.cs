@@ -8953,7 +8953,7 @@ SELECT NOT EXISTS (
     SELECT 1
     FROM "Gears" AS "g"
     LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-    WHERE "t"."Note" = 'Foo' AND "t"."Note" IS NOT NULL)
+    WHERE "t"."Note" = 'Foo')
 """);
     }
 
