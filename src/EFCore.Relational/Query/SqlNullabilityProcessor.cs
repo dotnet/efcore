@@ -573,7 +573,99 @@ public class SqlNullabilityProcessor
             return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
+        if (IsNull(elseResult))
+        {
+            elseResult = null;
+        }
+
+        // optimize expressions such as expr != null ? expr : null and expr == null ? null : expr
+        if (testIsCondition && whenClauses is [var clause] && (elseResult == null || IsNull(clause.Result)))
+        {
+            HashSet<SqlExpression> nullPropagatedOperands = [];
+            SqlExpression test, expr;
+
+            if (elseResult == null)
+            {
+                expr = clause.Result;
+                test = clause.Test;
+            }
+            else
+            {
+                expr = elseResult;
+                test = _sqlExpressionFactory.Not(clause.Test);
+            }
+
+            NullPropagatedOperands(expr, nullPropagatedOperands);
+            test = DropNotNullChecks(test, nullPropagatedOperands);
+
+            if (IsTrue(test))
+            {
+                return expr;
+            }
+
+            if (elseResult != null)
+            {
+                test = _sqlExpressionFactory.Not(test);
+            }
+
+            whenClauses = [new(test, clause.Result)];
+        }
+
         return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
+
+        SqlExpression DropNotNullChecks(SqlExpression expression, HashSet<SqlExpression> nullPropagatedOperands)
+            => expression switch
+            {
+                SqlUnaryExpression { OperatorType: ExpressionType.NotEqual } isNotNull
+                    when nullPropagatedOperands.Contains(isNotNull.Operand)
+                    => _sqlExpressionFactory.Constant(true, expression.Type, expression.TypeMapping),
+
+                SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binary
+                    => _sqlExpressionFactory.MakeBinary(
+                        ExpressionType.AndAlso,
+                        DropNotNullChecks(binary.Left, nullPropagatedOperands),
+                        DropNotNullChecks(binary.Right, nullPropagatedOperands),
+                        expression.TypeMapping,
+                        expression)!,
+
+                _ => expression,
+            };
+
+        // FIXME: unify nullability computations
+        static void NullPropagatedOperands(SqlExpression expression, HashSet<SqlExpression> operands)
+        {
+            operands.Add(expression);
+
+            if (expression is SqlUnaryExpression unary
+                && unary.OperatorType is ExpressionType.Not or ExpressionType.Negate or ExpressionType.Convert)
+            {
+                NullPropagatedOperands(unary.Operand, operands);
+            }
+            else if (expression is SqlBinaryExpression binary
+                && binary.OperatorType is not (ExpressionType.AndAlso or ExpressionType.OrElse))
+            {
+                NullPropagatedOperands(binary.Left, operands);
+                NullPropagatedOperands(binary.Right, operands);
+            }
+            else if (expression is SqlFunctionExpression { IsNullable: true } func)
+            {
+                if (func.InstancePropagatesNullability == true)
+                {
+                    NullPropagatedOperands(func.Instance!, operands);
+                }
+
+                if (!func.IsNiladic)
+                {
+                    for (var i = 0; i < func.ArgumentsPropagateNullability.Count; i++)
+                    {
+                        if (func.ArgumentsPropagateNullability[i])
+                        {
+                            NullPropagatedOperands(func.Arguments[i], operands);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
