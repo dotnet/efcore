@@ -2346,6 +2346,52 @@ public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : Q
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Is_not_null_optimizes_unary_op(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(
+                x => x.NullableIntA != null ? ~x.NullableIntA : null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Is_not_null_optimizes_binary_op(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(
+                x => x.NullableIntA != null && x.NullableIntB != null
+                    ? x.NullableIntA + x.NullableIntB
+                    : null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Is_not_null_optimizes_binary_op_with_partial_checks(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(
+                x => x.NullableStringA != null && x.NullableStringB != null
+                    ? x.NullableStringA + x.NullableStringB + x.NullableStringC
+                    : null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Is_not_null_optimizes_binary_op_with_nested_checks(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(
+                x => x.NullableStringA != null
+                    ? x.NullableStringB != null ? x.NullableStringA + x.NullableStringB : null
+                    : null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Is_not_null_optimizes_binary_op_with_mixed_checks(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Select(
+                x => x.NullableStringA != null && x.BoolA ? x.NullableStringA + x.NullableStringB : null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Sum_function_is_always_considered_non_nullable(bool async)
         => AssertQuery(
             async,
