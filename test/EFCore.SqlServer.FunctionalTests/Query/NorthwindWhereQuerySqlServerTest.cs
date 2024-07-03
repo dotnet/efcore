@@ -1396,12 +1396,9 @@ END <> @__prm_0
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE [p].[Discontinued] = CASE
-    WHEN CASE
-        WHEN [p].[ProductID] > 50 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END <> @__prm_0 THEN CAST(1 AS bit)
+    WHEN [p].[ProductID] > 50 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END
+END ^ @__prm_0
 """);
     }
 
