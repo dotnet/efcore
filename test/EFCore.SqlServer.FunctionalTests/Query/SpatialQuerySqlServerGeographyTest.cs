@@ -88,10 +88,7 @@ FROM [PointEntity] AS [p]
 
         AssertSql(
             """
-SELECT [p].[Id], CASE
-    WHEN [p].[Point] IS NULL THEN NULL
-    ELSE [p].[Point].STAsBinary()
-END AS [Binary]
+SELECT [p].[Id], [p].[Point].STAsBinary() AS [Binary]
 FROM [PointEntity] AS [p]
 """);
     }
@@ -285,10 +282,7 @@ FROM [PolygonEntity] AS [p]
             """
 @__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
 
-SELECT [p].[Id], CASE
-    WHEN [p].[Polygon] IS NULL THEN NULL
-    ELSE [p].[Polygon].STDisjoint(@__point_0)
-END AS [Disjoint]
+SELECT [p].[Id], [p].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
 FROM [PolygonEntity] AS [p]
 """);
     }

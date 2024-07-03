@@ -4417,9 +4417,7 @@ END = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [e].[NullableIntA] IS NOT NULL THEN ~[e].[NullableIntA]
-END
+SELECT ~[e].[NullableIntA]
 FROM [Entities1] AS [e]
 """);
     }
@@ -4430,9 +4428,7 @@ FROM [Entities1] AS [e]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [e].[NullableIntA] IS NOT NULL AND [e].[NullableIntB] IS NOT NULL THEN [e].[NullableIntA] + [e].[NullableIntB]
-END
+SELECT [e].[NullableIntA] + [e].[NullableIntB]
 FROM [Entities1] AS [e]
 """);
     }
@@ -4443,9 +4439,7 @@ FROM [Entities1] AS [e]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL THEN [e].[NullableStringA] + [e].[NullableStringB] + COALESCE([e].[NullableStringC], N'')
-END
+SELECT [e].[NullableStringA] + [e].[NullableStringB] + COALESCE([e].[NullableStringC], N'')
 FROM [Entities1] AS [e]
 """);
     }
@@ -4456,11 +4450,7 @@ FROM [Entities1] AS [e]
 
         AssertSql(
             """
-SELECT CASE
-    WHEN [e].[NullableStringA] IS NOT NULL THEN CASE
-        WHEN [e].[NullableStringB] IS NOT NULL THEN [e].[NullableStringA] + [e].[NullableStringB]
-    END
-END
+SELECT [e].[NullableStringA] + [e].[NullableStringB]
 FROM [Entities1] AS [e]
 """);
     }
@@ -4472,7 +4462,7 @@ FROM [Entities1] AS [e]
         AssertSql(
             """
 SELECT CASE
-    WHEN [e].[NullableStringA] IS NOT NULL AND [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableStringA] + COALESCE([e].[NullableStringB], N'')
+    WHEN [e].[BoolA] = CAST(1 AS bit) THEN [e].[NullableStringA] + COALESCE([e].[NullableStringB], N'')
 END
 FROM [Entities1] AS [e]
 """);
