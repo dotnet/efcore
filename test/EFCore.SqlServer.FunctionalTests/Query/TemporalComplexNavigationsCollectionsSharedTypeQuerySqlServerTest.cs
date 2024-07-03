@@ -1848,9 +1848,9 @@ ORDER BY [l].[Id], [l1].[Id], [l3].[Id]
 
 SELECT CASE
     WHEN [s].[OneToOne_Required_PK_Date] IS NULL OR [s].[Level1_Required_Id] IS NULL OR [s].[OneToMany_Required_Inverse2Id] IS NULL OR CASE
-        WHEN [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[PeriodEnd0]
+        WHEN [s].[PeriodStart0] IS NOT NULL THEN [s].[PeriodEnd0]
     END IS NULL OR CASE
-        WHEN [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[PeriodStart0]
+        WHEN [s].[PeriodEnd0] IS NOT NULL THEN [s].[PeriodStart0]
     END IS NULL THEN 0
     WHEN [s].[OneToOne_Required_PK_Date] IS NOT NULL AND [s].[Level1_Required_Id] IS NOT NULL AND [s].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [s].[PeriodEnd0] IS NOT NULL AND [s].[PeriodStart0] IS NOT NULL THEN [s].[Id0]
 END, [l].[Id], [s].[Id], [s].[Id0], [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id], [l4].[PeriodEnd], [l4].[PeriodStart]
@@ -1866,9 +1866,9 @@ LEFT JOIN (
         WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
     END
     WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
-        WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+        WHEN [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
     END IS NOT NULL AND CASE
-        WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+        WHEN [l2].[PeriodEnd] IS NOT NULL THEN [l2].[PeriodStart]
     END IS NOT NULL
 ) AS [s] ON [l].[Id] = [s].[Level1_Required_Id]
 LEFT JOIN (
@@ -2251,9 +2251,9 @@ FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT CASE
         WHEN [l2].[Level2_Required_Id] IS NULL OR [l2].[OneToMany_Required_Inverse3Id] IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+            WHEN [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
         END IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+            WHEN [l2].[PeriodEnd] IS NOT NULL THEN [l2].[PeriodStart]
         END IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], [l2].[Level3_Name], [l0].[Id], [l2].[Id] AS [Id0], [l0].[OneToMany_Optional_Inverse2Id]
@@ -2282,9 +2282,9 @@ FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT CASE
         WHEN [l2].[Level2_Required_Id] IS NULL OR [l2].[OneToMany_Required_Inverse3Id] IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+            WHEN [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
         END IS NULL OR CASE
-            WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+            WHEN [l2].[PeriodEnd] IS NOT NULL THEN [l2].[PeriodStart]
         END IS NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], [l2].[Level3_Name], [l0].[Id], [l2].[Id] AS [Id0], [l0].[OneToMany_Optional_Inverse2Id]
