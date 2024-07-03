@@ -32,7 +32,6 @@ namespace TestNamespace
                 navigationCount: 1,
                 servicePropertyCount: 1,
                 foreignKeyCount: 1,
-                unnamedIndexCount: 1,
                 keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
@@ -216,9 +215,6 @@ namespace TestNamespace
             var key = runtimeEntityType.AddKey(
                 new[] { id });
             runtimeEntityType.SetPrimaryKey(key);
-
-            var index = runtimeEntityType.AddIndex(
-                new[] { referenceNavigationId });
 
             return runtimeEntityType;
         }

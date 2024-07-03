@@ -108,6 +108,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 idProperty, entityType, propertyType);
 
         /// <summary>
+        ///     The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.
+        /// </summary>
+        public static string IndexesExist(object? entityType, object? properties)
+            => string.Format(
+                GetString("IndexesExist", nameof(entityType), nameof(properties)),
+                entityType, properties);
+
+        /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
         public static string InvalidDerivedTypeInEntityProjection(object? derivedType, object? entityType)

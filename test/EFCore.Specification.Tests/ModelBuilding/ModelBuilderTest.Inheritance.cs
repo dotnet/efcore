@@ -158,8 +158,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.Single().Properties,
-                pickle.GetIndexes().Single().Properties);
+                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
+                pickle.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 pickle.GetForeignKeys().Single().Properties);
@@ -189,8 +189,8 @@ public abstract partial class ModelBuilderTest
                     return true;
                 });
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
-                initialIndexes.Single().Properties,
-                ingredient.GetIndexes().Single().Properties);
+                initialIndexes.SingleOrDefault()?.Properties ?? Array.Empty<IReadOnlyProperty>(),
+                ingredient.GetIndexes().SingleOrDefault()?.Properties ?? Array.Empty<IMutableProperty>());
             Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialForeignKeys.Single().Properties,
                 ingredient.GetForeignKeys().Single().Properties);
@@ -569,6 +569,11 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Index_removed_when_covered_by_an_inherited_foreign_key()
         {
+            if (!Fixture.ForeignKeysHaveIndexes)
+            {
+                return;
+            }
+
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore<CustomerDetails>();
             modelBuilder.Ignore<OrderDetails>();
@@ -653,6 +658,11 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Index_removed_when_covered_by_an_inherited_index()
         {
+            if (!Fixture.ForeignKeysHaveIndexes)
+            {
+                return;
+            }
+
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Ignore<CustomerDetails>();
             modelBuilder.Ignore<OrderDetails>();
