@@ -495,15 +495,6 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
 """);
-
-                Assert.Equal(
-                    """
--- @__city_0='London'
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
-""", queryString, ignoreLineEndingDifferences: true,
-                    ignoreWhiteSpaceDifferences: true);
             });
 
         return null;

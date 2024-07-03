@@ -51,7 +51,7 @@ public sealed record RelationalQueryCompilationContextDependencies
         => SqlAliasManagerFactory = sqlAliasManagerFactory;
 
     /// <summary>
-    ///     The current context.
+    ///     A manager for SQL aliases, capable of generate uniquified table aliases.
     /// </summary>
     public ISqlAliasManagerFactory SqlAliasManagerFactory { get; init; }
 }

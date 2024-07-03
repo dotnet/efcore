@@ -17,8 +17,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "a")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "a")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -33,8 +33,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -49,8 +49,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -65,8 +65,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -89,8 +89,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1.0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1.0)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -105,8 +105,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1.0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1.0)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -121,8 +121,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1.0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1.0)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -137,8 +137,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -153,8 +153,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00.123")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00.123")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -169,8 +169,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00.123456")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00.123456")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -185,8 +185,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -201,8 +201,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "12:30:00")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "12:30:00")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -217,8 +217,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "12:30:00.123")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "12:30:00.123")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -233,8 +233,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "12:30:00.123456")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "12:30:00.123456")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -249,8 +249,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00+02:00")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00+02:00")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -265,8 +265,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = true)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = true)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -281,8 +281,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -292,13 +292,14 @@ OFFSET 0 LIMIT 2
         // TODO
         await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte_array());
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "AQI=")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "AQI=")) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -313,8 +314,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 0)) = 2))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -365,8 +366,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "TestEntity") AND ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [1, 2, 3])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [1, 2, 3])
+    WHERE (a > c["Id"])) = 1))
 OFFSET 0 LIMIT 2
 """);
     }

@@ -23,8 +23,7 @@ public class SqlAliasManager
     ///     All aliases produced by a given instance of <see cref="SqlAliasManager" /> are unique.
     /// </summary>
     /// <param name="name">
-    ///     A name (e.g. of a table) to use as the starting point for the aliasA base for the alias; a number postfix will be appended to it
-    ///     as necessary.
+    ///     A name (e.g. of a table) to use as the starting point for the alias; a number postfix will be appended to it as necessary.
     /// </param>
     /// <returns>A fully unique alias within the context of this translation process.</returns>
     public virtual string GenerateTableAlias(string name)
@@ -95,8 +94,8 @@ public class SqlAliasManager
     protected virtual Dictionary<string, string>? RemapTableAliases(IReadOnlySet<string> usedAliases)
     {
         // Aliases consist of a single character, followed by a counter for uniquification.
-        // We construct process the collected aliases above into a bitmap that represents, for each alias char, which numbers have been
-        // seen. Note that since a0 is the 2nd uniquified alias (a is the first), the bits are off-by-one, with position 0 representing
+        // We process the collected aliases above into a bitmap that represents, for each alias char, which numbers have been seen.
+        // Note that since a0 is the 2nd uniquified alias (a is the first), the bits are off-by-one, with position 0 representing
         // a, position 1 representing a0, and so on.
         Dictionary<char, BitArray> aliasBitmaps = new();
 
@@ -169,10 +168,6 @@ public class SqlAliasManager
                 case ShapedQueryExpression shapedQuery:
                     return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
 
-                case ColumnExpression { TableAlias: var alias }:
-                    _tableAliases.Add(alias);
-                    return base.VisitExtension(node);
-
                 case TableExpressionBase { Alias: string alias }:
                     _tableAliases.Add(alias);
                     return base.VisitExtension(node);
@@ -189,28 +184,19 @@ public class SqlAliasManager
             => new TableAliasRewriter(aliasRewritingMap).Visit(expression);
 
         protected override Expression VisitExtension(Expression node)
-        {
-            switch (node)
+            => node switch
             {
-                case ShapedQueryExpression shapedQuery:
-                    return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
+                ShapedQueryExpression shapedQuery => shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression)),
 
                 // Note that this skips joins (which wrap the table that has the actual alias), as well as the top-level select
-                case TableExpressionBase { Alias: string alias } table:
-                    if (aliasRewritingMap.TryGetValue(alias, out var newAlias))
-                    {
-                        table = table.WithAlias(newAlias);
-                    }
+                TableExpressionBase { Alias: string alias } table when aliasRewritingMap.TryGetValue(alias, out var newAlias)
+                    => base.VisitExtension(table.WithAlias(newAlias)),
 
-                    return base.VisitExtension(table);
+                ColumnExpression column when aliasRewritingMap.TryGetValue(column.TableAlias, out var newTableAlias)
+                    => new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable),
 
-                case ColumnExpression column when aliasRewritingMap.TryGetValue(column.TableAlias, out var newTableAlias):
-                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
-
-                default:
-                    return base.VisitExtension(node);
-            }
-        }
+                _ => base.VisitExtension(node)
+            };
     }
 
     private sealed class MutableInt
