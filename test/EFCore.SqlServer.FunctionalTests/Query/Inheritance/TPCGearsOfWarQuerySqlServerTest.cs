@@ -838,10 +838,7 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u]
-WHERE CASE
-    WHEN [u].[LeaderNickname] IS NULL THEN NULL
-    ELSE CAST(LEN([u].[LeaderNickname]) AS int)
-END = 5
+WHERE CAST(LEN([u].[LeaderNickname]) AS int) = 5
 """);
     }
 
@@ -860,9 +857,7 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u]
-WHERE CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
-END = 5
+WHERE CAST(LEN([u].[LeaderNickname]) AS int) = 5
 """);
     }
 
@@ -881,9 +876,7 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u]
-WHERE CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
-END = 5
+WHERE CAST(LEN([u].[LeaderNickname]) AS int) = 5
 """);
     }
 
@@ -894,9 +887,7 @@ END = 5
         // issue #16050
         AssertSql(
             """
-SELECT CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN [u].[LeaderNickname] + [u].[LeaderNickname]
-END
+SELECT [u].[LeaderNickname] + [u].[LeaderNickname]
 FROM (
     SELECT [g].[LeaderNickname]
     FROM [Gears] AS [g]
