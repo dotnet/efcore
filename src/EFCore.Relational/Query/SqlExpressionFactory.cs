@@ -627,18 +627,27 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual SqlExpression Case(SqlExpression? operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult)
     {
-        var operandTypeMapping = operand!.TypeMapping
-            ?? whenClauses.Select(wc => wc.Test.TypeMapping).FirstOrDefault(t => t != null)
-            // Since we never look at type of Operand/Test after this place,
-            // we need to find actual typeMapping based on non-object type.
-            ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
-                .Where(t => t != typeof(object)).Select(t => _typeMappingSource.FindMapping(t, Dependencies.Model))
-                .FirstOrDefault();
+        RelationalTypeMapping? testTypeMapping;
+        if (operand == null)
+        {
+            testTypeMapping = _boolTypeMapping;
+        }
+        else
+        {
+            testTypeMapping = operand.TypeMapping
+                ?? whenClauses.Select(wc => wc.Test.TypeMapping).FirstOrDefault(t => t != null)
+                // Since we never look at type of Operand/Test after this place,
+                // we need to find actual typeMapping based on non-object type.
+                ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
+                    .Where(t => t != typeof(object)).Select(t => _typeMappingSource.FindMapping(t, Dependencies.Model))
+                    .FirstOrDefault();
+
+            operand = ApplyTypeMapping(operand, testTypeMapping);
+        }
 
         var resultTypeMapping = elseResult?.TypeMapping
             ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
 
-        operand = ApplyTypeMapping(operand, operandTypeMapping);
         elseResult = ApplyTypeMapping(elseResult, resultTypeMapping);
 
         var typeMappedWhenClauses = new List<CaseWhenClause>();
@@ -646,7 +655,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             typeMappedWhenClauses.Add(
                 new CaseWhenClause(
-                    ApplyTypeMapping(caseWhenClause.Test, operandTypeMapping),
+                    ApplyTypeMapping(caseWhenClause.Test, testTypeMapping),
                     ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
         }
 
@@ -655,23 +664,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
     /// <inheritdoc />
     public virtual SqlExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult)
-    {
-        var resultTypeMapping = elseResult?.TypeMapping
-            ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
-
-        var typeMappedWhenClauses = new List<CaseWhenClause>();
-        foreach (var caseWhenClause in whenClauses)
-        {
-            typeMappedWhenClauses.Add(
-                new CaseWhenClause(
-                    ApplyTypeMapping(caseWhenClause.Test, _boolTypeMapping),
-                    ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
-        }
-
-        elseResult = ApplyTypeMapping(elseResult, resultTypeMapping);
-
-        return new CaseExpression(typeMappedWhenClauses, elseResult);
-    }
+        => Case(operand: null, whenClauses, elseResult);
 
     /// <inheritdoc />
     public virtual SqlExpression Function(
