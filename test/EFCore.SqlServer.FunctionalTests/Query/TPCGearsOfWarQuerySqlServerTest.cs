@@ -1364,7 +1364,6 @@ WHERE CASE
         WHEN [u].[LeaderNickname] LIKE N'%us' THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    ELSE NULL
 END = CAST(1 AS bit)
 """);
     }
@@ -1408,7 +1407,6 @@ FROM (
 ) AS [u]
 WHERE CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
-    ELSE NULL
 END = 5
 """);
     }
@@ -1430,7 +1428,6 @@ FROM (
 ) AS [u]
 WHERE CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(LEN([u].[LeaderNickname]) AS int)
-    ELSE NULL
 END = 5
 """);
     }
@@ -1444,7 +1441,6 @@ END = 5
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN [u].[LeaderNickname] + [u].[LeaderNickname]
-    ELSE NULL
 END
 FROM (
     SELECT [g].[LeaderNickname]
@@ -1498,7 +1494,6 @@ FROM (
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
 END
 FROM (
     SELECT [g].[Nickname], [g].[LeaderNickname]
@@ -1518,7 +1513,6 @@ FROM (
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN [u0].[LeaderNickname]
-    ELSE NULL
 END
 FROM (
     SELECT [g].[LeaderNickname]
@@ -1548,7 +1542,6 @@ SELECT [u0].[Nickname], CASE
         WHEN [u0].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    ELSE NULL
 END AS [Condition]
 FROM (
     SELECT [g].[HasSoulPatch]
@@ -1632,7 +1625,6 @@ ORDER BY [u0].[Nickname]
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(0 AS bit)
-    ELSE NULL
 END
 FROM (
     SELECT [g].[LeaderNickname]
@@ -1652,7 +1644,6 @@ FROM (
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE NULL
 END
 FROM (
     SELECT [g].[LeaderNickname]
@@ -1672,7 +1663,6 @@ FROM (
             """
 SELECT CASE
     WHEN [s].[Id] IS NOT NULL THEN [c].[Name]
-    ELSE NULL
 END
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -1695,7 +1685,6 @@ LEFT JOIN [Cities] AS [c] ON [u].[AssignedCityName] = [c].[Name]
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
 END
 FROM (
     SELECT [g].[Nickname], [g].[LeaderNickname]
@@ -1733,7 +1722,6 @@ LEFT JOIN (
             """
 SELECT CASE
     WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-    ELSE NULL
 END
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -4855,7 +4843,6 @@ WHERE [u].[Discriminator] = N'Officer' AND (
             """
 SELECT CASE
     WHEN [l].[CommanderName] IS NOT NULL THEN [l].[CommanderName]
-    ELSE NULL
 END
 FROM [LocustHordes] AS [l]
 """);
@@ -4869,7 +4856,6 @@ FROM [LocustHordes] AS [l]
             """
 SELECT CASE
     WHEN [l].[CommanderName] IS NOT NULL THEN [l].[Eradicated]
-    ELSE NULL
 END
 FROM [LocustHordes] AS [l]
 """);
@@ -8593,7 +8579,6 @@ ORDER BY [s].[Id], [s0].[Nickname], [s0].[SquadId]
             """
 SELECT CASE
     WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
 END
 FROM (
     SELECT [g].[Nickname], [g].[LeaderNickname]
@@ -8605,7 +8590,6 @@ FROM (
 ORDER BY CASE
     WHEN CASE
         WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-        ELSE NULL
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -10143,7 +10127,6 @@ FROM [Officers] AS [o]
             """
 SELECT CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END AS [IsEradicated], [l1].[CommanderName], [l1].[Name]
 FROM (
     SELECT [l].[Name]
@@ -10155,10 +10138,8 @@ FROM (
 INNER JOIN [LocustHordes] AS [l1] ON [u].[Name] = [l1].[CommanderName]
 WHERE CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END = CAST(0 AS bit) OR CASE
     WHEN [l1].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END IS NULL
 """);
     }
@@ -11413,7 +11394,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END = 1
 """);
     }
@@ -11438,7 +11418,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END + 1 = 2
 """);
     }
@@ -11451,7 +11430,6 @@ END + 1 = 2
             """
 SELECT [t].[Note], CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END + 1 AS [Value]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -11463,7 +11441,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -11477,7 +11454,6 @@ END IS NOT NULL
 SELECT CASE
     WHEN [t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL THEN CASE
         WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-        ELSE NULL
     END
     ELSE -1
 END
@@ -11500,7 +11476,6 @@ LEFT JOIN (
             """
 SELECT SUBSTRING(CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END, 0 + 1, 3)
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -11521,7 +11496,6 @@ LEFT JOIN (
             """
 SELECT [t].[Note], SUBSTRING([t].[Note], 0 + 1, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END) AS [Function]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -11533,7 +11507,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -11546,13 +11519,10 @@ END IS NOT NULL
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([u].[Nickname]) AS int)
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END + 1
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -11564,7 +11534,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -11578,7 +11547,6 @@ ORDER BY [t].[Note]
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END AS [Id]
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -11590,7 +11558,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -11604,13 +11571,10 @@ ORDER BY [t].[Note]
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([u].[Nickname]) AS int)
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END + 1
 FROM [Tags] AS [t]
 LEFT JOIN (
@@ -11622,7 +11586,6 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -11645,10 +11608,8 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL AND CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[HasSoulPatch]
-    ELSE NULL
 END = CAST(0 AS bit)
 ORDER BY [t].[Note]
 """);
@@ -11694,11 +11655,9 @@ LEFT JOIN (
 ) AS [u] ON [t].[GearNickName] = [u].[Nickname] AND [t].[GearSquadId] = [u].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [u].[SquadId]
-    ELSE NULL
 END, [t].[Note]
 """);
     }

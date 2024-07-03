@@ -754,7 +754,6 @@ SELECT [g0].[Nickname], CASE
         WHEN [g0].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    ELSE NULL
 END AS [Condition]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0] ON [g].[HasSoulPatch] = CAST(1 AS bit)
@@ -809,19 +808,15 @@ GROUP BY [g].[Rank]
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([g].[Nickname]) AS int)
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END + 1
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -1223,7 +1218,6 @@ WHERE DATEPART(minute, [m].[Timeline]) = 0
 SELECT CASE
     WHEN [t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL THEN CASE
         WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-        ELSE NULL
     END
     ELSE -1
 END
@@ -1315,13 +1309,11 @@ END
             """
 SELECT [t].[Note], CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END + 1 AS [Value]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -1604,7 +1596,6 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-    ELSE NULL
 END = 5
 """);
     }
@@ -1786,7 +1777,6 @@ LEFT JOIN (
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(0 AS bit)
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -2029,7 +2019,6 @@ ORDER BY [s].[Id], [g].[Nickname]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -2563,7 +2552,6 @@ ORDER BY [g].[Nickname], [g].[SquadId]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -2577,16 +2565,13 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
             """
 SELECT CASE
     WHEN [f].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END AS [IsEradicated], [f].[CommanderName], [f].[Name]
 FROM [LocustLeaders] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 INNER JOIN [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f] ON [l].[Name] = [f].[CommanderName]
 WHERE CASE
     WHEN [f].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END = CAST(0 AS bit) OR CASE
     WHEN [f].[Name] = N'Locust' THEN CAST(1 AS bit)
-    ELSE NULL
 END IS NULL
 """);
     }
@@ -2658,7 +2643,6 @@ WHERE 0 = 1
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -2692,7 +2676,6 @@ FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END + 1 = 2
 """);
     }
@@ -2811,7 +2794,6 @@ FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END = 1
 """);
     }
@@ -3093,19 +3075,15 @@ WHERE [w].[AmmunitionType] = 1
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN CAST(LEN([g].[Nickname]) AS int)
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END + 1
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -3284,7 +3262,6 @@ WHERE [w].[AmmunitionType] & @__prm_0 = @__prm_0
             """
 SELECT SUBSTRING(CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END, 0 + 1, 3)
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
@@ -4028,7 +4005,6 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(LEN([g].[LeaderNickname]) AS int)
-    ELSE NULL
 END = 5
 """);
     }
@@ -4913,13 +4889,11 @@ GROUP BY [u].[Name], [u].[Count]
             """
 SELECT CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END AS [Id]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY [t].[Note]
 """);
@@ -5163,7 +5137,6 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN [g].[LeaderNickname] + [g].[LeaderNickname]
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -5272,11 +5245,9 @@ FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 ORDER BY CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END, [t].[Note]
 """);
     }
@@ -5493,7 +5464,6 @@ ORDER BY [g].[FullName]
             """
 SELECT CASE
     WHEN [s].[Id] IS NOT NULL THEN [c].[Name]
-    ELSE NULL
 END
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
@@ -5830,7 +5800,6 @@ ORDER BY [f].[Id], [l0].[Name], [g].[Nickname], [g].[SquadId], [g0].[Nickname]
             """
 SELECT CASE
     WHEN [c].[Name] IS NOT NULL THEN [c].[Name]
-    ELSE NULL
 END
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
@@ -6583,13 +6552,11 @@ FROM (
             """
 SELECT [t].[Note], SUBSTRING([t].[Note], 0 + 1, CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
-    ELSE NULL
 END) AS [Function]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -7063,7 +7030,6 @@ ORDER BY [f].[Name]
             """
 SELECT CASE
     WHEN [f].[CommanderName] IS NOT NULL THEN [f].[Eradicated]
-    ELSE NULL
 END
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 """);
@@ -7867,7 +7833,6 @@ WHERE [g].[Nickname] = [g0].[Nickname] AND [g].[SquadId] = [g0].[SquadId]
             """
 SELECT CASE
     WHEN [f].[CommanderName] IS NOT NULL THEN [f].[CommanderName]
-    ELSE NULL
 END
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 """);
@@ -8318,13 +8283,11 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 ORDER BY CASE
     WHEN CASE
         WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
-        ELSE NULL
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -9204,7 +9167,6 @@ ORDER BY [g].[Nickname]
             """
 SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN [g0].[LeaderNickname]
-    ELSE NULL
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 CROSS JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0]
@@ -9308,10 +9270,8 @@ FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 WHERE CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[Nickname]
-    ELSE NULL
 END IS NOT NULL AND CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[HasSoulPatch]
-    ELSE NULL
 END = CAST(0 AS bit)
 ORDER BY [t].[Note]
 """);
@@ -9400,7 +9360,6 @@ WHERE CASE
         WHEN [g].[LeaderNickname] LIKE N'%us' THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
-    ELSE NULL
 END = CAST(1 AS bit)
 """);
     }

@@ -667,7 +667,6 @@ SELECT CASE
     WHEN [c].[CustomerID] = N'9' THEN N'09'
     WHEN [c].[CustomerID] = N'10' THEN N'10'
     WHEN [c].[CustomerID] = N'11' THEN N'11'
-    ELSE NULL
 END
 FROM [Customers] AS [c]
 """);

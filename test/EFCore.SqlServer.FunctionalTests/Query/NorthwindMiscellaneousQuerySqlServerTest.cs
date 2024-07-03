@@ -5873,7 +5873,6 @@ SELECT [c].[CustomerID], CASE
         SELECT TOP(1) [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [c].[CustomerID] = [o0].[CustomerID])
-    ELSE NULL
 END AS [OrderDate]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
