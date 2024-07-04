@@ -244,10 +244,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     return match
                         ? sqlExpressionFactory.Equal(
                             discriminatorColumn,
-                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()))
+                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue(), discriminatorColumn.Type))
                         : sqlExpressionFactory.NotEqual(
                             discriminatorColumn,
-                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()));
+                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue(), discriminatorColumn.Type));
                 }
             }
 
@@ -323,7 +323,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitConstant(ConstantExpression constantExpression)
-        => new SqlConstantExpression(constantExpression, null);
+        => new SqlConstantExpression(constantExpression.Value, constantExpression.Type, typeMapping: null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -785,7 +785,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
     /// </summary>
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
         => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
-            ? new SqlParameterExpression(parameterExpression, null)
+            ? new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, null)
             : QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -859,10 +859,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return concreteEntityTypes.Count == 1
                     ? sqlExpressionFactory.Equal(
                         discriminatorColumn,
-                        sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
                     : sqlExpressionFactory.In(
                         discriminatorColumn,
-                        concreteEntityTypes.Select(et => sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
+                        concreteEntityTypes
+                            .Select(et => sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type)).ToArray());
             }
         }
 
@@ -1196,11 +1197,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
         if (CanEvaluate(expression))
         {
             sqlConstantExpression = new SqlConstantExpression(
-                Expression.Constant(
-                    Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                        .Compile(preferInterpretation: true)
-                        .Invoke(),
-                    expression.Type),
+                Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
+                    .Compile(preferInterpretation: true)
+                    .Invoke(),
+                expression.Type,
                 null);
             return true;
         }

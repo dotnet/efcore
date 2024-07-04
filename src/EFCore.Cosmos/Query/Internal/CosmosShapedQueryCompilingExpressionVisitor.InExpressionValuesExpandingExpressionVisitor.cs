@@ -35,7 +35,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var mutableValues = new List<SqlExpression>();
                         foreach (var value in (IEnumerable)parametersValues[valuesParameter.Name])
                         {
-                            mutableValues.Add(sqlExpressionFactory.Constant(value, typeMapping));
+                            mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
                         }
                         values = mutableValues;
                         break;
