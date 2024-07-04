@@ -1070,7 +1070,7 @@ WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
             """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[NullableWrappedId], [p].[NullableWrappedIdWithNullableComparer], [p].[String], [p].[Strings], [p].[WrappedId]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE JSON_VALUE([p].[NullableStrings], '$[2]') = [p].[NullableString] OR (JSON_VALUE([p].[NullableStrings], '$[2]') IS NULL AND [p].[NullableString] IS NULL)
+WHERE JSON_VALUE([p].[NullableStrings], '$[2]') IS NOT DISTINCT FROM [p].[NullableString]
 """);
     }
 

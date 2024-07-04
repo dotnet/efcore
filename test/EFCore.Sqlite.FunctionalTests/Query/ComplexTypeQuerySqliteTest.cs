@@ -89,7 +89,7 @@ SELECT "c"."Id", "c"."OptionalCustomerId", "c"."RequiredCustomerId", "c0"."Id", 
 FROM "CustomerGroup" AS "c"
 LEFT JOIN "Customer" AS "c0" ON "c"."OptionalCustomerId" = "c0"."Id"
 INNER JOIN "Customer" AS "c1" ON "c"."RequiredCustomerId" = "c1"."Id"
-WHERE "c0"."ShippingAddress_ZipCode" <> 7728 OR "c0"."ShippingAddress_ZipCode" IS NULL
+WHERE "c0"."ShippingAddress_ZipCode" IS NOT 7728
 """);
     }
 
@@ -211,7 +211,7 @@ FROM "Customer" AS "c"
             """
 SELECT "c"."Id", "c"."Name", "c"."BillingAddress_AddressLine1", "c"."BillingAddress_AddressLine2", "c"."BillingAddress_Tags", "c"."BillingAddress_ZipCode", "c"."BillingAddress_Country_Code", "c"."BillingAddress_Country_FullName", "c"."ShippingAddress_AddressLine1", "c"."ShippingAddress_AddressLine2", "c"."ShippingAddress_Tags", "c"."ShippingAddress_ZipCode", "c"."ShippingAddress_Country_Code", "c"."ShippingAddress_Country_FullName"
 FROM "Customer" AS "c"
-WHERE "c"."ShippingAddress_AddressLine1" = "c"."BillingAddress_AddressLine1" AND ("c"."ShippingAddress_AddressLine2" = "c"."BillingAddress_AddressLine2" OR ("c"."ShippingAddress_AddressLine2" IS NULL AND "c"."BillingAddress_AddressLine2" IS NULL)) AND "c"."ShippingAddress_Tags" = "c"."BillingAddress_Tags" AND "c"."ShippingAddress_ZipCode" = "c"."BillingAddress_ZipCode"
+WHERE "c"."ShippingAddress_AddressLine1" = "c"."BillingAddress_AddressLine1" AND "c"."ShippingAddress_AddressLine2" IS "c"."BillingAddress_AddressLine2" AND "c"."ShippingAddress_Tags" = "c"."BillingAddress_Tags" AND "c"."ShippingAddress_ZipCode" = "c"."BillingAddress_ZipCode"
 """);
     }
 
@@ -458,7 +458,7 @@ SELECT "v"."Id", "v"."OptionalCustomerId", "v"."RequiredCustomerId", "v0"."Id", 
 FROM "ValuedCustomerGroup" AS "v"
 LEFT JOIN "ValuedCustomer" AS "v0" ON "v"."OptionalCustomerId" = "v0"."Id"
 INNER JOIN "ValuedCustomer" AS "v1" ON "v"."RequiredCustomerId" = "v1"."Id"
-WHERE "v0"."ShippingAddress_ZipCode" <> 7728 OR "v0"."ShippingAddress_ZipCode" IS NULL
+WHERE "v0"."ShippingAddress_ZipCode" IS NOT 7728
 """);
     }
 
@@ -581,7 +581,7 @@ FROM "ValuedCustomer" AS "v"
             """
 SELECT "v"."Id", "v"."Name", "v"."BillingAddress_AddressLine1", "v"."BillingAddress_AddressLine2", "v"."BillingAddress_ZipCode", "v"."BillingAddress_Country_Code", "v"."BillingAddress_Country_FullName", "v"."ShippingAddress_AddressLine1", "v"."ShippingAddress_AddressLine2", "v"."ShippingAddress_ZipCode", "v"."ShippingAddress_Country_Code", "v"."ShippingAddress_Country_FullName"
 FROM "ValuedCustomer" AS "v"
-WHERE "v"."ShippingAddress_AddressLine1" = "v"."BillingAddress_AddressLine1" AND ("v"."ShippingAddress_AddressLine2" = "v"."BillingAddress_AddressLine2" OR ("v"."ShippingAddress_AddressLine2" IS NULL AND "v"."BillingAddress_AddressLine2" IS NULL)) AND "v"."ShippingAddress_ZipCode" = "v"."BillingAddress_ZipCode"
+WHERE "v"."ShippingAddress_AddressLine1" = "v"."BillingAddress_AddressLine1" AND "v"."ShippingAddress_AddressLine2" IS "v"."BillingAddress_AddressLine2" AND "v"."ShippingAddress_ZipCode" = "v"."BillingAddress_ZipCode"
 """);
     }
 
