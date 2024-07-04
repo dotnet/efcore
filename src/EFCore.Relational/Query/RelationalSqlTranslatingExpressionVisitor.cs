@@ -981,7 +981,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             // For queryable methods, either we translate the whole aggregate or we go to subquery mode
             // We don't try to translate component-wise it. Providers should implement in subquery translation.
-            case { Method.IsStatic: true, Arguments.Count: > 0 } when method.DeclaringType == typeof(Queryable):
+            case { Method.IsStatic: true, Arguments.Count: > 0 }
+                when method.DeclaringType == typeof(Queryable)
+                || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                || method.DeclaringType == typeof(RelationalQueryableExtensions):
                 return TryTranslateAggregateMethodCall(methodCallExpression, out var translatedAggregate)
                     ? translatedAggregate
                     : TranslateAsSubquery(methodCallExpression);

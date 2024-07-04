@@ -3508,21 +3508,25 @@ public sealed partial class SelectExpression : TableExpressionBase
                     break;
                 }
 
-                if (expression is StructuralTypeProjectionExpression projection)
+                switch (expression)
                 {
-                    _projectionMapping[projectionMember] = LiftEntityProjectionFromSubquery(projection, subqueryAlias);
-                }
-                else if (expression is JsonQueryExpression jsonQueryExpression)
-                {
-                    _projectionMapping[projectionMember] = LiftJsonQueryFromSubquery(jsonQueryExpression);
-                }
-                else
-                {
-                    var innerColumn = (SqlExpression)expression;
-                    var outerColumn = subquery.GenerateOuterColumn(
-                        subqueryAlias, innerColumn, projectionMember.Last?.Name);
-                    projectionMap[innerColumn] = outerColumn;
-                    _projectionMapping[projectionMember] = outerColumn;
+                    case StructuralTypeProjectionExpression projection:
+                        _projectionMapping[projectionMember] = LiftEntityProjectionFromSubquery(projection, subqueryAlias);
+                        break;
+
+                    case JsonQueryExpression jsonQueryExpression:
+                        _projectionMapping[projectionMember] = LiftJsonQueryFromSubquery(jsonQueryExpression);
+                        break;
+
+                    case SqlExpression innerColumn:
+                        var outerColumn = subquery.GenerateOuterColumn(subqueryAlias, innerColumn, projectionMember.Last?.Name);
+                        projectionMap[innerColumn] = outerColumn;
+                        _projectionMapping[projectionMember] = outerColumn;
+                        break;
+
+                    default:
+                        throw new UnreachableException(
+                            $"Unknown expression type '{expression.GetType().Name}' in projection mapping when pushing down");
                 }
             }
         }

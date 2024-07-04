@@ -152,9 +152,6 @@ public sealed partial class SelectExpression
         string tableAlias)
         : ExpressionVisitor
     {
-        private readonly SelectExpression _subquery = subquery;
-        private readonly string _tableAlias = tableAlias;
-        private readonly Dictionary<SqlExpression, ColumnExpression> _mappings = mappings;
         private readonly HashSet<SqlExpression> _correlatedTerms = new(ReferenceEqualityComparer.Instance);
         private bool _groupByDiscovery = subquery._groupBy.Count > 0;
 
@@ -183,11 +180,11 @@ public sealed partial class SelectExpression
             switch (expression)
             {
                 case SqlExpression sqlExpression
-                    when _mappings.TryGetValue(sqlExpression, out var outer):
+                    when mappings.TryGetValue(sqlExpression, out var outer):
                     return outer;
 
                 case ColumnExpression columnExpression
-                    when _groupByDiscovery && _subquery.ContainsReferencedTable(columnExpression):
+                    when _groupByDiscovery && subquery.ContainsReferencedTable(columnExpression):
                     _correlatedTerms.Add(columnExpression);
                     return columnExpression;
 
@@ -195,14 +192,14 @@ public sealed partial class SelectExpression
                     when !_groupByDiscovery
                     && sqlExpression is not SqlConstantExpression and not SqlParameterExpression
                     && _correlatedTerms.Contains(sqlExpression):
-                    var outerColumn = _subquery.GenerateOuterColumn(_tableAlias, sqlExpression);
-                    _mappings[sqlExpression] = outerColumn;
+                    var outerColumn = subquery.GenerateOuterColumn(tableAlias, sqlExpression);
+                    mappings[sqlExpression] = outerColumn;
                     return outerColumn;
 
                 case ColumnExpression columnExpression
-                    when !_groupByDiscovery && _subquery.ContainsReferencedTable(columnExpression):
-                    var outerColumn1 = _subquery.GenerateOuterColumn(_tableAlias, columnExpression);
-                    _mappings[columnExpression] = outerColumn1;
+                    when !_groupByDiscovery && subquery.ContainsReferencedTable(columnExpression):
+                    var outerColumn1 = subquery.GenerateOuterColumn(tableAlias, columnExpression);
+                    mappings[columnExpression] = outerColumn1;
                     return outerColumn1;
 
                 default:
@@ -210,26 +207,19 @@ public sealed partial class SelectExpression
             }
         }
 
-        private sealed class EnclosingTermFindingVisitor : ExpressionVisitor
+        private sealed class EnclosingTermFindingVisitor(HashSet<SqlExpression> correlatedTerms) : ExpressionVisitor
         {
-            private readonly HashSet<SqlExpression> _correlatedTerms;
-            private bool _doesNotContainLocalTerms;
-
-            public EnclosingTermFindingVisitor(HashSet<SqlExpression> correlatedTerms)
-            {
-                _correlatedTerms = correlatedTerms;
-                _doesNotContainLocalTerms = true;
-            }
+            private bool _doesNotContainLocalTerms = true;
 
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is SqlExpression sqlExpression)
                 {
-                    if (_correlatedTerms.Contains(sqlExpression)
+                    if (correlatedTerms.Contains(sqlExpression)
                         || sqlExpression is SqlConstantExpression or SqlParameterExpression)
                     {
-                        _correlatedTerms.Add(sqlExpression);
+                        correlatedTerms.Add(sqlExpression);
                         return sqlExpression;
                     }
 
@@ -238,7 +228,7 @@ public sealed partial class SelectExpression
                     base.Visit(expression);
                     if (_doesNotContainLocalTerms)
                     {
-                        _correlatedTerms.Add(sqlExpression);
+                        correlatedTerms.Add(sqlExpression);
                     }
 
                     _doesNotContainLocalTerms = _doesNotContainLocalTerms && parentDoesNotContainLocalTerms;
@@ -260,56 +250,36 @@ public sealed partial class SelectExpression
             => obj.Column.GetHashCode();
     }
 
-    private struct SingleCollectionInfo
+    private readonly struct SingleCollectionInfo(
+        Expression parentIdentifier,
+        Expression outerIdentifier,
+        Expression selfIdentifier,
+        IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+        IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+        Expression shaperExpression)
     {
-        public SingleCollectionInfo(
-            Expression parentIdentifier,
-            Expression outerIdentifier,
-            Expression selfIdentifier,
-            IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
-            Expression shaperExpression)
-        {
-            ParentIdentifier = parentIdentifier;
-            OuterIdentifier = outerIdentifier;
-            SelfIdentifier = selfIdentifier;
-            ParentIdentifierValueComparers = parentIdentifierValueComparers;
-            OuterIdentifierValueComparers = outerIdentifierValueComparers;
-            SelfIdentifierValueComparers = selfIdentifierValueComparers;
-            ShaperExpression = shaperExpression;
-        }
-
-        public Expression ParentIdentifier { get; }
-        public Expression OuterIdentifier { get; }
-        public Expression SelfIdentifier { get; }
-        public IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
-        public IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
-        public IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; }
-        public Expression ShaperExpression { get; }
+        public Expression ParentIdentifier { get; } = parentIdentifier;
+        public Expression OuterIdentifier { get; } = outerIdentifier;
+        public Expression SelfIdentifier { get; } = selfIdentifier;
+        public IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; } = parentIdentifierValueComparers;
+        public IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; } = outerIdentifierValueComparers;
+        public IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; } = selfIdentifierValueComparers;
+        public Expression ShaperExpression { get; } = shaperExpression;
     }
 
-    private struct SplitCollectionInfo
+    private readonly struct SplitCollectionInfo(
+        Expression parentIdentifier,
+        Expression childIdentifier,
+        IReadOnlyList<ValueComparer> identifierValueComparers,
+        SelectExpression selectExpression,
+        Expression shaperExpression)
     {
-        public SplitCollectionInfo(
-            Expression parentIdentifier,
-            Expression childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
-            SelectExpression selectExpression,
-            Expression shaperExpression)
-        {
-            ParentIdentifier = parentIdentifier;
-            ChildIdentifier = childIdentifier;
-            IdentifierValueComparers = identifierValueComparers;
-            SelectExpression = selectExpression;
-            ShaperExpression = shaperExpression;
-        }
-
-        public Expression ParentIdentifier { get; }
-        public Expression ChildIdentifier { get; }
-        public IReadOnlyList<ValueComparer> IdentifierValueComparers { get; }
-        public SelectExpression SelectExpression { get; }
-        public Expression ShaperExpression { get; }
+        public Expression ParentIdentifier { get; } = parentIdentifier;
+        public Expression ChildIdentifier { get; } = childIdentifier;
+        public IReadOnlyList<ValueComparer> IdentifierValueComparers { get; } = identifierValueComparers;
+        public SelectExpression SelectExpression { get; } = selectExpression;
+        public Expression ShaperExpression { get; } = shaperExpression;
     }
 
     private sealed class ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap) : ExpressionVisitor

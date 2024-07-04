@@ -624,30 +624,27 @@ OFFSET @__p_0 LIMIT @__p_1
 
     public override async Task Take_Skip(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Take_Skip(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task Take_Skip_Distinct(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Take_Skip_Distinct(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task Take_Skip_Distinct_Caching(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Take_Skip_Distinct_Caching(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -826,10 +823,9 @@ OFFSET 0 LIMIT @__p_0
 
     public override async Task Take_OrderBy_Count(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Take_OrderBy_Count(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -1246,10 +1242,9 @@ SELECT EXISTS (
 
     public override async Task Take_with_single(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Take_with_single(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -1943,10 +1938,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["ContactName"] != null) ? c["C
 
     public override async Task Take_skip_null_coalesce_operator(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Take_skip_null_coalesce_operator(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -1980,30 +1974,27 @@ OFFSET 0 LIMIT @__p_0
 
     public override async Task Select_take_skip_null_coalesce_operator(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Select_take_skip_null_coalesce_operator(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task Select_take_skip_null_coalesce_operator2(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Select_take_skip_null_coalesce_operator2(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task Select_take_skip_null_coalesce_operator3(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.Select_take_skip_null_coalesce_operator3(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -2796,40 +2787,36 @@ OFFSET @__p_0 LIMIT @__p_1
 
     public override async Task OrderBy_skip_skip_take(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.OrderBy_skip_skip_take(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task OrderBy_skip_take_take(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.OrderBy_skip_take_take(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task OrderBy_skip_take_take_take_take(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.OrderBy_skip_take_take_take_take(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task OrderBy_skip_take_skip_take_skip(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.OrderBy_skip_take_skip_take_skip(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -2904,20 +2891,18 @@ OFFSET @__p_0 LIMIT @__p_1
 
     public override async Task OrderBy_coalesce_skip_take_distinct_take(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.OrderBy_coalesce_skip_take_distinct_take(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
 
     public override async Task OrderBy_skip_take_distinct_orderby_take(bool async)
     {
-        // Subquery pushdown. Issue #16156.
         await AssertTranslationFailedWithDetails(
             () => base.OrderBy_skip_take_distinct_orderby_take(async),
-            CosmosStrings.NoSubqueryPushdown);
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
         AssertSql();
     }
@@ -5412,6 +5397,14 @@ WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
 """);
     }
+
+    [ConditionalFact]
+    public virtual async Task ToPageAsync_in_subquery_throws()
+        => await AssertTranslationFailedWithDetails(
+            () => AssertQuery(
+                async: true,
+                ss => ss.Set<Customer>().Where(c => c.Orders.AsQueryable().ToPageAsync(1, null, null, default) == default)),
+            CosmosStrings.ToPageAsyncAtTopLevelOnly);
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -537,7 +537,9 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
         return _subquery
             ? QueryCompilationContext.NotTranslatedExpression
-            : throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+            : TranslationErrorDetails is null
+                ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
+                : throw new InvalidOperationException(CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
     }
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
