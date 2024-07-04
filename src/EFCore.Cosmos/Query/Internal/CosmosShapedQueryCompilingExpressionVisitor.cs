@@ -25,9 +25,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
-    private readonly PartitionKey _partitionKeyValueFromExtension = cosmosQueryCompilationContext.PartitionKeyValueFromExtension
-        ?? PartitionKey.None;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -36,9 +33,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     /// </summary>
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
     {
-        if (cosmosQueryCompilationContext.CosmosContainer is null)
+        if (cosmosQueryCompilationContext.RootEntityType is not IEntityType rootEntityType)
         {
-            throw new UnreachableException("No Cosmos container was set during query processing.");
+            throw new UnreachableException("No root entity type was set during query processing.");
         }
 
         var jObjectParameter = Parameter(typeof(JObject), "jObject");
@@ -82,7 +79,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
         var shaperConstant = Constant(shaperLambda.Compile());
         var contextTypeConstant = Constant(_contextType);
-        var containerConstant = Constant(cosmosQueryCompilationContext.CosmosContainer);
+        var rootEntityTypeConstant = Constant(rootEntityType);
         var threadSafetyConstant = Constant(_threadSafetyChecksEnabled);
         var standAloneStateManagerConstant = Constant(
             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
@@ -92,9 +89,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         return selectExpression switch
         {
             { ReadItemInfo: ReadItemInfo readItemInfo } => New(
-                typeof(ReadItemQueryingEnumerable<>).MakeGenericType(readItemInfo.Type).GetConstructors()[0],
+                typeof(ReadItemQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 cosmosQueryContextConstant,
-                containerConstant,
+                rootEntityTypeConstant,
+                Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 Constant(readItemInfo),
                 shaperConstant,
                 contextTypeConstant,
@@ -109,8 +107,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(selectExpression),
                 shaperConstant,
                 contextTypeConstant,
-                containerConstant,
-                Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                rootEntityTypeConstant,
+                Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
                 Constant(maxItemCount.Name),
@@ -124,8 +122,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(selectExpression),
                 shaperConstant,
                 contextTypeConstant,
-                containerConstant,
-                Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                rootEntityTypeConstant,
+                Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant)
         };

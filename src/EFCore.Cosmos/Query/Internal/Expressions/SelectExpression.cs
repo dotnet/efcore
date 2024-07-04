@@ -39,13 +39,21 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpression(
-        List<ProjectionExpression> projections,
         List<SourceExpression> sources,
-        List<OrderingExpression> orderings)
+        SqlExpression? predicate,
+        List<ProjectionExpression> projections,
+        bool distinct,
+        List<OrderingExpression> orderings,
+        SqlExpression? offset,
+        SqlExpression? limit)
     {
-        _projection = projections;
         _sources = sources;
+        Predicate = predicate;
+        _projection = projections;
+        IsDistinct = distinct;
         _orderings = orderings;
+        Offset = offset;
+        Limit = limit;
     }
 
     /// <summary>
@@ -63,11 +71,10 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SelectExpression(SourceExpression source, Expression projection, ReadItemInfo? readItemInfo = null)
+    public SelectExpression(SourceExpression source, Expression projection)
     {
         _sources.Add(source);
         _projectionMapping[new ProjectionMember()] = projection;
-        ReadItemInfo = readItemInfo;
     }
 
     /// <summary>
@@ -87,9 +94,13 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         if (!SourceExpression.IsCompatible(sourceExpression))
         {
             sourceExpression = new SelectExpression(
-                [new ProjectionExpression(sourceExpression, null!)],
                 sources: [],
-                orderings: [])
+                predicate: null,
+                [new ProjectionExpression(sourceExpression, null!)],
+                distinct: false,
+                orderings: [],
+                offset: null,
+                limit: null)
             {
                 UsesSingleValueProjection = true
             };
@@ -225,6 +236,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
                     => value,
                 _ => null
             };
+
             builder.Add(rawKeyValue, tuple.Property);
         }
 
@@ -589,13 +601,9 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         if (changed)
         {
-            var newSelectExpression = new SelectExpression(projections, sources, orderings)
+            var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
             {
                 _projectionMapping = projectionMapping,
-                Predicate = predicate,
-                Offset = offset,
-                Limit = limit,
-                IsDistinct = IsDistinct,
                 UsesSingleValueProjection = UsesSingleValueProjection
             };
 
@@ -612,12 +620,12 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpression Update(
-        List<ProjectionExpression> projections,
         List<SourceExpression> sources,
         SqlExpression? predicate,
+        List<ProjectionExpression> projections,
         List<OrderingExpression> orderings,
-        SqlExpression? limit,
-        SqlExpression? offset)
+        SqlExpression? offset,
+        SqlExpression? limit)
     {
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
         foreach (var (projectionMember, expression) in _projectionMapping)
@@ -625,17 +633,27 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(projections, sources, orderings)
+        return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
         {
             _projectionMapping = projectionMapping,
-            Predicate = predicate,
-            Offset = offset,
-            Limit = limit,
-            IsDistinct = IsDistinct,
             UsesSingleValueProjection = UsesSingleValueProjection,
             ReadItemInfo = ReadItemInfo
         };
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public SelectExpression WithReadItemInfo(ReadItemInfo readItemInfo)
+        => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
+        {
+            _projectionMapping = _projectionMapping,
+            UsesSingleValueProjection = UsesSingleValueProjection,
+            ReadItemInfo = readItemInfo
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -651,13 +669,9 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             projectionMapping[projectionMember] = expression;
         }
 
-        return new SelectExpression(Projection.ToList(), Sources.ToList(), Orderings.ToList())
+        return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
             _projectionMapping = projectionMapping,
-            Predicate = Predicate,
-            Offset = Offset,
-            Limit = Limit,
-            IsDistinct = IsDistinct,
             UsesSingleValueProjection = true
         };
     }

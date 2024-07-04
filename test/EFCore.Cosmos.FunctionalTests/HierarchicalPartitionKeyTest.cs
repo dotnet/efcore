@@ -79,6 +79,7 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
+WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
 OFFSET 0 LIMIT 2
 """;
 

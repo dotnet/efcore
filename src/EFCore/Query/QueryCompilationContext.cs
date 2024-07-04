@@ -301,7 +301,7 @@ public class QueryCompilationContext
 
     private sealed class RuntimeParameterConstantLifter(ILiftableConstantFactory liftableConstantFactory) : ExpressionVisitor
     {
-        private readonly static MethodInfo ComplexPropertyListElementAddMethod = typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
+        private static readonly MethodInfo ComplexPropertyListElementAddMethod = typeof(List<IComplexProperty>).GetMethod(nameof(List<IComplexProperty>.Add))!;
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {

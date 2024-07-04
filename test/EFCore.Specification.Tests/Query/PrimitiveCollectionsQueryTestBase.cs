@@ -1209,7 +1209,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     public abstract class PrimitiveCollectionsQueryFixtureBase : SharedStoreFixtureBase<PrimitiveCollectionsContext>, IQueryFixtureBase
     {
-        private PrimitiveArrayData? _expectedData;
+        private PrimitiveCollectionsData? _expectedData;
 
         protected override string StoreName
             => "PrimitiveCollectionsTest";
@@ -1222,12 +1222,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
         protected override Task SeedAsync(PrimitiveCollectionsContext context)
         {
-            context.AddRange(new PrimitiveArrayData().PrimitiveArrayEntities);
+            context.AddRange(new PrimitiveCollectionsData().PrimitiveArrayEntities);
             return context.SaveChangesAsync();
         }
 
         public virtual ISetSource GetExpectedData()
-            => _expectedData ??= new PrimitiveArrayData();
+            => _expectedData ??= new PrimitiveCollectionsData();
 
         public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
         {
@@ -1283,11 +1283,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     public enum MyEnum { Value1, Value2, Value3, Value4 }
 
-    public class PrimitiveArrayData : ISetSource
+    public class PrimitiveCollectionsData : ISetSource
     {
         public IReadOnlyList<PrimitiveCollectionsEntity> PrimitiveArrayEntities { get; }
 
-        public PrimitiveArrayData(PrimitiveCollectionsContext? context = null)
+        public PrimitiveCollectionsData(PrimitiveCollectionsContext? context = null)
         {
             PrimitiveArrayEntities = CreatePrimitiveArrayEntities();
         }

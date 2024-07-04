@@ -232,13 +232,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.Where_Single(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override Task FirstOrDefault(bool async)
@@ -293,13 +287,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.SingleOrDefault_Predicate(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override async Task SingleOrDefault_Throws(bool async)
@@ -341,13 +329,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.Where_SingleOrDefault(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override async Task Select_All(bool async)
@@ -1245,13 +1227,7 @@ ORDER BY c["CustomerID"]
             {
                 await base.Single_Predicate(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override async Task FirstOrDefault_inside_subquery_gets_server_evaluated(bool async)
@@ -1300,13 +1276,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.Last_when_no_order_by(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 1
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override Task LastOrDefault_when_no_order_by(bool async)
@@ -1315,13 +1285,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.LastOrDefault_when_no_order_by(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 1
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override Task Last_Predicate(bool async)

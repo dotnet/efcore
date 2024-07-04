@@ -119,7 +119,11 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                 // SQL Server TemporalQueryRootExpression.
                 if (queryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
-                    return CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
+                    var shapedQuery = CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
+                    if (shapedQuery is not null)
+                    {
+                        return shapedQuery;
+                    }
                 }
 
                 _untranslatedExpression = queryRootExpression;
@@ -586,7 +590,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <returns>A shaped query expression for the given entity type.</returns>
-    protected abstract ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType);
+    protected abstract ShapedQueryExpression? CreateShapedQueryExpression(IEntityType entityType);
 
     /// <summary>
     ///     Translates <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource,bool}})" /> method over the given source.

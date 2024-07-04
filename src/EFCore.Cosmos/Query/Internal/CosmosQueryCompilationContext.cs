@@ -13,7 +13,7 @@ public class CosmosQueryCompilationContext(QueryCompilationContextDependencies d
     : QueryCompilationContext(dependencies, async)
 {
     /// <summary>
-    ///     The name of the Cosmos container against which this query will be executed.
+    ///     The root entity type being queried.
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,7 +21,7 @@ public class CosmosQueryCompilationContext(QueryCompilationContextDependencies d
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    public virtual string? CosmosContainer { get; internal set; }
+    public virtual IEntityType? RootEntityType { get; internal set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +29,7 @@ public class CosmosQueryCompilationContext(QueryCompilationContextDependencies d
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual PartitionKey? PartitionKeyValueFromExtension { get; internal set; }
+    public virtual List<Expression> PartitionKeyPropertyValues { get; internal set; } = new();
 
     /// <summary>
     ///     A manager for aliases, capable of generate uniquified source aliases.
