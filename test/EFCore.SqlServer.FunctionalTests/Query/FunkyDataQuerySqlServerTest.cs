@@ -564,7 +564,7 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE CASE
     WHEN [f].[FirstName] IS NOT NULL AND [f0].[LastName] IS NOT NULL AND RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName] THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END <> [f].[NullableBool] OR [f].[NullableBool] IS NULL
+END IS DISTINCT FROM [f].[NullableBool]
 """);
     }
 

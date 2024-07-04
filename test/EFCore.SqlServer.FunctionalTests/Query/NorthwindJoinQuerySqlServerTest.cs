@@ -841,7 +841,7 @@ FROM (
 ) AS [c1]
 OUTER APPLY (
     SELECT CASE
-        WHEN [o0].[CustomerID] = [c0].[City] OR ([o0].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
+        WHEN [o0].[CustomerID] IS NOT DISTINCT FROM [c0].[City] THEN N'A'
         ELSE N'B'
     END AS [Title], [o0].[OrderID], [c0].[CustomerID], [o0].[OrderDate]
     FROM (

@@ -501,14 +501,14 @@ ORDER BY [c].[Id], [s].[Id]
 SELECT (
     SELECT TOP(1) [p0].[LastName]
     FROM [Person] AS [p0]
-    WHERE [p0].[MiddleInitial] = N'Q' AND [p0].[Age] = 20 AND ([p].[LastName] = [p0].[LastName] OR ([p].[LastName] IS NULL AND [p0].[LastName] IS NULL)))
+    WHERE [p0].[MiddleInitial] = N'Q' AND [p0].[Age] = 20 AND [p].[LastName] IS NOT DISTINCT FROM [p0].[LastName])
 FROM [Person] AS [p]
 WHERE [p].[MiddleInitial] = N'Q' AND [p].[Age] = 20
 GROUP BY [p].[LastName]
 ORDER BY CAST(LEN((
     SELECT TOP(1) [p0].[LastName]
     FROM [Person] AS [p0]
-    WHERE [p0].[MiddleInitial] = N'Q' AND [p0].[Age] = 20 AND ([p].[LastName] = [p0].[LastName] OR ([p].[LastName] IS NULL AND [p0].[LastName] IS NULL)))) AS int)
+    WHERE [p0].[MiddleInitial] = N'Q' AND [p0].[Age] = 20 AND [p].[LastName] IS NOT DISTINCT FROM [p0].[LastName])) AS int)
 """);
     }
 
@@ -521,13 +521,13 @@ ORDER BY CAST(LEN((
 SELECT (
     SELECT TOP(1) [p0].[LastName]
     FROM [Person] AS [p0]
-    WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL))
+    WHERE [p].[FirstName] IS NOT DISTINCT FROM [p0].[FirstName])
 FROM [Person] AS [p]
 GROUP BY [p].[FirstName]
 ORDER BY (
     SELECT TOP(1) [p0].[LastName]
     FROM [Person] AS [p0]
-    WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL))
+    WHERE [p].[FirstName] IS NOT DISTINCT FROM [p0].[FirstName])
 """);
     }
 
@@ -579,7 +579,7 @@ LEFT JOIN (
         LEFT JOIN [Feet] AS [f0] ON [p0].[Id] = [f0].[Id]
     ) AS [s0]
     WHERE [s0].[row] <= 1
-) AS [s1] ON ([s].[Id] = [s1].[Id0] OR ([s].[Id] IS NULL AND [s1].[Id0] IS NULL)) AND ([s].[Size] = [s1].[Size] OR ([s].[Size] IS NULL AND [s1].[Size] IS NULL))
+) AS [s1] ON [s].[Id] IS NOT DISTINCT FROM [s1].[Id0] AND [s].[Size] IS NOT DISTINCT FROM [s1].[Size]
 """);
     }
 
@@ -668,7 +668,7 @@ LEFT JOIN (
     SELECT [s0].[Id], [s0].[Style], [s0].[Age], [p0].[Id] AS [Id0]
     FROM [Person] AS [p0]
     INNER JOIN [Shoes] AS [s0] ON [p0].[Age] = [s0].[Age]
-) AS [s2] ON [s1].[Id] = [s2].[Id0] AND ([s1].[Style] = [s2].[Style] OR ([s1].[Style] IS NULL AND [s2].[Style] IS NULL)) AND [s1].[Age] = [s2].[Age]
+) AS [s2] ON [s1].[Id] = [s2].[Id0] AND [s1].[Style] IS NOT DISTINCT FROM [s2].[Style] AND [s1].[Age] = [s2].[Age]
 ORDER BY [s1].[Id], [s1].[Style], [s1].[Age], [s2].[Id0]
 """);
     }
@@ -685,7 +685,7 @@ FROM (
     FROM [Person] AS [p]
     GROUP BY [p].[FirstName], [p].[MiddleInitial]
 ) AS [p1]
-LEFT JOIN [Person] AS [p0] ON ([p1].[FirstName] = [p0].[FirstName] OR ([p1].[FirstName] IS NULL AND [p0].[FirstName] IS NULL)) AND ([p1].[MiddleInitial] = [p0].[MiddleInitial] OR ([p1].[MiddleInitial] IS NULL AND [p0].[MiddleInitial] IS NULL))
+LEFT JOIN [Person] AS [p0] ON [p1].[FirstName] IS NOT DISTINCT FROM [p0].[FirstName] AND [p1].[MiddleInitial] IS NOT DISTINCT FROM [p0].[MiddleInitial]
 ORDER BY [p1].[FirstName], [p1].[MiddleInitial], [p0].[Id]
 """);
     }
@@ -770,11 +770,11 @@ SELECT [p0].[LastName], [f].[Size], (
     LEFT JOIN [Feet] AS [f0] ON [p1].[Id] = [f0].[Id]
     LEFT JOIN [Person] AS [p2] ON [f0].[Id] = [p2].[Id]
     LEFT JOIN [Feet] AS [f1] ON [p1].[Id] = [f1].[Id]
-    WHERE [f0].[Size] = @__size_0 AND [p1].[MiddleInitial] IS NOT NULL AND ([f0].[Id] <> 1 OR [f0].[Id] IS NULL) AND ([f].[Size] = [f0].[Size] OR ([f].[Size] IS NULL AND [f0].[Size] IS NULL)) AND ([p0].[LastName] = [p2].[LastName] OR ([p0].[LastName] IS NULL AND [p2].[LastName] IS NULL))) AS [Min]
+    WHERE [f0].[Size] = @__size_0 AND [p1].[MiddleInitial] IS NOT NULL AND [f0].[Id] IS DISTINCT FROM 1 AND [f].[Size] IS NOT DISTINCT FROM [f0].[Size] AND [p0].[LastName] IS NOT DISTINCT FROM [p2].[LastName]) AS [Min]
 FROM [Person] AS [p]
 LEFT JOIN [Feet] AS [f] ON [p].[Id] = [f].[Id]
 LEFT JOIN [Person] AS [p0] ON [f].[Id] = [p0].[Id]
-WHERE [f].[Size] = @__size_0 AND [p].[MiddleInitial] IS NOT NULL AND ([f].[Id] <> 1 OR [f].[Id] IS NULL)
+WHERE [f].[Size] = @__size_0 AND [p].[MiddleInitial] IS NOT NULL AND [f].[Id] IS DISTINCT FROM 1
 GROUP BY [f].[Size], [p0].[LastName]
 """);
     }
@@ -813,7 +813,7 @@ SELECT [p].[FirstName] AS [Feet], (
     SELECT COALESCE(SUM([f].[Size]), 0)
     FROM [Person] AS [p0]
     LEFT JOIN [Feet] AS [f] ON [p0].[Id] = [f].[Id]
-    WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL)) AS [Total]
+    WHERE [p].[FirstName] IS NOT DISTINCT FROM [p0].[FirstName]) AS [Total]
 FROM [Person] AS [p]
 GROUP BY [p].[FirstName]
 """);
@@ -841,7 +841,7 @@ SELECT [s].[Style] AS [Key], (
     SELECT TOP(1) [s0].[Style]
     FROM [Person] AS [p0]
     INNER JOIN [Shoes] AS [s0] ON [p0].[Age] = [s0].[Age]
-    WHERE [s].[Style] = [s0].[Style] OR ([s].[Style] IS NULL AND [s0].[Style] IS NULL)) AS [Style], COUNT(*) AS [Count]
+    WHERE [s].[Style] IS NOT DISTINCT FROM [s0].[Style]) AS [Style], COUNT(*) AS [Count]
 FROM [Person] AS [p]
 INNER JOIN [Shoes] AS [s] ON [p].[Age] = [s].[Age]
 GROUP BY [s].[Style]
