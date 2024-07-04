@@ -234,6 +234,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                                 (property, parameter) => (property, parameter))
                             .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
 
+                        // TODO: Reimplement ReadItem properly: #34157
                         _readItemInfo = new ReadItemInfo(entityType, propertyParameterList, clrType);
                     }
                 }
@@ -830,7 +831,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        if (select is { Predicate: null, Orderings: [] })
+        if (select is { Orderings: [], Predicate: null, ReadItemInfo: null })
         {
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }
