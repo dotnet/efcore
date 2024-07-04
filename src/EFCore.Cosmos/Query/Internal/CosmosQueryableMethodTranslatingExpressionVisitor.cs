@@ -234,6 +234,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                                 (property, parameter) => (property, parameter))
                             .ToDictionary(tuple => tuple.property, tuple => tuple.parameter);
 
+                        // TODO: Reimplement ReadItem properly: #34157
                         _readItemInfo = new ReadItemInfo(entityType, propertyParameterList, clrType);
                     }
                 }
@@ -427,37 +428,33 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
         // Add discriminator predicate
         var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
-        if (concreteEntityTypes.Count == 1)
+        if (concreteEntityTypes is [var singleEntityType]
+            && singleEntityType.GetIsDiscriminatorMappingComplete()
+            && entityType.GetContainer() is var container
+            && !entityType.Model.GetEntityTypes().Any(e => e.GetContainer() == container && e != singleEntityType))
         {
-            var concreteEntityType = concreteEntityTypes[0];
-            var discriminatorProperty = concreteEntityType.FindDiscriminatorProperty();
-            if (discriminatorProperty != null)
+            // There's a single entity type mapped to the container and the discriminator mapping is complete; we can skip the
+            // discriminator predicate.
+        }
+        else
+        {
+            var discriminatorProperty = concreteEntityTypes[0].FindDiscriminatorProperty();
+            Check.DebugAssert(
+                discriminatorProperty is not null || concreteEntityTypes.Count == 1,
+                "Missing discriminator property in hierarchy");
+            if (discriminatorProperty is not null)
             {
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
                     .BindProperty(discriminatorProperty, clientEval: false);
 
                 var success = TryApplyPredicate(
                     selectExpression,
-                    _sqlExpressionFactory.Equal(
+                    _sqlExpressionFactory.In(
                         (SqlExpression)discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityType.GetDiscriminatorValue(), discriminatorColumn.Type)));
+                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
+                        .ToArray()));
                 Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
             }
-        }
-        else
-        {
-            var discriminatorProperty = concreteEntityTypes[0].FindDiscriminatorProperty();
-            Check.DebugAssert(discriminatorProperty is not null, "Missing discriminator property in hierarchy");
-            var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                .BindProperty(discriminatorProperty, clientEval: false);
-
-            var success = TryApplyPredicate(
-                selectExpression,
-                _sqlExpressionFactory.In(
-                    (SqlExpression)discriminatorColumn,
-                    concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type))
-                        .ToArray()));
-            Check.DebugAssert(success, "Couldn't apply predicate when creating a new ShapedQueryExpression");
         }
 
         return CreateShapedQueryExpression(entityType, selectExpression);
@@ -834,7 +831,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             return null;
         }
 
-        if (select is { Predicate: null, Orderings: [] })
+        if (select is { Orderings: [], Predicate: null, ReadItemInfo: null })
         {
             _queryCompilationContext.Logger.FirstWithoutOrderByAndFilterWarning();
         }

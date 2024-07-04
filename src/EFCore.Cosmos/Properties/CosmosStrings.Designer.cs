@@ -138,6 +138,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("InvalidResourceId");
 
         /// <summary>
+        ///     The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.
+        /// </summary>
+        public static string IsDiscriminatorMappingCompleteMismatch(object? isDiscriminatorMappingComplete1, object? entityType1, object? entityType2, object? isDiscriminatorMappingComplete2, object? container)
+            => string.Format(
+                GetString("IsDiscriminatorMappingCompleteMismatch", nameof(isDiscriminatorMappingComplete1), nameof(entityType1), nameof(entityType2), nameof(isDiscriminatorMappingComplete2), nameof(container)),
+                isDiscriminatorMappingComplete1, entityType1, entityType2, isDiscriminatorMappingComplete2, container);
+
+        /// <summary>
         ///     Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.
         /// </summary>
         public static string JsonPropertyCollision(object? property1, object? property2, object? entityType, object? storeName)

@@ -64,12 +64,14 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
     public class ReloadTestContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Item>(b => b.HasPartitionKey(e => e.Id));
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            modelBuilder.Entity<Item>(
-                b =>
-                {
-                    b.HasPartitionKey(e => e.Id);
-                });
+            base.OnConfiguring(optionsBuilder);
+
+            // TODO: Remove this after #33893 - once Reload is implemented via ReadItem, the warning shouldn't be emitted
+            optionsBuilder.ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
         }
 
         public DbSet<Item> Items { get; set; }
