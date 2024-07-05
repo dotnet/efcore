@@ -1336,10 +1336,8 @@ FROM (
 ) AS [u]
 WHERE CASE
     WHEN [u].[LeaderNickname] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [u].[LeaderNickname] LIKE N'%us' AND [u].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [u].[LeaderNickname] LIKE N'%us' AND [u].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
     }

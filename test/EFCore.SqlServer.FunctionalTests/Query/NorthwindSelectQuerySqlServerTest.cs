@@ -639,10 +639,8 @@ ORDER BY [o].[OrderID]
             """
 SELECT CASE
     WHEN [o].[CustomerID] IS NULL THEN CAST(1 AS bit)
-    ELSE CASE
-        WHEN [o].[OrderID] < 100 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [o].[OrderID] < 100 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI'

@@ -1163,10 +1163,8 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [g].[LeaderNickname] LIKE N'%us' AND [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [g].[LeaderNickname] LIKE N'%us' AND [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
     }

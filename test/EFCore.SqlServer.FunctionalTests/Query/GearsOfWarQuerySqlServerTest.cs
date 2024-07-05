@@ -956,10 +956,8 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [g].[LeaderNickname] LIKE N'%us' AND [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [g].[LeaderNickname] LIKE N'%us' AND [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
     }
