@@ -10088,7 +10088,7 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u]
-WHERE [u].[HasSoulPatch] <> @__prm_0
+WHERE [u].[HasSoulPatch] = ~@__prm_0
 """,
             //
             """
@@ -10102,7 +10102,7 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [u]
-WHERE [u].[HasSoulPatch] <> @__prm_0
+WHERE [u].[HasSoulPatch] = ~@__prm_0
 """);
     }
 
@@ -12296,7 +12296,7 @@ FROM (
 LEFT JOIN (
     SELECT [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
-    WHERE [w].[IsAutomatic] <> @__isAutomatic_0
+    WHERE [w].[IsAutomatic] = ~@__isAutomatic_0
 ) AS [w0] ON [u].[FullName] = [w0].[OwnerFullName]
 """);
     }

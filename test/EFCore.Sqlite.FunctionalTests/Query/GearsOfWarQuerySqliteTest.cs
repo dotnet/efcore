@@ -825,7 +825,7 @@ FROM "Missions" AS "m"
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" <> @__prm_0
+WHERE "g"."HasSoulPatch" = (NOT (@__prm_0))
 """,
             //
             """
@@ -833,7 +833,7 @@ WHERE "g"."HasSoulPatch" <> @__prm_0
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" <> @__prm_0
+WHERE "g"."HasSoulPatch" = (NOT (@__prm_0))
 """);
     }
 
@@ -7990,7 +7990,7 @@ FROM "Gears" AS "g"
 LEFT JOIN (
     SELECT "w"."Id", "w"."OwnerFullName"
     FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" <> @__isAutomatic_0
+    WHERE "w"."IsAutomatic" = (NOT (@__isAutomatic_0))
 ) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
 """);
     }
