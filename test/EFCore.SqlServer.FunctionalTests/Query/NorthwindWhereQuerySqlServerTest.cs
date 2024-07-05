@@ -1585,7 +1585,7 @@ WHERE CAST(@__p_0 AS nvarchar(max)) + [c].[CustomerID] + CAST(@__j_1 AS nvarchar
             """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'') = [o].[CustomerID]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) + ISNULL([o].[CustomerID], N'') = [o].[CustomerID]
 """);
     }
 

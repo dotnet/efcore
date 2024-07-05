@@ -106,7 +106,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 42
 """);
@@ -154,7 +154,7 @@ WHERE [o].[OrderID] = 10248
 
         AssertSql(
             """
-SELECT AVG(CAST(COALESCE([o0].[OrderID], 0) AS float))
+SELECT AVG(CAST(ISNULL([o0].[OrderID], 0) AS float))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -172,7 +172,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MAX(COALESCE([o0].[OrderID], 0))
+SELECT MAX(ISNULL([o0].[OrderID], 0))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -190,7 +190,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT MIN(COALESCE([o0].[OrderID], 0))
+SELECT MIN(ISNULL([o0].[OrderID], 0))
 FROM (
     SELECT 1 AS empty
 ) AS [e]
@@ -208,7 +208,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 0
 """);
@@ -220,7 +220,7 @@ WHERE [o].[OrderID] < 0
 
         AssertSql(
             """
-SELECT COALESCE(SUM([p].[SupplierID]), 0)
+SELECT ISNULL(SUM([p].[SupplierID]), 0)
 FROM [Products] AS [p]
 """);
     }
@@ -231,7 +231,7 @@ FROM [Products] AS [p]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 42
 """);
@@ -628,7 +628,7 @@ END
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -639,7 +639,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] * 2), 0)
+SELECT ISNULL(SUM([o].[OrderID] * 2), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -650,7 +650,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID]), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -661,7 +661,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM([o].[OrderID] + [o].[OrderID]), 0)
+SELECT ISNULL(SUM([o].[OrderID] + [o].[OrderID]), 0)
 FROM [Orders] AS [o]
 """);
     }
@@ -672,7 +672,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -683,7 +683,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
+SELECT ISNULL(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -694,7 +694,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(COALESCE([p].[UnitPrice], 0.0)), 0.0)
+SELECT ISNULL(SUM(ISNULL([p].[UnitPrice], 0.0)), 0.0)
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -710,8 +710,8 @@ WHERE [p].[ProductID] < 40
 
         AssertSql(
             """
-SELECT COALESCE(SUM((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+SELECT ISNULL(SUM((
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID])), 0)
 FROM [Customers] AS [c]
@@ -728,9 +728,9 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM((
-    SELECT COALESCE(SUM(5 + (
-        SELECT COALESCE(SUM([o0].[ProductID]), 0)
+SELECT ISNULL(SUM((
+    SELECT ISNULL(SUM(5 + (
+        SELECT ISNULL(SUM([o0].[ProductID]), 0)
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID])), 0)
     FROM [Orders] AS [o]
@@ -749,8 +749,8 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM((
-    SELECT COALESCE(SUM(5 + (
+SELECT ISNULL(SUM((
+    SELECT ISNULL(SUM(5 + (
         SELECT MIN([o0].[ProductID])
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID])), 0)
@@ -766,7 +766,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT CAST(COALESCE(SUM([o].[Discount]), 0.0E0) AS real)
+SELECT CAST(ISNULL(SUM([o].[Discount]), 0.0E0) AS real)
 FROM [Order Details] AS [o]
 WHERE [o].[ProductID] = 1
 """);
@@ -779,7 +779,7 @@ WHERE [o].[ProductID] = 1
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT CAST(COALESCE(SUM([o0].[Discount]), 0.0E0) AS real)
+    SELECT CAST(ISNULL(SUM([o0].[Discount]), 0.0E0) AS real)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
@@ -859,7 +859,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-SELECT AVG(COALESCE([p].[UnitPrice], 0.0))
+SELECT AVG(ISNULL([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -876,7 +876,7 @@ WHERE [p].[ProductID] < 40
         AssertSql(
             """
 SELECT AVG(CAST((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]) AS float))
 FROM [Customers] AS [c]
@@ -1007,7 +1007,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT MIN(COALESCE([p].[UnitPrice], 0.0))
+SELECT MIN(ISNULL([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -1024,7 +1024,7 @@ WHERE [p].[ProductID] < 40
         AssertSql(
             """
 SELECT MIN((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]))
 FROM [Customers] AS [c]
@@ -1113,7 +1113,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT MAX(COALESCE([p].[UnitPrice], 0.0))
+SELECT MAX(ISNULL([p].[UnitPrice], 0.0))
 FROM [Products] AS [p]
 WHERE [p].[ProductID] < 40
 """);
@@ -1130,7 +1130,7 @@ WHERE [p].[ProductID] < 40
         AssertSql(
             """
 SELECT MAX((
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
+    SELECT ISNULL(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]))
 FROM [Customers] AS [c]
@@ -1178,7 +1178,7 @@ FROM (
 
 SELECT MAX((
     SELECT MAX(5 + (
-        SELECT COALESCE(SUM([o0].[ProductID]), 0)
+        SELECT ISNULL(SUM([o0].[ProductID]), 0)
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
@@ -2633,7 +2633,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(1), 0)
+SELECT ISNULL(SUM(1), 0)
 FROM [Employees] AS [e]
 """);
     }
@@ -2863,7 +2863,7 @@ WHERE [c].[CustomerID] LIKE N'F%' AND (
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
+SELECT ISNULL(SUM(CAST([o].[OrderID] AS bigint)), CAST(0 AS bigint))
 FROM [Orders] AS [o]
 """);
     }
@@ -2975,7 +2975,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(CASE
+SELECT ISNULL(SUM(CASE
     WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
     ELSE 0
 END), 0)
@@ -3084,8 +3084,8 @@ ORDER BY [c].[CustomerID] DESC
         await base.Type_casting_inside_sum(async);
 
         AssertSql(
-"""
-SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
+            """
+SELECT ISNULL(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
 FROM [Order Details] AS [o]
 """);
     }

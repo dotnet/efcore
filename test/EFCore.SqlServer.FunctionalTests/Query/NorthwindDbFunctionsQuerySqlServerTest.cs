@@ -861,7 +861,7 @@ WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bi
             """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(ISNULL([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -934,7 +934,7 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
             """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) = 1
+WHERE ISNUMERIC(ISNULL([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) = 1
 """);
     }
 
