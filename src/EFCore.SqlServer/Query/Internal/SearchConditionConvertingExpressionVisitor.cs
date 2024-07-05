@@ -347,16 +347,21 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         _isSearchCondition = parentIsSearchCondition;
 
         if (!parentIsSearchCondition
-            && newLeft.Type == typeof(bool) && newRight.Type == typeof(bool)
+            && (newRight.Type == typeof(bool) || newLeft.Type.IsEnum || newLeft.Type.IsInteger())
             && sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
         {
-            // on BIT, "lhs != rhs" is the same as "lhs ^ rhs", except that the
-            // first is a boolean, the second is a BIT
+            // "lhs != rhs" is the same as "CAST(lhs ^ rhs AS BIT)", except that
+            // the first is a boolean, the second is a BIT
             var result = _sqlExpressionFactory.MakeBinary(
                 ExpressionType.ExclusiveOr,
                 newLeft,
                 newRight,
-                sqlBinaryExpression.TypeMapping)!;
+                newLeft.TypeMapping)!;
+
+            if (result.Type != typeof(bool))
+            {
+                result = _sqlExpressionFactory.Convert(result, typeof(bool), sqlBinaryExpression.TypeMapping);
+            }
 
             // "lhs == rhs" is the same as "NOT(lhs == rhs)" aka "lhs ^ rhs ^ 1"
             if (sqlBinaryExpression.OperatorType is ExpressionType.Equal)
