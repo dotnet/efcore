@@ -4639,7 +4639,7 @@ FROM (
 SELECT CASE [w].[AmmunitionType]
     WHEN 1 THEN N'Cartridge'
     WHEN 2 THEN N'Shell'
-    ELSE COALESCE(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
+    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
 END
 FROM [Weapons] AS [w]
 """);
@@ -4668,7 +4668,7 @@ FROM [Weapons] AS [w]
 WHERE CASE [w].[AmmunitionType]
     WHEN 1 THEN N'Cartridge'
     WHEN 2 THEN N'Shell'
-    ELSE COALESCE(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
+    ELSE ISNULL(CAST([w].[AmmunitionType] AS nvarchar(max)), N'')
 END LIKE N'%Cart%'
 """);
     }
@@ -6651,7 +6651,7 @@ WHERE [s].[Name] = N'Kilo' AND COALESCE((
 
         AssertSql(
             """
-SELECT [s].[Name], COALESCE((
+SELECT [s].[Name], ISNULL((
     SELECT TOP(1) 42
     FROM (
         SELECT [g].[SquadId], [g].[HasSoulPatch]
@@ -6691,7 +6691,7 @@ FROM [Squads] AS [s]
 
         AssertSql(
             """
-SELECT [s].[Name], COALESCE((
+SELECT [s].[Name], ISNULL((
     SELECT TOP(1) CAST(1 AS bit)
     FROM (
         SELECT [g].[SquadId], [g].[HasSoulPatch]
@@ -7515,7 +7515,7 @@ ORDER BY COALESCE([w0].[Name], N'') + N'Marcus'' Lancer'
 
         AssertSql(
             """
-SELECT N'HasSoulPatch ' + CAST([u].[HasSoulPatch] AS nvarchar(max)) + N' HasSoulPatch' AS [HasSoulPatch], N'Rank ' + CAST([u].[Rank] AS nvarchar(max)) + N' Rank' AS [Rank], N'SquadId ' + CAST([u].[SquadId] AS nvarchar(max)) + N' SquadId' AS [SquadId], N'Rating ' + COALESCE(CAST([m].[Rating] AS nvarchar(max)), N'') + N' Rating' AS [Rating], N'Timeline ' + CAST([m].[Timeline] AS nvarchar(max)) + N' Timeline' AS [Timeline]
+SELECT N'HasSoulPatch ' + CAST([u].[HasSoulPatch] AS nvarchar(max)) + N' HasSoulPatch' AS [HasSoulPatch], N'Rank ' + CAST([u].[Rank] AS nvarchar(max)) + N' Rank' AS [Rank], N'SquadId ' + CAST([u].[SquadId] AS nvarchar(max)) + N' SquadId' AS [SquadId], N'Rating ' + ISNULL(CAST([m].[Rating] AS nvarchar(max)), N'') + N' Rating' AS [Rating], N'Timeline ' + CAST([m].[Timeline] AS nvarchar(max)) + N' Timeline' AS [Timeline]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch], [g].[Rank]
     FROM [Gears] AS [g]
@@ -8810,7 +8810,7 @@ ORDER BY [s1].[FullName]
 
         AssertSql(
             """
-SELECT [u1].[Name], [u1].[Count], COALESCE(SUM([u1].[Count]), 0) AS [Sum]
+SELECT [u1].[Name], [u1].[Count], ISNULL(SUM([u1].[Count]), 0) AS [Sum]
 FROM (
     SELECT [c].[Name], (
         SELECT COUNT(*)
@@ -8848,7 +8848,7 @@ GROUP BY [u1].[Name], [u1].[Count]
 
         AssertSql(
             """
-SELECT [u1].[Name], [u1].[Count], COALESCE(SUM([u1].[Count]), 0) AS [Sum]
+SELECT [u1].[Name], [u1].[Count], ISNULL(SUM([u1].[Count]), 0) AS [Sum]
 FROM (
     SELECT [c].[Name], (
         SELECT COUNT(*)
@@ -12077,7 +12077,7 @@ FROM [Squads] AS [s]
         AssertSql(
             """
 SELECT [s].[Name], (
-    SELECT COALESCE(SUM(CAST(LEN([c].[Location]) AS int)), 0)
+    SELECT ISNULL(SUM(CAST(LEN([c].[Location]) AS int)), 0)
     FROM (
         SELECT [g2].[SquadId], [g2].[CityOfBirthName]
         FROM [Gears] AS [g2]
@@ -12203,7 +12203,7 @@ LEFT JOIN (
         SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
         FROM [Weapons] AS [w]
     ) AS [w0]
-    WHERE [w0].[row] <= COALESCE((
+    WHERE [w0].[row] <= ISNULL((
         SELECT [n].[value]
         FROM OPENJSON(@numbers) WITH ([value] int '$') AS [n]
         ORDER BY [n].[value]

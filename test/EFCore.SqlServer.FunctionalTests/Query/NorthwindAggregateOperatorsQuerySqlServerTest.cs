@@ -815,7 +815,7 @@ OUTER APPLY (
         // #34256: rewrite query to avoid "Cannot perform an aggregate function on an expression containing an aggregate or a subquery"
         AssertSql(
             """
-SELECT COALESCE(SUM([s].[value]), 0)
+SELECT ISNULL(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT COUNT(*) AS [value]
@@ -2721,7 +2721,7 @@ FROM [Customers] AS [c]
 
         AssertSql(
             """
-SELECT COALESCE(SUM(1), 0)
+SELECT ISNULL(SUM(1), 0)
 FROM [Employees] AS [e]
 """);
     }
@@ -3081,7 +3081,7 @@ OUTER APPLY (
             """
 @cities='["London","Berlin"]' (Size = 4000)
 
-SELECT COALESCE(SUM([s].[value]), 0)
+SELECT ISNULL(SUM([s].[value]), 0)
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT CASE

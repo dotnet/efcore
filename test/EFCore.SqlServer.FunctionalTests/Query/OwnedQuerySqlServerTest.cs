@@ -270,7 +270,7 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
 
         AssertSql(
             """
-SELECT COALESCE((
+SELECT ISNULL((
     SELECT TOP(1) CAST([o0].[Id] ^ 42 AS bit)
     FROM [Order] AS [o0]
     WHERE [o].[Id] = [o0].[ClientId]

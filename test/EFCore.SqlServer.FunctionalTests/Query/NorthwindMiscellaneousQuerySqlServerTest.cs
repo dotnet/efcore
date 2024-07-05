@@ -2850,7 +2850,7 @@ END, [c].[CustomerID]
 
         AssertSql(
             """
-SELECT COALESCE(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
+SELECT ISNULL(ISNULL(CAST([e].[ReportsTo] AS bigint) + CAST(1 AS bigint), CAST([e].[ReportsTo] AS bigint) + CAST(2 AS bigint)), CAST([e].[ReportsTo] AS bigint) + CAST(3 AS bigint))
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
 """);
@@ -7020,7 +7020,7 @@ WHERE NOT EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT COALESCE(SUM([v].[Value]), 0)
+    SELECT ISNULL(SUM([v].[Value]), 0)
     FROM (VALUES (CAST(100 AS int)), ((
         SELECT COUNT(*)
         FROM [Orders] AS [o]
