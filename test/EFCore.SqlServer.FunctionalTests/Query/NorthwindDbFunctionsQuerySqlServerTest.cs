@@ -888,10 +888,7 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
 
         AssertSql(
             """
-SELECT CASE
-    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) = 1 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) ^ 1 AS bit) ^ CAST(1 AS bit)
 FROM [Orders] AS [o]
 WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
 """);
@@ -910,10 +907,7 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
 
         AssertSql(
             """
-SELECT CASE
-    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) ^ 1 AS bit) ^ CAST(1 AS bit)
 FROM [Order Details] AS [o]
 WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
 """);

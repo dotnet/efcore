@@ -747,13 +747,7 @@ WHERE [u].[Rank] | 2 > 0
 
         AssertSql(
             """
-SELECT TOP(1) CASE
-    WHEN [u].[Rank] & 2 = 2 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [BitwiseTrue], CASE
-    WHEN [u].[Rank] & 2 = 4 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [BitwiseFalse], [u].[Rank] & 2 AS [BitwiseValue]
+SELECT TOP(1) CAST(([u].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [BitwiseTrue], CAST(([u].[Rank] & 2) ^ 4 AS bit) ^ CAST(1 AS bit) AS [BitwiseFalse], [u].[Rank] & 2 AS [BitwiseValue]
 FROM (
     SELECT [g].[Rank]
     FROM [Gears] AS [g]
@@ -1072,13 +1066,7 @@ WHERE [u].[Rank] & @__parameter_0 = @__parameter_0
 
         AssertSql(
             """
-SELECT TOP(1) CASE
-    WHEN [u].[Rank] & 2 = 2 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [hasFlagTrue], CASE
-    WHEN [u].[Rank] & 4 = 4 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [hasFlagFalse]
+SELECT TOP(1) CAST(([u].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [hasFlagTrue], CAST(([u].[Rank] & 4) ^ 4 AS bit) ^ CAST(1 AS bit) AS [hasFlagFalse]
 FROM (
     SELECT [g].[Rank]
     FROM [Gears] AS [g]
@@ -1509,10 +1497,7 @@ FROM (
         AssertSql(
             """
 SELECT CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN CAST(LEN([u].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
     ELSE NULL
 END
 FROM (
@@ -1709,10 +1694,7 @@ LEFT JOIN [Cities] AS [c] ON [u].[AssignedCityName] = [c].[Name]
         AssertSql(
             """
 SELECT CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN CAST(LEN([u].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
     ELSE NULL
 END
 FROM (
@@ -8610,10 +8592,7 @@ ORDER BY [s].[Id], [s0].[Nickname], [s0].[SquadId]
         AssertSql(
             """
 SELECT CASE
-    WHEN [u].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN CAST(LEN([u].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
     ELSE NULL
 END
 FROM (
@@ -8625,10 +8604,7 @@ FROM (
 ) AS [u]
 ORDER BY CASE
     WHEN CASE
-        WHEN [u].[LeaderNickname] IS NOT NULL THEN CASE
-            WHEN CAST(LEN([u].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END
+        WHEN [u].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([u].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
         ELSE NULL
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -10045,10 +10021,7 @@ WHERE [u].[Rank] & @__ranks_0 <> 0
             """
 @__ranks_0='134'
 
-SELECT CASE
-    WHEN [u].[Rank] | @__ranks_0 = @__ranks_0 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(([u].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
 FROM (
     SELECT [g].[Rank]
     FROM [Gears] AS [g]
@@ -10061,10 +10034,7 @@ FROM (
             """
 @__ranks_0='134'
 
-SELECT CASE
-    WHEN [u].[Rank] | [u].[Rank] | @__ranks_0 | [u].[Rank] | @__ranks_0 = @__ranks_0 THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END
+SELECT CAST(([u].[Rank] | [u].[Rank] | @__ranks_0 | [u].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
 FROM (
     SELECT [g].[Rank]
     FROM [Gears] AS [g]
