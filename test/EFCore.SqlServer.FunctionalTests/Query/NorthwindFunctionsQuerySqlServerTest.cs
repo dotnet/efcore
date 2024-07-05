@@ -42,7 +42,7 @@ WHERE [o].[UnitPrice] < 7.0 AND 10 < [o].[ProductID]
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice], 2)), 0.0)
+    SELECT ISNULL(SUM(ROUND([o0].[UnitPrice], 2)), 0.0)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
@@ -57,7 +57,7 @@ WHERE [o].[OrderID] < 10300
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice] * [o0].[UnitPrice], 2)), 0.0)
+    SELECT ISNULL(SUM(ROUND([o0].[UnitPrice] * [o0].[UnitPrice], 2)), 0.0)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
@@ -97,7 +97,7 @@ ORDER BY CAST(LEN([c].[CustomerID]) AS int), [c].[CustomerID]
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice], 0, 1)), 0.0)
+    SELECT ISNULL(SUM(ROUND([o0].[UnitPrice], 0, 1)), 0.0)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
@@ -112,7 +112,7 @@ WHERE [o].[OrderID] < 10300
         AssertSql(
             """
 SELECT [o].[OrderID], (
-    SELECT COALESCE(SUM(ROUND([o0].[UnitPrice] * [o0].[UnitPrice], 0, 1)), 0.0)
+    SELECT ISNULL(SUM(ROUND([o0].[UnitPrice] * [o0].[UnitPrice], 0, 1)), 0.0)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
 FROM [Orders] AS [o]
