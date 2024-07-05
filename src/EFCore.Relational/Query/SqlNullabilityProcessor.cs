@@ -166,6 +166,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                         right,
                         leftNullable,
                         rightNullable,
+                        optimize: true,
                         out _);
 
                     return result;
@@ -1107,6 +1108,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 right,
                 leftNullable,
                 rightNullable,
+                optimize,
                 out nullable);
 
             if (optimized is SqlUnaryExpression { Operand: ColumnExpression optimizedUnaryColumnOperand } optimizedUnary)
@@ -1451,6 +1453,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         SqlExpression right,
         bool leftNullable,
         bool rightNullable,
+        bool optimize,
         out bool nullable)
     {
         var leftNullValue = leftNullable && left is SqlConstantExpression or SqlParameterExpression;
@@ -1531,32 +1534,8 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             && !rightNullable
             && sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
         {
-            var leftUnary = left as SqlUnaryExpression;
-            var rightUnary = right as SqlUnaryExpression;
-
-            var leftNegated = IsLogicalNot(leftUnary);
-            var rightNegated = IsLogicalNot(rightUnary);
-
-            if (leftNegated)
-            {
-                left = leftUnary!.Operand;
-            }
-
-            if (rightNegated)
-            {
-                right = rightUnary!.Operand;
-            }
-
-            // a == b <=> !a == !b -> a == b
-            // !a == b <=> a == !b -> a != b
-            // a != b <=> !a != !b -> a != b
-            // !a != b <=> a != !b -> a == b
-
             nullable = false;
-
-            return sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftNegated == rightNegated
-                ? _sqlExpressionFactory.NotEqual(left, right)
-                : _sqlExpressionFactory.Equal(left, right);
+            return OptimizeBooleanComparison(sqlBinaryExpression, left, right, optimize);
         }
 
         nullable = false;
@@ -1564,14 +1543,11 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         return sqlBinaryExpression.Update(left, right);
     }
 
-    private SqlExpression RewriteNullSemantics(
+    private SqlExpression OptimizeBooleanComparison(
         SqlBinaryExpression sqlBinaryExpression,
         SqlExpression left,
         SqlExpression right,
-        bool leftNullable,
-        bool rightNullable,
-        bool optimize,
-        out bool nullable)
+        bool optimize)
     {
         var leftUnary = left as SqlUnaryExpression;
         var rightUnary = right as SqlUnaryExpression;
@@ -1589,22 +1565,49 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             right = rightUnary!.Operand;
         }
 
+        var notEqual = sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftNegated == rightNegated;
+
+        // prefer equality in predicates
+        if (optimize && notEqual && left.Type == typeof(bool))
+        {
+            if (right is ColumnExpression && (left is not ColumnExpression || leftNegated))
+            {
+                left = _sqlExpressionFactory.Not(left);
+            }
+            else
+            {
+                right = _sqlExpressionFactory.Not(right);
+            }
+
+            return _sqlExpressionFactory.Equal(left, right);
+        }
+
+        // a == b <=> !a == !b -> a == b
+        // !a == b <=> a == !b -> a != b
+        // a != b <=> !a != !b -> a != b
+        // !a != b <=> a != !b -> a == b
+
+        return notEqual
+            ? _sqlExpressionFactory.NotEqual(left, right)
+            : _sqlExpressionFactory.Equal(left, right);
+    }
+
+    private SqlExpression RewriteNullSemantics(
+        SqlBinaryExpression sqlBinaryExpression,
+        SqlExpression left,
+        SqlExpression right,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
         var leftIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(left), leftNullable);
         var leftIsNotNull = OptimizeNotExpression(_sqlExpressionFactory.Not(leftIsNull));
 
         var rightIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(right), rightNullable);
         var rightIsNotNull = OptimizeNotExpression(_sqlExpressionFactory.Not(rightIsNull));
 
-        SqlExpression body;
-        if (leftNegated == rightNegated)
-        {
-            body = _sqlExpressionFactory.Equal(left, right);
-        }
-        else
-        {
-            // a == !b and !a == b in SQL evaluate the same as a != b
-            body = _sqlExpressionFactory.NotEqual(left, right);
-        }
+        var body = OptimizeBooleanComparison(sqlBinaryExpression, left, right, optimize);
 
         // optimized expansion which doesn't distinguish between null and false
         if (optimize && sqlBinaryExpression.OperatorType == ExpressionType.Equal)
@@ -1616,6 +1619,12 @@ public class SqlNullabilityProcessor : ExpressionVisitor
 
         // doing a full null semantics rewrite - removing all nulls from truth table
         nullable = false;
+
+        if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+        {
+            // the factory takes care of simplifying equal <-> not-equal
+            body = _sqlExpressionFactory.Not(body);
+        }
 
         // (a == b && (a != null && b != null)) || (a == null && b == null)
         body = _sqlExpressionFactory.OrElse(
