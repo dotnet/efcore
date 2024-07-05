@@ -414,7 +414,7 @@ ORDER BY "g0"."HasSoulPatch", "g0"."Nickname" DESC, "t"."Id", "g0"."SquadId", "g
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" <> @prm
+WHERE "g"."HasSoulPatch" = (NOT (@prm))
 """,
             //
             """
@@ -422,7 +422,7 @@ WHERE "g"."HasSoulPatch" <> @prm
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" <> @prm
+WHERE "g"."HasSoulPatch" = (NOT (@prm))
 """);
     }
 
@@ -7086,7 +7086,7 @@ FROM "Gears" AS "g"
 LEFT JOIN (
     SELECT "w"."Id", "w"."OwnerFullName"
     FROM "Weapons" AS "w"
-    WHERE "w"."IsAutomatic" <> @isAutomatic
+    WHERE "w"."IsAutomatic" = (NOT (@isAutomatic))
 ) AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
 """);
     }
