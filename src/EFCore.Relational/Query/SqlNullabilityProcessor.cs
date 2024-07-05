@@ -573,12 +573,7 @@ public class SqlNullabilityProcessor
             return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
-        if (IsNull(elseResult))
-        {
-            elseResult = null;
-        }
-
-        return caseExpression.Update(operand, whenClauses, elseResult);
+        return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
     }
 
     /// <summary>
