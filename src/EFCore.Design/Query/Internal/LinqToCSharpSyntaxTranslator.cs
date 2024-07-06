@@ -1307,10 +1307,22 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual TypeSyntax Generate(Type type)
+        => TryGenerate(type, out var result)
+            ? result
+            : throw new NotSupportedException(DesignStrings.UnableToTranslateType(type.DisplayName(fullName: false)));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual bool TryGenerate(Type type, [NotNullWhen(true)] out TypeSyntax? result)
     {
+        result = null;
         if (type.IsAnonymousType())
         {
-            return null!;
+            return false;
         }
 
         if (type.IsGenericType)
@@ -1318,12 +1330,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             if (type.IsConstructedGenericType
                 && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                return NullableType(Generate(type.GenericTypeArguments[0]));
+                result = NullableType(Generate(type.GenericTypeArguments[0]));
+                return true;
             }
 
             if (type.GenericTypeArguments.Any(t => t.IsAnonymousType()))
             {
-                return null!;
+                return false;
             }
 
             var generic = GenericName(
@@ -1331,107 +1344,127 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 TypeArgumentList(SeparatedList(type.GenericTypeArguments.Select(Generate))));
             if (type.IsNested)
             {
-                return QualifiedName(
+                result = QualifiedName(
                     (NameSyntax)Generate(type.DeclaringType!),
                     generic);
+                return true;
             }
 
             AddNamespace(type);
 
-            return generic;
+            result = generic;
+            return true;
         }
 
         if (type.IsArray)
         {
-            return ArrayType(Generate(type.GetElementType()!))
+            result = ArrayType(Generate(type.GetElementType()!))
                 .WithRankSpecifiers(SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
+            return true;
         }
 
         if (type == typeof(string))
         {
-            return PredefinedType(Token(SyntaxKind.StringKeyword));
+            result = PredefinedType(Token(SyntaxKind.StringKeyword));
+            return true;
         }
 
         if (type == typeof(bool))
         {
-            return PredefinedType(Token(SyntaxKind.BoolKeyword));
+            result = PredefinedType(Token(SyntaxKind.BoolKeyword));
+            return true;
         }
 
         if (type == typeof(byte))
         {
-            return PredefinedType(Token(SyntaxKind.ByteKeyword));
+            result = PredefinedType(Token(SyntaxKind.ByteKeyword));
+            return true;
         }
 
         if (type == typeof(sbyte))
         {
-            return PredefinedType(Token(SyntaxKind.SByteKeyword));
+            result = PredefinedType(Token(SyntaxKind.SByteKeyword));
+            return true;
         }
 
         if (type == typeof(int))
         {
-            return PredefinedType(Token(SyntaxKind.IntKeyword));
+            result = PredefinedType(Token(SyntaxKind.IntKeyword));
+            return true;
         }
 
         if (type == typeof(uint))
         {
-            return PredefinedType(Token(SyntaxKind.UIntKeyword));
+            result = PredefinedType(Token(SyntaxKind.UIntKeyword));
+            return true;
         }
 
         if (type == typeof(short))
         {
-            return PredefinedType(Token(SyntaxKind.ShortKeyword));
+            result = PredefinedType(Token(SyntaxKind.ShortKeyword));
+            return true;
         }
 
         if (type == typeof(ushort))
         {
-            return PredefinedType(Token(SyntaxKind.UShortKeyword));
+            result = PredefinedType(Token(SyntaxKind.UShortKeyword));
+            return true;
         }
 
         if (type == typeof(long))
         {
-            return PredefinedType(Token(SyntaxKind.LongKeyword));
+            result = PredefinedType(Token(SyntaxKind.LongKeyword));
+            return true;
         }
 
         if (type == typeof(ulong))
         {
-            return PredefinedType(Token(SyntaxKind.ULongKeyword));
+            result = PredefinedType(Token(SyntaxKind.ULongKeyword));
+            return true;
         }
 
         if (type == typeof(float))
         {
-            return PredefinedType(Token(SyntaxKind.FloatKeyword));
+            result = PredefinedType(Token(SyntaxKind.FloatKeyword));
+            return true;
         }
 
         if (type == typeof(double))
         {
-            return PredefinedType(Token(SyntaxKind.DoubleKeyword));
+            result = PredefinedType(Token(SyntaxKind.DoubleKeyword));
+            return true;
         }
 
         if (type == typeof(decimal))
         {
-            return PredefinedType(Token(SyntaxKind.DecimalKeyword));
+            result = PredefinedType(Token(SyntaxKind.DecimalKeyword));
+            return true;
         }
 
         if (type == typeof(char))
         {
-            return PredefinedType(Token(SyntaxKind.CharKeyword));
+            result = PredefinedType(Token(SyntaxKind.CharKeyword));
+            return true;
         }
 
         if (type == typeof(object))
         {
-            return PredefinedType(Token(SyntaxKind.ObjectKeyword));
+            result = PredefinedType(Token(SyntaxKind.ObjectKeyword));
+            return true;
         }
 
         if (type == typeof(void))
         {
-            return PredefinedType(Token(SyntaxKind.VoidKeyword));
+            result = PredefinedType(Token(SyntaxKind.VoidKeyword));
+            return true;
         }
 
         if (type.IsNested)
         {
-            return QualifiedName(
+            result = QualifiedName(
                 (NameSyntax)Generate(type.DeclaringType!),
                 IdentifierName(type.Name));
+            return true;
         }
 
         if (type.IsNested)
@@ -1443,7 +1476,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             _collectedNamespaces.Add(type.Namespace);
         }
 
-        return IdentifierName(type.Name);
+        result = IdentifierName(type.Name);
+        return true;
     }
 
     /// <inheritdoc />
@@ -1486,12 +1520,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         Result = ParenthesizedLambdaExpression(
             attributeLists: List<AttributeListSyntax>(),
             modifiers: TokenList(),
-            returnType: lambda.ReturnType == typeof(void) ? null : Generate(lambda.ReturnType),
+            returnType: lambda.ReturnType == typeof(void) || !TryGenerate(lambda.ReturnType, out var returnSyntax) ? null : returnSyntax,
             ParameterList(
                 SeparatedList(
                     lambda.Parameters.Select(
-                        p =>
-                            Parameter(Identifier(LookupVariableName(p)))
+                        p => Parameter(Identifier(LookupVariableName(p)))
                                 .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
             blockBody,
             expressionBody);

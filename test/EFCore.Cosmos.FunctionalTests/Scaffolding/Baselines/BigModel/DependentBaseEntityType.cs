@@ -400,6 +400,7 @@ namespace TestNamespace
                 shadowCount: 5,
                 relationshipCount: 4,
                 storeGeneratedCount: 2);
+            runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "Dependents");
             runtimeEntityType.AddAnnotation("DiscriminatorMappingComplete", false);
 
             Customize(runtimeEntityType);

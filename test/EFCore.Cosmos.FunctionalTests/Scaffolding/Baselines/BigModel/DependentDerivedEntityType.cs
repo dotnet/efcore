@@ -152,6 +152,7 @@ namespace TestNamespace
                 shadowCount: 6,
                 relationshipCount: 4,
                 storeGeneratedCount: 2);
+            runtimeEntityType.AddAnnotation("DiscriminatorMappingComplete", false);
 
             Customize(runtimeEntityType);
         }
