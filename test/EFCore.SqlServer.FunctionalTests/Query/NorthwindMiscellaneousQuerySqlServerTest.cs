@@ -2858,6 +2858,28 @@ FROM (
 """);
     }
 
+    public override async Task Coalesce_Correct_Type_String(bool async)
+    {
+        await base.Coalesce_Correct_Type_String(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Region], N'no region specified')
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Coalesce_Correct_Type_Double(bool async)
+    {
+        await base.Coalesce_Correct_Type_Double(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([e].[ReportsTo], 2.25)
+FROM [Employees] AS [e]
+""");
+    }
+
     public override async Task Null_Coalesce_Short_Circuit_with_server_correlated_leftover(bool async)
     {
         await base.Null_Coalesce_Short_Circuit_with_server_correlated_leftover(async);

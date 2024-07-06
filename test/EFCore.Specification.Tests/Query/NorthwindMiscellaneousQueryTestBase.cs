@@ -725,6 +725,20 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_Correct_Type_String(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.Region ?? "no region specified"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_Correct_Type_Double(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().Select(e => e.ReportsTo ?? 2.25));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Null_Coalesce_Short_Circuit(bool async)
     {
         List<int> values = null;
