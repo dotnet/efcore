@@ -705,10 +705,7 @@ FROM [Orders] AS [o]
         AssertSql(
             """
 SELECT CASE
-    WHEN [o].[OrderID] % 2 = 0 THEN CASE
-        WHEN [o].[OrderID] % 5 = 0 THEN -[o].[OrderID]
-        ELSE [o].[OrderID]
-    END
+    WHEN [o].[OrderID] % 2 = 0 AND [o].[OrderID] % 5 = 0 THEN -[o].[OrderID]
     ELSE [o].[OrderID]
 END
 FROM [Orders] AS [o]
@@ -722,10 +719,7 @@ FROM [Orders] AS [o]
         AssertSql(
             """
 SELECT CASE
-    WHEN CASE
-        WHEN [o].[OrderID] % 2 = 0 THEN CAST(0 AS bit)
-        ELSE CAST(1 AS bit)
-    END = CAST(1 AS bit) THEN [o].[OrderID]
+    WHEN [o].[OrderID] % 2 <> 0 THEN [o].[OrderID]
     ELSE -[o].[OrderID]
 END
 FROM [Orders] AS [o]
