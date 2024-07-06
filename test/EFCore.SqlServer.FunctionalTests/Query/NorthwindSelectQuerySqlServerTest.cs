@@ -672,6 +672,68 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Select_conditional_drops_false(bool isAsync)
+    {
+        await base.Select_conditional_drops_false(isAsync);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [o].[OrderID] % 2 = 0 THEN [o].[OrderID]
+    ELSE -[o].[OrderID]
+END
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Select_conditional_terminates_at_true(bool isAsync)
+    {
+        await base.Select_conditional_terminates_at_true(isAsync);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [o].[OrderID] % 2 = 0 THEN [o].[OrderID]
+    ELSE 0
+END
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Select_conditional_flatten_nested_results(bool isAsync)
+    {
+        await base.Select_conditional_flatten_nested_results(isAsync);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN [o].[OrderID] % 2 = 0 THEN CASE
+        WHEN [o].[OrderID] % 5 = 0 THEN -[o].[OrderID]
+        ELSE [o].[OrderID]
+    END
+    ELSE [o].[OrderID]
+END
+FROM [Orders] AS [o]
+""");
+    }
+
+    public override async Task Select_conditional_flatten_nested_tests(bool isAsync)
+    {
+        await base.Select_conditional_flatten_nested_tests(isAsync);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN CASE
+        WHEN [o].[OrderID] % 2 = 0 THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit) THEN [o].[OrderID]
+    ELSE -[o].[OrderID]
+END
+FROM [Orders] AS [o]
+""");
+    }
+
     public override async Task Projection_in_a_subquery_should_be_liftable(bool async)
     {
         await base.Projection_in_a_subquery_should_be_liftable(async);

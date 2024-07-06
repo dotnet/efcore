@@ -2015,6 +2015,62 @@ WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
+    public override Task Select_conditional_drops_false(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_drops_false(a);
+
+                AssertSql(
+                    """
+SELECT (((c["OrderID"] % 2) = 0) ? c["OrderID"] : -(c["OrderID"])) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_terminates_at_true(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_terminates_at_true(a);
+
+                AssertSql(
+                    """
+SELECT (((c["OrderID"] % 2) = 0) ? c["OrderID"] : 0) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_flatten_nested_results(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_flatten_nested_results(a);
+
+                AssertSql(
+                    """
+SELECT (((c["OrderID"] % 2) = 0) ? (((c["OrderID"] % 5) = 0) ? -(c["OrderID"]) : c["OrderID"]) : c["OrderID"]) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_flatten_nested_tests(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_flatten_nested_tests(a);
+
+                AssertSql(
+                    """
+SELECT ((((c["OrderID"] % 2) = 0) ? false : true) ? c["OrderID"] : -(c["OrderID"])) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
     public override Task Using_enumerable_parameter_in_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
