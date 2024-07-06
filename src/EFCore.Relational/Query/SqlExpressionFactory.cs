@@ -718,9 +718,30 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var typeMappedWhenClauses = new List<CaseWhenClause>();
         foreach (var caseWhenClause in whenClauses)
         {
+            var test = caseWhenClause.Test;
+
+            if (operand == null && test is CaseExpression { Operand: null, WhenClauses: [var clause] } testExpr)
+            {
+                if (IsTrue(clause.Result) && (testExpr.ElseResult == null || IsFalsy(testExpr.ElseResult)))
+                {
+                    // WHEN CASE
+                    //   WHEN x THEN TRUE
+                    //   ELSE FALSE/NULL
+                    // END THEN y
+                    // simplifies to
+                    // WHEN x THEN y
+                    test = clause.Test;
+                }
+                else if (IsFalsy(clause.Result) && testExpr.ElseResult != null && IsTrue(testExpr.ElseResult))
+                {
+                    // same for the negated results
+                    test = Not(clause.Test);
+                }
+            }
+
             typeMappedWhenClauses.Add(
                 new CaseWhenClause(
-                    ApplyTypeMapping(caseWhenClause.Test, testTypeMapping),
+                    ApplyTypeMapping(test, testTypeMapping),
                     ApplyTypeMapping(caseWhenClause.Result, resultTypeMapping)));
         }
 
@@ -752,18 +773,42 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedWhenClauses.RemoveAt(typeMappedWhenClauses.Count - 1);
         }
 
+        var nullResult = Constant(null, elseResult?.Type ?? whenClauses[0].Result.Type, resultTypeMapping);
+
         // if there are no whenClauses left (e.g. their tests evaluated to false):
         // - if there is Else block, return it
         // - if there is no Else block, return null
         if (typeMappedWhenClauses.Count == 0)
         {
-            return elseResult ?? Constant(null, elseResult?.Type ?? whenClauses[0].Result.Type, resultTypeMapping);
+            return elseResult ?? nullResult;
         }
 
         // omit `ELSE NULL` (this makes it easier to compare/reuse expressions)
         if (elseResult is SqlConstantExpression { Value: null })
         {
             elseResult = null;
+        }
+
+        // CASE
+        //   ...
+        //   WHEN x THEN CASE
+        //     WHEN y THEN a
+        //     ELSE b
+        //   END
+        //   ELSE b
+        // END
+        // simplifies to
+        // CASE
+        //   ...
+        //   WHEN x AND y THEN a
+        //   ELSE b
+        // END
+        if (operand == null
+            && typeMappedWhenClauses[^1].Result is CaseExpression { Operand: null, WhenClauses: [var lastClause] } lastCase
+            && Equals(elseResult, lastCase.ElseResult))
+        {
+            typeMappedWhenClauses[^1] = new(AndAlso(typeMappedWhenClauses[^1].Test, lastClause.Test), lastClause.Result);
+            elseResult = lastCase.ElseResult;
         }
 
         return existingExpr is CaseExpression expr
