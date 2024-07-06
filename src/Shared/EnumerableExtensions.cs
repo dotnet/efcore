@@ -22,6 +22,18 @@ internal static class EnumerableExtensions
         where T : class
         => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
+    public static IEnumerable<T> TakeUpTo<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        foreach (var item in source)
+        {
+            yield return item;
+            if (predicate(item))
+            {
+                yield break;
+            }
+        }
+    }
+
     private sealed class DynamicEqualityComparer<T> : IEqualityComparer<T>
         where T : class
     {
