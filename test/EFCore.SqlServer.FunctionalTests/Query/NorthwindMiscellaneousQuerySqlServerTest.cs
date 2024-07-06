@@ -2804,6 +2804,17 @@ FROM (
 """);
     }
 
+    public override async Task Coalesce_Correct_Type(bool async)
+    {
+        await base.Coalesce_Correct_Type(async);
+
+        AssertSql(
+            """
+SELECT COALESCE([c].[Region], N'no region specified')
+FROM [Customers] AS [c]
+""");
+    }
+
     public override async Task Null_Coalesce_Short_Circuit_with_server_correlated_leftover(bool async)
     {
         await base.Null_Coalesce_Short_Circuit_with_server_correlated_leftover(async);
