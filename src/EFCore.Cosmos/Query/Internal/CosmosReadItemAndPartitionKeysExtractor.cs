@@ -123,7 +123,10 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         // Now, attempt to also transform the query to ReadItem form if possible.
         if (_isPredicateCompatibleWithReadItem
             && allIdPropertiesSpecified
-            && allPartitionKeyPropertiesSpecified
+            // Note that queryCompilationContext.PartitionKeyPropertyValues may have been populated with WithPartitionKey(), which has
+            // a params object[] argument that gets parameterized as a single array. So the number of property values may not match the
+            // number of partition key properties.
+            && (partitionKeyProperties.Count == 0 || queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
             // If the entity type being queried has derived types and the discriminator is part of the JSON id, we can't reliably use
             // ReadItem, since we don't know in advance which derived type the document represents.
             && (!jsonIdProperties.Contains(discriminatorProperty)

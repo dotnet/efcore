@@ -203,6 +203,17 @@ FROM root c
     }
 
     [ConditionalFact]
+    public async Task ReadItem_with_WithPartitionKey()
+    {
+        await AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1").Where(e => e.Id == 1),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1").Where(e => e.Id == 1));
+
+        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+    }
+
+    [ConditionalFact]
     public async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
     {
         var partitionKey = "PK1";
