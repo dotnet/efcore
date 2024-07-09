@@ -38,15 +38,15 @@ public class SqliteHistoryRepository : HistoryRepository
     /// <summary>
     ///     The name of the table that will serve as a database-wide lock for migrations.
     /// </summary>
-    protected virtual string LockTableName { get; } = "__EFLock";
+    protected virtual string LockTableName { get; } = "__EFMigrationsLock";
 
     private string CreateExistsSql(string tableName)
     {
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-        return "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = "
-            + stringTypeMapping.GenerateSqlLiteral(tableName)
-            + " AND \"type\" = 'table';";
+        return $"""
+SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateSqlLiteral(tableName)} AND "type" = 'table';
+""";
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class SqliteHistoryRepository : HistoryRepository
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IMigrationDatabaseLock GetDatabaseLock(TimeSpan timeout)
+    public override IDisposable GetDatabaseLock(TimeSpan timeout)
     {
         if (!InterpretExistsResult(Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
             .ExecuteScalar(CreateRelationalCommandParameters())))
@@ -134,8 +134,7 @@ public class SqliteHistoryRepository : HistoryRepository
                 }
             }
 
-            using var waitEvent = new ManualResetEventSlim(false);
-            waitEvent.WaitHandle.WaitOne(retryDelay);
+            Thread.Sleep(retryDelay);
             if (retryDelay < TimeSpan.FromMinutes(1))
             {
                 retryDelay = retryDelay.Add(retryDelay);
@@ -151,7 +150,7 @@ public class SqliteHistoryRepository : HistoryRepository
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override async Task<IMigrationDatabaseLock> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
     {
         if (!InterpretExistsResult(await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
             .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
@@ -198,7 +197,7 @@ public class SqliteHistoryRepository : HistoryRepository
     private IRelationalCommand CreateLockTableCommand()
         => Dependencies.RawSqlCommandBuilder.Build($"""
 CREATE TABLE IF NOT EXISTS "{LockTableName}" (
-    "Id" INTEGER NOT NULL CONSTRAINT "PK___EFLock" PRIMARY KEY,
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_{LockTableName}" PRIMARY KEY,
     "Timestamp" TEXT NOT NULL
 );
 """);
@@ -225,9 +224,7 @@ DELETE FROM "{LockTableName}"
 """;
         if (id != null)
         {
-            sql += $"""
-WHERE "Id" = {id}
-""";
+            sql += $""" WHERE "Id" = {id}""";
         }
         sql += ";";
         return Dependencies.RawSqlCommandBuilder.Build(sql);
@@ -235,26 +232,6 @@ WHERE "Id" = {id}
 
     private SqliteMigrationDatabaseLock CreateMigrationDatabaseLock()
         => new(CreateDeleteLockCommand(), CreateRelationalCommandParameters());
-
-    private string GetLockInsertScript(HistoryRow row)
-    {
-        var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
-        return new StringBuilder().Append("INSERT INTO ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-            .Append(" (")
-            .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-            .Append(", ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(ProductVersionColumnName))
-            .AppendLine(")")
-            .Append("VALUES (")
-            .Append(stringTypeMapping.GenerateSqlLiteral(row.MigrationId))
-            .Append(", ")
-            .Append(stringTypeMapping.GenerateSqlLiteral(row.ProductVersion))
-            .Append(')')
-            .AppendLine(SqlGenerationHelper.StatementTerminator)
-            .ToString();
-    }
 
     private RelationalCommandParameterObject CreateRelationalCommandParameters()
         => new(

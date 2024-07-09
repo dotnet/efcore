@@ -15,11 +15,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class SqlServerMigrationDatabaseLock
-    (IRelationalCommand relationalCommand,
+public class SqlServerMigrationDatabaseLock(
+    IRelationalCommand relationalCommand,
     RelationalCommandParameterObject relationalCommandParameters,
     CancellationToken cancellationToken = default)
-    : IMigrationDatabaseLock
+    : IDisposable, IAsyncDisposable
 {
 
     /// <summary>

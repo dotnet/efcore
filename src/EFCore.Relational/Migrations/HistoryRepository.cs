@@ -199,7 +199,7 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </summary>
     /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
-    public abstract IMigrationDatabaseLock GetDatabaseLock(TimeSpan timeout);
+    public abstract IDisposable GetDatabaseLock(TimeSpan timeout);
 
     /// <summary>
     ///     Gets an exclusive lock on the database.
@@ -208,7 +208,7 @@ public abstract class HistoryRepository : IHistoryRepository
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public abstract Task<IMigrationDatabaseLock> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default);
+    public abstract Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Configures the entity type mapped to the history table.

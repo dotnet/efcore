@@ -255,8 +255,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
                 OnRetry();
 
-                using var waitEvent = new ManualResetEventSlim(false);
-                waitEvent.WaitHandle.WaitOne(delay.Value);
+                Thread.Sleep(delay.Value);
             }
         }
     }

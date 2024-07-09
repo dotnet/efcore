@@ -218,10 +218,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public string GetCreateScript()
             => throw new NotImplementedException();
 
-        public IMigrationDatabaseLock GetDatabaseLock(TimeSpan timeout)
+        public IDisposable GetDatabaseLock(TimeSpan timeout)
             => throw new NotImplementedException();
 
-        public Task<IMigrationDatabaseLock> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public string GetDeleteScript(string migrationId)
@@ -290,10 +290,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IMigrationDatabaseLock GetDatabaseLock(TimeSpan timeout)
+        public IDisposable GetDatabaseLock(TimeSpan timeout)
             => throw new NotImplementedException();
 
-        public Task<IMigrationDatabaseLock> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
         public string GetDeleteScript(string migrationId)
