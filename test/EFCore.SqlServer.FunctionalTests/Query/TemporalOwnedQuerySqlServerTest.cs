@@ -290,10 +290,7 @@ ORDER BY [o].[Id], [s].[ClientId], [s].[Id], [s].[OrderClientId], [s].[OrderId]
         AssertSql(
             """
 SELECT COALESCE((
-    SELECT TOP(1) CASE
-        WHEN [o0].[Id] <> 42 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    SELECT TOP(1) CAST([o0].[Id] ^ 42 AS bit)
     FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
     WHERE [o].[Id] = [o0].[ClientId]
     ORDER BY [o0].[Id]), CAST(0 AS bit))
