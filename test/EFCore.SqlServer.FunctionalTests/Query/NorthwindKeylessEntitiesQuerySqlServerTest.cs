@@ -148,7 +148,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 
         AssertSql(
             """
-SELECT [m].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([m].[Address]) AS int)), 0) AS [Sum]
+SELECT [m].[City] AS [Key], COUNT(*) AS [Count], ISNULL(SUM(CAST(LEN([m].[Address]) AS int)), 0) AS [Sum]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [m]

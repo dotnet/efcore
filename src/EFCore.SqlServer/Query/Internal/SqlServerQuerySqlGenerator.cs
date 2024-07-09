@@ -206,6 +206,43 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+    {
+        if (sqlFunctionExpression is { IsBuiltIn: true, Arguments: not null }
+            && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
+        {
+            var head = sqlFunctionExpression.Arguments[0];
+            if (head.TypeMapping != sqlFunctionExpression.TypeMapping)
+            {
+                head = new SqlUnaryExpression(
+                    ExpressionType.Convert,
+                    head,
+                    sqlFunctionExpression.Type,
+                    sqlFunctionExpression.TypeMapping);
+            }
+
+            sqlFunctionExpression = (SqlFunctionExpression)sqlFunctionExpression
+                .Arguments
+                .Skip(1)
+                .Aggregate(head, (l, r) => new SqlFunctionExpression(
+                    "ISNULL",
+                    arguments: [l, r],
+                    nullable: true,
+                    argumentsPropagateNullability: [false, false],
+                    sqlFunctionExpression.Type,
+                    sqlFunctionExpression.TypeMapping
+                ));
+        }
+
+        return base.VisitSqlFunction(sqlFunctionExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override void GenerateValues(ValuesExpression valuesExpression)
     {
         if (valuesExpression.RowValues.Count == 0)

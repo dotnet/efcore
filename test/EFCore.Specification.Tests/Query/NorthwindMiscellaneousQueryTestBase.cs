@@ -731,6 +731,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Coalesce_Correct_Type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.Region ?? "no region specified"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Null_Coalesce_Short_Circuit(bool async)
     {
         List<int> values = null;
@@ -2927,7 +2934,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(1)
-                  // ReSharper disable once UseMethodAny.0
+                      // ReSharper disable once UseMethodAny.0
                   where (from od in ss.Set<OrderDetail>().OrderBy(od => od.OrderID).Take(2)
                          where (from c in ss.Set<Customer>()
                                 where c.CustomerID == o.CustomerID

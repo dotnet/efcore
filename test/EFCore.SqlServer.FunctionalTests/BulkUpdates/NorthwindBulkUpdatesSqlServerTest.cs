@@ -1024,7 +1024,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + N'Abc'
+SET [c].[ContactName] = ISNULL([c].[ContactName], N'') + N'Abc'
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1035,11 +1035,11 @@ WHERE [c].[CustomerID] LIKE N'F%'
         await base.Update_Where_set_property_plus_parameter(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 @__value_0='Abc' (Size = 4000)
 
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0
+SET [c].[ContactName] = ISNULL([c].[ContactName], N'') + @__value_0
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
@@ -1052,7 +1052,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql(
             """
 UPDATE [c]
-SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + [c].[CustomerID]
+SET [c].[ContactName] = ISNULL([c].[ContactName], N'') + [c].[CustomerID]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
 """);
