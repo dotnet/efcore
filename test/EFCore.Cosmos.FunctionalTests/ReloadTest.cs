@@ -5,8 +5,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore;
 
-#nullable disable
-
 public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
 {
     public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
@@ -30,14 +28,30 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
     {
         using var context = CreateContext();
 
-        var entry = await context.AddAsync(new Item { Id = 1337 });
-
+        var entry = await context.AddAsync(new Item { Id = 1337, PartitionKey = "Foo" });
         await context.SaveChangesAsync();
 
         var itemJson = entry.Property<JObject>("__jObject").CurrentValue;
         itemJson["unmapped"] = 2;
 
         await entry.ReloadAsync();
+
+        AssertSql(
+            """
+@__p_0='1337'
+
+SELECT VALUE
+{
+    "Id" : c["Id"],
+    "PartitionKey" : c["PartitionKey"],
+    "Discriminator" : c["Discriminator"],
+    "id0" : c["id"],
+    "" : c
+}
+FROM root c
+WHERE (c["Id"] = @__p_0)
+OFFSET 0 LIMIT 1
+""");
 
         itemJson = entry.Property<JObject>("__jObject").CurrentValue;
         Assert.Null(itemJson["unmapped"]);
@@ -64,7 +78,7 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
     public class ReloadTestContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Item>(b => b.HasPartitionKey(e => e.Id));
+            => modelBuilder.Entity<Item>(b => b.HasPartitionKey(e => e.PartitionKey));
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -74,11 +88,12 @@ public class ReloadTest : IClassFixture<ReloadTest.CosmosReloadTestFixture>
             optionsBuilder.ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
         }
 
-        public DbSet<Item> Items { get; set; }
+        public DbSet<Item> Items { get; set; } = null!;
     }
 
     public class Item
     {
         public int Id { get; set; }
+        public required string PartitionKey { get; set; }
     }
 }

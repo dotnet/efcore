@@ -153,6 +153,9 @@
   <data name="IdNonStringStoreType" xml:space="preserve">
     <value>The type of the '{idProperty}' property on '{entityType}' is '{propertyType}'. All 'id' properties must be strings or have a string value converter.</value>
   </data>
+  <data name="IncorrectPartitionKeyNumber" xml:space="preserve">
+    <value>{actual} partition key values were provided, but the entity type '{entityType}' has {expected} partition key values defined.</value>
+  </data>
   <data name="IndexesExist" xml:space="preserve">
     <value>The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.</value>
   </data>
@@ -213,8 +216,8 @@
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>
   </data>
-  <data name="MultipleContainersReferencedInQuery" xml:space="preserve">
-    <value>Cosmos container '{container1}' is referenced by the query, but '{container2}' is already being referenced. A query can only reference a single Cosmos container.</value>
+  <data name="MultipleRootEntityTypesReferencedInQuery" xml:space="preserve">
+    <value>Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.</value>
   </data>
   <data name="NavigationPropertyIsNotAnEmbeddedEntity" xml:space="preserve">
     <value>Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.</value>
@@ -282,9 +285,6 @@
   <data name="PartitionKeyBadValueType" xml:space="preserve">
     <value>The partition key value supplied for '{propertyType}' property '{entityType}.{property}' is of type '{valueType}'. Partition key values must be of a type assignable to the property.</value>
   </data>
-  <data name="PartitionKeyMismatch" xml:space="preserve">
-    <value>The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.</value>
-  </data>
   <data name="PartitionKeyMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.</value>
   </data>
@@ -327,7 +327,13 @@
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
   </data>
+  <data name="WithPartitionKeyAlreadyCalled" xml:space="preserve">
+    <value>'WithPartitionKey' can only be called once in a query. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+  </data>
   <data name="WithPartitionKeyBadNode" xml:space="preserve">
-    <value>'WithPartitionKeyMethodInfo' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+    <value>'WithPartitionKey' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
+  </data>
+  <data name="WithPartitionKeyNotConstantOrParameter" xml:space="preserve">
+    <value>'WithPartitionKey' only accepts simple constant or parameter arguments. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
   </data>
 </root>

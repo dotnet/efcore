@@ -319,8 +319,17 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
         ExpressionType operatorType,
         SqlExpression left,
         SqlExpression right,
-        CoreTypeMapping? typeMapping)
+        CoreTypeMapping? typeMapping,
+        SqlExpression? existingExpr = null)
     {
+        switch (operatorType)
+        {
+            case ExpressionType.AndAlso:
+                return ApplyTypeMapping(AndAlso(left, right, existingExpr), typeMapping);
+            case ExpressionType.OrElse:
+                return ApplyTypeMapping(OrElse(left, right, existingExpr), typeMapping);
+        }
+
         if (!SqlBinaryExpression.IsValidOperator(operatorType))
         {
             return null;
@@ -335,8 +344,6 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
             case ExpressionType.LessThan:
             case ExpressionType.LessThanOrEqual:
             case ExpressionType.NotEqual:
-            case ExpressionType.AndAlso:
-            case ExpressionType.OrElse:
                 returnType = typeof(bool);
                 break;
         }
@@ -417,6 +424,42 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     public virtual SqlExpression AndAlso(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.AndAlso, left, right, null)!;
 
+    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    {
+        // false && x -> false
+        // x && true -> x
+        // x && x -> x
+        if (left is SqlConstantExpression { Value: false }
+            || right is SqlConstantExpression { Value: true }
+            || left.Equals(right))
+        {
+            return left;
+        }
+        // true && x -> x
+        // x && false -> false
+        if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
+        {
+            return right;
+        }
+        // x is null && x is not null -> false
+        // x is not null && x is null -> false
+        if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
+            && right is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
+            && leftUnary.Operand.Equals(rightUnary.Operand))
+        {
+            // the case in which left and right are the same expression is handled above
+            return Constant(false);
+        }
+        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+            && left == binaryExpr.Left
+            && right == binaryExpr.Right)
+        {
+            return existingExpr;
+        }
+
+        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -425,6 +468,43 @@ public class SqlExpressionFactory(ITypeMappingSource typeMappingSource, IModel m
     /// </summary>
     public virtual SqlExpression OrElse(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.OrElse, left, right, null)!;
+
+    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    {
+        // true || x -> true
+        // x || false -> x
+        // x || x -> x
+        if (left is SqlConstantExpression { Value: true }
+            || right is SqlConstantExpression { Value: false }
+            || left.Equals(right))
+        {
+            return left;
+        }
+        // false || x -> x
+        // x || true -> true
+        if (left is SqlConstantExpression { Value: false }
+            || right is SqlConstantExpression { Value: true })
+        {
+            return right;
+        }
+        // x is null || x is not null -> true
+        // x is not null || x is null -> true
+        if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
+            && right is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
+            && leftUnary.Operand.Equals(rightUnary.Operand))
+        {
+            // the case in which left and right are the same expression is handled above
+            return Constant(true);
+        }
+        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+            && left == binaryExpr.Left
+            && right == binaryExpr.Right)
+        {
+            return existingExpr;
+        }
+
+        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+// TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionKeyTest.CosmosHierarchicalPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(HierarchicalPartitionKeyTest);
@@ -79,6 +80,7 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
+WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
 OFFSET 0 LIMIT 2
 """;
 

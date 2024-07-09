@@ -35,9 +35,7 @@ public static class CosmosQueryableExtensions
     /// <param name="source">The source query.</param>
     /// <param name="partitionKey">The partition key value.</param>
     /// <returns>A new query with the set partition key.</returns>
-    public static IQueryable<TEntity> WithPartitionKey<TEntity>(
-        this IQueryable<TEntity> source,
-        [NotParameterized] string partitionKey)
+    public static IQueryable<TEntity> WithPartitionKey<TEntity>(this IQueryable<TEntity> source, string partitionKey)
         where TEntity : class
         => WithPartitionKey(source, partitionKey, []);
 
@@ -56,8 +54,8 @@ public static class CosmosQueryableExtensions
     /// <returns>A new query with the set partition key.</returns>
     public static IQueryable<TEntity> WithPartitionKey<TEntity>(
         this IQueryable<TEntity> source,
-        [NotParameterized] object partitionKeyValue,
-        [NotParameterized] params object[] additionalPartitionKeyValues)
+        object partitionKeyValue,
+        params object[] additionalPartitionKeyValues)
         where TEntity : class
     {
         Check.NotNull(partitionKeyValue, nameof(partitionKeyValue));

@@ -61,7 +61,7 @@ public sealed class SqlParameterExpression(string name, Type type, CoreTypeMappi
                 && Equals(sqlParameterExpression));
 
     private bool Equals(SqlParameterExpression sqlParameterExpression)
-        => base.Equals(sqlParameterExpression) && Name != sqlParameterExpression.Name;
+        => base.Equals(sqlParameterExpression) && Name == sqlParameterExpression.Name;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

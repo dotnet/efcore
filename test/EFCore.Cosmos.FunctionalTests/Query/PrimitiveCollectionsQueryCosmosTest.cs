@@ -149,12 +149,7 @@ WHERE false
             {
                 await base.Inline_collection_Contains_with_one_value(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE (c["Id"] = 2)
-""");
+                AssertSql("ReadItem(None, PrimitiveCollectionsEntity|2)");
             });
 
     public override Task Inline_collection_Contains_with_two_values(bool async)

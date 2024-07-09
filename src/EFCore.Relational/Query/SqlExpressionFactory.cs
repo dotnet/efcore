@@ -469,36 +469,34 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
         // true && x -> x
         // x && false -> false
-        else if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
+        if (left is SqlConstantExpression { Value: true } || right is SqlConstantExpression { Value: false })
         {
             return right;
         }
         // x is null && x is not null -> false
         // x is not null && x is null -> false
-        else if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
+        if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
             && right is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
             && leftUnary.Operand.Equals(rightUnary.Operand))
         {
             // the case in which left and right are the same expression is handled above
             return Constant(false);
         }
-        else if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
             return existingExpr;
         }
-        else
-        {
-            return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
-        }
+
+        return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
     }
 
     /// <inheritdoc />
     public virtual SqlExpression OrElse(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.OrElse, left, right, null)!;
 
-    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpr = null)
+    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
     {
         // true || x -> true
         // x || false -> x
@@ -511,30 +509,28 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
         // false || x -> x
         // x || true -> true
-        else if (left is SqlConstantExpression { Value: false }
+        if (left is SqlConstantExpression { Value: false }
             || right is SqlConstantExpression { Value: true })
         {
             return right;
         }
         // x is null || x is not null -> true
         // x is not null || x is null -> true
-        else if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
+        if (left is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary
             && right is SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
             && leftUnary.Operand.Equals(rightUnary.Operand))
         {
             // the case in which left and right are the same expression is handled above
             return Constant(true);
         }
-        else if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
             return existingExpr;
         }
-        else
-        {
-            return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
-        }
+
+        return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
     }
 
     /// <inheritdoc />

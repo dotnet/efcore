@@ -1638,10 +1638,9 @@ ORDER BY c["OrderID"]
 
     public override async Task Reverse_in_join_inner_with_skip(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.ReverseAfterSkipTakeNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Reverse_in_join_inner_with_skip(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Reverse_in_join_inner_with_skip(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Order), nameof(Customer)));
 
         AssertSql();
     }

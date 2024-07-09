@@ -294,7 +294,7 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
             // Both methods produce the exact same results; we usually prefer the 1st, but in some cases we use the 2nd.
             else if ((projection.Count > 1
                          // Cosmos does not support "AS Value" projections, specifically for the alias "Value"
-                         || projection is [{ Alias: var alias }] && alias.Equals("value", StringComparison.OrdinalIgnoreCase))
+                         || projection is [{ Alias: string alias }] && alias.Equals("value", StringComparison.OrdinalIgnoreCase))
                      && projection.Any(p => !string.IsNullOrEmpty(p.Alias) && p.Alias != p.Name)
                      && !projection.Any(p => p.Expression is SqlFunctionExpression)) // Aggregates are not allowed
             {

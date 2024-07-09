@@ -77,28 +77,31 @@ public class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Translate(Expression expression)
+    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression);
+        return TranslateInternal(expression, applyDefaultTypeMapping);
     }
 
-    private SqlExpression? TranslateInternal(Expression expression)
+    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var result = Visit(expression);
 
         if (result is SqlExpression translation)
         {
-            translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
-
-            if (translation.TypeMapping == null)
+            if (applyDefaultTypeMapping)
             {
-                // The return type is not-mappable hence return null
-                return null;
-            }
+                translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
-            _sqlVerifyingExpressionVisitor.Visit(translation);
+                if (translation.TypeMapping == null)
+                {
+                    // The return type is not-mappable hence return null
+                    return null;
+                }
+
+                _sqlVerifyingExpressionVisitor.Visit(translation);
+            }
 
             return translation;
         }

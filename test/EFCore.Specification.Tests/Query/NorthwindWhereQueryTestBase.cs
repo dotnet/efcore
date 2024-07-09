@@ -2065,9 +2065,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_AndAlso_on_same_column_converted_to_in_using_parameters(bool async)
     {
-        var prm1 = "ALFKI";
-        var prm2 = "ANATR";
-        var prm3 = "ANTON";
+        var (prm1, prm2, prm3) = ("ALFKI", "ANATR", "ANTON");
 
         return AssertQuery(
             async,
@@ -2078,8 +2076,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Array_of_parameters_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
     {
-        var prm1 = "ALFKI";
-        var prm2 = "ANATR";
+        var (prm1, prm2) = ("ALFKI", "ANATR");
 
         return AssertQuery(
             async,

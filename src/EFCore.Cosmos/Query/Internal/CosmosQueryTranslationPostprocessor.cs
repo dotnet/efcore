@@ -27,13 +27,14 @@ public class CosmosQueryTranslationPostprocessor(
 
         if (query is ShapedQueryExpression { QueryExpression: SelectExpression selectExpression })
         {
-            // Cosmos does not have nested select expression so this should be safe.
             selectExpression.ApplyProjection();
         }
 
         var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
         var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
+        var afterExtraction = new CosmosReadItemAndPartitionKeysExtractor().ExtractPartitionKeysAndId(
+            queryCompilationContext, sqlExpressionFactory, afterAliases);
 
-        return afterAliases;
+        return afterExtraction;
     }
 }

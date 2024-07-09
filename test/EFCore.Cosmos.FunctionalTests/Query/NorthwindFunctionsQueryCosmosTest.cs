@@ -1621,12 +1621,7 @@ ORDER BY LENGTH(c["CustomerID"]), c["CustomerID"]
             {
                 await base.Static_string_equals_in_predicate(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ANATR"))
-""");
+                AssertSql("ReadItem(None, Customer|ANATR)");
             });
 
     public override Task Static_equals_nullable_datetime_compared_to_non_nullable(bool async)
@@ -1655,7 +1650,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] = @__arg_0))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND false)
+WHERE false
 """);
             });
 
