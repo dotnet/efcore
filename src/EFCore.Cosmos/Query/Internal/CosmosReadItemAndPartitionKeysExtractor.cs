@@ -58,12 +58,17 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         // entity type; build a dictionary where the properties are the keys, and where the values are expressions that will get populated
         // from the tree (either constants or parameters).
         // We also want to ignore the discriminator property if it's compared to our entity type's discriminator value (see below).
-        var partitionKeyProperties = _entityType.GetPartitionKeyProperties();
-        (_isPredicateCompatibleWithReadItem, var jsonIdProperties, _jsonIdPropertyValues) =
-            _entityType.GetJsonIdDefinition() is IJsonIdDefinition jsonIdDefinition
-                ? (true, jsonIdDefinition.Properties, jsonIdDefinition.Properties.ToDictionary(p => p, _ => (Expression?)null))
-                : (false, [], new());
+        _isPredicateCompatibleWithReadItem = true;
+        var jsonIdProperties = _entityType.GetJsonIdDefinition()?.Properties ?? [];
+        if (jsonIdProperties.Count == 0)
+        {
+            // No JSON ID definition - no ReadItem
+            _isPredicateCompatibleWithReadItem = false;
+        }
 
+        _jsonIdPropertyValues = jsonIdProperties.ToDictionary(p => p, _ => (Expression?)null);
+
+        var partitionKeyProperties = _entityType.GetPartitionKeyProperties();
         _partitionKeyPropertyValues = partitionKeyProperties.ToDictionary(p => p, _ => (Expression?)null);
 
         var discriminatorProperty = _entityType.FindDiscriminatorProperty();
@@ -91,20 +96,14 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         // First, take care of the partition key properties; if the visitation above returned a different predicate, that means that some
         // partition key comparisons were extracted (and therefore found). Lift these up to the query compilation context and rewrite
         // the SelectExpression with the new, reduced predicate.
-        if (allPartitionKeyPropertiesSpecified)
+        // Note that if the user called WithPartitionKey(), we'll have already populated the partition key property values from there, and
+        // we skip lifting the predicate comparisons.
+        if (allPartitionKeyPropertiesSpecified
+            && queryCompilationContext.PartitionKeyPropertyValues.Count == 0)
         {
-            // If the user called WithPartitionKey(), check that it's identical to what we extracted from the predicate.
-            if (queryCompilationContext.PartitionKeyPropertyValues.Count == 0)
+            foreach (var partitionKeyProperty in partitionKeyProperties)
             {
-                foreach (var partitionKeyProperty in partitionKeyProperties)
-                {
-                    queryCompilationContext.PartitionKeyPropertyValues.Add(_partitionKeyPropertyValues[partitionKeyProperty]!);
-                }
-            }
-            else if (!queryCompilationContext.PartitionKeyPropertyValues.SequenceEqual(
-                         partitionKeyProperties.Select(p => _partitionKeyPropertyValues[p]!)))
-            {
-                throw new InvalidOperationException(CosmosStrings.PartitionKeyMismatch);
+                queryCompilationContext.PartitionKeyPropertyValues.Add(_partitionKeyPropertyValues[partitionKeyProperty]!);
             }
 
             select = select.Update(
@@ -129,8 +128,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             && (partitionKeyProperties.Count == 0 || queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
             // If the entity type being queried has derived types and the discriminator is part of the JSON id, we can't reliably use
             // ReadItem, since we don't know in advance which derived type the document represents.
-            && (!jsonIdProperties.Contains(discriminatorProperty)
-                || (!_entityType.GetDerivedTypes().Any() && _entityType.GetIsDiscriminatorMappingComplete()))
+            && (!jsonIdProperties.Contains(discriminatorProperty) || !_entityType.GetDerivedTypes().Any())
             && select is
             {
                 Offset: null or SqlConstantExpression { Value: 0 },

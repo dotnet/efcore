@@ -122,15 +122,37 @@ FROM root c
     }
 
     [ConditionalFact]
-    public async Task Different_partition_keys_specified_in_WithPartitionKey_and_in_predicate()
+    public async Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(
+        await AssertQuery(
+            async: true,
+            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1").Where(e => e.PartitionKey == "PK2"),
+            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1").Where(e => e.PartitionKey == "PK2"),
+            assertEmpty: true);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE (c["PartitionKey"] = "PK2")
+""");
+    }
+
+    [ConditionalFact]
+    public async Task Both_WithPartitionKey_and_predicate_comparisons_with_same_values()
+    {
+        await AssertQuery(
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>()
-                .WithPartitionKey("Pk1")
-                .Where(e => e.PartitionKey == "PK2")));
+                .WithPartitionKey("PK1")
+                .Where(e => e.PartitionKey == "PK1"));
 
-        Assert.Equal(CosmosStrings.PartitionKeyMismatch, exception.Message);
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE (c["PartitionKey"] = "PK1")
+""");
     }
 
     [ConditionalFact]

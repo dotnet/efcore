@@ -285,9 +285,6 @@
   <data name="PartitionKeyBadValueType" xml:space="preserve">
     <value>The partition key value supplied for '{propertyType}' property '{entityType}.{property}' is of type '{valueType}'. Partition key values must be of a type assignable to the property.</value>
   </data>
-  <data name="PartitionKeyMismatch" xml:space="preserve">
-    <value>The partition key specified in the 'WithPartitionKey' call and the partition key specified in the 'Where' predicate must be identical to return any results. Remove one of them.</value>
-  </data>
   <data name="PartitionKeyMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.</value>
   </data>

@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+// TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionKeyTest.CosmosHierarchicalPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(HierarchicalPartitionKeyTest);

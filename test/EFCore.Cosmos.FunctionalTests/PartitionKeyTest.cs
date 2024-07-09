@@ -5,6 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
+// TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(PartitionKeyTest);

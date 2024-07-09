@@ -344,12 +344,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, entityType, property, valueType);
 
         /// <summary>
-        ///     The partition key specified in the 'WithPartitionKey' call and the partition key specified in the 'Where' predicate must be identical to return any results. Remove one of them.
-        /// </summary>
-        public static string PartitionKeyMismatch
-            => GetString("PartitionKeyMismatch");
-
-        /// <summary>
         ///     Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
         public static string PartitionKeyMissing

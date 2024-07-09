@@ -29,13 +29,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         var partitionKeyProperties = rootEntityType.GetPartitionKeyProperties();
 
         int i;
-        for (i = 0; i < partitionKeyPropertyValues.Count; i++)
+        for (i = 0; i < partitionKeyPropertyValues.Count && i < partitionKeyProperties.Count; i++)
         {
-            if (i >= partitionKeyProperties.Count)
-            {
-                break;
-            }
-
             var property = partitionKeyProperties[i];
 
             switch (partitionKeyPropertyValues[i])
@@ -49,7 +44,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 case SqlParameterExpression parameter when parameter.Type == typeof(object[]):
                 {
                     if (!parameterValues.TryGetValue(parameter.Name, out var value)
-                        || value is not object[] remainingValuesArray)
+                        || value is not object[] remainingValuesArray
+                        || i != 1)
                     {
                         throw new UnreachableException("Couldn't find partition key parameter value");
                     }
