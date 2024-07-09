@@ -3,7 +3,9 @@
 
 #nullable disable
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
@@ -127,5 +129,74 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 standAloneStateManagerConstant,
                 threadSafetyConstant)
         };
+    }
+
+    private static PartitionKey GeneratePartitionKey(
+        IEntityType rootEntityType,
+        List<Expression> partitionKeyPropertyValues,
+        IReadOnlyDictionary<string, object> parameterValues)
+    {
+        if (partitionKeyPropertyValues.Count == 0)
+        {
+            return PartitionKey.None;
+        }
+
+        var builder = new PartitionKeyBuilder();
+
+        var partitionKeyProperties = rootEntityType.GetPartitionKeyProperties();
+
+        int i;
+        for (i = 0; i < partitionKeyPropertyValues.Count && i < partitionKeyProperties.Count; i++)
+        {
+            var property = partitionKeyProperties[i];
+
+            switch (partitionKeyPropertyValues[i])
+            {
+                case SqlConstantExpression constant:
+                    builder.Add(constant.Value, property);
+                    continue;
+
+                // If WithPartitionKey() was used, its second argument is a params object[] array, which gets parameterized as a single
+                // parameter. Extract the object[] and iterate over the values within here.
+                case SqlParameterExpression parameter when parameter.Type == typeof(object[]):
+                {
+                    if (!parameterValues.TryGetValue(parameter.Name, out var value)
+                        || value is not object[] remainingValuesArray
+                        || i != 1)
+                    {
+                        throw new UnreachableException("Couldn't find partition key parameter value");
+                    }
+
+                    for (var j = 0; j < remainingValuesArray.Length; j++, i++)
+                    {
+                        builder.Add(remainingValuesArray[j], partitionKeyProperties[i]);
+                    }
+
+                    goto End;
+                }
+
+                case SqlParameterExpression parameter:
+                {
+                    builder.Add(
+                        parameterValues.TryGetValue(parameter.Name, out var value)
+                            ? value
+                            : throw new UnreachableException("Couldn't find partition key parameter value"),
+                        property);
+                    continue;
+                }
+
+                default:
+                    throw new UnreachableException();
+            }
+        }
+
+        End:
+        if (i != partitionKeyProperties.Count)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.IncorrectPartitionKeyNumber(rootEntityType.DisplayName(), i, partitionKeyProperties.Count));
+        }
+
+        return builder.Build();
     }
 }
