@@ -1334,14 +1334,19 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 return true;
             }
 
-            if (type.GenericTypeArguments.Any(t => t.IsAnonymousType()))
+            var genericArguments = new List<TypeSyntax>();
+            foreach (var genericArgument in type.GenericTypeArguments)
             {
-                return false;
+                if (!TryGenerate(genericArgument, out var syntax))
+                {
+                    return false;
+                }
+                genericArguments.Add(syntax);
             }
 
             var generic = GenericName(
                 Identifier(type.Name.Substring(0, type.Name.IndexOf('`'))),
-                TypeArgumentList(SeparatedList(type.GenericTypeArguments.Select(Generate))));
+                TypeArgumentList(SeparatedList(genericArguments)));
             if (type.IsNested)
             {
                 result = QualifiedName(
