@@ -337,27 +337,7 @@ public class DbContextOperations
         }
 
         var writtenFiles = new List<string>();
-        foreach (var generatedFile in generatedFiles)
-        {
-            generatedFile.Code = FormatCode(project, generatedFile).GetAwaiter().GetResult().ToString()!;
-        }
-
         return CompiledModelScaffolder.WriteFiles(generatedFiles, outputDir);
-
-        static async Task<object> FormatCode(Project project, ScaffoldedFile generatedFile)
-        {
-            var document = project.AddDocument("_EfGeneratedInterceptors.cs", generatedFile.Code);
-
-            // Run the simplifier to e.g. get rid of unneeded parentheses
-            var syntaxRoot = (await document.GetSyntaxRootAsync().ConfigureAwait(false))!;
-            var annotatedDocument = document.WithSyntaxRoot(syntaxRoot.WithAdditionalAnnotations(Simplifier.Annotation));
-            document = await Simplifier.ReduceAsync(annotatedDocument, optionSet: null).ConfigureAwait(false);
-            document = await Formatter.FormatAsync(document, options: null).ConfigureAwait(false);
-
-            var finalSyntaxTree = (await document.GetSyntaxTreeAsync().ConfigureAwait(false))!;
-            var finalText = await finalSyntaxTree.GetTextAsync().ConfigureAwait(false);
-            return finalText;
-        }
     }
 
     private string? GetNamespaceFromOutputPath(string directoryPath)

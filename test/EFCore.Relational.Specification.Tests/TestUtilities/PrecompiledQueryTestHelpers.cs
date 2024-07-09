@@ -76,17 +76,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Xunit;
 using static Microsoft.EntityFrameworkCore.Query.PrecompiledQueryRelationalTestBase;
-//using Microsoft.EntityFrameworkCore.PrecompiledQueryTest;
 
 {sourceCode}
 """;
 
         // This turns on the interceptors feature for the designated namespace(s).
         var parseOptions = new CSharpParseOptions().WithFeatures(
-            new[]
-            {
+            [
                 new KeyValuePair<string, string>("InterceptorsPreviewNamespaces", "Microsoft.EntityFrameworkCore.GeneratedInterceptors")
-            });
+            ]);
 
         var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions, path: "Test.cs");
 

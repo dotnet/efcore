@@ -755,6 +755,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexName, columnNames);
 
         /// <summary>
+        ///     Unable to translate type '{type}'
+        /// </summary>
+        public static string UnableToTranslateType(object? type)
+            => string.Format(
+                GetString("UnableToTranslateType", nameof(type)),
+                type);
+
+        /// <summary>
         ///     The project '{project}' does not support compilation.
         /// </summary>
         public static string UncompilableProject(object? project)

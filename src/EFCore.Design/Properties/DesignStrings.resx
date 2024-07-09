@@ -424,6 +424,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
   </data>
+  <data name="UnableToTranslateType" xml:space="preserve">
+    <value>Unable to translate type '{type}'</value>
+  </data>
   <data name="UncompilableProject" xml:space="preserve">
     <value>The project '{project}' does not support compilation.</value>
   </data>

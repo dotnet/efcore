@@ -4,7 +4,6 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -298,7 +297,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        _sets ??= new Dictionary<(Type Type, string? Name), object>();
+        _sets ??= [];
 
         if (!_sets.TryGetValue((type, null), out var set))
         {
@@ -324,7 +323,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        _sets ??= new Dictionary<(Type Type, string? Name), object>();
+        _sets ??= [];
 
         if (!_sets.TryGetValue((type, entityTypeName), out var set))
         {
@@ -1016,7 +1015,7 @@ public class DbContext :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private IEnumerable<IResettableService> GetResettableServices()
+    private List<IResettableService> GetResettableServices()
     {
         if (_cachedResettableServices is not null)
         {

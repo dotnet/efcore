@@ -10,7 +10,6 @@ using System.Text;
 // ReSharper disable once CheckNamespace
 namespace System;
 
-[DebuggerStepThrough]
 internal static class SharedTypeExtensions
 {
     private static readonly Dictionary<Type, string> BuiltInTypeNames = new()
@@ -503,6 +502,10 @@ internal static class SharedTypeExtensions
             {
                 builder.Append(fullName ? type.FullName : type.Name);
             }
+        }
+        else if (compilable)
+        {
+            builder.Append(type.Name);
         }
     }
 

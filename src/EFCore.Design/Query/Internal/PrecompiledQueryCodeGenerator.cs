@@ -328,7 +328,9 @@ namespace System.Runtime.CompilerServices
         // First, check whether this is an async query.
         var async = terminatingOperator.Type.IsGenericType
             && terminatingOperator.Type.GetGenericTypeDefinition() is var genericDefinition
-            && (genericDefinition == typeof(Task<>) || genericDefinition == typeof(ValueTask<>));
+            && (genericDefinition == typeof(Task<>)
+                || genericDefinition == typeof(ValueTask<>)
+                || genericDefinition == typeof(IAsyncEnumerable<>));
 
         var preparedQuery = PrepareQueryForCompilation(penultimateOperator, terminatingOperator);
 
