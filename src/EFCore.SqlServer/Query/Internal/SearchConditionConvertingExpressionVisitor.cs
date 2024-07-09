@@ -347,7 +347,8 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         _isSearchCondition = parentIsSearchCondition;
 
         if (!parentIsSearchCondition
-            && (newRight.Type == typeof(bool) || newLeft.Type.IsEnum || newLeft.Type.IsInteger())
+            && (newLeft.Type == typeof(bool) || newLeft.Type.IsEnum || newLeft.Type.IsInteger())
+            && (newRight.Type == typeof(bool) || newRight.Type.IsEnum || newRight.Type.IsInteger())
             && sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal)
         {
             // "lhs != rhs" is the same as "CAST(lhs ^ rhs AS BIT)", except that
@@ -356,7 +357,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 ExpressionType.ExclusiveOr,
                 newLeft,
                 newRight,
-                newLeft.TypeMapping)!;
+                null)!;
 
             if (result.Type != typeof(bool))
             {
