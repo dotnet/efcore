@@ -2192,7 +2192,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
                         + $" {nameof(MultipleAnswersInverse)}.{nameof(MultipleAnswersInverse.Answers)}",
                         nameof(PartialAnswerInverse.Answer)),
                 "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
     }
 
     [ConditionalFact]

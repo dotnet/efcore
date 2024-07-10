@@ -3,7 +3,7 @@
 
 // ReSharper disable InconsistentNaming
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
@@ -18,6 +18,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
     {
         Fixture = fixture;
         Fixture.TestStore.CloseConnection();
+        Fixture.TestSqlLoggerFactory.Clear();
     }
 
     protected string Sql { get; private set; }
@@ -70,7 +71,12 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         GiveMeSomeTime(db);
 
-        db.Database.Migrate();
+        MigrationsInfrastructureFixtureBase.MigratorPlugin.ResetCounts();
+        db.Database.Migrate((c, d) =>
+        {
+            c.Add(new MigrationsInfrastructureFixtureBase.Foo { Id = 1, Bar = 10, Description = "Test" });
+            c.SaveChanges();
+        });
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -82,6 +88,47 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
             x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
             x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
+
+        Assert.NotNull(db.Find<MigrationsInfrastructureFixtureBase.Foo>(1));
+
+        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingCallCount);
+        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedCallCount);
+        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingAsyncCallCount);
+        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedAsyncCallCount);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Can_apply_all_migrations_async()
+    {
+        using var db = Fixture.CreateContext();
+        await db.Database.EnsureDeletedAsync();
+
+        await GiveMeSomeTimeAsync(db);
+
+        MigrationsInfrastructureFixtureBase.MigratorPlugin.ResetCounts();
+        await db.Database.MigrateAsync(async (c, d, ct) =>
+        {
+            c.Add(new MigrationsInfrastructureFixtureBase.Foo { Id = 1, Bar = 10, Description = "Test" });
+            await c.SaveChangesAsync(ct);
+        });
+
+        var history = db.GetService<IHistoryRepository>();
+        Assert.Collection(
+            await history.GetAppliedMigrationsAsync(),
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+            x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+            x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
+            x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
+            x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
+            x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
+
+        Assert.NotNull(await db.FindAsync<MigrationsInfrastructureFixtureBase.Foo>(1));
+
+        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingCallCount);
+        Assert.Equal(0, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedCallCount);
+        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratingAsyncCallCount);
+        Assert.Equal(1, MigrationsInfrastructureFixtureBase.MigratorPlugin.MigratedAsyncCallCount);
     }
 
     [ConditionalFact]
@@ -92,8 +139,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         GiveMeSomeTime(db);
 
-        var migrator = db.GetService<IMigrator>();
-        migrator.Migrate("Migration6");
+        db.Database.Migrate(null, "Migration6");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -121,6 +167,9 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         Assert.Collection(
             history.GetAppliedMigrations(),
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+
+        Assert.Equal(LogLevel.Error,
+            Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.PendingModelChangesWarning).Level);
     }
 
     [ConditionalFact]
@@ -158,28 +207,6 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
             x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
             x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
-    }
-
-    [ConditionalFact]
-    public virtual async Task Can_apply_all_migrations_async()
-    {
-        using var db = Fixture.CreateContext();
-        await db.Database.EnsureDeletedAsync();
-
-        await GiveMeSomeTimeAsync(db);
-
-        await db.Database.MigrateAsync();
-
-        var history = db.GetService<IHistoryRepository>();
-        Assert.Collection(
-            await history.GetAppliedMigrationsAsync(),
-            x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
-            x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-            x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
-            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
-            x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
-            x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
-            x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -444,11 +471,15 @@ public abstract class MigrationsInfrastructureFixtureBase
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
     {
         TestStore.UseConnectionString = true;
-        return base.AddServices(serviceCollection);
+        return base.AddServices(serviceCollection)
+            .AddSingleton<IMigratorPlugin, MigratorPlugin>();
     }
 
     protected override string StoreName
         => "MigrationsTest";
+
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public EmptyMigrationsContext CreateEmptyContext()
         => new(
@@ -460,9 +491,6 @@ public abstract class MigrationsInfrastructureFixtureBase
                         .BuildServiceProvider(validateScopes: true))
                 .Options);
 
-    public new virtual MigrationsContext CreateContext()
-        => base.CreateContext();
-
     public class EmptyMigrationsContext(DbContextOptions options) : DbContext(options);
 
     public class MigrationsContext(DbContextOptions options) : PoolableDbContext(options)
@@ -470,10 +498,61 @@ public abstract class MigrationsInfrastructureFixtureBase
         public DbSet<Foo> Foos { get; set; }
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    {
+        modelBuilder.Entity<Foo>(b => b.ToTable("Table1"));
+    }
+
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(e => e
+            .Log(RelationalEventId.PendingModelChangesWarning)
+            .Log(RelationalEventId.NonTransactionalMigrationOperationWarning)
+        );
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Migrations.Name;
+
     public class Foo
     {
         public int Id { get; set; }
+        public int Bar { get; set; }
         public string Description { get; set; }
+    }
+
+    public class MigratorPlugin : IMigratorPlugin
+    {
+        public static int MigratedCallCount { get; private set; }
+        public static int MigratedAsyncCallCount { get; private set; }
+        public static int MigratingCallCount { get; private set; }
+        public static int MigratingAsyncCallCount { get; private set; }
+
+        public static void ResetCounts()
+        {
+            MigratedCallCount = 0;
+            MigratedAsyncCallCount = 0;
+            MigratingCallCount = 0;
+            MigratingAsyncCallCount = 0;
+        }
+
+        public void Migrated(DbContext context, IMigratorData data)
+        {
+            MigratedCallCount++;
+        }
+
+        public Task MigratedAsync(DbContext context, IMigratorData data, CancellationToken cancellationToken)
+        {
+            MigratedAsyncCallCount++;
+            return Task.CompletedTask;
+        }
+
+        public void Migrating(DbContext context, IMigratorData data)
+            => MigratingCallCount++;
+
+        public Task MigratingAsync(DbContext context, IMigratorData data, CancellationToken cancellationToken = default)
+        {
+            MigratingAsyncCallCount++;
+            return Task.CompletedTask;
+        }
     }
 
     [DbContext(typeof(MigrationsContext))]

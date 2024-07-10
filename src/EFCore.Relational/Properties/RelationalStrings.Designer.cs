@@ -1178,7 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonNodeMustBeHandledByProviderSpecificVisitor");
 
         /// <summary>
-        ///     Using parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use constant, or project the entire JSON entity collection instead.
+        ///     Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.
         /// </summary>
         public static string JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution)
             => string.Format(
@@ -1188,10 +1188,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.
         /// </summary>
-        public static string JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(object? entityTypeName, object? asNoTrackingWithIdentityResolution)
+        public static string JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(object? asNoTrackingWithIdentityResolution, object? entityTypeName)
             => string.Format(
-                GetString("JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution", nameof(entityTypeName), nameof(asNoTrackingWithIdentityResolution)),
-                entityTypeName, asNoTrackingWithIdentityResolution);
+                GetString("JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution", nameof(asNoTrackingWithIdentityResolution), nameof(entityTypeName)),
+                asNoTrackingWithIdentityResolution, entityTypeName);
 
         /// <summary>
         ///     Projecting queryable operations on JSON collection is not supported for '{asNoTrackingWithIdentityResolution}'.
@@ -1386,7 +1386,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoActiveTransaction");
 
         /// <summary>
-        ///     No alias is defined on table: '{table}'
+        ///     No alias is defined on table: '{table}'.
         /// </summary>
         public static string NoAliasOnTable(object? table)
             => string.Format(
@@ -2092,7 +2092,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -3509,6 +3509,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.
+        /// </summary>
+        public static EventDefinition<string, string> LogNonTransactionalMigrationOperationWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNonTransactionalMigrationOperationWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogNonTransactionalMigrationOperationWarning,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.NonTransactionalMigrationOperationWarning,
+                        LogLevel.Error,
+                        "RelationalEventId.NonTransactionalMigrationOperationWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.NonTransactionalMigrationOperationWarning,
+                            _resourceManager.GetString("LogNonTransactionalMigrationOperationWarning")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     Opened connection to database '{database}' on server '{server}'.
         /// </summary>
         public static EventDefinition<string, string> LogOpenedConnection(IDiagnosticsLogger logger)
@@ -3628,6 +3653,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
                             _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingProperty")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The model for context '{contextType}' has pending changes. Add a new migration before updating the database.
+        /// </summary>
+        public static EventDefinition<string> LogPendingModelChanges(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogPendingModelChanges;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogPendingModelChanges,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.PendingModelChangesWarning,
+                        LogLevel.Error,
+                        "RelationalEventId.PendingModelChangesWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.PendingModelChangesWarning,
+                            _resourceManager.GetString("LogPendingModelChanges")!)));
             }
 
             return (EventDefinition<string>)definition;

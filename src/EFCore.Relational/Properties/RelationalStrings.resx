@@ -563,7 +563,7 @@
     <value>This node should be handled by provider-specific sql generator.</value>
   </data>
   <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
-    <value>Using parameter to access the element of a JSON collection '{entityTypeName}' is not supported for '{asNoTrackingWithIdentityResolution}'. Use constant, or project the entire JSON entity collection instead.</value>
+    <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>
   </data>
   <data name="JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution" xml:space="preserve">
     <value>When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.</value>
@@ -797,6 +797,10 @@
     <value>No migrations were found in assembly '{migrationsAssembly}'.</value>
     <comment>Debug RelationalEventId.MigrationsNotFound string</comment>
   </data>
+  <data name="LogNonTransactionalMigrationOperationWarning" xml:space="preserve">
+    <value>The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.</value>
+    <comment>Error RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
+  </data>
   <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpened string string</comment>
@@ -816,6 +820,10 @@
   <data name="LogOptionalDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
+  </data>
+  <data name="LogPendingModelChanges" xml:space="preserve">
+    <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database.</value>
+    <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
@@ -1026,11 +1034,11 @@
   <data name="SelectExpressionNonTphWithCustomTable" xml:space="preserve">
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>
   </data>
-  <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
-    <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
-  </data>
   <data name="SelectExpressionUpdateNotSupportedWhileMutable" xml:space="preserve">
     <value>SelectExpression.Update() is not supported while the expression is in mutable state.</value>
+  </data>
+  <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
+    <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
   </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
     <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>

@@ -48,12 +48,7 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
     }
 
     private void CheckDisposed()
-    {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException(nameof(ListLoggerFactory));
-        }
-    }
+        => ObjectDisposedException.ThrowIf(_disposed, typeof(ListLoggerFactory));
 
     public void AddProvider(ILoggerProvider provider)
         => CheckDisposed();

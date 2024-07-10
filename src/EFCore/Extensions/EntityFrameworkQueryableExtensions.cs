@@ -1033,7 +1033,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1069,7 +1069,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1157,7 +1157,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1192,7 +1192,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1280,7 +1280,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1316,7 +1316,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1404,7 +1404,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1440,7 +1440,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1528,7 +1528,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
@@ -1564,7 +1564,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
     ///     A task that represents the asynchronous operation.
-    ///     The task result contains the sum of the projected values..
+    ///     The task result contains the sum of the projected values.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
