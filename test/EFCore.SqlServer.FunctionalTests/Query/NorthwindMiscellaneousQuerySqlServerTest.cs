@@ -7444,6 +7444,17 @@ WHERE (
 """);
     }
 
+    public override async Task Where_nanosecond_and_microsecond_component(bool async)
+    {
+        await base.Where_nanosecond_and_microsecond_component(async);
+
+        AssertSql("""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE (DATEPART(nanosecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL) AND (DATEPART(microsecond, [o].[OrderDate]) % 1000 <> 0 OR [o].[OrderDate] IS NULL)
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

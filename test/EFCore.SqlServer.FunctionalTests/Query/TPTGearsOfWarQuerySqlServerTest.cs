@@ -11852,6 +11852,78 @@ END IN (
 """);
     }
 
+    public override async Task Where_datetimeoffset_microsecond_component(bool async)
+    {
+        await base.Where_datetimeoffset_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Timeline]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_datetimeoffset_nanosecond_component(bool async)
+    {
+        await base.Where_datetimeoffset_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Timeline]) % 1000 = 400
+""");
+    }
+
+    public override async Task Where_timespan_microsecond_component(bool async)
+    {
+        await base.Where_timespan_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Duration]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_timespan_nanosecond_component(bool async)
+    {
+        await base.Where_timespan_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Duration]) % 1000 = 400
+""");
+    }
+
+    public override async Task Where_timeonly_microsecond_component(bool async)
+    {
+        await base.Where_timeonly_microsecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(microsecond, [m].[Time]) % 1000 = 200
+""");
+    }
+
+    public override async Task Where_timeonly_nanosecond_component(bool async)
+    {
+        await base.Where_timeonly_nanosecond_component(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Difficulty], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(nanosecond, [m].[Time]) % 1000 = 400
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

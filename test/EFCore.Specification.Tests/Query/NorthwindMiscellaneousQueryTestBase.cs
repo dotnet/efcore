@@ -5839,4 +5839,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     private static string StaticProperty
         => "ALF";
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_nanosecond_and_microsecond_component(bool async)
+        => AssertQuery(
+            async,
+            // TODO: this is basically just about translation, we don't have data with nanoseconds and microseconds
+            ss => ss.Set<Order>().Where(o => o.OrderDate.Value.Nanosecond != 0 && o.OrderDate.Value.Microsecond != 0),
+            assertEmpty: true);
 }
