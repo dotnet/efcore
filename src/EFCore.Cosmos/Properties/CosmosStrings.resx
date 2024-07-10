@@ -241,9 +241,6 @@
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured. Configure a unique discriminator value for this entity type.</value>
   </data>
-  <data name="NoIdKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.</value>
-  </data>
   <data name="NoIdProperty" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
   </data>
@@ -258,9 +255,6 @@
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
     <value>The partition key properties for entity type '{entityType1}' are '{props1}', while the partition key properties for entity type '{entityType2}' are '{props2}', and both entity types are mapped to the container '{containerName}'. All entity types mapped to the same container must have compatible partition keys defined.</value>
-  </data>
-  <data name="NoPartitionKeyKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
   </data>
   <data name="NoReadItemQueryString" xml:space="preserve">
     <value>There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.</value>

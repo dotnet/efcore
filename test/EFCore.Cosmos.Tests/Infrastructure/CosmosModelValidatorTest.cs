@@ -47,25 +47,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_non_key_id_property()
-    {
-        var modelBuilder = CreateConventionlessModelBuilder();
-        modelBuilder.Entity<Order>(
-            b =>
-            {
-                b.Property(o => o.Id);
-                b.HasKey(o => o.Id);
-                b.Property<string>("id");
-                b.Ignore(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
-
-        VerifyError(CosmosStrings.NoIdKey(nameof(Order), "id"), modelBuilder);
-    }
-
-    [ConditionalFact]
     public virtual void Detects_non_string_id_property()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
@@ -113,26 +94,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             });
 
         Validate(modelBuilder);
-    }
-
-    [ConditionalFact]
-    public virtual void Detects_non_key_partition_key_property()
-    {
-        var modelBuilder = CreateConventionlessModelBuilder();
-        modelBuilder.Entity<Order>(
-            b =>
-            {
-                b.Property(o => o.Id);
-                b.Property<string>("id");
-                b.HasKey("id");
-                b.Property(o => o.PartitionId);
-                b.HasPartitionKey(o => o.PartitionId);
-                b.Ignore(o => o.Customer);
-                b.Ignore(o => o.OrderDetails);
-                b.Ignore(o => o.Products);
-            });
-
-        VerifyError(CosmosStrings.NoPartitionKeyKey(nameof(Order), nameof(Order.PartitionId), "id"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -403,11 +364,16 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Customer>();
         modelBuilder.Entity<Order>(
-            ob =>
+            ob => ob.OwnsOne(o => o.OrderDetails, b =>
             {
-                var ownedType = ob.OwnsOne(o => o.OrderDetails).OwnedEntityType;
-                ownedType.SetContainer("Details");
-            });
+                b.Property<string>(CosmosJsonIdConvention.DefaultIdPropertyName)
+                    .ToJsonProperty(CosmosJsonIdConvention.IdPropertyJsonName);
+            }));
+
+        modelBuilder.Model
+            .GetEntityTypes()
+            .Single(e => e.ClrType == typeof(OrderDetails))
+            .SetContainer("Details");
 
         VerifyError(
             CosmosStrings.OwnedTypeDifferentContainer(

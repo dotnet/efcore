@@ -675,7 +675,7 @@ namespace TestNamespace
                 index: 3,
                 originalValueIndex: -1,
                 shadowIndex: -1,
-                relationshipIndex: 6,
+                relationshipIndex: 5,
                 storeGenerationIndex: -1);
             manyOwned.SetCollectionAccessor<CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>>, ICollection<CompiledModelTestBase.OwnedType>, CompiledModelTestBase.OwnedType>(
                 ICollection<CompiledModelTestBase.OwnedType> (CompiledModelTestBase.PrincipalDerived<CompiledModelTestBase.DependentBase<byte?>> entity) => PrincipalDerivedUnsafeAccessors<CompiledModelTestBase.DependentBase<byte?>>.ManyOwned(entity),

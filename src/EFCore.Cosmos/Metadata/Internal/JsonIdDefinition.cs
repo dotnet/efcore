@@ -20,9 +20,12 @@ public class JsonIdDefinition : IJsonIdDefinition
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public JsonIdDefinition(IReadOnlyList<IProperty> properties)
+    public JsonIdDefinition(
+        IReadOnlyList<IProperty> properties,
+        IEntityType? discriminatorEntityType)
     {
         Properties = properties;
+        DiscriminatorEntityType = discriminatorEntityType;
     }
 
     /// <summary>
@@ -32,6 +35,18 @@ public class JsonIdDefinition : IJsonIdDefinition
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlyList<IProperty> Properties { get; }
+
+    /// <summary>
+    ///     This type is the base type when the base type discriminator is included in the key, and the
+    ///     actual type when the actual type discriminator is included in the key. See <see cref="DiscriminatorInKeyBehavior"/>.
+    /// </summary>
+    /// <para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </para>
+    public virtual IEntityType? DiscriminatorEntityType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,18 +66,28 @@ public class JsonIdDefinition : IJsonIdDefinition
     public virtual string GenerateIdString(IEnumerable<object?> values)
     {
         var builder = new StringBuilder();
+
+        if (DiscriminatorEntityType != null)
+        {
+            AppendValue(DiscriminatorEntityType.FindDiscriminatorProperty()!, DiscriminatorEntityType.GetDiscriminatorValue());
+        }
+
         var i = 0;
         foreach (var value in values)
         {
-            var property = Properties[i++];
-            var converter = property.GetTypeMapping().Converter;
-            AppendString(builder, converter == null ? value : converter.ConvertToProvider(value));
-            builder.Append('|');
+            AppendValue(Properties[i++], value);
         }
 
         builder.Remove(builder.Length - 1, 1);
 
         return builder.ToString();
+
+        void AppendValue(IProperty property, object? value)
+        {
+            var converter = property.GetTypeMapping().Converter;
+            AppendString(builder, converter == null ? value : converter.ConvertToProvider(value));
+            builder.Append('|');
+        }
     }
 
     /// <summary>

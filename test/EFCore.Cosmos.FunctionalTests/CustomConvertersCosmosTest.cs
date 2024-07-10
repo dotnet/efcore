@@ -184,6 +184,8 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = 
         {
             base.OnModelCreating(modelBuilder, context);
 
+            modelBuilder.IncludeDiscriminatorInJsonId();
+
             var shadowJObject = (Property)modelBuilder.Entity<BuiltInDataTypesShadow>().Property("__jObject").Metadata;
             shadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
             var nullableShadowJObject = (Property)modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property("__jObject").Metadata;

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Product = Microsoft.EntityFrameworkCore.TestModels.Northwind.Product;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -36,20 +37,46 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder
-            .Entity<CustomerQuery>()
-            .HasDiscriminator<string>("Discriminator").HasValue("Customer");
+        modelBuilder.Entity<Customer>().ToContainer("Customers");
+        modelBuilder.Entity<Employee>().ToContainer("Employees");
 
-        modelBuilder
-            .Entity<OrderQuery>()
+        modelBuilder.Entity<Order>()
+            .IncludeRootDiscriminatorInJsonId()
+            .ToContainer("ProductsAndOrders");
+
+        modelBuilder.Entity<OrderDetail>()
+            .IncludeRootDiscriminatorInJsonId()
+            .ToContainer("ProductsAndOrders");
+
+        modelBuilder.Entity<Product>()
+            .IncludeRootDiscriminatorInJsonId()
+            .ToContainer("ProductsAndOrders");
+
+        modelBuilder.Entity<OrderQuery>()
+            .ToContainer("ProductsAndOrders")
+            .IncludeRootDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("Order");
 
         modelBuilder
             .Entity<ProductQuery>()
+            .ToContainer("ProductsAndOrders")
+            .IncludeRootDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("Product");
 
         modelBuilder
+            .Entity<ProductView>()
+            .ToContainer("ProductsAndOrders")
+            .IncludeRootDiscriminatorInJsonId()
+            .HasDiscriminator<string>("Discriminator").HasValue("ProductView");
+
+        modelBuilder
             .Entity<CustomerQueryWithQueryFilter>()
+            .ToContainer("Customers")
+            .HasDiscriminator<string>("Discriminator").HasValue("Customer");
+
+        modelBuilder
+            .Entity<CustomerQuery>()
+            .ToContainer("Customers")
             .HasDiscriminator<string>("Discriminator").HasValue("Customer");
 
         modelBuilder.Entity<Customer>().Metadata.RemoveIndex(

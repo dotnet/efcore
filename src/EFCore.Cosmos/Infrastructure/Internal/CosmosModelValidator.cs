@@ -369,7 +369,7 @@ public class CosmosModelValidator : ModelValidator
             }
 
             var idProperty = entityType.GetProperties()
-                .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+                .FirstOrDefault(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
             if (idProperty == null)
             {
                 throw new InvalidOperationException(CosmosStrings.NoIdProperty(entityType.DisplayName()));
@@ -382,11 +382,6 @@ public class CosmosModelValidator : ModelValidator
                 throw new InvalidOperationException(
                     CosmosStrings.IdNonStringStoreType(
                         idProperty.Name, entityType.DisplayName(), idType.ShortDisplayName()));
-            }
-
-            if (!idProperty.IsKey())
-            {
-                throw new InvalidOperationException(CosmosStrings.NoIdKey(entityType.DisplayName(), idProperty.Name));
             }
 
             var partitionKeyPropertyNames = entityType.GetPartitionKeyPropertyNames();
@@ -421,13 +416,6 @@ public class CosmosModelValidator : ModelValidator
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyBadStoreType(
                                 partitionKeyPropertyName, entityType.DisplayName(), partitionKeyType.ShortDisplayName()));
-                    }
-
-                    if (!partitionKey.GetContainingKeys().Any(k => k.Properties.Contains(idProperty)))
-                    {
-                        throw new InvalidOperationException(
-                            CosmosStrings.NoPartitionKeyKey(
-                                entityType.DisplayName(), partitionKeyPropertyName, idProperty.Name));
                     }
                 }
             }

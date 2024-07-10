@@ -34,7 +34,7 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Data),
                 baseEntityType,
                 propertyCount: 8,
-                keyCount: 2);
+                keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
@@ -255,13 +255,13 @@ namespace TestNamespace
                 string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(4),
                 string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(4),
                 string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 5),
-                string (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 2),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(__id),
                 object (ValueBuffer valueBuffer) => valueBuffer[5]);
             __id.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,
                 shadowIndex: 4,
-                relationshipIndex: 2,
+                relationshipIndex: -1,
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
@@ -278,7 +278,6 @@ namespace TestNamespace
                     string (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(__id));
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
             var __jObject = runtimeEntityType.AddProperty(
@@ -356,9 +355,6 @@ namespace TestNamespace
                 new[] { id, partitionId });
             runtimeEntityType.SetPrimaryKey(key);
 
-            var key0 = runtimeEntityType.AddKey(
-                new[] { __id, partitionId });
-
             return runtimeEntityType;
         }
 
@@ -375,9 +371,6 @@ namespace TestNamespace
             var key = runtimeEntityType.FindKey(new[] { id, partitionId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
-            var key0 = runtimeEntityType.FindKey(new[] { __id, partitionId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key0));
-            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
@@ -396,7 +389,7 @@ namespace TestNamespace
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity = ((CompiledModelTestBase.Data)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<int, long?, string>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
+                    return ((ISnapshot)(new Snapshot<int, long?>(((ValueComparer<int>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<int>(id)), (source.GetCurrentValue<long?>(partitionId) == null ? null : ((ValueComparer<long?>)(((IProperty)partitionId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long?>(partitionId))))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 8,
@@ -404,7 +397,7 @@ namespace TestNamespace
                 complexPropertyCount: 0,
                 originalValueCount: 8,
                 shadowCount: 7,
-                relationshipCount: 3,
+                relationshipCount: 2,
                 storeGeneratedCount: 2);
             runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "DataContainer");
             runtimeEntityType.AddAnnotation("Cosmos:ETagName", "_etag");

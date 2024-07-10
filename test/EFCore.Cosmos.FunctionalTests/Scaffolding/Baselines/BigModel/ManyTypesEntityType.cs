@@ -40,7 +40,7 @@ namespace TestNamespace
                 discriminatorProperty: "Discriminator",
                 discriminatorValue: "ManyTypes",
                 propertyCount: 166,
-                keyCount: 2);
+                keyCount: 1);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
@@ -8474,13 +8474,13 @@ namespace TestNamespace
                 string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(1),
                 string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(1),
                 string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 164),
-                string (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 1),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(__id),
                 object (ValueBuffer valueBuffer) => valueBuffer[164]);
             __id.SetPropertyIndexes(
                 index: 164,
                 originalValueIndex: 164,
                 shadowIndex: 1,
-                relationshipIndex: 1,
+                relationshipIndex: -1,
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
@@ -8497,7 +8497,6 @@ namespace TestNamespace
                     string (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(__id));
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
             var __jObject = runtimeEntityType.AddProperty(
@@ -8538,9 +8537,6 @@ namespace TestNamespace
             var key = runtimeEntityType.AddKey(
                 new[] { id });
             runtimeEntityType.SetPrimaryKey(key);
-
-            var key0 = runtimeEntityType.AddKey(
-                new[] { __id });
 
             return runtimeEntityType;
         }
@@ -8716,9 +8712,6 @@ namespace TestNamespace
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<CompiledModelTestBase.ManyTypesId>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<CompiledModelTestBase.ManyTypesId>(key));
-            var key0 = runtimeEntityType.FindKey(new[] { __id });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key0));
-            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key0));
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
@@ -8747,7 +8740,7 @@ namespace TestNamespace
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity5 = ((CompiledModelTestBase.ManyTypes)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId, string>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
+                    return ((ISnapshot)(new Snapshot<CompiledModelTestBase.ManyTypesId>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)(((IProperty)id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 166,
@@ -8755,7 +8748,7 @@ namespace TestNamespace
                 complexPropertyCount: 0,
                 originalValueCount: 166,
                 shadowCount: 3,
-                relationshipCount: 2,
+                relationshipCount: 1,
                 storeGeneratedCount: 2);
 
             Customize(runtimeEntityType);

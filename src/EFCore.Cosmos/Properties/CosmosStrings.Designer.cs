@@ -230,14 +230,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.
-        /// </summary>
-        public static string NoIdKey(object? entityType, object? idProperty)
-            => string.Format(
-                GetString("NoIdKey", nameof(entityType), nameof(idProperty)),
-                entityType, idProperty);
-
-        /// <summary>
         ///     The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.
         /// </summary>
         public static string NoIdProperty(object? entityType)
@@ -274,14 +266,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("NoPartitionKey", nameof(entityType1), nameof(props1), nameof(entityType2), nameof(props2), nameof(containerName)),
                 entityType1, props1, entityType2, props2, containerName);
-
-        /// <summary>
-        ///     The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.
-        /// </summary>
-        public static string NoPartitionKeyKey(object? entityType, object? partitionKey, object? idProperty)
-            => string.Format(
-                GetString("NoPartitionKeyKey", nameof(entityType), nameof(partitionKey), nameof(idProperty)),
-                entityType, partitionKey, idProperty);
 
         /// <summary>
         ///     There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.

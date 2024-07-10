@@ -175,7 +175,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.NotNull(jObject.GetValueComparer());
                 Assert.NotNull(jObject.GetKeyValueComparer());
 
-                Assert.Equal(2, dataEntity.GetKeys().Count());
+                Assert.Equal(1, dataEntity.GetKeys().Count());
 
                 Assert.Equal([id, partitionId, blob, list, map, storeId, jObject, eTag], dataEntity.GetProperties());
             });

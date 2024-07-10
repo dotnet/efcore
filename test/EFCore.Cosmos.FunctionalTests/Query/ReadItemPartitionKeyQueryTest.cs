@@ -165,7 +165,7 @@ WHERE (c["PartitionKey"] = "PK1")
             ss => ss.Set<HierarchicalPartitionKeyEntity>()
                 .Where(e => e.Id == 1 && e.PartitionKey1 == "PK1" && e.PartitionKey2 == partitionKey2 && e.PartitionKey3));
 
-        AssertSql("""ReadItem(["PK1",1.0,true], HierarchicalPartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1",1.0,true], 1)""");
     }
 
     [ConditionalFact]
@@ -175,7 +175,7 @@ WHERE (c["PartitionKey"] = "PK1")
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -187,7 +187,7 @@ WHERE (c["PartitionKey"] = "PK1")
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -199,7 +199,7 @@ WHERE (c["PartitionKey"] = "PK1")
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -209,7 +209,7 @@ WHERE (c["PartitionKey"] = "PK1")
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => 1 == e.Id && "PK1" == e.PartitionKey));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -221,7 +221,7 @@ WHERE (c["PartitionKey"] = "PK1")
                 e => EF.Property<int>(e, nameof(SinglePartitionKeyEntity.Id)) == 1
                     && EF.Property<string>(e, nameof(SinglePartitionKeyEntity.PartitionKey)) == "PK1"));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -232,7 +232,7 @@ WHERE (c["PartitionKey"] = "PK1")
             ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1").Where(e => e.Id == 1),
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1").Where(e => e.Id == 1));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -260,7 +260,7 @@ WHERE ((c["Id"] = 1) AND (c["Id"] = 2))
             async: true,
             ss => ss.Set<NoPartitionKeyEntity>().Where(e => e.Id == 1));
 
-        AssertSql("ReadItem(None, NoPartitionKeyEntity|1)");
+        AssertSql("""ReadItem(None, 1)""");
     }
 
     [ConditionalFact]
@@ -286,7 +286,7 @@ WHERE (c["Id"] = 1)
             ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 999 && e.PartitionKey == "PK1"),
             assertEmpty: true);
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|999)""");
+        AssertSql("""ReadItem(["PK1"], 999)""");
     }
 
     [ConditionalFact]
@@ -296,7 +296,7 @@ WHERE (c["Id"] = 1)
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().AsNoTracking().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -306,7 +306,7 @@ WHERE (c["Id"] = 1)
             async: true,
             ss => ss.Set<SinglePartitionKeyEntity>().AsNoTrackingWithIdentityResolution().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
 
-        AssertSql("""ReadItem(["PK1"], SinglePartitionKeyEntity|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
     [ConditionalFact]
@@ -341,7 +341,7 @@ WHERE (c["Discriminator"] IN ("SharedContainerEntity2", "SharedContainerEntity2C
             async: true,
             ss => ss.Set<SharedContainerEntity2Child>().Where(e => e.Id == 5 && e.PartitionKey == "PK2"));
 
-        AssertSql("""ReadItem(["PK2"], SharedContainerEntity2Child|5)""");
+        AssertSql("""ReadItem(["PK2"], SharedContainerEntity2|5)""");
     }
 
     private void AssertSql(params string[] expected)
@@ -364,18 +364,26 @@ WHERE (c["Discriminator"] IN ("SharedContainerEntity2", "SharedContainerEntity2C
             modelBuilder.Entity<HierarchicalPartitionKeyEntity>()
                 .ToContainer(nameof(HierarchicalPartitionKeyEntity))
                 .HasPartitionKey(h => new { h.PartitionKey1, h.PartitionKey2, h.PartitionKey3 });
+
             modelBuilder.Entity<SinglePartitionKeyEntity>()
                 .ToContainer(nameof(SinglePartitionKeyEntity))
                 .HasPartitionKey(h => h.PartitionKey);
+
             modelBuilder.Entity<NoPartitionKeyEntity>()
                 .ToContainer(nameof(NoPartitionKeyEntity));
+
             modelBuilder.Entity<SharedContainerEntity1>()
                 .ToContainer("SharedContainer")
+                .IncludeRootDiscriminatorInJsonId()
                 .HasPartitionKey(e => e.PartitionKey);
+
             modelBuilder.Entity<SharedContainerEntity2>()
                 .ToContainer("SharedContainer")
+                .IncludeRootDiscriminatorInJsonId()
                 .HasPartitionKey(e => e.PartitionKey);
-            modelBuilder.Entity<SharedContainerEntity2Child>();
+
+            modelBuilder.Entity<SharedContainerEntity2Child>()
+                .IncludeRootDiscriminatorInJsonId();
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -390,6 +391,324 @@ public static class CosmosEntityTypeBuilderExtensions
     public static EntityTypeBuilder<TEntity> UseETagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
         where TEntity : class
         => (EntityTypeBuilder<TEntity>)UseETagConcurrency((EntityTypeBuilder)entityTypeBuilder);
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder AlwaysCreateShadowIdProperty(
+        this EntityTypeBuilder entityTypeBuilder,
+        bool? alwaysCreate = true)
+    {
+        entityTypeBuilder.Metadata.SetAlwaysCreateShadowIdProperty(alwaysCreate);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> AlwaysCreateShadowIdProperty<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        bool? alwaysCreate = true)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)AlwaysCreateShadowIdProperty((EntityTypeBuilder)entityTypeBuilder, alwaysCreate);
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public static IConventionEntityTypeBuilder? AlwaysCreateShadowIdProperty(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? alwaysCreate,
+        bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetAlwaysCreateShadowIdProperty(alwaysCreate, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetAlwaysCreateShadowIdProperty(alwaysCreate, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the setting for always creating the "__id" property can be set
+    ///     from the current configuration source
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetAlwaysCreateShadowIdProperty(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? alwaysCreate,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+        return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, alwaysCreate, fromDataAnnotation);
+    }
+
+    /// <summary>
+    ///     Includes the discriminator value of the entity type in the JSON "id" value. This was the default behavior before EF Core 9.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to include the discriminator, <see langword="false" /> to not include the discriminator,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder IncludeDiscriminatorInJsonId(
+        this EntityTypeBuilder entityTypeBuilder,
+        bool? includeDiscriminator = true)
+    {
+        entityTypeBuilder.Metadata.SetDiscriminatorInKey(
+            includeDiscriminator == null
+                ? null
+                : includeDiscriminator.Value
+                    ? DiscriminatorInKeyBehavior.EntityTypeName
+                    : DiscriminatorInKeyBehavior.None);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Includes the discriminator value of the root entity type in the JSON "id" value. This allows types with the same
+    ///     primary key to be saved in the same container, while still allowing "ReadItem" to be used for lookups of an unknown type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to include the discriminator, <see langword="false" /> to not include the discriminator,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder IncludeRootDiscriminatorInJsonId(
+        this EntityTypeBuilder entityTypeBuilder,
+        bool? includeDiscriminator = true)
+    {
+        entityTypeBuilder.Metadata.SetDiscriminatorInKey(
+            includeDiscriminator == null
+                ? null
+                : includeDiscriminator.Value
+                    ? DiscriminatorInKeyBehavior.RootEntityTypeName
+                    : DiscriminatorInKeyBehavior.None);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Includes the discriminator value of the entity type in the JSON "id" value. This was the default behavior before EF Core 9.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to include the discriminator, <see langword="false" /> to not include the discriminator,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> IncludeDiscriminatorInJsonId<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)IncludeDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
+
+    /// <summary>
+    ///     Includes the discriminator value of the root entity type in the JSON "id" value. This allows types with the same
+    ///     primary key to be saved in the same container, while still allowing "ReadItem" to be used for lookups of an unknown type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to include the discriminator, <see langword="false" /> to not include the discriminator,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static EntityTypeBuilder<TEntity> IncludeRootDiscriminatorInJsonId<TEntity>(
+        this EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true)
+        where TEntity : class
+        => (EntityTypeBuilder<TEntity>)IncludeRootDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
+
+    /// <summary>
+    ///     Includes the discriminator value of the entity type in the JSON "id" value. This was the default behavior before EF Core 9.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public static IConventionEntityTypeBuilder? IncludeDiscriminatorInJsonId(
+        this IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetIncludeDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetDiscriminatorInKey(
+            includeDiscriminator == null
+                ? null
+                : includeDiscriminator.Value
+                    ? DiscriminatorInKeyBehavior.EntityTypeName
+                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Includes the discriminator value of the root entity type in the JSON "id" value. This allows types with the same
+    ///     primary key to be saved in the same container, while still allowing "ReadItem" to be used for lookups of an unknown type.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public static IConventionEntityTypeBuilder? IncludeRootDiscriminatorInJsonId(
+        this IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false)
+    {
+        if (!entityTypeBuilder.CanSetIncludeRootDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        entityTypeBuilder.Metadata.SetDiscriminatorInKey(
+            includeDiscriminator == null
+                ? null
+                : includeDiscriminator.Value
+                    ? DiscriminatorInKeyBehavior.EntityTypeName
+                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+
+        return entityTypeBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the setting for including the discriminator can be set
+    ///     from the current configuration source
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetIncludeDiscriminatorInJsonId(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? includeDiscriminator,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+        return entityTypeBuilder.CanSetAnnotation(
+            CosmosAnnotationNames.DiscriminatorInKey,
+            includeDiscriminator == null
+                ? null
+                : includeDiscriminator.Value
+                    ? DiscriminatorInKeyBehavior.EntityTypeName
+                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+    }
+
+
+    /// <summary>
+    ///     Returns a value indicating whether the setting for including the discriminator can be set
+    ///     from the current configuration source
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="includeDiscriminator">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanSetIncludeRootDiscriminatorInJsonId(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        bool? includeDiscriminator,
+        bool fromDataAnnotation = false)
+    {
+        Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+        return entityTypeBuilder.CanSetAnnotation(
+            CosmosAnnotationNames.DiscriminatorInKey,
+            includeDiscriminator == null
+                ? null
+                : includeDiscriminator.Value
+                    ? DiscriminatorInKeyBehavior.RootEntityTypeName
+                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+    }
 
     /// <summary>
     ///     Configures the time to live for analytical store in seconds at container scope.

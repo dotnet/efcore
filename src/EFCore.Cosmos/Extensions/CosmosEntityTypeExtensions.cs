@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -343,6 +344,96 @@ public static class CosmosEntityTypeExtensions
     /// <returns>The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag.</returns>
     public static IProperty? GetETagProperty(this IEntityType entityType)
         => (IProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
+
+    /// <summary>
+    ///     Returns a value indicating whether model building will always create a "__id" shadow property mapped to the JSON "id".
+    ///     This was the default behavior before EF Core 9.0.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// .</returns>
+    public static bool? GetAlwaysCreateShadowIdProperty(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetAlwaysCreateShadowIdProperty()
+            : (bool?)entityType[CosmosAnnotationNames.AlwaysCreateShadowIdProperty];
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    public static void SetAlwaysCreateShadowIdProperty(this IMutableEntityType entityType, bool? alwaysCreate)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, alwaysCreate);
+
+    /// <summary>
+    ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
+    ///     behavior before EF Core 9.0.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="alwaysCreate">
+    ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
+    ///     <see langword="null" /> to revert to the default setting.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static bool? SetAlwaysCreateShadowIdProperty(
+        this IConventionEntityType entityType,
+        bool? alwaysCreate,
+        bool fromDataAnnotation = false)
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.AlwaysCreateShadowIdProperty, alwaysCreate, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetAlwaysCreateShadowIdProperty"/>.
+    /// </summary>
+    /// <param name="entityType">The entity typer.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetAlwaysCreateShadowIdPropertyConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether the entity type discriminator should be included in the JSON "id" value.
+    ///     Prior to EF Core 9, it was always included. Starting with EF Core 9, it is not included by default.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="DiscriminatorInKeyBehavior"/> or <see langword="null" /> if not set.</returns>
+    public static DiscriminatorInKeyBehavior? GetDiscriminatorInKey(this IReadOnlyEntityType entityType)
+        => entityType.BaseType != null
+            ? entityType.GetRootType().GetDiscriminatorInKey()
+            : (DiscriminatorInKeyBehavior?)entityType[CosmosAnnotationNames.DiscriminatorInKey];
+
+    /// <summary>
+    ///     Includes the entity type discriminator in the JSON "id".
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
+    public static void SetDiscriminatorInKey(this IMutableEntityType entityType, DiscriminatorInKeyBehavior? behavior)
+        => entityType.SetOrRemoveAnnotation(CosmosAnnotationNames.DiscriminatorInKey, behavior);
+
+    /// <summary>
+    ///     Includes the entity type discriminator in the JSON "id".
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    public static DiscriminatorInKeyBehavior? SetDiscriminatorInKey(
+        this IConventionEntityType entityType, DiscriminatorInKeyBehavior? behavior, bool fromDataAnnotation = false)
+        => (DiscriminatorInKeyBehavior?)entityType.SetOrRemoveAnnotation(
+            CosmosAnnotationNames.DiscriminatorInKey, behavior, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetDiscriminatorInKey"/>.
+    /// </summary>
+    /// <param name="entityType">The entity typer.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetDiscriminatorInKeyConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(CosmosAnnotationNames.DiscriminatorInKey)
+            ?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the time to live for analytical store in seconds at container scope.

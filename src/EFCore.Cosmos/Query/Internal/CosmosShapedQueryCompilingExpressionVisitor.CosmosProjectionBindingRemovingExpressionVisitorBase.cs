@@ -610,7 +610,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             IProperty property,
             Type type)
         {
-            if (property.Name == StoreKeyConvention.JObjectPropertyName)
+            if (property.Name == CosmosKeyAugmenterConvention.JObjectPropertyName)
             {
                 return _projectionBindings[jTokenExpression];
             }

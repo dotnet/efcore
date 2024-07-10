@@ -37,7 +37,7 @@ namespace TestNamespace
                 propertyCount: 6,
                 navigationCount: 1,
                 foreignKeyCount: 2,
-                keyCount: 2);
+                keyCount: 1);
 
             var principalId = runtimeEntityType.AddProperty(
                 "PrincipalId",
@@ -207,13 +207,13 @@ namespace TestNamespace
                 string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(3),
                 string (InternalEntityEntry entry) => entry.ReadShadowValue<string>(3),
                 string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 4),
-                string (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 2),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(__id),
                 object (ValueBuffer valueBuffer) => valueBuffer[4]);
             __id.SetPropertyIndexes(
                 index: 4,
                 originalValueIndex: 4,
                 shadowIndex: 3,
-                relationshipIndex: 2,
+                relationshipIndex: -1,
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
@@ -230,7 +230,6 @@ namespace TestNamespace
                     string (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(__id));
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
             var __jObject = runtimeEntityType.AddProperty(
@@ -266,11 +265,8 @@ namespace TestNamespace
             __jObject.AddAnnotation("Cosmos:PropertyName", "");
 
             var key = runtimeEntityType.AddKey(
-                new[] { __id });
-
-            var key0 = runtimeEntityType.AddKey(
                 new[] { principalId, principalAlternateId });
-            runtimeEntityType.SetPrimaryKey(key0);
+            runtimeEntityType.SetPrimaryKey(key);
 
             return runtimeEntityType;
         }
@@ -322,7 +318,7 @@ namespace TestNamespace
                 index: 0,
                 originalValueIndex: -1,
                 shadowIndex: -1,
-                relationshipIndex: 3,
+                relationshipIndex: 2,
                 storeGenerationIndex: -1);
             var dependent = principalEntityType.AddNavigation("Dependent",
                 runtimeForeignKey,
@@ -352,7 +348,7 @@ namespace TestNamespace
                 index: 2,
                 originalValueIndex: -1,
                 shadowIndex: -1,
-                relationshipIndex: 5,
+                relationshipIndex: 4,
                 storeGenerationIndex: -1);
             return runtimeForeignKey;
         }
@@ -365,12 +361,9 @@ namespace TestNamespace
             var id = runtimeEntityType.FindProperty("Id")!;
             var __id = runtimeEntityType.FindProperty("__id")!;
             var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var key = runtimeEntityType.FindKey(new[] { __id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
-            var key0 = runtimeEntityType.FindKey(new[] { principalId, principalAlternateId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key0));
-            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
+            var key = runtimeEntityType.FindKey(new[] { principalId, principalAlternateId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             var principal = runtimeEntityType.FindNavigation("Principal")!;
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
@@ -390,7 +383,7 @@ namespace TestNamespace
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity = ((CompiledModelTestBase.DependentBase<byte?>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long, Guid, string, object>(((ValueComparer<long>)(((IProperty)principalId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))), DependentBaseUnsafeAccessors<byte?>.Principal(entity))));
+                    return ((ISnapshot)(new Snapshot<long, Guid, object>(((ValueComparer<long>)(((IProperty)principalId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalId)), ((ValueComparer<Guid>)(((IProperty)principalAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalAlternateId)), DependentBaseUnsafeAccessors<byte?>.Principal(entity))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 6,
@@ -398,7 +391,7 @@ namespace TestNamespace
                 complexPropertyCount: 0,
                 originalValueCount: 6,
                 shadowCount: 5,
-                relationshipCount: 4,
+                relationshipCount: 3,
                 storeGeneratedCount: 2);
             runtimeEntityType.AddAnnotation("Cosmos:ContainerName", "Dependents");
             runtimeEntityType.AddAnnotation("DiscriminatorMappingComplete", false);

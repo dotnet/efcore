@@ -18,6 +18,15 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
+
+        AssertSql();
+    }
+
     public override async Task Query_loads_reference_nav_automatically_in_projection(bool async)
     {
         // Fink.Barton is a non-owned navigation, cross-document join
@@ -328,16 +337,6 @@ JOIN o IN c["Orders"]
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
-
-    public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-    {
-        // Address.Planet is a non-owned navigation, cross-document join
-        await AssertTranslationFailedWithDetails(
-            () => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async),
-            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Planet), nameof(OwnedPerson)));
-
-        AssertSql();
-    }
 
     // Address.Planet is a non-owned navigation, cross-document join
     public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
@@ -883,7 +882,6 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o[
             CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Barton), nameof(Fink)));
 
         AssertSql();
-
     }
 
     public override async Task Left_join_on_entity_with_owned_navigations(bool async)
@@ -1348,6 +1346,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<OwnedPerson>(
                 eb =>
                 {
+                    eb.ToContainer("OwnedPeople");
                     eb.IndexerProperty<string>("Name");
                     eb.HasData(
                         new
@@ -1503,6 +1502,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<Branch>(
                 eb =>
                 {
+                    eb.ToContainer("OwnedPeople");
                     eb.HasData(
                         new
                         {
@@ -1552,6 +1552,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<LeafA>(
                 eb =>
                 {
+                    eb.ToContainer("OwnedPeople");
                     eb.HasData(
                         new
                         {
@@ -1589,6 +1590,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<LeafB>(
                 eb =>
                 {
+                    eb.ToContainer("OwnedPeople");
                     eb.HasData(
                         new
                         {
@@ -1626,6 +1628,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<Planet>(
                 pb =>
                 {
+                    pb.ToContainer("Planets");
+                    pb.IncludeDiscriminatorInJsonId();
                     pb.HasData(
                         new
                         {
@@ -1638,6 +1642,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<Moon>(
                 mb =>
                 {
+                    mb.ToContainer("Planets");
+                    mb.IncludeDiscriminatorInJsonId();
                     mb.HasData(
                         new
                         {
@@ -1651,6 +1657,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<Star>(
                 sb =>
                 {
+                    sb.ToContainer("Planets");
+                    sb.IncludeDiscriminatorInJsonId();
                     sb.HasData(
                         new
                         {
@@ -1682,6 +1690,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<Barton>(
                 b =>
                 {
+                    b.ToContainer("Bartons");
+                    b.IncludeDiscriminatorInJsonId();
                     b.OwnsOne(
                         e => e.Throned, b => b.HasData(
                             new
@@ -1695,12 +1705,28 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
                         new Barton { Id = 2, Simple = "Not" });
                 });
 
-            modelBuilder.Entity<Fink>().HasData(
-                new { Id = 1, BartonId = 1 });
+            modelBuilder.Entity<Fink>(
+                b =>
+                {
+                    b.ToContainer("Bartons");
+                    b.IncludeDiscriminatorInJsonId();
+                    b.HasData(
+                        new { Id = 1, BartonId = 1 });
+                });
 
-            modelBuilder.Entity<Balloon>();
-            modelBuilder.Entity<HydrogenBalloon>().OwnsOne(e => e.Gas);
-            modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
+            modelBuilder
+                .Entity<Balloon>()
+                .ToContainer("Balloons");
+
+            modelBuilder
+                .Entity<HydrogenBalloon>()
+                .ToContainer("Balloons")
+                .OwnsOne(e => e.Gas);
+
+            modelBuilder
+                .Entity<HeliumBalloon>()
+                .ToContainer("Balloons")
+                .OwnsOne(e => e.Gas);
         }
     }
 }

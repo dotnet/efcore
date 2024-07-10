@@ -36,47 +36,39 @@ public class JsonIdDefinitionFactory : IJsonIdDefinitionFactory
             }
         }
 
-        var idProperty = entityType.GetProperties()
-            .FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+        if (!primaryKeyProperties.Any())
+        {
+            primaryKeyProperties = entityType.GetPartitionKeyProperties().ToList();
+        }
 
         var properties = new List<IProperty>();
 
-        // If the property mapped to the JSON id is simply the primary key, or is the primary key without partition keys, then use
-        // it directly.
-        if ((primaryKeyProperties.Count == 1
-                && primaryKeyProperties[0] == idProperty)
-            || (primaryKey.Properties.Count == 1
-                && primaryKey.Properties[0] == idProperty))
-        {
-            properties.Add(idProperty);
-        }
+        var includeDiscriminator = entityType.GetDiscriminatorInKey() ?? entityType.Model.GetDiscriminatorInKey();
 
-        // Otherwise, if the property mapped to the JSON id doesn't have a generator, then we can't use ReadItem.
-        else if (idProperty != null && idProperty.GetValueGeneratorFactory() == null)
-        {
-            return null;
-        }
-        else
+        IEntityType? discriminatorEntityType = null;
+        if (includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName or DiscriminatorInKeyBehavior.RootEntityTypeName)
         {
             var discriminator = entityType.GetDiscriminatorValue();
-
             // If the discriminator is not part of the primary key already, then add it to the Cosmos `id`.
             if (discriminator != null)
             {
                 var discriminatorProperty = entityType.FindDiscriminatorProperty();
                 if (!primaryKey.Properties.Contains(discriminatorProperty))
                 {
-                    properties.Add(discriminatorProperty!);
+                    // Use the actual type for backwards compat, but the base type to allow lookup using ReadItem.
+                    discriminatorEntityType = includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName
+                        ? entityType
+                        : entityType.GetRootType();
                 }
-            }
-
-            // Next add all primary key properties, except for those that are also partition keys, which were removed above.
-            foreach (var property in primaryKeyProperties)
-            {
-                properties.Add(property);
             }
         }
 
-        return new JsonIdDefinition(properties);
+        // Next add all primary key properties, except for those that are also partition keys, which were removed above.
+        foreach (var property in primaryKeyProperties)
+        {
+            properties.Add(property);
+        }
+
+        return new JsonIdDefinition(properties, discriminatorEntityType);
     }
 }
