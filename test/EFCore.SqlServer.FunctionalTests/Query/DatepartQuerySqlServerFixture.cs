@@ -1,0 +1,26 @@
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+using Microsoft.EntityFrameworkCore.TestModels.DatepartModel;
+
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class DatepartQuerySqlServerFixture : DatepartQueryRelationalFixture
+{
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    {
+        base.OnModelCreating(modelBuilder, context);
+
+        modelBuilder.Entity<Expedition>(o => {
+            o.Property(p => p.StartDate).HasColumnType("datetime2");
+        });
+    }
+
+    //protected override async Task SeedAsync(ExpeditionContext context)
+    //{
+    //    await base.SeedAsync(context);
+    //}
+}

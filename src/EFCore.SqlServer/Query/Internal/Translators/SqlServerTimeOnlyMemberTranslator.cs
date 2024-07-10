@@ -19,7 +19,9 @@ public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
         { nameof(TimeOnly.Hour), "hour" },
         { nameof(TimeOnly.Minute), "minute" },
         { nameof(TimeOnly.Second), "second" },
-        { nameof(TimeOnly.Millisecond), "millisecond" }
+        { nameof(TimeOnly.Millisecond), "millisecond" },
+        { nameof(TimeOnly.Microsecond), "microsecond" },
+        { nameof(TimeOnly.Nanosecond), "nanosecond" }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
