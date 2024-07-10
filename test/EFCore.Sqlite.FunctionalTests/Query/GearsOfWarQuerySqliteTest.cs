@@ -9892,6 +9892,24 @@ END IN (
 """);
     }
 
+    public override Task Where_datetimeoffset_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_microsecond_component(async));
+
+    public override Task Where_datetimeoffset_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_nanosecond_component(async));
+
+    public override Task Where_timespan_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_microsecond_component(async));
+
+    public override Task Where_timespan_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timespan_nanosecond_component(async));
+
+    public override Task Where_timeonly_microsecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_microsecond_component(async));
+
+    public override Task Where_timeonly_nanosecond_component(bool async)
+        => AssertTranslationFailed(() => base.Where_timeonly_nanosecond_component(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
