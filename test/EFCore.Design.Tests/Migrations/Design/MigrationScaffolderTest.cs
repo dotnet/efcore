@@ -123,7 +123,10 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<IModelRuntimeInitializer>(),
                     services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                     services.GetRequiredService<IRelationalCommandDiagnosticsLogger>(),
-                    services.GetRequiredService<IDatabaseProvider>())));
+                    services.GetRequiredService<IDatabaseProvider>(),
+                    services.GetServices<IMigratorPlugin>(),
+                    services.GetRequiredService<IMigrationsModelDiffer>(),
+                    services.GetRequiredService<IDesignTimeModel>())));
     }
 
     // ReSharper disable once UnusedTypeParameter

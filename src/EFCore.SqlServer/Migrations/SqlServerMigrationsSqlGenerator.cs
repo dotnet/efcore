@@ -1738,7 +1738,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     }
 
     /// <summary>
-    ///     Generates a transfer from one schema to another..
+    ///     Generates a transfer from one schema to another.
     /// </summary>
     /// <param name="newSchema">The schema to transfer to.</param>
     /// <param name="schema">The schema to transfer from.</param>

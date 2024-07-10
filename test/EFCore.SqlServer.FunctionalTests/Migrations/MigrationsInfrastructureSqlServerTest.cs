@@ -3,8 +3,10 @@
 
 using Identity30.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 #nullable disable
 
@@ -16,10 +18,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
         public override void Can_apply_all_migrations() // Issue #32826
-            => Assert.Throws<SqlException>(() => base.Can_apply_all_migrations());
+            => Assert.Throws<SqlException>(base.Can_apply_all_migrations);
 
         public override Task Can_apply_all_migrations_async() // Issue #32826
-            => Assert.ThrowsAsync<SqlException>(() => base.Can_apply_all_migrations_async());
+            => Assert.ThrowsAsync<SqlException>(base.Can_apply_all_migrations_async);
+
+        public override void Can_apply_range_of_migrations()
+        {
+            base.Can_apply_range_of_migrations();
+
+            var sql = @"CREATE DATABASE TransactionSuppressed;
+";
+            Assert.Equal(RelationalResources.LogNonTransactionalMigrationOperationWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(sql, "Migration3"),
+                Fixture.TestSqlLoggerFactory.Log.Single(l => l.Id == RelationalEventId.NonTransactionalMigrationOperationWarning).Message);
+        }
 
         public override void Can_generate_migration_from_initial_database_to_initial()
         {
@@ -989,11 +1002,44 @@ GO
         }
 
         [ConditionalFact]
-        public async Task Empty_Migration_Creates_Database()
+        public void Throws_for_pending_model_changes()
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
                     new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.PendingModelChangesWarning.ToString(),
+                    RelationalResources.LogPendingModelChanges(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(nameof(BloggingContext)),
+                    "RelationalEventId.PendingModelChangesWarning"),
+                (Assert.Throws<InvalidOperationException>(context.Database.Migrate)).Message);
+        }
+
+        [ConditionalFact]
+        public async Task Throws_for_pending_model_changes_async()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.PendingModelChangesWarning.ToString(),
+                    RelationalResources.LogPendingModelChanges(new TestLogger<TestRelationalLoggingDefinitions>())
+                        .GenerateMessage(nameof(BloggingContext)),
+                    "RelationalEventId.PendingModelChangesWarning"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.MigrateAsync())).Message);
+        }
+
+        [ConditionalFact]
+        public async Task Empty_Migration_Creates_Database()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
+                .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning)).Options);
             var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
             creator.RetryTimeout = TimeSpan.FromMinutes(10);
 
@@ -1004,7 +1050,6 @@ GO
 
         private class BloggingContext(DbContextOptions options) : DbContext(options)
         {
-
             // ReSharper disable once UnusedMember.Local
             public DbSet<Blog> Blogs { get; set; }
 
