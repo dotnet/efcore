@@ -13,6 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 /// </summary>
 public class MigrationCommandExecutor : IMigrationCommandExecutor
 {
+    private readonly IExecutionStrategy _executionStrategy;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public MigrationCommandExecutor(IExecutionStrategy executionStrategy)
+    {
+        _executionStrategy = executionStrategy;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -24,53 +37,70 @@ public class MigrationCommandExecutor : IMigrationCommandExecutor
         IRelationalConnection connection)
     {
         var userTransaction = connection.CurrentTransaction;
-        if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
+        if (userTransaction is not null
+            && (migrationCommands.Any(x => x.TransactionSuppressed) || _executionStrategy.RetriesOnFailure))
         {
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            connection.Open();
-
-            try
+            var parameters = new ExecuteParameters(migrationCommands.ToList(), connection);
+            if (userTransaction is null)
             {
-                IDbContextTransaction? transaction = null;
-
-                try
-                {
-                    foreach (var command in migrationCommands)
-                    {
-                        if (transaction == null
-                            && !command.TransactionSuppressed
-                            && userTransaction is null)
-                        {
-                            transaction = connection.BeginTransaction();
-                        }
-
-                        if (transaction != null
-                            && command.TransactionSuppressed)
-                        {
-                            transaction.Commit();
-                            transaction.Dispose();
-                            transaction = null;
-                        }
-
-                        command.ExecuteNonQuery(connection);
-                    }
-
-                    transaction?.Commit();
-                }
-                finally
-                {
-                    transaction?.Dispose();
-                }
+                _executionStrategy.Execute(parameters, static (_, p) => Execute(p, beginTransaction: true), verifySucceeded: null);
             }
-            finally
+            else
             {
-                connection.Close();
+                Execute(parameters, beginTransaction: false);
             }
         }
+    }
+
+    private static bool Execute(ExecuteParameters parameters, bool beginTransaction)
+    {
+        var migrationCommands = parameters.MigrationCommands;
+        var connection = parameters.Connection;
+        IDbContextTransaction? transaction = null;
+        connection.Open();
+        try
+        {
+            for (var i = parameters.CurrentCommandIndex; i < migrationCommands.Count; i++)
+            {
+                var command = migrationCommands[i];
+                if (transaction == null
+                    && !command.TransactionSuppressed
+                    && beginTransaction)
+                {
+                    transaction = connection.BeginTransaction();
+                }
+
+                if (transaction != null
+                    && command.TransactionSuppressed)
+                {
+                    transaction.Commit();
+                    transaction.Dispose();
+                    transaction = null;
+                    parameters.CurrentCommandIndex = i;
+                }
+
+                command.ExecuteNonQuery(connection);
+
+                if (transaction == null)
+                {
+                    parameters.CurrentCommandIndex = i + 1;
+                }
+            }
+
+            transaction?.Commit();
+        }
+        finally
+        {
+            transaction?.Dispose();
+            connection.Close();
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -85,7 +115,8 @@ public class MigrationCommandExecutor : IMigrationCommandExecutor
         CancellationToken cancellationToken = default)
     {
         var userTransaction = connection.CurrentTransaction;
-        if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
+        if (userTransaction is not null
+            && (migrationCommands.Any(x => x.TransactionSuppressed) || _executionStrategy.RetriesOnFailure))
         {
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
@@ -93,57 +124,86 @@ public class MigrationCommandExecutor : IMigrationCommandExecutor
         var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         try
         {
-            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-
-            try
+            var parameters = new ExecuteParameters(migrationCommands.ToList(), connection);
+            if (userTransaction is null)
             {
-                IDbContextTransaction? transaction = null;
-
-                try
-                {
-                    foreach (var command in migrationCommands)
-                    {
-                        if (transaction == null
-                            && !command.TransactionSuppressed
-                            && userTransaction is null)
-                        {
-                            transaction = await connection.BeginTransactionAsync(cancellationToken)
-                                .ConfigureAwait(false);
-                        }
-
-                        if (transaction != null
-                            && command.TransactionSuppressed)
-                        {
-                            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-                            await transaction.DisposeAsync().ConfigureAwait(false);
-                            transaction = null;
-                        }
-
-                        await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-
-                    if (transaction != null)
-                    {
-                        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                finally
-                {
-                    if (transaction != null)
-                    {
-                        await transaction.DisposeAsync().ConfigureAwait(false);
-                    }
-                }
+                await _executionStrategy.ExecuteAsync(
+                    parameters,
+                    static (_, p, ct) => ExecuteAsync(p, beginTransaction: true, ct),
+                    verifySucceeded: null,
+                    cancellationToken).ConfigureAwait(false);
             }
-            finally
+            else
             {
-                await connection.CloseAsync().ConfigureAwait(false);
+                await ExecuteAsync(parameters, beginTransaction: false, cancellationToken).ConfigureAwait(false);
             }
+
         }
         finally
         {
             await transactionScope.DisposeAsyncIfAvailable().ConfigureAwait(false);
         }
+    }
+
+    private static async Task<bool> ExecuteAsync(ExecuteParameters parameters, bool beginTransaction, CancellationToken cancellationToken)
+    {
+        var migrationCommands = parameters.MigrationCommands;
+        var connection = parameters.Connection;
+        IDbContextTransaction? transaction = null;
+        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            for (var i = parameters.CurrentCommandIndex; i < migrationCommands.Count; i++)
+            {
+                var command = migrationCommands[i];
+                if (transaction == null
+                    && !command.TransactionSuppressed
+                    && beginTransaction)
+                {
+                    transaction = await connection.BeginTransactionAsync(cancellationToken)
+                        .ConfigureAwait(false);
+                }
+
+                if (transaction != null
+                    && command.TransactionSuppressed)
+                {
+                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                    await transaction.DisposeAsync().ConfigureAwait(false);
+                    transaction = null;
+                    parameters.CurrentCommandIndex = i;
+                }
+
+                await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (transaction == null)
+                {
+                    parameters.CurrentCommandIndex = i + 1;
+                }
+            }
+
+            if (transaction != null)
+            {
+                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            }
+        }
+        finally
+        {
+            if (transaction != null)
+            {
+                await transaction.DisposeAsync().ConfigureAwait(false);
+            }
+
+            await connection.CloseAsync().ConfigureAwait(false);
+        }
+
+        return true;
+    }
+
+    private sealed class ExecuteParameters(List<MigrationCommand> migrationCommands, IRelationalConnection connection)
+    {
+        public int CurrentCommandIndex;
+        public List<MigrationCommand> MigrationCommands { get; } = migrationCommands;
+        public IRelationalConnection Connection { get; } = connection;
     }
 }

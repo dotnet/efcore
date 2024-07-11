@@ -1209,7 +1209,7 @@
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
   <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
-    <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
+    <value>User transaction is not supported with a TransactionSuppressed migrations or a retrying execution strategy.</value>
   </data>
   <data name="TriggerWithMismatchedTable" xml:space="preserve">
     <value>Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -383,6 +384,7 @@ public class Migrator : IMigrator
         var migrationsToApply = migratorData.AppliedMigrations;
         var migrationsToRevert = migratorData.RevertedMigrations;
         var actualTargetMigration = migratorData.TargetMigration;
+        var transactionStarted = false;
         for (var i = 0; i < migrationsToRevert.Count; i++)
         {
             var migration = migrationsToRevert[i];
@@ -396,7 +398,9 @@ public class Migrator : IMigrator
                 ? _historyRepository.GetBeginIfExistsScript(migration.GetId())
                 : null;
 
-            GenerateSqlScript(GenerateDownSql(migration, previousMigration, options), builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
+            GenerateSqlScript(
+                GenerateDownSql(migration, previousMigration, options),
+                builder, _sqlGenerationHelper, ref transactionStarted, noTransactions, idempotencyCondition, idempotencyEnd);
         }
 
         foreach (var migration in migrationsToApply)
@@ -407,7 +411,16 @@ public class Migrator : IMigrator
                 ? _historyRepository.GetBeginIfNotExistsScript(migration.GetId())
                 : null;
 
-            GenerateSqlScript(GenerateUpSql(migration, options), builder, _sqlGenerationHelper, noTransactions, idempotencyCondition, idempotencyEnd);
+            GenerateSqlScript(
+                GenerateUpSql(migration, options),
+                builder, _sqlGenerationHelper, ref transactionStarted, noTransactions, idempotencyCondition, idempotencyEnd);
+        }
+
+        if (!noTransactions && transactionStarted)
+        {
+            builder
+                .AppendLine(_sqlGenerationHelper.CommitTransactionStatement)
+                .Append(_sqlGenerationHelper.BatchTerminator);
         }
 
         return builder.ToString();
@@ -417,11 +430,11 @@ public class Migrator : IMigrator
         IEnumerable<MigrationCommand> commands,
         IndentedStringBuilder builder,
         ISqlGenerationHelper sqlGenerationHelper,
+        ref bool transactionStarted,
         bool noTransactions = false,
         string? idempotencyCondition = null,
         string? idempotencyEnd = null)
     {
-        var transactionStarted = false;
         foreach (var command in commands)
         {
             if (!noTransactions)
@@ -460,13 +473,6 @@ public class Migrator : IMigrator
             }
 
             builder.Append(sqlGenerationHelper.BatchTerminator);
-        }
-
-        if (!noTransactions && transactionStarted)
-        {
-            builder
-                .AppendLine(sqlGenerationHelper.CommitTransactionStatement)
-                .Append(sqlGenerationHelper.BatchTerminator);
         }
     }
 

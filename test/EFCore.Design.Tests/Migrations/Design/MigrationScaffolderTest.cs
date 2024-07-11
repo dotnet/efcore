@@ -91,8 +91,7 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<CommandBatchPreparerDependencies>()),
                 idGenerator,
                 new MigrationsCodeGeneratorSelector(
-                    new[]
-                    {
+                    [
                         new CSharpMigrationsGenerator(
                             new MigrationsCodeGeneratorDependencies(
                                 sqlServerTypeMappingSource,
@@ -105,7 +104,7 @@ public class MigrationsScaffolderTest
                                 new CSharpSnapshotGenerator(
                                     new CSharpSnapshotGeneratorDependencies(
                                         code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
-                    }),
+                    ]),
                 historyRepository,
                 reporter,
                 new MockProvider(),

@@ -68,32 +68,16 @@ CREATE TABLE "Table1" (
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000001_Migration1', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000004_Migration4', '7.0.0-test');
-
-COMMIT;
-
-BEGIN TRANSACTION;
 
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
@@ -102,10 +86,6 @@ Empty Lines')
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000005_Migration5', '7.0.0-test');
 
-COMMIT;
-
-BEGIN TRANSACTION;
-
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
 Value With
 
@@ -113,10 +93,6 @@ Empty Lines')
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000006_Migration6', '7.0.0-test');
-
-COMMIT;
-
-BEGIN TRANSACTION;
 
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
 Value With
@@ -260,10 +236,6 @@ ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
 
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = '00000000000002_Migration2';
-
-COMMIT;
-
-BEGIN TRANSACTION;
 
 DROP TABLE "Table1";
 
