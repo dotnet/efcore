@@ -2022,7 +2022,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("TransactionAssociatedWithDifferentConnection");
 
         /// <summary>
-        ///     User transaction is not supported with a TransactionSuppressed migrations.
+        ///     User transaction is not supported with a TransactionSuppressed migrations or a retrying execution strategy.
         /// </summary>
         public static string TransactionSuppressedMigrationInUserTransaction
             => GetString("TransactionSuppressedMigrationInUserTransaction");

@@ -109,12 +109,6 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 GO
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
 EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
@@ -136,12 +130,6 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000003_Migration3', N'7.0.0-test');
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 GO
 
     CREATE PROCEDURE [dbo].[GotoReproduction]
@@ -170,12 +158,6 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000004_Migration4', N'7.0.0-test');
 GO
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, 3, 'Value With
 
 Empty Lines')
@@ -183,12 +165,6 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000005_Migration5', N'7.0.0-test');
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 GO
 
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, 4, 'GO
@@ -199,12 +175,6 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000006_Migration6', N'7.0.0-test');
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 GO
 
 INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, 5, 'GO
@@ -433,12 +403,6 @@ BEGIN
 END;
 GO
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2'
@@ -492,12 +456,6 @@ BEGIN
 END;
 GO
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000004_Migration4'
@@ -536,12 +494,6 @@ BEGIN
 END;
 GO
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
 IF NOT EXISTS (
     SELECT * FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000005_Migration5'
@@ -561,12 +513,6 @@ BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000005_Migration5', N'7.0.0-test');
 END;
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 GO
 
 IF NOT EXISTS (
@@ -589,12 +535,6 @@ BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000006_Migration6', N'7.0.0-test');
 END;
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 GO
 
 IF NOT EXISTS (
@@ -860,12 +800,6 @@ DELETE FROM [__EFMigrationsHistory]
 WHERE [MigrationId] = N'00000000000002_Migration2';
 GO
 
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
-GO
-
 DROP TABLE [Table1];
 GO
 
@@ -908,12 +842,6 @@ BEGIN
     DELETE FROM [__EFMigrationsHistory]
     WHERE [MigrationId] = N'00000000000002_Migration2';
 END;
-GO
-
-COMMIT;
-GO
-
-BEGIN TRANSACTION;
 GO
 
 IF EXISTS (
@@ -1040,12 +968,202 @@ GO
                 Fixture.TestStore.AddProviderOptions(
                     new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
                 .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning)).Options);
+
+            context.Database.EnsureDeleted();
+            GiveMeSomeTime(context);
+
+            var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+            creator.RetryTimeout = TimeSpan.FromMinutes(10);
+
+            await context.Database.MigrateAsync(null, "Empty");
+
+            Assert.True(creator.Exists());
+        }
+
+        [ConditionalFact]
+        public void Non_transactional_migration_is_retried()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
+                .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning))
+                .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
+
+            context.Database.EnsureDeleted();
+            GiveMeSomeTime(context);
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
+            var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+            creator.RetryTimeout = TimeSpan.FromMinutes(10);
+
+            context.Database.Migrate();
+
+            Assert.Equal(
+                """
+CREATE DATABASE [MigrationsTest];
+
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [MigrationsTest] SET READ_COMMITTED_SNAPSHOT ON;
+END;
+
+SELECT 1
+
+@LockTimeout='?' (DbType = Double)
+
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+SELECT @result
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+CREATE TABLE [__EFMigrationsHistory] (
+    [MigrationId] nvarchar(150) NOT NULL,
+    [ProductVersion] nvarchar(32) NOT NULL,
+    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+);
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+
+--Before
+
+IF OBJECT_ID(N'Blogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE [Blogs] (
+        [Id] int NOT NULL,
+        [Name] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Blogs] PRIMARY KEY ([Id])
+    );
+
+    THROW 65536, 'Test', 0;
+END
+
+IF OBJECT_ID(N'Blogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE [Blogs] (
+        [Id] int NOT NULL,
+        [Name] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Blogs] PRIMARY KEY ([Id])
+    );
+
+    THROW 65536, 'Test', 0;
+END
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+
+--After
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+""",
+                Fixture.TestSqlLoggerFactory.Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalFact]
+        public async Task Non_transactional_migration_is_retried_async()
+        {
+            using var context = new BloggingContext(
+                Fixture.TestStore.AddProviderOptions(
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
+                .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning))
+                .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
+
+            context.Database.EnsureDeleted();
+            GiveMeSomeTime(context);
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
             var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
             creator.RetryTimeout = TimeSpan.FromMinutes(10);
 
             await context.Database.MigrateAsync();
 
-            Assert.True(creator.Exists());
+            Assert.Equal(
+                """
+CREATE DATABASE [MigrationsTest];
+
+IF SERVERPROPERTY('EngineEdition') <> 5
+BEGIN
+    ALTER DATABASE [MigrationsTest] SET READ_COMMITTED_SNAPSHOT ON;
+END;
+
+SELECT 1
+
+@LockTimeout='?' (DbType = Double)
+
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+SELECT @result
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+CREATE TABLE [__EFMigrationsHistory] (
+    [MigrationId] nvarchar(150) NOT NULL,
+    [ProductVersion] nvarchar(32) NOT NULL,
+    CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+);
+
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+
+--Before
+
+IF OBJECT_ID(N'Blogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE [Blogs] (
+        [Id] int NOT NULL,
+        [Name] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Blogs] PRIMARY KEY ([Id])
+    );
+
+    THROW 65536, 'Test', 0;
+END
+
+IF OBJECT_ID(N'Blogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE [Blogs] (
+        [Id] int NOT NULL,
+        [Name] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Blogs] PRIMARY KEY ([Id])
+    );
+
+    THROW 65536, 'Test', 0;
+END
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+
+--After
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+""",
+                Fixture.TestSqlLoggerFactory.Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         private class BloggingContext(DbContextOptions options) : DbContext(options)
@@ -1066,9 +1184,49 @@ GO
 
         [DbContext(typeof(BloggingContext))]
         [Migration("00000000000000_Empty")]
-        public class EmptyMigration : Migration
+        private class EmptyMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
+            {
+            }
+        }
+
+        [DbContext(typeof(BloggingContext))]
+        [Migration("00000000000001_Migration1")]
+        private class BloggingMigration1 : Migration
+        {
+            protected override void Up(MigrationBuilder migrationBuilder)
+            {
+                migrationBuilder.Sql("--Before", suppressTransaction: true);
+                migrationBuilder.Sql("""
+IF OBJECT_ID(N'Blogs', N'U') IS NULL
+BEGIN
+    CREATE TABLE [Blogs] (
+        [Id] int NOT NULL,
+        [Name] nvarchar(max) NOT NULL,
+        CONSTRAINT [PK_Blogs] PRIMARY KEY ([Id])
+    );
+
+    THROW 65536, 'Test', 0;
+END
+""", suppressTransaction: true);
+            }
+
+            protected override void Down(MigrationBuilder migrationBuilder)
+            {
+            }
+        }
+
+        [DbContext(typeof(BloggingContext))]
+        [Migration("00000000000002_Migration2")]
+        private class BloggingMigration2 : Migration
+        {
+            protected override void Up(MigrationBuilder migrationBuilder)
+            {
+                migrationBuilder.Sql("--After");
+            }
+
+            protected override void Down(MigrationBuilder migrationBuilder)
             {
             }
         }
@@ -1925,6 +2083,9 @@ DROP DATABASE TransactionSuppressed");
                     .Options;
                 return new MigrationsContext(options);
             }
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => base.ShouldLogCategory(logCategory);
         }
     }
 }
