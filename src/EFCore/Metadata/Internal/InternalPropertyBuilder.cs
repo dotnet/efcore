@@ -192,7 +192,7 @@ public class InternalPropertyBuilder
             {
                 return Equals(Metadata.Sentinel, Convert.ChangeType(sentinel, Metadata.ClrType, CultureInfo.InvariantCulture));
             }
-            catch (Exception)
+            catch
             {
                 throw new InvalidOperationException(
                     CoreStrings.IncompatibleSentinelValue(

@@ -173,6 +173,18 @@ public class MigrationsScaffolderTest
 
         public string GetInsertScript(HistoryRow row)
             => null;
+
+        public void Create()
+            => throw new NotImplementedException();
+
+        public Task CreateAsync(CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public IDisposable GetDatabaseLock(TimeSpan timeout)
+            => throw new NotImplementedException();
+
+        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
     }
 
     private class MockProvider : IDatabaseProvider

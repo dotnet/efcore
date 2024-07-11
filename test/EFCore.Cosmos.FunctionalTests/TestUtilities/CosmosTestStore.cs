@@ -304,13 +304,13 @@ public class CosmosTestStore : TestStore
                 await SeedAsync(context).ConfigureAwait(false);
             }
         }
-        catch (Exception)
+        catch
         {
             try
             {
                 await EnsureDeletedAsync(context).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
             }
 

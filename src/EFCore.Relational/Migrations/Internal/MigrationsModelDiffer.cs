@@ -2047,7 +2047,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             value = propertyInfo.GetValue(seed, [property.Name]);
                         }
-                        catch (Exception)
+                        catch
                         {
                             return (null, false);
                         }
