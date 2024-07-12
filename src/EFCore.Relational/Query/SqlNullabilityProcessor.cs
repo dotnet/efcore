@@ -579,23 +579,15 @@ public class SqlNullabilityProcessor
         }
 
         // optimize expressions such as expr != null ? expr : null and expr == null ? null : expr
-        if (testIsCondition && whenClauses is [var clause] && (elseResult == null || IsNull(clause.Result)))
+        if (testIsCondition && whenClauses is [var clause] && (elseResult is null || IsNull(clause.Result)))
         {
             HashSet<SqlExpression> nullPropagatedOperands = [];
-            SqlExpression test, expr;
 
-            if (elseResult == null)
-            {
-                expr = clause.Result;
-                test = clause.Test;
-            }
-            else
-            {
-                expr = elseResult;
-                test = _sqlExpressionFactory.Not(clause.Test);
-            }
+            var (test, expr) = elseResult is null
+                ? (clause.Test, clause.Result)
+                : (_sqlExpressionFactory.Not(clause.Test), elseResult);
 
-            NullPropagatedOperands(expr, nullPropagatedOperands);
+            DetectNullPropagatingNodes(expr, nullPropagatedOperands);
             test = DropNotNullChecks(test, nullPropagatedOperands);
 
             if (IsTrue(test))
@@ -632,38 +624,38 @@ public class SqlNullabilityProcessor
             };
 
         // FIXME: unify nullability computations
-        static void NullPropagatedOperands(SqlExpression expression, HashSet<SqlExpression> operands)
+        static void DetectNullPropagatingNodes(SqlExpression expression, HashSet<SqlExpression> operands)
         {
             operands.Add(expression);
 
-            if (expression is SqlUnaryExpression unary
-                && unary.OperatorType is ExpressionType.Not or ExpressionType.Negate or ExpressionType.Convert)
+            switch (expression)
             {
-                NullPropagatedOperands(unary.Operand, operands);
-            }
-            else if (expression is SqlBinaryExpression binary
-                && binary.OperatorType is not (ExpressionType.AndAlso or ExpressionType.OrElse))
-            {
-                NullPropagatedOperands(binary.Left, operands);
-                NullPropagatedOperands(binary.Right, operands);
-            }
-            else if (expression is SqlFunctionExpression { IsNullable: true } func)
-            {
-                if (func.InstancePropagatesNullability == true)
-                {
-                    NullPropagatedOperands(func.Instance!, operands);
-                }
+                case SqlUnaryExpression { OperatorType: not (ExpressionType.Equal or ExpressionType.NotEqual) } unary:
+                    DetectNullPropagatingNodes(unary.Operand, operands);
+                    break;
 
-                if (!func.IsNiladic)
-                {
-                    for (var i = 0; i < func.ArgumentsPropagateNullability.Count; i++)
+                case SqlBinaryExpression { OperatorType: not (ExpressionType.AndAlso or ExpressionType.OrElse) } binary:
+                    DetectNullPropagatingNodes(binary.Left, operands);
+                    DetectNullPropagatingNodes(binary.Right, operands);
+                    break;
+
+                case SqlFunctionExpression { IsNullable: true } func:
+                    if (func.InstancePropagatesNullability is true)
                     {
-                        if (func.ArgumentsPropagateNullability[i])
+                        DetectNullPropagatingNodes(func.Instance!, operands);
+                    }
+
+                    if (!func.IsNiladic)
+                    {
+                        for (var i = 0; i < func.ArgumentsPropagateNullability.Count; i++)
                         {
-                            NullPropagatedOperands(func.Arguments[i], operands);
+                            if (func.ArgumentsPropagateNullability[i])
+                            {
+                                DetectNullPropagatingNodes(func.Arguments[i], operands);
+                            }
                         }
                     }
-                }
+                    break;
             }
         }
     }
