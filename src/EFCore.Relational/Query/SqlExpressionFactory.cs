@@ -720,9 +720,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             var test = caseWhenClause.Test;
 
-            if (operand == null && test is CaseExpression { Operand: null, WhenClauses: [var clause] } testExpr)
+            if (operand == null && test is CaseExpression { Operand: null, WhenClauses: [var nestedSingleClause] } testExpr)
             {
-                if (IsTrue(clause.Result) && (testExpr.ElseResult == null || IsFalsy(testExpr.ElseResult)))
+                if (nestedSingleClause.Result is SqlConstantExpression { Value: true }
+                    && testExpr.ElseResult is null or SqlConstantExpression { Value: false or null })
                 {
                     // WHEN CASE
                     //   WHEN x THEN TRUE
@@ -730,12 +731,13 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     // END THEN y
                     // simplifies to
                     // WHEN x THEN y
-                    test = clause.Test;
+                    test = nestedSingleClause.Test;
                 }
-                else if (IsFalsy(clause.Result) && testExpr.ElseResult != null && IsTrue(testExpr.ElseResult))
+                else if (nestedSingleClause.Result is SqlConstantExpression { Value: false or null }
+                    && testExpr.ElseResult is SqlConstantExpression { Value: true })
                 {
                     // same for the negated results
-                    test = Not(clause.Test);
+                    test = Not(nestedSingleClause.Test);
                 }
             }
 
@@ -818,17 +820,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ? expr
             : new CaseExpression(operand, typeMappedWhenClauses, elseResult);
 
-        bool IsFalsy(SqlExpression expr)
-            => expr is SqlConstantExpression { Value: false or null };
-
-        bool IsTrue(SqlExpression expr)
-            => expr is SqlConstantExpression { Value: true };
-
         bool IsSkipped(CaseWhenClause clause)
-            => operand is null && IsFalsy(clause.Test);
+            => operand is null && clause.Test is SqlConstantExpression { Value: false or null };
 
         bool IsMatched(CaseWhenClause clause)
-            => operand is null && IsTrue(clause.Test);
+            => operand is null && clause.Test is SqlConstantExpression { Value: true };
     }
 
     /// <inheritdoc />
