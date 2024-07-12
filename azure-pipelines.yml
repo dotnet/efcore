@@ -18,7 +18,6 @@ variables:
     - name: PostBuildSign
       value: true
   - group: DotNet-HelixApi-Access
-  - group: DotNetBuilds storage account read tokens
   - group: AzureDevOps-Artifact-Feeds-Pats
   - name: _InternalRuntimeDownloadArgs
     value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
@@ -117,6 +116,7 @@ extends:
                   arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -144,6 +144,7 @@ extends:
                   arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
@@ -185,6 +186,7 @@ extends:
                   arguments: $(Build.SourcesDirectory)/NuGet.config $Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 displayName: Build
             templateContext:
@@ -224,6 +226,16 @@ extends:
                   arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                 env:
                   Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - template: /eng/common/templates-official/steps/enable-internal-runtimes.yml
+              - template: /eng/common/templates-official/steps/get-delegation-sas.yml
+                parameters:
+                  federatedServiceConnection: 'dotnetbuilds-internal-read'
+                  outputVariableName: 'dotnetbuilds-internal-container-read-token'
+                  expiryInHours: 1
+                  base64Encode: false
+                  storageAccount: dotnetbuilds
+                  container: internal
+                  permissions: rl
               - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                 displayName: Restore packages
               - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
