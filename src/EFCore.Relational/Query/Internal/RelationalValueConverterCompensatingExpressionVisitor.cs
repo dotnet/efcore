@@ -72,7 +72,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
 
         var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);
 
-        return caseExpression.Update(operand, whenClauses, elseResult);
+        return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
     }
 
     private Expression VisitSelect(SelectExpression selectExpression)

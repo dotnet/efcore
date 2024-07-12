@@ -1065,7 +1065,6 @@ SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthNa
 FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-    ELSE NULL
 END = 5
 """);
     }
@@ -1562,7 +1561,6 @@ SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthNa
 FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN "g"."LeaderNickname" LIKE '%us'
-    ELSE NULL
 END
 """);
     }
@@ -1772,7 +1770,6 @@ WHERE 0
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."Nickname") = 5
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 """);
@@ -2269,10 +2266,8 @@ FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL AND NOT (CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."HasSoulPatch"
-    ELSE NULL
 END)
 ORDER BY "t"."Note"
 """);
@@ -2395,7 +2390,6 @@ WHERE COALESCE("w"."SynergyWithId", "w"."Id") = 1
             """
 SELECT substr(CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END, 0 + 1, 3)
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
@@ -2738,7 +2732,6 @@ FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END + 1 = 2
 """);
     }
@@ -2876,16 +2869,13 @@ FROM "Missions" AS "m"
             """
 SELECT CASE
     WHEN "f"."Name" = 'Locust' THEN 1
-    ELSE NULL
 END AS "IsEradicated", "f"."CommanderName", "f"."Name"
 FROM "LocustLeaders" AS "l"
 INNER JOIN "Factions" AS "f" ON "l"."Name" = "f"."CommanderName"
 WHERE CASE
     WHEN "f"."Name" = 'Locust' THEN 1
-    ELSE NULL
 END = 0 OR CASE
     WHEN "f"."Name" = 'Locust' THEN 1
-    ELSE NULL
 END IS NULL
 """);
     }
@@ -3012,13 +3002,11 @@ GROUP BY "u"."Name", "u"."Count"
             """
 SELECT CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END AS "Id"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL
 ORDER BY "t"."Note"
 """);
@@ -3205,7 +3193,6 @@ FROM "Squads" AS "s"
             """
 SELECT CASE
     WHEN "c"."Name" IS NOT NULL THEN "c"."Name"
-    ELSE NULL
 END
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
@@ -3313,7 +3300,6 @@ WHERE instr("s"."Banner", char("l"."ThreatLevelByte")) > 0
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."Nickname") = 5
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 """);
@@ -3647,19 +3633,15 @@ WHERE "s"."Name" = 'Kilo'
             """
 SELECT CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN length("g"."Nickname")
-    ELSE NULL
 END, CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END, CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END + 1
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL
 ORDER BY "t"."Note"
 """);
@@ -3846,7 +3828,6 @@ ORDER BY "w0"."Name" LIKE '%Lancer' AND "w0"."Name" IS NOT NULL
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN 0
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 """);
@@ -4616,7 +4597,6 @@ FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END = 1
 """);
     }
@@ -4856,13 +4836,11 @@ FROM "Gears" AS "g"
             """
 SELECT "t"."Note", substr("t"."Note", 0 + 1, CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END) AS "Function"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -4990,19 +4968,15 @@ WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (
             """
 SELECT CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN length("g"."Nickname")
-    ELSE NULL
 END, CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END, CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END + 1
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL
 ORDER BY "t"."Note"
 """);
@@ -5289,7 +5263,6 @@ FROM (
             """
 SELECT "g0"."Nickname", CASE
     WHEN "g0"."Nickname" IS NOT NULL AND "g0"."SquadId" IS NOT NULL THEN "g0"."LeaderNickname" IS NOT NULL
-    ELSE NULL
 END AS "Condition"
 FROM "Gears" AS "g"
 LEFT JOIN "Gears" AS "g0" ON "g"."HasSoulPatch"
@@ -5642,7 +5615,6 @@ FROM "Gears" AS "g"
             """
 SELECT CASE
     WHEN "s"."Id" IS NOT NULL THEN "c"."Name"
-    ELSE NULL
 END
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
@@ -5820,7 +5792,6 @@ WHERE "g"."Nickname" = "g0"."Nickname" AND "g"."SquadId" = "g0"."SquadId"
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN "g"."LeaderNickname" || "g"."LeaderNickname"
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 """);
@@ -6471,7 +6442,6 @@ LEFT JOIN (
             """
 SELECT CASE
     WHEN "f"."CommanderName" IS NOT NULL THEN "f"."CommanderName"
-    ELSE NULL
 END
 FROM "Factions" AS "f"
 """);
@@ -6732,11 +6702,9 @@ FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL
 ORDER BY CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END, "t"."Note"
 """);
     }
@@ -7417,7 +7385,6 @@ WHERE "g"."HasSoulPatch"
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN 1
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 """);
@@ -7552,7 +7519,6 @@ SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthNa
 FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."LeaderNickname")
-    ELSE NULL
 END = 5
 """);
     }
@@ -8144,13 +8110,11 @@ WHERE "t"."Id" IN (
             """
 SELECT "t"."Note", CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-    ELSE NULL
 END + 1 AS "Value"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 WHERE CASE
     WHEN "t"."GearNickName" IS NOT NULL THEN "g"."Nickname"
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -8182,7 +8146,6 @@ ORDER BY "g"."FullName", "g"."Nickname", "g"."SquadId", "s"."Id", "s1"."SquadId"
             """
 SELECT CASE
     WHEN "f"."CommanderName" IS NOT NULL THEN "f"."Eradicated"
-    ELSE NULL
 END
 FROM "Factions" AS "f"
 """);
@@ -8226,12 +8189,10 @@ END
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."Nickname") = 5
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 ORDER BY CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN length("g"."Nickname") = 5
-    ELSE NULL
 END IS NOT NULL
 """);
     }
@@ -8635,7 +8596,6 @@ ORDER BY "g"."Nickname"
             """
 SELECT CASE
     WHEN "g"."LeaderNickname" IS NOT NULL THEN "g0"."LeaderNickname"
-    ELSE NULL
 END
 FROM "Gears" AS "g"
 CROSS JOIN "Gears" AS "g0"
@@ -8934,7 +8894,6 @@ ORDER BY "t"."Note"
 SELECT CASE
     WHEN "t"."Note" <> 'K.I.A.' OR "t"."Note" IS NULL THEN CASE
         WHEN "t"."GearNickName" IS NOT NULL THEN "g"."SquadId"
-        ELSE NULL
     END
     ELSE -1
 END

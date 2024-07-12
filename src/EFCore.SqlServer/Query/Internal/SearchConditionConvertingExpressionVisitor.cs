@@ -132,7 +132,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 
         _isSearchCondition = parentSearchCondition;
 
-        return ApplyConversion(caseExpression.Update(operand, whenClauses, elseResult), condition: false);
+        return ApplyConversion(_sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression), condition: false);
     }
 
     /// <summary>

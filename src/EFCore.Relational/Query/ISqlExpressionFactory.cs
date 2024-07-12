@@ -252,8 +252,13 @@ public interface ISqlExpressionFactory
     /// <param name="operand">An expression to compare with <see cref="CaseWhenClause.Test" /> in <paramref name="whenClauses" />.</param>
     /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to compare or evaluate and get result from.</param>
     /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
+    /// <param name="existingExpr">An optional expression that can be re-used if it matches the new expression.</param>
     /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
-    SqlExpression Case(SqlExpression? operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult);
+    SqlExpression Case(
+        SqlExpression? operand,
+        IReadOnlyList<CaseWhenClause> whenClauses,
+        SqlExpression? elseResult,
+        SqlExpression? existingExpr = null);
 
     /// <summary>
     ///     Creates a new <see cref="CaseExpression" /> which represent a CASE statement in a SQL tree.

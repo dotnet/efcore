@@ -1009,16 +1009,24 @@ END, [p].[ProductID]
     }
 
     public override async Task OrderBy_ternary_conditions(bool async)
-        => await base.OrderBy_ternary_conditions(async);
+    {
+        await base.OrderBy_ternary_conditions(async);
 
-    // issue #18774
-    //            AssertSql(
-    //                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-    //FROM [Products] AS [p]
-    //ORDER BY CASE
-    //    WHEN (([p].[UnitsInStock] > CAST(10 AS smallint)) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= CAST(10 AS smallint)) AND ([p].[ProductID] <= 40))
-    //    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-    //END, [p].[ProductID]");
+        AssertSql(
+            """
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+ORDER BY CASE
+    WHEN [p].[UnitsInStock] > CAST(10 AS smallint) THEN CASE
+        WHEN [p].[ProductID] > 40 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [p].[ProductID] <= 40 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [p].[ProductID]
+""");
+    }
+
     public override async Task OrderBy_any(bool async)
     {
         await base.OrderBy_any(async);
@@ -5873,7 +5881,6 @@ SELECT [c].[CustomerID], CASE
         SELECT TOP(1) [o0].[OrderDate]
         FROM [Orders] AS [o0]
         WHERE [c].[CustomerID] = [o0].[CustomerID])
-    ELSE NULL
 END AS [OrderDate]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'
