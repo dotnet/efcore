@@ -2247,7 +2247,7 @@ SELECT [o].[CustomerId], (
     FROM [Order] AS [o0]
     WHERE [o0].[CustomerId] = [o].[CustomerId]) AS [CustomerMinHourlyRate], MIN([o].[HourlyRate]) AS [HourlyRate], COUNT(*) AS [Count]
 FROM [Order] AS [o]
-WHERE [o].[Number] <> N'A1' OR [o].[Number] IS NULL
+WHERE [o].[Number] IS DISTINCT FROM N'A1'
 GROUP BY [o].[CustomerId], [o].[Number]
 """);
     }
@@ -2261,7 +2261,7 @@ GROUP BY [o].[CustomerId], [o].[Number]
 SELECT [t].[Value] AS [A], (
     SELECT MAX([t0].[Id])
     FROM [Tables] AS [t0]
-    WHERE [t0].[Value] = MAX([t].[Id]) * 6 OR ([t0].[Value] IS NULL AND MAX([t].[Id]) IS NULL)) AS [B]
+    WHERE [t0].[Value] IS NOT DISTINCT FROM MAX([t].[Id]) * 6) AS [B]
 FROM [Tables] AS [t]
 GROUP BY [t].[Value]
 """);
