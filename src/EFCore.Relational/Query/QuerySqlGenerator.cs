@@ -825,6 +825,10 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                         GenerateIn(inExpression, negated: true);
                         break;
 
+                    case IsDistinctFromExpression isDistinctFromExpression:
+                        GenerateIsDistinctFrom(isDistinctFromExpression, negated: true);
+                        break;
+
                     case ExistsExpression existsExpression:
                         GenerateExists(existsExpression, negated: true);
                         break;
@@ -996,6 +1000,54 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         _relationalCommandBuilder.Append(")");
+    }
+
+    /// <summary>
+    ///     Generates SQL for an IS DISTINCT FROM expression.
+    /// </summary>
+    /// <param name="isExpression">The <see cref="InExpression" /> for which to generate SQL.</param>
+    protected sealed override Expression VisitIsDistinctFrom(IsDistinctFromExpression isExpression)
+    {
+        GenerateIsDistinctFrom(isExpression, negated: false);
+
+        return isExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for an IS DISTINCT FROM expression.
+    /// </summary>
+    /// <param name="isDistinctFromExpression">The <see cref="IsDistinctFromExpression" /> for which to generate SQL.</param>
+    /// <param name="negated">Whether the given <paramref name="isDistinctFromExpression" /> is negated.</param>
+    protected virtual void GenerateIsDistinctFrom(IsDistinctFromExpression isDistinctFromExpression, bool negated)
+    {
+        var requiresBrackets = RequiresParentheses(isDistinctFromExpression, isDistinctFromExpression.Left);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(isDistinctFromExpression.Left);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
+
+        _relationalCommandBuilder.Append(negated
+            ? " IS NOT DISTINCT FROM "
+            : " IS DISTINCT FROM "
+        );
+
+        requiresBrackets = RequiresParentheses(isDistinctFromExpression, isDistinctFromExpression.Right);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(isDistinctFromExpression.Right);
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
     }
 
     /// <summary>
@@ -1689,7 +1741,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 return true;
             }
 
-            case CollateExpression or LikeExpression or AtTimeZoneExpression or JsonScalarExpression:
+            case CollateExpression or LikeExpression or AtTimeZoneExpression or JsonScalarExpression or IsDistinctFromExpression:
                 return !TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
                     || !TryGetOperatorInfo(innerExpression, out innerPrecedence, out _)
                     || outerPrecedence >= innerPrecedence;

@@ -1126,7 +1126,7 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             // we assume that NullSemantics rewrite is only needed (on the current level)
             // if the optimization didn't make any changes.
             // Reason is that optimization can/will change the nullability of the resulting expression
-            // and that inforation is not tracked/stored anywhere
+            // and that information is not tracked/stored anywhere
             // so we can no longer rely on nullabilities that we computed earlier (leftNullable, rightNullable)
             // when performing null semantics rewrite.
             // It should be fine because current optimizations *radically* change the expression
@@ -1136,16 +1136,19 @@ public class SqlNullabilityProcessor : ExpressionVisitor
                 && (leftNullable || rightNullable)
                 && !UseRelationalNulls)
             {
-                var rewriteNullSemanticsResult = RewriteNullSemantics(
-                    updated,
-                    updated.Left,
-                    updated.Right,
+                // optimized expansion which doesn't distinguish between null and false
+                if (optimize && leftNullable != rightNullable && sqlBinaryExpression.OperatorType is ExpressionType.Equal)
+                {
+                    nullable = true;
+                    return OptimizeBooleanComparison(sqlBinaryExpression, left, right, optimize);
+                }
+
+                return ApplyEqualityNullSemantics(
+                    sqlBinaryExpression,
                     leftNullable,
                     rightNullable,
                     optimize,
                     out nullable);
-
-                return rewriteNullSemanticsResult;
             }
 
             return optimized;
@@ -1592,15 +1595,28 @@ public class SqlNullabilityProcessor : ExpressionVisitor
             : _sqlExpressionFactory.Equal(left, right);
     }
 
-    private SqlExpression RewriteNullSemantics(
+    /// <summary>
+    ///     Transform an (in)equality expression into another expression that
+    ///     takes null semantics into account, i.e. the resulting expression
+    ///     returns true when comparing two `NULL`s and never returns `NULL`
+    ///     except when `optimize` is true.
+    /// </summary>
+    /// <param name="sqlBinaryExpression">The input (in)equality.</param>
+    /// <param name="leftNullable">Whether the left sub-expression is nullable.</param>
+    /// <param name="rightNullable">Whether the right sub-expression is nullable.</param>
+    /// <param name="optimize">Whether a `NULL` is a valid alternative to `FALSE` in the result.</param>
+    /// <param name="nullable">Whether the resulting expression is nullable.</param>
+    /// <returns>An expression representing the given (in)equality.</returns>
+    protected virtual SqlExpression ApplyEqualityNullSemantics(
         SqlBinaryExpression sqlBinaryExpression,
-        SqlExpression left,
-        SqlExpression right,
         bool leftNullable,
         bool rightNullable,
         bool optimize,
         out bool nullable)
     {
+        var left = sqlBinaryExpression.Left;
+        var right = sqlBinaryExpression.Right;
+
         var leftIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(left), leftNullable);
         var leftIsNotNull = _sqlExpressionFactory.Not(leftIsNull);
 
