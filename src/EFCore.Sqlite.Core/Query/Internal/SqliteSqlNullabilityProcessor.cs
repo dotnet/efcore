@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
 {
+    private static readonly bool _useIsDistinctFrom = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 8, 11);
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -106,6 +109,37 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
         }
 
         return result;
+    }
+
+    /// <inheritdoc/>
+    protected override SqlExpression ApplyEqualityNullSemantics(
+        SqlBinaryExpression sqlBinaryExpression,
+        bool leftNullable,
+        bool rightNullable,
+        bool optimize,
+        out bool nullable)
+    {
+        if (_useIsDistinctFrom)
+        {
+            var sqlExpressionFactory = Dependencies.SqlExpressionFactory;
+
+            var body = sqlBinaryExpression is SqlBinaryExpression
+            {
+                Left: SqlUnaryExpression { OperatorType: ExpressionType.Not } left,
+                Right: SqlUnaryExpression { OperatorType: ExpressionType.Not } right
+            }
+            ? sqlExpressionFactory.IsDistinctFrom(left.Operand, right.Operand)
+            : sqlExpressionFactory.IsDistinctFrom(sqlBinaryExpression.Left, sqlBinaryExpression.Right);
+
+            nullable = false;
+            return sqlBinaryExpression.OperatorType is ExpressionType.Equal
+                ? sqlExpressionFactory.Not(body)
+                : body;
+        }
+        else
+        {
+            return base.ApplyEqualityNullSemantics(sqlBinaryExpression, leftNullable, rightNullable, optimize, out nullable);
+        }
     }
 
 #pragma warning disable EF1001
