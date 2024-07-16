@@ -27,6 +27,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private const string ModelSuffix = "Model";
     private const string ModelBuilderSuffix = "ModelBuilder";
     private const string EntityTypeSuffix = "EntityType";
+    private const string UnsafeAccessorsSuffix = "UnsafeAccessors";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,31 +67,66 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var scaffoldedFiles = new List<ScaffoldedFile>();
 
         var assemblyAttributesCode = CreateAssemblyAttributes(options.ModelNamespace, options.ContextType, nullable);
-        var assemblyInfoFileName = Uniquify(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
+        var assemblyInfoFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + AssemblyAttributesSuffix, options);
         scaffoldedFiles.Add(new(assemblyInfoFileName, assemblyAttributesCode));
 
+        var unsafeAccessorClassNames = new BidirectionalDictionary<Type, string>();
+        var unsafeAccessorTypes = new Dictionary<Type, HashSet<MemberInfo>>();
+        var memberAccessReplacements = new Dictionary<MemberInfo, QualifiedName>();
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            RegisterPrivateAccessors(entityType, options, unsafeAccessorClassNames, unsafeAccessorTypes, memberAccessReplacements);
+
+            foreach (var navigation in entityType.GetDeclaredNavigations())
+            {
+                RegisterPrivateAccessors(
+                    navigation, options.ModelNamespace, unsafeAccessorClassNames, unsafeAccessorTypes, memberAccessReplacements);
+            }
+
+            foreach (var navigation in entityType.GetDeclaredSkipNavigations())
+            {
+                RegisterPrivateAccessors(
+                    navigation, options.ModelNamespace, unsafeAccessorClassNames, unsafeAccessorTypes, memberAccessReplacements);
+            }
+        }
+
+        foreach (var unsafeAccessorPair in unsafeAccessorTypes)
+        {
+            (var unsafeAccessorType, var members) = unsafeAccessorPair;
+            var generatedCode = GenerateUnsafeAccessorType(
+                unsafeAccessorType,
+                members,
+                options.ModelNamespace,
+                unsafeAccessorClassNames[unsafeAccessorType],
+                memberAccessReplacements,
+                nullable);
+
+            var entityTypeFileName = UniquifyFileName(unsafeAccessorClassNames[unsafeAccessorType], options);
+            scaffoldedFiles.Add(new(entityTypeFileName, generatedCode));
+        }
+
         var modelCode = CreateModel(options.ModelNamespace, options.ContextType, nullable);
-        var modelFileName = Uniquify(options.ContextType.ShortDisplayName() + ModelSuffix, options);
+        var modelFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + ModelSuffix, options);
         scaffoldedFiles.Add(new(modelFileName, modelCode));
 
         var configurationClassNames = new Dictionary<ITypeBase, string>();
         var modelBuilderCode = CreateModelBuilder(
             model, options.ModelNamespace, options.ContextType, configurationClassNames, nullable);
-        var modelBuilderFileName = Uniquify(options.ContextType.ShortDisplayName() + ModelBuilderSuffix, options);
+        var modelBuilderFileName = UniquifyFileName(options.ContextType.ShortDisplayName() + ModelBuilderSuffix, options);
         scaffoldedFiles.Add(new(modelBuilderFileName, modelBuilderCode));
 
         foreach (var entityType in model.GetEntityTypesInHierarchicalOrder())
         {
-            var generatedCode = GenerateEntityType(entityType, options.ModelNamespace, configurationClassNames, nullable);
+            var generatedCode = GenerateEntityType(entityType, options.ModelNamespace, configurationClassNames, memberAccessReplacements, nullable);
 
-            var entityTypeFileName = Uniquify(configurationClassNames[entityType], options);
+            var entityTypeFileName = UniquifyFileName(configurationClassNames[entityType], options);
             scaffoldedFiles.Add(new(entityTypeFileName, generatedCode));
         }
 
         return scaffoldedFiles;
     }
 
-    private string Uniquify(string name, CompiledModelCodeGenerationOptions options)
+    private string UniquifyFileName(string name, CompiledModelCodeGenerationOptions options)
         => Uniquifier.Uniquify(
             name,
             options.GeneratedFileNames,
@@ -153,6 +189,136 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     }
 
     private string GetModelClassName(Type contextType) => _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
+
+    private string GenerateUnsafeAccessorType(
+        Type type,
+        HashSet<MemberInfo> members,
+        string @namespace,
+        string className,
+        Dictionary<MemberInfo, QualifiedName> memberAccessReplacements,
+        bool nullable)
+    {
+        var mainBuilder = new IndentedStringBuilder();
+        var namespaces = new SortedSet<string>(new NamespaceComparer());
+
+        AddNamespace(type, namespaces);
+
+        if (!string.IsNullOrEmpty(@namespace))
+        {
+            mainBuilder
+                .Append("namespace ").AppendLine(_code.Namespace(@namespace))
+                .AppendLine("{");
+            mainBuilder.Indent();
+        }
+
+        mainBuilder
+            .Append("public static class ").Append(className);
+        if (type.IsGenericTypeDefinition)
+        {
+            var genericParameters = type.GetGenericArguments();
+            mainBuilder
+                .Append("<")
+                .AppendJoin(genericParameters.Select(a => _code.Reference(a)), ", ")
+                .AppendLine(">");
+
+            using (mainBuilder.Indent())
+            {
+                foreach (var genericParameter in genericParameters)
+                {
+                    if (genericParameter.GetGenericParameterConstraints().Length == 0
+                        && (genericParameter.GenericParameterAttributes & GenericParameterAttributes.SpecialConstraintMask) == GenericParameterAttributes.None)
+                    {
+                        continue;
+                    }
+
+                    mainBuilder
+                        .Append("where ").Append(_code.Reference(genericParameter)).Append(" : ");
+
+                    var constraintList = new List<string>();
+                    var constraintAttributes = genericParameter.GenericParameterAttributes;
+                    if (constraintAttributes != GenericParameterAttributes.None)
+                    {
+                        if (constraintAttributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint))
+                        {
+                            constraintList.Add("struct");
+                        }
+
+                        if (constraintAttributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
+                        {
+                            constraintList.Add("class");
+                        }
+
+                        if (constraintAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
+                        {
+                            constraintList.Add("new()");
+                        }
+
+                        Check.DebugAssert(!constraintAttributes.HasFlag(GenericParameterAttributes.VarianceMask),
+                            "Variance constraints not supported for type: " + type.DisplayName());
+                    }
+
+                    var constraints = genericParameter.GetGenericParameterConstraints();
+                    if (constraints.Length != 0)
+                    {
+                        foreach (var constraint in constraints)
+                        {
+                            AddNamespace(constraint, namespaces);
+                            constraintList.Add(_code.Reference(constraint));
+                        }
+                    }
+
+                    mainBuilder
+                        .AppendJoin(constraintList, ", ")
+                        .AppendLine();
+                }
+            }
+        }
+        else
+        {
+            mainBuilder
+                .AppendLine();
+        }
+
+        var methodBuilder = new IndentedStringBuilder();
+        var scopeVariables = new BidirectionalDictionary<object, string>();
+        var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
+            "this",
+            className,
+            @namespace,
+            mainBuilder,
+            methodBuilder,
+            namespaces,
+            scopeVariables.Inverse,
+            scopeVariables,
+            configurationClassNames: [],
+            nullable);
+
+        mainBuilder
+            .Append("{");
+        using (mainBuilder.Indent())
+        {
+            foreach (var member in members)
+            {
+                GeneratePrivateAccessor(member, parameters);
+            }
+
+            var methods = methodBuilder.ToString();
+            if (!string.IsNullOrEmpty(methods))
+            {
+                mainBuilder.AppendLines(methods);
+            }
+        }
+
+        mainBuilder.AppendLine("}");
+
+        if (!string.IsNullOrEmpty(@namespace))
+        {
+            mainBuilder.DecrementIndent();
+            mainBuilder.AppendLine("}");
+        }
+
+        return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
+    }
 
     private string CreateModel(
         string @namespace,
@@ -521,7 +687,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder.AppendLine();
     }
 
-    private string GenerateEntityType(IEntityType entityType, string @namespace, Dictionary<ITypeBase, string> entityClassNames, bool nullable)
+    private string GenerateEntityType(
+        IEntityType entityType,
+        string @namespace,
+        Dictionary<ITypeBase, string> entityClassNames,
+        Dictionary<MemberInfo, QualifiedName> memberAccessReplacements,
+        bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
         var methodBuilder = new IndentedStringBuilder();
@@ -546,12 +717,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("{");
         using (mainBuilder.Indent())
         {
-            var memberAccessReplacements = new Dictionary<MemberInfo, QualifiedName>();
             CreateEntityType(entityType, @namespace, mainBuilder, methodBuilder, namespaces, entityClassNames, memberAccessReplacements, nullable);
 
             foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
             {
-                CreateComplexProperty(complexProperty, @namespace, mainBuilder, methodBuilder, namespaces, entityClassNames, className, nullable);
+                CreateComplexProperty(complexProperty, @namespace, mainBuilder, methodBuilder, namespaces, entityClassNames, memberAccessReplacements, className, nullable);
             }
 
             var foreignKeyNumber = 1;
@@ -593,7 +763,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
         Dictionary<ITypeBase, string> configurationClassNames,
-        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
+        Dictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         bool nullable)
     {
         mainBuilder
@@ -653,16 +823,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append("(")
                     .Append(entityTypeVariable)
                     .AppendLine(");");
-            }
-
-            foreach (var navigation in entityType.GetDeclaredNavigations())
-            {
-                CreatePrivateAccessors(navigation, memberAccessReplacements, parameters);
-            }
-
-            foreach (var navigation in entityType.GetDeclaredSkipNavigations())
-            {
-                CreatePrivateAccessors(navigation, memberAccessReplacements, parameters);
             }
 
             foreach (var key in entityType.GetDeclaredKeys())
@@ -1170,8 +1330,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (!property.IsShadowProperty()
             && property is not IServiceProperty) // Service properties don't use property accessors
         {
-            memberAccessReplacements = CreatePrivateAccessors(property, memberAccessReplacements, parameters, create: createPrivateAccessors);
-
             ClrPropertyGetterFactory.Instance.Create(
                 property,
                 out var getterExpression,
@@ -1254,13 +1412,35 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .Append("storeGenerationIndex: ").Append(_code.Literal(propertyIndexes.StoreGenerationIndex)).AppendLine(");")
             .DecrementIndent();
     }
+    private void RegisterPrivateAccessors(
+        ITypeBase structuralType,
+        CompiledModelCodeGenerationOptions options,
+        BidirectionalDictionary<Type, string> unsafeAccessorClassNames,
+        Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
+        Dictionary<MemberInfo, QualifiedName> memberAccessReplacements)
+    {
+        foreach (var property in structuralType.GetDeclaredProperties())
+        {
+            RegisterPrivateAccessors(
+                property, options.ModelNamespace, unsafeAccessorClassNames, unsafeAccessorTypes, memberAccessReplacements);
+        }
 
-    private Dictionary<MemberInfo, QualifiedName>? CreatePrivateAccessors(
+        foreach (var property in structuralType.GetDeclaredComplexProperties())
+        {
+            RegisterPrivateAccessors(
+                property, options.ModelNamespace, unsafeAccessorClassNames, unsafeAccessorTypes, memberAccessReplacements);
+
+            RegisterPrivateAccessors(
+                property.ComplexType, options, unsafeAccessorClassNames, unsafeAccessorTypes, memberAccessReplacements);
+        }
+    }
+
+    private Dictionary<MemberInfo, QualifiedName>? RegisterPrivateAccessors(
         IPropertyBase property,
-        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-        bool create = true,
-        bool qualify = false)
+        string @namespace,
+        BidirectionalDictionary<Type, string> unsafeAccessorClassNames,
+        Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
+        Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
         if (property.IsShadowProperty()
             || property.IsIndexerProperty())
@@ -1268,10 +1448,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             return memberAccessReplacements;
         }
 
-        var getter = CreatePrivateAccessor(property, forMaterialization: false, forSet: false, create, qualify, ref memberAccessReplacements, parameters);
-        var setter = CreatePrivateAccessor(property, forMaterialization: false, forSet: true, create, qualify, ref memberAccessReplacements, parameters);
-        var queryGetter = CreatePrivateAccessor(property, forMaterialization: true, forSet: false, create, qualify, ref memberAccessReplacements, parameters);
-        var querySetter = CreatePrivateAccessor(property, forMaterialization: true, forSet: true, create, qualify, ref memberAccessReplacements, parameters);
+        var getter = RegisterPrivateAccessor(
+            property, forMaterialization: false, forSet: false, @namespace, unsafeAccessorClassNames, unsafeAccessorTypes, ref memberAccessReplacements);
+        var setter = RegisterPrivateAccessor(
+            property, forMaterialization: false, forSet: true, @namespace, unsafeAccessorClassNames, unsafeAccessorTypes, ref memberAccessReplacements);
+        var queryGetter = RegisterPrivateAccessor(
+            property, forMaterialization: true, forSet: false, @namespace, unsafeAccessorClassNames, unsafeAccessorTypes, ref memberAccessReplacements);
+        var querySetter = RegisterPrivateAccessor(
+            property, forMaterialization: true, forSet: true, @namespace, unsafeAccessorClassNames, unsafeAccessorTypes, ref memberAccessReplacements);
 
         if (getter != null
             || setter != null
@@ -1301,17 +1485,16 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         return memberAccessReplacements;
     }
 
-    private QualifiedName? CreatePrivateAccessor(
+    private QualifiedName? RegisterPrivateAccessor(
         IPropertyBase property,
         bool forMaterialization,
         bool forSet,
-        bool create,
-        bool qualify,
-        ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
-        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        string @namespace,
+        BidirectionalDictionary<Type, string> unsafeAccessorClassNames,
+        Dictionary<Type, HashSet<MemberInfo>> unsafeAccessorTypes,
+        ref Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements)
     {
         var member = property.GetMemberInfo(forMaterialization, forSet);
-
         switch (member)
         {
             case FieldInfo field:
@@ -1320,32 +1503,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     || (memberAccessReplacements?.ContainsKey(field)) == true)
                 {
                     return null;
-                }
-
-                memberAccessReplacements ??= [];
-                var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(field);
-
-                var qualifiedName = new QualifiedName(
-                    parameters.ConfigurationClassNames[property.DeclaringType] + "." + methodName,
-                    parameters.Namespace);
-
-                memberAccessReplacements.Add(field, qualify
-                    ? qualifiedName
-                    : new QualifiedName(methodName, ""));
-
-                if (create)
-                {
-                    AddNamespace(typeof(UnsafeAccessorAttribute), parameters.Namespaces);
-                    AddNamespace(field.FieldType, parameters.Namespaces);
-                    AddNamespace(field.DeclaringType!, parameters.Namespaces);
-
-                    parameters.MethodBuilder
-                        .AppendLine()
-                        .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Field, Name = \"{field.Name}\")]")
-                        .Append($"public static extern ref {_code.Reference(field.FieldType)} {methodName}(")
-                        .AppendLine($"{_code.Reference(field.DeclaringType!)} @this);");
-
-                    return qualifiedName;
                 }
 
                 break;
@@ -1360,54 +1517,104 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     return null;
                 }
 
-                memberAccessReplacements ??= [];
-                var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(methodInfo);
-
-                var qualifiedName = new QualifiedName(
-                    parameters.ConfigurationClassNames[property.DeclaringType] + "." + methodName,
-                    parameters.Namespace);
-
-                memberAccessReplacements.Add(methodInfo, qualify
-                    ? qualifiedName
-                    : new QualifiedName(methodName, ""));
-
-                if (create)
-                {
-                    AddNamespace(typeof(UnsafeAccessorAttribute), parameters.Namespaces);
-                    AddNamespace(methodInfo.ReturnType, parameters.Namespaces);
-                    AddNamespace(methodInfo.DeclaringType!, parameters.Namespaces);
-                    foreach (var parameter in methodInfo.GetParameters())
-                    {
-                        AddNamespace(parameter.ParameterType, parameters.Namespaces);
-                    }
-
-                    var returnType = methodInfo.ReturnType == typeof(void)
-                        ? "void"
-                        : _code.Reference(methodInfo.ReturnType);
-
-                    parameters.MethodBuilder
-                        .AppendLine()
-                        .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Method, Name = \"{methodInfo.Name}\")]")
-                        .Append($"public static extern {returnType} {methodName}(")
-                        .Append($"{_code.Reference(methodInfo.DeclaringType!)} @this");
-
-                    if (methodInfo.GetParameters().Length > 0)
-                    {
-                        parameters.MethodBuilder
-                            .Append($", ")
-                            .AppendJoin(methodInfo.GetParameters().Select(p => _code.Reference(p.ParameterType) + " " + _code.Identifier(p.Name!)), ", ");
-                    }
-
-                    parameters.MethodBuilder.AppendLine(");");
-
-                    return qualifiedName;
-                }
+                member = methodInfo;
 
                 break;
             }
         }
 
+        memberAccessReplacements ??= [];
+        var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
+
+        var declaringType = member.DeclaringType!;
+        if (declaringType.IsGenericType
+            && !declaringType.IsGenericTypeDefinition)
+        {
+            var genericArguments = string.Join(", ", declaringType.GetGenericArguments().Select(a => _code.Reference(a)));
+            declaringType = declaringType.GetGenericTypeDefinition();
+
+            if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
+            {
+                className = Uniquifier.Uniquify(
+                    declaringType.Name[..declaringType.Name.IndexOf('`')], unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix, int.MaxValue);
+                unsafeAccessorClassNames[declaringType] = className;
+            }
+
+            var qualifiedName = new QualifiedName($"{className}<{genericArguments}>.{methodName}", @namespace);
+            memberAccessReplacements.Add(member, qualifiedName);
+            member = declaringType.GetMemberWithSameMetadataDefinitionAs(member);
+        }
+        else
+        {
+            if (!unsafeAccessorClassNames.TryGetValue(declaringType, out var className))
+            {
+                className = Uniquifier.Uniquify(
+                    declaringType.Name, unsafeAccessorClassNames.Inverse, UnsafeAccessorsSuffix, int.MaxValue);
+                unsafeAccessorClassNames[declaringType] = className;
+            }
+
+            var qualifiedName = new QualifiedName(className + "." + methodName, @namespace);
+            memberAccessReplacements.Add(member, qualifiedName);
+        }
+
+        unsafeAccessorTypes.GetOrAddNew(declaringType).Add(member);
+
         return null;
+    }
+
+    private void GeneratePrivateAccessor(
+        MemberInfo member,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var methodName = LinqToCSharpSyntaxTranslator.GetUnsafeAccessorName(member);
+        var declaringType = member.DeclaringType!;
+        AddNamespace(declaringType, parameters.Namespaces);
+        AddNamespace(typeof(UnsafeAccessorAttribute), parameters.Namespaces);
+        switch (member)
+        {
+            case FieldInfo field:
+            {
+                AddNamespace(field.FieldType, parameters.Namespaces);
+
+                parameters.MainBuilder
+                    .AppendLine()
+                    .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Field, Name = \"{field.Name}\")]")
+                    .Append($"public static extern ref {_code.Reference(field.FieldType)} {methodName}(")
+                    .AppendLine($"{_code.Reference(declaringType)} @this);");
+                break;
+            }
+            case MethodInfo methodInfo:
+            {
+                AddNamespace(methodInfo.ReturnType, parameters.Namespaces);
+                foreach (var parameter in methodInfo.GetParameters())
+                {
+                    AddNamespace(parameter.ParameterType, parameters.Namespaces);
+                }
+
+                var returnType = methodInfo.ReturnType == typeof(void)
+                    ? "void"
+                    : _code.Reference(methodInfo.ReturnType);
+
+                parameters.MainBuilder
+                    .AppendLine()
+                    .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Method, Name = \"{methodInfo.Name}\")]")
+                    .Append($"public static extern {returnType} {methodName}(")
+                    .Append($"{_code.Reference(declaringType)} @this");
+
+                if (methodInfo.GetParameters().Length > 0)
+                {
+                    parameters.MainBuilder
+                        .Append($", ")
+                        .AppendJoin(methodInfo.GetParameters().Select(p => _code.Reference(p.ParameterType) + " " + _code.Identifier(p.Name!)), ", ");
+                }
+
+                parameters.MainBuilder.AppendLine(");");
+                break;
+            }
+            default:
+                Check.DebugAssert(false, "Unsupported member type: " + member);
+                break;
+        }
     }
 
     private static Type? GetValueConverterType(IProperty property)
@@ -1644,6 +1851,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
         Dictionary<ITypeBase, string> configurationClassNames,
+        Dictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         string topClassName,
         bool nullable)
     {
@@ -1773,13 +1981,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 var complexTypeParameters = parameters with { TargetName = complexTypeVariable };
                 var complexPropertyParameters = parameters with { TargetName = complexPropertyVariable };
 
-                Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements = null;
-
-                foreach (var chainedComplexProperty in complexProperty.GetChainToComplexProperty())
-                {
-                    memberAccessReplacements = CreatePrivateAccessors(chainedComplexProperty, memberAccessReplacements, complexTypeParameters, create: chainedComplexProperty == complexProperty);
-                }
-
                 SetPropertyBaseProperties(complexProperty, memberAccessReplacements, complexPropertyParameters);
 
                 foreach (var property in complexType.GetProperties())
@@ -1821,6 +2022,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     methodBuilder,
                     namespaces,
                     configurationClassNames,
+                    memberAccessReplacements,
                     topClassName,
                     nullable);
             }
@@ -2010,7 +2212,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<MemberInfo, QualifiedName> memberAccessReplacements,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
-        CreatePrivateAccessors(navigation, memberAccessReplacements, parameters, create: false, qualify: true);
         SetPropertyBaseProperties(navigation, memberAccessReplacements, parameters, createPrivateAccessors: false);
 
         if (!navigation.IsCollection)
@@ -2247,7 +2448,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     configurationClassNames,
                     nullable);
 
-            GenerateMemberReferences(entityType, memberAccessReplacements, parameters);
+            GenerateMemberReferences(entityType, parameters);
 
             foreach (var key in entityType.GetDeclaredKeys())
             {
@@ -2300,8 +2501,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             foreach (var navigation in entityType.GetNavigations())
             {
                 var variableName = _code.Identifier(navigation.Name, navigation, parameters.ScopeObjects, capitalize: false);
-
-                CreatePrivateAccessors(navigation, memberAccessReplacements, parameters, create: false, qualify: navigation.DeclaringType != entityType);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
@@ -2389,19 +2588,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine()
             .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
 
-        Dictionary<MemberInfo, QualifiedName>? GenerateMemberReferences(
+        void GenerateMemberReferences(
             ITypeBase structuralType,
-            Dictionary<MemberInfo, QualifiedName>? memberAccessReplacements,
-            CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-            bool nested = false)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var mainBuilder = parameters.MainBuilder;
             foreach (var property in structuralType.GetProperties())
             {
                 var variableName = _code.Identifier(property.Name, property, parameters.ScopeObjects, capitalize: false);
-
-                memberAccessReplacements = CreatePrivateAccessors(
-                    property, memberAccessReplacements, parameters, create: false, qualify: nested || property.DeclaringType != structuralType);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
@@ -2411,9 +2605,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             foreach (var complexProperty in structuralType.GetComplexProperties())
             {
                 var variableName = _code.Identifier(complexProperty.Name, complexProperty, parameters.ScopeObjects, capitalize: false);
-
-                memberAccessReplacements = CreatePrivateAccessors(
-                    complexProperty, memberAccessReplacements, parameters, create: false, qualify: nested || complexProperty.DeclaringType != structuralType);
 
                 mainBuilder
                     .Append($"var {variableName} = ")
@@ -2426,10 +2617,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append($"var {typeVariableName} = ")
                     .AppendLine($"{variableName}.ComplexType;");
 
-                memberAccessReplacements = GenerateMemberReferences(complexProperty.ComplexType, memberAccessReplacements, parameters, nested: true);
+                GenerateMemberReferences(complexProperty.ComplexType, parameters);
             }
-
-            return memberAccessReplacements;
         }
     }
 

@@ -35,36 +35,37 @@ public static class PartitionKeyBuilderExtensions
         else
         {
             var expectedType = (converter?.ProviderClrType ?? property?.ClrType)?.UnwrapNullableType();
-            if (value is string stringValue)
+            switch (value)
             {
-                if (expectedType != null && expectedType != typeof(string))
-                {
-                    CheckType(typeof(string));
-                }
+                case string stringValue:
+                    if (expectedType != null && expectedType != typeof(string))
+                    {
+                        CheckType(typeof(string));
+                    }
 
-                builder.Add(stringValue);
-            }
-            else if (value is bool boolValue)
-            {
-                if (expectedType != null && expectedType != typeof(bool))
-                {
-                    CheckType(typeof(bool));
-                }
+                    builder.Add(stringValue);
+                    break;
 
-                builder.Add(boolValue);
-            }
-            else if (value.GetType().IsNumeric())
-            {
-                if (expectedType != null && !expectedType.IsNumeric())
-                {
-                    CheckType(value.GetType());
-                }
+                case bool boolValue:
+                    if (expectedType != null && expectedType != typeof(bool))
+                    {
+                        CheckType(typeof(bool));
+                    }
 
-                builder.Add(Convert.ToDouble(value));
-            }
-            else
-            {
-                throw new InvalidOperationException(CosmosStrings.PartitionKeyBadValue(value.GetType()));
+                    builder.Add(boolValue);
+                    break;
+
+                case var _ when value.GetType().IsNumeric():
+                    if (expectedType != null && !expectedType.IsNumeric())
+                    {
+                        CheckType(value.GetType());
+                    }
+
+                    builder.Add(Convert.ToDouble(value));
+                    break;
+
+                default:
+                    throw new InvalidOperationException(CosmosStrings.PartitionKeyBadValue(value.GetType()));
             }
 
             void CheckType(Type actualType)

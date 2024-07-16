@@ -18,7 +18,7 @@ public class ReadItemInfo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Type Type { get; }
+    public virtual IDictionary<IProperty, Expression> PropertyValues { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,29 +26,6 @@ public class ReadItemInfo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEntityType EntityType { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IDictionary<IProperty, string> PropertyParameters { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public ReadItemInfo(
-        IEntityType entityType,
-        IDictionary<IProperty, string> propertyParameters,
-        Type type)
-    {
-        Type = type;
-        EntityType = entityType;
-        PropertyParameters = propertyParameters;
-    }
+    public ReadItemInfo(IDictionary<IProperty, Expression> propertyValues)
+        => PropertyValues = propertyValues;
 }

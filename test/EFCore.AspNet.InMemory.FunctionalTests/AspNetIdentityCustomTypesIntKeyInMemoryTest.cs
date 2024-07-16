@@ -7,6 +7,9 @@ public class AspNetIdentityCustomTypesIntKeyInMemoryTest(AspNetIdentityCustomTyp
     : AspNetIdentityCustomTypesIntKeyTestBase<
         AspNetIdentityCustomTypesIntKeyInMemoryTest.AspNetIdentityCustomTypesIntKeyInMemoryFixture>(fixture)
 {
+    protected override bool HasForeignKeyIndexes
+        => false;
+
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
     {
     }

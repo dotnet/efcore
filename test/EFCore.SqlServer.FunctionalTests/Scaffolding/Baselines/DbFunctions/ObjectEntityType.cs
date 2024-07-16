@@ -29,17 +29,17 @@ namespace TestNamespace
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
             runtimeEntityType.SetOriginalValuesFactory(
-                (InternalEntityEntry source) => Snapshot.Empty);
+                ISnapshot (InternalEntityEntry source) => Snapshot.Empty);
             runtimeEntityType.SetStoreGeneratedValuesFactory(
-                () => Snapshot.Empty);
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetTemporaryValuesFactory(
-                (InternalEntityEntry source) => Snapshot.Empty);
+                ISnapshot (InternalEntityEntry source) => Snapshot.Empty);
             runtimeEntityType.SetShadowValuesFactory(
-                (IDictionary<string, object> source) => Snapshot.Empty);
+                ISnapshot (IDictionary<string, object> source) => Snapshot.Empty);
             runtimeEntityType.SetEmptyShadowValuesFactory(
-                () => Snapshot.Empty);
+                ISnapshot () => Snapshot.Empty);
             runtimeEntityType.SetRelationshipSnapshotFactory(
-                (InternalEntityEntry source) => Snapshot.Empty);
+                ISnapshot (InternalEntityEntry source) => Snapshot.Empty);
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 0,
                 navigationCount: 0,

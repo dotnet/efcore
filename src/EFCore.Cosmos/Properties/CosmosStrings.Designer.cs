@@ -108,6 +108,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 idProperty, entityType, propertyType);
 
         /// <summary>
+        ///     {actual} partition key values were provided, but the entity type '{entityType}' has {expected} partition key values defined.
+        /// </summary>
+        public static string IncorrectPartitionKeyNumber(object? entityType, object? actual, object? expected)
+            => string.Format(
+                GetString("IncorrectPartitionKeyNumber", nameof(entityType), nameof(actual), nameof(expected)),
+                entityType, actual, expected);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has an index defined over properties '{properties}'. The Azure Cosmos DB provider for EF Core currently does not support index definitions.
+        /// </summary>
+        public static string IndexesExist(object? entityType, object? properties)
+            => string.Format(
+                GetString("IndexesExist", nameof(entityType), nameof(properties)),
+                entityType, properties);
+
+        /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
         public static string InvalidDerivedTypeInEntityProjection(object? derivedType, object? entityType)
@@ -130,6 +146,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("InvalidResourceId");
 
         /// <summary>
+        ///     The IsDiscriminatorMappingComplete setting was configured to '{isDiscriminatorMappingComplete1}' on '{entityType1}', but on '{entityType2}' it was configured to '{isDiscriminatorMappingComplete2}'. All entity types mapped to the same container '{container}' must be configured with the same IsDiscriminatorMappingComplete value.
+        /// </summary>
+        public static string IsDiscriminatorMappingCompleteMismatch(object? isDiscriminatorMappingComplete1, object? entityType1, object? entityType2, object? isDiscriminatorMappingComplete2, object? container)
+            => string.Format(
+                GetString("IsDiscriminatorMappingCompleteMismatch", nameof(isDiscriminatorMappingComplete1), nameof(entityType1), nameof(entityType2), nameof(isDiscriminatorMappingComplete2), nameof(container)),
+                isDiscriminatorMappingComplete1, entityType1, entityType2, isDiscriminatorMappingComplete2, container);
+
+        /// <summary>
         ///     Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.
         /// </summary>
         public static string JsonPropertyCollision(object? property1, object? property2, object? entityType, object? storeName)
@@ -138,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, property2, entityType, storeName);
 
         /// <summary>
-        ///     Skip, Take, First/FirstOrDefault and Single/SingleOrDefault aren't supported in subqueries since Cosmos doesn't support LIMIT/OFFSET in subqueries.
+        ///     The query requires use of LIMIT and OFFSET in a subquery, which is unsupported by Cosmos.
         /// </summary>
         public static string LimitOffsetNotSupportedInSubqueries
             => GetString("LimitOffsetNotSupportedInSubqueries");
@@ -150,12 +174,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("MissingOrderingInSelectExpression");
 
         /// <summary>
-        ///     Cosmos container '{container1}' is referenced by the query, but '{container2}' is already being referenced. A query can only reference a single Cosmos container.
+        ///     Root entity type '{entityType1}' is referenced by the query, but '{entityType2}' is already being referenced. A query can only reference a single root entity type.
         /// </summary>
-        public static string MultipleContainersReferencedInQuery(object? container1, object? container2)
+        public static string MultipleRootEntityTypesReferencedInQuery(object? entityType1, object? entityType2)
             => string.Format(
-                GetString("MultipleContainersReferencedInQuery", nameof(container1), nameof(container2)),
-                container1, container2);
+                GetString("MultipleRootEntityTypesReferencedInQuery", nameof(entityType1), nameof(entityType2)),
+                entityType1, entityType2);
 
         /// <summary>
         ///     Navigation '{entityType}.{navigationName}' doesn't point to an embedded entity.
@@ -320,14 +344,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 propertyType, entityType, property, valueType);
 
         /// <summary>
-        ///     The partition key specified in the 'WithPartitionKey' call '{partitionKey1}' and the partition key specified in the 'Where' predicate '{partitionKey2}' must be identical to return any results. Remove one of them.
-        /// </summary>
-        public static string PartitionKeyMismatch(object? partitionKey1, object? partitionKey2)
-            => string.Format(
-                GetString("PartitionKeyMismatch", nameof(partitionKey1), nameof(partitionKey2)),
-                partitionKey1, partitionKey2);
-
-        /// <summary>
         ///     Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.
         /// </summary>
         public static string PartitionKeyMissing
@@ -368,6 +384,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("ThroughputMismatch", nameof(throughput1), nameof(entityType1), nameof(entityType2), nameof(throughput2), nameof(container)),
                 throughput1, entityType1, entityType2, throughput2, container);
+
+        /// <summary>
+        ///     'ToPageAsync' can only be used as the terminating operator of the top-level query.
+        /// </summary>
+        public static string ToPageAsyncAtTopLevelOnly
+            => GetString("ToPageAsyncAtTopLevelOnly");
 
         /// <summary>
         ///     The provisioned throughput was configured as manual on '{manualEntityType}', but on '{autoscaleEntityType}' it was configured as autoscale. All entity types mapped to the same container '{container}' must be configured with the same provisioned throughput type.
@@ -422,10 +444,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("VisitChildrenMustBeOverridden");
 
         /// <summary>
-        ///     'WithPartitionKeyMethodInfo' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.
+        ///     'WithPartitionKey' can only be called once in a query. See https://aka.ms/efdocs-cosmos-partition-keys for more information.
+        /// </summary>
+        public static string WithPartitionKeyAlreadyCalled
+            => GetString("WithPartitionKeyAlreadyCalled");
+
+        /// <summary>
+        ///     'WithPartitionKey' can only be called on a entity query root. See https://aka.ms/efdocs-cosmos-partition-keys for more information.
         /// </summary>
         public static string WithPartitionKeyBadNode
             => GetString("WithPartitionKeyBadNode");
+
+        /// <summary>
+        ///     'WithPartitionKey' only accepts simple constant or parameter arguments. See https://aka.ms/efdocs-cosmos-partition-keys for more information.
+        /// </summary>
+        public static string WithPartitionKeyNotConstantOrParameter
+            => GetString("WithPartitionKeyNotConstantOrParameter");
 
         private static string GetString(string name, params string[] formatterNames)
         {

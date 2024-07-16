@@ -3,6 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+// TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionKeyTest.CosmosHierarchicalPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(HierarchicalPartitionKeyTest);
@@ -28,7 +29,6 @@ public class HierarchicalPartitionKeyTest : IClassFixture<HierarchicalPartitionK
             """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["PartitionKey1"]
 OFFSET 0 LIMIT 1
 """;
@@ -39,7 +39,6 @@ OFFSET 0 LIMIT 1
 
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["PartitionKey1"]
 OFFSET @__p_0 LIMIT 1
 """;
@@ -61,14 +60,13 @@ OFFSET @__p_0 LIMIT 1
             """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-OFFSET 0 LIMIT 1
+OFFSET 0 LIMIT 2
 """;
 
         await PartitionKeyTestAsync(
-            ctx => ctx.Customers.WithPartitionKey("A", 1.1, true).FirstAsync(),
+            ctx => ctx.Customers.WithPartitionKey("A", 1.1, true).SingleAsync(),
             readSql,
-            ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).FirstAsync(),
+            ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).SingleAsync(),
             readSql,
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).LastAsync(),
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).ToListAsync(),
@@ -82,8 +80,8 @@ OFFSET 0 LIMIT 1
             """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-OFFSET 0 LIMIT 1
+WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
+OFFSET 0 LIMIT 2
 """;
 
         await PartitionKeyTestAsync(
@@ -93,7 +91,7 @@ OFFSET 0 LIMIT 1
                         && b.PartitionKey1 == "A"
                         && b.PartitionKey2 == 1.1
                         && b.PartitionKey3)
-                .FirstAsync(),
+                .SingleAsync(),
             readSql,
             ctx => ctx.Customers
                 .Where(
@@ -101,7 +99,7 @@ OFFSET 0 LIMIT 1
                         && b.PartitionKey1 == "B"
                         && b.PartitionKey2 == 2.1
                         && !b.PartitionKey3)
-                .FirstAsync(),
+                .SingleAsync(),
             readSql,
             ctx => ctx.Customers.WithPartitionKey("B", 2.1, false).LastAsync(),
             ctx => ctx.Customers

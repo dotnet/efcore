@@ -24,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 public interface IHistoryRepository
 {
     /// <summary>
-    ///     Checks whether or not the history table exists.
+    ///     Checks whether the history table exists.
     /// </summary>
     /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
     bool Exists();
 
     /// <summary>
-    ///     Checks whether or not the history table exists.
+    ///     Checks whether the history table exists.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -39,6 +39,22 @@ public interface IHistoryRepository
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Creates the history table.
+    /// </summary>
+    void Create();
+
+    /// <summary>
+    ///     Creates the history table.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation. The task result contains
+    ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
+    /// </returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    Task CreateAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Queries the history table for all migrations that have been applied.
@@ -57,6 +73,22 @@ public interface IHistoryRepository
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Gets an exclusive lock on the database.
+    /// </summary>
+    /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
+    /// <returns>An object that can be disposed to release the lock.</returns>
+    IDisposable GetDatabaseLock(TimeSpan timeout);
+
+    /// <summary>
+    ///     Gets an exclusive lock on the database.
+    /// </summary>
+    /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>An object that can be disposed to release the lock.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Generates a SQL script that will create the history table.

@@ -18,15 +18,24 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    // Fink.Barton is a non-owned navigation, cross-document join
-    public override Task Query_loads_reference_nav_automatically_in_projection(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Query_loads_reference_nav_automatically_in_projection(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+    public override async Task Query_loads_reference_nav_automatically_in_projection(bool async)
+    {
+        // Fink.Barton is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Non-correlated queries not supported by Cosmos
-    public override Task Query_with_owned_entity_equality_operator(bool async)
-        => AssertTranslationFailed(() => base.Query_with_owned_entity_equality_operator(async));
+        AssertSql();
+    }
+
+    public override async Task Query_with_owned_entity_equality_operator(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => base.Query_with_owned_entity_equality_operator(async),
+            CosmosStrings.NonCorrelatedSubqueriesNotSupported);
+
+        AssertSql();
+    }
 
     [ConditionalTheory]
     public override Task Navigation_rewrite_on_owned_collection(bool async)
@@ -57,9 +66,9 @@ ORDER BY c["Id"]
             AssertSql(
                 """
 SELECT (ARRAY(
-    SELECT VALUE (t["Id"] != 42)
-    FROM t IN c["Orders"]
-    ORDER BY t["Id"])[0] ?? false) AS c
+    SELECT VALUE (o["Id"] != 42)
+    FROM o IN c["Orders"]
+    ORDER BY o["Id"])[0] ?? false) AS c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -164,11 +173,15 @@ WHERE (c["Discriminator"] = "LeafA")
 """);
             });
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
-        => AssertTranslationFailedWithDetails(
+    public override async Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
+
+        AssertSql();
+    }
 
     public override async Task Set_throws_for_owned_type(bool async)
     {
@@ -177,65 +190,106 @@ WHERE (c["Discriminator"] = "LeafA")
         AssertSql();
     }
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
-        => AssertTranslationFailedWithDetails(
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+        AssertSql();
+    }
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
-        => AssertTranslationFailedWithDetails(
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
+            () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
+
+        AssertSql();
+    }
+
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
+        bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Project_multiple_owned_navigations(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Project_multiple_owned_navigations(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Project_multiple_owned_navigations(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
-        => AssertTranslationFailedWithDetails(
+        AssertSql();
+    }
+
+    public override async Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery("Planet", "OwnedPerson"));
+
+        AssertSql();
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -247,9 +301,9 @@ WHERE (c["Discriminator"] = "LeafA")
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
+JOIN o IN c["Orders"]
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
@@ -267,25 +321,34 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 SELECT VALUE
 {
     "PersonId" : c["Id"],
-    "OrderId" : a["Id"]
+    "OrderId" : o["Id"]
 }
 FROM root c
-JOIN a IN c["Orders"]
+JOIN o IN c["Orders"]
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
-    // Address.Planet is a non-owned navigation, cross-document join
-    public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        => AssertTranslationFailedWithDetails(
+    public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Planet), nameof(OwnedPerson)));
+
+        AssertSql();
+    }
 
     // Address.Planet is a non-owned navigation, cross-document join
-    public override Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
-        => AssertTranslationFailedWithDetails(
+    public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
+    {
+        // Address.Planet is a non-owned navigation, cross-document join
+        await AssertTranslationFailedWithDetails(
             () => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async),
-            CosmosStrings.CrossDocumentJoinNotSupported);
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Planet), nameof(OwnedPerson)));
+
+        AssertSql();
+    }
 
     // Non-correlated queries not supported by Cosmos
     public override Task Query_with_owned_entity_equality_method(bool async)
@@ -388,10 +451,10 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                 // TODO: The following should project out a["Details"], not a: #34067
                 AssertSql(
                     """
-SELECT a["Details"]
+SELECT o["Details"]
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -415,10 +478,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -442,10 +505,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -469,10 +532,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a["Details"]
+SELECT o["Details"]
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -496,10 +559,10 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(a["Details"]) = 1))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -741,8 +804,8 @@ SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
     SELECT VALUE COUNT(1)
-    FROM t IN c["Orders"]
-    WHERE (DateTimePart("yyyy", t["OrderDate"]) = 2018)) = 1))
+    FROM o IN c["Orders"]
+    WHERE (DateTimePart("yyyy", o["OrderDate"]) = 2018)) = 1))
 """);
             });
 
@@ -806,28 +869,41 @@ OFFSET 0 LIMIT 2
                     """
 @__p_0='1'
 
-SELECT a
+SELECT o AS o0
 FROM root c
-JOIN a IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (a["ClientId"] = @__p_0))
+JOIN o IN c["Orders"]
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @__p_0))
 """);
             });
 
-    // Non-correlated queries not supported by Cosmos
-    public override Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(
+    public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(
         bool async)
-        => AssertTranslationFailed(
-            () => base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async));
+    {
+        await AssertTranslationFailedWithDetails(
+            () => base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Barton), nameof(Fink)));
 
-    // Non-correlated queries not supported by Cosmos
-    public override Task Left_join_on_entity_with_owned_navigations(bool async)
-        => AssertTranslationFailed(
-            () => base.Left_join_on_entity_with_owned_navigations(async));
+        AssertSql();
 
-    // Non-correlated queries not supported by Cosmos
-    public override Task Left_join_on_entity_with_owned_navigations_complex(bool async)
-        => AssertTranslationFailed(
-            () => base.Left_join_on_entity_with_owned_navigations_complex(async));
+    }
+
+    public override async Task Left_join_on_entity_with_owned_navigations(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => base.Left_join_on_entity_with_owned_navigations(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(OwnedPerson), nameof(Planet)));
+
+        AssertSql();
+    }
+
+    public override async Task Left_join_on_entity_with_owned_navigations_complex(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => base.Left_join_on_entity_with_owned_navigations_complex(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(OwnedPerson), nameof(Planet)));
+
+        AssertSql();
+    }
 
     // TODO: GroupBy, #17313
     public override Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
@@ -1091,8 +1167,8 @@ SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -30)))
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] = -30)))
 """);
             });
 
@@ -1110,8 +1186,8 @@ SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -30)))
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] = -30)))
 """);
             });
 
@@ -1163,9 +1239,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(
-    SELECT VALUE t["Id"]
-    FROM t IN c["Orders"]
-    ORDER BY t["Id"])[1] = -10))
+    SELECT VALUE o["Id"]
+    FROM o IN c["Orders"]
+    ORDER BY o["Id"])[1] = -10))
 """);
         }
     }
@@ -1199,9 +1275,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
-    SELECT VALUE t["OrderDate"]
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
+    SELECT VALUE o["OrderDate"]
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
 """);
             });
 
@@ -1232,12 +1308,12 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (Da
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(SetUnion(ARRAY(
-    SELECT VALUE t
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -10)), ARRAY(
-    SELECT VALUE t
-    FROM t IN c["Orders"]
-    WHERE (t["Id"] = -11)))) = 2))
+    SELECT VALUE o
+    FROM o IN c["Orders"]
+    WHERE (o["Id"] = -10)), ARRAY(
+    SELECT VALUE o0
+    FROM o0 IN c["Orders"]
+    WHERE (o0["Id"] = -11)))) = 2))
 """);
             });
 
@@ -1265,6 +1341,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.HasDefaultContainer("OwnedQueryTest");
+
             modelBuilder.Entity<OwnedPerson>(
                 eb =>
                 {

@@ -644,7 +644,7 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
 
                 return order.OrderId;
             }
-            catch (Exception)
+            catch
             {
                 return null;
             }

@@ -531,6 +531,13 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         {
             var missile = await context.Set<Vehicle>().FirstAsync(v => v.Name == "AIM-9M Sidewinder");
 
+            AssertSql(
+                """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
+OFFSET 0 LIMIT 1
+""");
             Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
 
             missile.Operator.Details.Type = "IR";

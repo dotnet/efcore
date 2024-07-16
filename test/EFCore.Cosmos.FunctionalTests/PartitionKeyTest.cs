@@ -5,6 +5,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
+// TODO: Consider removing these in favor of ReadItemPartitionKeyQueryTest
 public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKeyFixture>
 {
     private const string DatabaseName = nameof(PartitionKeyTest);
@@ -30,7 +31,6 @@ public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKe
             """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["PartitionKey"]
 OFFSET 0 LIMIT 1
 """;
@@ -50,12 +50,11 @@ OFFSET 0 LIMIT 1
             """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-OFFSET 0 LIMIT 1
+OFFSET 0 LIMIT 2
 """;
 
         await PartitionKeyTestAsync(
-            ctx => ctx.Customers.WithPartitionKey("1").FirstAsync(),
+            ctx => ctx.Customers.WithPartitionKey("1").SingleAsync(),
             readSql,
             ctx => ctx.Customers.WithPartitionKey("2").LastAsync(),
             ctx => ctx.Customers.WithPartitionKey("2").ToListAsync(),
@@ -69,7 +68,7 @@ OFFSET 0 LIMIT 1
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["Id"] = 42) OR (c["Name"] = "John Snow")))
+WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
 OFFSET 0 LIMIT 1
 """;
 

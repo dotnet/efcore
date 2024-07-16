@@ -1076,7 +1076,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>
                 var properties = anonymousTypeSymbol.GetMembers().OfType<IPropertySymbol>().ToArray();
                 var found = _anonymousTypeDefinitions.TryGetValue(properties.Select(p => p.Name).ToArray(),
                     out var anonymousTypeGenericDefinition);
-                Debug.Assert(found, "Anonymous type not found");
+                Check.DebugAssert(found, "Anonymous type not found");
 
                 var constructorParameters = anonymousTypeGenericDefinition!.GetConstructors()[0].GetParameters();
                 var genericTypeArguments = new Type[constructorParameters.Length];

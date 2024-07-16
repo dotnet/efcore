@@ -1866,9 +1866,9 @@ LEFT JOIN (
         WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
     END
     WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
-        WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
+        WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodEnd]
     END IS NOT NULL AND CASE
-        WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
+        WHEN [l2].[PeriodEnd] IS NOT NULL AND [l2].[PeriodStart] IS NOT NULL THEN [l2].[PeriodStart]
     END IS NOT NULL
 ) AS [s] ON [l].[Id] = [s].[Level1_Required_Id]
 LEFT JOIN (
@@ -2801,11 +2801,7 @@ LEFT JOIN (
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2]
     WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [l3] ON [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]
-WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
-    WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[PeriodEnd]
-END IS NOT NULL AND CASE
-    WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[PeriodStart]
-END IS NOT NULL
+WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ORDER BY [l].[Id], [l1].[Id]
 """);
     }

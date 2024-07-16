@@ -1565,18 +1565,7 @@ public class CSharpHelper : ICSharpHelper
         => type.GetNamespaces();
 
     private string ToSourceCode(SyntaxNode node)
-    {
-        var code = node.NormalizeWhitespace().ToFullString();
-        var document = _project.AddDocument("Code.cs", SourceText.From(code));
-
-        var syntaxRootFoo = document.GetSyntaxRootAsync().Result!;
-        var annotatedDocument = document.WithSyntaxRoot(syntaxRootFoo.WithAdditionalAnnotations(Simplifier.Annotation));
-        document = Simplifier.ReduceAsync(annotatedDocument).Result;
-
-        var simplifiedCode = document.GetTextAsync().Result.ToString();
-
-        return simplifiedCode;
-    }
+        => node.NormalizeWhitespace().ToFullString();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

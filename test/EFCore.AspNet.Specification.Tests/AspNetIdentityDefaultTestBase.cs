@@ -44,9 +44,9 @@ public abstract class AspNetIdentityDefaultTestBase<TFixture>
                     "Property: IdentityRoleClaim<string>.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
                     "Property: IdentityRoleClaim<string>.ClaimType (string)",
                     "Property: IdentityRoleClaim<string>.ClaimValue (string)",
-                    "Property: IdentityRoleClaim<string>.RoleId (string) Required FK Index",
+                    $"Property: IdentityRoleClaim<string>.RoleId (string) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                 },
-                Indexes = { "{'RoleId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'RoleId'} "] : [],
                 FKs = { "ForeignKey: IdentityRoleClaim<string> {'RoleId'} -> IdentityRole {'Id'} Required Cascade", },
             },
             new EntityTypeMapping
@@ -87,9 +87,9 @@ public abstract class AspNetIdentityDefaultTestBase<TFixture>
                     "Property: IdentityUserClaim<string>.Id (int) Required PK AfterSave:Throw ValueGenerated.OnAdd",
                     "Property: IdentityUserClaim<string>.ClaimType (string)",
                     "Property: IdentityUserClaim<string>.ClaimValue (string)",
-                    "Property: IdentityUserClaim<string>.UserId (string) Required FK Index",
+                    $"Property: IdentityUserClaim<string>.UserId (string) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                 },
-                Indexes = { "{'UserId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs = { "ForeignKey: IdentityUserClaim<string> {'UserId'} -> IdentityUser {'Id'} Required Cascade", },
             },
             new EntityTypeMapping
@@ -102,9 +102,9 @@ public abstract class AspNetIdentityDefaultTestBase<TFixture>
                     "Property: IdentityUserLogin<string>.LoginProvider (string) Required PK AfterSave:Throw",
                     "Property: IdentityUserLogin<string>.ProviderKey (string) Required PK AfterSave:Throw",
                     "Property: IdentityUserLogin<string>.ProviderDisplayName (string)",
-                    "Property: IdentityUserLogin<string>.UserId (string) Required FK Index",
+                    $"Property: IdentityUserLogin<string>.UserId (string) Required FK{(HasForeignKeyIndexes ? " Index" : "")}",
                 },
-                Indexes = { "{'UserId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'UserId'} "] : [],
                 FKs = { "ForeignKey: IdentityUserLogin<string> {'UserId'} -> IdentityUser {'Id'} Required Cascade", },
             },
             new EntityTypeMapping
@@ -115,9 +115,9 @@ public abstract class AspNetIdentityDefaultTestBase<TFixture>
                 Properties =
                 {
                     "Property: IdentityUserRole<string>.UserId (string) Required PK FK AfterSave:Throw",
-                    "Property: IdentityUserRole<string>.RoleId (string) Required PK FK Index AfterSave:Throw",
+                    $"Property: IdentityUserRole<string>.RoleId (string) Required PK FK{(HasForeignKeyIndexes ? " Index" : "")} AfterSave:Throw",
                 },
-                Indexes = { "{'RoleId'} ", },
+                Indexes = HasForeignKeyIndexes ? ["{'RoleId'} "] : [],
                 FKs =
                 {
                     "ForeignKey: IdentityUserRole<string> {'RoleId'} -> IdentityRole {'Id'} Required Cascade",

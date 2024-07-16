@@ -29,7 +29,7 @@ public class PrimitiveCollectionsQueryCosmosTest : PrimitiveCollectionsQueryTest
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (10, 999))
+WHERE c["Int"] IN (10, 999)
 """);
             });
 
@@ -43,7 +43,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (10, 
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] IN (10, 999))
+WHERE c["NullableInt"] IN (10, 999)
 """);
             });
 
@@ -57,7 +57,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] 
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] IN (null, 999))
+WHERE c["NullableInt"] IN (null, 999)
 """);
             });
 
@@ -71,10 +71,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["NullableInt"] 
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 
@@ -88,10 +88,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [2])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 
@@ -105,10 +105,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2, 999])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [2, 999])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 
@@ -122,10 +122,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [2, 999, 1000])
-    WHERE (i > c["Id"])) = 2))
+    FROM a IN (SELECT VALUE [2, 999, 1000])
+    WHERE (a > c["Id"])) = 2)
 """);
             });
 
@@ -139,7 +139,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND false)
+WHERE false
 """);
             });
 
@@ -149,12 +149,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND false)
             {
                 await base.Inline_collection_Contains_with_one_value(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2))
-""");
+                AssertSql("ReadItem(None, PrimitiveCollectionsEntity|2)");
             });
 
     public override Task Inline_collection_Contains_with_two_values(bool async)
@@ -167,7 +162,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999))
+WHERE c["Id"] IN (2, 999)
 """);
             });
 
@@ -181,7 +176,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999, 1000))
+WHERE c["Id"] IN (2, 999, 1000)
 """);
             });
 
@@ -195,7 +190,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999, 1000))
+WHERE c["Id"] IN (2, 999, 1000)
 """);
             });
 
@@ -212,7 +207,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (@__i_0, @__j_1))
+WHERE c["Id"] IN (@__i_0, @__j_1)
 """);
             });
 
@@ -228,7 +223,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (@__i_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, @__j_0))
+WHERE c["Id"] IN (2, @__j_0)
 """);
             });
 
@@ -244,7 +239,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, @_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"])))
+WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
 """);
             });
 
@@ -260,7 +255,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999,
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"])))
+WHERE c["Int"] IN (999, @__i_0, c["Id"], (c["Id"] + c["Int"]))
 """);
             });
 
@@ -274,7 +269,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Int"] IN (999,
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 999))
+WHERE c["Id"] IN (2, 999)
 """);
             });
 
@@ -288,7 +283,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] IN (2, 99
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] NOT IN (2, 999))
+WHERE c["Id"] NOT IN (2, 999)
 """);
             });
 
@@ -302,9 +297,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND c["Id"] NOT IN (2
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -318,9 +313,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -334,9 +329,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -350,9 +345,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"]])) = 30))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"]])) = 30)
 """);
             });
 
@@ -368,9 +363,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
 """);
             });
 
@@ -386,9 +381,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MIN(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25))
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
 """);
             });
 
@@ -404,9 +399,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
 """);
             });
 
@@ -422,9 +417,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
-    SELECT VALUE MAX(i)
-    FROM i IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35))
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
 """);
             });
 
@@ -440,10 +435,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM i IN (SELECT VALUE @__ids_0)
-    WHERE (i > c["Id"])) = 1))
+    WHERE (i > c["Id"])) = 1)
 """);
             });
 
@@ -459,7 +454,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """,
                     //
                     """
@@ -467,7 +462,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["Int"])))
+WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 """);
             });
 
@@ -483,7 +478,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """,
                     //
                     """
@@ -491,7 +486,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["Int"])))
+WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["Int"]))
 """);
             });
 
@@ -507,7 +502,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
+WHERE ARRAY_CONTAINS(@__ints_0, c["NullableInt"])
 """,
                     //
                     """
@@ -515,7 +510,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"])))
+WHERE NOT(ARRAY_CONTAINS(@__ints_0, c["NullableInt"]))
 """);
             });
 
@@ -531,7 +526,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@__nullableInts_0, c["Int"])
 """,
                     //
                     """
@@ -539,7 +534,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"])))
+WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["Int"]))
 """);
             });
 
@@ -555,7 +550,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
+WHERE ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"])
 """,
                     //
                     """
@@ -563,7 +558,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"])))
+WHERE NOT(ARRAY_CONTAINS(@__nullableInts_0, c["NullableInt"]))
 """);
             });
 
@@ -579,7 +574,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["String"]))
+WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
 """,
                     //
                     """
@@ -587,7 +582,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["String"])))
+WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
 """);
             });
 
@@ -603,7 +598,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
+WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
 """,
                     //
                     """
@@ -611,7 +606,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"])))
+WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
 """);
             });
 
@@ -627,7 +622,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["String"]))
+WHERE ARRAY_CONTAINS(@__strings_0, c["String"])
 """,
                     //
                     """
@@ -635,7 +630,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["String"])))
+WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["String"]))
 """);
             });
 
@@ -651,7 +646,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
+WHERE ARRAY_CONTAINS(@__strings_0, c["NullableString"])
 """,
                     //
                     """
@@ -659,7 +654,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"])))
+WHERE NOT(ARRAY_CONTAINS(@__strings_0, c["NullableString"]))
 """);
             });
 
@@ -675,7 +670,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND NOT(ARRAY_CONTAIN
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"]))
+WHERE ARRAY_CONTAINS(@__dateTimes_0, c["DateTime"])
 """);
             });
 
@@ -691,7 +686,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__bools_0, c["Bool"]))
+WHERE ARRAY_CONTAINS(@__bools_0, c["Bool"])
 """);
             });
 
@@ -707,7 +702,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__enums_0, c["Enum"]))
+WHERE ARRAY_CONTAINS(@__enums_0, c["Enum"])
 """);
             });
 
@@ -723,7 +718,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__ints_0, c["Int"]))
+WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
 """);
             });
 
@@ -737,7 +732,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["Ints"], 10))
+WHERE ARRAY_CONTAINS(c["Ints"], 10)
 """);
             });
 
@@ -751,7 +746,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["NullableInts"], 10))
+WHERE ARRAY_CONTAINS(c["NullableInts"], 10)
 """);
             });
 
@@ -765,7 +760,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["NullableInts"], null))
+WHERE ARRAY_CONTAINS(c["NullableInts"], null)
 """);
             });
 
@@ -779,7 +774,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["Strings"], null))
+WHERE ARRAY_CONTAINS(c["Strings"], null)
 """);
             });
 
@@ -793,7 +788,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["NullableStrings"], null))
+WHERE ARRAY_CONTAINS(c["NullableStrings"], null)
 """);
             });
 
@@ -807,7 +802,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c["Bools"], true))
+WHERE ARRAY_CONTAINS(c["Bools"], true)
 """);
             });
 
@@ -821,7 +816,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(c[
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) = 2))
+WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
             });
 
@@ -835,7 +830,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) = 2))
+WHERE (ARRAY_LENGTH(c["Ints"]) = 2)
 """);
             });
 
@@ -849,10 +844,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM i IN c["Ints"]
-    WHERE (i > 1)) = 2))
+    WHERE (i > 1)) = 2)
 """);
             });
 
@@ -866,10 +861,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
     FROM i IN c["Ints"]
-    WHERE (i > 1)) = 2))
+    WHERE (i > 1)) = 2)
 """);
             });
 
@@ -883,7 +878,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 10))
+WHERE (c["Ints"][1] = 10)
 """);
             });
 
@@ -897,7 +892,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 1
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Strings"][1] = "10"))
+WHERE (c["Strings"][1] = "10")
 """);
             });
 
@@ -911,7 +906,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Strings"][1] 
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["DateTimes"][1] = "2020-01-10T12:30:00Z"))
+WHERE (c["DateTimes"][1] = "2020-01-10T12:30:00Z")
 """);
             });
 
@@ -925,7 +920,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["DateTimes"][1
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][999] = 10))
+WHERE (c["Ints"][999] = 10)
 """);
             });
 
@@ -940,7 +935,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][999] =
                 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["NullableStrings"][2] = c["NullableString"]))
+WHERE (c["NullableStrings"][2] = c["NullableString"])
 """);
         }
     }
@@ -955,7 +950,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["NullableStrin
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"])))
+WHERE ((ARRAY_LENGTH(c["Strings"]) > 0) AND (c["Strings"][1] = c["NullableString"]))
 """);
             });
 
@@ -973,7 +968,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((ARRAY_LENGTH(c[
                 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, 2, 3][c["Int"]] = 1))
+WHERE ([1, 2, 3][c["Int"]] = 1)
 """);
         }
     }
@@ -992,7 +987,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, 2, 3][c["Int
                 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3][c["Int"]] = 1))
+WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
         }
     }
@@ -1011,7 +1006,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3]
                 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3][c["Int"]] = 1))
+WHERE ([1, c["Int"], 3][c["Int"]] = 1)
 """);
         }
     }
@@ -1032,7 +1027,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ([1, c["Int"], 3]
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int"]] = c["Int"]))
+WHERE (@__ints_0[c["Int"]] = c["Int"])
 """);
         }
     }
@@ -1053,7 +1048,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int"]] = 1))
+WHERE (@__ints_0[c["Int"]] = 1)
 """);
         }
     }
@@ -1068,7 +1063,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (@__ints_0[c["Int
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 10))
+WHERE (c["Ints"][1] = 10)
 """);
             });
 
@@ -1082,7 +1077,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][1] = 1
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1))
+WHERE (c["Ints"][0] = 1)
 """);
             });
 
@@ -1096,7 +1091,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ?? 0) = 1))
+WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
             });
 
@@ -1110,7 +1105,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ??
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1))
+WHERE (c["Ints"][0] = 1)
 """);
             });
 
@@ -1124,7 +1119,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"][0] = 1
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ?? 0) = 1))
+WHERE ((c["Ints"][0] ?? 0) = 1)
 """);
             });
 
@@ -1138,7 +1133,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][0] ??
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2))
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(c["Ints"], 1)) = 2)
 """);
             });
 
@@ -1152,7 +1147,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11))
+WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 0, 2), 11)
 """);
             });
 
@@ -1166,7 +1161,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(AR
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11))
+WHERE ARRAY_CONTAINS(ARRAY_SLICE(c["Ints"], 1, 2), 11)
 """);
             });
 
@@ -1180,10 +1175,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(AR
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)), 1)) = 3))
+    WHERE (i > 1)), 1)) = 3)
 """);
             });
 
@@ -1197,10 +1192,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)), 0, 2)) = 2))
+    WHERE (i > 1)), 0, 2)) = 2)
 """);
             });
 
@@ -1214,10 +1209,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
+WHERE (ARRAY_LENGTH(ARRAY_SLICE(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)), 1, 2)) = 1))
+    WHERE (i > 1)), 1, 2)) = 1)
 """);
             });
 
@@ -1231,10 +1226,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
+WHERE EXISTS (
     SELECT 1
     FROM i IN c["Ints"]
-    WHERE ((i > 1) AND (i = 11))))
+    WHERE ((i > 1) AND (i = 11)))
 """);
             });
 
@@ -1252,10 +1247,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND EXISTS (
                 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+WHERE (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    ORDER BY i DESC)[0] = 111))
+    ORDER BY i DESC)[0] = 111)
 """);
         }
     }
@@ -1270,10 +1265,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+WHERE (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1))[0] = 11))
+    WHERE (i > 1))[0] = 11)
 """);
             });
 
@@ -1287,7 +1282,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["Ints"]) > 0))
+WHERE (ARRAY_LENGTH(c["Ints"]) > 0)
 """);
             });
 
@@ -1307,10 +1302,9 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(c["
 
                 AssertSql(
                     """
-SELECT a
+SELECT i AS i0
 FROM root c
-JOIN a IN c["Ints"]
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+JOIN i IN c["Ints"]
 """);
             });
 
@@ -1322,13 +1316,12 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
                 AssertSql(
                     """
-SELECT a
+SELECT j
 FROM root c
 JOIN (
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 1)) a
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+    WHERE (i > 1)) j
 """);
             });
 
@@ -1355,7 +1348,6 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
                     """
 SELECT c["Ints"]
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1388,7 +1380,7 @@ ORDER BY c["Id"]
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2))
+WHERE (ARRAY_LENGTH(ARRAY_CONCAT(@__ints_0, c["Ints"])) = 2)
 """);
             });
 
@@ -1404,7 +1396,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(ARR
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(c["Ints"], @__ints_0)) = 2))
+WHERE (ARRAY_LENGTH(SetUnion(c["Ints"], @__ints_0)) = 2)
 """);
             });
 
@@ -1418,7 +1410,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2))
+WHERE (ARRAY_LENGTH(SetIntersect(c["Ints"], [11, 111])) = 2)
 """);
             });
 
@@ -1441,10 +1433,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(ARRAY(
+WHERE (ARRAY_LENGTH(SetUnion(ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i > 100)), [50])) = 2))
+    WHERE (i > 100)), [50])) = 2)
 """);
             });
 
@@ -1460,7 +1452,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = @__ints_0))
+WHERE (c["Ints"] = @__ints_0)
 """);
             });
 
@@ -1476,7 +1468,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = @__i
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_CONCAT(c["Ints"], @__ints_0) = [1,11,111,1,10]))
+WHERE (ARRAY_CONCAT(c["Ints"], @__ints_0) = [1,11,111,1,10])
 """);
             });
 
@@ -1490,7 +1482,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_CONCAT(c["
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [1,10]))
+WHERE (c["Ints"] = [1,10])
 """);
             });
 
@@ -1507,7 +1499,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [1,1
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [@__i_0, @__j_1]))
+WHERE (c["Ints"] = [@__i_0, @__j_1])
 """);
             });
 
@@ -1521,10 +1513,10 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Ints"] = [@__
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
+WHERE (ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]
-    WHERE (i != 11)) = [1,111]))
+    WHERE (i != 11)) = [1,111])
 """);
             });
 
@@ -1552,7 +1544,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY(
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(SetUnion(@__Skip_0, c["Ints"])) = 3))
+WHERE (ARRAY_LENGTH(SetUnion(@__Skip_0, c["Ints"])) = 3)
 """);
             });
 
@@ -1619,7 +1611,6 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (ARRAY_LENGTH(Set
                     """
 SELECT c["Ints"]
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1641,7 +1632,6 @@ SELECT ARRAY(
     FROM i IN c["Ints"]
     ORDER BY i DESC) AS c
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
         }
@@ -1656,11 +1646,10 @@ ORDER BY c["Id"]
                 AssertSql(
                     """
 SELECT ARRAY(
-    SELECT VALUE i
-    FROM i IN c["DateTimes"]
-    WHERE (DateTimePart("dd", i) != 1)) AS c
+    SELECT VALUE d
+    FROM d IN c["DateTimes"]
+    WHERE (DateTimePart("dd", d) != 1)) AS c
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1713,7 +1702,6 @@ SELECT ARRAY(
     SELECT DISTINCT VALUE i
     FROM i IN c["Ints"]) AS c
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1745,7 +1733,6 @@ SELECT ARRAY(
     SELECT VALUE i
     FROM i IN c["Ints"]) AS c
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
@@ -1762,16 +1749,15 @@ OFFSET 0 LIMIT 1
 SELECT VALUE
 {
     "c" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["NullableInts"]
+        SELECT VALUE n
+        FROM n IN c["NullableInts"]
         WHERE false),
     "c0" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["NullableInts"]
-        WHERE (i = null))
+        SELECT VALUE n0
+        FROM n0 IN c["NullableInts"]
+        WHERE (n0 = null))
 }
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
             });
@@ -1794,20 +1780,19 @@ SELECT VALUE
         SELECT VALUE i
         FROM i IN c["Ints"]),
     "c0" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["Ints"]
-        ORDER BY i DESC),
+        SELECT VALUE i0
+        FROM i0 IN c["Ints"]
+        ORDER BY i0 DESC),
     "c1" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["DateTimes"]
-        WHERE (DateTimePart("dd", i) != 1)),
+        SELECT VALUE d
+        FROM d IN c["DateTimes"]
+        WHERE (DateTimePart("dd", d) != 1)),
     "c2" : ARRAY(
-        SELECT VALUE i
-        FROM i IN c["DateTimes"]
-        WHERE (i > "2000-01-01T00:00:00"))
+        SELECT VALUE d0
+        FROM d0 IN c["DateTimes"]
+        WHERE (d0 > "2000-01-01T00:00:00"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 ORDER BY c["Id"]
 """);
         }
@@ -1828,7 +1813,7 @@ SELECT VALUE
     "QueryableElementAt" : c["Strings"][1]
 }
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND (c["Id"] < 4))
+WHERE (c["Id"] < 4)
 ORDER BY c["Id"]
 """);
             });
@@ -1844,7 +1829,6 @@ ORDER BY c["Id"]
                     """
 SELECT [c["String"], "foo"] AS c
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 """);
             });
 
@@ -1881,7 +1865,7 @@ WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two")))
+WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two"))
 """);
             });
 
@@ -1898,7 +1882,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two")))
+WHERE ARRAY_CONTAINS(@__strings_1, (ARRAY_CONTAINS(@__ints_0, c["Int"]) ? "one" : "two"))
 """);
             });
 
@@ -1919,7 +1903,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ARRAY_CONTAINS(@_
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND IS_DEFINED(c["Ints"][2]))
+WHERE IS_DEFINED(c["Ints"][2])
 """);
             });
 
@@ -1938,7 +1922,7 @@ WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND IS_DEFINED(c["Int
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "PrimitiveCollectionsEntity") AND ((c["Ints"][2] ?? 999) = 999))
+WHERE ((c["Ints"][2] ?? 999) = 999)
 """);
             });
 

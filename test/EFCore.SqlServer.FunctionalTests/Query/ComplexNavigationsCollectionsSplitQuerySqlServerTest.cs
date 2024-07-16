@@ -4425,14 +4425,12 @@ SELECT [l].[Id], CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END
 FROM [LevelOne] AS [l]
 WHERE CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END = N'02'
 ORDER BY [l].[Id]
 """,
@@ -4445,7 +4443,6 @@ WHERE CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END = N'02'
 ORDER BY [l].[Id], [l2].[Id]
 """);

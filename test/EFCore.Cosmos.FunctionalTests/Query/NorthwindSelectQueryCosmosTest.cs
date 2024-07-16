@@ -1638,10 +1638,9 @@ ORDER BY c["OrderID"]
 
     public override async Task Reverse_in_join_inner_with_skip(bool async)
     {
-        Assert.Equal(
-            CosmosStrings.ReverseAfterSkipTakeNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Reverse_in_join_inner_with_skip(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Reverse_in_join_inner_with_skip(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Order), nameof(Customer)));
 
         AssertSql();
     }
@@ -2013,6 +2012,62 @@ WHERE (c["Discriminator"] = "Customer")
 SELECT ((c["CustomerID"] = "1") ? "01" : ((c["CustomerID"] = "2") ? "02" : ((c["CustomerID"] = "3") ? "03" : ((c["CustomerID"] = "4") ? "04" : ((c["CustomerID"] = "5") ? "05" : ((c["CustomerID"] = "6") ? "06" : ((c["CustomerID"] = "7") ? "07" : ((c["CustomerID"] = "8") ? "08" : ((c["CustomerID"] = "9") ? "09" : ((c["CustomerID"] = "10") ? "10" : ((c["CustomerID"] = "11") ? "11" : null))))))))))) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
+""");
+            });
+
+    public override Task Select_conditional_drops_false(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_drops_false(a);
+
+                AssertSql(
+                    """
+SELECT (((c["OrderID"] % 2) = 0) ? c["OrderID"] : -(c["OrderID"])) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_terminates_at_true(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_terminates_at_true(a);
+
+                AssertSql(
+                    """
+SELECT (((c["OrderID"] % 2) = 0) ? c["OrderID"] : 0) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_flatten_nested_results(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_flatten_nested_results(a);
+
+                AssertSql(
+                    """
+SELECT (((c["OrderID"] % 2) = 0) ? (((c["OrderID"] % 5) = 0) ? -(c["OrderID"]) : c["OrderID"]) : c["OrderID"]) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
+""");
+            });
+
+    public override Task Select_conditional_flatten_nested_tests(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_conditional_flatten_nested_tests(a);
+
+                AssertSql(
+                    """
+SELECT ((((c["OrderID"] % 2) = 0) ? false : true) ? c["OrderID"] : -(c["OrderID"])) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Order")
 """);
             });
 

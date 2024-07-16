@@ -3,7 +3,9 @@
 
 #nullable disable
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json.Linq;
 using static System.Linq.Expressions.Expression;
 
@@ -25,9 +27,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     private readonly Type _contextType = cosmosQueryCompilationContext.ContextType;
     private readonly bool _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
 
-    private readonly PartitionKey _partitionKeyValueFromExtension = cosmosQueryCompilationContext.PartitionKeyValueFromExtension
-        ?? PartitionKey.None;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -36,9 +35,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
     /// </summary>
     protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
     {
-        if (cosmosQueryCompilationContext.CosmosContainer is null)
+        if (cosmosQueryCompilationContext.RootEntityType is not IEntityType rootEntityType)
         {
-            throw new UnreachableException("No Cosmos container was set during query processing.");
+            throw new UnreachableException("No root entity type was set during query processing.");
         }
 
         var jObjectParameter = Parameter(typeof(JObject), "jObject");
@@ -82,7 +81,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
         var shaperConstant = Constant(shaperLambda.Compile());
         var contextTypeConstant = Constant(_contextType);
-        var containerConstant = Constant(cosmosQueryCompilationContext.CosmosContainer);
+        var rootEntityTypeConstant = Constant(rootEntityType);
         var threadSafetyConstant = Constant(_threadSafetyChecksEnabled);
         var standAloneStateManagerConstant = Constant(
             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution);
@@ -92,9 +91,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         return selectExpression switch
         {
             { ReadItemInfo: ReadItemInfo readItemInfo } => New(
-                typeof(ReadItemQueryingEnumerable<>).MakeGenericType(readItemInfo.Type).GetConstructors()[0],
+                typeof(ReadItemQueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 cosmosQueryContextConstant,
-                containerConstant,
+                rootEntityTypeConstant,
+                Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 Constant(readItemInfo),
                 shaperConstant,
                 contextTypeConstant,
@@ -109,8 +109,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(selectExpression),
                 shaperConstant,
                 contextTypeConstant,
-                containerConstant,
-                Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                rootEntityTypeConstant,
+                Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant,
                 Constant(maxItemCount.Name),
@@ -124,10 +124,79 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
                 Constant(selectExpression),
                 shaperConstant,
                 contextTypeConstant,
-                containerConstant,
-                Constant(_partitionKeyValueFromExtension, typeof(PartitionKey)),
+                rootEntityTypeConstant,
+                Constant(cosmosQueryCompilationContext.PartitionKeyPropertyValues),
                 standAloneStateManagerConstant,
                 threadSafetyConstant)
         };
+    }
+
+    private static PartitionKey GeneratePartitionKey(
+        IEntityType rootEntityType,
+        List<Expression> partitionKeyPropertyValues,
+        IReadOnlyDictionary<string, object> parameterValues)
+    {
+        if (partitionKeyPropertyValues.Count == 0)
+        {
+            return PartitionKey.None;
+        }
+
+        var builder = new PartitionKeyBuilder();
+
+        var partitionKeyProperties = rootEntityType.GetPartitionKeyProperties();
+
+        int i;
+        for (i = 0; i < partitionKeyPropertyValues.Count && i < partitionKeyProperties.Count; i++)
+        {
+            var property = partitionKeyProperties[i];
+
+            switch (partitionKeyPropertyValues[i])
+            {
+                case SqlConstantExpression constant:
+                    builder.Add(constant.Value, property);
+                    continue;
+
+                // If WithPartitionKey() was used, its second argument is a params object[] array, which gets parameterized as a single
+                // parameter. Extract the object[] and iterate over the values within here.
+                case SqlParameterExpression parameter when parameter.Type == typeof(object[]):
+                {
+                    if (!parameterValues.TryGetValue(parameter.Name, out var value)
+                        || value is not object[] remainingValuesArray
+                        || i != 1)
+                    {
+                        throw new UnreachableException("Couldn't find partition key parameter value");
+                    }
+
+                    for (var j = 0; j < remainingValuesArray.Length; j++, i++)
+                    {
+                        builder.Add(remainingValuesArray[j], partitionKeyProperties[i]);
+                    }
+
+                    goto End;
+                }
+
+                case SqlParameterExpression parameter:
+                {
+                    builder.Add(
+                        parameterValues.TryGetValue(parameter.Name, out var value)
+                            ? value
+                            : throw new UnreachableException("Couldn't find partition key parameter value"),
+                        property);
+                    continue;
+                }
+
+                default:
+                    throw new UnreachableException();
+            }
+        }
+
+        End:
+        if (i != partitionKeyProperties.Count)
+        {
+            throw new InvalidOperationException(
+                CosmosStrings.IncorrectPartitionKeyNumber(rootEntityType.DisplayName(), i, partitionKeyProperties.Count));
+        }
+
+        return builder.Build();
     }
 }

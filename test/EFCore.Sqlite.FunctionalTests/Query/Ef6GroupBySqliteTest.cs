@@ -49,12 +49,6 @@ GROUP BY "p"."Category"
     public override async Task Whats_new_2021_sample_6(bool async)
         => await base.Whats_new_2021_sample_6(async);
 
-    public override async Task Group_Join_from_LINQ_101(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Group_Join_from_LINQ_101(async))).Message);
-
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

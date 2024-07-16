@@ -240,6 +240,19 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_conflicting_IsDiscriminatorMappingCompleteMismatch()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().ToContainer("Orders")
+            .Metadata.SetDiscriminatorMappingComplete(true);
+        modelBuilder.Entity<Order>().ToContainer("Orders")
+            .Metadata.SetDiscriminatorMappingComplete(false);
+
+        VerifyError(
+            CosmosStrings.IsDiscriminatorMappingCompleteMismatch(true, nameof(Customer), nameof(Order), false, "Orders"), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_conflicting_analytical_ttl()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -346,6 +359,19 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Order>().ToContainer("Orders").Metadata.SetContainingPropertyName("Prop");
 
         VerifyError(CosmosStrings.ContainerContainingPropertyConflict(nameof(Order), "Orders", "Prop"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_index()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.HasIndex(e => new { e.Name, e.OtherName });
+            });
+
+        VerifyError(CosmosStrings.IndexesExist(nameof(Customer), "Name,OtherName"), modelBuilder);
     }
 
     [ConditionalFact]

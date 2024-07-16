@@ -56,7 +56,7 @@ public class SqliteTransactionTest
 
             Assert.Fail();
         }
-        catch (Exception)
+        catch
         {
             // Expected to throw.
         }

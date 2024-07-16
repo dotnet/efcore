@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         ISqlExpressionFactory sqlExpressionFactory,
-        QueryCompilationContext queryCompilationContext)
+        CosmosQueryCompilationContext queryCompilationContext)
     : QueryTranslationPostprocessor(dependencies, queryCompilationContext)
 {
     /// <summary>
@@ -27,12 +27,14 @@ public class CosmosQueryTranslationPostprocessor(
 
         if (query is ShapedQueryExpression { QueryExpression: SelectExpression selectExpression })
         {
-            // Cosmos does not have nested select expression so this should be safe.
             selectExpression.ApplyProjection();
         }
 
-        query = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterValueConverterCompensation = new CosmosValueConverterCompensatingExpressionVisitor(sqlExpressionFactory).Visit(query);
+        var afterAliases = queryCompilationContext.AliasManager.PostprocessAliases(afterValueConverterCompensation);
+        var afterExtraction = new CosmosReadItemAndPartitionKeysExtractor().ExtractPartitionKeysAndId(
+            queryCompilationContext, sqlExpressionFactory, afterAliases);
 
-        return query;
+        return afterExtraction;
     }
 }

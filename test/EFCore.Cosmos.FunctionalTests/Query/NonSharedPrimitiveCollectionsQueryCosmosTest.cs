@@ -15,10 +15,10 @@ public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCo
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "a")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "a")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -31,10 +31,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -47,10 +47,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -63,21 +63,18 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
 
-    public override async Task Array_of_byte()
-    {
-        // TODO
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte());
-
-        AssertSql();
-    }
+    // byte[] gets mapped to base64, which isn't queryable as a regular primitive collection.
+    [ConditionalFact]
+    public override Task Array_of_byte()
+        => AssertTranslationFailed(() => TestArray((byte)1, (byte)2));
 
     public override async Task Array_of_double()
     {
@@ -87,10 +84,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1.0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1.0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -103,10 +100,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1.0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1.0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -119,10 +116,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 1.0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 1.0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -135,10 +132,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -151,10 +148,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00.123")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00.123")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -167,10 +164,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00.123456")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00.123456")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -183,10 +180,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -199,10 +196,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "12:30:00")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "12:30:00")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -215,10 +212,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "12:30:00.123")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "12:30:00.123")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -231,10 +228,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "12:30:00.123456")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "12:30:00.123456")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -247,10 +244,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "2023-01-01T12:30:00+02:00")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "2023-01-01T12:30:00+02:00")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -263,10 +260,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = true)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = true)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -279,26 +276,27 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
 
     public override async Task Array_of_byte_array()
     {
-        // TODO
+        // TODO: primitive collection over value-converted element, #34153
         await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte_array());
 
-        AssertSql("""
+        AssertSql(
+            """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = "AQI=")) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = "AQI=")) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -311,10 +309,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN c["SomeArray"]
-    WHERE (i = 0)) = 2))
+    FROM s IN c["SomeArray"]
+    WHERE (s = 0)) = 2)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -335,7 +333,7 @@ OFFSET 0 LIMIT 2
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND (c["Ints"] = @__ints_0))
+WHERE (c["Ints"] = @__ints_0)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -349,8 +347,8 @@ OFFSET 0 LIMIT 2
 
     public override async Task Constant_with_inferred_value_converter()
     {
-        // TODO
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Constant_with_inferred_value_converter());
+        // TODO: advanced type mapping inference for inline scalar collection, #34026
+        await AssertTranslationFailed(() => base.Constant_with_inferred_value_converter());
 
         AssertSql();
     }
@@ -363,10 +361,10 @@ OFFSET 0 LIMIT 2
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "TestEntity") AND ((
+WHERE ((
     SELECT VALUE COUNT(1)
-    FROM i IN (SELECT VALUE [1, 2, 3])
-    WHERE (i > c["Id"])) = 1))
+    FROM a IN (SELECT VALUE [1, 2, 3])
+    WHERE (a > c["Id"])) = 1)
 OFFSET 0 LIMIT 2
 """);
     }

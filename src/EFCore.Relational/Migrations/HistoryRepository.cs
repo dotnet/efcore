@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
 ///     </para>
 /// </remarks>
-// TODO: Leverage query pipeline for GetAppliedMigrations
-// TODO: Leverage update pipeline for GetInsertScript & GetDeleteScript
 public abstract class HistoryRepository : IHistoryRepository
 {
     /// <summary>
@@ -122,15 +120,14 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </summary>
     /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
     public virtual bool Exists()
-        => Dependencies.DatabaseCreator.Exists()
-            && InterpretExistsResult(
-                Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
-                    new RelationalCommandParameterObject(
-                        Dependencies.Connection,
-                        null,
-                        null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger, CommandSource.Migrations)));
+        => InterpretExistsResult(
+            Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
+                new RelationalCommandParameterObject(
+                    Dependencies.Connection,
+                    null,
+                    null,
+                    Dependencies.CurrentContext.Context,
+                    Dependencies.CommandLogger, CommandSource.Migrations)));
 
     /// <summary>
     ///     Checks whether or not the history table exists.
@@ -142,16 +139,15 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
-        => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
-            && InterpretExistsResult(
-                await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                    new RelationalCommandParameterObject(
-                        Dependencies.Connection,
-                        null,
-                        null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger, CommandSource.Migrations),
-                    cancellationToken).ConfigureAwait(false));
+        => InterpretExistsResult(
+            await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
+                new RelationalCommandParameterObject(
+                    Dependencies.Connection,
+                    null,
+                    null,
+                    Dependencies.CurrentContext.Context,
+                    Dependencies.CommandLogger, CommandSource.Migrations),
+                cancellationToken).ConfigureAwait(false));
 
     /// <summary>
     ///     Interprets the result of executing <see cref="ExistsSql" />.
@@ -171,14 +167,48 @@ public abstract class HistoryRepository : IHistoryRepository
     /// </summary>
     /// <returns>The SQL script.</returns>
     public virtual string GetCreateScript()
+        => string.Concat(GetCreateCommands().Select(c => c.CommandText));
+
+    /// <summary>
+    ///     Creates the history table.
+    /// </summary>
+    public virtual void Create()
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateCommands(), Dependencies.Connection);
+
+    /// <summary>
+    ///     Creates the history table.
+    /// </summary>
+    public virtual Task CreateAsync(CancellationToken cancellationToken = default)
+        => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(GetCreateCommands(), Dependencies.Connection, cancellationToken);
+
+    /// <summary>
+    ///     Returns the migration commands that will create the history table.
+    /// </summary>
+    /// <returns>The migration commands that will create the history table.</returns>
+    protected virtual IReadOnlyList<MigrationCommand> GetCreateCommands()
     {
         var model = EnsureModel();
 
         var operations = Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel());
         var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, model);
-
-        return string.Concat(commandList.Select(c => c.CommandText));
+        return commandList;
     }
+
+    /// <summary>
+    ///     Gets an exclusive lock on the database.
+    /// </summary>
+    /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
+    /// <returns>An object that can be disposed to release the lock.</returns>
+    public abstract IDisposable GetDatabaseLock(TimeSpan timeout);
+
+    /// <summary>
+    ///     Gets an exclusive lock on the database.
+    /// </summary>
+    /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>An object that can be disposed to release the lock.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public abstract Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Configures the entity type mapped to the history table.

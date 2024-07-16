@@ -483,12 +483,11 @@ GROUP BY [a].[Id], [a].[Alias], [a].[FirstName], [a].[LastName]
             """
 SELECT [c].[Id], [c].[CompanyName], [c].[Region], [s].[Id], [s].[CustomerId], [s].[OrderDate], [s].[Total], [s].[Id0]
 FROM [CustomerForLinq] AS [c]
-OUTER APPLY (
+LEFT JOIN (
     SELECT [o].[Id], [o].[CustomerId], [o].[OrderDate], [o].[Total], [c0].[Id] AS [Id0]
     FROM [OrderForLinq] AS [o]
     LEFT JOIN [CustomerForLinq] AS [c0] ON [o].[CustomerId] = [c0].[Id]
-    WHERE [c].[Id] = [c0].[Id]
-) AS [s]
+) AS [s] ON [c].[Id] = [s].[Id0]
 ORDER BY [c].[Id], [s].[Id]
 """);
     }

@@ -768,6 +768,52 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_drops_false(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select o.OrderID % 2 == 0
+                      ? o.OrderID
+                      : false
+                          ? 0
+                          : -o.OrderID );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_terminates_at_true(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select o.OrderID % 2 == 0
+                      ? o.OrderID
+                      : true
+                          ? 0
+                          : -o.OrderID );
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_flatten_nested_results(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select o.OrderID % 2 == 0
+                      ? o.OrderID % 5 == 0
+                          ? -o.OrderID
+                          : o.OrderID
+                      : o.OrderID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_conditional_flatten_nested_tests(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => from o in ss.Set<Order>()
+                  select (o.OrderID % 2 == 0 ? false : true)
+                      ? o.OrderID
+                      : -o.OrderID);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Projection_in_a_subquery_should_be_liftable(bool async)
         => AssertQuery(
             async,

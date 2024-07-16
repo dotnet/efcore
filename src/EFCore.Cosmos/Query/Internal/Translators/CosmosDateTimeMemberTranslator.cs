@@ -52,7 +52,7 @@ public class CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionF
             _ => null
         };
 
-        SqlFunctionExpression DatePart(string part)
+        SqlExpression DatePart(string part)
             => sqlExpressionFactory.Function("DateTimePart", arguments: [sqlExpressionFactory.Constant(part), instance!], returnType);
     }
 }

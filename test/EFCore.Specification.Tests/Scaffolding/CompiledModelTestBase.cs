@@ -32,18 +32,17 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
                     });
             },
             model => Assert.Single(model.GetEntityTypes()),
-            // Blocked by dotnet/runtime/issues/89439
-            //c =>
-            //{
-            //    c.Add(new DependentDerived<int>(1, "one"));
+            async c =>
+            {
+                c.Add(new DependentDerived<int>(1, "one"));
 
-            //    c.SaveChanges();
+                await c.SaveChangesAsync();
 
-            //    var stored = c.Set<DependentDerived<int>>().Single();
-            //    Assert.Equal(0, stored.Id);
-            //    Assert.Equal(1, stored.GetId());
-            //    Assert.Equal("one", stored.GetData());
-            //},
+                var stored = await c.Set<DependentDerived<int>>().SingleAsync();
+                Assert.Equal(0, stored.Id);
+                Assert.Equal(1, stored.GetId());
+                Assert.Equal("one", stored.GetData());
+            },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true },
             additionalSourceFiles:
             [
@@ -81,27 +80,26 @@ namespace TestNamespace
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),
-            // Blocked by dotnet/runtime/issues/89439
-            //c =>
-            //{
-            //    var principalDerived = new PrincipalDerived<DependentBase<byte?>>
-            //    {
-            //        AlternateId = new Guid(),
-            //        Dependent = new DependentBase<byte?>(1),
-            //        Owned = new OwnedType(c)
-            //    };
+            async c =>
+            {
+                var principalDerived = new PrincipalDerived<DependentBase<byte?>>
+                {
+                    AlternateId = new Guid(),
+                    Dependent = new DependentBase<byte?>(1),
+                    Owned = new OwnedType(c)
+                };
 
-            //    var principalBase = c.Model.FindEntityType(typeof(PrincipalBase))!;
-            //    var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
-            //    if (principalId.ValueGenerated == ValueGenerated.Never)
-            //    {
-            //        principalDerived.Id = 10;
-            //    }
+                var principalBase = c.Model.FindEntityType(typeof(PrincipalBase))!;
+                var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
+                if (principalId.ValueGenerated == ValueGenerated.Never)
+                {
+                    principalDerived.Id = 10;
+                }
 
-            //    c.Add(principalDerived);
+                c.Add(principalDerived);
 
-            //    c.SaveChanges();
-            //},
+                await c.SaveChangesAsync();
+            },
             options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
 
     protected virtual void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
@@ -115,8 +113,6 @@ namespace TestNamespace
 
                 eb.Property(e => e.AlternateId)
                     .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
-
-                eb.HasIndex(e => new { e.AlternateId, e.Id });
 
                 eb.HasKey(e => new { e.Id, e.AlternateId });
 
@@ -170,8 +166,7 @@ namespace TestNamespace
                     .UsingEntity(
                         jb =>
                         {
-                            jb.Property<byte[]>("rowid")
-                                .IsRowVersion();
+                            jb.Property<byte[]>("rowid");
                         });
             });
 
@@ -325,30 +320,18 @@ namespace TestNamespace
         Assert.NotNull(principalId.GetKeyValueComparer());
 
         var principalAlternateId = principalBase.FindProperty(nameof(PrincipalBase.AlternateId))!;
-        var compositeIndex = principalBase.GetIndexes().Single();
-        Assert.Equal(PropertyAccessMode.FieldDuringConstruction, principalAlternateId.GetPropertyAccessMode());
-        Assert.Empty(compositeIndex.GetAnnotations());
-        Assert.Equal(new[] { principalAlternateId, principalId }, compositeIndex.Properties);
-        Assert.False(compositeIndex.IsUnique);
-        Assert.Null(compositeIndex.Name);
 
-        Assert.Equal(new[] { compositeIndex }, principalAlternateId.GetContainingIndexes());
-
-        Assert.Equal(2, principalBase.GetKeys().Count());
-
-        var principalAlternateKey = principalBase.GetKeys().First();
-        Assert.Same(principalId, principalAlternateKey.Properties.Single());
+        var principalAlternateKey = principalBase.GetKeys().Single(k => k.Properties.Count == 1 && principalId == k.Properties.Single());
         Assert.False(principalAlternateKey.IsPrimaryKey());
 
-        var principalKey = principalBase.GetKeys().Last();
-        Assert.Equal(new[] { principalId, principalAlternateId }, principalKey.Properties);
+        var principalKey = principalBase.GetKeys().Single(k => k.Properties.Count == 2 && k.Properties.SequenceEqual([principalId, principalAlternateId]));
         Assert.True(principalKey.IsPrimaryKey());
 
-        Assert.Equal(new[] { principalAlternateKey, principalKey }, principalId.GetContainingKeys());
+        Assert.Equal([principalAlternateKey, principalKey], principalId.GetContainingKeys());
 
         var referenceOwnedNavigation = principalBase.GetNavigations().Single();
         Assert.Equal(
-            new[] { CoreAnnotationNames.EagerLoaded },
+            [CoreAnnotationNames.EagerLoaded],
             referenceOwnedNavigation.GetAnnotations().Select(a => a.Name));
         Assert.Equal(nameof(PrincipalBase.Owned), referenceOwnedNavigation.Name);
         Assert.False(referenceOwnedNavigation.IsCollection);
@@ -422,7 +405,6 @@ namespace TestNamespace
         Assert.False(principalDerived.IsOwned());
         Assert.IsType<ConstructorBinding>(principalDerived.ConstructorBinding);
         Assert.Equal(ChangeTrackingStrategy.Snapshot, principalDerived.GetChangeTrackingStrategy());
-        Assert.Equal("PrincipalDerived<DependentBase<byte?>>", principalDerived.GetDiscriminatorValue());
 
         Assert.Equal(2, principalDerived.GetDeclaredNavigations().Count());
         var dependentNavigation = principalDerived.GetDeclaredNavigations().First();
@@ -485,7 +467,7 @@ namespace TestNamespace
         Assert.Same(
             derivedSkipNavigation.Inverse, derivedSkipNavigation.Inverse.ForeignKey.GetReferencingSkipNavigations().Single());
 
-        Assert.Equal(new[] { derivedSkipNavigation.Inverse, derivedSkipNavigation }, principalDerived.GetSkipNavigations());
+        Assert.Equal([derivedSkipNavigation.Inverse, derivedSkipNavigation], principalDerived.GetSkipNavigations());
 
         var joinType = derivedSkipNavigation.JoinEntityType;
 
@@ -500,15 +482,14 @@ namespace TestNamespace
         Assert.Equal(ChangeTrackingStrategy.Snapshot, joinType.GetChangeTrackingStrategy());
         Assert.Null(joinType.GetQueryFilter());
 
-        var rowid = joinType.GetProperties().Single(p => !p.IsForeignKey());
+        var rowid = joinType.FindProperty("rowid")!;
         Assert.Equal(typeof(byte[]), rowid.ClrType);
         Assert.True(rowid.IsIndexerProperty());
         Assert.Same(joinType.FindIndexerPropertyInfo(), rowid.PropertyInfo);
         Assert.Null(rowid.FieldInfo);
         Assert.True(rowid.IsNullable);
+        Assert.False(rowid.IsForeignKey());
         Assert.False(rowid.IsShadowProperty());
-        Assert.True(rowid.IsConcurrencyToken);
-        Assert.Equal(ValueGenerated.OnAddOrUpdate, rowid.ValueGenerated);
         Assert.Null(rowid.GetValueConverter());
         Assert.NotNull(rowid.GetValueComparer());
         Assert.NotNull(rowid.GetKeyValueComparer());
@@ -625,7 +606,6 @@ namespace TestNamespace
                             .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
                             .HasMaxLength(64)
                             .HasPrecision(3, 2)
-                            .IsRowVersion()
                             .HasAnnotation("foo", "bar");
                         eb.Ignore(e => e.Context);
                         eb.ComplexProperty(o => o.Principal, cb =>
@@ -684,11 +664,7 @@ namespace TestNamespace
         Assert.Equal(typeof(string), detailsProperty.FieldInfo!.FieldType);
         Assert.Equal("_details", detailsProperty.FieldInfo.Name);
         Assert.True(detailsProperty.IsNullable);
-        Assert.Equal(ValueGenerated.OnAddOrUpdate, detailsProperty.ValueGenerated);
-        Assert.Equal(PropertySaveBehavior.Ignore, detailsProperty.GetAfterSaveBehavior());
-        Assert.Equal(PropertySaveBehavior.Ignore, detailsProperty.GetBeforeSaveBehavior());
         Assert.False(detailsProperty.IsUnicode());
-        Assert.True(detailsProperty.IsConcurrencyToken);
         Assert.Equal(64, detailsProperty.GetMaxLength());
         Assert.Equal(3, detailsProperty.GetPrecision());
         Assert.Equal(2, detailsProperty.GetScale());
@@ -706,7 +682,7 @@ namespace TestNamespace
         Assert.Equal(principalBase, principalDerived.BaseType);
 
         Assert.Equal(
-            new[] { principalBase, principalDerived },
+            [principalBase, principalDerived],
             model.GetEntityTypes());
     }
 
@@ -1154,6 +1130,7 @@ namespace TestNamespace
     }
 
     public class PrincipalDerived<TDependent> : PrincipalBase
+        where TDependent : class
     {
         public TDependent? Dependent { get; set; }
         protected ICollection<OwnedType> ManyOwned = null!;
@@ -1528,8 +1505,10 @@ namespace TestNamespace
                 {
                     File.WriteAllText(fullFilePath, file.Code);
                 }
-
-                exceptions.Add(new Exception($"Difference found in {file.Path}", ex));
+                else
+                {
+                    exceptions.Add(new Exception($"Difference found in {file.Path}", ex));
+                }
             }
         }
 

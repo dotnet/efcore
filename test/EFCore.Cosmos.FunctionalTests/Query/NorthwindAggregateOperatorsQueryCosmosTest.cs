@@ -232,13 +232,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.Where_Single(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override Task FirstOrDefault(bool async)
@@ -293,13 +287,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.SingleOrDefault_Predicate(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override async Task SingleOrDefault_Throws(bool async)
@@ -341,13 +329,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.Where_SingleOrDefault(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override async Task Select_All(bool async)
@@ -1245,13 +1227,7 @@ ORDER BY c["CustomerID"]
             {
                 await base.Single_Predicate(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 2
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override async Task FirstOrDefault_inside_subquery_gets_server_evaluated(bool async)
@@ -1300,13 +1276,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.Last_when_no_order_by(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 1
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override Task LastOrDefault_when_no_order_by(bool async)
@@ -1315,13 +1285,7 @@ OFFSET 0 LIMIT 1
             {
                 await base.LastOrDefault_when_no_order_by(a);
 
-                AssertSql(
-                    """
-SELECT c
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
-OFFSET 0 LIMIT 1
-""");
+                AssertSql("ReadItem(None, Customer|ALFKI)");
             });
 
     public override Task Last_Predicate(bool async)
@@ -1659,8 +1623,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
     SELECT 1
-    FROM i IN (SELECT VALUE ["ABCDE", "ALFKI"])
-    WHERE ((i != null) AND (i = c["CustomerID"]))))
+    FROM a IN (SELECT VALUE ["ABCDE", "ALFKI"])
+    WHERE ((a != null) AND (a = c["CustomerID"]))))
 """);
             });
 
@@ -1678,8 +1642,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
     SELECT 1
-    FROM i IN (SELECT VALUE @__p_0)
-    WHERE ((i != null) AND (i = c["CustomerID"]))))
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE ((p != null) AND (p = c["CustomerID"]))))
 """,
                     //
                     """
@@ -1689,8 +1653,8 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND EXISTS (
     SELECT 1
-    FROM i IN (SELECT VALUE @__p_0)
-    WHERE ((i != null) AND (i = c["CustomerID"]))))
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE ((p != null) AND (p = c["CustomerID"]))))
 """);
             });
 
@@ -1761,8 +1725,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
@@ -1810,8 +1773,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_object_read_only_collection_closure(bool async)
@@ -1827,8 +1789,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["CustomerID"]))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
@@ -1858,8 +1819,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__ids_0, c["Custome
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
@@ -1876,15 +1836,14 @@ SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__AsReadOnly_0, c["CustomerID"]))
 """,
-                //
-                """
+                    //
+                    """
 @__AsReadOnly_0='["ABCDE","ANATR"]'
 
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__AsReadOnly_0, c["CustomerID"]))
-"""
-                );
+""");
             });
 
     public override Task Contains_with_local_collection_false(bool async)
@@ -2211,7 +2170,7 @@ WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
             });
 
@@ -2225,7 +2184,7 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
                     """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ALFKI"))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
             });
 

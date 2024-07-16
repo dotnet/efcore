@@ -1677,7 +1677,6 @@ WHERE [e].[Id] = 1
             """
 SELECT CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c0].[Processed] ^ CAST(1 AS bit)
-    ELSE NULL
 END AS [Processing]
 FROM [Carts] AS [c]
 LEFT JOIN [Configuration] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]
@@ -2398,7 +2397,6 @@ LEFT JOIN [Companies] AS [c0] ON [c].[CompanyId] = [c0].[Id]
 LEFT JOIN [Countries] AS [c1] ON [c0].[CountryId] = [c1].[Id]
 WHERE CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c1].[CountryName]
-    ELSE NULL
 END = N'COUNTRY'
 """);
     }

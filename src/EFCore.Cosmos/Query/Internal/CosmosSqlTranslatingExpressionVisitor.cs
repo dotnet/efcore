@@ -77,28 +77,31 @@ public class CosmosSqlTranslatingExpressionVisitor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlExpression? Translate(Expression expression)
+    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression);
+        return TranslateInternal(expression, applyDefaultTypeMapping);
     }
 
-    private SqlExpression? TranslateInternal(Expression expression)
+    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var result = Visit(expression);
 
         if (result is SqlExpression translation)
         {
-            translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
-
-            if (translation.TypeMapping == null)
+            if (applyDefaultTypeMapping)
             {
-                // The return type is not-mappable hence return null
-                return null;
-            }
+                translation = sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
-            _sqlVerifyingExpressionVisitor.Visit(translation);
+                if (translation.TypeMapping == null)
+                {
+                    // The return type is not-mappable hence return null
+                    return null;
+                }
+
+                _sqlVerifyingExpressionVisitor.Visit(translation);
+            }
 
             return translation;
         }
@@ -244,10 +247,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     return match
                         ? sqlExpressionFactory.Equal(
                             discriminatorColumn,
-                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()))
+                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue(), discriminatorColumn.Type))
                         : sqlExpressionFactory.NotEqual(
                             discriminatorColumn,
-                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()));
+                            sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue(), discriminatorColumn.Type));
                 }
             }
 
@@ -323,7 +326,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitConstant(ConstantExpression constantExpression)
-        => new SqlConstantExpression(constantExpression, null);
+        => new SqlConstantExpression(constantExpression.Value, constantExpression.Type, typeMapping: null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -603,7 +606,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return TranslateContains(argument, methodCallExpression.Object!);
 
             // For queryable methods, either we translate the whole aggregate or we go to subquery mode
-            case { Method.IsStatic: true, Arguments.Count: > 0 } when method.DeclaringType == typeof(Queryable):
+            case { Method.IsStatic: true, Arguments.Count: > 0 }
+                when method.DeclaringType == typeof(Queryable)
+                || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
+                || method.DeclaringType == typeof(CosmosQueryableExtensions):
                 return TranslateAsSubquery(methodCallExpression);
 
             default:
@@ -782,7 +788,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
     /// </summary>
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
         => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
-            ? new SqlParameterExpression(parameterExpression, null)
+            ? new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, null)
             : QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
@@ -856,10 +862,11 @@ public class CosmosSqlTranslatingExpressionVisitor(
                 return concreteEntityTypes.Count == 1
                     ? sqlExpressionFactory.Equal(
                         discriminatorColumn,
-                        sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue(), discriminatorColumn.Type))
                     : sqlExpressionFactory.In(
                         discriminatorColumn,
-                        concreteEntityTypes.Select(et => sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
+                        concreteEntityTypes
+                            .Select(et => sqlExpressionFactory.Constant(et.GetDiscriminatorValue(), discriminatorColumn.Type)).ToArray());
             }
         }
 
@@ -1193,11 +1200,10 @@ public class CosmosSqlTranslatingExpressionVisitor(
         if (CanEvaluate(expression))
         {
             sqlConstantExpression = new SqlConstantExpression(
-                Expression.Constant(
-                    Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
-                        .Compile(preferInterpretation: true)
-                        .Invoke(),
-                    expression.Type),
+                Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
+                    .Compile(preferInterpretation: true)
+                    .Invoke(),
+                expression.Type,
                 null);
             return true;
         }

@@ -27,6 +27,9 @@ public abstract class
         Fixture = fixture;
     }
 
+    protected virtual bool HasForeignKeyIndexes
+        => true;
+
     [ConditionalFact]
     public void Can_build_identity_model()
     {

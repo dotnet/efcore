@@ -1071,7 +1071,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             var customerFromStore = await context.Set<CustomerWithResourceId>()
                 .WithPartitionKey(pk1, 3.15m)
-                .FirstAsync();
+                .SingleAsync();
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1135,7 +1135,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             var customerFromStore = context.Set<CustomerWithResourceId>()
                 .WithPartitionKey(pk1, 3.15m)
-                .First();
+                .Single();
 
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1219,7 +1219,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             var customerFromStore = await context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
-                .FirstAsync();
+                .SingleAsync();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1288,7 +1288,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
         {
             var customerFromStore = context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
-                .First();
+                .Single();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1344,7 +1344,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["Id"] = @__p_3))
+WHERE (c["Id"] = @__p_3)
 OFFSET 0 LIMIT 1
 """);
 
@@ -1357,7 +1357,7 @@ OFFSET 0 LIMIT 1
         {
             var customerFromStore = context.Set<Customer>()
                 .WithPartitionKey(pk1, "One", true)
-                .First();
+                .Single();
 
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -1489,7 +1489,7 @@ OFFSET 0 LIMIT 1
 
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "CustomerWithResourceId") AND (c["id"] = @__p_0))
+WHERE (c["id"] = @__p_0)
 OFFSET 0 LIMIT 1
 """);
         }

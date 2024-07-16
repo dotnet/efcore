@@ -1172,11 +1172,7 @@ OUTER APPLY (
     ) AS [l2] ON [l0].[Id] = CASE
         WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
     END
-    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l2].[Level1_Required_Id] = [l].[Id] * 2 OR CAST(LEN([l2].[Level2_Name]) AS int) = CASE
-        WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
-    END OR ([l2].[Level2_Name] IS NULL AND CASE
-        WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
-    END IS NULL))
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l2].[Level1_Required_Id] = [l].[Id] * 2 OR CAST(LEN([l2].[Level2_Name]) AS int) = [l2].[Id] OR ([l2].[Level2_Name] IS NULL AND [l2].[Id] IS NULL))
 ) AS [s]
 LEFT JOIN (
     SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
@@ -3882,7 +3878,6 @@ SELECT [l].[Id], [l1].[Level2_Name], [l1].[Id], CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -3896,7 +3891,6 @@ WHERE CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END = N'02'
 ORDER BY [l].[Id], [l1].[c]
 """);
