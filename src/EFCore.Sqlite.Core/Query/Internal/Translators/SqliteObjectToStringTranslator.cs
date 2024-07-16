@@ -103,7 +103,9 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         // Enums are handled by EnumMethodTranslator
 
         return TypeMapping.Contains(instance.Type)
-            ? _sqlExpressionFactory.Convert(instance, typeof(string))
+            ? _sqlExpressionFactory.Coalesce(
+                _sqlExpressionFactory.Convert(instance, typeof(string)),
+                _sqlExpressionFactory.Constant(string.Empty))
             : null;
     }
 }

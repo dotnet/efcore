@@ -840,9 +840,9 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
 
         AssertSql(
             """
-SELECT CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
+SELECT CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -888,9 +888,9 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
 
         AssertSql(
             """
-SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) ^ 1 AS bit) ^ CAST(1 AS bit)
+SELECT CAST(ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) ^ 1 AS bit) ^ CAST(1 AS bit)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
+WHERE ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) <> 1
 """);
     }
 
