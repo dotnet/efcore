@@ -214,7 +214,7 @@ extends:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - name: HelixTargetQueues
-                value: OSX.1200.Amd64;OSX.1200.ARM64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                value: Windows.10.Amd64;OSX.1200.Amd64;OSX.1200.ARM64;Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
               - name: _HelixAccessToken
                 # Needed for internal queues
                 value: $(HelixApiAccessToken)

@@ -1482,9 +1482,11 @@ namespace TestNamespace
             // /path/to/efcore/test/EFCore.Sqlite.FunctionalTests/Scaffolding
             testDirectory = string.Join(Path.DirectorySeparatorChar, Enumerable.Repeat("..", 5)) + testDirectory[2..];
         }
+
         if (!Directory.Exists(testDirectory))
         {
-            throw new Exception($"Test directory '{testDirectory}' not found from '{Directory.GetCurrentDirectory()}'");
+            // Source files not available
+            return;
         }
 
         var baselinesDirectory = Path.Combine(testDirectory, "Baselines", testName);
