@@ -6023,7 +6023,22 @@ WHERE "g"."HasSoulPatch" AND (
 SELECT CASE "f"."Eradicated"
     WHEN 0 THEN 'False'
     WHEN 1 THEN 'True'
-    ELSE NULL
+    ELSE ''
+END
+FROM "Factions" AS "f"
+""");
+    }
+
+    public override async Task ToString_boolean_computed_nullable(bool async)
+    {
+        await base.ToString_boolean_computed_nullable(async);
+
+        AssertSql(
+            """
+SELECT CASE "f"."Eradicated" OR ("f"."CommanderName" = 'Unknown' AND "f"."CommanderName" IS NOT NULL)
+    WHEN 0 THEN 'False'
+    WHEN 1 THEN 'True'
+    ELSE ''
 END
 FROM "Factions" AS "f"
 """);
