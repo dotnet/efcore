@@ -427,9 +427,7 @@ SELECT
         WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
         WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
         ELSE [s].[maximum_value]
-        END AS bigint) AS maximum_value,
-    [s].[is_cached],
-    [s].[cache_size]
+        END AS bigint) AS maximum_value
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]
 """;
@@ -457,8 +455,6 @@ WHERE "
             var startValue = reader.GetValueOrDefault<long>("start_value");
             var minValue = reader.GetValueOrDefault<long>("minimum_value");
             var maxValue = reader.GetValueOrDefault<long>("maximum_value");
-            var cached = reader.GetValueOrDefault<bool>("is_cached");
-            var cacheSize = reader.GetValueOrDefault<int?>("cache_size");
 
             // Swap store type if type alias is used
             if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
@@ -468,7 +464,7 @@ WHERE "
 
             storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
 
-            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue, cached, cacheSize);
+            _logger.SequenceFound(DisplayName(schema, name), storeType, cyclic, incrementBy, startValue, minValue, maxValue);
 
             var sequence = new DatabaseSequence
             {
@@ -480,9 +476,7 @@ WHERE "
                 IncrementBy = incrementBy,
                 StartValue = startValue,
                 MinValue = minValue,
-                MaxValue = maxValue,
-                IsCached = cached,
-                CacheSize = cacheSize
+                MaxValue = maxValue
             };
 
             if (DefaultSequenceMinMax.TryGetValue(storeType, out var defaultMinMax))

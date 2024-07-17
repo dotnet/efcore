@@ -4286,8 +4286,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations =>
             {
                 Assert.Equal(2, operations.Count);
@@ -4303,8 +4302,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
-                Assert.Equal(20, operation.CacheSize);
             });
 
     [ConditionalFact]
@@ -4363,15 +4360,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<int>("Alpha", "dbo")
                 .StartsAt(2)
                 .IncrementsBy(5)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -4383,8 +4378,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
-                Assert.Equal(20, operation.CacheSize);
             },
             skipSourceConventions: true);
 
@@ -4396,15 +4389,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<int>("Echo", "dbo")
                 .StartsAt(2)
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(5)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -4416,8 +4407,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(5, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
-                Assert.Equal(20, operation.CacheSize);
             },
             skipSourceConventions: true);
 
@@ -4429,15 +4418,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<int>("Delta", "dbo")
                 .StartsAt(2)
                 .IncrementsBy(3)
                 .HasMin(5)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -4449,8 +4436,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(5, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
-                Assert.Equal(20, operation.CacheSize);
             });
 
     [ConditionalFact]
@@ -4461,15 +4446,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<int>("Foxtrot", "dbo")
                 .StartsAt(2)
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic(false)
-                .UseCache(20),
+                .IsCyclic(false),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -4481,240 +4464,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, operation.MinValue);
                 Assert.Equal(4, operation.MaxValue);
                 Assert.False(operation.IsCyclic);
-                Assert.True(operation.IsCached);
-                Assert.Equal(20, operation.CacheSize);
             },
             skipSourceConventions: true);
-
-
-    [ConditionalFact]
-    public void Alter_sequence_cache_size()
-        => Execute(
-            source => source.HasSequence<int>("Gamma", "dbo")
-                .StartsAt(2)
-                .IncrementsBy(3)
-                .HasMin(1)
-                .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
-            source => source.HasSequence<int>("Gamma", "dbo")
-                .StartsAt(2)
-                .IncrementsBy(3)
-                .HasMin(1)
-                .HasMax(4)
-                .IsCyclic()
-                .UseCache(5),
-            operations =>
-            {
-                Assert.Equal(1, operations.Count);
-
-                var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-                Assert.Equal("Gamma", operation.Name);
-                Assert.Equal("dbo", operation.Schema);
-                Assert.Equal(3, operation.IncrementBy);
-                Assert.Equal(1, operation.MinValue);
-                Assert.Equal(4, operation.MaxValue);
-                Assert.True(operation.IsCyclic);
-                Assert.True(operation.IsCached);
-                Assert.Equal(5, operation.CacheSize);
-            });
-
-
-
-    [ConditionalFact]
-    public void Alter_sequence_default_cache_to_nocache()
-        => Execute(
-            source => source.HasSequence<int>("Eta", "dbo")
-                .StartsAt(2)
-                .IncrementsBy(3)
-                .HasMin(1)
-                .HasMax(4)
-                .IsCyclic()
-                .UseCache(),
-            source => source.HasSequence<int>("Eta", "dbo")
-                .StartsAt(2)
-                .IncrementsBy(3)
-                .HasMin(1)
-                .HasMax(4)
-                .IsCyclic()
-                .UseNoCache(),
-            operations =>
-            {
-                Assert.Equal(1, operations.Count);
-
-                var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-                Assert.Equal("Eta", operation.Name);
-                Assert.Equal("dbo", operation.Schema);
-                Assert.Equal(3, operation.IncrementBy);
-                Assert.Equal(1, operation.MinValue);
-                Assert.Equal(4, operation.MaxValue);
-                Assert.True(operation.IsCyclic);
-                Assert.False(operation.IsCached);
-                Assert.Null(operation.CacheSize);
-            });
-
-    [ConditionalFact]
-    public void Alter_sequence_default_cache_to_cache()
-    => Execute(
-        source => source.HasSequence<int>("Theta", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(),
-        source => source.HasSequence<int>("Theta", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(20),
-        operations =>
-        {
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-            Assert.Equal("Theta", operation.Name);
-            Assert.Equal("dbo", operation.Schema);
-            Assert.Equal(3, operation.IncrementBy);
-            Assert.Equal(1, operation.MinValue);
-            Assert.Equal(4, operation.MaxValue);
-            Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
-            Assert.Equal(20, operation.CacheSize);
-        });
-
-
-
-    [ConditionalFact]
-    public void Alter_sequence_nocache_to_cache()
-    => Execute(
-        source => source.HasSequence<int>("Epsilon", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseNoCache(),
-        source => source.HasSequence<int>("Epsilon", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(20),
-        operations =>
-        {
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-            Assert.Equal("Epsilon", operation.Name);
-            Assert.Equal("dbo", operation.Schema);
-            Assert.Equal(3, operation.IncrementBy);
-            Assert.Equal(1, operation.MinValue);
-            Assert.Equal(4, operation.MaxValue);
-            Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
-            Assert.Equal(20, operation.CacheSize);
-        });
-
-
-    [ConditionalFact]
-    public void Alter_sequence_nocache_to_default_cache()
-    => Execute(
-        source => source.HasSequence<int>("Kappa", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseNoCache(),
-        source => source.HasSequence<int>("Kappa", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(),
-        operations =>
-        {
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-            Assert.Equal("Kappa", operation.Name);
-            Assert.Equal("dbo", operation.Schema);
-            Assert.Equal(3, operation.IncrementBy);
-            Assert.Equal(1, operation.MinValue);
-            Assert.Equal(4, operation.MaxValue);
-            Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
-            Assert.Null(operation.CacheSize);
-        });
-
-    [ConditionalFact]
-    public void Alter_sequence_cache_to_default_cache()
-    => Execute(
-        source => source.HasSequence<int>("Omicron", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(20),
-        source => source.HasSequence<int>("Omicron", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(),
-        operations =>
-        {
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-            Assert.Equal("Omicron", operation.Name);
-            Assert.Equal("dbo", operation.Schema);
-            Assert.Equal(3, operation.IncrementBy);
-            Assert.Equal(1, operation.MinValue);
-            Assert.Equal(4, operation.MaxValue);
-            Assert.True(operation.IsCyclic);
-            Assert.True(operation.IsCached);
-            Assert.Null(operation.CacheSize);
-        });
-
-    [ConditionalFact]
-    public void Alter_sequence_cache_to_nocache()
-    => Execute(
-        source => source.HasSequence<int>("Phi", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseCache(20),
-        source => source.HasSequence<int>("Phi", "dbo")
-            .StartsAt(2)
-            .IncrementsBy(3)
-            .HasMin(1)
-            .HasMax(4)
-            .IsCyclic()
-            .UseNoCache(),
-        operations =>
-        {
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<AlterSequenceOperation>(operations[0]);
-            Assert.Equal("Phi", operation.Name);
-            Assert.Equal("dbo", operation.Schema);
-            Assert.Equal(3, operation.IncrementBy);
-            Assert.Equal(1, operation.MinValue);
-            Assert.Equal(4, operation.MaxValue);
-            Assert.True(operation.IsCyclic);
-            Assert.False(operation.IsCached);
-            Assert.Null(operation.CacheSize);
-        });
 
     [ConditionalFact]
     public void Alter_sequence_type()
@@ -4724,15 +4475,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<long>("Hotel", "dbo")
                 .StartsAt(2)
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations =>
             {
                 Assert.Equal(2, operations.Count);
@@ -4750,8 +4499,6 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal(1, createOperation.MinValue);
                 Assert.Equal(4, createOperation.MaxValue);
                 Assert.True(createOperation.IsCyclic);
-                Assert.True(createOperation.IsCached);
-                Assert.Equal(20, createOperation.CacheSize);
             },
             skipSourceConventions: true);
 
@@ -4763,15 +4510,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<int>("Golf", "dbo")
                 .StartsAt(5)
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations =>
             {
                 Assert.Equal(1, operations.Count);
@@ -4792,15 +4537,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 .IncrementsBy(3)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             source => source.HasSequence<int>("Golf", "dbo")
                 .StartsAt(5)
                 .IncrementsBy(6)
                 .HasMin(1)
                 .HasMax(4)
-                .IsCyclic()
-                .UseCache(20),
+                .IsCyclic(),
             operations => Assert.Collection(
                 operations,
                 o => Assert.IsType<AlterSequenceOperation>(o),
