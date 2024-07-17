@@ -824,14 +824,10 @@ mb.AlterSequence(
     minValue: 2L,
     maxValue: 4L,
     cyclic: true,
-    cached: true,
-    cacheSize: 20,
     oldIncrementBy: 4,
     oldMinValue: 3L,
     oldMaxValue: 5L,
-    oldCyclic: true,
-    oldCached: true,
-    oldCacheSize: 2);
+    oldCyclic: true);
 """,
             o =>
             {

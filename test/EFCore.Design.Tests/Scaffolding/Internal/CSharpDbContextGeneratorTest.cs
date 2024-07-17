@@ -1183,8 +1183,7 @@ public partial class TestDbContext : DbContext
             .IncrementsBy(2)
             .HasMin(2L)
             .HasMax(100L)
-            .IsCyclic()
-            .UseCache(20);
+            .IsCyclic();
 """,
                     code.ContextFile.Code),
                 model =>
