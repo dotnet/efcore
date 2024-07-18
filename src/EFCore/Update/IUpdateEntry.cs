@@ -95,12 +95,11 @@ public interface IUpdateEntry
     object? GetOriginalValue(IPropertyBase propertyBase);
 
     /// <summary>
-    ///     Gets the value assigned to the property when it was retrieved from the database, or
-    ///     the current value if the original value is not being stored.
+    /// Returns <see langword="true"/> only if the property has storage for an original value.
     /// </summary>
-    /// <param name="propertyBase">The property to get the value for.</param>
-    /// <returns>The value for the property.</returns>
-    object? GetOriginalOrCurrentValue(IPropertyBase propertyBase);
+    /// <param name="propertyBase">The property.</param>
+    /// <returns><see langword="true"/> if the property may have an original value; <see langword="false"/> if it never can.</returns>
+    bool CanHaveOriginalValue(IPropertyBase propertyBase);
 
     /// <summary>
     ///     Gets the value assigned to the property.
