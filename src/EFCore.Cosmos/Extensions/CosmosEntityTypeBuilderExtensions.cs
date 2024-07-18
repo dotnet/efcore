@@ -417,7 +417,8 @@ public static class CosmosEntityTypeBuilderExtensions
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
-    ///     behavior before EF Core 9.0.
+    ///     behavior before EF Core 9.0. Note that an "__id" property is always created if the primary key is not a single string property,
+    ///     or if the discriminator is included in the JSON "id".
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and

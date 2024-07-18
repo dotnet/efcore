@@ -2030,7 +2030,7 @@ WHERE NOT(false)
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
-    WHERE (c["id"] = @__p_0)) AS c
+    WHERE (c["id"] = @__p_0))
 """);
         }
     }

@@ -1,27 +1,46 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ReadItemPartitionKeyQueryTest : QueryTestBase<ReadItemPartitionKeyQueryTest.ReadItemPartitionKeyQueryFixture>
+public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<ReadItemPartitionKeyQueryTest.ReadItemPartitionKeyQueryFixture>
 {
     public ReadItemPartitionKeyQueryTest(ReadItemPartitionKeyQueryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
         Fixture.TestSqlLoggerFactory.Clear();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
-    public async Task Predicate_with_hierarchical_partition_key()
-    {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1 && e.PartitionKey3));
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 
+    public override async Task Predicate_with_hierarchical_partition_key()
+    {
+        await base.Predicate_with_hierarchical_partition_key();
+
+        // Not ReadItem because no primary key value
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Discriminator"] = "HierarchicalPartitionKeyEntity")
+""");
+    }
+
+    public override async Task Predicate_with_only_hierarchical_partition_key()
+    {
+        await base.Predicate_with_only_hierarchical_partition_key();
+
+        AssertSql("""ReadItem(["PK1a",1.0,true], PK1a|1|True)""");
+    }
+
+    public override async Task Predicate_with_single_partition_key()
+    {
+        await base.Predicate_with_single_partition_key();
+
+        // Not ReadItem because no primary key value
         AssertSql(
             """
 SELECT VALUE c
@@ -29,13 +48,97 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
-    public async Task Predicate_with_single_partition_key()
+    public override async Task Predicate_with_only_single_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1"));
+        await base.Predicate_with_only_single_partition_key();
 
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
+
+    public override async Task Predicate_with_partial_values_in_hierarchical_partition_key()
+    {
+        await base.Predicate_with_partial_values_in_hierarchical_partition_key();
+
+        // Not ReadItem because no primary key value
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Discriminator"] = "HierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
+""");
+    }
+
+    [ConditionalFact]
+    public override async Task Predicate_with_partial_values_in_only_hierarchical_partition_key()
+    {
+        await base.Predicate_with_partial_values_in_only_hierarchical_partition_key();
+
+        // Not ReadItem because part of primary key value missing
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1a") AND (c["PartitionKey2"] = 1)))
+""");
+    }
+
+    public override async Task Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate()
+    {
+        await base.Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate();
+
+        // Not ReadItem because no primary key value
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Discriminator"] = "HierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+""");
+    }
+
+    public override async Task Predicate_with_only_hierarchical_partition_key_and_additional_things_in_predicate()
+    {
+        await base.Predicate_with_only_hierarchical_partition_key_and_additional_things_in_predicate();
+
+        // Not ReadItem because additional filter
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE ((c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+""");
+    }
+
+    public override async Task WithPartitionKey_with_hierarchical_partition_key()
+    {
+        await base.WithPartitionKey_with_hierarchical_partition_key();
+
+        // Not ReadItem because no primary key value
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Discriminator"] = "HierarchicalPartitionKeyEntity")
+""");
+    }
+
+    public override async Task WithPartitionKey_with_only_hierarchical_partition_key()
+    {
+        await base.WithPartitionKey_with_only_hierarchical_partition_key();
+
+        // This could be ReadItem because all primary key values have been supplied, but it is a weird corner case.
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity")
+""");
+    }
+
+    public override async Task WithPartitionKey_with_single_partition_key()
+    {
+        await base.WithPartitionKey_with_single_partition_key();
+
+        // Not ReadItem because no primary key value
         AssertSql(
             """
 SELECT VALUE c
@@ -43,49 +146,11 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
-    public async Task Predicate_with_partial_values_in_hierarchical_partition_key()
+    public override async Task WithPartitionKey_with_only_single_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1));
+        await base.WithPartitionKey_with_only_single_partition_key();
 
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1))
-""");
-    }
-
-    [ConditionalFact] // #33960
-    public async Task Predicate_with_hierarchical_partition_key_and_additional_things_in_predicate()
-    {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                .Where(e => e.Payload.Contains("3") && e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1 && e.PartitionKey3));
-
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-WHERE CONTAINS(c["Payload"], "3")
-""");
-    }
-
-    [ConditionalFact]
-    public async Task WithPartitionKey_with_hierarchical_partition_key()
-    {
-        var partitionKey2 = 1;
-
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<HierarchicalPartitionKeyEntity>().WithPartitionKey("PK1", 1, true),
-            ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == partitionKey2 && e.PartitionKey3));
-
+        // This could be ReadItem because the primary key value has been supplied, but it is a weird corner case.
         AssertSql(
             """
 SELECT VALUE c
@@ -93,43 +158,18 @@ FROM root c
 """);
     }
 
-    [ConditionalFact]
-    public async Task WithPartitionKey_with_single_partition_key()
+    public override async Task WithPartitionKey_with_missing_value_in_hierarchical_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1"),
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1"));
+        await base.WithPartitionKey_with_missing_value_in_hierarchical_partition_key();
 
-        AssertSql(
-            """
-SELECT VALUE c
-FROM root c
-""");
+        AssertSql();
     }
 
-    [ConditionalFact]
-    public async Task WithPartitionKey_with_missing_value_in_hierarchical_partition_key()
+    public override async Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values()
     {
-        var message = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async: true,
-                ss => ss.Set<HierarchicalPartitionKeyEntity>().WithPartitionKey("PK1", 1),
-                ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                    .Where(e => e.PartitionKey1 == "PK1" && e.PartitionKey2 == 1 && e.PartitionKey3)));
+        await base.Both_WithPartitionKey_and_predicate_comparisons_with_different_values();
 
-        Assert.Equal(CosmosStrings.IncorrectPartitionKeyNumber(nameof(HierarchicalPartitionKeyEntity), 2, 3), message.Message);
-    }
-
-    [ConditionalFact]
-    public async Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values()
-    {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1").Where(e => e.PartitionKey == "PK2"),
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1").Where(e => e.PartitionKey == "PK2"),
-            assertEmpty: true);
-
+        // Not ReadItem because no primary key value, among other things.
         AssertSql(
             """
 SELECT VALUE c
@@ -138,15 +178,24 @@ WHERE (c["PartitionKey"] = "PK2")
 """);
     }
 
-    [ConditionalFact]
-    public async Task Both_WithPartitionKey_and_predicate_comparisons_with_same_values()
+    public override async Task Both_WithPartitionKey_and_predicate_comparisons_with_different_values_with_only_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>()
-                .WithPartitionKey("PK1")
-                .Where(e => e.PartitionKey == "PK1"));
+        await base.Both_WithPartitionKey_and_predicate_comparisons_with_different_values_with_only_partition_key();
 
+        // Not ReadItem because conflicting primary key values, among other things.
+        AssertSql(
+            """
+SELECT VALUE c
+FROM root c
+WHERE (c["PartitionKey"] = "PK2a")
+""");
+    }
+
+    public override async Task Both_WithPartitionKey_and_predicate_comparisons_with_same_values()
+    {
+        await base.Both_WithPartitionKey_and_predicate_comparisons_with_same_values();
+
+        // Not ReadItem because no primary key value
         AssertSql(
             """
 SELECT VALUE c
@@ -155,96 +204,109 @@ WHERE (c["PartitionKey"] = "PK1")
 """);
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_hierarchical_partition_key()
+    public override async Task Both_WithPartitionKey_and_predicate_comparisons_with_same_values_with_only_partition_key()
     {
-        var partitionKey2 = 1;
+        await base.Both_WithPartitionKey_and_predicate_comparisons_with_same_values_with_only_partition_key();
 
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<HierarchicalPartitionKeyEntity>()
-                .Where(e => e.Id == 1 && e.PartitionKey1 == "PK1" && e.PartitionKey2 == partitionKey2 && e.PartitionKey3));
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
+
+    public override async Task ReadItem_with_hierarchical_partition_key()
+    {
+        await base.ReadItem_with_hierarchical_partition_key();
 
         AssertSql("""ReadItem(["PK1",1.0,true], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_single_partition_key_constant()
+    public override async Task ReadItem_with_only_hierarchical_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+        await base.ReadItem_with_only_hierarchical_partition_key();
+
+        AssertSql("""ReadItem(["PK1a",1.0,true], PK1a|1|True)""");
+    }
+
+    public override async Task ReadItem_with_single_partition_key_constant()
+    {
+        await base.ReadItem_with_single_partition_key_constant();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_single_partition_key_parameter()
+    public override async Task ReadItem_with_only_single_partition_key_constant()
     {
-        var partitionKey = "PK1";
+        await base.ReadItem_with_only_single_partition_key_constant();
 
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
+
+    public override async Task ReadItem_with_single_partition_key_parameter()
+    {
+        await base.ReadItem_with_single_partition_key_parameter();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_SingleAsync()
+    public override async Task ReadItem_with_only_single_partition_key_parameter()
     {
-        var partitionKey = "PK1";
+        await base.ReadItem_with_only_single_partition_key_parameter();
 
-        await AssertSingle(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.PartitionKey == partitionKey));
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
+
+    public override async Task ReadItem_with_SingleAsync()
+    {
+        await base.ReadItem_with_SingleAsync();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_inverse_comparison()
+    public override async Task ReadItem_with_SingleAsync_with_only_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => 1 == e.Id && "PK1" == e.PartitionKey));
+        await base.ReadItem_with_SingleAsync_with_only_partition_key();
+
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
+
+    public override async Task ReadItem_with_inverse_comparison()
+    {
+        await base.ReadItem_with_inverse_comparison();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_EF_Property()
+    public override async Task ReadItem_with_inverse_comparison_with_only_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(
-                e => EF.Property<int>(e, nameof(SinglePartitionKeyEntity.Id)) == 1
-                    && EF.Property<string>(e, nameof(SinglePartitionKeyEntity.PartitionKey)) == "PK1"));
+        await base.ReadItem_with_inverse_comparison_with_only_partition_key();
+
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
+
+    public override async Task ReadItem_with_EF_Property()
+    {
+        await base.ReadItem_with_EF_Property();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_WithPartitionKey()
+    public override async Task ReadItem_with_WithPartitionKey()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().WithPartitionKey("PK1").Where(e => e.Id == 1),
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.PartitionKey == "PK1").Where(e => e.Id == 1));
+        await base.ReadItem_with_WithPartitionKey();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
+    public override async Task ReadItem_with_WithPartitionKey_with_only_partition_key()
     {
-        var partitionKey = "PK1";
+        await base.ReadItem_with_WithPartitionKey_with_only_partition_key();
 
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1 && e.Id == 2 && e.PartitionKey == partitionKey),
-            assertEmpty: true);
+        AssertSql("""ReadItem(["PK1a"], PK1a)""");
+    }
 
+    public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem()
+    {
+        await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem();
+
+        // Not ReadItem because conflicting primary key values
         AssertSql(
             """
 SELECT VALUE c
@@ -253,23 +315,34 @@ WHERE ((c["Id"] = 1) AND (c["Id"] = 2))
 """);
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_no_partition_key()
+
+    public override async Task Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_with_only_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<NoPartitionKeyEntity>().Where(e => e.Id == 1));
+        await base.Multiple_incompatible_predicate_comparisons_cause_no_ReadItem_with_only_partition_key();
+
+        // Not ReadItem because conflicting primary key values
+        AssertSql(
+            """
+@__partitionKey_0='PK1a'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0))
+""");
+    }
+
+    public override async Task ReadItem_with_no_partition_key()
+    {
+        await base.ReadItem_with_no_partition_key();
 
         AssertSql("""ReadItem(None, 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_is_not_used_without_partition_key()
+    public override async Task ReadItem_is_not_used_without_partition_key()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 1));
+        await base.ReadItem_is_not_used_without_partition_key();
 
+        // Not ReadItem because no partition key
         AssertSql(
             """
 SELECT VALUE c
@@ -278,81 +351,86 @@ WHERE (c["Id"] = 1)
 """);
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_non_existent_id()
+    public override async Task ReadItem_with_non_existent_id()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().Where(e => e.Id == 999 && e.PartitionKey == "PK1"),
-            assertEmpty: true);
+        await base.ReadItem_with_non_existent_id();
 
         AssertSql("""ReadItem(["PK1"], 999)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_AsNoTracking()
+    public override async Task ReadItem_with_AsNoTracking()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().AsNoTracking().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+        await base.ReadItem_with_AsNoTracking();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_AsNoTrackingWithIdentityResolution()
+    public override async Task ReadItem_with_AsNoTrackingWithIdentityResolution()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SinglePartitionKeyEntity>().AsNoTrackingWithIdentityResolution().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+        await base.ReadItem_with_AsNoTrackingWithIdentityResolution();
 
         AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_with_shared_container()
+    public override async Task ReadItem_with_shared_container()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SharedContainerEntity1>().Where(e => e.Id == 1 && e.PartitionKey == "PK1"));
+        await base.ReadItem_with_shared_container();
 
-        AssertSql("""ReadItem(["PK1"], SharedContainerEntity1|1)""");
+        AssertSql("""ReadItem(["PK1"], 1)""");
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_for_base_type_with_shared_container()
+    public override async Task ReadItem_for_base_type_with_shared_container()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SharedContainerEntity2>().Where(e => e.Id == 4 && e.PartitionKey == "PK2"));
+        await base.ReadItem_for_base_type_with_shared_container();
 
+        AssertSql("""ReadItem(["PK2"], 4)""");
+    }
+
+    public override async Task ReadItem_for_child_type_with_shared_container()
+    {
+        await base.ReadItem_for_child_type_with_shared_container();
+
+        AssertSql("""ReadItem(["PK2"], 5)""");
+    }
+
+    public override async Task ReadItem_with_single_explicit_discriminator_mapping()
+    {
+        await base.ReadItem_with_single_explicit_discriminator_mapping();
+
+        AssertSql("""ReadItem(["PK1"], 1)""");
+    }
+
+    public override async Task ReadItem_with_single_explicit_incorrect_discriminator_mapping()
+    {
+        await base.ReadItem_with_single_explicit_incorrect_discriminator_mapping();
+
+        // No ReadItem because discriminator value is incorrect
         AssertSql(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SharedContainerEntity2", "SharedContainerEntity2Child") AND (c["Id"] = 4))
+WHERE ((c["Id"] = 1) AND (c["Discriminator"] = "DerivedSinglePartitionKeyEntity"))
 """);
     }
 
-    [ConditionalFact]
-    public async Task ReadItem_for_child_type_with_shared_container()
+    public override async Task ReadItem_with_single_explicit_parameterized_discriminator_mapping()
     {
-        await AssertQuery(
-            async: true,
-            ss => ss.Set<SharedContainerEntity2Child>().Where(e => e.Id == 5 && e.PartitionKey == "PK2"));
+        await base.ReadItem_with_single_explicit_parameterized_discriminator_mapping();
 
-        AssertSql("""ReadItem(["PK2"], SharedContainerEntity2|5)""");
+        // No ReadItem because discriminator check is parameterized
+        AssertSql(
+            """
+@__discriminator_0='SinglePartitionKeyEntity'
+
+SELECT VALUE c
+FROM root c
+WHERE ((c["Id"] = 1) AND (c["Discriminator"] = @__discriminator_0))
+OFFSET 0 LIMIT 2
+""");
     }
 
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    public class PartitionKeyContext(DbContextOptions options) : PoolableDbContext(options);
-
-    public class ReadItemPartitionKeyQueryFixture : SharedStoreFixtureBase<PartitionKeyContext>, IQueryFixtureBase
+    public class ReadItemPartitionKeyQueryFixture : ReadItemPartitionKeyQueryFixtureBase
     {
-        private PartitionKeyData? _expectedData;
-
         protected override string StoreName
             => "PartitionKeyQueryTest";
 

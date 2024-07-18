@@ -24,6 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).Assembly);
 
         /// <summary>
+        ///     'AlwaysCreateShadowIdProperty' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.
+        /// </summary>
+        public static string AlwaysCreateShadowIdPropertyOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("AlwaysCreateShadowIdPropertyOnNonRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     The time to live for analytical store was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same time to live for analytical store.
         /// </summary>
         public static string AnalyticalTTLMismatch(object? ttl1, object? entityType1, object? entityType2, object? ttl2, object? container)
@@ -92,6 +100,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("DefaultTTLMismatch", nameof(ttl1), nameof(entityType1), nameof(entityType2), nameof(ttl2), nameof(container)),
                 ttl1, entityType1, entityType2, ttl2, container);
+
+        /// <summary>
+        ///     'IncludeDiscriminatorInJsonId' or 'IncludeRootDiscriminatorInJsonId' was called on a non-root entity type '{entityType}'. Discriminator configuration for the JSON 'id' property can only be made on the document root.
+        /// </summary>
+        public static string DiscriminatorInKeyOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("DiscriminatorInKeyOnNonRoot", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.

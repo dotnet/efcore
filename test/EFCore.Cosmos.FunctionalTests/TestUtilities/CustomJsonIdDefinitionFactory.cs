@@ -10,6 +10,6 @@ public class CustomJsonIdDefinitionFactory : JsonIdDefinitionFactory
     public override IJsonIdDefinition Create(IEntityType entityType)
     {
         var baseDef = base.Create(entityType)!;
-        return new CustomJsonIdDefinition(baseDef.Properties, baseDef.DiscriminatorEntityType);
+        return new CustomJsonIdDefinition(baseDef.Properties, entityType, baseDef.DiscriminatorIsRootType);
     }
 }

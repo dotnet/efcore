@@ -43,9 +43,14 @@ public class JsonIdDefinitionFactory : IJsonIdDefinitionFactory
 
         var properties = new List<IProperty>();
 
-        var includeDiscriminator = entityType.GetDiscriminatorInKey() ?? entityType.Model.GetDiscriminatorInKey();
+        // Add all primary key properties, except for those that are also partition keys, which were removed above.
+        foreach (var property in primaryKeyProperties)
+        {
+            properties.Add(property);
+        }
 
-        IEntityType? discriminatorEntityType = null;
+        var includeDiscriminator = entityType.GetDiscriminatorInKey();
+
         if (includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName or DiscriminatorInKeyBehavior.RootEntityTypeName)
         {
             var discriminator = entityType.GetDiscriminatorValue();
@@ -56,19 +61,13 @@ public class JsonIdDefinitionFactory : IJsonIdDefinitionFactory
                 if (!primaryKey.Properties.Contains(discriminatorProperty))
                 {
                     // Use the actual type for backwards compat, but the base type to allow lookup using ReadItem.
-                    discriminatorEntityType = includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName
-                        ? entityType
-                        : entityType.GetRootType();
+                    return includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName
+                        ? new JsonIdDefinition(properties, entityType, false)
+                        : new JsonIdDefinition(properties, entityType.GetRootType(), true);
                 }
             }
         }
 
-        // Next add all primary key properties, except for those that are also partition keys, which were removed above.
-        foreach (var property in primaryKeyProperties)
-        {
-            properties.Add(property);
-        }
-
-        return new JsonIdDefinition(properties, discriminatorEntityType);
+        return new JsonIdDefinition(properties);
     }
 }

@@ -826,7 +826,7 @@ AssertSql(
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
-    WHERE STARTSWITH(c["ContactName"], "A")) AS c
+    WHERE STARTSWITH(c["ContactName"], "A"))
 """);
         }
     }
@@ -1386,7 +1386,7 @@ ORDER BY @__param_0
                 await base.OrderBy_anon(a);
 AssertSql(
     """
-SELECT VALUE c["id"] AS CustomerID
+SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
 """);
@@ -2789,7 +2789,7 @@ OFFSET @__p_0 LIMIT @__p_1
                 await base.Anonymous_member_distinct_where(a);
 AssertSql(
     """
-SELECT DISTINCT VALUE c["id"] AS CustomerID
+SELECT DISTINCT VALUE c["id"]
 FROM root c
 WHERE (c["id"] = "ALFKI")
 """);
@@ -5072,22 +5072,19 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """,
             //
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """,
             //
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
     }
 
@@ -5128,23 +5125,22 @@ ORDER BY c["CustomerID"]
             """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """,
             //
             """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
 """,
             //
             """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
 """,
             //
             """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
 ORDER BY c["id"]
 """);

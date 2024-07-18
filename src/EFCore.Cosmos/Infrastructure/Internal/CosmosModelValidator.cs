@@ -41,6 +41,7 @@ public class CosmosModelValidator : ModelValidator
         ValidateSharedContainerCompatibility(model, logger);
         ValidateOnlyETagConcurrencyToken(model, logger);
         ValidateIndexes(model, logger);
+        ValidateDiscriminatorMappings(model, logger);
         ValidateCollectionElementTypes(model, logger);
     }
 
@@ -490,6 +491,32 @@ public class CosmosModelValidator : ModelValidator
                 }
 
                 properties[jsonName] = navigation;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateDiscriminatorMappings(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (!entityType.IsDocumentRoot()
+                && entityType.FindAnnotation(CosmosAnnotationNames.DiscriminatorInKey) != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.DiscriminatorInKeyOnNonRoot(entityType.DisplayName()));
+            }
+
+            if (!entityType.IsDocumentRoot()
+                && entityType.FindAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty) != null)
+            {
+                throw new InvalidOperationException(CosmosStrings.AlwaysCreateShadowIdPropertyOnNonRoot(entityType.DisplayName()));
             }
         }
     }

@@ -857,12 +857,7 @@ ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
                 await base.Query_on_collection_entry_works_for_owned_collection(a);
 
                 AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
-OFFSET 0 LIMIT 2
-""",
+                    """ReadItem(None, 1)""",
                     //
                     """
 @__p_0='1'

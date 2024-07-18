@@ -74,7 +74,7 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind"
+        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2"
             ? name
             : name + _runId;
 

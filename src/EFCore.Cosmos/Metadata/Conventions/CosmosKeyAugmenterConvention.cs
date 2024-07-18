@@ -53,38 +53,37 @@ public class CosmosKeyAugmenterConvention :
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    private void ProcessIdProperty(IConventionEntityTypeBuilder entityTypeBuilder)
+    private static void ProcessIdProperty(IConventionEntityTypeBuilder entityTypeBuilder)
     {
         var entityType = entityTypeBuilder.Metadata;
         var primaryKey = entityType.FindPrimaryKey();
+
         if (entityType.BaseType == null
             && entityType.IsDocumentRoot()
-            && primaryKey != null)
+            && primaryKey != null
+            && ConfigurationSource.Convention.Overrides(primaryKey.GetConfigurationSource()))
         {
-            if (ConfigurationSource.Convention.Overrides(primaryKey.GetConfigurationSource()))
+            // Add partition key properties to the primary key, unless they are already in the primary key.
+            var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+            var primaryKeyProperties = primaryKey.Properties.ToList();
+            var keyContainsPartitionProperties = false;
+            if (partitionKeyProperties.Any()
+                && partitionKeyProperties.All(p => p != null))
             {
-                // Add partition key properties to the primary key, unless they are already in the primary key.
-                var partitionKeyProperties = entityType.GetPartitionKeyProperties();
-                var primaryKeyProperties = primaryKey.Properties.ToList();
-                var keyContainsPartitionProperties = false;
-                if (partitionKeyProperties.Any()
-                    && partitionKeyProperties.All(p => p != null))
+                foreach (var partitionKeyProperty in partitionKeyProperties)
                 {
-                    foreach (var partitionKeyProperty in partitionKeyProperties)
+                    if (!primaryKeyProperties.Contains(partitionKeyProperty!))
                     {
-                        if (!primaryKeyProperties.Contains(partitionKeyProperty!))
-                        {
-                            primaryKeyProperties.Add(partitionKeyProperty!);
-                            keyContainsPartitionProperties = true;
-                        }
-
+                        primaryKeyProperties.Add(partitionKeyProperty!);
+                        keyContainsPartitionProperties = true;
                     }
 
-                    if (keyContainsPartitionProperties)
-                    {
-                        primaryKey.DeclaringEntityType.Builder.HasNoKey(primaryKey);
-                        entityTypeBuilder.HasKey(primaryKeyProperties);
-                    }
+                }
+
+                if (keyContainsPartitionProperties)
+                {
+                    primaryKey.DeclaringEntityType.Builder.HasNoKey(primaryKey);
+                    entityTypeBuilder.HasKey(primaryKeyProperties);
                 }
             }
         }

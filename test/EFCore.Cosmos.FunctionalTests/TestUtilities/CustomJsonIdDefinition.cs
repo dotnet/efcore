@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class CustomJsonIdDefinition(IReadOnlyList<IProperty> properties, IEntityType? discriminatorEntityType)
-    : JsonIdDefinition(properties, discriminatorEntityType)
+public class CustomJsonIdDefinition(IReadOnlyList<IProperty> properties, IEntityType discriminatorEntityType, bool discriminatorIsRootType)
+    : JsonIdDefinition(properties, discriminatorEntityType, discriminatorIsRootType)
 {
     public override string GenerateIdString(IEnumerable<object?> values)
     {

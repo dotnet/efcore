@@ -33847,32 +33847,5 @@
         "Discontinued": false
       }
     ]
-  },
-  {
-    "Name": "Region",
-    "Container": "Regions",
-    "DiscriminatorInId": false,
-    "Data": [
-      {
-        "id": "1",
-        "RegionID": 1,
-        "RegionDescription": "Eastern"
-      },
-      {
-        "id": "2",
-        "RegionID": 2,
-        "RegionDescription": "Western"
-      },
-      {
-        "id": "3",
-        "RegionID": 3,
-        "RegionDescription": "Northern"
-      },
-      {
-        "id": "4",
-        "RegionID": 4,
-        "RegionDescription": "Southern"
-      }
-    ]
   }
 ]

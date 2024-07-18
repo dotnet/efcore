@@ -14,6 +14,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 /// </summary>
 public class JsonIdDefinition : IJsonIdDefinition
 {
+    private readonly IProperty? _discriminatorProperty;
+    private readonly object? _discriminatorValue;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public JsonIdDefinition(IReadOnlyList<IProperty> properties)
+    {
+        Properties = properties;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -22,10 +36,13 @@ public class JsonIdDefinition : IJsonIdDefinition
     /// </summary>
     public JsonIdDefinition(
         IReadOnlyList<IProperty> properties,
-        IEntityType? discriminatorEntityType)
+        IEntityType discriminatorEntityType,
+        bool discriminatorIsRootType)
     {
         Properties = properties;
-        DiscriminatorEntityType = discriminatorEntityType;
+        DiscriminatorIsRootType = discriminatorIsRootType;
+        _discriminatorProperty = discriminatorEntityType.FindDiscriminatorProperty();
+        _discriminatorValue = discriminatorEntityType.GetDiscriminatorValue();
     }
 
     /// <summary>
@@ -35,18 +52,22 @@ public class JsonIdDefinition : IJsonIdDefinition
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IReadOnlyList<IProperty> Properties { get; }
-
     /// <summary>
-    ///     This type is the base type when the base type discriminator is included in the key, and the
-    ///     actual type when the actual type discriminator is included in the key. See <see cref="DiscriminatorInKeyBehavior"/>.
-    /// </summary>
-    /// <para>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </para>
-    public virtual IEntityType? DiscriminatorEntityType { get; }
+    /// </summary>
+    public virtual bool DiscriminatorIsRootType { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IncludesDiscriminator
+        => _discriminatorProperty != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,9 +88,9 @@ public class JsonIdDefinition : IJsonIdDefinition
     {
         var builder = new StringBuilder();
 
-        if (DiscriminatorEntityType != null)
+        if (_discriminatorProperty != null)
         {
-            AppendValue(DiscriminatorEntityType.FindDiscriminatorProperty()!, DiscriminatorEntityType.GetDiscriminatorValue());
+            AppendValue(_discriminatorProperty!, _discriminatorValue!);
         }
 
         var i = 0;

@@ -355,9 +355,10 @@ public static class CosmosEntityTypeExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// .</returns>
     public static bool? GetAlwaysCreateShadowIdProperty(this IReadOnlyEntityType entityType)
-        => entityType.BaseType != null
-            ? entityType.GetRootType().GetAlwaysCreateShadowIdProperty()
-            : (bool?)entityType[CosmosAnnotationNames.AlwaysCreateShadowIdProperty];
+        => (entityType.BaseType != null
+                ? entityType.GetRootType().GetAlwaysCreateShadowIdProperty()
+                : (bool?)entityType[CosmosAnnotationNames.AlwaysCreateShadowIdProperty])
+            ?? entityType.Model.GetAlwaysCreateShadowIdProperty();
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
@@ -403,9 +404,10 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The <see cref="DiscriminatorInKeyBehavior"/> or <see langword="null" /> if not set.</returns>
     public static DiscriminatorInKeyBehavior? GetDiscriminatorInKey(this IReadOnlyEntityType entityType)
-        => entityType.BaseType != null
-            ? entityType.GetRootType().GetDiscriminatorInKey()
-            : (DiscriminatorInKeyBehavior?)entityType[CosmosAnnotationNames.DiscriminatorInKey];
+        => (entityType.BaseType != null
+                ? entityType.GetRootType().GetDiscriminatorInKey()
+                : (DiscriminatorInKeyBehavior?)entityType[CosmosAnnotationNames.DiscriminatorInKey])
+            ?? entityType.Model.GetDiscriminatorInKey();
 
     /// <summary>
     ///     Includes the entity type discriminator in the JSON "id".

@@ -20,8 +20,7 @@ public interface IJsonIdDefinition
     IReadOnlyList<IProperty> Properties { get; }
 
     /// <summary>
-    ///     This type is the base type when the base type discriminator is included in the key, and the
-    ///     actual type when the actual type discriminator is included in the key. See <see cref="DiscriminatorInKeyBehavior"/>.
+    ///     <see langword="true"/> if the discriminator is included in the key.
     /// </summary>
     /// <para>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +28,18 @@ public interface IJsonIdDefinition
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </para>
-    IEntityType? DiscriminatorEntityType { get; }
+    bool IncludesDiscriminator { get; }
+
+    /// <summary>
+    ///     <see langword="true"/> if the discriminator is for the root entity type.
+    /// </summary>
+    /// <para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </para>
+    bool DiscriminatorIsRootType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

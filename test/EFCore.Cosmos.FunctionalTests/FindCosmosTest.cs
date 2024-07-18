@@ -293,29 +293,14 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
     {
         await base.Find_base_type_from_store_async(cancellationType);
 
-        AssertSql(
-            """
-@__p_0='77'
-
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] IN ("BaseType", "DerivedType") AND (c["Id"] = @__p_0))
-OFFSET 0 LIMIT 1
-""");
+        AssertSql("""ReadItem(None, BaseType|77)""");
     }
 
     public override async Task Returns_null_for_base_type_not_in_store_async(CancellationType cancellationType)
     {
         await base.Returns_null_for_base_type_not_in_store_async(cancellationType);
 
-        AssertSql("""
-@__p_0='99'
-
-SELECT VALUE c
-FROM root c
-WHERE (c["Discriminator"] IN ("BaseType", "DerivedType") AND (c["Id"] = @__p_0))
-OFFSET 0 LIMIT 1
-""");
+        AssertSql("""ReadItem(None, BaseType|99)""");
     }
 
     public override async Task Find_derived_type_tracked_async(CancellationType cancellationType)
