@@ -706,8 +706,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max},
-        ///     cached: {cached}, cache size: {cacheSize}.
+        ///     Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.
         /// </summary>
         public static FallbackEventDefinition LogFoundSequence(IDiagnosticsLogger logger)
         {
