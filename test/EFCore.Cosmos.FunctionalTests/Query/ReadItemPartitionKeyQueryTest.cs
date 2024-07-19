@@ -375,8 +375,7 @@ WHERE (c["Discriminator"] IN ("SharedContainerEntity2", "SharedContainerEntity2C
             modelBuilder.Entity<SharedContainerEntity2>()
                 .ToContainer("SharedContainer")
                 .HasPartitionKey(e => e.PartitionKey);
-            modelBuilder.Entity<SharedContainerEntity2Child>()
-                .HasPartitionKey(e => e.PartitionKey);
+            modelBuilder.Entity<SharedContainerEntity2Child>();
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

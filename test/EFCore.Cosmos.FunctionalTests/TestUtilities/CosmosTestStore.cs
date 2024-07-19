@@ -616,7 +616,7 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
-            => throw new NotImplementedException();
+            => null!;
 
         IReadOnlyModel IReadOnlyTypeBase.Model
             => throw new NotImplementedException();
