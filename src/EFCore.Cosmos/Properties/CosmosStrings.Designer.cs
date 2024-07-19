@@ -685,6 +685,31 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         }
 
         /// <summary>
+        ///     The key property '{entityType}.{property}' is not configured to generate values and has the CLR default or sentinel value while saving a new entity to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.
+        /// </summary>
+        public static EventDefinition<string, string> LogPrimaryKeyValueNotSet(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogPrimaryKeyValueNotSet;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogPrimaryKeyValueNotSet,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CosmosEventId.PrimaryKeyValueNotSet,
+                        LogLevel.Warning,
+                        "CosmosEventId.PrimaryKeyValueNotSet",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CosmosEventId.PrimaryKeyValueNotSet,
+                            _resourceManager.GetString("LogPrimaryKeyValueNotSet")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.
         /// </summary>
         public static EventDefinition LogSyncNotSupported(IDiagnosticsLogger logger)

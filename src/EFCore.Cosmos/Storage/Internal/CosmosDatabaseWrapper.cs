@@ -3,6 +3,7 @@
 
 using System.Net;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Update.Internal;
@@ -283,6 +284,52 @@ public class CosmosDatabaseWrapper : Database
         switch (state)
         {
             case EntityState.Added:
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey != null)
+                {
+                    // The code below checks for primary key properties that are not configured for value generation but have not
+                    // had a non-sentinel (effectively, non-CLR default) value set. For composite keys, we only check if at least
+                    // one property has value generation or a value set, since it is normal to have non-value generated parts of composite
+                    // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
+                    // check to ensure that, even if partition key properties have been set, at least one other primary key property is
+                    // also set.
+                    IProperty? needsValue = null;
+                    var somePropertiesNeedValues = true;
+                    var keyProperties = primaryKey.Properties.ToList();
+                    foreach (var partitionKeyProperty in entityType.GetPartitionKeyProperties())
+                    {
+                        keyProperties.Remove(partitionKeyProperty);
+                    }
+
+                    if (keyProperties.Count == 0)
+                    {
+                        // If all key properties are partition key properties, then don't exclude them.
+                        keyProperties = primaryKey.Properties.ToList();
+                    }
+
+                    foreach (var property in keyProperties)
+                    {
+                        if (somePropertiesNeedValues)
+                        {
+                            if (property.IsForeignKey()
+                                || property.ValueGenerated != ValueGenerated.Never
+                                || entry.HasExplicitValue(property))
+                            {
+                                somePropertiesNeedValues = false;
+                            }
+                            else
+                            {
+                                needsValue = property;
+                            }
+                        }
+                    }
+
+                    if (somePropertiesNeedValues)
+                    {
+                        Dependencies.Logger.PrimaryKeyValueNotSet(needsValue!);
+                    }
+                }
+
                 var newDocument = documentSource.GetCurrentDocument(entry);
                 if (newDocument != null)
                 {
