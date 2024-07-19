@@ -550,12 +550,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         var select = (SelectExpression)source.QueryExpression;
 
-        // TODO: #34123
-        // if ((select.IsDistinct || select.Limit is not null || select.Offset is not null)
-        //     && !TryPushdownIntoSubquery(select))
-        // {
-        //     return null;
-        // }
+        if ((select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return null;
+        }
 
         select.ApplyDistinct();
 
@@ -1522,11 +1521,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         var select = (SelectExpression)source.QueryExpression;
 
-        // TODO: #34123
-        // if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select))
-        // {
-        //     select.PushdownIntoSubquery();
-        // }
+        if ((select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return false;
+        }
 
         if (TranslateLambdaExpression(source, predicate) is SqlExpression translation)
         {
@@ -1543,11 +1542,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
     private bool TryApplyPredicate(SelectExpression select, SqlExpression predicate)
     {
-        // TODO: #34123
-        // if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select, predicate))
-        // {
-        //     return false;
-        // }
+        if ((select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return false;
+        }
 
         select.ApplyPredicate(predicate);
         return true;

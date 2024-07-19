@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -472,22 +474,9 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
     }
 
     public override Task Subquery_OfType(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Subquery_OfType(a);
-
-                AssertSql(
-                    """
-@__p_0='5'
-
-SELECT DISTINCT VALUE c
-FROM root c
-WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
-ORDER BY c["Species"]
-OFFSET 0 LIMIT @__p_0
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Subquery_OfType(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override async Task Union_entity_equality(bool async)
     {
