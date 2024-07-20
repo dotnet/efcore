@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -1762,5 +1763,98 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         (precedence, isAssociative) = (default, default);
         return false;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitOver(WindowOverExpression windowOverExpression)
+    {
+        Visit(windowOverExpression.Aggregate);
+
+        _relationalCommandBuilder.Append(" OVER (");
+
+        if(windowOverExpression.Partition != null)
+            VisitWindowPartition(windowOverExpression.Partition);
+
+        if (windowOverExpression.Ordering.Count > 0)
+        {
+            _relationalCommandBuilder.Append(" ORDER BY ");
+
+            GenerateList(windowOverExpression.Ordering, e => Visit(e));
+        }
+
+        if (windowOverExpression.WindowFrame != null)
+            VisitWindowFrame(windowOverExpression.WindowFrame);
+
+        _relationalCommandBuilder.Append(")");
+
+        return windowOverExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitWindowPartition(WindowPartitionExpression partitionExpression)
+    {
+        _relationalCommandBuilder.Append("PARTITION BY ");
+
+        GenerateList(partitionExpression.Partitions, e => Visit(e), sql => sql.Append(", "));
+
+        return partitionExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitWindowFrame(WindowFrameExpression windowsFrameExpression)
+    {
+        //todo - sqllite groups override test
+
+        _relationalCommandBuilder.Append($" {windowsFrameExpression.FrameName} ");
+
+        if(windowsFrameExpression.Following != null)
+            _relationalCommandBuilder.Append($"BETWEEN ");
+
+        if (windowsFrameExpression.Preceding is SqlConstantExpression preceedingExpression && preceedingExpression?.Type == typeof(RowsPreceding))
+        {
+            _relationalCommandBuilder.Append((RowsPreceding)preceedingExpression.Value! == RowsPreceding.CurrentRow
+                                                ? "CURRENT ROW"
+                                                : "UNBOUNDED PRECEDING");
+        }
+        else
+        {
+            Visit(windowsFrameExpression.Preceding);
+
+            _relationalCommandBuilder.Append($" PRECEDING");
+        }
+
+        if(windowsFrameExpression.Following != null)
+        {
+            _relationalCommandBuilder.Append($" AND ");
+
+            if (windowsFrameExpression.Following is SqlConstantExpression followingExpression && followingExpression?.Type == typeof(RowsFollowing))
+            {
+                _relationalCommandBuilder.Append((RowsPreceding)followingExpression.Value! == RowsPreceding.CurrentRow
+                                                    ? "CURRENT ROW"
+                                                    : "UNBOUNDED FOLLOWING");
+            }
+            else
+            {
+                Visit(windowsFrameExpression.Following);
+
+                _relationalCommandBuilder.Append($" FOLLOWING");
+            }
+        }
+
+        if (windowsFrameExpression.Exclude is SqlConstantExpression excludeExpression && excludeExpression?.Type == typeof(FrameExclude))
+        {
+            _relationalCommandBuilder.Append($" EXCLUDE ");
+
+            _relationalCommandBuilder.Append((FrameExclude)excludeExpression.Value! switch
+            {
+                FrameExclude.NoOthers => "NO OTHERS",
+                FrameExclude.CurrentRow => "CURRENT ROW",
+                FrameExclude.Group => "GROUP",
+                FrameExclude.Ties => "TIES",
+                _ => throw new ArgumentOutOfRangeException()
+            });
+        }
+
+        return windowsFrameExpression;
     }
 }
