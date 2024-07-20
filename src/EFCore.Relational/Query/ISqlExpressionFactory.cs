@@ -465,4 +465,32 @@ public interface ISqlExpressionFactory
         IReadOnlyList<SqlExpression> expressions,
         Type resultType,
         [NotNullWhen(true)] out SqlExpression? greatestExpression);
+
+    /// <summary>
+    /// todo
+    /// </summary>
+    /// <param name="partitions">todo</param>
+    /// <returns>todo</returns>
+    WindowPartitionExpression PartitionBy(IEnumerable<SqlExpression> partitions);
+
+    /// <summary>
+    /// todo
+    /// </summary>
+    /// <param name="aggregate">todo</param>
+    /// <param name="partition">todo</param>
+    /// <param name="orderings">todo</param>
+    /// <param name="frame">todo</param>
+    /// <returns>todo</returns>
+    WindowOverExpression Over(SqlFunctionExpression aggregate, WindowPartitionExpression? partition, IReadOnlyList<OrderingExpression> orderings,
+        WindowFrameExpression? frame);
+
+    /// <summary>
+    /// todo
+    /// </summary>
+    /// <param name="method">todo</param>
+    /// <param name="preceding">todo</param>
+    /// <param name="following">todo</param>
+    /// <param name="exclude">todo</param>
+    /// <returns>todo</returns>
+    WindowFrameExpression WindowFrame(MethodInfo method, SqlExpression? preceding, SqlExpression? following, SqlExpression? exclude);
 }

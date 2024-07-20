@@ -45,10 +45,11 @@ public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
                 return false;
             }
 
-            if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions))
+            if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions) || method.DeclaringType == typeof(WindowFunctionsExtensions))
             {
                 return false;
             }
+
         }
 
         return base.IsEvaluatableExpression(expression, model);
