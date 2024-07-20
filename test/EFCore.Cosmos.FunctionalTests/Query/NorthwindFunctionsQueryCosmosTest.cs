@@ -34,7 +34,7 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
 """);
@@ -50,7 +50,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
                     """
 @__pattern_0='M'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], @__pattern_0))
 """);
@@ -64,7 +64,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], @__pat
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], c["ContactName"]))
 """);
@@ -78,7 +78,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], c["Con
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], c["ContactName"]))
 """);
@@ -92,7 +92,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], c["Con
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
 """);
@@ -106,7 +106,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CompanyName"], "Qu", false))
 """);
@@ -120,7 +120,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CompanyName"], "Qu", 
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CompanyName"], "Qu", true))
 """);
@@ -147,7 +147,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CompanyName"], "Qu", 
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "b"))
 """);
@@ -163,7 +163,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "b"))
                     """
 @__pattern_0='b'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], @__pattern_0))
 """);
@@ -177,7 +177,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], @__patte
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], c["ContactName"]))
 """);
@@ -191,7 +191,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], c["Conta
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], c["ContactName"]))
 """);
@@ -205,7 +205,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], c["Conta
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "m"))
 """);
@@ -219,7 +219,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "m"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "DY", false))
 """);
@@ -233,7 +233,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "DY", fa
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "DY", true))
 """);
@@ -260,7 +260,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "DY", tr
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M"))
 """);
@@ -273,7 +273,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M"))
                 await base.String_Contains_Identity(a);
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], c["ContactName"]))
 """);
@@ -287,7 +287,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], c["Conta
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["CompanyName"], c["ContactName"]))
 """);
@@ -301,7 +301,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["CompanyName"], c["Conta
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M", false))
 """);
@@ -315,7 +315,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M", fal
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M", true))
 """);
@@ -340,7 +340,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M", tru
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (LEFT(c["ContactName"], 1) = "A"))
 """);
@@ -354,7 +354,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (LEFT(c["ContactName"], 1) = "A"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (RIGHT(c["ContactName"], 1) = "s"))
 """);
@@ -368,7 +368,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (RIGHT(c["ContactName"], 1) = "s"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M"))
 """);
@@ -478,7 +478,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "M"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Product") AND (ABS(c["ProductID"]) > 10))
 """);
@@ -492,7 +492,7 @@ WHERE ((c["Discriminator"] = "Product") AND (ABS(c["ProductID"]) > 10))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (ABS(c["Quantity"]) > 10))
 """);
@@ -506,7 +506,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (AB
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (ABS(c["UnitPrice"]) > 10.0))
 """);
@@ -520,7 +520,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (ABS(c
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10 < c["ProductID"]))
 """);
@@ -542,7 +542,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (10
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (CEILING(c["UnitPrice"]) > 10.0))
 """);
@@ -556,7 +556,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (CEILI
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (FLOOR(c["UnitPrice"]) > 10.0))
 """);
@@ -586,7 +586,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (FLOOR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (ROUND(c["UnitPrice"]) > 10.0))
 """);
@@ -612,7 +612,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (ROUND
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10250))
 """);
@@ -626,7 +626,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10250))
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10250))
 """);
@@ -648,7 +648,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10250))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC(c["UnitPrice"]) > 10.0))
 """);
@@ -758,7 +758,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5)) AND (TRUNC
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SIGN(c["Discount"]) > 0))
 """);
@@ -844,7 +844,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SI
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (CEILING(c["Discount"]) > 0.0))
 """);
@@ -866,7 +866,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["UnitPrice"] < 7.0)) AND (CE
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "OrderDetail") AND (POWER(c["Discount"], 3.0) > 0.005))
 """);
@@ -880,7 +880,7 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (POWER(c["Discount"], 3.0) > 0.0
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "OrderDetail") AND (POWER(c["Discount"], 2.0) > 0.05))
 """);
@@ -910,7 +910,7 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (POWER(c["Discount"], 2.0) > 0.0
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (EXP(c["Discount"]) > 1.0))
 """);
@@ -924,7 +924,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (EX
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG10(c["Discount"]) < 0.0))
 """);
@@ -938,7 +938,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG(c["Discount"]) < 0.0))
 """);
@@ -952,7 +952,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c["Discount"] > 0.0))) AND (LOG(c["Discount"], 7.0) < -1.0))
 """);
@@ -966,7 +966,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] = 11077) AND (c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SQRT(c["Discount"]) > 0.0))
 """);
@@ -980,7 +980,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SQ
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ACOS(c["Discount"]) > 1.0))
 """);
@@ -994,7 +994,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (AC
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ASIN(c["Discount"]) > 0.0))
 """);
@@ -1008,7 +1008,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (AS
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ATAN(c["Discount"]) > 0.0))
 """);
@@ -1022,7 +1022,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (AT
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (ATN2(c["Discount"], 1.0) > 0.0))
 """);
@@ -1036,7 +1036,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (AT
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (COS(c["Discount"]) > 0.0))
 """);
@@ -1050,7 +1050,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (CO
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SIN(c["Discount"]) > 0.0))
 """);
@@ -1064,7 +1064,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SI
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (TAN(c["Discount"]) > 0.0))
 """);
@@ -1078,7 +1078,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (TA
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SIGN(c["Discount"]) > 0))
 """);
@@ -1092,7 +1092,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SI
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (DEGREES(c["Discount"]) > 0.0))
 """);
@@ -1106,7 +1106,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (DE
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (RADIANS(c["Discount"]) > 0.0))
 """);
@@ -1128,7 +1128,7 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (RA
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (UPPER(c["CustomerID"]) = "ALFKI"))
 """);
@@ -1142,7 +1142,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (UPPER(c["CustomerID"]) = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (LOWER(c["CustomerID"]) = "alfki"))
 """);
@@ -1228,7 +1228,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (LOWER(c["CustomerID"]) = "alfki"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["Region"], "") = 0))
 """);
@@ -1242,7 +1242,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["Region"], "") = 0))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "a") = 1))
 """);
@@ -1258,7 +1258,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "a") = 
                     """
 @__pattern_0='a'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], @__pattern_0) = 1))
 """);
@@ -1272,7 +1272,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], @__patt
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "a", 2) = 4))
 """);
@@ -1288,7 +1288,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "a", 2)
                     """
 @__start_0='2'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "a", @__start_0) = 4))
 """);
@@ -1302,7 +1302,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (INDEX_OF(c["ContactName"], "a", @_
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (REPLACE(c["ContactName"], "ia", "") = "Mar Anders"))
 """);
@@ -1316,7 +1316,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (REPLACE(c["ContactName"], "ia", ""
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (REPLACE(c["ContactName"], c["ContactName"], c["CustomerID"]) = c["CustomerID"]))
 """);
@@ -1330,7 +1330,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (REPLACE(c["ContactName"], c["Conta
 
                 AssertSql(
                     """
-SELECT c["ContactName"]
+SELECT VALUE c["ContactName"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (SUBSTRING(c["CustomerID"], 0, LENGTH(c["CustomerID"])) = "ALFKI"))
 """);
@@ -1344,7 +1344,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (SUBSTRING(c["CustomerID"], 0, LENG
 
                 AssertSql(
                     """
-SELECT c["ContactName"]
+SELECT VALUE c["ContactName"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (SUBSTRING(c["CustomerID"], 1, LENGTH(c["CustomerID"])) = "LFKI"))
 """);
@@ -1360,7 +1360,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (SUBSTRING(c["CustomerID"], 1, LENG
                     """
 @__start_0='2'
 
-SELECT c["ContactName"]
+SELECT VALUE c["ContactName"]
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (SUBSTRING(c["CustomerID"], @__start_0, LENGTH(c["CustomerID"])) = "FKI"))
 """);
@@ -1374,7 +1374,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (SUBSTRING(c["CustomerID"], @__star
 
                 AssertSql(
                     """
-SELECT LEFT(c["ContactName"], 3) AS c
+SELECT VALUE LEFT(c["ContactName"], 3)
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -1388,7 +1388,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT SUBSTRING(c["ContactName"], 2, 0) AS c
+SELECT VALUE SUBSTRING(c["ContactName"], 2, 0)
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -1402,7 +1402,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT SUBSTRING(c["ContactName"], 1, 3) AS c
+SELECT VALUE SUBSTRING(c["ContactName"], 1, 3)
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -1418,7 +1418,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
                     """
 @__start_0='2'
 
-SELECT SUBSTRING(c["ContactName"], @__start_0, 3) AS c
+SELECT VALUE SUBSTRING(c["ContactName"], @__start_0, 3)
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -1432,7 +1432,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT SUBSTRING(c["ContactName"], INDEX_OF(c["ContactName"], "a"), 3) AS c
+SELECT VALUE SUBSTRING(c["ContactName"], INDEX_OF(c["ContactName"], "a"), 3)
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -1506,7 +1506,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (LTRIM(c["ContactTitle"]) = "Owner"))
 """);
@@ -1536,7 +1536,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (LTRIM(c["ContactTitle"]) = "Owner"
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (RTRIM(c["ContactTitle"]) = "Owner"))
 """);
@@ -1566,7 +1566,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (RTRIM(c["ContactTitle"]) = "Owner"
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (TRIM(c["ContactTitle"]) = "Owner"))
 """);
@@ -1598,7 +1598,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (TRIM(c["ContactTitle"]) = "Owner")
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY LENGTH(c["CustomerID"]), c["CustomerID"]
@@ -1634,7 +1634,7 @@ ORDER BY LENGTH(c["CustomerID"]), c["CustomerID"]
                     """
 @__arg_0='1996-07-04T00:00:00'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] = @__arg_0))
 """);
@@ -1648,7 +1648,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] = @__arg_0))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE false
 """);
@@ -1710,7 +1710,7 @@ WHERE false
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T"))
 """);
@@ -1724,7 +1724,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch("ALFKI", c["CustomerID"]))
 """);
@@ -1742,7 +1742,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch("ALFKI", c["CustomerID"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T"))
 """);
@@ -1760,7 +1760,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "i"))
 """);
@@ -1778,7 +1778,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "m"))
 """);
@@ -1796,7 +1796,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "s"))
 """);
@@ -1814,7 +1814,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "x"))
 """);
@@ -1833,7 +1833,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "ix"))
 """);
@@ -1868,7 +1868,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "alFkI", true))
 """);
@@ -1886,7 +1886,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "alFk
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "alFkI", true))
 """);
@@ -1904,7 +1904,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "alFk
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "ALFKI"))
 """);
@@ -1922,7 +1922,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "ALFK
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "ALFKI"))
 """);
@@ -1944,7 +1944,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "ALFK
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "     "))
 """);
@@ -1960,7 +1960,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], "     ")
                     """
 @__pattern_0='     '
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], @__pattern_0))
 """);
@@ -1974,7 +1974,7 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["ContactName"], @__patte
 
                 AssertSql(
                     """
-SELECT c["OrderID"]
+SELECT VALUE c["OrderID"]
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10250))
 """);
@@ -1988,7 +1988,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10250))
 
                 AssertSql(
                     """
-SELECT c["UnitPrice"]
+SELECT VALUE c["UnitPrice"]
 FROM root c
 WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
 """);
@@ -2002,7 +2002,7 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
 
                 AssertSql(
                     """
-SELECT c["UnitPrice"]
+SELECT VALUE c["UnitPrice"]
 FROM root c
 WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
 """);
@@ -2016,7 +2016,7 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND NOT(CONTAINS(c["CompanyName"], c["ContactName"])))
 """);

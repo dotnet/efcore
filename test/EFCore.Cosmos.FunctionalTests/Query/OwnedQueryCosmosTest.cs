@@ -46,7 +46,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 ORDER BY c["Id"]
@@ -65,10 +65,10 @@ ORDER BY c["Id"]
 
             AssertSql(
                 """
-SELECT (ARRAY(
+SELECT VALUE (ARRAY(
     SELECT VALUE (o["Id"] != 42)
     FROM o IN c["Orders"]
-    ORDER BY o["Id"])[0] ?? false) AS c
+    ORDER BY o["Id"])[0] ?? false)
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -97,7 +97,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
@@ -111,7 +111,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c["PersonAddress"]["Country"]["Name"]
+SELECT VALUE c["PersonAddress"]["Country"]["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
@@ -125,7 +125,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -139,7 +139,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Branch", "LeafA")
 """);
@@ -153,7 +153,7 @@ WHERE c["Discriminator"] IN ("Branch", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Branch", "LeafA")
 """);
@@ -167,7 +167,7 @@ WHERE c["Discriminator"] IN ("Branch", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "LeafA")
 """);
@@ -301,7 +301,7 @@ WHERE (c["Discriminator"] = "LeafA")
 
                 AssertSql(
                     """
-SELECT o AS o0
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -366,7 +366,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Discriminator"] = "LeafA"))
 """);
@@ -385,7 +385,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                 // TODO: The following should project out c["PersonAddress"], not c: #34067
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -410,7 +410,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT COUNT(1) AS c
+SELECT VALUE COUNT(1)
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -448,10 +448,9 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
 
-                // TODO: The following should project out a["Details"], not a: #34067
                 AssertSql(
                     """
-SELECT o["Details"]
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -475,10 +474,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Count() == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-
-                AssertSql(
-                    """
-SELECT o AS o0
+AssertSql(
+    """
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -502,10 +500,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Count() == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-
-                AssertSql(
-                    """
-SELECT o AS o0
+AssertSql(
+    """
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -529,10 +526,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Count == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-
-                AssertSql(
-                    """
-SELECT o["Details"]
+AssertSql(
+    """
+SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -556,10 +552,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Length == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-
-                AssertSql(
-                    """
-SELECT o AS o0
+AssertSql(
+    """
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
@@ -579,7 +574,7 @@ ORDER BY c["Id"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
 """);
@@ -593,7 +588,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
@@ -607,7 +602,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
 """);
@@ -621,7 +616,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -635,7 +630,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c["PersonAddress"]["AddressLine"]
+SELECT VALUE c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -649,7 +644,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -668,7 +663,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Name"], c["Id"]
@@ -689,7 +684,7 @@ ORDER BY c["Name"], c["Id"]
 
             AssertSql(
                 """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Name"], c["Id"]
@@ -710,7 +705,7 @@ ORDER BY c["Name"], c["Id"]
 
             AssertSql(
                 """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
@@ -731,7 +726,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
 
             AssertSql(
                 """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
@@ -767,7 +762,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
 
                 AssertSql(
                     """
-SELECT c["PersonAddress"]["ZipCode"] AS Nation
+SELECT VALUE c["PersonAddress"]["ZipCode"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -781,7 +776,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c["PersonAddress"]["ZipCode"] AS Nation
+SELECT VALUE c["PersonAddress"]["ZipCode"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -797,10 +792,9 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             async, async a =>
             {
                 await base.Can_query_indexer_property_on_owned_collection(a);
-
-                AssertSql(
-                    """
-SELECT c["Name"]
+AssertSql(
+    """
+SELECT VALUE c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
     SELECT VALUE COUNT(1)
@@ -844,7 +838,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
@@ -860,7 +854,7 @@ ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
 OFFSET 0 LIMIT 2
@@ -869,7 +863,7 @@ OFFSET 0 LIMIT 2
                     """
 @__p_0='1'
 
-SELECT o AS o0
+SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @__p_0))
@@ -917,7 +911,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
@@ -931,7 +925,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
@@ -949,7 +943,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
                 AssertSql(
                     """
-SELECT c["PersonAddress"]["AddressLine"]
+SELECT VALUE c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -963,7 +957,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("HeliumBalloon", "HydrogenBalloon")
 """);
@@ -980,7 +974,7 @@ WHERE c["Discriminator"] IN ("HeliumBalloon", "HydrogenBalloon")
 @__p_0='1'
 @__p_1='2'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -999,7 +993,7 @@ OFFSET @__p_0 LIMIT @__p_1
 @__p_0='1'
 @__p_1='2'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -1015,11 +1009,14 @@ OFFSET @__p_0 LIMIT @__p_1
             await CosmosTestHelpers.Instance.NoSyncTest(
                 async, async a =>
                 {
-                    await base.Non_nullable_property_through_optional_navigation(a);
+                    await Assert.ThrowsAsync<NullReferenceException>(
+                        () => AssertQuery(
+                            async,
+                            ss => ss.Set<Barton>().Select(e => new { e.Throned.Value })));
 
                     AssertSql(
                         """
-SELECT c["Throned"]["Value"]
+SELECT VALUE c["Throned"]["Value"]
 FROM root c
 WHERE (c["Discriminator"] = "Barton")
 """);
@@ -1035,7 +1032,7 @@ WHERE (c["Discriminator"] = "Barton")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -1049,7 +1046,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Star")
 """);
@@ -1063,7 +1060,7 @@ WHERE (c["Discriminator"] = "Star")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
@@ -1077,7 +1074,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
 """);
@@ -1093,7 +1090,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 @__p_0='2'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -1113,7 +1110,7 @@ OFFSET 0 LIMIT @__p_0
                     """
 @__p_0='2'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
@@ -1131,7 +1128,7 @@ OFFSET 0 LIMIT @__p_0
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) = 2))
 """);
@@ -1147,7 +1144,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 """);
@@ -1163,7 +1160,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
@@ -1182,7 +1179,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXI
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
@@ -1201,7 +1198,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXI
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Orders"][1]["Id"] = -11))
 """);
@@ -1214,10 +1211,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
             async, async a =>
             {
                 await base.ElementAtOrDefault_over_owned_collection(a);
-
-                AssertSql(
-                    """
-SELECT c
+AssertSql(
+    """
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["Orders"][10] ?? null)["Id"] = -11))
 """);
@@ -1233,10 +1229,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt_over_owned_collection(async));
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-SELECT c
+AssertSql(
+    """
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(
     SELECT VALUE o["Id"]
@@ -1256,7 +1251,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Orders"], 1, 1)) = 1))
 """);
@@ -1272,7 +1267,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
     SELECT VALUE o["OrderDate"]
@@ -1305,7 +1300,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (Da
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(SetUnion(ARRAY(
     SELECT VALUE o

@@ -1342,7 +1342,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 """
 @__p_3='42'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Id"] = @__p_3)
 OFFSET 0 LIMIT 1
@@ -1487,7 +1487,7 @@ OFFSET 0 LIMIT 1
                 """
 @__p_0='42'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["id"] = @__p_0)
 OFFSET 0 LIMIT 1

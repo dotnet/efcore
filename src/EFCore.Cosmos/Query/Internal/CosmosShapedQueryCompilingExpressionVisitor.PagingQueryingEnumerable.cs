@@ -184,7 +184,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         var responseMessageEnumerable = cosmosClient.GetResponseMessageEnumerable(responseMessage);
                         foreach (var resultObject in responseMessageEnumerable)
                         {
-                            results.Add(_shaper(_cosmosQueryContext, resultObject));
+                            results.Add(_shaper(_cosmosQueryContext, (JObject)resultObject));
                             maxItemCount--;
                         }
 

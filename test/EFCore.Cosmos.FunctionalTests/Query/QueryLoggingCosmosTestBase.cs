@@ -45,7 +45,7 @@ public abstract class QueryLoggingCosmosTestBase
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "None", "", Environment.NewLine,
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """),
@@ -57,7 +57,7 @@ WHERE (c["Discriminator"] = "Customer")
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "?", "", Environment.NewLine,
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """),
@@ -91,7 +91,7 @@ WHERE (c["Discriminator"] = "Customer")
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "None", "@__city_0='Redmond'", Environment.NewLine,
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
 """),
@@ -103,7 +103,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "?", "@__city_0=?", Environment.NewLine,
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
 """),

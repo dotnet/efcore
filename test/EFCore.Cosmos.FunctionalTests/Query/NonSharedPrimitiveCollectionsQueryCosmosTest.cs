@@ -13,7 +13,7 @@ public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCo
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -29,7 +29,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -45,7 +45,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -61,7 +61,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -82,7 +82,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -98,7 +98,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -114,7 +114,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -130,7 +130,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -146,7 +146,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -162,7 +162,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -178,7 +178,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -194,7 +194,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -210,7 +210,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -226,7 +226,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -242,7 +242,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -258,7 +258,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -274,7 +274,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -291,7 +291,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -307,7 +307,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -331,7 +331,7 @@ OFFSET 0 LIMIT 2
             """
 @__ints_0='1,2,3'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = @__ints_0)
 OFFSET 0 LIMIT 2
@@ -359,7 +359,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -375,7 +375,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c["Ints"]
+SELECT VALUE c["Ints"]
 FROM root c
 WHERE (c["Discriminator"] = "TestEntityWithOwned")
 """);

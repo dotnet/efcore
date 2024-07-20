@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase(
-        ParameterExpression jObjectParameter,
+        ParameterExpression jTokenParameter,
         bool trackQueryResults)
         : ExpressionVisitor
     {
@@ -73,16 +73,36 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                         // Values injected by JObjectInjectingExpressionVisitor
                         var projectionExpression = ((UnaryExpression)binaryExpression.Right).Operand;
-                        if (projectionExpression is ProjectionBindingExpression projectionBindingExpression)
-                        {
-                            var projection = GetProjection(projectionBindingExpression);
-                            projectionExpression = projection.Expression;
-                            storeName = projection.Alias;
-                        }
-                        else if (projectionExpression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression)
+
+                        if (projectionExpression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression)
                         {
                             // Unwrap EntityProjectionExpression when the root entity is not projected
+                            // That is, this is handling the projection of a non-root entity type.
                             projectionExpression = ((UnaryExpression)convertExpression.Operand).Operand;
+                        }
+
+                        switch (projectionExpression)
+                        {
+                            // ProjectionBindingExpression may represent a named token to be obtained from a containing JObject, or
+                            // it may be that the token is not nested in a JObject if the query was generated using the SQL VALUE clause.
+                            case ProjectionBindingExpression projectionBindingExpression:
+                            {
+                                var projection = GetProjection(projectionBindingExpression);
+                                projectionExpression = projection.Expression;
+                                if (!projection.IsValueProjection)
+                                {
+                                    storeName = projection.Alias;
+                                }
+                                break;
+                            }
+
+                            case ObjectArrayAccessExpression e:
+                                storeName = e.PropertyName;
+                                break;
+
+                            case EntityProjectionExpression e:
+                                storeName = e.PropertyName;
+                                break;
                         }
 
                         Expression innerAccessExpression;
@@ -91,13 +111,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             case ObjectArrayAccessExpression objectArrayProjectionExpression:
                                 innerAccessExpression = objectArrayProjectionExpression.Object;
                                 _projectionBindings[objectArrayProjectionExpression] = parameterExpression;
-                                storeName ??= objectArrayProjectionExpression.PropertyName;
                                 break;
 
                             case EntityProjectionExpression entityProjectionExpression:
                                 var accessExpression = entityProjectionExpression.Object;
                                 _projectionBindings[accessExpression] = parameterExpression;
-                                storeName ??= entityProjectionExpression.PropertyName;
 
                                 switch (accessExpression)
                                 {
@@ -107,13 +125,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                             (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                         break;
                                     case ObjectReferenceExpression:
-                                        innerAccessExpression = jObjectParameter;
+                                        innerAccessExpression = jTokenParameter;
                                         break;
                                     default:
                                         throw new InvalidOperationException(
                                             CoreStrings.TranslationFailed(binaryExpression.Print()));
                                 }
-
                                 break;
 
                             default:
@@ -174,7 +191,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var projection = GetProjection(projectionBindingExpression);
 
                     innerExpression = Convert(
-                        CreateReadJTokenExpression(jObjectParameter, projection.Alias),
+                        CreateReadJTokenExpression(jTokenParameter, projection.Alias),
                         typeof(JObject));
                 }
                 else
@@ -222,9 +239,10 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     var projection = GetProjection(projectionBindingExpression);
 
                     return CreateGetValueExpression(
-                        jObjectParameter,
-                        projection.Alias,
-                        projectionBindingExpression.Type, (projection.Expression as SqlExpression)?.TypeMapping);
+                        jTokenParameter,
+                        projection.IsValueProjection ? null : projection.Alias,
+                        projectionBindingExpression.Type,
+                        (projection.Expression as SqlExpression)?.TypeMapping);
                 }
 
                 case CollectionShaperExpression collectionShaperExpression:
@@ -584,13 +602,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             => Call(jObjectExpression, GetItemMethodInfo, Constant(propertyName));
 
         private Expression CreateGetValueExpression(
-            Expression jObjectExpression,
+            Expression jTokenExpression,
             IProperty property,
             Type type)
         {
             if (property.Name == StoreKeyConvention.JObjectPropertyName)
             {
-                return _projectionBindings[jObjectExpression];
+                return _projectionBindings[jTokenExpression];
             }
 
             var entityType = property.DeclaringType as IEntityType;
@@ -603,7 +621,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 {
                     if (ownership is { IsUnique: false } && property.IsOrdinalKeyProperty())
                     {
-                        var ordinalExpression = _ordinalParameterBindings[jObjectExpression];
+                        var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
                         if (ordinalExpression.Type != type)
                         {
                             ordinalExpression = Convert(ordinalExpression, type);
@@ -616,7 +634,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     if (principalProperty != null)
                     {
                         Expression ownerJObjectExpression = null;
-                        if (_ownerMappings.TryGetValue(jObjectExpression, out var ownerInfo))
+                        if (_ownerMappings.TryGetValue(jTokenExpression, out var ownerInfo))
                         {
                             Check.DebugAssert(
                                 principalProperty.DeclaringType.IsAssignableFrom(ownerInfo.EntityType),
@@ -624,11 +642,11 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                             ownerJObjectExpression = ownerInfo.JObjectExpression;
                         }
-                        else if (jObjectExpression is ObjectReferenceExpression objectReferenceExpression)
+                        else if (jTokenExpression is ObjectReferenceExpression objectReferenceExpression)
                         {
                             ownerJObjectExpression = objectReferenceExpression;
                         }
-                        else if (jObjectExpression is ObjectAccessExpression objectAccessExpression)
+                        else if (jTokenExpression is ObjectAccessExpression objectAccessExpression)
                         {
                             ownerJObjectExpression = objectAccessExpression.Object;
                         }
@@ -653,7 +671,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 && !property.IsShadowProperty())
             {
                 var readExpression = CreateGetValueExpression(
-                    jObjectExpression, storeName, type.MakeNullable(), property.GetTypeMapping());
+                    jTokenExpression, storeName, type.MakeNullable(), property.GetTypeMapping());
 
                 var nonNullReadExpression = readExpression;
                 if (nonNullReadExpression.Type != type)
@@ -661,7 +679,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     nonNullReadExpression = Convert(nonNullReadExpression, type);
                 }
 
-                var ordinalExpression = _ordinalParameterBindings[jObjectExpression];
+                var ordinalExpression = _ordinalParameterBindings[jTokenExpression];
                 if (ordinalExpression.Type != type)
                 {
                     ordinalExpression = Convert(ordinalExpression, type);
@@ -674,25 +692,25 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             return Convert(
-                CreateGetValueExpression(jObjectExpression, storeName, type.MakeNullable(), property.GetTypeMapping()),
+                CreateGetValueExpression(jTokenExpression, storeName, type.MakeNullable(), property.GetTypeMapping()),
                 type);
         }
 
         private Expression CreateGetValueExpression(
-            Expression jObjectExpression,
+            Expression jTokenExpression,
             string storeName,
             Type type,
             CoreTypeMapping typeMapping = null)
         {
             Check.DebugAssert(type.IsNullableType(), "Must read nullable type from JObject.");
 
-            var innerExpression = jObjectExpression switch
+            var innerExpression = jTokenExpression switch
             {
-                _ when _projectionBindings.TryGetValue(jObjectExpression, out var innerVariable)
+                _ when _projectionBindings.TryGetValue(jTokenExpression, out var innerVariable)
                     => innerVariable,
 
-                ObjectReferenceExpression objectReference
-                    => CreateGetValueExpression(jObjectParameter, objectReference.Name, typeof(JObject)),
+                ObjectReferenceExpression
+                    => jTokenParameter,
 
                 ObjectAccessExpression objectAccessExpression
                     => CreateGetValueExpression(
@@ -700,10 +718,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         ((IAccessExpression)objectAccessExpression.Object).PropertyName,
                         typeof(JObject)),
 
-                _ => jObjectExpression
+                _ => jTokenExpression
             };
 
-            var jTokenExpression = CreateReadJTokenExpression(innerExpression, storeName);
+            jTokenExpression = storeName == null
+                ? innerExpression
+                : CreateReadJTokenExpression(
+                    innerExpression.Type == typeof(JObject)
+                        ? innerExpression
+                        : Convert(innerExpression, typeof(JObject)), storeName);
 
             Expression valueExpression;
             var converter = typeMapping?.Converter;
@@ -773,9 +796,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 : Call(
                     ToObjectWithSerializerMethodInfo.MakeGenericMethod(type),
                     jTokenExpression);
-
-        private static T SafeToObject<T>(JToken token)
-            => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>();
 
         private static T SafeToObjectWithSerializer<T>(JToken token)
             => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
