@@ -111,10 +111,10 @@ public sealed partial class SelectExpression : TableExpressionBase
         IReadOnlyList<OrderingExpression> orderings,
         SqlExpression? offset,
         SqlExpression? limit,
-        IReadOnlySet<string> tags,
-        IReadOnlyDictionary<string, IAnnotation>? annotations)
+        IReadOnlySet<string>? tags = null,
+        IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : this(alias, tables.ToList(), predicate, groupBy.ToList(), having, projections.ToList(), distinct, orderings.ToList(),
-            offset, limit, tags.ToHashSet(), annotations, sqlAliasManager: null, isMutable: false)
+            offset, limit, tags?.ToHashSet() ?? [], annotations, sqlAliasManager: null, isMutable: false)
     {
     }
 
