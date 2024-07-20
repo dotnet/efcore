@@ -17,7 +17,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     /// <summary>
     ///     Translates
     ///     <see
-    ///         cref="RelationalQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}}})" />
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}}})" />
     ///     method
     ///     over the given source.
     /// </summary>
@@ -62,7 +62,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             AddTranslationErrorDetails(
                 RelationalStrings.ExecuteOperationOnTPC(
-                    nameof(RelationalQueryableExtensions.ExecuteUpdate), tpcTablesExpression.EntityType.DisplayName()));
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate), tpcTablesExpression.EntityType.DisplayName()));
             return null;
         }
 
@@ -423,7 +423,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
             {
                 AddTranslationErrorDetails(
                     RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(
-                        nameof(RelationalQueryableExtensions.ExecuteUpdate),
+                        nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate),
                         entityType.DisplayName()));
                 return null;
             }

@@ -203,7 +203,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)));
     }
 
     /// <summary>
@@ -1540,7 +1541,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)));
     }
 
     /// <summary>

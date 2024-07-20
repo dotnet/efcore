@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesTestBase
+public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

@@ -40,7 +40,7 @@ public sealed class SetPropertyCalls<TSource>
     public SetPropertyCalls<TSource> SetProperty<TProperty>(
         Func<TSource, TProperty> propertyExpression,
         Func<TSource, TProperty> valueExpression)
-        => throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
+        => throw new InvalidOperationException(CoreStrings.SetPropertyMethodInvoked);
 
     /// <summary>
     ///     Specifies a property and corresponding value it should be updated to in ExecuteUpdate method.
@@ -55,7 +55,7 @@ public sealed class SetPropertyCalls<TSource>
     public SetPropertyCalls<TSource> SetProperty<TProperty>(
         Func<TSource, TProperty> propertyExpression,
         TProperty valueExpression)
-        => throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
+        => throw new InvalidOperationException(CoreStrings.SetPropertyMethodInvoked);
 
     #region Hidden System.Object members
 

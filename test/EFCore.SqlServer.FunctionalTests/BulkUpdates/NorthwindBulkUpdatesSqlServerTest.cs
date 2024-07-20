@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class NorthwindBulkUpdatesSqlServerTest(
     NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer> fixture,
-    ITestOutputHelper testOutputHelper) : NorthwindBulkUpdatesTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
+    ITestOutputHelper testOutputHelper) : NorthwindBulkUpdatesRelationalTestBase<NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer>>(fixture, testOutputHelper)
 {
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

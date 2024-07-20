@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
     /// <summary>
-    ///     Translates <see cref="RelationalQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
+    ///     Translates <see cref="EntityFrameworkQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
     ///     over the given source.
     /// </summary>
     /// <param name="source">The shaped query on which the operator is applied.</param>
@@ -29,7 +29,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy)
         {
             AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPT(nameof(RelationalQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                RelationalStrings.ExecuteOperationOnTPT(
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
             return null;
         }
 
@@ -38,7 +39,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             // We allow TPC is it is leaf type
             AddTranslationErrorDetails(
-                RelationalStrings.ExecuteOperationOnTPC(nameof(RelationalQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                RelationalStrings.ExecuteOperationOnTPC(
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
             return null;
         }
 
@@ -46,7 +48,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             AddTranslationErrorDetails(
                 RelationalStrings.ExecuteOperationOnEntitySplitting(
-                    nameof(RelationalQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), entityType.DisplayName()));
             return null;
         }
 
@@ -97,7 +99,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         {
             AddTranslationErrorDetails(
                 RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator(
-                    nameof(RelationalQueryableExtensions.ExecuteDelete),
+                    nameof(EntityFrameworkQueryableExtensions.ExecuteDelete),
                     entityType.DisplayName()));
             return null;
         }

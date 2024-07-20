@@ -38,9 +38,4 @@ public abstract class BulkUpdatesTestBase<TFixture> : IClassFixture<TFixture>
         Action<IReadOnlyList<TEntity>, IReadOnlyList<TEntity>> asserter = null)
         where TResult : class
         => BulkUpdatesAsserter.AssertUpdate(async, query, entitySelector, setPropertyCalls, rowsAffectedCount, asserter);
-
-    protected static async Task AssertTranslationFailed(string details, Func<Task> query)
-        => Assert.Contains(
-            RelationalStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
-            (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
 }

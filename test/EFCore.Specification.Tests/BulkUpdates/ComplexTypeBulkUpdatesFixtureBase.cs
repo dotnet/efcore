@@ -5,11 +5,10 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class ComplexTypeBulkUpdatesFixtureBase : ComplexTypeQueryRelationalFixtureBase, IBulkUpdatesFixtureBase
+public abstract class ComplexTypeBulkUpdatesFixtureBase : ComplexTypeQueryFixtureBase, IBulkUpdatesFixtureBase
 {
     protected override string StoreName
         => "ComplexTypeBulkUpdatesTest";
 
-    public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        => facade.UseTransaction(transaction.GetDbTransaction());
+    public abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 }

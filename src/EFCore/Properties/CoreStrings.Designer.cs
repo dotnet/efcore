@@ -2908,6 +2908,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationWithDifferentIncludesInOperands");
 
         /// <summary>
+        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
+        /// </summary>
+        public static string SetPropertyMethodInvoked
+            => GetString("SetPropertyMethodInvoked");
+
+        /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.
         /// </summary>
         public static string SharedTypeDerivedType(object? entityType)

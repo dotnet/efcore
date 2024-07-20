@@ -1620,12 +1620,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 setOperationType);
 
         /// <summary>
-        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
-        /// </summary>
-        public static string SetPropertyMethodInvoked
-            => GetString("SetPropertyMethodInvoked");
-
-        /// <summary>
         ///     This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.
         /// </summary>
         public static string SplitQueryString

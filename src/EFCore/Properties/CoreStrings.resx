@@ -1558,6 +1558,9 @@
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.</value>
   </data>
+  <data name="SetPropertyMethodInvoked" xml:space="preserve">
+    <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>
+  </data>
   <data name="SharedTypeDerivedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' cannot have a base type.</value>
   </data>
