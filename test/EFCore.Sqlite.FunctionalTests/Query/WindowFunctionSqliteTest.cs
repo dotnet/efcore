@@ -73,7 +73,6 @@ FROM "NullTestEmployees" AS "n"
             """
 SELECT "e"."Id", "e"."Name", MAX(CASE
     WHEN ef_compare("e"."Salary", '100000.0') > 0 THEN "e"."Salary"
-    ELSE NULL
 END) OVER (PARTITION BY "e"."DepartmentName" ORDER BY "e"."Name") AS "MaxSalary"
 FROM "Employees" AS "e"
 """);
@@ -113,7 +112,6 @@ FROM "NullTestEmployees" AS "n"
             """
 SELECT "e"."Id", "e"."Name", MIN(CASE
     WHEN "e"."Salary" = '200000.0' THEN "e"."Salary"
-    ELSE NULL
 END) OVER (PARTITION BY "e"."DepartmentName" ORDER BY "e"."Name") AS "MinSalary"
 FROM "Employees" AS "e"
 """);
@@ -153,7 +151,6 @@ FROM "Employees" AS "e"
             """
 SELECT "e"."Id", "e"."Name", COUNT(CASE
     WHEN ef_compare("e"."Salary", '1200000.0') <= 0 THEN '1'
-    ELSE NULL
 END) OVER (PARTITION BY "e"."DepartmentName" ORDER BY "e"."Name") AS "Count"
 FROM "Employees" AS "e"
 """);
@@ -167,7 +164,6 @@ FROM "Employees" AS "e"
             """
 SELECT "e"."Id", "e"."Name", COUNT(CASE
     WHEN "e"."Salary" <> '500000.0' THEN "e"."Salary"
-    ELSE NULL
 END) OVER (PARTITION BY "e"."DepartmentName" ORDER BY "e"."Name") AS "Count"
 FROM "Employees" AS "e"
 """);
@@ -234,7 +230,6 @@ SELECT "e"."Id", "e"."Name", AVG(CASE
         SELECT "i"."value"
         FROM json_each(@__ids_1) AS "i"
     ) THEN "e"."Salary"
-    ELSE NULL
 END) OVER (PARTITION BY "e"."DepartmentName" ORDER BY "e"."Name") AS "Avg"
 FROM "Employees" AS "e"
 """);
@@ -290,7 +285,6 @@ SELECT "e"."Id", "e"."Name", SUM(CASE
         SELECT "i"."value"
         FROM json_each(@__ids_1) AS "i"
     ) THEN "e"."Salary"
-    ELSE NULL
 END) OVER (PARTITION BY "e"."DepartmentName" ORDER BY "e"."Name") AS "Sum"
 FROM "Employees" AS "e"
 """);

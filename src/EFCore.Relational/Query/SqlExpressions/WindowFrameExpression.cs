@@ -17,12 +17,12 @@ public abstract class WindowFrameExpression : Expression, IPrintableExpression
     /// <summary>
     /// todo
     /// </summary>
-    public SqlExpression? Preceding { get; init; }
+    public virtual SqlExpression? Preceding { get; init; }
 
     /// <summary>
     /// todo
     /// </summary>
-    public SqlExpression? Following { get; init; }
+    public virtual SqlExpression? Following { get; init; }
 
     /// <summary>
     /// todo - bettter name
@@ -32,7 +32,7 @@ public abstract class WindowFrameExpression : Expression, IPrintableExpression
     /// <summary>
     /// todo
     /// </summary>
-    public SqlExpression? Exclude { get; set; }
+    public virtual SqlExpression? Exclude { get; set; }
 
     /// <summary>
     /// todo

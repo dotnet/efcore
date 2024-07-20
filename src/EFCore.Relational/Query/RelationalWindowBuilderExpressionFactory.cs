@@ -35,22 +35,22 @@ public class RelationalWindowBuilderExpression : Expression
     /// <summary>
     /// todo
     /// </summary>
-    public IReadOnlyList<OrderingExpression> OrderingExpressions => _orderingExpressions;
+    public virtual IReadOnlyList<OrderingExpression> OrderingExpressions => _orderingExpressions;
 
     /// <summary>
     /// todo
     /// </summary>
-    public WindowPartitionExpression? PartitionExpression => _partitionExpression;
+    public virtual WindowPartitionExpression? PartitionExpression => _partitionExpression;
 
     /// <summary>
     /// todo
     /// </summary>
-    public WindowFrameExpression? FrameExpression => _frameExpression;
+    public virtual WindowFrameExpression? FrameExpression => _frameExpression;
 
     /// <summary>
     /// todo
     /// </summary>
-    public SqlConstantExpression? ExcludeExpression => _excludeExpression;
+    public virtual SqlConstantExpression? ExcludeExpression => _excludeExpression;
 
     /// <summary>
     /// todo
