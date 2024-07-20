@@ -234,7 +234,8 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             .AddDependencyScoped<RelationalQueryContextDependencies>()
             .AddDependencyScoped<RelationalQueryCompilationContextDependencies>()
             .AddDependencyScoped<RelationalAdHocMapperDependencies>()
-            .AddDependencyScoped<WindowBuilderExpressionFactory>();
+            .AddDependencyScoped<WindowBuilderExpressionFactory>()
+            .AddDependencyScoped<RelationalWindowAggregateMethodTranslatorDependencies>();
 
         return base.TryAddCoreServices();
     }

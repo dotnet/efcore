@@ -18,7 +18,7 @@ public class WindowPartitionExpression : Expression, IPrintableExpression
     /// <summary>
     /// todo
     /// </summary>
-    public IReadOnlyList<SqlExpression> Partitions { get;  init; }
+    public virtual IReadOnlyList<SqlExpression> Partitions { get;  init; }
 
     /// <summary>
     /// tests

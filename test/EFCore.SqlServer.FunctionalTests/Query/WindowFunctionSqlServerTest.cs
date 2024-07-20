@@ -73,7 +73,6 @@ FROM [NullTestEmployees] AS [n]
             """
 SELECT [e].[Id], [e].[Name], MAX(CASE
     WHEN [e].[Salary] > 100000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [MaxSalary]
 FROM [Employees] AS [e]
 """);
@@ -113,7 +112,6 @@ FROM [NullTestEmployees] AS [n]
             """
 SELECT [e].[Id], [e].[Name], MIN(CASE
     WHEN [e].[Salary] = 200000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [MinSalary]
 FROM [Employees] AS [e]
 """);
@@ -153,7 +151,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], COUNT(CASE
     WHEN [e].[Salary] <= 1200000.0 THEN N'1'
-    ELSE NULL
 END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Count]
 FROM [Employees] AS [e]
 """);
@@ -167,7 +164,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], COUNT(CASE
     WHEN [e].[Salary] <> 500000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Count]
 FROM [Employees] AS [e]
 """);
@@ -234,7 +230,6 @@ SELECT [e].[Id], [e].[Name], AVG(CASE
         SELECT [i].[value]
         FROM OPENJSON(@__ids_1) WITH ([value] int '$') AS [i]
     ) THEN [e].[Salary]
-    ELSE NULL
 END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Avg]
 FROM [Employees] AS [e]
 """);
@@ -290,7 +285,6 @@ SELECT [e].[Id], [e].[Name], SUM(CASE
         SELECT [i].[value]
         FROM OPENJSON(@__ids_1) WITH ([value] int '$') AS [i]
     ) THEN [e].[Salary]
-    ELSE NULL
 END) OVER (PARTITION BY [e].[DepartmentName] ORDER BY [e].[Name]) AS [Sum]
 FROM [Employees] AS [e]
 """);
@@ -578,7 +572,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], COUNT_BIG(CASE
     WHEN [e].[Salary] > 10.0 THEN N'1'
-    ELSE NULL
 END) OVER () AS [Count]
 FROM [Employees] AS [e]
 """);
@@ -603,7 +596,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], COUNT_BIG(CASE
     WHEN [e].[Salary] > 10.0 THEN [e].[Id]
-    ELSE NULL
 END) OVER () AS [Count]
 FROM [Employees] AS [e]
 """);
@@ -666,7 +658,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], STDEV(CASE
     WHEN [e].[Salary] > 100000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER ( ORDER BY [e].[WorkExperience], [e].[Name]) AS [StdDev]
 FROM [Employees] AS [e]
 """);
@@ -730,7 +721,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], STDEVP(CASE
     WHEN [e].[Salary] > 100000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER ( ORDER BY [e].[WorkExperience], [e].[Name]) AS [StdDev]
 FROM [Employees] AS [e]
 """);
@@ -793,7 +783,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], VAR(CASE
     WHEN [e].[Salary] > 100000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER ( ORDER BY [e].[WorkExperience], [e].[Name]) AS [StdDev]
 FROM [Employees] AS [e]
 """);
@@ -856,7 +845,6 @@ FROM [Employees] AS [e]
             """
 SELECT [e].[Id], [e].[Name], VARP(CASE
     WHEN [e].[Salary] > 100000.0 THEN [e].[Salary]
-    ELSE NULL
 END) OVER ( ORDER BY [e].[WorkExperience], [e].[Name]) AS [StdDev]
 FROM [Employees] AS [e]
 """);

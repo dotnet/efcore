@@ -20,27 +20,27 @@ public class WindowOverExpression : SqlExpression, IPrintableExpression
     /// <summary>
     /// todo
     /// </summary>
-    public WindowPartitionExpression? Partition { get; init; }
+    public virtual WindowPartitionExpression? Partition { get; init; }
 
     /// <summary>
     /// todo
     /// </summary>
-    public SqlFunctionExpression Aggregate { get; set; }
+    public virtual SqlFunctionExpression Aggregate { get; set; }
 
     /// <summary>
     /// todo
     /// </summary>
-    public IReadOnlyList<OrderingExpression> Ordering { get; init; }
+    public virtual IReadOnlyList<OrderingExpression> Ordering { get; init; }
 
     /// <summary>
     /// todo
     /// </summary>
-    public WindowFrameExpression? WindowFrame { get; init; }
+    public virtual WindowFrameExpression? WindowFrame { get; init; }
 
     /// <summary>
     /// todo
     /// </summary>
-    public SqlExpression? Filter { get; init; }
+    public virtual SqlExpression? Filter { get; init; }
 
 
     /// <summary>
