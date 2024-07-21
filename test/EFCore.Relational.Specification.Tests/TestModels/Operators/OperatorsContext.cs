@@ -16,5 +16,6 @@ public class OperatorsContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<OperatorEntityBool>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<OperatorEntityNullableBool>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<OperatorEntityDateTimeOffset>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<OperatorEntityNullableDateTimeOffset>().Property(x => x.Id).ValueGeneratedNever();
     }
 }
