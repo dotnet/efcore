@@ -1943,20 +1943,22 @@ WHERE (c["Discriminator"] = "Order")
 """);
             });
 
-    public override Task Select_with_complex_expression_that_can_be_funcletized(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await Assert.ThrowsAsync<EqualException>(
-                    () => base.Select_with_complex_expression_that_can_be_funcletized(a));
+    public override async Task Select_with_complex_expression_that_can_be_funcletized(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            await Assert.ThrowsAsync<EqualException>(
+                () => base.Select_with_complex_expression_that_can_be_funcletized(true));
 
-                AssertSql(
-                    """
+            AssertSql(
+                """
 SELECT VALUE INDEX_OF(c["Region"], "")
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);
-            });
+        }
+    }
 
     public override Task Select_datetime_Ticks_component(bool async)
         => Fixture.NoSyncTest(

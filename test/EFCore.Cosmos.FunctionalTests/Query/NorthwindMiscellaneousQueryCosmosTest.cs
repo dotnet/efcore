@@ -4574,10 +4574,10 @@ WHERE (c["Discriminator"] = "Order")
         // Always throws for sync.
         if (async)
         {
-            await Assert.ThrowsAsync<NullReferenceException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Select(e => new { e.Region.Length })));
+            await AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(e => new { e.Region.Length }),
+                ss => ss.Set<Customer>().Where(e => e.Region != null).Select(e => new { e.Region.Length }));
 
             AssertSql(
                 """
