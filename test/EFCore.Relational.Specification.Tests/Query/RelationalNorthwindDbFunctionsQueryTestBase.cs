@@ -51,6 +51,16 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Collate_is_null(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>(),
+            c => EF.Functions.Collate(c.Region, CaseSensitiveCollation) == null,
+            c => c.Region == null);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Least(bool async)
         => AssertQuery(
             async,
