@@ -29,7 +29,7 @@ public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKe
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 ORDER BY c["PartitionKey"]
 OFFSET 0 LIMIT 1
@@ -48,7 +48,7 @@ OFFSET 0 LIMIT 1
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 OFFSET 0 LIMIT 2
 """;
@@ -66,7 +66,7 @@ OFFSET 0 LIMIT 2
     {
         const string readSql =
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Id"] = 42) OR (c["Name"] = "John Snow"))
 OFFSET 0 LIMIT 1
@@ -120,7 +120,6 @@ OFFSET 0 LIMIT 1
             var customerFromStore = await readSingleTask(innerContext);
 
             AssertSql(readSql);
-
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
             Assert.Equal(1, customerFromStore.PartitionKey);

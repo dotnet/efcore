@@ -96,22 +96,16 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             sourceExpression = new SelectExpression(
                 sources: [],
                 predicate: null,
-                [new ProjectionExpression(sourceExpression, null!)],
+                [new ProjectionExpression(sourceExpression, alias: null!, isValueProjection: true)],
                 distinct: false,
                 orderings: [],
                 offset: null,
-                limit: null)
-            {
-                UsesSingleValueProjection = true
-            };
+                limit: null);
         }
 
         var source = new SourceExpression(sourceExpression, sourceAlias, withIn: true);
 
-        return new SelectExpression(source, projection)
-        {
-            UsesSingleValueProjection = true
-        };
+        return new SelectExpression(source, projection);
     }
 
     /// <summary>
@@ -122,18 +116,6 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     /// </summary>
     public IReadOnlyList<ProjectionExpression> Projection
         => _projection;
-
-    /// <summary>
-    ///     If set, indicates that the <see cref="SelectExpression" /> has a Cosmos VALUE projection, which does not get wrapped in a
-    ///     JSON object. If <see langword="true" />, <see cref="Projection" /> must contain a single item.
-    /// </summary>
-    /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
-    public bool UsesSingleValueProjection { get; init; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -292,6 +274,15 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     public int AddToProjection(Expression sqlExpression)
         => AddToProjection(sqlExpression, null);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public int AddToProjection(EntityProjectionExpression entityProjection)
+        => AddToProjection(entityProjection, null);
+
     private int AddToProjection(Expression expression, string? alias)
     {
         var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(expression));
@@ -311,7 +302,14 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             currentAlias = $"{baseAlias}{counter++}";
         }
 
-        _projection.Add(new ProjectionExpression(expression, currentAlias));
+        // Add the projection; if it's the only one, then it's a Cosmos VALUE projection (i.e. SELECT VALUE f).
+        // If we add a 2nd projection, go back and remove the VALUE modifier from the 1st one. This is also why we need to have a valid
+        // alias for the 1st projection, even if it's a VALUE projection (where no alias actually gets generated in SQL).
+        _projection.Add(new ProjectionExpression(expression, currentAlias, isValueProjection: _projection.Count == 0));
+        if (_projection.Count == 2)
+        {
+            _projection[0] = new ProjectionExpression(_projection[0].Expression, _projection[0].Alias, isValueProjection: false);
+        }
 
         return _projection.Count - 1;
     }
@@ -603,8 +601,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         {
             var newSelectExpression = new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
             {
-                _projectionMapping = projectionMapping,
-                UsesSingleValueProjection = UsesSingleValueProjection
+                _projectionMapping = projectionMapping
             };
 
             return newSelectExpression;
@@ -636,7 +633,6 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
         {
             _projectionMapping = projectionMapping,
-            UsesSingleValueProjection = UsesSingleValueProjection,
             ReadItemInfo = ReadItemInfo
         };
     }
@@ -651,7 +647,6 @@ public sealed class SelectExpression : Expression, IPrintableExpression
         => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
             _projectionMapping = _projectionMapping,
-            UsesSingleValueProjection = UsesSingleValueProjection,
             ReadItemInfo = readItemInfo
         };
 
@@ -671,8 +666,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         return new SelectExpression(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
-            _projectionMapping = projectionMapping,
-            UsesSingleValueProjection = true
+            _projectionMapping = projectionMapping
         };
     }
 
@@ -725,18 +719,18 @@ public sealed class SelectExpression : Expression, IPrintableExpression
             expressionPrinter.Append("DISTINCT ");
         }
 
-        if (Projection.Any())
+        switch (Projection)
         {
-            if (UsesSingleValueProjection)
-            {
+            case []:
+                expressionPrinter.Append("1");
+                break;
+            case [{ IsValueProjection: true } valueProjection]:
                 expressionPrinter.Append("VALUE ");
-            }
-
-            expressionPrinter.VisitCollection(Projection);
-        }
-        else
-        {
-            expressionPrinter.Append("1");
+                expressionPrinter.Visit(valueProjection);
+                break;
+            default:
+                expressionPrinter.VisitCollection(Projection);
+                break;
         }
 
         if (Sources.Count > 0)

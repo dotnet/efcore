@@ -297,7 +297,7 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
             """
 @__p_0='77'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("BaseType", "DerivedType") AND (c["Id"] = @__p_0))
 OFFSET 0 LIMIT 1
@@ -311,7 +311,7 @@ OFFSET 0 LIMIT 1
         AssertSql("""
 @__p_0='99'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("BaseType", "DerivedType") AND (c["Id"] = @__p_0))
 OFFSET 0 LIMIT 1

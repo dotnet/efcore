@@ -22,21 +22,21 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = 1)
 OFFSET 0 LIMIT 2
 """,
                     //
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = 2)
 OFFSET 0 LIMIT 2
 """,
                     //
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = 3)
 OFFSET 0 LIMIT 2
@@ -51,7 +51,7 @@ OFFSET 0 LIMIT 2
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN (0, 1, 2, 3)
 """);
@@ -65,7 +65,7 @@ WHERE c["Discriminator"] IN (0, 1, 2, 3)
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
@@ -80,7 +80,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
 """);
@@ -94,10 +94,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT VALUE
-{
-    "Value" : ((c["Discriminator"] = "Kiwi") ? c["FoundOn"] : 0)
-}
+SELECT VALUE ((c["Discriminator"] = "Kiwi") ? c["FoundOn"] : 0)
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 """);
@@ -111,7 +108,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 """);
@@ -125,7 +122,7 @@ WHERE (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ((c["Discriminator"] = "Kiwi") AND (c["CountryId"] = 1)))
 """);
@@ -139,7 +136,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ((c["Discriminator"] = "Kiwi"
 
                 AssertSql(
                     """
-SELECT (c["Discriminator"] = "Kiwi") AS c
+SELECT VALUE (c["Discriminator"] = "Kiwi")
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 """);
@@ -153,7 +150,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
@@ -168,7 +165,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["CountryId"] = 1)) AND c["Discriminator"] IN ("Eagle", "Kiwi"))
 ORDER BY c["Species"]
@@ -183,7 +180,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c["EagleId"]
+SELECT VALUE c["EagleId"]
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 """);
@@ -197,7 +194,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
@@ -213,7 +210,7 @@ OFFSET 0 LIMIT 1
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
 """);
@@ -227,7 +224,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 """);
@@ -241,7 +238,7 @@ WHERE (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose"))
 """);
@@ -255,7 +252,7 @@ WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
@@ -278,7 +275,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Daisy", "Rose")
 ORDER BY c["Species"]
@@ -293,7 +290,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Name"] = "Great spotted kiwi"))
 ORDER BY c["Species"]
@@ -308,7 +305,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 ORDER BY c["Species"]
@@ -323,7 +320,7 @@ ORDER BY c["Species"]
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 OFFSET 0 LIMIT 2
@@ -338,7 +335,7 @@ OFFSET 0 LIMIT 2
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Rose")
 OFFSET 0 LIMIT 2
@@ -369,7 +366,7 @@ OFFSET 0 LIMIT 2
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["FoundOn"] = 1))
 """);
@@ -383,7 +380,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["FoundOn"] = 0))
 """);
@@ -397,7 +394,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
 
                 AssertSql(
                     """
-SELECT c["FoundOn"]
+SELECT VALUE c["FoundOn"]
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 """);
@@ -425,7 +422,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 
                 AssertSql(
                     """
-SELECT c["Name"] AS Predator
+SELECT VALUE c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["Discriminator"]))
 """);
@@ -439,7 +436,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["Discriminator"])
 
                 AssertSql(
                     """
-SELECT c["FoundOn"]
+SELECT VALUE c["FoundOn"]
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
 """);
@@ -484,7 +481,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
                     """
 @__p_0='5'
 
-SELECT DISTINCT c
+SELECT DISTINCT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
 ORDER BY c["Species"]
@@ -505,7 +502,7 @@ OFFSET 0 LIMIT @__p_0
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 OFFSET 0 LIMIT 2
@@ -520,7 +517,7 @@ OFFSET 0 LIMIT 2
 
                 AssertSql(
                     """
-SELECT (c["IsFlightless"] ? 0 : 1) AS c
+SELECT VALUE (c["IsFlightless"] ? 0 : 1)
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 """);
@@ -532,7 +529,7 @@ WHERE (c["Discriminator"] = "Kiwi")
 
         AssertSql(
             """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
 ORDER BY c["Name"]
@@ -555,7 +552,7 @@ ORDER BY c["Name"]
 
                 AssertSql(
                     """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 """);
@@ -569,7 +566,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 
                 AssertSql(
                     """
-SELECT c["Name"]
+SELECT VALUE c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 """);
@@ -583,7 +580,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE false
 """);
@@ -597,7 +594,7 @@ WHERE false
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE false
 """);
@@ -611,7 +608,7 @@ WHERE false
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Eagle"))
 """);
@@ -625,7 +622,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Eagle"
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
 """);
@@ -639,7 +636,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
 """);
@@ -653,7 +650,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] != "Kiwi"))
 """);
@@ -667,7 +664,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] != "Kiwi"
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["Discriminator"] = "Eagle"))
 """);
@@ -681,7 +678,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["Discriminator"] = "Eagle"))
 """);

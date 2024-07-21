@@ -24,7 +24,7 @@ public class ReadItemPartitionKeyQueryTest : QueryTestBase<ReadItemPartitionKeyQ
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 """);
     }
@@ -38,7 +38,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 """);
     }
@@ -53,7 +53,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1))
 """);
@@ -69,7 +69,7 @@ WHERE ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1))
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE CONTAINS(c["Payload"], "3")
 """);
@@ -88,7 +88,7 @@ WHERE CONTAINS(c["Payload"], "3")
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 """);
     }
@@ -103,7 +103,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 """);
     }
@@ -132,7 +132,7 @@ FROM root c
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["PartitionKey"] = "PK2")
 """);
@@ -149,7 +149,7 @@ WHERE (c["PartitionKey"] = "PK2")
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["PartitionKey"] = "PK1")
 """);
@@ -247,7 +247,7 @@ WHERE (c["PartitionKey"] = "PK1")
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Id"] = 1) AND (c["Id"] = 2))
 """);
@@ -272,7 +272,7 @@ WHERE ((c["Id"] = 1) AND (c["Id"] = 2))
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Id"] = 1)
 """);
@@ -328,7 +328,7 @@ WHERE (c["Id"] = 1)
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("SharedContainerEntity2", "SharedContainerEntity2Child") AND (c["Id"] = 4))
 """);

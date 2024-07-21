@@ -40,7 +40,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
             throw new UnreachableException("No root entity type was set during query processing.");
         }
 
-        var jObjectParameter = Parameter(typeof(JObject), "jObject");
+        var jTokenParameter = Parameter(typeof(JToken), "jToken");
 
         var shaperBody = shapedQueryExpression.ShaperExpression;
 
@@ -69,14 +69,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor(
         }
 
         shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
-                selectExpression, jObjectParameter,
+                selectExpression, jTokenParameter,
                 QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             .Visit(shaperBody);
 
         var shaperLambda = Lambda(
             shaperBody,
             QueryCompilationContext.QueryContextParameter,
-            jObjectParameter);
+            jTokenParameter);
 
         var cosmosQueryContextConstant = Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext));
         var shaperConstant = Constant(shaperLambda.Compile());

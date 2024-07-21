@@ -31,7 +31,7 @@ public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQ
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -45,7 +45,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 """);
@@ -62,7 +62,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "ProductView")
 """);
@@ -87,7 +87,7 @@ WHERE (c["Discriminator"] = "ProductView")
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["OrderCount"] > 0))
 """);
@@ -118,7 +118,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["OrderCount"] > 0))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
@@ -180,7 +180,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
@@ -194,7 +194,7 @@ WHERE (c["Discriminator"] = "Customer")
 
                 AssertSql(
                     """
-SELECT COUNT(1) AS c
+SELECT VALUE COUNT(1)
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
