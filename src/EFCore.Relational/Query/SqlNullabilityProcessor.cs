@@ -630,6 +630,15 @@ public class SqlNullabilityProcessor
 
             switch (expression)
             {
+                case AtTimeZoneExpression atTimeZone:
+                    DetectNullPropagatingNodes(atTimeZone.Operand, operands);
+                    DetectNullPropagatingNodes(atTimeZone.TimeZone, operands);
+                    break;
+
+                case CollateExpression collate:
+                    DetectNullPropagatingNodes(collate.Operand, operands);
+                    break;
+
                 case SqlUnaryExpression { OperatorType: not (ExpressionType.Equal or ExpressionType.NotEqual) } unary:
                     DetectNullPropagatingNodes(unary.Operand, operands);
                     break;
