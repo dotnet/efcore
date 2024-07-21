@@ -171,7 +171,9 @@ WHERE CONTAINS(s["ContactName"], "z")
 SELECT VALUE s
 FROM (
 
-        
+
+""" + "        " + """
+
 
 
     SELECT

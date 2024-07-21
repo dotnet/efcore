@@ -84,7 +84,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private CosmosClient Client
         => _singletonWrapper.Client;
 
-    private static bool DeserializeNextToken(JsonTextReader jsonReader, out JToken? token)
+    private static bool TryDeserializeNextToken(JsonTextReader jsonReader, out JToken? token)
     {
         switch (jsonReader.TokenType)
         {
@@ -973,7 +973,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             while (_jsonReader.Read())
             {
-                return DeserializeNextToken(_jsonReader, out _current);
+                return TryDeserializeNextToken(_jsonReader, out _current);
             }
 
             return false;
@@ -1015,7 +1015,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             while (await _jsonReader.ReadAsync().ConfigureAwait(false))
             {
-                return DeserializeNextToken(_jsonReader, out _current);
+                return TryDeserializeNextToken(_jsonReader, out _current);
             }
 
             return false;

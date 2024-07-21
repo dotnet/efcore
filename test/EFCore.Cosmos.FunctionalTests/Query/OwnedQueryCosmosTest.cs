@@ -474,8 +474,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Count() == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
@@ -500,8 +501,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Count() == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
@@ -526,8 +528,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Count == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
@@ -552,8 +555,9 @@ ORDER BY c["Id"]
                         .Where(e => e.Length == 1),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a));
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
@@ -792,8 +796,9 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
             async, async a =>
             {
                 await base.Can_query_indexer_property_on_owned_collection(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
@@ -1211,8 +1216,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
             async, async a =>
             {
                 await base.ElementAtOrDefault_over_owned_collection(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["Orders"][10] ?? null)["Id"] = -11))
@@ -1229,8 +1235,9 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.OrderBy_ElementAt_over_owned_collection(async));
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-AssertSql(
-    """
+
+            AssertSql(
+                """
 SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(

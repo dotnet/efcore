@@ -4,6 +4,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -1942,16 +1943,16 @@ WHERE (c["Discriminator"] = "Order")
 """);
             });
 
-    [ConditionalTheory(Skip = "`undefined` result is filtered out")]
     public override Task Select_with_complex_expression_that_can_be_funcletized(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
             {
-                await base.Select_with_complex_expression_that_can_be_funcletized(a);
+                await Assert.ThrowsAsync<EqualException>(
+                    () => base.Select_with_complex_expression_that_can_be_funcletized(a));
 
                 AssertSql(
                     """
-SELECT VALUE ((c["Region"] = null) ? null : INDEX_OF(c["Region"], ""))
+SELECT VALUE INDEX_OF(c["Region"], "")
 FROM root c
 WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 """);

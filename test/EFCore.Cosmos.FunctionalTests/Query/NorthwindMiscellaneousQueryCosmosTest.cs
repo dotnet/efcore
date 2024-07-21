@@ -5377,21 +5377,21 @@ WHERE (c["Discriminator"] = "Customer")
 """,
             //
             """
-SELECT VALUE c
+SELECT VALUE c["CustomerID"]
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
 """,
             //
             """
-SELECT VALUE c
+SELECT VALUE c["CustomerID"]
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]
 """,
             //
             """
-SELECT VALUE c
+SELECT VALUE c["CustomerID"]
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["CustomerID"]

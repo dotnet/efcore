@@ -1915,8 +1915,9 @@ WHERE IS_DEFINED(c["Ints"][2])
                     a,
                     ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => EF.Functions.CoalesceUndefined(e.Ints[2], 999) == 999),
                     ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => e.Ints.Length < 3));
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE ((c["Ints"][2] ?? 999) = 999)

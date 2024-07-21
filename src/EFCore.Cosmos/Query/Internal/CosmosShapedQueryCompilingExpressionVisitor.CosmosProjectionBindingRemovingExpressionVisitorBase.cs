@@ -74,11 +74,15 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         // Values injected by JObjectInjectingExpressionVisitor
                         var projectionExpression = ((UnaryExpression)binaryExpression.Right).Operand;
 
-                        if (projectionExpression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression)
+                        if (projectionExpression is UnaryExpression
+                            {
+                                NodeType: ExpressionType.Convert,
+                                Operand: UnaryExpression operand
+                            })
                         {
                             // Unwrap EntityProjectionExpression when the root entity is not projected
                             // That is, this is handling the projection of a non-root entity type.
-                            projectionExpression = ((UnaryExpression)convertExpression.Operand).Operand;
+                            projectionExpression = operand.Operand;
                         }
 
                         switch (projectionExpression)
