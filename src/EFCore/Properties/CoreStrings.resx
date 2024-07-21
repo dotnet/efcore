@@ -793,6 +793,10 @@
   <data name="LiteralGenerationNotSupported" xml:space="preserve">
     <value>The type mapping for '{type}' has not implemented code literal generation.</value>
   </data>
+  <data name="LogAccidentalEntityType" xml:space="preserve">
+    <value>The type '{entityType}' has been mapped as an entity type. If you are mapping this type intentionally, then please suppress this warning and report the issue on GitHub.</value>
+    <comment>Warning CoreEventId.AccidentalEntityType string</comment>
+  </data>
   <data name="LogAmbiguousEndRequired" xml:space="preserve">
     <value>The foreign key {foreignKeyProperties} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property or the principal key before configuring the foreign key as required in 'OnModelCreating'. See https://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
     <comment>Warning CoreEventId.AmbiguousEndRequiredWarning string string</comment>

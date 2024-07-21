@@ -14,7 +14,11 @@ public class EndToEndInMemoryTest(InMemoryFixture fixture) : IClassFixture<InMem
     {
         Can_add_update_delete_end_to_end<Private>();
         Can_add_update_delete_end_to_end<object>();
-        Can_add_update_delete_end_to_end<List<Private>>();
+        Can_add_update_delete_end_to_end<MyList<Private>>();
+    }
+
+    private class MyList<T> : List<T>
+    {
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local

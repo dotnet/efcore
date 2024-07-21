@@ -1807,7 +1807,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Single(model.FindEntityTypes(typeof(List<DependentEntity>)));
+            Assert.Single(model.FindEntityTypes(typeof(MyList<DependentEntity>)));
         }
 
         [ConditionalFact]

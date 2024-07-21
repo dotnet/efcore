@@ -1544,6 +1544,33 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.AccidentalEntityType" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The entity type.</param>
+    public static void AccidentalEntityType(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IEntityType entityType)
+    {
+        var definition = CoreResources.LogAccidentalEntityType(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.DisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeEventData(definition, AccidentalEntityType, entityType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AccidentalEntityType(EventDefinitionBase definition, EventData payload)
+        => ((EventDefinition<string>)definition).GenerateMessage(((EntityTypeEventData)payload).EntityType.DisplayName());
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
