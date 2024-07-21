@@ -279,7 +279,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
             """
 SELECT [o].[Id]
 FROM [OperatorEntityNullableDateTimeOffset] AS [o]
-WHERE [o].[Value] AT TIME ZONE 'UTC' IS NULL
+WHERE [o].[Value] IS NULL
 """);
     }
 }

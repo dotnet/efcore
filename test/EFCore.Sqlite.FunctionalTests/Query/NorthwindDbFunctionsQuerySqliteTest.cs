@@ -64,7 +64,7 @@ WHERE "c"."CustomerID" NOT GLOB 'T*'
             """
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE "c"."Region" COLLATE BINARY IS NULL
+WHERE "c"."Region" IS NULL
 """);
     }
 

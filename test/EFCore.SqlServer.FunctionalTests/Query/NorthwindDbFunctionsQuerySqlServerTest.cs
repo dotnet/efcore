@@ -129,7 +129,7 @@ WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS
             """
 SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[Region] COLLATE Latin1_General_CS_AS IS NULL
+WHERE [c].[Region] IS NULL
 """);
     }
 
