@@ -6,23 +6,10 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DefaultKeyValuesTest : IClassFixture<DefaultKeyValuesTest.CosmosDefaultKeyValuesTestFixture>
+public class DefaultKeyValuesTest(DefaultKeyValuesTest.CosmosDefaultKeyValuesTestFixture fixture)
+    : IClassFixture<DefaultKeyValuesTest.CosmosDefaultKeyValuesTestFixture>
 {
-    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
-
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    protected void ClearLog()
-        => Fixture.TestSqlLoggerFactory.Clear();
-
-    protected CosmosDefaultKeyValuesTestFixture Fixture { get; }
-
-    public DefaultKeyValuesTest(CosmosDefaultKeyValuesTestFixture fixture)
-    {
-        Fixture = fixture;
-        ClearLog();
-    }
+    protected CosmosDefaultKeyValuesTestFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public async Task Single_key_value_with_single_partition_key_must_have_key_set()
@@ -213,7 +200,7 @@ public class DefaultKeyValuesTest : IClassFixture<DefaultKeyValuesTest.CosmosDef
         using var context = CreateContext();
 
         context.Add(new CompositeSameKeyAndPartitionKey());
-        await AssertKeyValueNotSet(context, nameof(CompositeSameKeyAndPartitionKey), nameof(CompositeSameKeyAndPartitionKey.Key3));
+        await AssertKeyValueNotSet(context, nameof(CompositeSameKeyAndPartitionKey), nameof(CompositeSameKeyAndPartitionKey.Key1));
 
         context.Add(new CompositeSameKeyAndPartitionKey { Key1 = 1 });
         await AssertSaves(context);

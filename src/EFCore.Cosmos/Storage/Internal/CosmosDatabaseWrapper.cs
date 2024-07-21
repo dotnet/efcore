@@ -293,40 +293,57 @@ public class CosmosDatabaseWrapper : Database
                     // keys where one part is the CLR default. However, on Cosmos, we exclude the partition key properties from this
                     // check to ensure that, even if partition key properties have been set, at least one other primary key property is
                     // also set.
-                    IProperty? needsValue = null;
-                    var somePropertiesNeedValues = true;
-                    var keyProperties = primaryKey.Properties.ToList();
-                    foreach (var partitionKeyProperty in entityType.GetPartitionKeyProperties())
-                    {
-                        keyProperties.Remove(partitionKeyProperty);
-                    }
+                    var partitionPropertyNeedsValue = true;
+                    var propertyNeedsValue = true;
+                    var allPkPropertiesAreFk = true;
+                    IProperty? firstNonPartitionKeyProperty = null;
 
-                    if (keyProperties.Count == 0)
+                    var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+                    foreach (var property in primaryKey.Properties)
                     {
-                        // If all key properties are partition key properties, then don't exclude them.
-                        keyProperties = primaryKey.Properties.ToList();
-                    }
-
-                    foreach (var property in keyProperties)
-                    {
-                        if (somePropertiesNeedValues)
+                        if (property.IsForeignKey())
                         {
-                            if (property.IsForeignKey()
-                                || property.ValueGenerated != ValueGenerated.Never
-                                || entry.HasExplicitValue(property))
+                            // FK properties conceptually get their value from the associated principal key, which can be handled
+                            // automatically by the update pipeline in some cases, so exclude from this check.
+                            continue;
+                        }
+
+                        allPkPropertiesAreFk = false;
+
+                        var isPartitionKeyProperty = partitionKeyProperties.Contains(property);
+                        if (!isPartitionKeyProperty)
+                        {
+                            firstNonPartitionKeyProperty = property;
+                        }
+
+                        if (property.ValueGenerated != ValueGenerated.Never
+                            || entry.HasExplicitValue(property))
+                        {
+                            if (!isPartitionKeyProperty)
                             {
-                                somePropertiesNeedValues = false;
+                                propertyNeedsValue = false;
+                                break;
                             }
-                            else
-                            {
-                                needsValue = property;
-                            }
+
+                            partitionPropertyNeedsValue = false;
                         }
                     }
 
-                    if (somePropertiesNeedValues)
+                    if (!allPkPropertiesAreFk)
                     {
-                        Dependencies.Logger.PrimaryKeyValueNotSet(needsValue!);
+                        if (firstNonPartitionKeyProperty != null
+                            && propertyNeedsValue)
+                        {
+                            // There were non-partition key properties, so only throw if it is one of these that is not set,
+                            // ignoring partition key properties.
+                            Dependencies.Logger.PrimaryKeyValueNotSet(firstNonPartitionKeyProperty!);
+                        }
+                        else if (firstNonPartitionKeyProperty == null
+                                 && partitionPropertyNeedsValue)
+                        {
+                            // There were no non-partition key properties in the primary key, so in this case check if any of these is not set.
+                            Dependencies.Logger.PrimaryKeyValueNotSet(primaryKey.Properties[0]);
+                        }
                     }
                 }
 
