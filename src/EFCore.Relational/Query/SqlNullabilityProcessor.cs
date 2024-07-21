@@ -2055,6 +2055,19 @@ public class SqlNullabilityProcessor
                     sqlUnaryExpression.TypeMapping);
             }
 
+            case CollateExpression collate:
+            {
+                // a COLLATE collation == null -> a == null
+                // a COLLATE collation != null -> a != null
+                return ProcessNullNotNull(
+                    _sqlExpressionFactory.MakeUnary(
+                        sqlUnaryExpression.OperatorType,
+                        collate.Operand,
+                        typeof(bool),
+                        sqlUnaryExpression.TypeMapping)!,
+                    operandNullable);
+            }
+
             case SqlUnaryExpression sqlUnaryOperand:
                 switch (sqlUnaryOperand.OperatorType)
                 {
@@ -2079,6 +2092,35 @@ public class SqlNullabilityProcessor
                 }
 
                 break;
+
+            case AtTimeZoneExpression atTimeZone:
+            {
+                // a AT TIME ZONE b == null -> a == null || b == null
+                // a AT TIME ZONE b != null -> a != null && b != null
+                var left = ProcessNullNotNull(
+                    _sqlExpressionFactory.MakeUnary(
+                        sqlUnaryExpression.OperatorType,
+                        atTimeZone.Operand,
+                        typeof(bool),
+                        sqlUnaryExpression.TypeMapping)!,
+                    operandNullable);
+
+                var right = ProcessNullNotNull(
+                    _sqlExpressionFactory.MakeUnary(
+                        sqlUnaryExpression.OperatorType,
+                        atTimeZone.TimeZone,
+                        typeof(bool),
+                        sqlUnaryExpression.TypeMapping)!,
+                    operandNullable);
+
+                return _sqlExpressionFactory.MakeBinary(
+                    sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                        ? ExpressionType.OrElse
+                        : ExpressionType.AndAlso,
+                    left,
+                    right,
+                    sqlUnaryExpression.TypeMapping)!;
+            }
 
             case SqlBinaryExpression sqlBinaryOperand
                 when sqlBinaryOperand.OperatorType != ExpressionType.AndAlso
