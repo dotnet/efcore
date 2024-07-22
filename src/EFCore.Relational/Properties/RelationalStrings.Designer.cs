@@ -1414,14 +1414,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
-        /// </summary>
-        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
-            => string.Format(
-                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
-                expression, details);
-
-        /// <summary>
         ///     Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.
         /// </summary>
         public static string NonScalarFunctionCannotBeNullable(object? functionName)

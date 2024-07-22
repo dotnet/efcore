@@ -106,7 +106,7 @@ WHERE [CustomerID] LIKE 'A%'"));
 
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
         => Assert.Contains(
-            RelationalStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
+            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
             (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
 
     protected string NormalizeDelimitersInRawString(string sql)

@@ -87,7 +87,7 @@ public abstract class NonSharedModelBulkUpdatesRelationalTestBase : NonSharedMod
 
     protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
         => Assert.Contains(
-            RelationalStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
+            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
             (await Assert.ThrowsAsync<InvalidOperationException>(query))
             .Message);
 

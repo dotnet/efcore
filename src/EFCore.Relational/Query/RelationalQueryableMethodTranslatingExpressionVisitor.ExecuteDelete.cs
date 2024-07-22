@@ -9,13 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalQueryableMethodTranslatingExpressionVisitor
 {
-    /// <summary>
-    ///     Translates <see cref="EntityFrameworkQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
-    ///     over the given source.
-    /// </summary>
-    /// <param name="source">The shaped query on which the operator is applied.</param>
-    /// <returns>The non query after translation.</returns>
-    protected virtual NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
+    /// <inheritdoc />
+    protected override NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
     {
         source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 

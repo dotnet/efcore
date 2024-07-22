@@ -19,6 +19,11 @@ public class InMemoryComplianceTest : ComplianceTestBase
         typeof(ConferencePlannerTestBase<>),
         typeof(ManyToManyQueryTestBase<>),
         typeof(ComplexTypeBulkUpdatesTestBase<>),
+        typeof(BulkUpdatesTestBase<>),
+        typeof(FiltersInheritanceBulkUpdatesTestBase<>),
+        typeof(InheritanceBulkUpdatesTestBase<>),
+        typeof(NonSharedModelBulkUpdatesTestBase),
+        typeof(NorthwindBulkUpdatesTestBase<>),
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

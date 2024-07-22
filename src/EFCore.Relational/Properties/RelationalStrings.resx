@@ -957,9 +957,6 @@
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
   </data>
-  <data name="NonQueryTranslationFailedWithDetails" xml:space="preserve">
-    <value>The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
-  </data>
   <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
     <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
   </data>

@@ -138,6 +138,32 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
+
+        if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
+        {
+            var source = Visit(methodCallExpression.Arguments[0]);
+            if (source is ShapedQueryExpression shapedQueryExpression)
+            {
+                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+                switch (method.Name)
+                {
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteDeleteMethodInfo:
+                        return TranslateExecuteDelete(shapedQueryExpression)
+                            ?? throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+
+                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                        when genericMethod == EntityFrameworkQueryableExtensions.ExecuteUpdateMethodInfo:
+                        return TranslateExecuteUpdate(shapedQueryExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote())
+                            ?? throw new InvalidOperationException(
+                                CoreStrings.NonQueryTranslationFailedWithDetails(
+                                    methodCallExpression.Print(), TranslationErrorDetails));
+                }
+            }
+        }
+
         if (method.DeclaringType == typeof(Queryable)
             || method.DeclaringType == typeof(QueryableExtensions))
         {
@@ -1000,4 +1026,39 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
         => null;
 
     #endregion Queryable collection support
+
+    #region ExecuteUpdate/ExecuteDelete
+
+    /// <summary>
+    ///     Translates <see cref="EntityFrameworkQueryableExtensions.ExecuteDelete{TSource}(IQueryable{TSource})" /> method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression? TranslateExecuteDelete(ShapedQueryExpression source)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete), nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)));
+
+    /// <summary>
+    ///     Translates
+    ///     <see
+    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}}})" />
+    ///     method
+    ///     over the given source.
+    /// </summary>
+    /// <param name="source">The shaped query on which the operator is applied.</param>
+    /// <param name="setPropertyCalls">
+    ///     The lambda expression containing
+    ///     <see
+    ///         cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, Func{TSource, TProperty})" />
+    ///     statements.
+    /// </param>
+    /// <returns>The non query after translation.</returns>
+    protected virtual Expression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
+        => throw new InvalidOperationException(
+            CoreStrings.ExecuteQueriesNotSupported(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate), nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)));
+
+    #endregion ExecuteUpdate/ExecuteDelete
 }

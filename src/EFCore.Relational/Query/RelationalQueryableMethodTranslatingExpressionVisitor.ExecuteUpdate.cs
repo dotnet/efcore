@@ -14,22 +14,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
-    /// <summary>
-    ///     Translates
-    ///     <see
-    ///         cref="EntityFrameworkQueryableExtensions.ExecuteUpdate{TSource}(IQueryable{TSource}, Expression{Func{SetPropertyCalls{TSource}, SetPropertyCalls{TSource}}})" />
-    ///     method
-    ///     over the given source.
-    /// </summary>
-    /// <param name="source">The shaped query on which the operator is applied.</param>
-    /// <param name="setPropertyCalls">
-    ///     The lambda expression containing
-    ///     <see
-    ///         cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, Func{TSource, TProperty})" />
-    ///     statements.
-    /// </param>
-    /// <returns>The non query after translation.</returns>
-    protected virtual NonQueryExpression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
+    /// <inheritdoc />
+    protected override NonQueryExpression? TranslateExecuteUpdate(ShapedQueryExpression source, LambdaExpression setPropertyCalls)
     {
         // Our source may have IncludeExpressions because of owned entities or auto-include; unwrap these, as they're meaningless for
         // ExecuteUpdate's lambdas. Note that we don't currently support updates across tables.

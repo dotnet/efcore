@@ -41,7 +41,7 @@ public abstract class InheritanceBulkUpdatesRelationalTestBase<TFixture> : Inher
 
     protected static async Task AssertTranslationFailed(string details, Func<Task> query)
         => Assert.Contains(
-            RelationalStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
+            CoreStrings.NonQueryTranslationFailedWithDetails("", details)[21..],
             (await Assert.ThrowsAsync<InvalidOperationException>(query)).Message);
 
     protected virtual void ClearLog()

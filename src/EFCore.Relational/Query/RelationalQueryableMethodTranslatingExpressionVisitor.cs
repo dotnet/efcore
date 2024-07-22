@@ -226,43 +226,10 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         }
     }
 
-    private static readonly MethodInfo ExecuteDeleteMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(
-            nameof(EntityFrameworkQueryableExtensions.ExecuteDelete))!;
-
-    private static readonly MethodInfo ExecuteUpdateMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(
-            nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate))!;
-
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
-        if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
-        {
-            var source = Visit(methodCallExpression.Arguments[0]);
-            if (source is ShapedQueryExpression shapedQueryExpression)
-            {
-                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-                switch (method.Name)
-                {
-                    case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
-                        when genericMethod == ExecuteDeleteMethodInfo:
-                        return TranslateExecuteDelete(shapedQueryExpression)
-                            ?? throw new InvalidOperationException(
-                                RelationalStrings.NonQueryTranslationFailedWithDetails(
-                                    methodCallExpression.Print(), TranslationErrorDetails));
-
-                    case nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
-                        when genericMethod == ExecuteUpdateMethodInfo:
-                        return TranslateExecuteUpdate(shapedQueryExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote())
-                            ?? throw new InvalidOperationException(
-                                RelationalStrings.NonQueryTranslationFailedWithDetails(
-                                    methodCallExpression.Print(), TranslationErrorDetails));
-                }
-            }
-        }
-
         var translated = base.VisitMethodCall(methodCallExpression);
 
         // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
