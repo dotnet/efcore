@@ -174,11 +174,11 @@ public class QueryLocator : CSharpSyntaxWalker
                     or nameof(EntityFrameworkQueryableExtensions.ForEachAsync)
                     when IsOnEfQueryableExtensions():
 
-                case nameof(RelationalQueryableExtensions.ExecuteDelete)
-                    or nameof(RelationalQueryableExtensions.ExecuteUpdate)
-                    or nameof(RelationalQueryableExtensions.ExecuteDeleteAsync)
-                    or nameof(RelationalQueryableExtensions.ExecuteUpdateAsync)
-                    when IsOnEfRelationalQueryableExtensions():
+                case nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)
+                    or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)
+                    or nameof(EntityFrameworkQueryableExtensions.ExecuteDeleteAsync)
+                    or nameof(EntityFrameworkQueryableExtensions.ExecuteUpdateAsync)
+                    when IsOnEfQueryableExtensions():
                     if (ProcessQueryCandidate(invocation))
                     {
                         return;
@@ -201,9 +201,6 @@ public class QueryLocator : CSharpSyntaxWalker
 
         bool IsOnEfQueryableExtensions()
             => IsOnTypeSymbol(_symbols.EfQueryableExtensions);
-
-        bool IsOnEfRelationalQueryableExtensions()
-            => IsOnTypeSymbol(_symbols.EfRelationalQueryableExtensions);
 
         bool IsOnTypeSymbol(ITypeSymbol typeSymbol)
             => _semanticModel.GetSymbolInfo(invocation, _cancellationToken).Symbol is IMethodSymbol methodSymbol
@@ -342,7 +339,6 @@ public class QueryLocator : CSharpSyntaxWalker
         public readonly INamedTypeSymbol IEnumerableOfT;
         public readonly INamedTypeSymbol Queryable;
         public readonly INamedTypeSymbol EfQueryableExtensions;
-        public readonly INamedTypeSymbol EfRelationalQueryableExtensions;
         // ReSharper restore InconsistentNaming
 
         private Symbols(Compilation compilation)
@@ -358,7 +354,6 @@ public class QueryLocator : CSharpSyntaxWalker
             IEnumerableOfT = GetTypeSymbolOrThrow("System.Collections.Generic.IEnumerable`1");
             Queryable = GetTypeSymbolOrThrow("System.Linq.Queryable");
             EfQueryableExtensions = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions");
-            EfRelationalQueryableExtensions = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.RelationalQueryableExtensions");
         }
 
         public static Symbols Load(Compilation compilation)

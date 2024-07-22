@@ -5,13 +5,12 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class NorthwindBulkUpdatesFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>,
+public abstract class NorthwindBulkUpdatesFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>,
     IBulkUpdatesFixtureBase
     where TModelCustomizer : ITestModelCustomizer, new()
 {
     protected override string StoreName
         => "BulkUpdatesNorthwind";
 
-    public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        => facade.UseTransaction(transaction.GetDbTransaction());
+    public abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 }

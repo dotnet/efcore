@@ -7,15 +7,26 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
+public abstract class ComplexTypeBulkUpdatesTestBase<TFixture>(TFixture fixture) : BulkUpdatesTestBase<TFixture>(fixture)
     where TFixture : ComplexTypeBulkUpdatesFixtureBase, new()
 {
-    protected ComplexTypeBulkUpdatesTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_complex_type(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_projected_complex_type_via_OrderBy_Skip(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.ShippingAddress).OrderBy(a => a.ZipCode).Skip(1),
+            a => a,
+            s => s.SetProperty(c => c.ZipCode, 12345),
+            rowsAffectedCount: 3);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -24,16 +35,6 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             async,
             ss => ss.Set<Customer>().Where(e => e.Name == "Monty Elias"),
             rowsAffectedCount: 1);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_complex_type_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteDeleteOnNonEntityType,
-            () => AssertDelete(
-                async,
-                ss => ss.Set<Customer>().Select(c => c.ShippingAddress),
-                rowsAffectedCount: 0));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -95,18 +96,6 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
                 .SetProperty(x => x.ShippingAddress.ZipCode, x => x.BillingAddress.ZipCode)
                 .SetProperty(x => x.BillingAddress.ZipCode, 54321),
             rowsAffectedCount: 3);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_projected_complex_type_via_OrderBy_Skip_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteUpdateSubqueryNotSupportedOverComplexTypes("Customer.ShippingAddress#Address"),
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Select(c => c.ShippingAddress).OrderBy(a => a.ZipCode).Skip(1),
-                a => a,
-                s => s.SetProperty(c => c.ZipCode, 12345),
-                rowsAffectedCount: 3));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -222,7 +211,4 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             c => c,
             s => s.SetProperty(x => x.ShippingAddress.Tags, new List<string> { "new_tag1", "new_tag2" }),
             rowsAffectedCount: 3);
-
-    private void ClearLog()
-        => Fixture.TestSqlLoggerFactory.Clear();
 }

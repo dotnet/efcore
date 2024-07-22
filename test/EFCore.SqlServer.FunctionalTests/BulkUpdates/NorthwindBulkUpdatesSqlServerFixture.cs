@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class NorthwindBulkUpdatesSqlServerFixture<TModelCustomizer> : NorthwindBulkUpdatesFixture<TModelCustomizer>
+public class NorthwindBulkUpdatesSqlServerFixture<TModelCustomizer> : NorthwindBulkUpdatesRelationalFixture<TModelCustomizer>
     where TModelCustomizer : ITestModelCustomizer, new()
 {
     protected override ITestStoreFactory TestStoreFactory

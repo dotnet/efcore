@@ -1414,14 +1414,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoneRelationalTypeMappingOnARelationalTypeMappingSource");
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
-        /// </summary>
-        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
-            => string.Format(
-                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
-                expression, details);
-
-        /// <summary>
         ///     Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.
         /// </summary>
         public static string NonScalarFunctionCannotBeNullable(object? functionName)
@@ -1618,12 +1610,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SetOperationsRequireAtLeastOneSideWithValidTypeMapping", nameof(setOperationType)),
                 setOperationType);
-
-        /// <summary>
-        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
-        /// </summary>
-        public static string SetPropertyMethodInvoked
-            => GetString("SetPropertyMethodInvoked");
 
         /// <summary>
         ///     This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.

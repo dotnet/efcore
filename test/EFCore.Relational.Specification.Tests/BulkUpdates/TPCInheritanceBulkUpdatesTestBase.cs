@@ -5,11 +5,11 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class TPCInheritanceBulkUpdatesTestBase<TFixture> : InheritanceBulkUpdatesTestBase<TFixture>
+public abstract class TPCInheritanceBulkUpdatesTestBase<TFixture> : InheritanceBulkUpdatesRelationalTestBase<TFixture>
     where TFixture : TPCInheritanceBulkUpdatesFixture, new()
 {
     protected TPCInheritanceBulkUpdatesTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
         ClearLog();
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);

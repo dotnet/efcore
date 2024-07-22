@@ -1141,6 +1141,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType, actualType);
 
         /// <summary>
+        ///     The methods '{methodName}' and '{asyncMethodName}' are not supported by the current database provider. Please contact the publisher of the database provider for more information.
+        /// </summary>
+        public static string ExecuteQueriesNotSupported(object? methodName, object? asyncMethodName)
+            => string.Format(
+                GetString("ExecuteQueriesNotSupported", nameof(methodName), nameof(asyncMethodName)),
+                methodName, asyncMethodName);
+
+        /// <summary>
         ///     The configured execution strategy '{strategy}' does not support user-initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.
         /// </summary>
         public static string ExecutionStrategyExistingTransaction(object? strategy, object? getExecutionStrategyMethod)
@@ -2138,6 +2146,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, type);
 
         /// <summary>
+        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
+        /// </summary>
+        public static string NonQueryTranslationFailedWithDetails(object? expression, object? details)
+            => string.Format(
+                GetString("NonQueryTranslationFailedWithDetails", nameof(expression), nameof(details)),
+                expression, details);
+
+        /// <summary>
         ///     The collection type '{2_collectionType}' being used for navigation '{1_entityType}.{0_navigation}' does not implement 'INotifyCollectionChanged'. Any entity type configured to use the '{changeTrackingStrategy}' change tracking strategy must use collections that implement 'INotifyCollectionChanged'. Consider using 'ObservableCollection&lt;T&gt;' for this.
         /// </summary>
         public static string NonNotifyingCollection(object? navigation, object? entityType, object? collectionType, object? changeTrackingStrategy)
@@ -2906,6 +2922,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string SetOperationWithDifferentIncludesInOperands
             => GetString("SetOperationWithDifferentIncludesInOperands");
+
+        /// <summary>
+        ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
+        /// </summary>
+        public static string SetPropertyMethodInvoked
+            => GetString("SetPropertyMethodInvoked");
 
         /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.

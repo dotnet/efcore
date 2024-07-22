@@ -15,6 +15,5 @@ public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtur
                     CoreEventId.MappedPropertyIgnoredWarning,
                     CoreEventId.MappedNavigationIgnoredWarning));
 
-    public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        => facade.UseTransaction(transaction.GetDbTransaction());
+    public abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 }

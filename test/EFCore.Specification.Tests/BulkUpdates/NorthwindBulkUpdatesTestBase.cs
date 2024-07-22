@@ -7,15 +7,88 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
+public abstract class NorthwindBulkUpdatesTestBase<TFixture>(TFixture fixture) : BulkUpdatesTestBase<TFixture>(fixture)
     where TFixture : NorthwindBulkUpdatesFixture<NoopModelCustomizer>, new()
 {
-    protected NorthwindBulkUpdatesTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_non_entity_projection(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250).Select(e => e.ProductID),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_non_entity_projection_2(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
+                .Select(e => new OrderDetail { OrderID = e.OrderID, ProductID = e.ProductID }),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Delete_non_entity_projection_3(bool async)
+        => AssertDelete(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
+                .Select(e => new { OrderDetail = e, e.ProductID }),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_without_property_to_set_throws(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
+            e => e,
+            s => s,
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_invalid_lambda_throws(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
+            e => e,
+            s => s.Maybe(e => e),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_invalid_lambda_in_set_property_throws(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
+            e => e,
+            s => s.SetProperty(e => e.MaybeScalar(e => e.OrderID), 10300),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_multiple_tables_throws(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.CustomerID.StartsWith("F"))
+                .Select(e => new { e, e.Customer }),
+            e => e.Customer,
+            s => s
+                .SetProperty(c => c.Customer.ContactName, "Name")
+                .SetProperty(c => c.e.OrderDate, new DateTime(2020, 1, 1)),
+            rowsAffectedCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_unmapped_property_throws(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
+            e => e,
+            s => s.SetProperty(c => c.IsLondon, true),
+            rowsAffectedCount: 0);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -241,62 +314,6 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
                 .Except(ss.Set<OrderDetail>().Where(od => od.OrderID > 11250)),
             rowsAffectedCount: 5);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_non_entity_projection(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteDeleteOnNonEntityType,
-            () => AssertDelete(
-                async,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250).Select(e => e.ProductID),
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_non_entity_projection_2(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteDeleteOnNonEntityType,
-            () => AssertDelete(
-                async,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                    .Select(e => new OrderDetail { OrderID = e.OrderID, ProductID = e.ProductID }),
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_non_entity_projection_3(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteDeleteOnNonEntityType,
-            () => AssertDelete(
-                async,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250)
-                    .Select(e => new { OrderDetail = e, e.ProductID }),
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_FromSql_converted_to_subquery(bool async)
-        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => Fixture.CreateContext(),
-            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
-            async context =>
-            {
-                var queryable = context.Set<OrderDetail>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
-FROM [Order Details]
-WHERE [OrderID] < 10300"));
-
-                if (async)
-                {
-                    await queryable.ExecuteDeleteAsync();
-                }
-                else
-                {
-                    queryable.ExecuteDelete();
-                }
-            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -721,30 +738,6 @@ WHERE [OrderID] < 10300"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_without_property_to_set_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.NoSetPropertyInvocation,
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
-                e => e,
-                s => s,
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_with_invalid_lambda_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.InvalidArgumentToExecuteUpdate,
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
-                e => e,
-                s => s.Maybe(e => e),
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_multiple_set(bool async)
     {
         var value = "Abc";
@@ -761,47 +754,6 @@ WHERE [OrderID] < 10300"));
                     Assert.Equal("Seattle", c.City);
                 }));
     }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_with_invalid_lambda_in_set_property_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.InvalidPropertyInSetProperty(
-                new ExpressionPrinter().PrintExpression((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
-                e => e,
-                s => s.SetProperty(e => e.MaybeScalar(e => e.OrderID), 10300),
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_multiple_tables_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.Customer.ContactName", "c => c.e.OrderDate"),
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<Order>()
-                    .Where(o => o.CustomerID.StartsWith("F"))
-                    .Select(e => new { e, e.Customer }),
-                e => e.Customer,
-                s => s
-                    .SetProperty(c => c.Customer.ContactName, "Name")
-                    .SetProperty(c => c.e.OrderDate, new DateTime(2020, 1, 1)),
-                rowsAffectedCount: 0));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_unmapped_property_throws(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.InvalidPropertyInSetProperty("c => c.IsLondon"),
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),
-                e => e,
-                s => s.SetProperty(c => c.IsLondon, true),
-                rowsAffectedCount: 0));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -975,30 +927,6 @@ WHERE [OrderID] < 10300"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_FromSql_set_constant(bool async)
-        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
-            () => Fixture.CreateContext(),
-            (facade, transaction) => Fixture.UseTransaction(facade, transaction),
-            async context =>
-            {
-                var queryable = context.Set<Customer>().FromSqlRaw(
-                    NormalizeDelimitersInRawString(
-                        @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
-FROM [Customers]
-WHERE [CustomerID] LIKE 'A%'"));
-
-                if (async)
-                {
-                    await queryable.ExecuteUpdateAsync(s => s.SetProperty(c => c.ContactName, "Updated"));
-                }
-                else
-                {
-                    queryable.ExecuteUpdate(s => s.SetProperty(c => c.ContactName, "Updated"));
-                }
-            });
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_SelectMany_subquery_set_null(bool async)
         => AssertUpdate(
             async,
@@ -1058,10 +986,4 @@ WHERE [CustomerID] LIKE 'A%'"));
             s => s.SetProperty(od => od.Quantity, 1),
             rowsAffectedCount: 228,
             (b, a) => Assert.All(a, od => Assert.Equal(1, od.Quantity)));
-
-    protected string NormalizeDelimitersInRawString(string sql)
-        => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
-
-    protected virtual void ClearLog()
-        => Fixture.TestSqlLoggerFactory.Clear();
 }

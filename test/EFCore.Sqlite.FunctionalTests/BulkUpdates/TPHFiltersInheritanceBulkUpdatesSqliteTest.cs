@@ -5,18 +5,12 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public class TPHFiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulkUpdatesTestBase<
-    TPHFiltersInheritanceBulkUpdatesSqliteFixture>
+public class TPHFiltersInheritanceBulkUpdatesSqliteTest(
+    TPHFiltersInheritanceBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : FiltersInheritanceBulkUpdatesRelationalTestBase<
+        TPHFiltersInheritanceBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
 {
-    public TPHFiltersInheritanceBulkUpdatesSqliteTest(
-        TPHFiltersInheritanceBulkUpdatesSqliteFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

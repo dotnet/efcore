@@ -7,13 +7,10 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class TPCInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesFixtureBase, ITestSqlLoggerFactory
+public abstract class TPCInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesRelationalFixtureBase
 {
     protected override string StoreName
         => "TPCInheritanceBulkUpdatesTest";
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     public override bool HasDiscriminator
         => false;
