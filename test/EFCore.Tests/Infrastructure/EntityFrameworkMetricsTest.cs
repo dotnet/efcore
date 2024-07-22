@@ -106,9 +106,9 @@ public class EntityFrameworkMetricsTest
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public async Task Validate_query_cache_hit_rate(bool async)
+    public async Task Validate_query_cache_hits(bool async)
     {
-        EntityFrameworkMetricsData.GetCompiledQueryCacheHitsMissesHitRate(reset: true);
+        var (initial, _, _) = EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate();
         var (metricsProvider, exportedItems) = Setup();
         using (metricsProvider)
         {
@@ -116,15 +116,42 @@ public class EntityFrameworkMetricsTest
             {
                 using var context = new SomeDbContext();
 
-                var query = context.Foos.Where(e => e.Id == new Guid("BB833808-1ADC-4FC2-ACB2-AA6EA31A7DBF"));
+                var query = context.Foos.Where(e => e.Id == Guids[0]);
 
                 _ = async ? await query.ToListAsync() : query.ToList();
 
                 metricsProvider.ForceFlush();
-                var value = GetMetricPoints(exportedItems, EntityFrameworkMetrics.CompiledQueryCacheHitRateInstrumentName)
+                var value = GetMetricPoints(exportedItems, EntityFrameworkMetrics.CompiledQueryCacheHitsInstrumentName)
                     .Single()
-                    .GetGaugeLastValueDouble();
-                Assert.Equal(i == 0 ? 0 : 100, value);
+                    .GetSumLong();
+                Assert.Equal(i + initial, value);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Validate_query_cache_misses(bool async)
+    {
+        var (_, initial, _) = EntityFrameworkMetricsData.GetCompiledQueryCacheHitRate();
+        var (metricsProvider, exportedItems) = Setup();
+        using (metricsProvider)
+        {
+            for (var i = 0; i < 3; i++)
+            {
+                using var context = new SomeDbContext();
+
+                var guid = Guids[^(i + 1)];
+                var query = context.Foos.Where(e => e.Id == EF.Constant(guid));
+
+                _ = async ? await query.ToListAsync() : query.ToList();
+
+                metricsProvider.ForceFlush();
+                var value = GetMetricPoints(exportedItems, EntityFrameworkMetrics.CompiledQueryCacheMissesInstrumentName)
+                    .Single()
+                    .GetSumLong();
+                Assert.Equal(i + 1 + initial, value);
             }
         }
     }
@@ -258,7 +285,7 @@ public class EntityFrameworkMetricsTest
         }
     }
 
-    internal class SomeDbContext : DbContext
+    private class SomeDbContext : DbContext
     {
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Foo> Foos { get; set; }
@@ -271,11 +298,19 @@ public class EntityFrameworkMetricsTest
                 .UseInMemoryDatabase(nameof(EntityFrameworkMetricsTest));
     }
 
-    internal class Foo
+    private class Foo
     {
         public Guid Id { get; set; }
         public int Token { get; set; }
     }
+
+    private static readonly Guid[] Guids =
+    [
+        new("BB833808-1ADC-4FC2-ACB2-AA6EA31A7DBF"),
+        new("BB833808-1ADC-4FC2-ACB2-AA6EA31A7DBE"),
+        new("BB833808-1ADC-4FC2-ACB2-AA6EA31A7DBD"),
+        new("BB833808-1ADC-4FC2-ACB2-AA6EA31A7DBC"),
+    ];
 }
 
 [CollectionDefinition(nameof(MetricsDataCollection), DisableParallelization = true)]
