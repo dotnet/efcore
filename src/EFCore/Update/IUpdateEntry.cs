@@ -67,6 +67,13 @@ public interface IUpdateEntry
     bool HasTemporaryValue(IProperty property);
 
     /// <summary>
+    ///     Gets a value indicating if the specified property has an explicit value set.
+    /// </summary>
+    /// <param name="property">The property to be checked.</param>
+    /// <returns><see langword="true" /> if the property has an explicitly set value, otherwise <see langword="false" />.</returns>
+    bool HasExplicitValue(IProperty property);
+
+    /// <summary>
     ///     Gets a value indicating if the specified property has a store-generated value that has not yet been saved to the entity.
     /// </summary>
     /// <param name="property">The property to be checked.</param>
