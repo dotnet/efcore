@@ -1269,34 +1269,15 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override async Task Skip_Distinct(bool async)
-    {
-        Assert.Equal(
-            CosmosStrings.OffsetRequiresLimit,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Skip_Distinct(async))).Message);
-
-        AssertSql();
-    }
+    public override Task Skip_Distinct(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Skip_Distinct(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Skip_Take_Distinct(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Skip_Take_Distinct(a);
-
-                AssertSql(
-                    """
-@__p_0='5'
-@__p_1='10'
-
-SELECT DISTINCT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["ContactName"]
-OFFSET @__p_0 LIMIT @__p_1
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Skip_Take_Distinct(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override async Task Skip_Take_Any(bool async)
     {
@@ -1339,54 +1320,15 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
-    public override async Task Skip_Take_Any_with_predicate(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level parameterless Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Skip_Take_Any_with_predicate(async));
+    public override Task Skip_Take_Any_with_predicate(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Skip_Take_Any_with_predicate(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-@__p_0='5'
-@__p_1='7'
-
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "C"))
-    ORDER BY c["CustomerID"]
-    OFFSET @__p_0 LIMIT @__p_1)
-""");
-        }
-    }
-
-    public override async Task Take_Any_with_predicate(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Top-level parameterless Any(), see #33854.
-            var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Take_Any_with_predicate(async));
-
-            Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
-@__p_0='5'
-
-SELECT VALUE EXISTS (
-    SELECT 1
-    FROM root c
-    WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "B"))
-    ORDER BY c["CustomerID"]
-    OFFSET 0 LIMIT @__p_0)
-""");
-        }
-    }
+    public override Task Take_Any_with_predicate(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Take_Any_with_predicate(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task OrderBy(bool async)
         => Fixture.NoSyncTest(
@@ -1507,32 +1449,14 @@ ORDER BY c["CustomerID"]
     }
 
     public override Task Take_Distinct(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Take_Distinct(a);
+        => AssertTranslationFailedWithDetails(
+            () => base.Take_Distinct(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-                AssertSql(
-                    """
-@__p_0='5'
-
-SELECT DISTINCT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Order")
-ORDER BY c["OrderID"]
-OFFSET 0 LIMIT @__p_0
-""");
-            });
-
-    public override async Task Distinct_Take(bool async)
-    {
-        // Subquery pushdown. Issue #16156.
-        await AssertTranslationFailedWithDetails(
+    public override Task Distinct_Take(bool async)
+        => AssertTranslationFailedWithDetails(
             () => base.Distinct_Take(async),
             CosmosStrings.NoSubqueryPushdown);
-
-        AssertSql();
-    }
 
     public override async Task Distinct_Take_Count(bool async)
     {
@@ -2813,73 +2737,20 @@ OFFSET @__p_0 LIMIT @__p_1
         AssertSql();
     }
 
-    public override async Task OrderBy_skip_take_distinct(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_skip_take_distinct(async));
+    public override Task OrderBy_skip_take_distinct(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.OrderBy_skip_take_distinct(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-            AssertSql(
-                """
-@__p_0='5'
-@__p_1='15'
+    public override Task OrderBy_coalesce_take_distinct(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.OrderBy_coalesce_take_distinct(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-SELECT DISTINCT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["ContactTitle"], c["ContactName"]
-OFFSET @__p_0 LIMIT @__p_1
-""");
-        }
-    }
-
-    public override async Task OrderBy_coalesce_take_distinct(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_coalesce_take_distinct(async));
-
-            AssertSql(
-                """
-@__p_0='15'
-
-SELECT DISTINCT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Product")
-ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)
-OFFSET 0 LIMIT @__p_0
-""");
-        }
-    }
-
-    public override async Task OrderBy_coalesce_skip_take_distinct(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            // Cosmos client evaluation. Issue #17246.
-            await Assert.ThrowsAsync<CosmosException>(
-                async () => await base.OrderBy_coalesce_skip_take_distinct(async));
-
-            AssertSql(
-                """
-@__p_0='5'
-@__p_1='15'
-
-SELECT DISTINCT VALUE c
-FROM root c
-WHERE (c["Discriminator"] = "Product")
-ORDER BY ((c["UnitPrice"] != null) ? c["UnitPrice"] : 0.0)
-OFFSET @__p_0 LIMIT @__p_1
-""");
-        }
-    }
+    public override Task OrderBy_coalesce_skip_take_distinct(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.OrderBy_coalesce_skip_take_distinct(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override async Task OrderBy_coalesce_skip_take_distinct_take(bool async)
     {

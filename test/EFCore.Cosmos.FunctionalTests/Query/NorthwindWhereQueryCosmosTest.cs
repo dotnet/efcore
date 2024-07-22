@@ -884,29 +884,10 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative
 """);
             });
 
-    public override async Task Where_simple_shadow_subquery(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Fixture.NoSyncTest(
-                async, async a =>
-                {
-                    await Assert.ThrowsAsync<EqualException>(() => base.Where_simple_shadow_subquery(a));
-
-                    AssertSql(
-                        """
-@__p_0='5'
-
-SELECT VALUE c
-FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative"))
-ORDER BY c["EmployeeID"]
-OFFSET 0 LIMIT @__p_0
-""");
-                });
-        }
-    }
+    public override Task Where_simple_shadow_subquery(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Where_simple_shadow_subquery(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override async Task Where_shadow_subquery_FirstOrDefault(bool async)
     {
@@ -1575,21 +1556,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = c["City"]))
     }
 
     public override Task Where_primitive(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_primitive(a);
-
-                AssertSql(
-                    """
-@__p_0='9'
-
-SELECT VALUE c["EmployeeID"]
-FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 5))
-OFFSET 0 LIMIT @__p_0
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Where_primitive(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Where_bool_member(bool async)
         => Fixture.NoSyncTest(
@@ -3154,38 +3123,14 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative
             });
 
     public override Task Where_primitive_tracked(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_primitive_tracked(a);
-
-                AssertSql(
-                    """
-@__p_0='9'
-
-SELECT VALUE c
-FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 5))
-OFFSET 0 LIMIT @__p_0
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Where_primitive_tracked(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Where_primitive_tracked2(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Where_primitive_tracked2(a);
-
-                AssertSql(
-                    """
-@__p_0='9'
-
-SELECT VALUE c
-FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 5))
-OFFSET 0 LIMIT @__p_0
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Where_primitive_tracked2(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Where_poco_closure(bool async)
         => Fixture.NoSyncTest(
@@ -3384,6 +3329,25 @@ FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
 """);
             });
+
+    #region Evaluation order of predicates
+
+    public override Task Take_and_Where_evaluation_order(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Take_and_Where_evaluation_order(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+
+    public override Task Skip_and_Where_evaluation_order(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Skip_and_Where_evaluation_order(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+
+    public override Task Take_and_Distinct_evaluation_order(bool async)
+        => AssertTranslationFailedWithDetails(
+            () => base.Take_and_Distinct_evaluation_order(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
+
+    #endregion Evaluation order of predicates
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

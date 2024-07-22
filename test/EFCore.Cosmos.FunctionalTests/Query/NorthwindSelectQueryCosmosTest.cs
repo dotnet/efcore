@@ -1423,22 +1423,9 @@ ORDER BY c["CustomerID"]
     }
 
     public override Task Projection_take_predicate_projection(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.Projection_take_predicate_projection(a);
-
-                AssertSql(
-                    """
-@__p_0='10'
-
-SELECT VALUE ((c["CustomerID"] || " ") || c["City"])
-FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
-ORDER BY c["CustomerID"]
-OFFSET 0 LIMIT @__p_0
-""");
-            });
+        => AssertTranslationFailedWithDetails(
+            () => base.Projection_take_predicate_projection(async),
+            CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
     public override Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
         => Fixture.NoSyncTest(

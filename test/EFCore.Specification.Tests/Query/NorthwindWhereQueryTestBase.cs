@@ -2544,4 +2544,29 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where(x => (x as IHaveId).Id == 10252),
             elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
     }
+
+    #region Evaluation order of predicates
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_and_Where_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(3).Where(e => e.EmployeeID % 2 == 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Skip_and_Where_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID).Skip(3).Where(e => e.EmployeeID % 2 == 0));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Take_and_Distinct_evaluation_order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.ContactTitle).OrderBy(t => t).Take(3).Distinct());
+
+    #endregion Evaluation order of predicates
 }
