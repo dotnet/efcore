@@ -530,6 +530,50 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override SqlExpression? GenerateGreatest(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://learn.microsoft.com/sql/t-sql/functions/logical-functions-greatest-transact-sql
+        if (_sqlServerCompatibilityLevel < 160)
+        {
+            return null;
+        }
+
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // If one or more arguments aren't NULL, then NULL arguments are ignored during comparison.
+        // If all arguments are NULL, then GREATEST returns NULL.
+        return _sqlExpressionFactory.Function(
+            "GREATEST", expressions, nullable: true, Enumerable.Repeat(false, expressions.Count), resultType, resultTypeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override SqlExpression? GenerateLeast(IReadOnlyList<SqlExpression> expressions, Type resultType)
+    {
+        // Docs: https://learn.microsoft.com/sql/t-sql/functions/logical-functions-least-transact-sql
+        if (_sqlServerCompatibilityLevel < 160)
+        {
+            return null;
+        }
+
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        // If one or more arguments aren't NULL, then NULL arguments are ignored during comparison.
+        // If all arguments are NULL, then LEAST returns NULL.
+        return _sqlExpressionFactory.Function(
+            "LEAST", expressions, nullable: true, Enumerable.Repeat(false, expressions.Count), resultType, resultTypeMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override bool TryTranslateAggregateMethodCall(
         MethodCallExpression methodCallExpression,
         [NotNullWhen(true)] out SqlExpression? translation)

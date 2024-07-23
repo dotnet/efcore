@@ -80,6 +80,8 @@ public class SqliteMathTranslator : IMethodCallTranslator
         { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), [typeof(float)])!, "degrees" }
     };
 
+    // Note: Math.Max/Min are handled in RelationalSqlTranslatingExpressionVisitor
+
     private static readonly List<MethodInfo> _roundWithDecimalMethods =
     [
         typeof(Math).GetMethod(nameof(Math.Round), [typeof(double), typeof(int)])!,
@@ -160,25 +162,6 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 argumentsPropagateNullability: new[] { true, true },
                 method.ReturnType,
                 typeMapping);
-        }
-
-        if (method.DeclaringType == typeof(Math))
-        {
-            if (method.Name == nameof(Math.Min))
-            {
-                var success = _sqlExpressionFactory.TryCreateLeast(
-                    new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression);
-                Check.DebugAssert(success, "Couldn't generate min");
-                return leastExpression;
-            }
-
-            if (method.Name == nameof(Math.Max))
-            {
-                var success = _sqlExpressionFactory.TryCreateGreatest(
-                    new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression);
-                Check.DebugAssert(success, "Couldn't generate max");
-                return leastExpression;
-            }
         }
 
         return null;

@@ -67,34 +67,4 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
             atTimeZoneExpression.Type,
             typeMapping);
     }
-
-    /// <inheritdoc />
-    public override bool TryCreateLeast(
-        IReadOnlyList<SqlExpression> expressions,
-        Type resultType,
-        [NotNullWhen(true)] out SqlExpression? leastExpression)
-    {
-        if (_sqlServerCompatibilityLevel >= 160)
-        {
-            return base.TryCreateLeast(expressions, resultType, out leastExpression);
-        }
-
-        leastExpression = null;
-        return false;
-    }
-
-    /// <inheritdoc />
-    public override bool TryCreateGreatest(
-        IReadOnlyList<SqlExpression> expressions,
-        Type resultType,
-        [NotNullWhen(true)] out SqlExpression? greatestExpression)
-    {
-        if (_sqlServerCompatibilityLevel >= 160)
-        {
-            return base.TryCreateGreatest(expressions, resultType, out greatestExpression);
-        }
-
-        greatestExpression = null;
-        return false;
-    }
 }

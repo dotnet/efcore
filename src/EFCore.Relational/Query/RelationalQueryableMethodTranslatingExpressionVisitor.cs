@@ -951,19 +951,39 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlExpressionFactory.TryCreateGreatest(values, resultType, out var greatestExpression)
-                ? source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression)
-                : TranslateAggregateWithSelector(
-                    source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+    {
+        // For Max() over an inline array, translate to GREATEST() if possible; otherwise use the default translation of aggregate SQL
+        // MAX().
+        // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
+        // NULL (SQL Server, PostgreSQL). If the argument is a nullable value type, don't translate to GREATEST() if it propagates NULLs,
+        // to match the .NET behavior.
+        if (TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlTranslator.GenerateGreatest(values, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression
+            && (Nullable.GetUnderlyingType(resultType) is null
+                || greatestExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
+        {
+            return source.Update(new SelectExpression(greatestExpression, _sqlAliasManager), source.ShaperExpression);
+        }
+
+        return TranslateAggregateWithSelector(
+            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlExpressionFactory.TryCreateLeast(values, resultType, out var leastExpression)
-                ? source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression)
-                : TranslateAggregateWithSelector(
-                    source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+    {
+        // See comments above in TranslateMax()
+        if (TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
+            && (Nullable.GetUnderlyingType(resultType) is null
+                || leastExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
+        {
+            return source.Update(new SelectExpression(leastExpression, _sqlAliasManager), source.ShaperExpression);
+        }
+
+        return TranslateAggregateWithSelector(
+            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)

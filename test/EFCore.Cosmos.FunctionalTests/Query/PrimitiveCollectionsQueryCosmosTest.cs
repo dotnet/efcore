@@ -423,6 +423,83 @@ WHERE ((
 """);
             });
 
+    public override Task Inline_collection_of_nullable_value_type_Min(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_Min(a);
+
+                AssertSql(
+                    """
+@__i_0='25'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 25)
+""");
+            });
+
+    public override Task Inline_collection_of_nullable_value_type_Max(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_Max(a);
+
+                AssertSql(
+                    """
+@__i_0='35'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["Int"], @__i_0])) = 35)
+""");
+            });
+
+    public override async Task Inline_collection_of_nullable_value_type_with_null_Min(bool async)
+    {
+        // Always throws for sync.
+        if (async)
+        {
+            // Cosmos MIN()/MAX() sort nulls as smaller than ints (https://learn.microsoft.com/azure/cosmos-db/nosql/query/min);
+            // since some of the columns included contain null, MIN() returns null as opposed to the smallest number.
+            // In relational, aggregate MIN()/MAX() ignores nulls.
+            await Assert.ThrowsAsync<EqualException>(() => base.Inline_collection_of_nullable_value_type_with_null_Min(async));
+
+            AssertSql(
+                """
+@__i_0=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MIN(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @__i_0])) = 30)
+""");
+        }
+    }
+
+    public override Task Inline_collection_of_nullable_value_type_with_null_Max(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_of_nullable_value_type_with_null_Max(a);
+
+                AssertSql(
+                    """
+@__i_0=null
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE MAX(a)
+    FROM a IN (SELECT VALUE [30, c["NullableInt"], @__i_0])) = 30)
+""");
+            });
+
     public override Task Parameter_collection_Count(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
