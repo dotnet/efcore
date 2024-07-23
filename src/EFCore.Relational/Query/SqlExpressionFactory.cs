@@ -1,8 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -68,6 +71,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
             SqlUnaryExpression e => ApplyTypeMappingOnSqlUnary(e, typeMapping),
+            WindowOverExpression e => e.ApplyTypeMapping(typeMapping),
 
             _ => sqlExpression
         };
@@ -983,6 +987,39 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         greatestExpression = Function(
             "GREATEST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
         return true;
+    }
+
+    /// <inheritdoc />
+    public virtual WindowPartitionExpression PartitionBy(IEnumerable<SqlExpression> paritions)
+    {
+        var typeMappedArguments = new List<SqlExpression>();
+
+        foreach (var partition in paritions)
+        {
+            typeMappedArguments.Add(ApplyDefaultTypeMapping(partition));
+        }
+
+        return new WindowPartitionExpression(typeMappedArguments);
+    }
+
+    /// <inheritdoc />
+    public virtual WindowFrameExpression WindowFrame(MethodInfo method, SqlExpression? preceding, SqlExpression? following, SqlExpression? exclude)
+    {
+        if (string.Compare(method.Name, "rows", StringComparison.OrdinalIgnoreCase) == 0)
+            return new WindowFrameRowExpression(ApplyDefaultTypeMapping(preceding), ApplyDefaultTypeMapping(following), ApplyDefaultTypeMapping(exclude));
+        else if (string.Compare(method.Name, "range", StringComparison.OrdinalIgnoreCase) == 0)
+            return new WindowFrameRangeExpression(ApplyDefaultTypeMapping(preceding), ApplyDefaultTypeMapping(following), ApplyDefaultTypeMapping(exclude));
+        else if (string.Compare(method.Name, "groups", StringComparison.OrdinalIgnoreCase) == 0)
+            return new WindowFrameGroupsExpression(ApplyDefaultTypeMapping(preceding), ApplyDefaultTypeMapping(following), ApplyDefaultTypeMapping(exclude));
+        else
+            throw new Exception($"Unsupported Frame Method {method.Name}");
+    }
+
+    /// <inheritdoc />
+    public virtual WindowOverExpression Over(SqlFunctionExpression aggregate, WindowPartitionExpression? partition, IReadOnlyList<OrderingExpression> orderings,
+        WindowFrameExpression? frame)
+    {
+        return new WindowOverExpression(aggregate, partition, orderings, frame);
     }
 
     private IReadOnlyList<SqlExpression> FlattenLeastGreatest(string functionName, IReadOnlyList<SqlExpression> expressions)

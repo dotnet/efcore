@@ -118,6 +118,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IQueryCompilationContextFactory, SqlServerQueryCompilationContextFactory>()
             .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()
             .TryAdd<IAggregateMethodCallTranslatorProvider, SqlServerAggregateMethodCallTranslatorProvider>()
+            .TryAdd<IWindowAggregateMethodCallTranslator, SqlServerWindowAggregateMethodTranslator>()
             .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
             .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
             .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
