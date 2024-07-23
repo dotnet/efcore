@@ -3274,6 +3274,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).Assembly);
 
         /// <summary>
+        ///     The type '{entityType}' has been mapped as an entity type. If you are mapping this type intentionally, then please suppress this warning and report the issue on GitHub.
+        /// </summary>
+        public static EventDefinition<string> LogAccidentalEntityType(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogAccidentalEntityType;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogAccidentalEntityType,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.AccidentalEntityType,
+                        LogLevel.Warning,
+                        "CoreEventId.AccidentalEntityType",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.AccidentalEntityType,
+                            _resourceManager.GetString("LogAccidentalEntityType")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
         ///     The foreign key {foreignKeyProperties} on entity type '{entityType}' cannot be configured as required since the dependent side cannot be determined. To identify the dependent side of the relationship, configure the foreign key property or the principal key before configuring the foreign key as required in 'OnModelCreating'. See https://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static EventDefinition<string, string> LogAmbiguousEndRequired(IDiagnosticsLogger logger)

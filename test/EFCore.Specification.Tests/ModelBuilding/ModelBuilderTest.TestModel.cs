@@ -463,7 +463,11 @@ public abstract partial class ModelBuilderTest
     {
         public int Id { get; set; }
 
-        public List<DependentEntity>? InverseNav { get; set; }
+        public MyList<DependentEntity>? InverseNav { get; set; }
+    }
+
+    protected class MyList<T> : List<T>
+    {
     }
 
     protected class DependentEntity
