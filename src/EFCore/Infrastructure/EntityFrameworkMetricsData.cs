@@ -30,6 +30,7 @@ public static class EntityFrameworkMetricsData
     private static long _totalExecutionStrategyOperationFailures;
     private static long _totalOptimisticConcurrencyFailures;
     private static CacheInfo _compiledQueryCacheInfo;
+    private static CacheInfo _compiledQueryCacheInfoEventSource;
 
     /// <summary>
     /// Indicates that a new <see cref="DbContext" /> instance is being initialized.
@@ -77,20 +78,31 @@ public static class EntityFrameworkMetricsData
     /// Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
     /// </summary>
     public static void ReportCompiledQueryCacheHit()
-        => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
+    {
+        Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
+        Interlocked.Increment(ref _compiledQueryCacheInfoEventSource.Hits);
+    }
 
     /// <summary>
     /// Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
     /// </summary>
     public static void ReportCompiledQueryCacheMiss()
-        => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
+    {
+        Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
+        Interlocked.Increment(ref _compiledQueryCacheInfoEventSource.Misses);
+    }
 
     /// <summary>
     /// Gets number of hits and misses and also the computed hit rate for the compiled query cache.
     /// </summary>
-    /// <param name="reset">Whether to reset counters when returning the result.</param>
-    public static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitsMissesHitRate(bool reset = true)
-        => _compiledQueryCacheInfo.CalculateHitsMissesHitRate(reset);
+    public static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRate()
+        => _compiledQueryCacheInfo.CalculateHitsMissesHitRate(false);
+
+    /// <summary>
+    /// Gets number of hits and misses and also the computed hit rate for the compiled query cache.
+    /// </summary>
+    internal static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRateEventSource()
+        => _compiledQueryCacheInfoEventSource.CalculateHitsMissesHitRate(true);
 
     /// <summary>
     /// Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
