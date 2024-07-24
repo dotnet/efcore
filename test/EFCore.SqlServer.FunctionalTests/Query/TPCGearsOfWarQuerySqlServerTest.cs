@@ -7112,6 +7112,42 @@ ORDER BY [w].[IsAutomatic], [u].[Nickname] DESC, [u].[SquadId] DESC, [w0].[Id], 
 """);
     }
 
+    public override async Task Order(bool async)
+    {
+        await base.Order(async);
+
+        AssertSql(
+            """
+SELECT [u].[FullName]
+FROM (
+    SELECT [g].[FullName]
+    FROM [Gears] AS [g]
+    UNION ALL
+    SELECT [o].[FullName]
+    FROM [Officers] AS [o]
+) AS [u]
+ORDER BY [u].[FullName]
+""");
+    }
+
+    public override async Task OrderDescending(bool async)
+    {
+        await base.OrderDescending(async);
+
+        AssertSql(
+            """
+SELECT [u].[FullName]
+FROM (
+    SELECT [g].[FullName]
+    FROM [Gears] AS [g]
+    UNION ALL
+    SELECT [o].[FullName]
+    FROM [Officers] AS [o]
+) AS [u]
+ORDER BY [u].[FullName] DESC
+""");
+    }
+
     public override async Task Join_on_entity_qsre_keys(bool async)
     {
         await base.Join_on_entity_qsre_keys(async);

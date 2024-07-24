@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class AppendOrderByIdentityExpressionMutator(DbContext context) : ExpressionMutator(context)
@@ -18,8 +20,8 @@ public class AppendOrderByIdentityExpressionMutator(DbContext context) : Express
             ? QueryableMethods.OrderByDescending.MakeGenericMethod(typeArgument, typeArgument)
             : QueryableMethods.OrderBy.MakeGenericMethod(typeArgument, typeArgument);
 
-        var prm = Expression.Parameter(typeArgument, "prm");
-        var lambda = Expression.Lambda(prm, prm);
+
+        var lambda = ExpressionExtensions.CreateIdentityLambda(typeArgument);
         var resultExpression = Expression.Call(orderBy, expression, lambda);
 
         return resultExpression;

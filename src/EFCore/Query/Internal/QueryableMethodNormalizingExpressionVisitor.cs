@@ -149,6 +149,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         Expression? visitedExpression = null;
         if (method.DeclaringType == typeof(Enumerable))
         {
+            // TODO: Will these be further normailzed?
             visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
         }
 
@@ -213,7 +214,10 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && visitedMethodCall.Method.DeclaringType == typeof(Queryable)
             && visitedMethodCall.Method.IsGenericMethod)
         {
-            return TryFlattenGroupJoinSelectMany(visitedMethodCall);
+            visitedMethodCall = TryNormalizeOrderAndOrderDescending(visitedMethodCall);
+            visitedMethodCall = TryFlattenGroupJoinSelectMany(visitedMethodCall);
+
+            return visitedMethodCall;
         }
 
         return visitedExpression;
@@ -503,6 +507,25 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         return enumerableType == typeof(IEnumerable<>) && queryableType == typeof(IQueryable<>)
             || enumerableType == typeof(IOrderedEnumerable<>) && queryableType == typeof(IOrderedQueryable<>);
+    }
+
+    private MethodCallExpression TryNormalizeOrderAndOrderDescending(MethodCallExpression methodCallExpression)
+    {
+        var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
+        if (genericMethod == QueryableMethods.Order
+            || genericMethod == QueryableMethods.OrderDescending)
+        {
+            var sourceType = methodCallExpression.Method.GetGenericArguments()[0];
+
+            return Expression.Call(
+                genericMethod == QueryableMethods.Order
+                    ? QueryableMethods.OrderBy.MakeGenericMethod(sourceType, sourceType)
+                    : QueryableMethods.OrderByDescending.MakeGenericMethod(sourceType, sourceType),
+                methodCallExpression.Arguments[0],
+                Expression.Quote(ExpressionExtensions.CreateIdentityLambda(sourceType)));
+        }
+
+        return methodCallExpression;
     }
 
     private MethodCallExpression TryFlattenGroupJoinSelectMany(MethodCallExpression methodCallExpression)
