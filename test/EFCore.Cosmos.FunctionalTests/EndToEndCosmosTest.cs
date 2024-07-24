@@ -121,7 +121,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("CreateItem", logEntry.Message);
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -131,7 +131,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadNext);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadNext", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -144,7 +144,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReplaceItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReplaceItem", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -154,7 +154,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             var logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedReadItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("ReadItem", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
             ListLoggerFactory.Clear();
 
             Assert.Equal(42, customerFromStore.Id);
@@ -167,13 +167,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             logEntry = ListLoggerFactory.Log.Single(e => e.Id == CosmosEventId.ExecutedDeleteItem);
             Assert.Equal(LogLevel.Information, logEntry.Level);
             Assert.Contains("DeleteItem", logEntry.Message);
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -199,7 +199,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             storeId = entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue;
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         Assert.Equal("Customer|42", storeId);
@@ -211,7 +211,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -225,7 +225,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -235,7 +235,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -246,13 +246,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -378,7 +378,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -400,7 +400,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             entry.State = EntityState.Modified;
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -420,7 +420,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -438,13 +438,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -477,7 +477,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -491,7 +491,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -505,13 +505,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<CustomerGuid>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -547,7 +547,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -561,7 +561,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -575,13 +575,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<CustomerDateTime>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 
@@ -641,7 +641,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -660,7 +660,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
@@ -674,13 +674,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
 
         using (var context = contextFactory.CreateContext())
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
-            Assert.Empty(ListLoggerFactory.Log.Where(l => l.Id == CosmosEventId.SyncNotSupported));
+            Assert.DoesNotContain(ListLoggerFactory.Log, l => l.Id == CosmosEventId.SyncNotSupported);
         }
     }
 

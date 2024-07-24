@@ -782,12 +782,12 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model.FindEntityType(typeof(BookLabel).FullName));
             foreach (var entityType in model.GetEntityTypes())
             {
-                Assert.Empty(
-                    entityType.GetForeignKeys()
-                        .Where(fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel)));
-                Assert.Empty(
-                    entityType.GetForeignKeys()
-                        .Where(fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel)));
+                Assert.DoesNotContain(
+                    entityType.GetForeignKeys(),
+                    fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel));
+                Assert.DoesNotContain(
+                    entityType.GetForeignKeys(),
+                    fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel));
             }
         }
 

@@ -46,7 +46,7 @@ END"));
 
             await context.SaveChangesAsync();
 
-            Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+            Assert.DoesNotContain(TestSqlLoggerFactory.Log, l => l.Level == LogLevel.Warning);
         }
 
         await using (var context = CreateContext())

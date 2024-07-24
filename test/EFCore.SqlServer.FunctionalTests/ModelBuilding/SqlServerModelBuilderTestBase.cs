@@ -503,7 +503,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                     StoreObjectIdentifier.Create(principalType, StoreObjectType.Table)!.Value));
             Assert.Equal(2, bunFk.GetMappedConstraints().Count());
 
-            Assert.Empty(bunType.GetDeclaredForeignKeys().Where(fk => fk.IsBaseLinking()));
+            Assert.DoesNotContain(bunType.GetDeclaredForeignKeys(), fk => fk.IsBaseLinking());
 
             var sesameBunType = model.FindEntityType(typeof(SesameBun))!;
             Assert.Empty(sesameBunType.GetDeclaredIndexes());

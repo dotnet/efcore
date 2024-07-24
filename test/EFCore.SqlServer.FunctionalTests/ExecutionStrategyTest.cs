@@ -103,7 +103,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
             }
             else
             {
-                Assert.Empty(Fixture.TestSqlLoggerFactory.Log.Where(l => l.Id == CoreEventId.ExecutionStrategyRetrying));
+                Assert.DoesNotContain(Fixture.TestSqlLoggerFactory.Log, l => l.Id == CoreEventId.ExecutionStrategyRetrying);
             }
 
             Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);
@@ -217,7 +217,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
             }
             else
             {
-                Assert.Empty(Fixture.TestSqlLoggerFactory.Log.Where(l => l.Id == CoreEventId.ExecutionStrategyRetrying));
+                Assert.DoesNotContain(Fixture.TestSqlLoggerFactory.Log, l => l.Id == CoreEventId.ExecutionStrategyRetrying);
             }
 
             Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);

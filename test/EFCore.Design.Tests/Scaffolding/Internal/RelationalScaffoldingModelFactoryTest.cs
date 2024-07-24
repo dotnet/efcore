@@ -1260,7 +1260,7 @@ public class RelationalScaffoldingModelFactoryTest
         var fk = Assert.Single(model.GetForeignKeys());
 
         Assert.True(fk.IsUnique);
-        Assert.Empty(model.GetKeys().Where(k => !k.IsPrimaryKey()));
+        Assert.DoesNotContain(model.GetKeys(), k => !k.IsPrimaryKey());
         Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
     }
 

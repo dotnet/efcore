@@ -1338,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var baseInsertSproc = baseInsertMapping.StoreStoredProcedure;
                 Assert.Equal("AbstractBase_Insert", baseInsertSproc.Name);
                 Assert.Equal("Customer_Insert", customerInsertSproc.Name);
-                Assert.Empty(abstractCustomerType.GetInsertStoredProcedureMappings().Where(m => m.IncludesDerivedTypes != false));
+                Assert.DoesNotContain(abstractCustomerType.GetInsertStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Insert",
                     specialCustomerType.GetInsertStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
@@ -1376,7 +1376,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var baseUpdateSproc = baseUpdateMapping.StoreStoredProcedure;
                 Assert.Equal("AbstractBase_Update", baseUpdateSproc.Name);
                 Assert.Equal("Customer_Update", customerUpdateSproc.Name);
-                Assert.Empty(abstractCustomerType.GetUpdateStoredProcedureMappings().Where(m => m.IncludesDerivedTypes != false));
+                Assert.DoesNotContain(abstractCustomerType.GetUpdateStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Update",
                     specialCustomerType.GetUpdateStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);
@@ -1415,7 +1415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var baseDeleteSproc = baseDeleteMapping.StoreStoredProcedure;
                 Assert.Equal("AbstractBase_Delete", baseDeleteSproc.Name);
                 Assert.Equal("Customer_Delete", customerDeleteSproc.Name);
-                Assert.Empty(abstractCustomerType.GetDeleteStoredProcedureMappings().Where(m => m.IncludesDerivedTypes != false));
+                Assert.DoesNotContain(abstractCustomerType.GetDeleteStoredProcedureMappings(), m => m.IncludesDerivedTypes != false);
                 Assert.Equal(
                     "SpecialCustomer_Delete",
                     specialCustomerType.GetDeleteStoredProcedureMappings().Single(m => m.IncludesDerivedTypes == true).StoreStoredProcedure.Name);

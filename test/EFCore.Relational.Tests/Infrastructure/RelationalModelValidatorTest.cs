@@ -1971,7 +1971,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var model = Validate(modelBuilder);
 
         var animalType = model.FindEntityType(typeof(Animal));
-        Assert.Empty(animalType.GetProperties().Where(p => p.IsConcurrencyToken));
+        Assert.DoesNotContain(animalType.GetProperties(), p => p.IsConcurrencyToken);
     }
 
     [ConditionalFact]
@@ -3645,9 +3645,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         Validate(modelBuilder);
 
-        Assert.Empty(
-            LoggerFactory.Log
-                .Where(l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug));
+        Assert.DoesNotContain(
+            LoggerFactory.Log,
+            l => l.Level != LogLevel.Trace && l.Level != LogLevel.Debug);
     }
 
     [ConditionalFact]

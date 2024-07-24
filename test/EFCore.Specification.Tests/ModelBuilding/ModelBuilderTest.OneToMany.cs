@@ -418,8 +418,8 @@ public abstract partial class ModelBuilderTest
             var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
 
             Assert.Equal(fk.PrincipalKey.Properties, newFk.PrincipalKey.Properties);
-            Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey == newFk));
-            Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey == newFk));
+            Assert.DoesNotContain(dependentType.GetNavigations(), nav => nav.ForeignKey == newFk);
+            Assert.DoesNotContain(principalType.GetNavigations(), nav => nav.ForeignKey == newFk);
             Assert.Contains("AlternateKey", principalType.GetProperties().Select(p => p.Name));
             Assert.Contains("AnotherCustomerId", dependentType.GetProperties().Select(p => p.Name));
             Assert.Empty(principalType.GetForeignKeys());
@@ -696,8 +696,8 @@ public abstract partial class ModelBuilderTest
             var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
             Assert.Same(fkProperty, newFk.Properties.Single());
 
-            Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != fk));
-            Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != fk));
+            Assert.DoesNotContain(dependentType.GetNavigations(), nav => nav.ForeignKey != fk);
+            Assert.DoesNotContain(principalType.GetNavigations(), nav => nav.ForeignKey != fk);
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
@@ -880,8 +880,8 @@ public abstract partial class ModelBuilderTest
             Assert.Same(typeof(int?), fkProperty.ClrType);
             Assert.Same(dependentType, fkProperty.DeclaringType);
 
-            Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != existingFk));
-            Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != existingFk));
+            Assert.DoesNotContain(dependentType.GetNavigations(), nav => nav.ForeignKey != existingFk);
+            Assert.DoesNotContain(principalType.GetNavigations(), nav => nav.ForeignKey != existingFk);
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
 
@@ -2114,8 +2114,8 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fkProperty1, newFk.Properties[0]);
             Assert.Same(fkProperty2, newFk.Properties[1]);
 
-            Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey == newFk));
-            Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey == newFk));
+            Assert.DoesNotContain(dependentType.GetNavigations(), nav => nav.ForeignKey == newFk);
+            Assert.DoesNotContain(principalType.GetNavigations(), nav => nav.ForeignKey == newFk);
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
