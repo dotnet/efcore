@@ -239,6 +239,11 @@ public static class QueryableMethods
     public static MethodInfo OfType { get; }
 
     /// <summary>
+    ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Order{T}(IQueryable{T})" />
+    /// </summary>
+    public static MethodInfo Order { get; }
+
+    /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.OrderBy{TSource,TKey}(IQueryable{TSource},Expression{Func{TSource,TKey}})" />
     /// </summary>
     public static MethodInfo OrderBy { get; }
@@ -252,6 +257,11 @@ public static class QueryableMethods
     public static MethodInfo OrderByDescending { get; }
 
     //public static MethodInfo OrderByDescendingWithComparer { get; }
+
+    /// <summary>
+    ///     The <see cref="MethodInfo" /> for <see cref="Queryable.OrderDescending{T}(IQueryable{T})" />
+    /// </summary>
+    public static MethodInfo OrderDescending { get; }
 
     /// <summary>
     ///     The <see cref="MethodInfo" /> for <see cref="Queryable.Reverse{TSource}" />
@@ -656,6 +666,13 @@ public static class QueryableMethods
 
         OfType = GetMethod(nameof(Queryable.OfType), 1, types => [typeof(IQueryable)]);
 
+        Order = GetMethod(
+            nameof(Queryable.Order), 1,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0])
+            ]);
+
         OrderBy = GetMethod(
             nameof(Queryable.OrderBy), 2,
             types =>
@@ -670,6 +687,13 @@ public static class QueryableMethods
             [
                 typeof(IQueryable<>).MakeGenericType(types[0]),
                 typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], types[1]))
+            ]);
+
+        OrderDescending = GetMethod(
+            nameof(Queryable.OrderDescending), 1,
+            types =>
+            [
+                typeof(IQueryable<>).MakeGenericType(types[0])
             ]);
 
         Reverse = GetMethod(nameof(Queryable.Reverse), 1, types => [typeof(IQueryable<>).MakeGenericType(types[0])]);
