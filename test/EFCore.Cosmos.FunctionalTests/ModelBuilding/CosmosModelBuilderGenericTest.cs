@@ -287,7 +287,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
 
             var idProperty = entity.GetDeclaredProperties()
                 .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
@@ -312,7 +312,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { StoreKeyConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
 
             var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName)!;
             Assert.Single(idProperty.GetContainingKeys());
@@ -338,7 +338,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { nameof(Customer.AlternateKey), StoreKeyConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
         [ConditionalFact]
@@ -380,7 +380,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                     StoreKeyConvention.DefaultIdPropertyName
                 },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
         [ConditionalFact]
@@ -422,7 +422,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                     StoreKeyConvention.DefaultIdPropertyName
                 },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
         [ConditionalFact]
@@ -494,7 +494,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { nameof(Customer.AlternateKey) },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
         [ConditionalFact]
@@ -516,7 +516,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { nameof(Customer.Name), nameof(Customer.AlternateKey), nameof(Customer.Title) },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
-            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)

@@ -1784,9 +1784,9 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Empty(
-                model.FindEntityType(typeof(Gamma))!.GetProperties()
-                    .Where(p => p.Name == "PrivateProperty"));
+            Assert.DoesNotContain(
+                model.FindEntityType(typeof(Gamma))!.GetProperties(),
+                p => p.Name == "PrivateProperty");
         }
 
         [ConditionalFact]
@@ -2876,9 +2876,9 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Empty(
-                model.FindEntityType(typeof(Gamma))!.GetProperties()
-                    .Where(p => p.Name == "PrivateCollection"));
+            Assert.DoesNotContain(
+                model.FindEntityType(typeof(Gamma))!.GetProperties(),
+                p => p.Name == "PrivateCollection");
         }
 
         [ConditionalFact]
@@ -2903,9 +2903,9 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.Empty(
-                model.FindEntityType(typeof(Gamma))!.GetProperties()
-                    .Where(p => p.Name == "PrivateCollection"));
+            Assert.DoesNotContain(
+                model.FindEntityType(typeof(Gamma))!.GetProperties(),
+                p => p.Name == "PrivateCollection");
         }
 
         [ConditionalFact]

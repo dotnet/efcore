@@ -497,7 +497,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.DetectChanges();
         }
 
-        Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+        Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
     [ConditionalTheory]
@@ -546,7 +546,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.DetectChanges();
         }
 
-        Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+        Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
     [ConditionalTheory] // Issue #21896
@@ -574,7 +574,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.DetectChanges();
         }
 
-        Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+        Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
 
         _loggerFactory.Log.Clear();
 
@@ -587,7 +587,7 @@ public class ChangeTrackerTest
             context.ChangeTracker.DetectChanges();
         }
 
-        Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+        Assert.DoesNotContain(_loggerFactory.Log, e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
     }
 
     [ConditionalTheory]

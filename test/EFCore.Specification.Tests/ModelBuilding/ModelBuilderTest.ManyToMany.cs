@@ -255,9 +255,9 @@ public abstract partial class ModelBuilderTest
 
             var hob = model.FindEntityType(typeof(Hob))!;
             var nob = model.FindEntityType(typeof(Nob))!;
-            Assert.Empty(
-                model.GetEntityTypes()
-                    .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType));
+            Assert.DoesNotContain(
+                model.GetEntityTypes(),
+                et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType);
 
             Assert.Empty(hob.GetSkipNavigations());
             if (nob != null)

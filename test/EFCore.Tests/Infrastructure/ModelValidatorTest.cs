@@ -173,7 +173,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithCollectionConversion
@@ -308,7 +308,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithStringAndBinaryKey

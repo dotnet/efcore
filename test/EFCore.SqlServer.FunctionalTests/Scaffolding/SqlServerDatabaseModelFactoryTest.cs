@@ -1313,11 +1313,11 @@ CREATE TABLE [db2].[DependentTable] (
                 Assert.Equal("db2", sequence.Schema);
 
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "QuotedTableName" }));
-                Assert.Empty(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "Table.With.Dot" }));
+                Assert.DoesNotContain(dbModel.Tables, t => t is { Schema: "db.2", Name: "Table.With.Dot" });
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "SimpleTableName" }));
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "JustTableName" }));
 
-                Assert.Empty(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "QuotedTableName" }));
+                Assert.DoesNotContain(dbModel.Tables, t => t is { Schema: "dbo", Name: "QuotedTableName" });
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "Table.With.Dot" }));
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "SimpleTableName" }));
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "JustTableName" }));

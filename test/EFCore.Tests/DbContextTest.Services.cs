@@ -3893,7 +3893,7 @@ namespace Microsoft.EntityFrameworkCore
                 var replacedServices = context.GetService<IEnumerable<IParameterBindingFactory>>().ToList();
                 Assert.Equal(3, replacedServices.Count);
 
-                Assert.Empty(replacedServices.Where(t => t is CustomParameterBindingFactory));
+                Assert.DoesNotContain(replacedServices, t => t is CustomParameterBindingFactory);
                 Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
             }
         }
