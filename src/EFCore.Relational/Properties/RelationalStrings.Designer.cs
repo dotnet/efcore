@@ -1514,6 +1514,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 param1, param2, param3);
 
         /// <summary>
+        ///     Exactly one of '{param1}' or '{param2}' must be set.
+        /// </summary>
+        public static string OneOfTwoValuesMustBeSet(object? param1, object? param2)
+            => string.Format(
+                GetString("OneOfTwoValuesMustBeSet", nameof(param1), nameof(param2)),
+                param1, param2);
+
+        /// <summary>
         ///     Only constants are supported inside inline collection query roots.
         /// </summary>
         public static string OnlyConstantsSupportedInInlineCollectionQueryRoots

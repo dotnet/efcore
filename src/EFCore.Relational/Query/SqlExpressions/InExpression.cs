@@ -72,6 +72,12 @@ public class InExpression : SqlExpression
     {
         Check.DebugAssert(subquery?.IsMutable != true, "Mutable subquery provided to ExistsExpression");
 
+        if ((subquery is null ? 0 : 1) + (values is null ? 0 : 1) + (valuesParameter is null ? 0 : 1) != 1)
+        {
+            throw new ArgumentException(
+                RelationalStrings.OneOfThreeValuesMustBeSet(nameof(subquery), nameof(values), nameof(valuesParameter)));
+        }
+
         Item = item;
         Subquery = subquery;
         Values = values;
@@ -186,17 +192,9 @@ public class InExpression : SqlExpression
         SelectExpression? subquery,
         IReadOnlyList<SqlExpression>? values,
         SqlParameterExpression? valuesParameter)
-    {
-        if ((subquery is null ? 0 : 1) + (values is null ? 0 : 1) + (valuesParameter is null ? 0 : 1) != 1)
-        {
-            throw new ArgumentException(
-                RelationalStrings.OneOfThreeValuesMustBeSet(nameof(subquery), nameof(values), nameof(valuesParameter)));
-        }
-
-        return item == Item && subquery == Subquery && values == Values && valuesParameter == ValuesParameter
+        => item == Item && subquery == Subquery && values == Values && valuesParameter == ValuesParameter
             ? this
             : new InExpression(item, subquery, values, valuesParameter, TypeMapping);
-    }
 
     /// <inheritdoc />
     public override Expression Quote()

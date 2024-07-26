@@ -1570,6 +1570,10 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="valuesExpression">The <see cref="ValuesExpression" /> for which to generate SQL.</param>
     protected virtual void GenerateValues(ValuesExpression valuesExpression)
     {
+        Check.DebugAssert(
+            valuesExpression.RowValues is not null,
+            "ValuesExpression.RowValues has to be set before SQL generation (i.e. in SqlNullabilityProcessor)");
+
         if (valuesExpression.RowValues.Count == 0)
         {
             throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);

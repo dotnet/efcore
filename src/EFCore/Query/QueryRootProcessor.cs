@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class QueryRootProcessor : ExpressionVisitor
 {
-    private readonly IModel _model;
+    private readonly QueryCompilationContext _queryCompilationContext;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryRootProcessor" /> class with associated query provider.
@@ -22,7 +22,7 @@ public class QueryRootProcessor : ExpressionVisitor
         QueryTranslationPreprocessorDependencies dependencies,
         QueryCompilationContext queryCompilationContext)
     {
-        _model = queryCompilationContext.Model;
+        _queryCompilationContext = queryCompilationContext;
     }
 
     /// <inheritdoc />
@@ -59,7 +59,7 @@ public class QueryRootProcessor : ExpressionVisitor
                 && (parameterType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
                     || parameterType.GetGenericTypeDefinition() == typeof(IQueryable<>))
                 && parameterType.GetGenericArguments()[0] is var elementClrType
-                && !_model.FindEntityTypes(elementClrType).Any()
+                && !_queryCompilationContext.Model.FindEntityTypes(elementClrType).Any()
                     ? VisitQueryRootCandidate(argument, elementClrType)
                     : Visit(argument);
 

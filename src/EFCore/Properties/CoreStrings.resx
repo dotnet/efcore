@@ -486,6 +486,9 @@
   <data name="EFConstantInvoked" xml:space="preserve">
     <value>The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
   </data>
+  <data name="EFConstantNotSupported" xml:space="preserve">
+    <value>'EF.Constant()' isn't supported by provider.</value>
+  </data>
   <data name="EFConstantNotSupportedInPrecompiledQueries" xml:space="preserve">
     <value>The EF.Constant&lt;T&gt; method is not supported when using precompiled queries.</value>
   </data>
