@@ -121,6 +121,18 @@ WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS
 """);
     }
 
+    public override async Task Collate_is_null(bool async)
+    {
+        await base.Collate_is_null(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL
+""");
+    }
+
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Least(bool async)
     {

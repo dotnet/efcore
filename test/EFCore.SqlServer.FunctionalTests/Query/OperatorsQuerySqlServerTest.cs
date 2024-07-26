@@ -252,4 +252,36 @@ CROSS JOIN [OperatorEntityDateTimeOffset] AS [o0]
 WHERE [o].[Value] AT TIME ZONE 'UTC' = [o0].[Value]
 """);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    public virtual async Task Where_AtTimeZone_is_null(bool async)
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e in ExpectedData.OperatorEntitiesNullableDateTimeOffset
+                        where e.Value == null
+                        select e.Id).ToList();
+
+        var actual = (from e in context.Set<OperatorEntityNullableDateTimeOffset>()
+#pragma warning disable CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
+                      where EF.Functions.AtTimeZone(e.Value.Value, "UTC") == null
+#pragma warning restore CS8073 // The result of the expression is always the same since a value of this type is never equal to 'null'
+                      select e.Id).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i], actual[i]);
+        }
+
+        AssertSql(
+            """
+SELECT [o].[Id]
+FROM [OperatorEntityNullableDateTimeOffset] AS [o]
+WHERE [o].[Value] IS NULL
+""");
+    }
 }
