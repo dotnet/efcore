@@ -180,20 +180,6 @@ WHERE c["Id"] IN (2, 999, 1000)
 """);
             });
 
-    public override Task Inline_collection_Contains_with_EF_Constant(bool async)
-        => CosmosTestHelpers.Instance.NoSyncTest(
-            async, async a =>
-            {
-                await base.Inline_collection_Contains_with_EF_Constant(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c
-FROM root c
-WHERE c["Id"] IN (2, 999, 1000)
-""");
-            });
-
     public override Task Inline_collection_Contains_with_all_parameters(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>
@@ -796,6 +782,61 @@ WHERE ARRAY_CONTAINS(@__enums_0, c["Enum"])
 SELECT VALUE c
 FROM root c
 WHERE ARRAY_CONTAINS(@__ints_0, c["Int"])
+""");
+            });
+
+    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Contains_with_EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Where_with_EF_Constant_Where_Any(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
+
+    public override Task Single_collection_parameter_Contains_is_not_confused_with_EF_Constant(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Single_collection_parameter_Contains_is_not_confused_with_EF_Constant(a);
+
+                AssertSql(
+                    """
+ReadItem(None, 2)
+""");
+            });
+
+    public override Task Single_collection_parameter_Count_with_column_predicate_is_not_confused_with_EF_Constant(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Single_collection_parameter_Count_with_column_predicate_is_not_confused_with_EF_Constant(a);
+
+                AssertSql(
+                    """
+@__i_0='2'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM a IN (SELECT VALUE [@__i_0])
+    WHERE (a > c["Id"])) = 1)
 """);
             });
 

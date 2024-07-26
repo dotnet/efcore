@@ -19,8 +19,8 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
     /// </summary>
     public SqlServerParameterBasedSqlProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
+        : base(dependencies, parameters)
     {
     }
 
@@ -54,7 +54,7 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
         Check.NotNull(selectExpression, nameof(selectExpression));
         Check.NotNull(parametersValues, nameof(parametersValues));
 
-        return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(
+        return new SqlServerSqlNullabilityProcessor(Dependencies, Parameters).Process(
             selectExpression, parametersValues, out canCache);
     }
 }

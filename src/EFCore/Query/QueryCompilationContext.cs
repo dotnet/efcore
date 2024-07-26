@@ -53,6 +53,17 @@ public class QueryCompilationContext
     /// </summary>
     public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
 
+    /// <summary>
+    ///     <para>
+    ///         Expressions on which EF.Constant was used. This will be later used to transform the parts into constants.
+    ///     </para>
+    ///     <para>
+    ///         This property is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    public virtual HashSet<string> ParametersToConstantize { get; } = new(StringComparer.Ordinal);
+
     private static readonly IReadOnlySet<string> EmptySet = new HashSet<string>();
 
     private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;

@@ -23,8 +23,8 @@ public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public SqlServerSqlNullabilityProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
+        : base(dependencies, parameters)
     {
     }
 
