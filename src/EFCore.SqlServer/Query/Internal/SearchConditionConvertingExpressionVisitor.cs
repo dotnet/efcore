@@ -378,6 +378,14 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             return result;
         }
 
+        if (sqlBinaryExpression.OperatorType is ExpressionType.NotEqual or ExpressionType.Equal
+            && newLeft is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } negatedLeft
+            && newRight is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } negatedRight)
+        {
+            newLeft = negatedLeft.Operand;
+            newRight = negatedRight.Operand;
+        }
+
         sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
         var condition = sqlBinaryExpression.OperatorType is ExpressionType.AndAlso
             or ExpressionType.OrElse
@@ -410,6 +418,12 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
                 {
                     var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
+
+                    if (negatedOperand is SqlUnaryExpression { OperatorType: ExpressionType.OnesComplement } unary)
+                    {
+                        return unary.Operand;
+                    }
+
                     return _sqlExpressionFactory.MakeUnary(
                         ExpressionType.OnesComplement,
                         negatedOperand,
