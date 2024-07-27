@@ -364,7 +364,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 result = _sqlExpressionFactory.Convert(result, typeof(bool), sqlBinaryExpression.TypeMapping);
             }
 
-            // "lhs == rhs" is the same as "NOT(lhs == rhs)" aka "lhs ^ rhs ^ 1"
+            // "lhs == rhs" is the same as "NOT(lhs != rhs)" aka "lhs ^ rhs ^ 1"
             if (sqlBinaryExpression.OperatorType is ExpressionType.Equal)
             {
                 result = _sqlExpressionFactory.MakeBinary(

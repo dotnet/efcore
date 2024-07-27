@@ -1099,7 +1099,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             ExpressionType.Or => " | ",
             ExpressionType.ExclusiveOr => " ^ ",
 
-            _ => throw new UnreachableException($"Unsupported unary OperatorType: {binaryExpression.OperatorType}")
+            _ => throw new UnreachableException($"Unsupported binary OperatorType: {binaryExpression.OperatorType}")
         };
 
     /// <summary>
