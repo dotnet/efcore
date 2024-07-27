@@ -364,13 +364,13 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 result = _sqlExpressionFactory.Convert(result, typeof(bool), sqlBinaryExpression.TypeMapping);
             }
 
-            // "lhs == rhs" is the same as "NOT(lhs != rhs)" aka "lhs ^ rhs ^ 1"
+            // "lhs == rhs" is the same as "NOT(lhs != rhs)" aka "~(lhs ^ rhs)"
             if (sqlBinaryExpression.OperatorType is ExpressionType.Equal)
             {
-                result = _sqlExpressionFactory.MakeBinary(
-                    ExpressionType.ExclusiveOr,
+                result = _sqlExpressionFactory.MakeUnary(
+                    ExpressionType.OnesComplement,
                     result,
-                    _sqlExpressionFactory.Constant(true, result.TypeMapping),
+                    result.Type,
                     result.TypeMapping
                 )!;
             }
@@ -410,10 +410,10 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 if (!_isSearchCondition && sqlUnaryExpression.Operand is not (ExistsExpression or InExpression or LikeExpression))
                 {
                     var negatedOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
-                    return _sqlExpressionFactory.MakeBinary(
-                        ExpressionType.ExclusiveOr,
+                    return _sqlExpressionFactory.MakeUnary(
+                        ExpressionType.OnesComplement,
                         negatedOperand,
-                        _sqlExpressionFactory.Constant(true, negatedOperand.TypeMapping),
+                        negatedOperand.Type,
                         negatedOperand.TypeMapping
                     )!;
                 }
