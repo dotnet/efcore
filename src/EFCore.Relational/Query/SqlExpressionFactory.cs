@@ -148,6 +148,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
             case ExpressionType.Not:
             case ExpressionType.Negate:
+            case ExpressionType.OnesComplement:
                 resultTypeMapping = typeMapping;
                 // While Not is logical, negate is numeric hence we use clrType from TypeMapping
                 resultType = resultTypeMapping?.ClrType ?? sqlUnaryExpression.Type;

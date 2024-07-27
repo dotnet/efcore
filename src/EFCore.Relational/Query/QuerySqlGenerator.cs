@@ -881,6 +881,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 break;
             }
 
+            case ExpressionType.OnesComplement:
             case ExpressionType.Not:
             {
                 _relationalCommandBuilder.Append("~");
