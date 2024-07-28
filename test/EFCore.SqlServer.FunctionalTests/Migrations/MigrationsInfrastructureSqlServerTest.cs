@@ -985,9 +985,11 @@ GO
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning))
-                .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
+                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
+                    .ConfigureWarnings(
+                        e => e.Log(
+                            RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
+                    .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
@@ -1078,9 +1080,11 @@ SELECT @result
         {
             using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
-                .ConfigureWarnings(e => e.Log(RelationalEventId.PendingModelChangesWarning))
-                .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
+                        new DbContextOptionsBuilder().EnableServiceProviderCaching(false))
+                    .ConfigureWarnings(
+                        e => e.Log(
+                            RelationalEventId.PendingModelChangesWarning, RelationalEventId.NonTransactionalMigrationOperationWarning))
+                    .UseLoggerFactory(Fixture.TestSqlLoggerFactory).Options);
 
             context.Database.EnsureDeleted();
             GiveMeSomeTime(context);
