@@ -238,8 +238,9 @@ OFFSET 0 LIMIT 1
             async, async a =>
             {
                 await base.FirstOrDefault(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 ORDER BY c["ContactName"]
@@ -307,8 +308,9 @@ OFFSET 0 LIMIT 2
             async, async a =>
             {
                 await base.Where_FirstOrDefault(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["City"] = "London")
@@ -1523,8 +1525,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["EmployeeID"])
             async, async a =>
             {
                 await base.Contains_with_local_array_inline(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN ("ABCDE", "ALFKI")
@@ -1552,8 +1555,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_object_list_closure(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1567,8 +1571,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_list_closure_all_null(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='[null,null]'
 
 SELECT VALUE c
@@ -1582,8 +1587,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_list_inline(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN ("ABCDE", "ALFKI")
@@ -1595,8 +1601,9 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
             async, async a =>
             {
                 await base.Contains_with_local_list_inline_closure_mix(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__p_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1657,8 +1664,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_enumerable_closure_all_null(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='[]'
 
 SELECT VALUE c
@@ -1672,8 +1680,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_enumerable_inline(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE EXISTS (
@@ -1688,8 +1697,9 @@ WHERE EXISTS (
             async, async a =>
             {
                 await base.Contains_with_local_enumerable_inline_closure_mix(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__p_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1741,8 +1751,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_object_ordered_enumerable_closure(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1756,8 +1767,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_ordered_enumerable_closure_all_null(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='[null,null]'
 
 SELECT VALUE c
@@ -1771,8 +1783,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_ordered_enumerable_inline(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN ("ABCDE", "ALFKI")
@@ -1808,8 +1821,9 @@ WHERE ARRAY_CONTAINS(@__Order_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_read_only_collection_closure(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1831,8 +1845,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_object_read_only_collection_closure(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1846,8 +1861,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_ordered_read_only_collection_all_null(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='[null,null]'
 
 SELECT VALUE c
@@ -1861,8 +1877,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_read_only_collection_inline(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN ("ABCDE", "ALFKI")
@@ -1874,8 +1891,9 @@ WHERE c["id"] IN ("ABCDE", "ALFKI")
             async, async a =>
             {
                 await base.Contains_with_local_read_only_collection_inline_closure_mix(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__AsReadOnly_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1897,8 +1915,9 @@ WHERE ARRAY_CONTAINS(@__AsReadOnly_0, c["id"])
             async, async a =>
             {
                 await base.Contains_with_local_collection_false(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1928,8 +1947,9 @@ WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) AND ARRAY_CONTAINS(@__ids_0,
             async, async a =>
             {
                 await base.Contains_with_local_collection_complex_predicate_or(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1943,8 +1963,9 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) OR ((c["id"] = "ALFKI") OR (c["id"] = "
             async, async a =>
             {
                 await base.Contains_with_local_collection_complex_predicate_not_matching_ins1(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1958,8 +1979,9 @@ WHERE (((c["id"] = "ALFKI") OR (c["id"] = "ABCDE")) OR NOT(ARRAY_CONTAINS(@__ids
             async, async a =>
             {
                 await base.Contains_with_local_collection_complex_predicate_not_matching_ins2(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI"]'
 
 SELECT VALUE c
@@ -1973,8 +1995,9 @@ WHERE (ARRAY_CONTAINS(@__ids_0, c["id"]) AND ((c["id"] != "ALFKI") AND (c["id"] 
             async, async a =>
             {
                 await base.Contains_with_local_collection_sql_injection(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ALFKI","ABC')); GO; DROP TABLE Orders; GO; --"]'
 
 SELECT VALUE c
@@ -2150,8 +2173,9 @@ SELECT VALUE EXISTS (
             async, async a =>
             {
                 await base.List_Contains_with_constant_list(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN ("ALFKI", "ANATR")
@@ -2205,8 +2229,9 @@ WHERE ((c["Discriminator"] = "Order") AND c["OrderID"] IN (10248, 10249))
             async, async a =>
             {
                 await base.IImmutableSet_Contains_with_parameter(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["id"] = "ALFKI")
@@ -2218,8 +2243,9 @@ WHERE (c["id"] = "ALFKI")
             async, async a =>
             {
                 await base.IReadOnlySet_Contains_with_parameter(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE (c["id"] = "ALFKI")
@@ -2231,8 +2257,9 @@ WHERE (c["id"] = "ALFKI")
             async, async a =>
             {
                 await base.HashSet_Contains_with_parameter(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ALFKI"]'
 
 SELECT VALUE c
@@ -2246,8 +2273,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.ImmutableHashSet_Contains_with_parameter(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ALFKI"]'
 
 SELECT VALUE c
@@ -2334,8 +2362,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Where_subquery_any_equals(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] IN ("ABCDE", "ALFKI", "ANATR")
@@ -2363,8 +2392,9 @@ WHERE ARRAY_CONTAINS(@__ids_0, c["id"])
             async, async a =>
             {
                 await base.Where_subquery_where_any(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
@@ -2386,8 +2416,9 @@ WHERE ((c["City"] = "México D.F.") AND ARRAY_CONTAINS(@__ids_0, c["id"]))
             async, async a =>
             {
                 await base.Where_subquery_all_not_equals_operator(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
@@ -2401,8 +2432,9 @@ WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
             async, async a =>
             {
                 await base.Where_subquery_all_not_equals(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE c
 FROM root c
 WHERE c["id"] NOT IN ("ABCDE", "ALFKI", "ANATR")
@@ -2414,8 +2446,9 @@ WHERE c["id"] NOT IN ("ABCDE", "ALFKI", "ANATR")
             async, async a =>
             {
                 await base.Where_subquery_all_not_equals_static(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
@@ -2429,8 +2462,9 @@ WHERE NOT(ARRAY_CONTAINS(@__ids_0, c["id"]))
             async, async a =>
             {
                 await base.Where_subquery_where_all(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 @__ids_0='["ABCDE","ALFKI","ANATR"]'
 
 SELECT VALUE c
@@ -2452,8 +2486,9 @@ WHERE ((c["City"] = "México D.F.") AND NOT(ARRAY_CONTAINS(@__ids_0, c["id"])))
             async, async a =>
             {
                 await base.Cast_to_same_Type_Count_works(a);
-AssertSql(
-    """
+
+                AssertSql(
+                    """
 SELECT VALUE COUNT(1)
 FROM root c
 """);

@@ -1497,7 +1497,6 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<Branch>(
                 eb =>
                 {
-                    eb.ToContainer("OwnedPeople");
                     eb.HasData(
                         new
                         {
@@ -1547,7 +1546,6 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<LeafA>(
                 eb =>
                 {
-                    eb.ToContainer("OwnedPeople");
                     eb.HasData(
                         new
                         {
@@ -1585,7 +1583,6 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder.Entity<LeafB>(
                 eb =>
                 {
-                    eb.ToContainer("OwnedPeople");
                     eb.HasData(
                         new
                         {
@@ -1715,12 +1712,10 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
 
             modelBuilder
                 .Entity<HydrogenBalloon>()
-                .ToContainer("Balloons")
                 .OwnsOne(e => e.Gas);
 
             modelBuilder
                 .Entity<HeliumBalloon>()
-                .ToContainer("Balloons")
                 .OwnsOne(e => e.Gas);
         }
     }

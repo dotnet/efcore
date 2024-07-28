@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class ReadItemPartitionKeyQueryNoDiscriminatorInIdTest
@@ -828,34 +826,5 @@ OFFSET 0 LIMIT 2
     {
         protected override string StoreName
             => "PartitionKeyQueryNoDiscriminatorInIdTest";
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<DerivedHierarchicalPartitionKeyEntity>()
-                .ToContainer(nameof(HierarchicalPartitionKeyEntity))
-                .HasPartitionKey(h => new { h.PartitionKey1, h.PartitionKey2, h.PartitionKey3 })
-                .HasDiscriminator<string>("Discriminator").IsComplete();
-
-            modelBuilder.Entity<DerivedSinglePartitionKeyEntity>()
-                .ToContainer(nameof(SinglePartitionKeyEntity))
-                .HasPartitionKey(h => h.PartitionKey)
-                .HasDiscriminator<string>("Discriminator").IsComplete();
-
-            modelBuilder.Entity<DerivedOnlyHierarchicalPartitionKeyEntity>()
-                .ToContainer(nameof(HierarchicalPartitionKeyEntity))
-                .HasPartitionKey(h => new { h.PartitionKey1, h.PartitionKey2, h.PartitionKey3 })
-                .HasDiscriminator<string>("Discriminator").IsComplete();
-
-            modelBuilder.Entity<DerivedOnlySinglePartitionKeyEntity>()
-                .ToContainer(nameof(OnlySinglePartitionKeyEntity))
-                .HasPartitionKey(h => h.PartitionKey)
-                .HasDiscriminator<string>("Discriminator").IsComplete();
-
-            modelBuilder.Entity<DerivedNoPartitionKeyEntity>()
-                .ToContainer(nameof(NoPartitionKeyEntity))
-                .HasDiscriminator<string>("Discriminator").IsComplete();
-        }
     }
 }

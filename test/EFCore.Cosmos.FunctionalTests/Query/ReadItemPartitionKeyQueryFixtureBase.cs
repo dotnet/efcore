@@ -64,9 +64,7 @@ public class ReadItemPartitionKeyQueryFixtureBase : SharedStoreFixtureBase<DbCon
             .HasPartitionKey(e => e.PartitionKey)
             .HasKey(e => new { e.Id, e.PartitionKey });
 
-        modelBuilder.Entity<SharedContainerEntity2Child>()
-            .IncludeRootDiscriminatorInJsonId()
-            .HasPartitionKey(e => e.PartitionKey);
+        modelBuilder.Entity<SharedContainerEntity2Child>();
     }
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

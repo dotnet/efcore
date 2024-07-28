@@ -285,6 +285,17 @@ public class ReadItemPartitionKeyQueryInheritanceFixtureBase : ReadItemPartition
                 }
             };
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+    {
+        base.OnModelCreating(modelBuilder, context);
+
+        modelBuilder.Entity<DerivedHierarchicalPartitionKeyEntity>();
+        modelBuilder.Entity<DerivedSinglePartitionKeyEntity>();
+        modelBuilder.Entity<DerivedOnlyHierarchicalPartitionKeyEntity>();
+        modelBuilder.Entity<DerivedOnlySinglePartitionKeyEntity>();
+        modelBuilder.Entity<DerivedNoPartitionKeyEntity>();
+    }
 }
 
 public class DerivedHierarchicalPartitionKeyEntity : HierarchicalPartitionKeyEntity
