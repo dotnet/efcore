@@ -3340,7 +3340,7 @@ SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthNa
 FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NULL THEN NULL
-    ELSE "g"."LeaderNickname" LIKE '%us' AND "g"."LeaderNickname" IS NOT NULL
+    ELSE "g"."LeaderNickname" LIKE '%us'
 END
 """);
     }
@@ -6766,11 +6766,7 @@ WHERE CASE
         SELECT "w"."Name"
         FROM "Weapons" AS "w"
         WHERE "w"."Id" = "g"."SquadId"
-        LIMIT 1) = @__prm2_1 AND (
-        SELECT "w"."Name"
-        FROM "Weapons" AS "w"
-        WHERE "w"."Id" = "g"."SquadId"
-        LIMIT 1) IS NOT NULL
+        LIMIT 1) = @__prm2_1
     ELSE 0
 END
 """);

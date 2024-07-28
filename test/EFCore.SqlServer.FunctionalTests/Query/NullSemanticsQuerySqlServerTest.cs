@@ -2823,7 +2823,7 @@ WHERE CASE
         END
         ELSE [e].[BoolC]
     END <> [e].[BoolB] THEN [e].[BoolA]
-    WHEN ([e].[NullableBoolB] = [e].[NullableBoolC] AND [e].[NullableBoolB] IS NOT NULL AND [e].[NullableBoolC] IS NOT NULL) OR ([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL) THEN CAST(1 AS bit)
+    WHEN [e].[NullableBoolB] = [e].[NullableBoolC] OR ([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """,
@@ -4342,7 +4342,7 @@ SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], 
 FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL THEN CASE
-        WHEN ([e].[NullableStringA] = [e].[NullableStringB] AND [e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
+        WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     WHEN ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
@@ -4361,7 +4361,7 @@ SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], 
 FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND [e].[NullableBoolC] IS NULL THEN CASE
-        WHEN ([e].[NullableStringA] = [e].[NullableStringB] AND [e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
+        WHEN [e].[NullableStringA] = [e].[NullableStringB] OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     WHEN ([e].[NullableStringA] <> [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)

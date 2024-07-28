@@ -956,7 +956,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] AS [g]
 WHERE CASE
     WHEN [g].[LeaderNickname] IS NULL THEN NULL
-    WHEN [g].[LeaderNickname] LIKE N'%us' AND [g].[LeaderNickname] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] LIKE N'%us' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
@@ -7708,10 +7708,7 @@ WHERE CASE
     WHEN [g].[HasSoulPatch] = @__prm_0 AND (
         SELECT TOP(1) [w].[Name]
         FROM [Weapons] AS [w]
-        WHERE [w].[Id] = [g].[SquadId]) = @__prm2_1 AND (
-        SELECT TOP(1) [w].[Name]
-        FROM [Weapons] AS [w]
-        WHERE [w].[Id] = [g].[SquadId]) IS NOT NULL THEN CAST(1 AS bit)
+        WHERE [w].[Id] = [g].[SquadId]) = @__prm2_1 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)
 """);
