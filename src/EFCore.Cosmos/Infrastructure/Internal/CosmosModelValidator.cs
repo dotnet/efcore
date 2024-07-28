@@ -41,6 +41,50 @@ public class CosmosModelValidator : ModelValidator
         ValidateSharedContainerCompatibility(model, logger);
         ValidateOnlyETagConcurrencyToken(model, logger);
         ValidateIndexes(model, logger);
+        ValidateCollectionElementTypes(model, logger);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void ValidateCollectionElementTypes(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            ValidateType(entityType, logger);
+        }
+
+        static void ValidateType(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
+            {
+                var typeMapping = property.GetElementType()?.GetTypeMapping();
+                while (typeMapping != null)
+                {
+                    if (typeMapping.Converter != null)
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.ElementWithValueConverter(
+                                property.ClrType.ShortDisplayName(),
+                                typeBase.ShortName(),
+                                property.Name,
+                                typeMapping.ClrType.ShortDisplayName()));
+                    }
+
+                    typeMapping = typeMapping.ElementTypeMapping;
+                }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                ValidateType(complexProperty.ComplexType, logger);
+            }
+        }
     }
 
     /// <summary>

@@ -86,6 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType1, discriminatorValue, entityType2, container);
 
         /// <summary>
+        ///     The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.
+        /// </summary>
+        public static string ElementWithValueConverter(object? propertyType, object? structuralType, object? property, object? elementType)
+            => string.Format(
+                GetString("ElementWithValueConverter", nameof(propertyType), nameof(structuralType), nameof(property), nameof(elementType)),
+                propertyType, structuralType, property, elementType);
+
+        /// <summary>
         ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.
         /// </summary>
         public static string ETagNonStringStoreType(object? property, object? entityType, object? propertyType)

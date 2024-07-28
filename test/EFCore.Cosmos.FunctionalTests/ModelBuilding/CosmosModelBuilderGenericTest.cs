@@ -11,6 +11,30 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 {
     public class CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture) : NonRelationshipTestBase(fixture), IClassFixture<CosmosModelBuilderFixture>
     {
+        // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+        public override void Element_types_can_have_custom_type_value_converter_type_set()
+            => Assert.Equal(
+                CosmosStrings.ElementWithValueConverter("int[]", "CollectionQuarks", "Charm", "int"),
+                Assert.Throws<InvalidOperationException>(base.Element_types_can_have_custom_type_value_converter_type_set).Message);
+
+        // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+        public override void Element_types_can_have_non_generic_value_converter_set()
+            => Assert.Equal(
+                CosmosStrings.ElementWithValueConverter("int[]", "CollectionQuarks", "Charm", "int"),
+                Assert.Throws<InvalidOperationException>(base.Element_types_can_have_non_generic_value_converter_set).Message);
+
+        // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+        public override void Element_types_can_have_provider_type_set()
+            => Assert.Equal(
+                CosmosStrings.ElementWithValueConverter("List<int>", "CollectionQuarks", "Charm", "int"),
+                Assert.Throws<InvalidOperationException>(base.Element_types_can_have_provider_type_set).Message);
+
+        // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+        public override void Primitive_collections_can_have_value_converter_set()
+            => Assert.Equal(
+                CosmosStrings.ElementWithValueConverter("List<int>", "CollectionQuarks", "Charm", "int"),
+                Assert.Throws<InvalidOperationException>(base.Primitive_collections_can_have_value_converter_set).Message);
+
         public override void Can_add_contained_indexes()
             => Assert.Equal(
                 CosmosStrings.IndexesExist(nameof(Customer), "Id"),

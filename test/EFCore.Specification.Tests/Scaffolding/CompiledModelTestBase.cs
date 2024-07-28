@@ -676,7 +676,7 @@ namespace TestNamespace
 
         var nestedComplexType = complexType.FindComplexProperty(nameof(OwnedType.Principal))!.ComplexType;
 
-        Assert.Equal(14, nestedComplexType.GetProperties().Count());
+        Assert.Equal(ExpectedComplexTypeProperties, nestedComplexType.GetProperties().Count());
 
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
         Assert.Equal(principalBase, principalDerived.BaseType);
@@ -685,6 +685,9 @@ namespace TestNamespace
             [principalBase, principalDerived],
             model.GetEntityTypes());
     }
+
+    protected virtual int ExpectedComplexTypeProperties
+        => 14;
 
     public class CustomValueComparer<T> : ValueComparer<T>
     {

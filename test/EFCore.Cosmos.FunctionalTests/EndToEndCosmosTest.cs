@@ -794,7 +794,7 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
                 "1"
             });
 
-        // See #25343
+        // See #34026
         await Can_add_update_delete_with_collection(
             [
                 Discriminator.Base,
@@ -808,7 +808,12 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new List<Discriminator> { Discriminator.Base },
             modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<Discriminator>>>(
-                c => c.PrimitiveCollection(s => s.Collection)));
+                c =>
+                    c.Property(s => s.Collection)
+                        .HasConversion(
+                            m => m.Select(v => (int)v).ToList(), p => p.Select(v => (Discriminator)v).ToList(),
+                            new ListOfValueTypesComparer<List<Discriminator>, Discriminator>(
+                                ValueComparer.CreateDefault(typeof(Discriminator), false)))));
 
         await Can_add_update_delete_with_collection(
             [1f, 2],

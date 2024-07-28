@@ -2018,6 +2018,14 @@ WHERE ((c["Ints"][2] ?? 999) = 999)
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder.ConfigureWarnings(
                 w => w.Ignore(CosmosEventId.NoPartitionKeyDefined)));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            // Requires element type mapping; Issue #34026
+            modelBuilder.Entity<PrimitiveCollectionsEntity>().Ignore(e => e.Enums);
+        }
     }
 
     private void AssertSql(params string[] expected)

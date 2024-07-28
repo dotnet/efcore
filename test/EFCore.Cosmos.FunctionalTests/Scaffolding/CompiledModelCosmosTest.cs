@@ -154,6 +154,159 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
             eb => eb.ToContainer("Dependents"));
         modelBuilder.Entity<DependentDerived<byte?>>(
             eb => eb.HasDiscriminator().IsComplete(false));
+
+        modelBuilder.Entity<PrincipalBase>(
+            b =>
+            {
+                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+                b.Ignore(e => e.RefTypeList);
+                b.Ignore(e => e.RefTypeArray);
+                b.OwnsOne(
+                    e => e.Owned, b =>
+                    {
+                        b.Ignore(e => e.RefTypeArray);
+                        b.Ignore(e => e.RefTypeList);
+                    });
+
+            });
+
+        modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+            b =>
+            {
+                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+                b.OwnsMany(
+                    typeof(OwnedType).FullName!, "ManyOwned", b =>
+                    {
+                        b.Ignore("RefTypeArray");
+                        b.Ignore("RefTypeList");
+                    });
+            });
+
+        modelBuilder.Entity<ManyTypes>(
+            b =>
+            {
+                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+                b.Ignore(e => e.GuidArray);
+                b.Ignore(e => e.DateTimeArray);
+                b.Ignore(e => e.DateOnlyArray);
+                b.Ignore(e => e.TimeOnlyArray);
+                b.Ignore(e => e.TimeSpanArray);
+                b.Ignore(e => e.BytesArray);
+                b.Ignore(e => e.UriArray);
+                b.Ignore(e => e.IPAddressArray);
+                b.Ignore(e => e.PhysicalAddressArray);
+                b.Ignore(e => e.NullableGuidArray);
+                b.Ignore(e => e.NullableDateTimeArray);
+                b.Ignore(e => e.NullableDateOnlyArray);
+                b.Ignore(e => e.NullableTimeOnlyArray);
+                b.Ignore(e => e.NullableTimeSpanArray);
+                b.Ignore(e => e.NullableBytesArray);
+                b.Ignore(e => e.NullableUriArray);
+                b.Ignore(e => e.NullableIPAddressArray);
+                b.Ignore(e => e.NullablePhysicalAddressArray);
+                b.Ignore(e => e.Enum8Collection);
+                b.Ignore(e => e.Enum16Collection);
+                b.Ignore(e => e.Enum32Collection);
+                b.Ignore(e => e.Enum64Collection);
+                b.Ignore(e => e.EnumU8Collection);
+                b.Ignore(e => e.EnumU16Collection);
+                b.Ignore(e => e.EnumU32Collection);
+                b.Ignore(e => e.EnumU64Collection);
+                b.Ignore(e => e.Enum8AsStringCollection);
+                b.Ignore(e => e.Enum16AsStringCollection);
+                b.Ignore(e => e.Enum32AsStringCollection);
+                b.Ignore(e => e.Enum64AsStringCollection);
+                b.Ignore(e => e.EnumU8AsStringCollection);
+                b.Ignore(e => e.EnumU16AsStringCollection);
+                b.Ignore(e => e.EnumU32AsStringCollection);
+                b.Ignore(e => e.EnumU64AsStringCollection);
+                b.Ignore(e => e.NullableEnum8Collection);
+                b.Ignore(e => e.NullableEnum16Collection);
+                b.Ignore(e => e.NullableEnum32Collection);
+                b.Ignore(e => e.NullableEnum64Collection);
+                b.Ignore(e => e.NullableEnumU8Collection);
+                b.Ignore(e => e.NullableEnumU16Collection);
+                b.Ignore(e => e.NullableEnumU32Collection);
+                b.Ignore(e => e.NullableEnumU64Collection);
+                b.Ignore(e => e.NullableEnum8AsStringCollection);
+                b.Ignore(e => e.NullableEnum16AsStringCollection);
+                b.Ignore(e => e.NullableEnum32AsStringCollection);
+                b.Ignore(e => e.NullableEnum64AsStringCollection);
+                b.Ignore(e => e.NullableEnumU8AsStringCollection);
+                b.Ignore(e => e.NullableEnumU16AsStringCollection);
+                b.Ignore(e => e.NullableEnumU32AsStringCollection);
+                b.Ignore(e => e.NullableEnumU64AsStringCollection);
+                b.Ignore(e => e.Enum8Array);
+                b.Ignore(e => e.Enum16Array);
+                b.Ignore(e => e.Enum32Array);
+                b.Ignore(e => e.Enum64Array);
+                b.Ignore(e => e.EnumU8Array);
+                b.Ignore(e => e.EnumU16Array);
+                b.Ignore(e => e.EnumU32Array);
+                b.Ignore(e => e.EnumU64Array);
+                b.Ignore(e => e.Enum8AsStringArray);
+                b.Ignore(e => e.Enum16AsStringArray);
+                b.Ignore(e => e.Enum32AsStringArray);
+                b.Ignore(e => e.Enum64AsStringArray);
+                b.Ignore(e => e.EnumU8AsStringArray);
+                b.Ignore(e => e.EnumU16AsStringArray);
+                b.Ignore(e => e.EnumU32AsStringArray);
+                b.Ignore(e => e.EnumU64AsStringArray);
+                b.Ignore(e => e.NullableEnum8Array);
+                b.Ignore(e => e.NullableEnum16Array);
+                b.Ignore(e => e.NullableEnum32Array);
+                b.Ignore(e => e.NullableEnum64Array);
+                b.Ignore(e => e.NullableEnumU8Array);
+                b.Ignore(e => e.NullableEnumU16Array);
+                b.Ignore(e => e.NullableEnumU32Array);
+                b.Ignore(e => e.NullableEnumU64Array);
+                b.Ignore(e => e.NullableEnum8AsStringArray);
+                b.Ignore(e => e.NullableEnum16AsStringArray);
+                b.Ignore(e => e.NullableEnum32AsStringArray);
+                b.Ignore(e => e.NullableEnum64AsStringArray);
+                b.Ignore(e => e.NullableEnumU8AsStringArray);
+                b.Ignore(e => e.NullableEnumU16AsStringArray);
+                b.Ignore(e => e.NullableEnumU32AsStringArray);
+                b.Ignore(e => e.NullableEnumU64AsStringArray);
+                b.Ignore(e => e.BytesNestedCollection);
+                b.Ignore(e => e.NullableBytesNestedCollection);
+                b.Ignore(e => e.Enum8NestedCollection);
+                b.Ignore(e => e.Enum32NestedCollection);
+                b.Ignore(e => e.EnumU64NestedCollection);
+                b.Ignore(e => e.NullableEnum8NestedCollection);
+                b.Ignore(e => e.NullableEnum32NestedCollection);
+                b.Ignore(e => e.NullableEnumU64NestedCollection);
+                b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
+                b.Ignore(e => e.GuidNestedCollection);
+                b.Ignore(e => e.NullableGuidNestedCollection);
+                b.Ignore(e => e.UInt8NestedCollection);
+                b.Ignore(e => e.NullableUInt8NestedCollection);
+            });
+    }
+
+    protected override void BuildComplexTypesModel(ModelBuilder modelBuilder)
+    {
+        base.BuildComplexTypesModel(modelBuilder);
+
+        modelBuilder.Entity<PrincipalBase>(
+            b =>
+            {
+                // Cosmos provider cannot map collections of elements with converters. See Issue #34026.
+                b.Ignore(e => e.RefTypeList);
+                b.Ignore(e => e.RefTypeArray);
+                b.ComplexProperty(
+                    c => c.Owned, b =>
+                    {
+                        b.Ignore(e => e.RefTypeArray);
+                        b.Ignore(e => e.RefTypeList);
+                        b.ComplexProperty(c => c.Principal, b =>
+                        {
+                            b.Ignore(e => e.RefTypeList);
+                            b.Ignore(e => e.RefTypeArray);
+                        });
+                    });
+
+            });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -163,6 +316,9 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
         Assert.Equal("PrincipalDerived", principalDerived.GetDiscriminatorValue());
     }
+
+    protected override int ExpectedComplexTypeProperties
+        => 12;
 
     protected override TestHelpers TestHelpers => CosmosTestHelpers.Instance;
     protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;

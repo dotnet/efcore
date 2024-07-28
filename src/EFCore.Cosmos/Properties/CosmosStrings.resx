@@ -144,6 +144,9 @@
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.</value>
   </data>
+  <data name="ElementWithValueConverter" xml:space="preserve">
+    <value>The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.</value>
+  </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
     <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
   </data>
