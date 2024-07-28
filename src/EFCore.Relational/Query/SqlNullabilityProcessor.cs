@@ -531,7 +531,7 @@ public class SqlNullabilityProcessor
                 continue;
             }
 
-            var newResult = Visit(whenClause.Result, out var resultNullable);
+            var newResult = Visit(whenClause.Result, allowOptimizedExpansion, out var resultNullable);
 
             nullable |= resultNullable;
             whenClauses.Add(new CaseWhenClause(test, newResult));
@@ -554,7 +554,7 @@ public class SqlNullabilityProcessor
         SqlExpression? elseResult = null;
         if (!testEvaluatesToTrue)
         {
-            elseResult = Visit(caseExpression.ElseResult, out var elseResultNullable);
+            elseResult = Visit(caseExpression.ElseResult, allowOptimizedExpansion, out var elseResultNullable);
             nullable |= elseResultNullable;
 
             // if there is no 'else' there is a possibility of null, when none of the conditions are met
