@@ -1904,6 +1904,30 @@ END
 """);
     }
 
+    public override async Task Compare_simple_expression(bool async)
+    {
+        await base.Compare_simple_expression(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] + [e].[IntB] <> [e].[IntC] OR [e].[NullableIntA] IS NULL
+""");
+    }
+
+    public override async Task Compare_complex_expression_not_duplicated(bool async)
+    {
+        await base.Compare_complex_expression_not_duplicated(async);
+
+        AssertSql(
+            """
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] + [e].[NullableIntB] <> [e].[IntC] OR [e].[NullableIntA] IS NULL OR [e].[NullableIntB] IS NULL
+""");
+    }
+
     public override async Task Compare_nullable_with_null_parameter_equal(bool async)
     {
         await base.Compare_nullable_with_null_parameter_equal(async);
