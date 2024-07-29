@@ -1612,10 +1612,33 @@ public class SqlNullabilityProcessor : ExpressionVisitor
         // doing a full null semantics rewrite - removing all nulls from truth table
         nullable = false;
 
-        // (a == b && (a != null && b != null)) || (a == null && b == null)
-        body = _sqlExpressionFactory.OrElse(
-            _sqlExpressionFactory.AndAlso(body, _sqlExpressionFactory.AndAlso(leftIsNotNull, rightIsNotNull)),
-            _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull));
+        var originallyNotEqual = sqlBinaryExpression.OperatorType == ExpressionType.NotEqual;
+        var bodyNotEqual = body is SqlBinaryExpression { OperatorType: ExpressionType.NotEqual };
+
+        // When both operands are nullable, the CASE transformation is invalid.
+        // We also use the generic transformation when it simplifies to one of:
+        //  - a == b && (a != null)
+        //  - a == b && (b != null)
+        //  - a == b || (a == null)
+        //  - a == b || (b == null)
+        // as these expressions can use indexes on a and/or on b.
+        if (leftNullable && rightNullable || originallyNotEqual == bodyNotEqual)
+        {
+            // (a == b && (a != null && b != null)) || (a == null && b == null)
+            body = _sqlExpressionFactory.OrElse(
+                _sqlExpressionFactory.AndAlso(body, _sqlExpressionFactory.AndAlso(leftIsNotNull, rightIsNotNull)),
+                _sqlExpressionFactory.AndAlso(leftIsNull, rightIsNull));
+        }
+        else
+        {
+            // When only one of the operands is nullable, we avoid duplicating
+            // complex expressions by performing the following transformation:
+            // a == b -> CASE WHEN a == b THEN TRUE ELSE FALSE END
+            body = _sqlExpressionFactory.Case(
+                [new(body, _sqlExpressionFactory.Constant(true, body.Type, body.TypeMapping))],
+                _sqlExpressionFactory.Constant(false, body.Type, body.TypeMapping));
+        }
+
 
         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
         {
