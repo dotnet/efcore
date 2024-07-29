@@ -711,7 +711,7 @@ WHERE [g].[Rank] | 2 > 0
 
         AssertSql(
             """
-SELECT TOP(1) CAST(([g].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [BitwiseTrue], CAST(([g].[Rank] & 2) ^ 4 AS bit) ^ CAST(1 AS bit) AS [BitwiseFalse], [g].[Rank] & 2 AS [BitwiseValue]
+SELECT TOP(1) ~CAST(([g].[Rank] & 2) ^ 2 AS bit) AS [BitwiseTrue], ~CAST(([g].[Rank] & 2) ^ 4 AS bit) AS [BitwiseFalse], [g].[Rank] & 2 AS [BitwiseValue]
 FROM [Gears] AS [g]
 WHERE [g].[Rank] & 2 = 2
 """);
@@ -910,7 +910,7 @@ WHERE [g].[Rank] & @__parameter_0 = @__parameter_0
 
         AssertSql(
             """
-SELECT TOP(1) CAST(([g].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [hasFlagTrue], CAST(([g].[Rank] & 4) ^ 4 AS bit) ^ CAST(1 AS bit) AS [hasFlagFalse]
+SELECT TOP(1) ~CAST(([g].[Rank] & 2) ^ 2 AS bit) AS [hasFlagTrue], ~CAST(([g].[Rank] & 4) ^ 4 AS bit) AS [hasFlagFalse]
 FROM [Gears] AS [g]
 WHERE [g].[Rank] & 2 = 2
 """);
@@ -958,7 +958,7 @@ WHERE EXISTS (
 
         AssertSql(
             """
-SELECT [w].[Id], [w].[IsAutomatic] ^ CAST(1 AS bit) AS [Manual]
+SELECT [w].[Id], ~[w].[IsAutomatic] AS [Manual]
 FROM [Weapons] AS [w]
 WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 """);
@@ -970,7 +970,7 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [f].[Id], [l].[Eradicated] ^ CAST(1 AS bit) AS [Alive]
+SELECT [f].[Id], ~[l].[Eradicated] AS [Alive]
 FROM [Factions] AS [f]
 INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]
 """);
@@ -1288,7 +1288,7 @@ FROM [Gears] AS [g]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] AS [g]
 """);
@@ -1422,7 +1422,7 @@ LEFT JOIN [Cities] AS [c] ON [s].[AssignedCityName] = [c].[Name]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] AS [g]
 """);
@@ -5933,10 +5933,10 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s0].[Id], [s0].[Nickname]
 
         AssertSql(
             """
-SELECT CASE
+SELECT ~CASE
     WHEN [s].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE COALESCE([s].[HasSoulPatch], CAST(1 AS bit))
-END ^ CAST(1 AS bit) AS [c]
+END AS [c]
 FROM [Tags] AS [t]
 LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
@@ -7181,12 +7181,12 @@ ORDER BY [s].[Id], [s0].[Nickname], [s0].[SquadId]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] AS [g]
 ORDER BY CASE
     WHEN CASE
-        WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+        WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -8486,14 +8486,14 @@ WHERE [g].[Rank] & @__ranks_0 <> 0
             """
 @__ranks_0='134'
 
-SELECT CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
 FROM [Gears] AS [g]
 """,
             //
             """
 @__ranks_0='134'
 
-SELECT CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
 FROM [Gears] AS [g]
 """);
     }

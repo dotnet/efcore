@@ -2548,7 +2548,7 @@ ORDER BY [g].[Nickname], [g].[SquadId]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -2639,7 +2639,7 @@ WHERE 0 = 1
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
@@ -2985,7 +2985,7 @@ GROUP BY [g].[Rank]
 
         AssertSql(
             """
-SELECT [w].[Id], [w].[IsAutomatic] ^ CAST(1 AS bit) AS [Manual]
+SELECT [w].[Id], ~[w].[IsAutomatic] AS [Manual]
 FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
 WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 """);
@@ -2997,7 +2997,7 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [f].[Id], [f].[Eradicated] ^ CAST(1 AS bit) AS [Alive]
+SELECT [f].[Id], ~[f].[Eradicated] AS [Alive]
 FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
 """);
     }
@@ -3656,14 +3656,14 @@ WHERE [g].[Rank] & @__ranks_0 <> 0
             """
 @__ranks_0='134'
 
-SELECT CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(([g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """,
             //
             """
 @__ranks_0='134'
 
-SELECT CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(([g].[Rank] | [g].[Rank] | @__ranks_0 | [g].[Rank] | @__ranks_0) ^ @__ranks_0 AS bit)
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 """);
     }
@@ -4381,10 +4381,10 @@ ORDER BY [c].[Name], [w].[Id]
 
         AssertSql(
             """
-SELECT CASE
+SELECT ~CASE
     WHEN [g].[HasSoulPatch] = CAST(1 AS bit) THEN CAST(1 AS bit)
     ELSE COALESCE([g].[HasSoulPatch], CAST(1 AS bit))
-END ^ CAST(1 AS bit) AS [c]
+END AS [c]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
 LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
 """);
@@ -6984,7 +6984,7 @@ ORDER BY [g].[Nickname]
 
         AssertSql(
             """
-SELECT TOP(1) CAST(([g].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [BitwiseTrue], CAST(([g].[Rank] & 2) ^ 4 AS bit) ^ CAST(1 AS bit) AS [BitwiseFalse], [g].[Rank] & 2 AS [BitwiseValue]
+SELECT TOP(1) ~CAST(([g].[Rank] & 2) ^ 2 AS bit) AS [BitwiseTrue], ~CAST(([g].[Rank] & 2) ^ 4 AS bit) AS [BitwiseFalse], [g].[Rank] & 2 AS [BitwiseValue]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 WHERE [g].[Rank] & 2 = 2
 """);
@@ -8296,12 +8296,12 @@ FROM [Factions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [f]
         AssertSql(
             """
 SELECT CASE
-    WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
 END
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 ORDER BY CASE
     WHEN CASE
-        WHEN [g].[LeaderNickname] IS NOT NULL THEN CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit) ^ CAST(1 AS bit)
+        WHEN [g].[LeaderNickname] IS NOT NULL THEN ~CAST(CAST(LEN([g].[Nickname]) AS int) ^ 5 AS bit)
     END IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -9254,7 +9254,7 @@ ORDER BY [g0].[HasSoulPatch], [g0].[Nickname] DESC, [t].[Id], [g0].[SquadId], [g
 
         AssertSql(
             """
-SELECT TOP(1) CAST(([g].[Rank] & 2) ^ 2 AS bit) ^ CAST(1 AS bit) AS [hasFlagTrue], CAST(([g].[Rank] & 4) ^ 4 AS bit) ^ CAST(1 AS bit) AS [hasFlagFalse]
+SELECT TOP(1) ~CAST(([g].[Rank] & 2) ^ 2 AS bit) AS [hasFlagTrue], ~CAST(([g].[Rank] & 4) ^ 4 AS bit) AS [hasFlagFalse]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 WHERE [g].[Rank] & 2 = 2
 """);

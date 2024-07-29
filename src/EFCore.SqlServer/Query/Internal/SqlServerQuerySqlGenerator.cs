@@ -673,6 +673,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             SqlUnaryExpression sqlUnaryExpression => sqlUnaryExpression.OperatorType switch
             {
                 ExpressionType.Convert => (1300, false),
+                ExpressionType.OnesComplement => (1200, false),
                 ExpressionType.Not when sqlUnaryExpression.Type != typeof(bool) => (1200, false),
                 ExpressionType.Negate => (1100, false),
                 ExpressionType.Equal => (500, false), // IS NULL

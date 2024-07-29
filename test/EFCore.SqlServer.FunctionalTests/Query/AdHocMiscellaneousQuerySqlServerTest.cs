@@ -1676,7 +1676,7 @@ WHERE [e].[Id] = 1
         AssertSql(
             """
 SELECT CASE
-    WHEN [c0].[Id] IS NOT NULL THEN [c0].[Processed] ^ CAST(1 AS bit)
+    WHEN [c0].[Id] IS NOT NULL THEN ~[c0].[Processed]
 END AS [Processing]
 FROM [Carts] AS [c]
 LEFT JOIN [Configuration] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]

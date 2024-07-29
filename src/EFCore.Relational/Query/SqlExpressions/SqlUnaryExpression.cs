@@ -22,7 +22,8 @@ public class SqlUnaryExpression : SqlExpression
         ExpressionType.NotEqual,
         ExpressionType.Convert,
         ExpressionType.Not,
-        ExpressionType.Negate
+        ExpressionType.Negate,
+        ExpressionType.OnesComplement
     };
 
     internal static bool IsValidOperator(ExpressionType operatorType)
