@@ -2541,7 +2541,10 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
+    WHERE CASE
+        WHEN [o].[CustomerID] = [c].[CustomerID] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
     ORDER BY [c].[CustomerID]
 ) AS [o0]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -2554,7 +2557,10 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
+    WHERE CASE
+        WHEN [o].[CustomerID] = [c].[CustomerID] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
     ORDER BY [c].[CustomerID]
 ) AS [o0]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]

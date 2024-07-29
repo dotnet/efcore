@@ -368,7 +368,10 @@ FROM [Employees] AS [e]
 LEFT JOIN (
     SELECT [d].[Id], [d].[Device], [d].[EmployeeId]
     FROM [Devices] AS [d]
-    WHERE [d].[Device] <> N'foo' OR [d].[Device] IS NULL
+    WHERE CASE
+        WHEN [d].[Device] = N'foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [d0] ON [e].[Id] = [d0].[EmployeeId]
 ORDER BY [e].[Id]
 """);

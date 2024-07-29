@@ -2050,7 +2050,10 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING [o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        HAVING CASE
+            WHEN [o].[CustomerID] = N'ALFKI' THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);

@@ -422,13 +422,13 @@ SELECT COALESCE((
     SELECT TOP(1) COALESCE((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID] AND ([o0].[OrderID] <> (
-            SELECT COUNT(*)
-            FROM [Orders] AS [o1]
-            WHERE [c].[CustomerID] = [o1].[CustomerID]) OR (
-            SELECT COUNT(*)
-            FROM [Orders] AS [o1]
-            WHERE [c].[CustomerID] = [o1].[CustomerID]) IS NULL)
+        WHERE [o].[OrderID] = [o0].[OrderID] AND CASE
+            WHEN [o0].[OrderID] = (
+                SELECT COUNT(*)
+                FROM [Orders] AS [o1]
+                WHERE [c].[CustomerID] = [o1].[CustomerID]) THEN CAST(0 AS bit)
+            ELSE CAST(1 AS bit)
+        END = CAST(1 AS bit)
         ORDER BY [o0].[OrderID], [o0].[ProductID]), 0)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500
@@ -1271,7 +1271,10 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [c].[City]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] <> [o].[CustomerID] OR [o].[CustomerID] IS NULL
+    WHERE CASE
+        WHEN [c].[CustomerID] = [o].[CustomerID] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [o0]
 """);
     }
@@ -1287,7 +1290,10 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] <> [o].[CustomerID] OR [o].[CustomerID] IS NULL
+    WHERE CASE
+        WHEN [c].[CustomerID] = [o].[CustomerID] THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
     ORDER BY [c].[City], [o].[OrderID]
 ) AS [o0]
 """);
