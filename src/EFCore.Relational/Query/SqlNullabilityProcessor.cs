@@ -1825,7 +1825,7 @@ public class SqlNullabilityProcessor
         //  - a == b || (a == null)
         //  - a == b || (b == null)
         // as these expressions can use indexes on a and/or on b.
-        if (leftNullable && rightNullable || originallyNotEqual == bodyNotEqual)
+        if (leftNullable && rightNullable || (optimize && originallyNotEqual == bodyNotEqual))
         {
             // (a == b && (a != null && b != null)) || (a == null && b == null)
             body = _sqlExpressionFactory.OrElse(

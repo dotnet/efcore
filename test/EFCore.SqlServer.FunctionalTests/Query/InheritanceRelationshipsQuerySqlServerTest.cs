@@ -101,7 +101,10 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseReferencesOnBase] AS [b0] ON [b].[Id] = [b0].[BaseParentId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -117,7 +120,10 @@ FROM [BaseReferencesOnBase] AS [b]
 LEFT JOIN [BaseEntities] AS [b0] ON [b].[BaseParentId] = [b0].[Id]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b0].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b0].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -163,7 +169,10 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [ReferencesOnBase] AS [r] ON [b].[Id] = [r].[ParentId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [r].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -179,7 +188,10 @@ FROM [ReferencesOnBase] AS [r]
 LEFT JOIN [BaseEntities] AS [b] ON [r].[ParentId] = [b].[Id]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
-WHERE [r].[Name] <> N'Bar' OR [r].[Name] IS NULL
+WHERE CASE
+    WHEN [r].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [r].[Id], [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -225,7 +237,10 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
 LEFT JOIN [BaseCollectionsOnBase] AS [b2] ON [b].[Id] = [b2].[BaseParentId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id]
 """);
     }
@@ -241,7 +256,10 @@ FROM [BaseCollectionsOnBase] AS [b]
 LEFT JOIN [BaseEntities] AS [b0] ON [b].[BaseParentId] = [b0].[Id]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b0].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b0].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -287,7 +305,10 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
 LEFT JOIN [CollectionsOnBase] AS [c] ON [b].[Id] = [c].[ParentId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId], [b1].[Id]
 """);
     }
@@ -303,7 +324,10 @@ FROM [CollectionsOnBase] AS [c]
 LEFT JOIN [BaseEntities] AS [b] ON [c].[ParentId] = [b].[Id]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
-WHERE [c].[Name] <> N'Bar' OR [c].[Name] IS NULL
+WHERE CASE
+    WHEN [c].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [c].[Id], [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b1].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -390,7 +414,10 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseReferencesOnBase] AS [b0] ON [b].[Id] = [b0].[BaseParentId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity' AND ([b].[Name] <> N'Bar' OR [b].[Name] IS NULL)
+WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity' AND CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -406,7 +433,10 @@ FROM [BaseEntities] AS [b]
 LEFT JOIN [BaseReferencesOnDerived] AS [b0] ON [b].[Id] = [b0].[BaseParentId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b1] ON [b].[Id] = [b1].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b2] ON [b].[Id] = [b2].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity' AND ([b].[Name] <> N'Bar' OR [b].[Name] IS NULL)
+WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity' AND CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id], [b1].[BaseInheritanceRelationshipEntityId], [b1].[Id], [b2].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -426,7 +456,10 @@ LEFT JOIN (
 ) AS [b1] ON [b].[Id] = [b1].[DerivedInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b2] ON [b].[Id] = [b2].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b3] ON [b].[Id] = [b3].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity' AND ([b].[Name] <> N'Bar' OR [b].[Name] IS NULL)
+WHERE [b].[Discriminator] = N'DerivedInheritanceRelationshipEntity' AND CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b1].[Id], [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [b3].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -446,7 +479,10 @@ LEFT JOIN (
 ) AS [b1] ON [b].[BaseParentId] = [b1].[Id]
 LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b2] ON [b1].[Id] = [b2].[BaseInheritanceRelationshipEntityId]
 LEFT JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b3] ON [b1].[Id] = [b3].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b1].[Id], [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [b3].[DerivedInheritanceRelationshipEntityId]
 """);
     }
@@ -861,7 +897,10 @@ ORDER BY [b].[Id], [b0].[Id]
             """
 SELECT [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [b].[OwnedReferenceOnDerived_Id], [b].[OwnedReferenceOnDerived_Name]
 FROM [BaseEntities] AS [b]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """,
             //
@@ -869,7 +908,10 @@ ORDER BY [b].[Id]
 SELECT [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [b2].[Name], [b].[Id]
 FROM [BaseEntities] AS [b]
 INNER JOIN [BaseEntities_OwnedCollectionOnBase] AS [b2] ON [b].[Id] = [b2].[BaseInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """,
             //
@@ -877,7 +919,10 @@ ORDER BY [b].[Id]
 SELECT [b3].[DerivedInheritanceRelationshipEntityId], [b3].[Id], [b3].[Name], [b].[Id]
 FROM [BaseEntities] AS [b]
 INNER JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b3] ON [b].[Id] = [b3].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """,
             //
@@ -885,7 +930,10 @@ ORDER BY [b].[Id]
 SELECT [b4].[Id], [b4].[BaseParentId], [b4].[Discriminator], [b4].[Name], [b4].[DerivedProperty], [b].[Id]
 FROM [BaseEntities] AS [b]
 INNER JOIN [BaseCollectionsOnBase] AS [b4] ON [b].[Id] = [b4].[BaseParentId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """);
     }
@@ -899,7 +947,10 @@ ORDER BY [b].[Id]
 SELECT [b].[Id], [b].[BaseParentId], [b].[Discriminator], [b].[Name], [b].[DerivedProperty], [b0].[Id], [b0].[Discriminator], [b0].[Name], [b0].[BaseId], [b0].[OwnedReferenceOnBase_Id], [b0].[OwnedReferenceOnBase_Name], [b0].[OwnedReferenceOnDerived_Id], [b0].[OwnedReferenceOnDerived_Name]
 FROM [BaseCollectionsOnBase] AS [b]
 LEFT JOIN [BaseEntities] AS [b0] ON [b].[BaseParentId] = [b0].[Id]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id]
 """,
             //
@@ -908,7 +959,10 @@ SELECT [b3].[BaseInheritanceRelationshipEntityId], [b3].[Id], [b3].[Name], [b].[
 FROM [BaseCollectionsOnBase] AS [b]
 LEFT JOIN [BaseEntities] AS [b0] ON [b].[BaseParentId] = [b0].[Id]
 INNER JOIN [BaseEntities_OwnedCollectionOnBase] AS [b3] ON [b0].[Id] = [b3].[BaseInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id]
 """,
             //
@@ -917,7 +971,10 @@ SELECT [b4].[DerivedInheritanceRelationshipEntityId], [b4].[Id], [b4].[Name], [b
 FROM [BaseCollectionsOnBase] AS [b]
 LEFT JOIN [BaseEntities] AS [b0] ON [b].[BaseParentId] = [b0].[Id]
 INNER JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b4] ON [b0].[Id] = [b4].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id], [b0].[Id]
 """);
     }
@@ -992,7 +1049,10 @@ ORDER BY [c].[Id], [b].[Id]
             """
 SELECT [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [b].[OwnedReferenceOnDerived_Id], [b].[OwnedReferenceOnDerived_Name]
 FROM [BaseEntities] AS [b]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """,
             //
@@ -1000,7 +1060,10 @@ ORDER BY [b].[Id]
 SELECT [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [b2].[Name], [b].[Id]
 FROM [BaseEntities] AS [b]
 INNER JOIN [BaseEntities_OwnedCollectionOnBase] AS [b2] ON [b].[Id] = [b2].[BaseInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """,
             //
@@ -1008,7 +1071,10 @@ ORDER BY [b].[Id]
 SELECT [b3].[DerivedInheritanceRelationshipEntityId], [b3].[Id], [b3].[Name], [b].[Id]
 FROM [BaseEntities] AS [b]
 INNER JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b3] ON [b].[Id] = [b3].[DerivedInheritanceRelationshipEntityId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """,
             //
@@ -1016,7 +1082,10 @@ ORDER BY [b].[Id]
 SELECT [c].[Id], [c].[Name], [c].[ParentId], [b].[Id]
 FROM [BaseEntities] AS [b]
 INNER JOIN [CollectionsOnBase] AS [c] ON [b].[Id] = [c].[ParentId]
-WHERE [b].[Name] <> N'Bar' OR [b].[Name] IS NULL
+WHERE CASE
+    WHEN [b].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [b].[Id]
 """);
     }
@@ -1030,7 +1099,10 @@ ORDER BY [b].[Id]
 SELECT [c].[Id], [c].[Name], [c].[ParentId], [b].[Id], [b].[Discriminator], [b].[Name], [b].[BaseId], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [b].[OwnedReferenceOnDerived_Id], [b].[OwnedReferenceOnDerived_Name]
 FROM [CollectionsOnBase] AS [c]
 LEFT JOIN [BaseEntities] AS [b] ON [c].[ParentId] = [b].[Id]
-WHERE [c].[Name] <> N'Bar' OR [c].[Name] IS NULL
+WHERE CASE
+    WHEN [c].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [c].[Id], [b].[Id]
 """,
             //
@@ -1039,7 +1111,10 @@ SELECT [b2].[BaseInheritanceRelationshipEntityId], [b2].[Id], [b2].[Name], [c].[
 FROM [CollectionsOnBase] AS [c]
 LEFT JOIN [BaseEntities] AS [b] ON [c].[ParentId] = [b].[Id]
 INNER JOIN [BaseEntities_OwnedCollectionOnBase] AS [b2] ON [b].[Id] = [b2].[BaseInheritanceRelationshipEntityId]
-WHERE [c].[Name] <> N'Bar' OR [c].[Name] IS NULL
+WHERE CASE
+    WHEN [c].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [c].[Id], [b].[Id]
 """,
             //
@@ -1048,7 +1123,10 @@ SELECT [b3].[DerivedInheritanceRelationshipEntityId], [b3].[Id], [b3].[Name], [c
 FROM [CollectionsOnBase] AS [c]
 LEFT JOIN [BaseEntities] AS [b] ON [c].[ParentId] = [b].[Id]
 INNER JOIN [BaseEntities_OwnedCollectionOnDerived] AS [b3] ON [b].[Id] = [b3].[DerivedInheritanceRelationshipEntityId]
-WHERE [c].[Name] <> N'Bar' OR [c].[Name] IS NULL
+WHERE CASE
+    WHEN [c].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [c].[Id], [b].[Id]
 """);
     }
