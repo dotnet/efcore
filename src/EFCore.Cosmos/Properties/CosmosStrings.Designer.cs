@@ -32,6 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 ttl1, entityType1, entityType2, ttl2, container);
 
         /// <summary>
+        ///     The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.
+        /// </summary>
+        public static string BadDictionaryType(object? givenType, object? dictionaryType)
+            => string.Format(
+                GetString("BadDictionaryType", nameof(givenType), nameof(dictionaryType)),
+                givenType, dictionaryType);
+
+        /// <summary>
         ///     The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.
         /// </summary>
         public static string CanConnectNotSupported

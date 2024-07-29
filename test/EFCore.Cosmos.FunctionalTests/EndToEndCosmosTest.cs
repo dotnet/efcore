@@ -879,15 +879,13 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new List<byte?[]> { new byte?[] { 3, null }, null });
 
-        // TODO: Dictionary mapping Issue #29825
-        // await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
-        //     new Dictionary<string, string>[] { new() { { "1", null } } },
-        //     c =>
-        //     {
-        //         var dictionary = c.Collection[0]["3"] = "2";
-        //     },
-        //     new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } },
-        //     onModelBuilder: b => b.Entity<CustomerWithCollection<IReadOnlyList<Dictionary<string, string>>>>().PrimitiveCollection(e => e.Collection));
+        await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
+            new Dictionary<string, string>[] { new() { { "1", null } } },
+            c =>
+            {
+                var dictionary = c.Collection[0]["3"] = "2";
+            },
+            new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } });
 
         await Can_add_update_delete_with_collection(
             [[1f], [2]],
@@ -905,24 +903,49 @@ public class EndToEndCosmosTest : NonSharedModelTestBase
             },
             new[] { new decimal?[] { 1, 3 } });
 
-        // TODO: Dictionary mapping Issue #29825
-        // await Can_add_update_delete_with_collection(
-        //     new Dictionary<string, List<int>> { { "1", [1] } },
-        //     c =>
-        //     {
-        //         c.Collection["2"] = [3];
-        //     },
-        //     new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
+        await Can_add_update_delete_with_collection(
+            new Dictionary<string, List<int>> { { "1", [1] } },
+            c =>
+            {
+                c.Collection["2"] = [3];
+            },
+            new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
 
-        // TODO: Dictionary mapping Issue #29825
-        // await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
-        //     new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
-        //     c =>
-        //     {
-        //         c.Collection.Clear();
-        //         c.Collection["2"] = null;
-        //     },
-        //     new SortedDictionary<string, long?[]> { { "2", null } });
+        // Issue #34105
+        await Can_add_update_delete_with_collection(
+            new Dictionary<string, string[]> { { "1", ["1"] } },
+            c =>
+            {
+                c.Collection["2"] = ["3"];
+            },
+            new Dictionary<string, string[]> { { "1", ["1"] }, { "2", ["3"] } });
+
+        await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
+            c =>
+            {
+                c.Collection.Clear();
+                c.Collection["2"] = null;
+            },
+            new SortedDictionary<string, long?[]> { { "2", null } });
+
+        await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
+            new Dictionary<string, Dictionary<string, short?>>
+            {
+                { "2" , new Dictionary<string, short?> { { "value", 2 } } },
+                { "1" , new Dictionary<string, short?> { { "value", 1 } } }
+            },
+            c =>
+            {
+                c.Collection = new Dictionary<string, Dictionary<string, short?>>
+                {
+                    { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
+                };
+            },
+            new Dictionary<string, Dictionary<string, short?>>
+            {
+                { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
+            });
 
         await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
             ImmutableDictionary<string, Dictionary<string, short?>>.Empty
