@@ -739,7 +739,10 @@ WHERE [l0].[Name] = N'L2 05' OR [l1].[Name] = N'L2 07'
 SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] = N'L2 05' OR [l0].[Name] <> N'L2 42' OR [l0].[Name] IS NULL
+WHERE [l0].[Name] = N'L2 05' OR CASE
+    WHEN [l0].[Name] = N'L2 42' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -753,7 +756,10 @@ SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
-WHERE [l0].[Name] = N'L2 05' OR [l1].[Name] <> N'L2 42' OR [l1].[Name] IS NULL
+WHERE [l0].[Name] = N'L2 05' OR CASE
+    WHEN [l1].[Name] = N'L2 42' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -780,7 +786,10 @@ SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
-WHERE [l1].[Name] <> N'L3 05' OR [l1].[Name] IS NULL
+WHERE CASE
+    WHEN [l1].[Name] = N'L3 05' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -918,7 +927,10 @@ SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
-WHERE [l1].[Name] <> N'L3 05' OR [l1].[Name] IS NULL
+WHERE CASE
+    WHEN [l1].[Name] = N'L3 05' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -974,7 +986,10 @@ FROM [LevelOne] AS [l]
 CROSS JOIN [LevelTwo] AS [l0]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 INNER JOIN [LevelOne] AS [l2] ON [l0].[Level1_Required_Id] = [l2].[Id]
-WHERE [l1].[Name] = N'L2 01' OR [l2].[Name] <> N'Bar' OR [l2].[Name] IS NULL
+WHERE [l1].[Name] = N'L2 01' OR CASE
+    WHEN [l2].[Name] = N'Bar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -988,7 +1003,10 @@ SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
-WHERE [l1].[Name] = N'L3 05' OR [l0].[Name] <> N'L2 05' OR [l0].[Name] IS NULL
+WHERE [l1].[Name] = N'L3 05' OR CASE
+    WHEN [l0].[Name] = N'L2 05' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -1003,7 +1021,10 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Required_Id]
 LEFT JOIN [LevelThree] AS [l2] ON [l1].[Id] = [l2].[Level2_Optional_Id]
-WHERE [l0].[Name] <> N'L2 05' OR [l0].[Name] IS NULL OR [l2].[Name] = N'L3 05'
+WHERE CASE
+    WHEN [l0].[Name] = N'L2 05' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) OR [l2].[Name] = N'L3 05'
 """);
     }
 
@@ -1018,7 +1039,10 @@ FROM [LevelThree] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Level2_Optional_Id] = [l0].[Id]
 INNER JOIN [LevelTwo] AS [l1] ON [l].[Level2_Required_Id] = [l1].[Id]
 LEFT JOIN [LevelOne] AS [l2] ON [l1].[Level1_Optional_Id] = [l2].[Id]
-WHERE [l0].[Name] <> N'L2 05' OR [l0].[Name] IS NULL OR [l2].[Name] = N'L1 05'
+WHERE CASE
+    WHEN [l0].[Name] = N'L2 05' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) OR [l2].[Name] = N'L1 05'
 """);
     }
 
@@ -1033,7 +1057,10 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
 LEFT JOIN [LevelThree] AS [l2] ON [l0].[Id] = [l2].[Level2_Optional_Id]
-WHERE ([l1].[Id] = [l2].[Id] OR ([l1].[Id] IS NULL AND [l2].[Id] IS NULL)) AND ([l2].[Id] <> 7 OR [l2].[Id] IS NULL)
+WHERE ([l1].[Id] = [l2].[Id] OR ([l1].[Id] IS NULL AND [l2].[Id] IS NULL)) AND CASE
+    WHEN [l2].[Id] = 7 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -1048,7 +1075,13 @@ FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
 INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
 LEFT JOIN [LevelOne] AS [l2] ON [l0].[Level1_Optional_Id] = [l2].[Id]
-WHERE ([l1].[Id] <> [l2].[Id] OR [l2].[Id] IS NULL) AND ([l2].[Id] <> 7 OR [l2].[Id] IS NULL)
+WHERE CASE
+    WHEN [l1].[Id] = [l2].[Id] THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND CASE
+    WHEN [l2].[Id] = 7 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -1189,7 +1222,10 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] <> N'L2 05' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'L2 05' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -2138,7 +2174,10 @@ SELECT [l1].[Name]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
-WHERE [l1].[Name] <> N'L3 02' OR [l1].[Name] IS NULL
+WHERE CASE
+    WHEN [l1].[Name] = N'L3 02' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -2530,7 +2569,10 @@ INNER JOIN (
 SELECT TOP(@p) [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id]
 """);
     }
@@ -2546,7 +2588,10 @@ ORDER BY [l].[Id]
 SELECT TOP(@p) [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id]
 """);
     }
@@ -2562,7 +2607,10 @@ FROM (
     SELECT DISTINCT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-    WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+    WHERE CASE
+        WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [s]
 """);
     }
@@ -2576,7 +2624,10 @@ FROM (
 SELECT DISTINCT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -2593,7 +2644,10 @@ FROM (
     SELECT DISTINCT [l].[Id]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-    WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+    WHERE CASE
+        WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [s]
 ORDER BY [s].[Id]
 """);
@@ -2705,7 +2759,10 @@ ORDER BY [s].[Id]
 SELECT [l].[Id]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
-WHERE [l0].[Name] <> N'L1 07' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'L1 07' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -2733,7 +2790,10 @@ SELECT [l].[Id]
 FROM [LevelThree] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Optional_Inverse3Id] = [l0].[Id]
 LEFT JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
-WHERE ([l1].[Name] <> N'L1 07' OR [l1].[Name] IS NULL) AND [l1].[Id] IS NOT NULL
+WHERE CASE
+    WHEN [l1].[Name] = N'L1 07' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit) AND [l1].[Id] IS NOT NULL
 """);
     }
 
@@ -3250,7 +3310,10 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToOne_Optional_PK_Inverse2Id
 SELECT [l].[Id], [l].[Date], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse2Id], [l].[OneToMany_Optional_Self_Inverse2Id], [l].[OneToMany_Required_Inverse2Id], [l].[OneToMany_Required_Self_Inverse2Id], [l].[OneToOne_Optional_PK_Inverse2Id], [l].[OneToOne_Optional_Self2Id], [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToMany_Optional_Self_Inverse1Id], [l0].[OneToMany_Required_Self_Inverse1Id], [l0].[OneToOne_Optional_Self1Id]
 FROM [LevelTwo] AS [l]
 LEFT JOIN [LevelOne] AS [l0] ON [l].[Level1_Optional_Id] = [l0].[Id]
-WHERE [l0].[Name] <> N'Fubar' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'Fubar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -3263,7 +3326,10 @@ WHERE [l0].[Name] <> N'Fubar' OR [l0].[Name] IS NULL
 SELECT [l].[Id], [l].[Date], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse2Id], [l].[OneToMany_Optional_Self_Inverse2Id], [l].[OneToMany_Required_Inverse2Id], [l].[OneToMany_Required_Self_Inverse2Id], [l].[OneToOne_Optional_PK_Inverse2Id], [l].[OneToOne_Optional_Self2Id], [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToMany_Optional_Self_Inverse1Id], [l0].[OneToMany_Required_Self_Inverse1Id], [l0].[OneToOne_Optional_Self1Id]
 FROM [LevelTwo] AS [l]
 LEFT JOIN [LevelOne] AS [l0] ON [l].[Level1_Optional_Id] = [l0].[Id]
-WHERE [l0].[Name] <> N'Fubar' OR [l0].[Name] IS NULL
+WHERE CASE
+    WHEN [l0].[Name] = N'Fubar' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -3394,7 +3460,10 @@ FROM (
     SELECT DISTINCT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
     FROM [LevelOne] AS [l]
     LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-    WHERE [l0].[Name] <> N'Foo' OR [l0].[Name] IS NULL
+    WHERE CASE
+        WHEN [l0].[Name] = N'Foo' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit)
 ) AS [s]
 LEFT JOIN [LevelTwo] AS [l1] ON [s].[Id] = [l1].[Level1_Optional_Id]
 """);
@@ -3583,31 +3652,22 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id]
             """
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
-WHERE (
-    SELECT TOP(1) (
+WHERE CASE
+    WHEN (
         SELECT TOP(1) (
-            SELECT TOP(1) [l2].[Name]
-            FROM [LevelFour] AS [l2]
-            WHERE [l2].[Level3_Required_Id] = [l1].[Id]
-            ORDER BY [l2].[Id])
-        FROM [LevelThree] AS [l1]
-        WHERE [l1].[Level2_Required_Id] = [l0].[Id]
-        ORDER BY [l1].[Id])
-    FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Level1_Optional_Id] = [l].[Id]
-    ORDER BY [l0].[Id]) <> N'Foo' OR (
-    SELECT TOP(1) (
-        SELECT TOP(1) (
-            SELECT TOP(1) [l2].[Name]
-            FROM [LevelFour] AS [l2]
-            WHERE [l2].[Level3_Required_Id] = [l1].[Id]
-            ORDER BY [l2].[Id])
-        FROM [LevelThree] AS [l1]
-        WHERE [l1].[Level2_Required_Id] = [l0].[Id]
-        ORDER BY [l1].[Id])
-    FROM [LevelTwo] AS [l0]
-    WHERE [l0].[Level1_Optional_Id] = [l].[Id]
-    ORDER BY [l0].[Id]) IS NULL
+            SELECT TOP(1) (
+                SELECT TOP(1) [l2].[Name]
+                FROM [LevelFour] AS [l2]
+                WHERE [l2].[Level3_Required_Id] = [l1].[Id]
+                ORDER BY [l2].[Id])
+            FROM [LevelThree] AS [l1]
+            WHERE [l1].[Level2_Required_Id] = [l0].[Id]
+            ORDER BY [l1].[Id])
+        FROM [LevelTwo] AS [l0]
+        WHERE [l0].[Level1_Optional_Id] = [l].[Id]
+        ORDER BY [l0].[Id]) = N'Foo' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 ORDER BY [l].[Id]
 """);
     }
@@ -3999,7 +4059,10 @@ SELECT [l0].[Id] AS [Key], MAX([l].[Id]) AS [Max]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
 GROUP BY [l0].[Id]
-HAVING MAX([l].[Id]) <> 2 OR MAX([l].[Id]) IS NULL
+HAVING CASE
+    WHEN MAX([l].[Id]) = 2 THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -4050,12 +4113,12 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
 WHERE CASE
-    WHEN [l0].[Id] IS NULL THEN NULL
-    ELSE [l1].[Name]
-END <> N'L' OR CASE
-    WHEN [l0].[Id] IS NULL THEN NULL
-    ELSE [l1].[Name]
-END IS NULL
+    WHEN CASE
+        WHEN [l0].[Id] IS NULL THEN NULL
+        ELSE [l1].[Name]
+    END = N'L' THEN CAST(0 AS bit)
+    ELSE CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -4855,7 +4918,10 @@ SELECT [l].[Id], [s0].[Id], [s0].[RefId], [s0].[Id0], (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l3]
     INNER JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[OneToMany_Optional_Inverse3Id]
-    WHERE [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id] AND ([l4].[Name] <> N'' OR [l4].[Name] IS NULL))
+    WHERE [l].[Id] = [l3].[OneToMany_Optional_Inverse2Id] AND CASE
+        WHEN [l4].[Name] = N'' THEN CAST(0 AS bit)
+        ELSE CAST(1 AS bit)
+    END = CAST(1 AS bit))
 FROM [LevelOne] AS [l]
 OUTER APPLY (
     SELECT [s].[Id0] AS [Id], [l2].[Id] AS [RefId], [s].[Id] AS [Id0]
