@@ -1,19 +1,17 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public class ComplexNavigationsSharedTypeQuerySqlServerTest :
-    ComplexNavigationsSharedTypeQueryRelationalTestBase<ComplexNavigationsSharedTypeQuerySqlServerFixture>
+[SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+public class ComplexNavigationsSharedTypeQuerySqlServer160Test
+    : ComplexNavigationsSharedTypeQueryRelationalTestBase<ComplexNavigationsSharedTypeQuerySqlServer160Test.Fixture160>
 {
-    public ComplexNavigationsSharedTypeQuerySqlServerTest(
-        ComplexNavigationsSharedTypeQuerySqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
+    public ComplexNavigationsSharedTypeQuerySqlServer160Test(Fixture160 fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
@@ -36,7 +34,7 @@ public class ComplexNavigationsSharedTypeQuerySqlServerTest :
                           select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [s0].[Level3_Name]
     FROM (
@@ -78,14 +76,14 @@ WHERE [l].[Id] < 3
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      where l1.Id < 3
-                      select (from l3 in ss.Set<Level3>()
-                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  where l1.Id < 3
+                  select (from l3 in ss.Set<Level3>()
+                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [s].[Level3_Name]
     FROM (
@@ -6603,13 +6601,14 @@ WHERE (
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(bool async)
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
         AssertSql(
             """
-SELECT [l1].[Level1_Required_Id]
+SELECT GREATEST([l1].[Level1_Required_Id], 7)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
@@ -7765,7 +7764,7 @@ END = 0
         await AssertTranslationFailedWithDetails(
             () => base.GroupJoin_client_method_in_OrderBy(async),
             CoreStrings.QueryUnableToTranslateMethod(
-                "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsSharedTypeQuerySqlServerFixture>",
+                "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsSharedTypeQuerySqlServer160Test+Fixture160>",
                 "ClientMethodNullableInt"));
 
         AssertSql();
@@ -8520,4 +8519,13 @@ ORDER BY [l].[Id], [s0].[c], [s0].[Id0], [s0].[Id00]
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    public class Fixture160 : ComplexNavigationsSharedTypeQuerySqlServerFixture
+    {
+        protected override string StoreName
+            => "ComplexNavigationsOwned160";
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+    }
 }

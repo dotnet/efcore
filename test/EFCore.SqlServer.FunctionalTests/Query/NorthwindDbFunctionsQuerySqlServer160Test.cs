@@ -1,20 +1,17 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryRelationalTestBase<
-    NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+[SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+public class NorthwindDbFunctionsQuerySqlServer160Test
+    : NorthwindDbFunctionsQueryRelationalTestBase<NorthwindDbFunctionsQuerySqlServer160Test.Fixture160>
 {
-    public NorthwindDbFunctionsQuerySqlServerTest(
-        NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
-        ITestOutputHelper testOutputHelper)
+    public NorthwindDbFunctionsQuerySqlServer160Test(Fixture160 fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
@@ -133,17 +130,53 @@ WHERE [c].[Region] IS NULL
 """);
     }
 
-    public override Task Least(bool async)
-        => AssertTranslationFailed(() => base.Least(async));
+    public override async Task Least(bool async)
+    {
+        await base.Least(async);
 
-    public override Task Greatest(bool async)
-        => AssertTranslationFailed(() => base.Greatest(async));
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE LEAST([o].[OrderID], 10251) = 10251
+""");
+    }
 
-    public override Task Least_with_nullable_value_type(bool async)
-        => AssertTranslationFailed(() => base.Least_with_nullable_value_type(async));
+    public override async Task Greatest(bool async)
+    {
+        await base.Greatest(async);
 
-    public override Task Greatest_with_nullable_value_type(bool async)
-        => AssertTranslationFailed(() => base.Greatest_with_nullable_value_type(async));
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE GREATEST([o].[OrderID], 10251) = 10251
+""");
+    }
+
+    public override async Task Least_with_nullable_value_type(bool async)
+    {
+        await base.Least_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE LEAST([o].[OrderID], 10251) = 10251
+""");
+    }
+
+    public override async Task Greatest_with_nullable_value_type(bool async)
+    {
+        await base.Greatest_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE GREATEST([o].[OrderID], 10251) = 10251
+""");
+    }
 
     public override async Task Least_with_parameter_array_is_not_supported(bool async)
     {
@@ -1430,4 +1463,10 @@ WHERE RAND() >= 0.0E0
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    public class Fixture160 : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
+    {
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+    }
 }

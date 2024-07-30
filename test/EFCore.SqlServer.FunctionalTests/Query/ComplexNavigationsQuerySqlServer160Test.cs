@@ -1,18 +1,18 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
+#nullable disable
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-#nullable disable
-
-public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqlServerFixture>
+[SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+public class ComplexNavigationsQuerySqlServer160Test
+    : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqlServer160Test.Fixture160>
 {
-    public ComplexNavigationsQuerySqlServerTest(
-        ComplexNavigationsQuerySqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
+    public ComplexNavigationsQuerySqlServer160Test(Fixture160 fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
@@ -35,7 +35,7 @@ public class ComplexNavigationsQuerySqlServerTest : ComplexNavigationsQueryRelat
                           select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [l2].[Name]
     FROM (
@@ -58,14 +58,14 @@ WHERE [l].[Id] < 3
     public virtual async Task Distinct_take_without_orderby(bool async)
     {
         await AssertQuery(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      where l1.Id < 3
-                      select (from l3 in ss.Set<Level3>()
-                              select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  where l1.Id < 3
+                  select (from l3 in ss.Set<Level3>()
+                          select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [l1].[Name]
     FROM (
@@ -2461,7 +2461,7 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
         await AssertTranslationFailedWithDetails(
             () => base.GroupJoin_client_method_in_OrderBy(async),
             CoreStrings.QueryUnableToTranslateMethod(
-                "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQuerySqlServerFixture>",
+                "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQuerySqlServer160Test+Fixture160>",
                 "ClientMethodNullableInt"));
 
         AssertSql();
@@ -3128,7 +3128,7 @@ ORDER BY [i].[Id], [i0].[Id], [i1].[Id], [i2].[Id], [s].[Id], [s].[Id0]
 
         AssertSql(
             """
-SELECT [l0].[Level1_Required_Id]
+SELECT GREATEST([l0].[Level1_Required_Id], 7)
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToOne_Optional_PK_Inverse2Id]
 WHERE [l0].[Id] IS NOT NULL
@@ -4760,7 +4760,7 @@ INNER JOIN (
         await base.Multiple_optional_navs_should_not_deadlock(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [LevelTwo] AS [l]
 LEFT JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Optional_Inverse2Id] = [l0].[Id]
@@ -4774,7 +4774,7 @@ WHERE ([l0].[Id] IS NOT NULL AND [l0].[Name] LIKE N'%L1 01%') OR ([l1].[Id] IS N
         await base.Null_check_removal_applied_recursively_complex(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToOne_Optional_Self3Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id], [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Optional_Self_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToMany_Required_Self_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id], [l2].[OneToOne_Optional_Self4Id]
 FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Required_Inverse3Id] = [l0].[Id]
@@ -4897,4 +4897,13 @@ ORDER BY [l].[Id], [s0].[Id], [s0].[Id0]
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    public class Fixture160 : ComplexNavigationsQuerySqlServerFixture
+    {
+        protected override string StoreName
+            => "ComplexNavigations160";
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+    }
 }
