@@ -912,8 +912,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
 
-                            // Deterministic orderings are applied before subquery pushdown
-                            // so that we don't have to dig into the subquery to add them to `outerSelectExpression`.
+                                // Inject deterministic orderings (the identifier columns) to both the main query and the split query.
+                                // Note that just below we pushdown the split query if it has limit/offset/distinct/groupby; this ensures
+                                // that the orderings are also propagated to that split subquery if it has limit/offset, which ensures that
+                                // that subquery returns the same rows as the main query (#26808)
                             var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                             for (var j = 0; j < actualParentIdentifier.Count; j++)
                             {
