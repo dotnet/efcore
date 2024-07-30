@@ -109,12 +109,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                 break;
                         }
 
-                        Expression innerAccessExpression;
+                        Expression valueExpression;
                         switch (projectionExpression)
                         {
                             case ObjectArrayAccessExpression objectArrayProjectionExpression:
-                                innerAccessExpression = objectArrayProjectionExpression.Object;
                                 _projectionBindings[objectArrayProjectionExpression] = parameterExpression;
+                                valueExpression = CreateGetValueExpression(objectArrayProjectionExpression.Object, storeName, parameterExpression.Type);
                                 break;
 
                             case EntityProjectionExpression entityProjectionExpression:
@@ -123,13 +123,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                                 switch (accessExpression)
                                 {
-                                    case ObjectAccessExpression innerObjectAccessExpression:
-                                        innerAccessExpression = innerObjectAccessExpression.Object;
-                                        _ownerMappings[accessExpression] =
-                                            (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
-                                        break;
                                     case ObjectReferenceExpression:
-                                        innerAccessExpression = jTokenParameter;
+                                        valueExpression = CreateGetValueExpression(jTokenParameter, storeName, parameterExpression.Type);
+                                        break;
+
+                                    case ObjectAccessExpression:
+                                        // Access to an owned type may be nested inside another owned type, so collect the store names
+                                        // and add owner mappings for each.
+                                        var storeNames = new List<string>();
+                                        while (accessExpression is ObjectAccessExpression objectAccessExpression)
+                                        {
+                                            accessExpression = objectAccessExpression.Object;
+                                            storeNames.Add(objectAccessExpression.PropertyName);
+                                            _ownerMappings[objectAccessExpression]
+                                                = (objectAccessExpression.Navigation.DeclaringEntityType, accessExpression);
+                                        }
+
+                                        valueExpression = CreateGetValueExpression(accessExpression, (string)null, typeof(JObject));
+                                        for (var i = storeNames.Count - 1; i >= 0; i--)
+                                        {
+                                            valueExpression = CreateGetValueExpression(valueExpression, storeNames[i], typeof(JObject));
+                                        }
                                         break;
                                     default:
                                         throw new InvalidOperationException(
@@ -140,8 +154,6 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             default:
                                 throw new UnreachableException();
                         }
-
-                        var valueExpression = CreateGetValueExpression(innerAccessExpression, storeName, parameterExpression.Type);
 
                         return MakeBinary(ExpressionType.Assign, binaryExpression.Left, valueExpression);
                     }
