@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
 {
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
-    private readonly SkipWithoutOrderByInSplitQueryVerifier _skipWithoutOrderByInSplitQueryVerifier = new();
     private readonly SqlServerSqlTreePruner _pruner = new();
 
     /// <summary>
@@ -47,7 +46,6 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         var query1 = base.Process(query);
 
         var query2 = _jsonPostprocessor.Process(query1);
-        _skipWithoutOrderByInSplitQueryVerifier.Visit(query2);
 
         return query2;
     }
@@ -69,37 +67,4 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     /// </summary>
     protected override Expression Prune(Expression query)
         => _pruner.Prune(query);
-
-    private sealed class SkipWithoutOrderByInSplitQueryVerifier : ExpressionVisitor
-    {
-        [return: NotNullIfNotNull(nameof(expression))]
-        public override Expression? Visit(Expression? expression)
-        {
-            switch (expression)
-            {
-                case ShapedQueryExpression shapedQueryExpression:
-                    Visit(shapedQueryExpression.ShaperExpression);
-                    return shapedQueryExpression;
-
-                case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
-                    foreach (var table in relationalSplitCollectionShaperExpression.SelectExpression.Tables)
-                    {
-                        Visit(table);
-                    }
-
-                    Visit(relationalSplitCollectionShaperExpression.InnerShaper);
-
-                    return relationalSplitCollectionShaperExpression;
-
-                case SelectExpression { Offset: not null, Orderings.Count: 0 }:
-                    throw new InvalidOperationException(SqlServerStrings.SplitQueryOffsetWithoutOrderBy);
-
-                case NonQueryExpression nonQueryExpression:
-                    return nonQueryExpression;
-
-                default:
-                    return base.Visit(expression);
-            }
-        }
-    }
 }
