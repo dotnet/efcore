@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
 {
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
+    private readonly SqlServerAggregateOverSubqueryPostprocessor _aggregatePostprocessor;
     private readonly SkipWithoutOrderByInSplitQueryVerifier _skipWithoutOrderByInSplitQueryVerifier = new();
     private readonly SqlServerSqlTreePruner _pruner = new();
 
@@ -34,6 +35,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     {
         _jsonPostprocessor = new SqlServerJsonPostprocessor(
             relationalDependencies.TypeMappingSource, relationalDependencies.SqlExpressionFactory, queryCompilationContext.SqlAliasManager);
+        _aggregatePostprocessor = new SqlServerAggregateOverSubqueryPostprocessor(queryCompilationContext.SqlAliasManager);
     }
 
     /// <summary>
@@ -47,9 +49,10 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         var query1 = base.Process(query);
 
         var query2 = _jsonPostprocessor.Process(query1);
-        _skipWithoutOrderByInSplitQueryVerifier.Visit(query2);
+        var query3 = _aggregatePostprocessor.Visit(query2);
+        _skipWithoutOrderByInSplitQueryVerifier.Visit(query3);
 
-        return query2;
+        return query3;
     }
 
     /// <summary>

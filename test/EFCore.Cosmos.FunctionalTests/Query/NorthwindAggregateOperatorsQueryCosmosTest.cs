@@ -473,26 +473,50 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
             });
 
-    public override async Task Sum_over_subquery_is_client_eval(bool async)
+    public override async Task Sum_over_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Sum_over_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Sum_over_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Sum_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Sum_over_nested_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Sum_over_nested_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Sum_over_nested_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Sum_over_min_subquery_is_client_eval(bool async)
+    public override async Task Sum_over_min_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Sum_over_min_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Sum_over_min_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task Sum_over_scalar_returning_subquery(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Sum_over_scalar_returning_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task Sum_over_Any_subquery(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Sum_over_Any_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task Sum_over_uncorrelated_subquery(bool async)
+    {
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Sum_over_uncorrelated_subquery(async));
 
         AssertSql();
     }
@@ -772,26 +796,26 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
             });
 
-    public override async Task Average_over_subquery_is_client_eval(bool async)
+    public override async Task Average_over_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Average_over_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Average_over_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Average_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Average_over_nested_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Average_over_nested_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Average_over_nested_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Average_over_max_subquery_is_client_eval(bool async)
+    public override async Task Average_over_max_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Average_over_max_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Average_over_max_subquery(async));
 
         AssertSql();
     }
@@ -912,26 +936,26 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
             });
 
-    public override async Task Min_over_subquery_is_client_eval(bool async)
+    public override async Task Min_over_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Min_over_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Min_over_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Min_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Min_over_nested_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Min_over_nested_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Min_over_nested_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Min_over_max_subquery_is_client_eval(bool async)
+    public override async Task Min_over_max_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Min_over_max_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Min_over_max_subquery(async));
 
         AssertSql();
     }
@@ -978,26 +1002,26 @@ WHERE ((c["Discriminator"] = "Product") AND (c["ProductID"] < 40))
 """);
             });
 
-    public override async Task Max_over_subquery_is_client_eval(bool async)
+    public override async Task Max_over_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Max_over_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Max_over_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Max_over_nested_subquery_is_client_eval(bool async)
+    public override async Task Max_over_nested_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Max_over_nested_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Max_over_nested_subquery(async));
 
         AssertSql();
     }
 
-    public override async Task Max_over_sum_subquery_is_client_eval(bool async)
+    public override async Task Max_over_sum_subquery(bool async)
     {
         // Aggregates. Issue #16146.
-        await AssertTranslationFailed(() => base.Max_over_sum_subquery_is_client_eval(async));
+        await AssertTranslationFailed(() => base.Max_over_sum_subquery(async));
 
         AssertSql();
     }
@@ -2060,7 +2084,7 @@ SELECT VALUE EXISTS (
 
     public override async Task OfType_Select(bool async)
     {
-        // Contains over subquery. Issue #15937.
+        // Contains over subquery. Issue #17246.
         await AssertTranslationFailed(() => base.OfType_Select(async));
 
         AssertSql();

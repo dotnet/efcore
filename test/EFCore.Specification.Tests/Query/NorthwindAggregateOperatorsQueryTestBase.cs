@@ -140,7 +140,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sum_over_subquery_is_client_eval(bool async)
+    public virtual Task Sum_over_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
@@ -148,7 +148,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sum_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Sum_over_nested_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
@@ -156,11 +156,44 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Sum_over_min_subquery_is_client_eval(bool async)
+    public virtual Task Sum_over_min_subquery(bool async)
         => AssertSum(
             async,
             ss => ss.Set<Customer>(),
             selector: c => c.Orders.Sum(o => 5 + o.OrderDetails.Min(od => od.ProductID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_scalar_returning_subquery(bool async)
+        => AssertSum(
+            async,
+            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>(),
+            actualSelector: c => c.Orders.FirstOrDefault().OrderID,
+            expectedSelector: c => c.Orders.Any() ? c.Orders.FirstOrDefault().OrderID : 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Sum_over_Any_subquery(bool async)
+        => AssertSum(
+            async,
+            ss => ss.Set<Customer>(),
+            selector: c => c.Orders.Any() ? c.Orders.FirstOrDefault().OrderID : 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Sum_over_uncorrelated_subquery(bool async)
+    {
+        await using var context = CreateContext();
+
+        // AssertSum() doesn't provide access to the ISetSource in order to do the uncorrelated query, so we test this manually.
+        // Note: the Count predicate is specified to work around #34261.
+        var result = async
+            ? await context.Set<Customer>().SumAsync(c => context.Set<Order>().Count(o => o.OrderID > 10300))
+            : context.Set<Customer>().Sum(c => context.Set<Order>().Count(o => o.OrderID > 10300));
+
+        AssertEqual(70707, result);
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -238,7 +271,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_over_subquery_is_client_eval(bool async)
+    public virtual Task Average_over_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>(),
@@ -246,7 +279,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Average_over_nested_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -254,7 +287,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Average_over_max_subquery_is_client_eval(bool async)
+    public virtual Task Average_over_max_subquery(bool async)
         => AssertAverage(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -407,7 +440,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_over_subquery_is_client_eval(bool async)
+    public virtual Task Min_over_subquery(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Customer>(),
@@ -415,7 +448,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Min_over_nested_subquery(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -423,7 +456,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Min_over_max_subquery_is_client_eval(bool async)
+    public virtual Task Min_over_max_subquery(bool async)
         => AssertMin(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -454,7 +487,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_over_subquery_is_client_eval(bool async)
+    public virtual Task Max_over_subquery(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Customer>(),
@@ -462,7 +495,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_over_nested_subquery_is_client_eval(bool async)
+    public virtual Task Max_over_nested_subquery(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
@@ -470,7 +503,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Max_over_sum_subquery_is_client_eval(bool async)
+    public virtual Task Max_over_sum_subquery(bool async)
         => AssertMax(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(3),
