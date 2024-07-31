@@ -950,6 +950,9 @@
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>A root ambient transaction was completed before the nested transaction. The nested transactions should be completed first.</value>
   </data>
+  <data name="NestedCollectionsNotSupported" xml:space="preserve">
+    <value>The property '{propertyType} {type}.{property}' is a primitive collection of a primitive collection. Nested primitive collections are not yet supported with relational database providers.</value>
+  </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
   </data>

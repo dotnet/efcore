@@ -1045,10 +1045,10 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            Validate(entityType, logger);
+            ValidateType(entityType);
         }
 
-        static void Validate(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        static void ValidateType(ITypeBase typeBase)
         {
             foreach (var property in typeBase.GetDeclaredProperties())
             {
@@ -1067,7 +1067,7 @@ public class ModelValidator : IModelValidator
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
-                Validate(complexProperty.ComplexType, logger);
+                ValidateType(complexProperty.ComplexType);
             }
         }
     }
