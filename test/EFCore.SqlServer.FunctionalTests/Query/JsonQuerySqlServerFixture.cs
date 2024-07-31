@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class JsonQuerySqlServerFixture : JsonQueryFixtureBase
+public class JsonQuerySqlServerFixture : JsonQueryRelationalFixture
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

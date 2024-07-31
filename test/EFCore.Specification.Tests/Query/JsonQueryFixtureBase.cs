@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryContext>, IQueryFixtureBase, ITestSqlLoggerFactory
+public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryContext>, IQueryFixtureBase
 {
     private JsonQueryData _expectedData;
 
@@ -30,7 +30,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         { typeof(JsonEntityAllTypes), e => ((JsonEntityAllTypes)e)?.Id },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+    public virtual IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
     {
         {
             typeof(EntityBasic), (e, a) =>
@@ -448,24 +448,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.StringYNConvertedToBool, actual.StringYNConvertedToBool);
     }
 
-    protected override string StoreName { get; } = "JsonQueryTest";
-
-    public new RelationalTestStore TestStore
-        => (RelationalTestStore)base.TestStore;
-
-    public TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
-
-    public override JsonQueryContext CreateContext()
-    {
-        var context = base.CreateContext();
-
-        return context;
-    }
-
-    protected override async Task SeedAsync(JsonQueryContext context)
-        => await JsonQueryContext.SeedAsync(context);
-
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<JsonEntityBasic>().Property(x => x.Id).ValueGeneratedNever();
@@ -481,7 +463,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(
             x => x.OwnedReferenceRoot, b =>
             {
-                b.ToJson();
                 b.WithOwner(x => x.Owner);
 
                 b.OwnsOne(
@@ -522,7 +503,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                         bb.OwnsOne(x => x.OwnedReferenceLeaf).WithOwner(x => x.Parent);
                         bb.OwnsMany(x => x.OwnedCollectionLeaf);
                     });
-                b.ToJson();
             });
 
         modelBuilder.Entity<JsonEntityCustomNaming>().Property(x => x.Id).ValueGeneratedNever();
@@ -532,13 +512,11 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 b.Property(x => x.Enum).HasConversion<int>();
                 b.OwnsOne(x => x.OwnedReferenceBranch);
                 b.OwnsMany(x => x.OwnedCollectionBranch);
-                b.ToJson("json_reference_custom_naming");
             });
 
         modelBuilder.Entity<JsonEntityCustomNaming>().OwnsMany(
             x => x.OwnedCollectionRoot, b =>
             {
-                b.ToJson("json_collection_custom_naming");
                 b.Property(x => x.Enum).HasConversion<int>();
                 b.OwnsOne(x => x.OwnedReferenceBranch);
                 b.OwnsMany(x => x.OwnedCollectionBranch);
@@ -548,7 +526,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         modelBuilder.Entity<JsonEntitySingleOwned>().OwnsMany(
             x => x.OwnedCollection, b =>
             {
-                b.ToJson();
                 b.Ignore(x => x.Parent);
             });
 
@@ -559,7 +536,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 b.OwnsOne(
                     x => x.ReferenceOnBase, bb =>
                     {
-                        bb.ToJson();
                         bb.OwnsOne(x => x.OwnedReferenceLeaf);
                         bb.OwnsMany(x => x.OwnedCollectionLeaf);
                         bb.Property(x => x.Fraction).HasPrecision(18, 2);
@@ -568,7 +544,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 b.OwnsMany(
                     x => x.CollectionOnBase, bb =>
                     {
-                        bb.ToJson();
                         bb.OwnsOne(x => x.OwnedReferenceLeaf);
                         bb.OwnsMany(x => x.OwnedCollectionLeaf);
                         bb.Property(x => x.Fraction).HasPrecision(18, 2);
@@ -582,7 +557,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 b.OwnsOne(
                     x => x.ReferenceOnDerived, bb =>
                     {
-                        bb.ToJson();
                         bb.OwnsOne(x => x.OwnedReferenceLeaf);
                         bb.OwnsMany(x => x.OwnedCollectionLeaf);
                         bb.Property(x => x.Fraction).HasPrecision(18, 2);
@@ -591,7 +565,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 b.OwnsMany(
                     x => x.CollectionOnDerived, bb =>
                     {
-                        bb.ToJson();
                         bb.OwnsOne(x => x.OwnedReferenceLeaf);
                         bb.OwnsMany(x => x.OwnedCollectionLeaf);
                         bb.Property(x => x.Fraction).HasPrecision(18, 2);
@@ -602,7 +575,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(
             x => x.Reference, b =>
             {
-                b.ToJson();
                 b.Property(x => x.TestMaxLengthString).HasMaxLength(5);
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
                 b.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
@@ -630,7 +602,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(
             x => x.Collection, b =>
             {
-                b.ToJson();
                 b.Property(x => x.TestMaxLengthString).HasMaxLength(5);
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
                 b.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
@@ -660,7 +631,6 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         modelBuilder.Entity<JsonEntityConverters>().OwnsOne(
             x => x.Reference, b =>
             {
-                b.ToJson();
                 b.Property(x => x.BoolConvertedToIntZeroOne).HasConversion<BoolToZeroOneConverter<int>>();
                 b.Property(x => x.BoolConvertedToStringTrueFalse).HasConversion(new BoolToStringConverter("False", "True"));
                 b.Property(x => x.BoolConvertedToStringYN).HasConversion(new BoolToStringConverter("N", "Y"));
@@ -680,4 +650,16 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                         x => x == true ? "Y" : "N"));
             });
     }
+
+    protected override string StoreName { get; } = "JsonQueryTest";
+
+    public override JsonQueryContext CreateContext()
+    {
+        var context = base.CreateContext();
+
+        return context;
+    }
+
+    protected override async Task SeedAsync(JsonQueryContext context)
+        => await JsonQueryContext.SeedAsync(context);
 }
