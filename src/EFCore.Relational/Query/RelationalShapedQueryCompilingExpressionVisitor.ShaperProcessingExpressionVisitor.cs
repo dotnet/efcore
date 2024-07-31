@@ -91,20 +91,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             .Where(x => x.prms.Count() == 1 && x.prms[0].ParameterType.IsArray)
             .Single().x.MakeGenericMethod(typeof(byte));
 
-        private static readonly MethodInfo Utf8JsonReaderTrySkipMethod
-            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.TrySkip), [])!;
-
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
-
-        private static readonly MethodInfo Utf8JsonReaderGetStringMethod
-            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.GetString), [])!;
-
-        private static readonly MethodInfo EnumParseMethodInfo
-            = typeof(Enum).GetMethod(nameof(Enum.Parse), [typeof(Type), typeof(string)])!;
-
-        private static readonly MethodInfo ReadColumnCreateMethod
-            = typeof(ReaderColumn).GetMethod(nameof(ReaderColumn.Create))!;
 
         private readonly static MethodInfo PropertyGetJsonValueReaderWriterMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetJsonValueReaderWriter), [])!;

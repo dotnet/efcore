@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -25,6 +27,7 @@ public class ReaderColumn<T> : ReaderColumn
     /// <param name="name">The name of the column.</param>
     /// <param name="property">The property being read if any, null otherwise.</param>
     /// <param name="getFieldValueExpression">A lambda expression to get field value for the column from the reader.</param>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public ReaderColumn(
         bool nullable,
         string? name,
