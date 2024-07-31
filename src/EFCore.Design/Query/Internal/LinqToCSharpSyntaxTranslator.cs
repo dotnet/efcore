@@ -28,7 +28,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         Dictionary<ParameterExpression, string> Variables,
         HashSet<string> VariableNames,
         Dictionary<LabelTarget, string> Labels,
-        HashSet<string> UnnamedLabelNames);
+        HashSet<string> UniqueLabelNames);
 
     private readonly Stack<StackFrame> _stack
         = new([new StackFrame([], [], [], [])]);
@@ -160,7 +160,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         Check.DebugAssert(_stack.Peek().Variables.Count == 0, "_stack.Peek().Parameters.Count == 0");
         Check.DebugAssert(_stack.Peek().VariableNames.Count == 0, "_stack.Peek().ParameterNames.Count == 0");
         Check.DebugAssert(_stack.Peek().Labels.Count == 0, "_stack.Peek().Labels.Count == 0");
-        Check.DebugAssert(_stack.Peek().UnnamedLabelNames.Count == 0, "_stack.Peek().UnnamedLabelNames.Count == 0");
+        Check.DebugAssert(_stack.Peek().UniqueLabelNames.Count == 0, "_stack.Peek().UniqueLabelNames.Count == 0");
 
         foreach (var unsafeAccessor in _fieldUnsafeAccessors.Values.Concat(_methodUnsafeAccessors.Values))
         {
@@ -714,6 +714,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         void PreprocessLabels()
         {
             // LINQ label targets can be unnamed, so we need to generate names for unnamed ones and maintain a target->name mapping.
+            // Also labels can have duplicated names - we need to de-duplicate them before we can generate a valid c# code
+            // just like we do with variables/parameters
             // We need to maintain this as a stack for every block which has labels.
             // Normal blocks get their own labels stack frame, which gets popped when we leave the block. Expression labels add their
             // labels to their parent's stack frame (since they get lifted).
@@ -726,21 +728,17 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                     continue;
                 }
 
-                var (_, _, labels, unnamedLabelNames) = stackFrame;
+                var (_, _, labels, uniqueLabelNames) = stackFrame;
 
-                // Generate names for unnamed label targets and uniquify
+                // Generate names for unnamed label targets and uniquify (all label names)
                 identifier = label.Target.Name ?? "unnamedLabel";
                 var identifierBase = identifier;
-                for (var i = 0; unnamedLabelNames.Contains(identifier); i++)
+                for (var i = 0; uniqueLabelNames.Contains(identifier); i++)
                 {
                     identifier = identifierBase + i;
                 }
 
-                if (label.Target.Name is null)
-                {
-                    unnamedLabelNames.Add(identifier);
-                }
-
+                uniqueLabelNames.Add(identifier);
                 labels.Add(label.Target, identifier);
             }
         }
@@ -1507,15 +1505,24 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         var expressionBody = body as ExpressionSyntax;
         var blockBody = body as BlockSyntax;
 
-        // If the lambda body was an expression that had lifted statements (e.g. some block in expression context), we need to create
-        // a block to contain these statements
         if (_liftedState.Statements.Count > 0)
         {
             Check.DebugAssert(lambda.ReturnType != typeof(void), "lambda.ReturnType != typeof(void)");
-            Check.DebugAssert(expressionBody != null, "expressionBody != null");
 
-            blockBody = Block(_liftedState.Statements.Append(ReturnStatement(expressionBody)));
-            expressionBody = null;
+            if (expressionBody != null)
+            {
+                // If the lambda body was an expression that had lifted statements (e.g. some block in expression context), we need to create
+                // a block to contain these statements
+                blockBody = Block(_liftedState.Statements.Append(ReturnStatement(expressionBody)));
+                expressionBody = null;
+            }
+            else
+            {
+                // If the lambda body was already a block, we just prepend lifted statements to the ones already existing in the block
+                Check.DebugAssert(blockBody != null, "expressionBody != null || blockBody != null");
+                blockBody = Block(_liftedState.Statements.Concat(blockBody.Statements));
+            }
+
             _liftedState.Statements.Clear();
         }
 
@@ -2734,7 +2741,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             new Dictionary<ParameterExpression, string>(previousFrame.Variables),
             [..previousFrame.VariableNames],
             new Dictionary<LabelTarget, string>(previousFrame.Labels),
-            [..previousFrame.UnnamedLabelNames]);
+            [..previousFrame.UniqueLabelNames]);
 
         _stack.Push(newFrame);
 
