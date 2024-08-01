@@ -358,7 +358,7 @@ OFFSET 0 LIMIT 2
             """
 SELECT VALUE c["Ints"]
 FROM root c
-WHERE (c["Discriminator"] = "TestEntityWithOwned")
+WHERE (c["$type"] = "TestEntityWithOwned")
 """);
     }
 

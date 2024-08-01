@@ -34,8 +34,8 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// </summary>
     [UsedImplicitly]
     [EntityFrameworkInternal]
-    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object discriminator)
-        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator.ToString()));
+    public static Exception CreateUnableToDiscriminateException(ITypeBase type, object? discriminator)
+        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator?.ToString()));
 
     /// <summary>
     ///     Creates a new instance of the <see cref="StructuralTypeShaperExpression" /> class.

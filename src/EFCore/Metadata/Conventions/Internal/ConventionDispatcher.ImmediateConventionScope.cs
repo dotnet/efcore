@@ -145,6 +145,35 @@ public partial class ConventionDispatcher
             return annotation;
         }
 
+        public override string? OnModelEmbeddedDiscriminatorNameChanged(
+            IConventionModelBuilder modelBuilder, string? oldName, string? newName)
+        {
+            using (_dispatcher.DelayConventions())
+            {
+                _stringConventionContext.ResetState(oldName);
+#if DEBUG
+                var initialValue = modelBuilder.Metadata.GetEmbeddedDiscriminatorName();
+#endif
+                foreach (var modelConvention in _conventionSet.ModelEmbeddedDiscriminatorNameConventions)
+                {
+                    modelConvention.ProcessEmbeddedDiscriminatorName(modelBuilder, oldName, newName, _stringConventionContext);
+
+                    if (_stringConventionContext.ShouldStopProcessing())
+                    {
+                        return _stringConventionContext.Result;
+                    }
+
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == (string?)modelBuilder.Metadata.GetEmbeddedDiscriminatorName(),
+                        $"Convention {modelConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return newName;
+        }
+
         public override string? OnTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type? type)
         {
             using (_dispatcher.DelayConventions())

@@ -62,7 +62,7 @@ WHERE (c["City"] = "London")
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "ProductView")
+WHERE (c["$type"] = "ProductView")
 """);
         }
     }
@@ -118,7 +118,7 @@ WHERE (c["OrderCount"] > 0)
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+WHERE ((c["$type"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 """);
             });
 

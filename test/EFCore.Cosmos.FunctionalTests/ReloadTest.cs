@@ -44,7 +44,7 @@ SELECT VALUE
 {
     "Id" : c["Id"],
     "PartitionKey" : c["PartitionKey"],
-    "Discriminator" : c["Discriminator"],
+    "$type" : c["$type"],
     "id0" : c["id"],
     "" : c
 }

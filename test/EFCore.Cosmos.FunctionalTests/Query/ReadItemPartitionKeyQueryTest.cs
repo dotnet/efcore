@@ -25,7 +25,7 @@ public class ReadItemPartitionKeyQueryTest : ReadItemPartitionKeyQueryTestBase<R
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "HierarchicalPartitionKeyEntity")
+WHERE (c["$type"] = "HierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -64,7 +64,7 @@ FROM root c
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "HierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
+WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
 """);
     }
 
@@ -78,7 +78,7 @@ WHERE ((c["Discriminator"] = "HierarchicalPartitionKeyEntity") AND ((c["Partitio
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1a") AND (c["PartitionKey2"] = 1)))
+WHERE ((c["$type"] = "OnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1a") AND (c["PartitionKey2"] = 1)))
 """);
     }
 
@@ -91,7 +91,7 @@ WHERE ((c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity") AND ((c["Part
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "HierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+WHERE ((c["$type"] = "HierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
 """);
     }
 
@@ -104,7 +104,7 @@ WHERE ((c["Discriminator"] = "HierarchicalPartitionKeyEntity") AND CONTAINS(c["P
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+WHERE ((c["$type"] = "OnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
 """);
     }
 
@@ -117,7 +117,7 @@ WHERE ((c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity") AND CONTAINS(
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "HierarchicalPartitionKeyEntity")
+WHERE (c["$type"] = "HierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -130,7 +130,7 @@ WHERE (c["Discriminator"] = "HierarchicalPartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "OnlyHierarchicalPartitionKeyEntity")
+WHERE (c["$type"] = "OnlyHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -409,7 +409,7 @@ WHERE (c["Id"] = 1)
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Id"] = 1) AND (c["Discriminator"] = "DerivedSinglePartitionKeyEntity"))
+WHERE ((c["Id"] = 1) AND (c["$type"] = "DerivedSinglePartitionKeyEntity"))
 """);
     }
 
@@ -424,7 +424,7 @@ WHERE ((c["Id"] = 1) AND (c["Discriminator"] = "DerivedSinglePartitionKeyEntity"
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Id"] = 1) AND (c["Discriminator"] = @__discriminator_0))
+WHERE ((c["Id"] = 1) AND (c["$type"] = @__discriminator_0))
 OFFSET 0 LIMIT 2
 """);
     }

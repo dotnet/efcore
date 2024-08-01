@@ -638,8 +638,20 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     }
 
     /// <summary>
-    ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-    ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
+    ///     Sets the name to use for discriminator properties embedded in JSON documents. The default is "$type".
+    /// </summary>
+    /// <param name="name">The property name, or <see langword="null" /> to clear the name set.</param>
+    /// <returns>The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.</returns>
+    public virtual ModelBuilder HasEmbeddedDiscriminatorName(string name)
+    {
+        Builder.HasEmbeddedDiscriminatorName(name, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Forces post-processing on the model such that it is ready for use by the runtime. This post-processing
+    ///     happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
     ///     explicitly in cases where the automatic execution is not possible.
     /// </summary>
     /// <returns>The finalized model.</returns>

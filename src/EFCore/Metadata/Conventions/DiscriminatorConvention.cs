@@ -86,7 +86,7 @@ public class DiscriminatorConvention :
             return;
         }
 
-        var discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
+        var discriminator = entityTypeBuilder.HasDiscriminator(name, typeof(string));
         if (discriminator != null)
         {
             SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);

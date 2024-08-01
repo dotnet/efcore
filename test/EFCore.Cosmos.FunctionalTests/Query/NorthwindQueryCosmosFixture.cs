@@ -55,29 +55,29 @@ public class NorthwindQueryCosmosFixture<TModelCustomizer> : NorthwindQueryFixtu
         modelBuilder.Entity<OrderQuery>()
             .ToContainer("ProductsAndOrders")
             .IncludeRootDiscriminatorInJsonId()
-            .HasDiscriminator<string>("Discriminator").HasValue("Order");
+            .HasDiscriminator<string>("$type").HasValue("Order");
 
         modelBuilder
             .Entity<ProductQuery>()
             .ToContainer("ProductsAndOrders")
             .IncludeRootDiscriminatorInJsonId()
-            .HasDiscriminator<string>("Discriminator").HasValue("Product");
+            .HasDiscriminator<string>("$type").HasValue("Product");
 
         modelBuilder
             .Entity<ProductView>()
             .ToContainer("ProductsAndOrders")
             .IncludeRootDiscriminatorInJsonId()
-            .HasDiscriminator<string>("Discriminator").HasValue("ProductView");
+            .HasDiscriminator<string>("$type").HasValue("ProductView");
 
         modelBuilder
             .Entity<CustomerQueryWithQueryFilter>()
             .ToContainer("Customers")
-            .HasDiscriminator<string>("Discriminator").HasValue("Customer");
+            .HasDiscriminator<string>("$type").HasValue("Customer");
 
         modelBuilder
             .Entity<CustomerQuery>()
             .ToContainer("Customers")
-            .HasDiscriminator<string>("Discriminator").HasValue("Customer");
+            .HasDiscriminator<string>("$type").HasValue("Customer");
 
         modelBuilder.Entity<Customer>().Metadata.RemoveIndex(
             modelBuilder.Entity<Customer>().Property(e => e.City).Metadata.GetContainingIndexes().Single());

@@ -132,6 +132,13 @@ public abstract partial class ModelBuilderTest
             return this;
         }
 
+        public virtual TestModelBuilder HasEmbeddedDiscriminatorName(string name)
+        {
+            ModelBuilder.HasEmbeddedDiscriminatorName(name);
+
+            return this;
+        }
+
         ModelBuilder IInfrastructure<ModelBuilder>.Instance
             => ModelBuilder;
     }

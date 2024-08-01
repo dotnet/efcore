@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -19,7 +18,8 @@ public class CosmosDiscriminatorConvention :
     IForeignKeyOwnershipChangedConvention,
     IForeignKeyRemovedConvention,
     IEntityTypeAddedConvention,
-    IEntityTypeAnnotationChangedConvention
+    IEntityTypeAnnotationChangedConvention,
+    IModelEmbeddedDiscriminatorNameConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="CosmosDiscriminatorConvention" />.
@@ -86,7 +86,7 @@ public class CosmosDiscriminatorConvention :
 
         if (entityType.IsDocumentRoot())
         {
-            entityTypeBuilder.HasDiscriminator(typeof(string))
+            entityTypeBuilder.HasDiscriminator(entityType.Model.GetEmbeddedDiscriminatorName(), typeof(string))
                 ?.HasValue(entityType, entityType.ShortName());
         }
         else
@@ -125,7 +125,7 @@ public class CosmosDiscriminatorConvention :
         {
             if (entityType.IsDocumentRoot())
             {
-                entityTypeBuilder.HasDiscriminator(typeof(string));
+                entityTypeBuilder.HasDiscriminator(entityType.Model.GetEmbeddedDiscriminatorName(), typeof(string));
             }
         }
         else
@@ -137,7 +137,7 @@ public class CosmosDiscriminatorConvention :
                 return;
             }
 
-            var discriminator = rootType.Builder.HasDiscriminator(typeof(string));
+            var discriminator = rootType.Builder.HasDiscriminator(entityType.Model.GetEmbeddedDiscriminatorName(), typeof(string));
             if (discriminator != null)
             {
                 SetDefaultDiscriminatorValues(entityTypeBuilder.Metadata.GetDerivedTypesInclusive(), discriminator);
@@ -162,5 +162,20 @@ public class CosmosDiscriminatorConvention :
         IConventionEntityType entityType,
         IConventionContext<IConventionEntityType> context)
     {
+    }
+
+    /// <inheritdoc/>
+    public void ProcessEmbeddedDiscriminatorName(
+        IConventionModelBuilder modelBuilder, string? oldName, string? newName, IConventionContext<string> context)
+    {
+        if (oldName == newName)
+        {
+            return;
+        }
+
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            ProcessEntityType(entityType.Builder);
+        }
     }
 }

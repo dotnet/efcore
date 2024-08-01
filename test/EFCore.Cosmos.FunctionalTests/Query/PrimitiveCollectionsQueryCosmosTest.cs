@@ -1793,7 +1793,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE {"c" : [c["String"], "foo"]}
 FROM root c
-WHERE (c["Discriminator"] = "PrimitiveCollectionsEntity")
+WHERE (c["$type"] = "PrimitiveCollectionsEntity")
 """);
             });
 

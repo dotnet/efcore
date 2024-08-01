@@ -26,7 +26,7 @@ public class ReadItemPartitionKeyQueryNoDiscriminatorInIdTest
             """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity")
+WHERE c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -46,7 +46,7 @@ WHERE c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchi
             """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity")
+WHERE c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity")
 """);
     }
 
@@ -63,10 +63,10 @@ WHERE c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartition
 
         // Not ReadItem because no primary key value
         AssertSql(
-    """
+            """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
+WHERE (c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
 """);
     }
 
@@ -79,7 +79,7 @@ WHERE (c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarch
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1a") AND (c["PartitionKey2"] = 1)))
+WHERE (c["$type"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1a") AND (c["PartitionKey2"] = 1)))
 """);
     }
 
@@ -92,7 +92,7 @@ WHERE (c["Discriminator"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnly
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+WHERE (c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
 """);
     }
 
@@ -105,7 +105,7 @@ WHERE (c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarch
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+WHERE (c["$type"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
 """);
     }
 
@@ -118,7 +118,7 @@ WHERE (c["Discriminator"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnly
             """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity")
+WHERE c["$type"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -131,7 +131,7 @@ WHERE c["Discriminator"] IN ("HierarchicalPartitionKeyEntity", "DerivedHierarchi
             """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchicalPartitionKeyEntity")
+WHERE c["$type"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -144,7 +144,7 @@ WHERE c["Discriminator"] IN ("OnlyHierarchicalPartitionKeyEntity", "DerivedOnlyH
             """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity")
+WHERE c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity")
 """);
     }
 
@@ -157,7 +157,7 @@ WHERE c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartition
             """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity")
+WHERE c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity")
 """);
     }
 
@@ -177,7 +177,7 @@ WHERE c["Discriminator"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySingleP
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2"))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2"))
 """);
     }
 
@@ -190,7 +190,7 @@ WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitio
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2a"))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2a"))
 """);
     }
 
@@ -203,7 +203,7 @@ WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitio
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1"))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1"))
 """);
     }
 
@@ -314,7 +314,7 @@ WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitio
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["Id"] = 2)))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["Id"] = 2)))
 """);
     }
 
@@ -329,7 +329,7 @@ WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitio
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0)))
+WHERE (c["$type"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1a") AND (c["id"] = @__partitionKey_0)))
 """);
     }
 
@@ -348,7 +348,7 @@ WHERE (c["Discriminator"] IN ("OnlySinglePartitionKeyEntity", "DerivedOnlySingle
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 1))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 1))
 """);
     }
 
@@ -404,7 +404,7 @@ WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitio
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity")
+WHERE (c["$type"] = "DerivedHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -424,7 +424,7 @@ WHERE (c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "DerivedSinglePartitionKeyEntity")
+WHERE (c["$type"] = "DerivedSinglePartitionKeyEntity")
 """);
     }
 
@@ -444,7 +444,7 @@ WHERE (c["Discriminator"] = "DerivedSinglePartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
+WHERE ((c["$type"] = "DerivedHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1") AND (c["PartitionKey2"] = 1)))
 """);
     }
 
@@ -457,7 +457,7 @@ WHERE ((c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity") AND ((c["P
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedOnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1c") AND (c["PartitionKey2"] = 1)))
+WHERE ((c["$type"] = "DerivedOnlyHierarchicalPartitionKeyEntity") AND ((c["PartitionKey1"] = "PK1c") AND (c["PartitionKey2"] = 1)))
 """);
     }
 
@@ -470,7 +470,7 @@ WHERE ((c["Discriminator"] = "DerivedOnlyHierarchicalPartitionKeyEntity") AND ((
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+WHERE ((c["$type"] = "DerivedHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
 """);
     }
 
@@ -483,7 +483,7 @@ WHERE ((c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity") AND CONTAI
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedOnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
+WHERE ((c["$type"] = "DerivedOnlyHierarchicalPartitionKeyEntity") AND CONTAINS(c["Payload"], "3"))
 """);
     }
 
@@ -496,7 +496,7 @@ WHERE ((c["Discriminator"] = "DerivedOnlyHierarchicalPartitionKeyEntity") AND CO
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity")
+WHERE (c["$type"] = "DerivedHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -509,7 +509,7 @@ WHERE (c["Discriminator"] = "DerivedHierarchicalPartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "DerivedOnlyHierarchicalPartitionKeyEntity")
+WHERE (c["$type"] = "DerivedOnlyHierarchicalPartitionKeyEntity")
 """);
     }
 
@@ -522,7 +522,7 @@ WHERE (c["Discriminator"] = "DerivedOnlyHierarchicalPartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "DerivedSinglePartitionKeyEntity")
+WHERE (c["$type"] = "DerivedSinglePartitionKeyEntity")
 """);
     }
 
@@ -535,7 +535,7 @@ WHERE (c["Discriminator"] = "DerivedSinglePartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "DerivedOnlySinglePartitionKeyEntity")
+WHERE (c["$type"] = "DerivedOnlySinglePartitionKeyEntity")
 """);
     }
 
@@ -555,7 +555,7 @@ WHERE (c["Discriminator"] = "DerivedOnlySinglePartitionKeyEntity")
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2"))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2"))
 """);
     }
 
@@ -568,7 +568,7 @@ WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["Partitio
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2c"))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK2c"))
 """);
     }
 
@@ -581,7 +581,7 @@ WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["Partitio
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1"))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND (c["PartitionKey"] = "PK1"))
 """);
     }
 
@@ -692,7 +692,7 @@ WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["Partitio
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 11) AND (c["Id"] = 22)))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 11) AND (c["Id"] = 22)))
 """);
     }
 
@@ -707,7 +707,7 @@ WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1c") AND (c["id"] = @__partitionKey_0)))
+WHERE ((c["$type"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"] = "PK1c") AND (c["id"] = @__partitionKey_0)))
 """);
     }
 
@@ -726,7 +726,7 @@ WHERE ((c["Discriminator"] = "DerivedOnlySinglePartitionKeyEntity") AND ((c["id"
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 11))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 11))
 """);
     }
 
@@ -766,7 +766,7 @@ WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND (c["Id"] = 1
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["Discriminator"] = "DerivedSinglePartitionKeyEntity")))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["$type"] = "DerivedSinglePartitionKeyEntity")))
 """);
     }
 
@@ -781,7 +781,7 @@ WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitio
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["Discriminator"] = @__discriminator_0)))
+WHERE (c["$type"] IN ("SinglePartitionKeyEntity", "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 1) AND (c["$type"] = @__discriminator_0)))
 OFFSET 0 LIMIT 2
 """);
     }
@@ -802,7 +802,7 @@ OFFSET 0 LIMIT 2
             """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 11) AND (c["Discriminator"] = "SinglePartitionKeyEntity")))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 11) AND (c["$type"] = "SinglePartitionKeyEntity")))
 """);
     }
 
@@ -817,7 +817,7 @@ WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 11) AND (c["Discriminator"] = @__discriminator_0)))
+WHERE ((c["$type"] = "DerivedSinglePartitionKeyEntity") AND ((c["Id"] = 11) AND (c["$type"] = @__discriminator_0)))
 OFFSET 0 LIMIT 2
 """);
     }
