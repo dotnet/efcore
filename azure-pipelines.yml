@@ -56,6 +56,8 @@ extends:
         baselineFile: $(Build.SourcesDirectory)\.config\guardian\.gdnbaselines
       binskim:
         scanOutputDirectoryOnly: true
+      tsa:
+        enabled: true
     customBuildTags:
     - ES365AIMigrationTooling
     stages:
