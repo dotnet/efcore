@@ -149,11 +149,11 @@ public class RelationalEventIdTest : EventIdTestBase
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => throw new NotImplementedException();
 
-        public void Migrate(string targetMigration, Action<DbContext, IMigratorData> seed, TimeSpan? lockTimeout)
+        public void Migrate(Action<DbContext, IMigratorData> seed, string targetMigration, TimeSpan? lockTimeout)
             => throw new NotImplementedException();
 
-        public Task MigrateAsync(string targetMigration,
-            Func<DbContext, IMigratorData, CancellationToken, Task> seed,
+        public Task MigrateAsync(Func<DbContext, IMigratorData, CancellationToken, Task> seed,
+            string targetMigration,
             TimeSpan? lockTimeout,
             CancellationToken cancellationToken = default)
             => throw new NotImplementedException();

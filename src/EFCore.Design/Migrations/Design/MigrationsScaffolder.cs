@@ -285,7 +285,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                     if (force)
                     {
                         Dependencies.Migrator.Migrate(
-                            migrations.Count > 1
+                            targetMigration: migrations.Count > 1
                                 ? migrations[^2].GetId()
                                 : Migration.InitialDatabase);
                     }

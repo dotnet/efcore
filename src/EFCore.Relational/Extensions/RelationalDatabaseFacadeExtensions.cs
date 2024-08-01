@@ -148,7 +148,7 @@ public static class RelationalDatabaseFacadeExtensions
         Action<DbContext, IMigratorData>? seed,
         string? targetMigration = null,
         TimeSpan? lockTimeout = null)
-        => databaseFacade.GetRelationalService<IMigrator>().Migrate(targetMigration, seed, lockTimeout);
+        => databaseFacade.GetRelationalService<IMigrator>().Migrate(seed, targetMigration, lockTimeout);
 
     /// <summary>
     ///     Asynchronously applies any pending migrations for the context to the database. Will create the database
@@ -213,7 +213,7 @@ public static class RelationalDatabaseFacadeExtensions
         string? targetMigration = null,
         TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default)
-        => databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(targetMigration, seed, lockTimeout, cancellationToken);
+        => databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(seed, targetMigration, lockTimeout, cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.

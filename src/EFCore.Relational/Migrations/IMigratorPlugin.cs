@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 /// <summary>
 ///     <para>
 ///         A service on the EF internal service provider that allows providers or extensions to execute logic
-///         after <see cref="IMigrator.Migrate(string?, Action{DbContext, IMigratorData}?, TimeSpan?)"/> is called.
+///         after <see cref="IMigrator.Migrate(Action{DbContext, IMigratorData}?, string?, TimeSpan?)"/> is called.
 ///     </para>
 ///     <para>
 ///         This type is typically used by providers or extensions. It is generally not used in application code.
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 public interface IMigratorPlugin
 {
     /// <summary>
-    ///     Called by <see cref="IMigrator.Migrate(string?, Action{DbContext, IMigratorData}?, TimeSpan?)"/> before applying the migrations.
+    ///     Called by <see cref="IMigrator.Migrate(Action{DbContext, IMigratorData}?, string?, TimeSpan?)"/> before applying the migrations.
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> that is being migrated.</param>
     /// <param name="data">The <see cref="IMigratorData" /> that contains the result of the migrations application.</param>
@@ -30,7 +30,7 @@ public interface IMigratorPlugin
     void Migrating(DbContext context, IMigratorData data);
 
     /// <summary>
-    ///     Called by <see cref="IMigrator.MigrateAsync(string?, Func{DbContext, IMigratorData, CancellationToken, Task}?, TimeSpan?, CancellationToken)"/> before applying the migrations.
+    ///     Called by <see cref="IMigrator.MigrateAsync(Func{DbContext, IMigratorData, CancellationToken, Task}?, string?, TimeSpan?, CancellationToken)"/> before applying the migrations.
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> that is being migrated.</param>
     /// <param name="data">The <see cref="IMigratorData" /> that contains the result of the migrations application.</param>
@@ -46,7 +46,7 @@ public interface IMigratorPlugin
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    ///     Called by <see cref="IMigrator.Migrate(string?, Action{DbContext, IMigratorData}?, TimeSpan?)"/> after applying the migrations, but before the seeding action.
+    ///     Called by <see cref="IMigrator.Migrate(Action{DbContext, IMigratorData}?, string?, TimeSpan?)"/> after applying the migrations, but before the seeding action.
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> that is being migrated.</param>
     /// <param name="data">The <see cref="IMigratorData" /> that contains the result of the migrations application.</param>
@@ -56,7 +56,7 @@ public interface IMigratorPlugin
     void Migrated(DbContext context, IMigratorData data);
 
     /// <summary>
-    ///     Called by <see cref="IMigrator.MigrateAsync(string?, Func{DbContext, IMigratorData, CancellationToken, Task}?, TimeSpan?, CancellationToken)"/> after applying the migrations, but before the seeding action.
+    ///     Called by <see cref="IMigrator.MigrateAsync(Func{DbContext, IMigratorData, CancellationToken, Task}?, string?, TimeSpan?, CancellationToken)"/> after applying the migrations, but before the seeding action.
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> that is being migrated.</param>
     /// <param name="data">The <see cref="IMigratorData" /> that contains the result of the migrations application.</param>

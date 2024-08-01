@@ -80,7 +80,7 @@ public class Migrator : IMigrator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Migrate(string? targetMigration, Action<DbContext, IMigratorData>? seed, TimeSpan? lockTimeout)
+    public virtual void Migrate(Action<DbContext, IMigratorData>? seed, string? targetMigration, TimeSpan? lockTimeout)
     {
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
@@ -147,8 +147,8 @@ public class Migrator : IMigrator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task MigrateAsync(
-        string? targetMigration,
         Func<DbContext, IMigratorData, CancellationToken, Task>? seed,
+        string? targetMigration,
         TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default)
     {
