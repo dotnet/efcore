@@ -122,6 +122,33 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 eb.Property<string>("Data")
                     .IsFixedLength();
             });
+
+        modelBuilder.Entity<ManyTypes>(
+            b =>
+            {
+                b.Ignore(e => e.BoolNestedCollection);
+                b.Ignore(e => e.UInt8NestedCollection);
+                b.Ignore(e => e.Int8NestedCollection);
+                b.Ignore(e => e.Int32NestedCollection);
+                b.Ignore(e => e.Int64NestedCollection);
+                b.Ignore(e => e.CharNestedCollection);
+                b.Ignore(e => e.GuidNestedCollection);
+                b.Ignore(e => e.StringNestedCollection);
+                b.Ignore(e => e.BytesNestedCollection);
+                b.Ignore(e => e.NullableUInt8NestedCollection);
+                b.Ignore(e => e.NullableInt32NestedCollection);
+                b.Ignore(e => e.NullableInt64NestedCollection);
+                b.Ignore(e => e.NullableGuidNestedCollection);
+                b.Ignore(e => e.NullableStringNestedCollection);
+                b.Ignore(e => e.NullableBytesNestedCollection);
+                b.Ignore(e => e.NullablePhysicalAddressNestedCollection);
+                b.Ignore(e => e.Enum8NestedCollection);
+                b.Ignore(e => e.Enum32NestedCollection);
+                b.Ignore(e => e.EnumU64NestedCollection);
+                b.Ignore(e => e.NullableEnum8NestedCollection);
+                b.Ignore(e => e.NullableEnum32NestedCollection);
+                b.Ignore(e => e.NullableEnumU64NestedCollection);
+            });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)

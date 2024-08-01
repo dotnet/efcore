@@ -3,7 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -62,6 +61,42 @@ public class RelationalModelValidator : ModelValidator
         ValidateBoolsWithDefaults(model, logger);
         ValidateIndexProperties(model, logger);
         ValidateJsonEntities(model, logger);
+    }
+
+    /// <summary>
+    ///     Validates the mapping of primitive collection properties the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidatePrimitiveCollections(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        base.ValidatePrimitiveCollections(model, logger);
+
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            ValidateType(entityType);
+        }
+
+        static void ValidateType(ITypeBase typeBase)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
+            {
+                if (property is { IsPrimitiveCollection: true }
+                    && property.GetTypeMapping().ElementTypeMapping?.ElementTypeMapping != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.NestedCollectionsNotSupported(
+                            property.ClrType.ShortDisplayName(), typeBase.DisplayName(), property.Name));
+                }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                ValidateType(complexProperty.ComplexType);
+            }
+        }
     }
 
     /// <summary>

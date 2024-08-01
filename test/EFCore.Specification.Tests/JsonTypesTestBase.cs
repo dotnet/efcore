@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -3712,7 +3711,6 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     {
         public List<List<List<int>>> Prop { get; set; } = null!;
     }
-
 
     [ConditionalFact]
     public virtual Task Can_read_write_array_of_array_of_array_of_int_JSON_values()
