@@ -221,7 +221,7 @@ public class MigrationsOperations
 
             var migrator = services.GetRequiredService<IMigrator>();
 
-            migrator.Migrate(targetMigration);
+            migrator.Migrate(targetMigration: targetMigration);
         }
 
         _reporter.WriteInformation(DesignStrings.Done);

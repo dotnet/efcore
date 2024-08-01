@@ -26,11 +26,11 @@ public interface IMigrator
     ///     Migrates the database to either a specified target migration or up to the latest
     ///     migration that exists in the <see cref="IMigrationsAssembly" />.
     /// </summary>
-    /// <param name="targetMigration">
-    ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-    /// </param>
     /// <param name="seed">
     ///     The optional seed method to run after migrating the database. It will be invoked even if no migrations were applied.
+    /// </param>
+    /// <param name="targetMigration">
+    ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
     /// </param>
     /// <param name="lockTimeout">
     ///     The maximum amount of time that the migration lock should be held. Unless a catastrophic failure occurs, the
@@ -41,17 +41,17 @@ public interface IMigrator
     /// </remarks>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
-    void Migrate(string? targetMigration = null, Action<DbContext, IMigratorData>? seed = null, TimeSpan? lockTimeout = null);
+    void Migrate(Action<DbContext, IMigratorData>? seed = null, string? targetMigration = null, TimeSpan? lockTimeout = null);
 
     /// <summary>
     ///     Migrates the database to either a specified target migration or up to the latest
     ///     migration that exists in the <see cref="IMigrationsAssembly" />.
     /// </summary>
-    /// <param name="targetMigration">
-    ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-    /// </param>
     /// <param name="seed">
     ///     The optional seed method to run after migrating the database. It will be invoked even if no migrations were applied.
+    /// </param>
+    /// <param name="targetMigration">
+    ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
     /// </param>
     /// <param name="lockTimeout">
     ///     The maximum amount of time that the migration lock should be held. Unless a catastrophic failure occurs, the
@@ -66,8 +66,8 @@ public interface IMigrator
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     Task MigrateAsync(
-        string? targetMigration = null,
         Func<DbContext, IMigratorData, CancellationToken, Task>? seed = null,
+        string? targetMigration = null,
         TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default);
 

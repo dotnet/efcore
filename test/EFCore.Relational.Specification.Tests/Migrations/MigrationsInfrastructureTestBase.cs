@@ -161,7 +161,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
 
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate("Migration1");
+        migrator.Migrate(targetMigration: "Migration1");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -181,8 +181,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
 
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate("Migration5");
-        migrator.Migrate(Migration.InitialDatabase);
+        migrator.Migrate(targetMigration: "Migration5");
+        migrator.Migrate(targetMigration: Migration.InitialDatabase);
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Empty(history.GetAppliedMigrations());
@@ -197,8 +197,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         GiveMeSomeTime(db);
 
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate("Migration5");
-        migrator.Migrate("Migration4");
+        migrator.Migrate(targetMigration: "Migration5");
+        migrator.Migrate(targetMigration: "Migration4");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
@@ -221,7 +221,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         {
             using var context = Fixture.CreateContext();
             var migrator = context.GetService<IMigrator>();
-            migrator.Migrate("Migration1");
+            migrator.Migrate(targetMigration: "Migration1");
         });
 
         var history = db.GetService<IHistoryRepository>();
@@ -242,7 +242,7 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         {
             using var context = Fixture.CreateContext();
             var migrator = context.GetService<IMigrator>();
-            await migrator.MigrateAsync("Migration1");
+            await migrator.MigrateAsync(targetMigration: "Migration1");
         });
 
         var history = db.GetService<IHistoryRepository>();
@@ -257,13 +257,13 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateContext();
         db.Database.EnsureDeleted();
         GiveMeSomeTime(db);
-        db.GetService<IMigrator>().Migrate("Migration1");
+        db.GetService<IMigrator>().Migrate(targetMigration: "Migration1");
 
         Parallel.For(0, Environment.ProcessorCount, i =>
         {
             using var context = Fixture.CreateContext();
             var migrator = context.GetService<IMigrator>();
-            migrator.Migrate("Migration2");
+            migrator.Migrate(targetMigration: "Migration2");
         });
 
         var history = db.GetService<IHistoryRepository>();
@@ -279,13 +279,13 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
         using var db = Fixture.CreateContext();
         await db.Database.EnsureDeletedAsync();
         await GiveMeSomeTimeAsync(db);
-        await db.GetService<IMigrator>().MigrateAsync("Migration1");
+        await db.GetService<IMigrator>().MigrateAsync(targetMigration: "Migration1");
 
         await Parallel.ForAsync(0, Environment.ProcessorCount, async (i, _) =>
         {
             using var context = Fixture.CreateContext();
             var migrator = context.GetService<IMigrator>();
-            await migrator.MigrateAsync("Migration2");
+            await migrator.MigrateAsync(targetMigration: "Migration2");
         });
 
         var history = db.GetService<IHistoryRepository>();
