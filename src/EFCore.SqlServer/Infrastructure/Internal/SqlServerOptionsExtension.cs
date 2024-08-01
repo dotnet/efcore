@@ -29,7 +29,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     // SQL Server 2017 (14.x): compatibility level 140, start date 2017-09-29, mainstream end date 2022-10-11, extended end date 2027-10-12
     // SQL Server 2016 (13.x): compatibility level 130, start date 2016-06-01, mainstream end date 2021-07-13, extended end date 2026-07-14
     // SQL Server 2014 (12.x): compatibility level 120, start date 2014-06-05, mainstream end date 2019-07-09, extended end date 2024-07-09
-    public static readonly int DefaultCompatibilityLevel = 160;
+    public static readonly int DefaultCompatibilityLevel = 150;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

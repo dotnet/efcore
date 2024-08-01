@@ -106,7 +106,7 @@ public class SqlServerDbContextOptionsBuilder
 
     /// <summary>
     ///     Sets the SQL Server compatibility level that EF Core will use when interacting with the database. This allows configuring EF
-    ///     Core to work with older (or newer) versions of SQL Server. Defaults to <c>160</c> (SQL Server 2022).
+    ///     Core to work with older (or newer) versions of SQL Server. Defaults to <c>150</c> (SQL Server 2019).
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
