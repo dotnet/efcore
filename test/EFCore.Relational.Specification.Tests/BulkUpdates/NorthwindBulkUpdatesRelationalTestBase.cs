@@ -32,6 +32,8 @@ public abstract class NorthwindBulkUpdatesRelationalTestBase<TFixture> : Northwi
             RelationalStrings.ExecuteDeleteOnNonEntityType,
             () => base.Delete_non_entity_projection_3(async));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_FromSql_converted_to_subquery(bool async)
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             () => Fixture.CreateContext(),
