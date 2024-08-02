@@ -32,6 +32,13 @@ public class QueryExpressionInterceptionWithDiagnosticsCosmosTest(
             IEnumerable<IInterceptor> injectedInterceptors)
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkCosmos(), injectedInterceptors);
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.IncludeDiscriminatorInJsonId();
+        }
+
         protected override string StoreName
             => "QueryExpressionInterceptionWithDiagnostics";
 

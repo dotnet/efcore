@@ -15,6 +15,13 @@ public class KeysWithConvertersCosmosTest(KeysWithConvertersCosmosTest.KeysWithC
         public override bool UseInclude
             => false;
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.IncludeRootDiscriminatorInJsonId();
+        }
+
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(
                 builder.ConfigureWarnings(

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -21,6 +20,7 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
     private IEntityType _entityType = null!;
     private string _rootAlias = null!;
     private bool _isPredicateCompatibleWithReadItem;
+    private bool _discriminatorHandled;
     private string? _discriminatorJsonPropertyName;
     private Dictionary<IProperty, Expression?> _jsonIdPropertyValues = null!;
     private Dictionary<IProperty, Expression?> _partitionKeyPropertyValues = null!;
@@ -59,35 +59,28 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
         // from the tree (either constants or parameters).
         // We also want to ignore the discriminator property if it's compared to our entity type's discriminator value (see below).
         _isPredicateCompatibleWithReadItem = true;
-        var jsonIdProperties = _entityType.GetJsonIdDefinition()?.Properties ?? [];
+        var jsonIdDefinition = _entityType.GetJsonIdDefinition();
+
+        var jsonIdProperties = jsonIdDefinition?.Properties ?? [];
         if (jsonIdProperties.Count == 0)
         {
             // No JSON ID definition - no ReadItem
             _isPredicateCompatibleWithReadItem = false;
         }
 
+        _discriminatorHandled = jsonIdDefinition?.IncludesDiscriminator != true
+            || jsonIdDefinition.DiscriminatorIsRootType;
+
         _jsonIdPropertyValues = jsonIdProperties.ToDictionary(p => p, _ => (Expression?)null);
 
         var partitionKeyProperties = _entityType.GetPartitionKeyProperties();
         _partitionKeyPropertyValues = partitionKeyProperties.ToDictionary(p => p, _ => (Expression?)null);
-
-        var discriminatorProperty = _entityType.FindDiscriminatorProperty();
-        _discriminatorJsonPropertyName = discriminatorProperty?.GetJsonPropertyName();
+        _discriminatorJsonPropertyName = _entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
 
         // Visit the predicate.
         // This will populate _jsonIdPropertyValues and _partitionKeyPropertyValues with comparisons found in the predicate, and return
         // a rewritten predicate where the partition key comparisons have been removed.
         var predicateWithoutPartitionKeyComparisons = (SqlExpression)Visit(predicate);
-
-        // If the discriminator is part of the JSON id definition, a comparison may be missing from the predicate, since we don't add one
-        // if it's not needed (e.g. only one entity type mapped to the container). For that case, add the entity type's discriminator value.
-        if (discriminatorProperty is not null
-            && _jsonIdPropertyValues.TryGetValue(discriminatorProperty, out var discriminatorValue)
-            && discriminatorValue is null)
-        {
-            _jsonIdPropertyValues[discriminatorProperty] = _sqlExpressionFactory.Constant(
-                _entityType.GetDiscriminatorValue(), discriminatorProperty.ClrType);
-        }
 
         var allIdPropertiesSpecified =
             _jsonIdPropertyValues.Values.All(p => p is not null) && _jsonIdPropertyValues.Count > 0;
@@ -126,9 +119,6 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             // a params object[] argument that gets parameterized as a single array. So the number of property values may not match the
             // number of partition key properties.
             && (partitionKeyProperties.Count == 0 || queryCompilationContext.PartitionKeyPropertyValues.Count > 0)
-            // If the entity type being queried has derived types and the discriminator is part of the JSON id, we can't reliably use
-            // ReadItem, since we don't know in advance which derived type the document represents.
-            && (!jsonIdProperties.Contains(discriminatorProperty) || !_entityType.GetDerivedTypes().Any())
             && select is
             {
                 Offset: null or SqlConstantExpression { Value: 0 },
@@ -171,6 +161,39 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
     {
         switch (node)
         {
+            case InExpression
+            {
+                Item: ScalarAccessExpression scalarAccessExpression,
+                Values: SqlExpression[] sqlExpressions
+            }:
+            {
+                // This is the case where there is more than one possible discriminator value to look for, so we can only
+                // ignore it if the discriminator is either not included in the JSON id (which means it must be unique without it)
+                // or the root discriminator type must be included in the JSON id, since this value is always known.
+                if (_discriminatorHandled
+                    && scalarAccessExpression.PropertyName == _discriminatorJsonPropertyName)
+                {
+                    var comparer = _entityType.FindDiscriminatorProperty()!.GetProviderValueComparer();
+                    var discriminatorValues = _entityType.GetDerivedTypesInclusive().Select(e => e.GetDiscriminatorValue()).ToList();
+                    if (discriminatorValues.Count == sqlExpressions.Length)
+                    {
+                        foreach (var sqlExpression in sqlExpressions)
+                        {
+                            if (sqlExpression is not SqlConstantExpression { Value: { } value }
+                                || !discriminatorValues.Contains(value, comparer!))
+                            {
+                                _isPredicateCompatibleWithReadItem = false;
+                                break;
+                            }
+                        }
+
+                        return node;
+                    }
+                }
+
+                _isPredicateCompatibleWithReadItem = false;
+                return node;
+            }
             case SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: var left, Right: var right } binary:
             {
                 // TODO: Handle property accesses into complex types/owned entity types, #25548
@@ -226,17 +249,30 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
             // property, a partition key property, or certain cases involving the discriminator property.
             var isCompatibleComparisonForReadItem = false;
 
-            foreach (var property in _jsonIdPropertyValues.Keys)
+            if (propertyName == _discriminatorJsonPropertyName
+                && propertyValue is SqlConstantExpression { Value: { } specifiedDiscriminatorValue }
+                && _entityType.FindDiscriminatorProperty() is { } discriminatorProperty
+                && _entityType.GetDiscriminatorValue() is { } entityDiscriminatorValue
+                && discriminatorProperty.GetProviderValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
             {
-                if (propertyName == property.GetJsonPropertyName())
+                // This is the case where there is a single leaf node with a discriminator value. We always know this value,
+                // so the query never needs to drop out of ReadItem because of it.
+                isCompatibleComparisonForReadItem = true;
+            }
+            else
+            {
+                foreach (var property in _jsonIdPropertyValues.Keys)
                 {
-                    if (_jsonIdPropertyValues.TryGetValue(property, out var previousValue)
-                        && (previousValue is null || previousValue.Equals(propertyValue)))
+                    if (propertyName == property.GetJsonPropertyName())
                     {
-                        _jsonIdPropertyValues[property] = propertyValue;
-                        isCompatibleComparisonForReadItem = true;
+                        if (_jsonIdPropertyValues.TryGetValue(property, out var previousValue)
+                            && (previousValue is null || previousValue.Equals(propertyValue)))
+                        {
+                            _jsonIdPropertyValues[property] = propertyValue;
+                            isCompatibleComparisonForReadItem = true;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
 
@@ -252,22 +288,6 @@ public class CosmosReadItemAndPartitionKeysExtractor : ExpressionVisitor
                     _partitionKeyPropertyValues[property] = propertyValue;
                     return _sqlExpressionFactory.Constant(true);
                 }
-            }
-
-            // The query contains a comparison on the discriminator property.
-            // If the discriminator is part of the JSON ID property, it'll be handled below like any other JSON ID property.
-            // However, if it isn't, we may need to ignore the comparison, and allow transforming to ReadItem. For example, when
-            // multiple entity types are mapped to the same container, EF adds a discriminator comparison; but we want to use ReadItem
-            // for these (common) cases - so we ignore the comparison for the purpose of ReadItem transformation, and validate the
-            // discriminator coming back from Cosmos in the shaper, to ensure throwing for an incorrect type.
-            if (isCompatibleComparisonForReadItem
-                && propertyName == _discriminatorJsonPropertyName
-                && propertyValue is SqlConstantExpression { Value: object specifiedDiscriminatorValue }
-                && _entityType.FindDiscriminatorProperty() is IProperty discriminatorProperty
-                && _entityType.GetDiscriminatorValue() is object entityDiscriminatorValue
-                && discriminatorProperty.GetProviderValueComparer().Equals(specifiedDiscriminatorValue, entityDiscriminatorValue))
-            {
-                isCompatibleComparisonForReadItem = true;
             }
 
             if (!isCompatibleComparisonForReadItem)

@@ -317,7 +317,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         if (concreteEntityTypes is [var singleEntityType]
             && singleEntityType.GetIsDiscriminatorMappingComplete()
             && entityType.GetContainer() is var container
-            && !entityType.Model.GetEntityTypes().Any(e => e.GetContainer() == container && e != singleEntityType))
+            && !entityType.Model.GetEntityTypes().Any(
+                // If a read-only/view type is mapped to the same container with the same discriminator, then we still don't need
+                // the discriminator, allowing ReadItem in more places.
+                e => e.GetContainer() == container && !Equals(e.GetDiscriminatorValue(), singleEntityType.GetDiscriminatorValue())))
         {
             // There's a single entity type mapped to the container and the discriminator mapping is complete; we can skip the
             // discriminator predicate.

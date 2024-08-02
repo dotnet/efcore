@@ -280,7 +280,7 @@ ORDER BY c["Species"]
 SELECT VALUE c
 FROM root c
 WHERE c["Discriminator"] IN ("Daisy", "Rose")
-ORDER BY c["Species"]
+ORDER BY c["id"]
 """);
             });
 

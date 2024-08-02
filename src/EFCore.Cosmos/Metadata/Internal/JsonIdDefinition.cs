@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 /// </summary>
 public class JsonIdDefinition : IJsonIdDefinition
 {
+    private readonly IProperty? _discriminatorProperty;
+    private readonly object? _discriminatorValue;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -31,7 +34,40 @@ public class JsonIdDefinition : IJsonIdDefinition
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public JsonIdDefinition(
+        IReadOnlyList<IProperty> properties,
+        IEntityType discriminatorEntityType,
+        bool discriminatorIsRootType)
+    {
+        Properties = properties;
+        DiscriminatorIsRootType = discriminatorIsRootType;
+        _discriminatorProperty = discriminatorEntityType.FindDiscriminatorProperty();
+        _discriminatorValue = discriminatorEntityType.GetDiscriminatorValue();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IReadOnlyList<IProperty> Properties { get; }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool DiscriminatorIsRootType { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IncludesDiscriminator
+        => _discriminatorProperty != null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,18 +87,28 @@ public class JsonIdDefinition : IJsonIdDefinition
     public virtual string GenerateIdString(IEnumerable<object?> values)
     {
         var builder = new StringBuilder();
+
+        if (_discriminatorProperty != null)
+        {
+            AppendValue(_discriminatorProperty!, _discriminatorValue!);
+        }
+
         var i = 0;
         foreach (var value in values)
         {
-            var property = Properties[i++];
-            var converter = property.GetTypeMapping().Converter;
-            AppendString(builder, converter == null ? value : converter.ConvertToProvider(value));
-            builder.Append('|');
+            AppendValue(Properties[i++], value);
         }
 
         builder.Remove(builder.Length - 1, 1);
 
         return builder.ToString();
+
+        void AppendValue(IProperty property, object? value)
+        {
+            var converter = property.GetTypeMapping().Converter;
+            AppendString(builder, converter == null ? value : converter.ConvertToProvider(value));
+            builder.Append('|');
+        }
     }
 
     /// <summary>

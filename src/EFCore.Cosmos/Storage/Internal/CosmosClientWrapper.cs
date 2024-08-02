@@ -491,13 +491,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 case EntityState.Modified:
                 {
-                    var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+                    var jObjectProperty = entry.EntityType.FindProperty(CosmosKeyAugmenterConvention.JObjectPropertyName);
                     enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnUpdate) == ValueGenerated.OnUpdate;
                     break;
                 }
                 case EntityState.Added:
                 {
-                    var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+                    var jObjectProperty = entry.EntityType.FindProperty(CosmosKeyAugmenterConvention.JObjectPropertyName);
                     enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd;
                     break;
                 }
@@ -536,7 +536,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
         }
 
-        var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+        var jObjectProperty = entry.EntityType.FindProperty(CosmosKeyAugmenterConvention.JObjectPropertyName);
         if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
             && response.Content != null)
         {

@@ -24,6 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             = new ResourceManager("Microsoft.EntityFrameworkCore.Cosmos.Properties.CosmosStrings", typeof(CosmosStrings).Assembly);
 
         /// <summary>
+        ///     'AlwaysCreateShadowIdProperty' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.
+        /// </summary>
+        public static string AlwaysCreateShadowIdPropertyOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("AlwaysCreateShadowIdPropertyOnNonRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     The time to live for analytical store was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same time to live for analytical store.
         /// </summary>
         public static string AnalyticalTTLMismatch(object? ttl1, object? entityType1, object? entityType2, object? ttl2, object? container)
@@ -92,6 +100,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("DefaultTTLMismatch", nameof(ttl1), nameof(entityType1), nameof(entityType2), nameof(ttl2), nameof(container)),
                 ttl1, entityType1, entityType2, ttl2, container);
+
+        /// <summary>
+        ///     'IncludeDiscriminatorInJsonId' or 'IncludeRootDiscriminatorInJsonId' was called on a non-root entity type '{entityType}'. Discriminator configuration for the JSON 'id' property can only be made on the document root.
+        /// </summary>
+        public static string DiscriminatorInKeyOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("DiscriminatorInKeyOnNonRoot", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.
@@ -230,14 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.
-        /// </summary>
-        public static string NoIdKey(object? entityType, object? idProperty)
-            => string.Format(
-                GetString("NoIdKey", nameof(entityType), nameof(idProperty)),
-                entityType, idProperty);
-
-        /// <summary>
         ///     The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.
         /// </summary>
         public static string NoIdProperty(object? entityType)
@@ -274,14 +282,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("NoPartitionKey", nameof(entityType1), nameof(props1), nameof(entityType2), nameof(props2), nameof(containerName)),
                 entityType1, props1, entityType2, props2, containerName);
-
-        /// <summary>
-        ///     The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.
-        /// </summary>
-        public static string NoPartitionKeyKey(object? entityType, object? partitionKey, object? idProperty)
-            => string.Format(
-                GetString("NoPartitionKeyKey", nameof(entityType), nameof(partitionKey), nameof(idProperty)),
-                entityType, partitionKey, idProperty);
 
         /// <summary>
         ///     There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.

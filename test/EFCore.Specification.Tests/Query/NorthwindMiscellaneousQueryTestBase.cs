@@ -2183,7 +2183,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                  from o in ss.Set<Order>()
                  select c));
 
-    private class Foo
+    protected class Foo
     {
         public string Bar { get; set; }
     }

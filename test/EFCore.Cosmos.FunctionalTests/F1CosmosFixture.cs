@@ -39,6 +39,8 @@ public class F1CosmosFixture<TRowVersion> : F1FixtureBase<TRowVersion>
     {
         base.BuildModelExternal(modelBuilder);
 
+        modelBuilder.IncludeDiscriminatorInJsonId();
+
         modelBuilder.Entity<Engine>(
             b =>
             {

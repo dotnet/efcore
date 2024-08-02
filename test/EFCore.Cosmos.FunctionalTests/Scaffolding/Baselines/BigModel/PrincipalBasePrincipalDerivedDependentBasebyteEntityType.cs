@@ -39,7 +39,7 @@ namespace TestNamespace
                 discriminatorValue: "PrincipalBasePrincipalDerived<DependentBase<byte?>>",
                 propertyCount: 8,
                 foreignKeyCount: 2,
-                keyCount: 2);
+                keyCount: 1);
 
             var derivedsId = runtimeEntityType.AddProperty(
                 "DerivedsId",
@@ -383,13 +383,13 @@ namespace TestNamespace
                 string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
                 string (InternalEntityEntry entry) => ((string)((((IDictionary<string, object>)((Dictionary<string, object>)(entry.Entity))).ContainsKey("__id") ? ((Dictionary<string, object>)(entry.Entity))["__id"] : null))),
                 string (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(__id, 5),
-                string (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<string>(__id, 4),
+                string (InternalEntityEntry entry) => entry.GetCurrentValue<string>(__id),
                 object (ValueBuffer valueBuffer) => valueBuffer[5]);
             __id.SetPropertyIndexes(
                 index: 5,
                 originalValueIndex: 5,
                 shadowIndex: -1,
-                relationshipIndex: 4,
+                relationshipIndex: -1,
                 storeGenerationIndex: -1);
             __id.TypeMapping = CosmosTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
@@ -406,7 +406,6 @@ namespace TestNamespace
                     string (string v) => v),
                 clrType: typeof(string),
                 jsonValueReaderWriter: JsonStringReaderWriter.Instance);
-            __id.SetCurrentValueComparer(new EntryCurrentValueComparer<string>(__id));
             __id.AddAnnotation("Cosmos:PropertyName", "id");
 
             var __jObject = runtimeEntityType.AddProperty(
@@ -503,11 +502,8 @@ namespace TestNamespace
                         byte[] (string v) => Convert.FromBase64String(v))));
 
             var key = runtimeEntityType.AddKey(
-                new[] { __id });
-
-            var key0 = runtimeEntityType.AddKey(
                 new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
-            runtimeEntityType.SetPrimaryKey(key0);
+            runtimeEntityType.SetPrimaryKey(key);
 
             return runtimeEntityType;
         }
@@ -544,12 +540,9 @@ namespace TestNamespace
             var __id = runtimeEntityType.FindProperty("__id")!;
             var __jObject = runtimeEntityType.FindProperty("__jObject")!;
             var rowid = runtimeEntityType.FindProperty("rowid")!;
-            var key = runtimeEntityType.FindKey(new[] { __id });
-            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<string, int>(key));
-            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<string>(key));
-            var key0 = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
-            key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key0));
-            key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key0));
+            var key = runtimeEntityType.FindKey(new[] { derivedsId, derivedsAlternateId, principalsId, principalsAlternateId });
+            key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
+            key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {
@@ -568,7 +561,7 @@ namespace TestNamespace
                 ISnapshot (InternalEntityEntry source) =>
                 {
                     var entity5 = ((Dictionary<string, object>)(source.Entity));
-                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid, string>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)), (source.GetCurrentValue<string>(__id) == null ? null : ((ValueComparer<string>)(((IProperty)__id).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<string>(__id))))));
+                    return ((ISnapshot)(new Snapshot<long, Guid, long, Guid>(((ValueComparer<long>)(((IProperty)derivedsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(derivedsId)), ((ValueComparer<Guid>)(((IProperty)derivedsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(derivedsAlternateId)), ((ValueComparer<long>)(((IProperty)principalsId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<long>(principalsId)), ((ValueComparer<Guid>)(((IProperty)principalsAlternateId).GetKeyValueComparer())).Snapshot(source.GetCurrentValue<Guid>(principalsAlternateId)))));
                 });
             runtimeEntityType.Counts = new PropertyCounts(
                 propertyCount: 8,
@@ -576,7 +569,7 @@ namespace TestNamespace
                 complexPropertyCount: 0,
                 originalValueCount: 8,
                 shadowCount: 0,
-                relationshipCount: 5,
+                relationshipCount: 4,
                 storeGeneratedCount: 5);
 
             Customize(runtimeEntityType);

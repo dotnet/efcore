@@ -655,7 +655,7 @@ namespace TestNamespace
                 index: 0,
                 originalValueIndex: -1,
                 shadowIndex: -1,
-                relationshipIndex: 3,
+                relationshipIndex: 2,
                 storeGenerationIndex: -1);
             return runtimeForeignKey;
         }

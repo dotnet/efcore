@@ -41,7 +41,6 @@ public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQuery
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -55,13 +54,13 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """,
                     //
                     """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
             });
 
@@ -87,7 +86,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
             {
                 await base.Local_dictionary(a);
 
-                AssertSql("ReadItem(None, Customer|ALFKI)");
+                AssertSql("ReadItem(None, ALFKI)");
             });
 
     public override Task Entity_equality_self(bool async)
@@ -98,9 +97,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = c["CustomerID"]))
+WHERE (c["id"] = c["id"])
 """);
             });
 
@@ -114,9 +113,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = c["CustomerID"])
                     """
 @__entity_equality_local_0_CustomerID='ANATR'
 
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__entity_equality_local_0_CustomerID))
+WHERE (c["id"] = @__entity_equality_local_0_CustomerID)
 """);
             });
 
@@ -145,9 +144,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__entity_equali
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ANATR"))
+WHERE (c["id"] = "ANATR")
 """);
             });
 
@@ -168,9 +167,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ANATR"))
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
+WHERE (c["id"] = null)
 """);
             });
 
@@ -182,9 +181,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] != null))
+WHERE (c["id"] != null)
 """);
             });
 
@@ -478,7 +477,6 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] != null))
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY (c["EmployeeID"] - c["EmployeeID"])
 """);
         }
@@ -563,7 +561,6 @@ ORDER BY ((c["UnitsInStock"] > 10) ? (c["ProductID"] > 40) : (c["ProductID"] <= 
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["ContactName"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
@@ -654,7 +651,6 @@ OFFSET @__p_0 LIMIT @__p_1
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -668,7 +664,6 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -677,12 +672,10 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Queryable_nested_simple(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -698,7 +691,6 @@ WHERE (c["Discriminator"] = "Customer")
 
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 OFFSET 0 LIMIT @__p_0
 """);
             });
@@ -715,7 +707,6 @@ OFFSET 0 LIMIT @__p_0
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 OFFSET 0 LIMIT @__p_0
 """);
             });
@@ -732,8 +723,7 @@ OFFSET 0 LIMIT @__p_0
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET 0 LIMIT @__p_0
 """);
             });
@@ -743,15 +733,13 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Take_simple_parameterized(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__p_0='10'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET 0 LIMIT @__p_0
 """);
             });
@@ -761,15 +749,13 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Take_simple_projection(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__p_0='10'
 
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET 0 LIMIT @__p_0
 """);
             });
@@ -779,15 +765,13 @@ OFFSET 0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Take_subquery_projection(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__p_0='2'
 
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET 0 LIMIT @__p_0
 """);
             });
@@ -823,8 +807,7 @@ OFFSET 0 LIMIT @__p_0
                 """
 SELECT VALUE EXISTS (
     SELECT 1
-    FROM root c
-    WHERE (c["Discriminator"] = "Customer"))
+    FROM root c)
 """);
         }
     }
@@ -838,13 +821,12 @@ SELECT VALUE EXISTS (
             var exception = await Assert.ThrowsAsync<CosmosException>(() => base.Any_predicate(async));
 
             Assert.Equal(HttpStatusCode.BadRequest, exception.StatusCode);
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
-    WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "A")))
+    WHERE STARTSWITH(c["ContactName"], "A"))
 """);
         }
     }
@@ -1297,7 +1279,6 @@ SELECT VALUE EXISTS (
 SELECT VALUE EXISTS (
     SELECT 1
     FROM root c
-    WHERE (c["Discriminator"] = "Customer")
     ORDER BY c["ContactName"]
     OFFSET @__p_0 LIMIT @__p_1)
 """);
@@ -1335,13 +1316,11 @@ SELECT VALUE EXISTS (
             async, async a =>
             {
                 await base.OrderBy(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -1358,7 +1337,6 @@ ORDER BY c["CustomerID"]
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY true
 """);
         }
@@ -1372,12 +1350,10 @@ ORDER BY true
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_integer(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY 3
 """);
         }
@@ -1398,7 +1374,6 @@ ORDER BY 3
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY @__param_0
 """);
         }
@@ -1409,13 +1384,11 @@ ORDER BY @__param_0
             async, async a =>
             {
                 await base.OrderBy_anon(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -1424,13 +1397,11 @@ ORDER BY c["CustomerID"]
             async, async a =>
             {
                 await base.OrderBy_anon2(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -1443,7 +1414,9 @@ ORDER BY c["CustomerID"]
 
     public override async Task OrderBy_multiple_queries(bool async)
     {
-        await base.OrderBy_multiple_queries(async);
+        await AssertTranslationFailedWithDetails(
+            () => base.Where_join_orderby_join_select(async),
+            CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(Order), nameof(Customer)));
 
         AssertSql();
     }
@@ -1474,12 +1447,10 @@ ORDER BY c["CustomerID"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_shadow(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY c["Title"], c["EmployeeID"]
 """);
         }
@@ -1498,7 +1469,7 @@ ORDER BY c["Title"], c["EmployeeID"]
                 """
 SELECT VALUE c["City"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+WHERE STARTSWITH(c["id"], "A")
 ORDER BY c["Country"], c["City"]
 """);
         }
@@ -1518,8 +1489,7 @@ ORDER BY c["Country"], c["City"]
                 """
 SELECT VALUE EXISTS (
     SELECT 1
-    FROM root c
-    WHERE (c["Discriminator"] = "Customer"))
+    FROM root c)
 """);
         }
     }
@@ -1736,8 +1706,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] < 10300))
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["CustomerID"]
+ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
 """);
         }
     }
@@ -1750,18 +1719,16 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["CustomerID"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.Select_null_coalesce_operator(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
+    "CustomerID" : c["id"],
     "CompanyName" : c["CompanyName"],
     "Region" : ((c["Region"] != null) ? c["Region"] : "ZZ")
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["CustomerID"]
+ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["id"]
 """);
         }
     }
@@ -1774,13 +1741,11 @@ ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ"), c["CustomerID"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_conditional_operator(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY ((c["Region"] = null) ? "ZZ" : c["Region"]), c["CustomerID"]
+ORDER BY ((c["Region"] = null) ? "ZZ" : c["Region"]), c["id"]
 """);
         }
     }
@@ -1795,7 +1760,6 @@ ORDER BY ((c["Region"] = null) ? "ZZ" : c["Region"]), c["CustomerID"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["City"]
 """);
             });
@@ -1813,7 +1777,6 @@ ORDER BY c["City"]
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY (c["Region"] = "ASK")
 """);
         }
@@ -1824,17 +1787,15 @@ ORDER BY (c["Region"] = "ASK")
             async, async a =>
             {
                 await base.Projection_null_coalesce_operator(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
+    "CustomerID" : c["id"],
     "CompanyName" : c["CompanyName"],
     "Region" : ((c["Region"] != null) ? c["Region"] : "ZZ")
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -1843,12 +1804,11 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Filter_coalesce_operator(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["ContactName"] != null) ? c["ContactName"] : c["CompanyName"]) = "Liz Nixon"))
+WHERE (((c["ContactName"] != null) ? c["ContactName"] : c["CompanyName"]) = "Liz Nixon")
 """);
             });
 
@@ -1876,12 +1836,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["ContactName"] != null) ? c["C
 
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
+    "CustomerID" : c["id"],
     "CompanyName" : c["CompanyName"],
     "Region" : ((c["Region"] != null) ? c["Region"] : "ZZ")
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ")
 OFFSET 0 LIMIT @__p_0
 """);
@@ -1923,12 +1882,10 @@ OFFSET 0 LIMIT @__p_0
             // Unsupported ORDER BY clause.
             await Assert.ThrowsAsync<CosmosException>(
                 () => base.Selected_column_can_coalesce(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY ((c["Region"] != null) ? c["Region"] : "ZZ")
 """);
         }
@@ -2064,7 +2021,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] > @__p_0))
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["CustomerID"], @__NewLine_0))
+WHERE CONTAINS(c["id"], @__NewLine_0)
 """,
                     sql);
             });
@@ -2092,17 +2049,15 @@ WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["CustomerID"], @__NewLin
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_or(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Value" : ((c["CustomerID"] = "ALFKI") | (c["CustomerID"] = "ANATR"))
+    "CustomerID" : c["id"],
+    "Value" : ((c["id"] = "ALFKI") | (c["id"] = "ANATR"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
         }
     }
@@ -2114,17 +2069,15 @@ ORDER BY c["CustomerID"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_or_multiple(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Value" : (((c["CustomerID"] = "ALFKI") | (c["CustomerID"] = "ANATR")) | (c["CustomerID"] = "ANTON"))
+    "CustomerID" : c["id"],
+    "Value" : (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) | (c["id"] = "ANTON"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
         }
     }
@@ -2136,17 +2089,15 @@ ORDER BY c["CustomerID"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_and(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Value" : ((c["CustomerID"] = "ALFKI") & (c["CustomerID"] = "ANATR"))
+    "CustomerID" : c["id"],
+    "Value" : ((c["id"] = "ALFKI") & (c["id"] = "ANATR"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
         }
     }
@@ -2158,17 +2109,15 @@ ORDER BY c["CustomerID"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_and_or(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Value" : (((c["CustomerID"] = "ALFKI") & (c["CustomerID"] = "ANATR")) | (c["CustomerID"] = "ANTON"))
+    "CustomerID" : c["id"],
+    "Value" : (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) | (c["id"] = "ANTON"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
         }
     }
@@ -2180,12 +2129,11 @@ ORDER BY c["CustomerID"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_or(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") | (c["CustomerID"] = "ANATR")) OR (c["CustomerID"] = "ANTON")))
+WHERE (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) OR (c["id"] = "ANTON"))
 """);
         }
     }
@@ -2195,12 +2143,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") | (c[
             async, async a =>
             {
                 await base.Where_bitwise_and_with_logical_and(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") & (c["CustomerID"] = "ANATR")) AND (c["CustomerID"] = "ANTON")))
+WHERE (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) AND (c["id"] = "ANTON"))
 """);
             });
 
@@ -2211,12 +2158,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") & (c[
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_and(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") | (c["CustomerID"] = "ANATR")) AND (c["Country"] = "Germany")))
+WHERE (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) AND (c["Country"] = "Germany"))
 """);
         }
     }
@@ -2226,12 +2172,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") | (c[
             async, async a =>
             {
                 await base.Where_bitwise_and_with_logical_or(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") & (c["CustomerID"] = "ANATR")) OR (c["CustomerID"] = "ANTON")))
+WHERE (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) OR (c["id"] = "ANTON"))
 """);
             });
 
@@ -2300,17 +2245,15 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] ^ 1) = 10249))
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_or_with_logical_or(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Value" : (((c["CustomerID"] = "ALFKI") | (c["CustomerID"] = "ANATR")) OR (c["CustomerID"] = "ANTON"))
+    "CustomerID" : c["id"],
+    "Value" : (((c["id"] = "ALFKI") | (c["id"] = "ANATR")) OR (c["id"] = "ANTON"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
         }
     }
@@ -2322,17 +2265,15 @@ ORDER BY c["CustomerID"]
         {
             // Bitwise operators on booleans. Issue #13168.
             await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_bitwise_and_with_logical_and(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
-    "Value" : (((c["CustomerID"] = "ALFKI") & (c["CustomerID"] = "ANATR")) AND (c["CustomerID"] = "ANTON"))
+    "CustomerID" : c["id"],
+    "Value" : (((c["id"] = "ALFKI") & (c["id"] = "ANATR")) AND (c["id"] = "ANTON"))
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
         }
     }
@@ -2675,7 +2616,8 @@ WHERE (((c["Discriminator"] = "Order") AND (c["OrderDate"] != null)) AND (DateTi
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async));
 
-        AssertSql();
+        AssertSql(
+);
     }
 
     public override async Task OrderBy_skip_take(bool async)
@@ -2694,7 +2636,6 @@ WHERE (((c["Discriminator"] = "Order") AND (c["OrderDate"] != null)) AND (DateTi
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 ORDER BY c["ContactTitle"], c["ContactName"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
@@ -2734,7 +2675,8 @@ OFFSET @__p_0 LIMIT @__p_1
             () => base.OrderBy_skip_take_skip_take_skip(async),
             CosmosStrings.LimitOffsetNotSupportedInSubqueries);
 
-        AssertSql();
+        AssertSql(
+);
     }
 
     public override Task OrderBy_skip_take_distinct(bool async)
@@ -2845,12 +2787,11 @@ OFFSET @__p_0 LIMIT @__p_1
             async, async a =>
             {
                 await base.Anonymous_member_distinct_where(a);
-
-                AssertSql(
-                    """
-SELECT DISTINCT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT DISTINCT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
             });
 
@@ -2877,12 +2818,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
             async, async a =>
             {
                 await base.Anonymous_complex_distinct_where(a);
-
-                AssertSql(
-                    """
-SELECT DISTINCT VALUE (c["CustomerID"] || c["City"])
+AssertSql(
+    """
+SELECT DISTINCT VALUE (c["id"] || c["City"])
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "ALFKIBerlin"))
+WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
 """);
             });
 
@@ -2900,8 +2840,8 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Anonymous_complex_distinct_result(async));
-
-        AssertSql();
+        AssertSql(
+);
     }
 
     public override async Task Anonymous_complex_orderby(bool async)
@@ -2914,10 +2854,9 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "
 
             AssertSql(
                 """
-SELECT VALUE (c["CustomerID"] || c["City"])
+SELECT VALUE (c["id"] || c["City"])
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY (c["CustomerID"] || c["City"])
+ORDER BY (c["id"] || c["City"])
 """);
         }
     }
@@ -2926,8 +2865,8 @@ ORDER BY (c["CustomerID"] || c["City"])
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Anonymous_subquery_orderby(async));
-
-        AssertSql();
+AssertSql(
+);
     }
 
     public override Task DTO_member_distinct_where(bool async)
@@ -2935,12 +2874,11 @@ ORDER BY (c["CustomerID"] || c["City"])
             async, async a =>
             {
                 await base.DTO_member_distinct_where(a);
-
-                AssertSql(
-                    """
-SELECT DISTINCT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT DISTINCT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
             });
 
@@ -2967,12 +2905,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
             async, async a =>
             {
                 await base.DTO_complex_distinct_where(a);
-
-                AssertSql(
-                    """
-SELECT DISTINCT VALUE (c["CustomerID"] || c["City"])
+AssertSql(
+    """
+SELECT DISTINCT VALUE (c["id"] || c["City"])
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "ALFKIBerlin"))
+WHERE ((c["id"] || c["City"]) = "ALFKIBerlin")
 """);
             });
 
@@ -3002,13 +2939,11 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.DTO_complex_orderby(async));
-
-            AssertSql(
-                """
-SELECT VALUE (c["CustomerID"] || c["City"])
+AssertSql(
+    """
+SELECT VALUE (c["id"] || c["City"])
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY (c["CustomerID"] || c["City"])
+ORDER BY (c["id"] || c["City"])
 """);
         }
     }
@@ -3231,8 +3166,8 @@ ORDER BY (c["CustomerID"] || c["City"])
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Select_distinct_sum(async));
-
-        AssertSql();
+AssertSql(
+);
     }
 
     public override Task Comparing_to_fixed_string_parameter(bool async)
@@ -3240,14 +3175,13 @@ ORDER BY (c["CustomerID"] || c["City"])
             async, async a =>
             {
                 await base.Comparing_to_fixed_string_parameter(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__prefix_0='A'
 
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], @__prefix_0))
+WHERE STARTSWITH(c["id"], @__prefix_0)
 """);
             });
 
@@ -3275,10 +3209,10 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], @__pref
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A")) AND NOT((c["CustomerID"] = null)))
-ORDER BY c["CustomerID"]
+WHERE (STARTSWITH(c["id"], "A") AND NOT((c["id"] = null)))
+ORDER BY c["id"]
 """);
             });
 
@@ -3319,12 +3253,11 @@ ORDER BY c["CustomerID"]
             async, async a =>
             {
                 await base.Comparing_collection_navigation_to_null(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
+WHERE (c["id"] = null)
 """);
             });
 
@@ -3333,7 +3266,8 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Comparing_collection_navigation_to_null_complex(async));
 
-        AssertSql();
+        AssertSql(
+);
     }
 
     public override Task Compare_collection_navigation_with_itself(bool async)
@@ -3341,12 +3275,11 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
             async, async a =>
             {
                 await base.Compare_collection_navigation_with_itself(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE (((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A")) AND (c["CustomerID"] = c["CustomerID"]))
+WHERE (STARTSWITH(c["id"], "A") AND (c["id"] = c["id"]))
 """);
             });
 
@@ -3371,7 +3304,8 @@ WHERE (((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A")) 
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Compare_two_collection_navigations_with_different_property_chains(async));
 
-        AssertSql();
+        AssertSql(
+);
     }
 
     public override Task OrderBy_ThenBy_same_column_different_direction(bool async)
@@ -3379,13 +3313,12 @@ WHERE (((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A")) 
             async, async a =>
             {
                 await base.OrderBy_ThenBy_same_column_different_direction(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
-ORDER BY c["CustomerID"]
+WHERE STARTSWITH(c["id"], "A")
+ORDER BY c["id"]
 """);
             });
 
@@ -3394,13 +3327,12 @@ ORDER BY c["CustomerID"]
             async, async a =>
             {
                 await base.OrderBy_OrderBy_same_column_different_direction(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
-ORDER BY c["CustomerID"] DESC
+WHERE STARTSWITH(c["id"], "A")
+ORDER BY c["id"] DESC
 """);
             });
 
@@ -3427,16 +3359,14 @@ ORDER BY c["CustomerID"] DESC
             async, async a =>
             {
                 await base.OrderBy_Dto_projection_skip_take(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__p_0='5'
 @__p_1='10'
 
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
             });
@@ -3445,8 +3375,8 @@ OFFSET @__p_0 LIMIT @__p_1
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Join_take_count_works(async));
-
-        AssertSql();
+AssertSql(
+);
     }
 
     public override async Task OrderBy_empty_list_contains(bool async)
@@ -3456,15 +3386,13 @@ OFFSET @__p_0 LIMIT @__p_1
         {
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderBy_empty_list_contains(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 @__list_0='[]'
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY ARRAY_CONTAINS(@__list_0, c["CustomerID"])
+ORDER BY ARRAY_CONTAINS(@__list_0, c["id"])
 """);
         }
     }
@@ -3483,8 +3411,7 @@ ORDER BY ARRAY_CONTAINS(@__list_0, c["CustomerID"])
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY NOT(ARRAY_CONTAINS(@__list_0, c["CustomerID"]))
+ORDER BY NOT(ARRAY_CONTAINS(@__list_0, c["id"]))
 """);
         }
     }
@@ -3585,13 +3512,13 @@ ORDER BY NOT(ARRAY_CONTAINS(@__list_0, c["CustomerID"]))
                     """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] != null))
+WHERE (c["City"] != null)
 """,
                     //
                     """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] != null))
+WHERE (c["City"] != null)
 """);
             });
 
@@ -3651,8 +3578,7 @@ ORDER BY c["OrderID"] DESC, c["ProductID"] DESC
                 """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"] DESC, c["Country"]
+ORDER BY c["id"] DESC, c["Country"]
 """);
         }
     }
@@ -3665,13 +3591,11 @@ ORDER BY c["CustomerID"] DESC, c["Country"]
             // Cosmos client evaluation. Issue #17246.
             await Assert.ThrowsAsync<CosmosException>(
                 async () => await base.OrderByDescending_ThenByDescending(async));
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"] DESC, c["Country"] DESC
+ORDER BY c["id"] DESC, c["Country"] DESC
 """);
         }
     }
@@ -3681,7 +3605,8 @@ ORDER BY c["CustomerID"] DESC, c["Country"] DESC
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.OrderBy_Join(async));
 
-        AssertSql();
+        AssertSql(
+);
     }
 
     public override async Task OrderBy_ThenBy(bool async)
@@ -3697,8 +3622,7 @@ ORDER BY c["CustomerID"] DESC, c["Country"] DESC
                 """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"], c["Country"]
+ORDER BY c["id"], c["Country"]
 """);
         }
     }
@@ -3716,8 +3640,8 @@ ORDER BY c["CustomerID"], c["Country"]
                 """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
-ORDER BY c["City"], c["CustomerID"]
+WHERE (c["City"] = "London")
+ORDER BY c["City"], c["id"]
 """);
         }
     }
@@ -3797,7 +3721,6 @@ ORDER BY c["City"], c["CustomerID"]
                     """
 SELECT VALUE c["Title"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 """);
             });
 
@@ -3816,14 +3739,13 @@ WHERE (c["Discriminator"] = "Employee")
             async, async a =>
             {
                 await base.Where_Property_when_shadow_unconstrained_generic_method(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__value_0='Sales Representative'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = @__value_0))
+WHERE (c["Title"] = @__value_0)
 """);
             });
 
@@ -4052,7 +3974,7 @@ WHERE (c["Discriminator"] = "OrderDetail")
             {
                 await base.Entity_equality_with_null_coalesce_client_side(a);
 
-                AssertSql("ReadItem(None, Customer|ALFKI)");
+                AssertSql("ReadItem(None, ALFKI)");
             });
 
     public override Task Entity_equality_contains_with_list_of_null(bool async)
@@ -4060,12 +3982,11 @@ WHERE (c["Discriminator"] = "OrderDetail")
             async, async a =>
             {
                 await base.Entity_equality_contains_with_list_of_null(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN (null, "ALFKI"))
+WHERE c["id"] IN (null, "ALFKI")
 """);
             });
 
@@ -4263,13 +4184,11 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN (null, "ALFKI"))
             async, async a =>
             {
                 await base.AsEnumerable_over_string(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -4292,12 +4211,10 @@ WHERE (c["Discriminator"] = "Order")
             async, async a =>
             {
                 await base.Cast_results_to_object(a);
-
                 AssertSql(
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -4311,7 +4228,6 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT VALUE false
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -4349,12 +4265,10 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] != null))
         if (async)
         {
             await base.Throws_on_concurrent_query_first(async);
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
         }
     }
@@ -4364,12 +4278,11 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Entity_equality_through_include(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
+WHERE (c["id"] = null)
 """);
             });
 
@@ -4397,7 +4310,6 @@ WHERE (c["Discriminator"] = "Order")
                     """
 SELECT VALUE c["EmployeeID"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 ORDER BY c["EmployeeID"]
 """);
             });
@@ -4416,13 +4328,11 @@ ORDER BY c["EmployeeID"]
             async, async a =>
             {
                 await base.OrderBy_Select(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c["ContactName"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -4454,7 +4364,6 @@ WHERE (c["Discriminator"] = "Order")
                 """
 SELECT VALUE LENGTH(c["Region"])
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
         }
     }
@@ -4464,13 +4373,11 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.ToList_over_string(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -4500,12 +4407,10 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND ((c["OrderID"] != null) AND (c["
             true, async _ =>
             {
                 await base.ToListAsync_with_canceled_token();
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 """);
             });
 
@@ -4519,11 +4424,10 @@ WHERE (c["Discriminator"] = "Employee")
                     """
 SELECT VALUE
 {
-    "CustomerID" : c["CustomerID"],
+    "CustomerID" : c["id"],
     "Data1" : "none"
 }
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -4532,13 +4436,11 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Entity_equality_orderby(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -4547,12 +4449,10 @@ ORDER BY c["CustomerID"]
             async, async a =>
             {
                 await base.Load_should_track_results(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -4562,7 +4462,7 @@ WHERE (c["Discriminator"] = "Customer")
             {
                 await base.Null_parameter_name_works(a);
 
-                AssertSql("ReadItem(None, Customer|null)");
+                AssertSql("ReadItem(None, null)");
             });
 
     public override Task Where_Property_shadow_closure(bool async)
@@ -4570,22 +4470,21 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.Where_Property_shadow_closure(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__value_0='Sales Representative'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = @__value_0))
+WHERE (c["Title"] = @__value_0)
 """,
-                    //
-                    """
+    //
+    """
 @__value_0='Steven'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["FirstName"] = @__value_0))
+WHERE (c["FirstName"] = @__value_0)
 """);
             });
 
@@ -4599,9 +4498,9 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["FirstName"] = @__value_0))
                     """
 @__entity_equality_local_0_CustomerID='ANATR'
 
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__entity_equality_local_0_CustomerID) AND (@__entity_equality_local_0_CustomerID = c["CustomerID"])))
+WHERE ((c["id"] = @__entity_equality_local_0_CustomerID) AND (@__entity_equality_local_0_CustomerID = c["id"]))
 """);
             });
 
@@ -4615,8 +4514,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__entity_equal
                     """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -4625,12 +4523,11 @@ ORDER BY c["CustomerID"]
             async, async a =>
             {
                 await base.MemberInitExpression_NewExpression_is_funcletized_even_when_bindings_are_not_evaluatable(a);
-
-                AssertSql(
-                    """
-SELECT VALUE c["CustomerID"]
+AssertSql(
+    """
+SELECT VALUE c["id"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+WHERE STARTSWITH(c["id"], "A")
 """);
             });
 
@@ -4677,7 +4574,7 @@ WHERE (c["Discriminator"] = "Order")
                     """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative"))
+WHERE (c["Title"] = "Sales Representative")
 """);
             });
 
@@ -4687,12 +4584,10 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative
         if (async)
         {
             await base.Throws_on_concurrent_query_list(async);
-
-            AssertSql(
-                """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
         }
     }
@@ -4735,13 +4630,11 @@ WHERE (c["Discriminator"] = "Order")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """,
                     //
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -4750,13 +4643,11 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.OrderByDescending(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c["City"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"] DESC
+ORDER BY c["id"] DESC
 """);
             });
 
@@ -4770,7 +4661,6 @@ ORDER BY c["CustomerID"] DESC
                     """
 SELECT VALUE c["Title"]
 FROM root c
-WHERE (c["Discriminator"] = "Employee")
 """);
             });
 
@@ -4786,8 +4676,7 @@ WHERE (c["Discriminator"] = "Employee")
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET @__p_0 LIMIT @__p_0
 """,
                     //
@@ -4796,8 +4685,7 @@ OFFSET @__p_0 LIMIT @__p_0
 
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 OFFSET @__p_0 LIMIT @__p_0
 """);
             });
@@ -5052,14 +4940,13 @@ OFFSET @__p_0 LIMIT @__p_0
             async, async a =>
             {
                 await base.Contains_over_concatenated_columns_with_different_sizes(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__data_0='["ALFKIAlfreds Futterkiste","ANATRAna Trujillo Emparedados y helados"]'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__data_0, (c["CustomerID"] || c["CompanyName"])))
+WHERE ARRAY_CONTAINS(@__data_0, (c["id"] || c["CompanyName"]))
 """);
             });
 
@@ -5075,7 +4962,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__data_0, (c["Custo
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__data_0, (c["CustomerID"] || "SomeConstant")))
+WHERE ARRAY_CONTAINS(@__data_0, (c["id"] || "SomeConstant"))
 """);
             });
 
@@ -5092,15 +4979,14 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__data_0, (c["Custo
             async, async a =>
             {
                 await base.Contains_over_concatenated_column_and_parameter(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__data_1='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]'
 @__someVariable_0='SomeVariable'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__data_1, (c["CustomerID"] || @__someVariable_0)))
+WHERE ARRAY_CONTAINS(@__data_1, (c["id"] || @__someVariable_0))
 """);
             });
 
@@ -5116,7 +5002,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ARRAY_CONTAINS(@__data_1, (c["Custo
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND @__Contains_0)
+WHERE @__Contains_0
 """);
             });
 
@@ -5125,15 +5011,14 @@ WHERE ((c["Discriminator"] = "Customer") AND @__Contains_0)
             async, async a =>
             {
                 await base.Compiler_generated_local_closure_produces_valid_parameter_name(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 @__customerId_0='ALFKI'
 @__details_City_1='Berlin'
 
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__customerId_0) AND (c["City"] = @__details_City_1)))
+WHERE ((c["id"] = @__customerId_0) AND (c["City"] = @__details_City_1))
 """);
             });
 
@@ -5143,7 +5028,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__customerId_0
             {
                 await base.Static_member_access_gets_parameterized_within_larger_evaluatable(a);
 
-                AssertSql("ReadItem(None, Customer|ALFKI)");
+                AssertSql("ReadItem(None, ALFKI)");
             });
 
     #region ToPageAsync
@@ -5182,28 +5067,24 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__customerId_0
             """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """,
             //
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """,
             //
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """,
             //
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
     }
 
@@ -5244,28 +5125,24 @@ ORDER BY c["CustomerID"]
             """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """,
             //
             """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """,
             //
             """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """,
             //
             """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
     }
 
@@ -5283,19 +5160,16 @@ ORDER BY c["CustomerID"]
         Assert.Equal("ALFKI", onlyPage.Values[0].CustomerID);
         Assert.Equal("WOLZA", onlyPage.Values[^1].CustomerID);
         Assert.Null(onlyPage.ContinuationToken);
-
-        AssertSql(
-            """
+AssertSql(
+    """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """,
-            //
-            """
+    //
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
     }
 
@@ -5310,12 +5184,11 @@ ORDER BY c["CustomerID"]
 
         Assert.Equal("ALFKI", onlyPage.Values[0].CustomerID);
         Assert.Null(onlyPage.ContinuationToken);
-
-        AssertSql(
-            """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+WHERE (c["id"] = "ALFKI")
 """);
     }
 

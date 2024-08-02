@@ -33,7 +33,6 @@ public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQ
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -42,12 +41,11 @@ WHERE (c["Discriminator"] = "Customer")
             async, async a =>
             {
                 await base.KeylessEntity_where_simple(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
+WHERE (c["City"] = "London")
 """);
             });
 
@@ -89,7 +87,7 @@ WHERE (c["Discriminator"] = "ProductView")
                 """
 SELECT VALUE c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["OrderCount"] > 0))
+WHERE (c["OrderCount"] > 0)
 """);
         }
     }
@@ -134,7 +132,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task KeylessEntity_select_where_navigation(bool async)
     {
-        // Left join translation. Issue #17314.
+        // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.KeylessEntity_select_where_navigation(async));
 
         AssertSql();
@@ -142,7 +140,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task KeylessEntity_select_where_navigation_multi_level(bool async)
     {
-        // Left join translation. Issue #17314.
+        // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.KeylessEntity_select_where_navigation_multi_level(async));
 
         AssertSql();
@@ -150,7 +148,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
 
     public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
     {
-        // Left join translation. Issue #17314.
+        // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.KeylessEntity_with_included_navs_multi_level(async));
 
         AssertSql();
@@ -177,12 +175,10 @@ WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
             async, async a =>
             {
                 await base.Auto_initialized_view_set(a);
-
-                AssertSql(
-                    """
+AssertSql(
+    """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
@@ -196,7 +192,6 @@ WHERE (c["Discriminator"] = "Customer")
                     """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
 """);
             });
 
