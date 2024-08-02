@@ -29,6 +29,8 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                         eb.HasPartitionKey("PartitionId");
                         eb.HasKey("Id", "PartitionId");
                         eb.ToContainer("DataContainer");
+                        eb.Property<Dictionary<string, string[]>>("Map");
+                        eb.Property<List<Dictionary<string, int>>>("List");
                         eb.UseETagConcurrency();
                         eb.HasNoDiscriminator();
                         eb.Property(d => d.Blob).ToJsonProperty("JsonBlob");
@@ -94,6 +96,38 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
                 Assert.NotNull(partitionId.GetValueComparer());
                 Assert.NotNull(partitionId.GetKeyValueComparer());
 
+                var map = dataEntity.FindProperty("Map")!;
+                Assert.Equal(typeof(Dictionary<string, string[]>), map.ClrType);
+                Assert.Null(map.PropertyInfo);
+                Assert.Null(map.FieldInfo);
+                Assert.True(map.IsNullable);
+                Assert.False(map.IsConcurrencyToken);
+                Assert.False(map.IsPrimitiveCollection);
+                Assert.Equal(ValueGenerated.Never, map.ValueGenerated);
+                Assert.Equal(PropertySaveBehavior.Save, map.GetAfterSaveBehavior());
+                Assert.Equal(PropertySaveBehavior.Save, map.GetBeforeSaveBehavior());
+                Assert.Equal("Map", CosmosPropertyExtensions.GetJsonPropertyName(map));
+                Assert.Null(map.GetValueGeneratorFactory());
+                Assert.Null(map.GetValueConverter());
+                Assert.NotNull(map.GetValueComparer());
+                Assert.NotNull(map.GetKeyValueComparer());
+
+                var list = dataEntity.FindProperty("List")!;
+                Assert.Equal(typeof(List<Dictionary<string, int>>), list.ClrType);
+                Assert.Null(list.PropertyInfo);
+                Assert.Null(list.FieldInfo);
+                Assert.True(list.IsNullable);
+                Assert.False(list.IsConcurrencyToken);
+                Assert.False(list.IsPrimitiveCollection);
+                Assert.Equal(ValueGenerated.Never, list.ValueGenerated);
+                Assert.Equal(PropertySaveBehavior.Save, list.GetAfterSaveBehavior());
+                Assert.Equal(PropertySaveBehavior.Save, list.GetBeforeSaveBehavior());
+                Assert.Equal("List", CosmosPropertyExtensions.GetJsonPropertyName(list));
+                Assert.Null(list.GetValueGeneratorFactory());
+                Assert.Null(list.GetValueConverter());
+                Assert.NotNull(list.GetValueComparer());
+                Assert.NotNull(list.GetKeyValueComparer());
+
                 var eTag = dataEntity.FindProperty("_etag")!;
                 Assert.Equal(typeof(string), eTag.ClrType);
                 Assert.Null(eTag.PropertyInfo);
@@ -143,7 +177,7 @@ public class CompiledModelCosmosTest : CompiledModelTestBase
 
                 Assert.Equal(2, dataEntity.GetKeys().Count());
 
-                Assert.Equal([id, partitionId, blob, storeId, jObject, eTag], dataEntity.GetProperties());
+                Assert.Equal([id, partitionId, blob, list, map, storeId, jObject, eTag], dataEntity.GetProperties());
             });
 
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
