@@ -77,18 +77,16 @@ public interface IHistoryRepository
     /// <summary>
     ///     Gets an exclusive lock on the database.
     /// </summary>
-    /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
-    IDisposable GetDatabaseLock(TimeSpan timeout);
+    IDisposable GetDatabaseLock();
 
     /// <summary>
     ///     Gets an exclusive lock on the database.
     /// </summary>
-    /// <param name="timeout">The time to wait for the lock before an exception is thrown.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>An object that can be disposed to release the lock.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default);
+    Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Generates a SQL script that will create the history table.

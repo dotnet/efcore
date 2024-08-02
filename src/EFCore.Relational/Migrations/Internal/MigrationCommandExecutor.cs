@@ -11,21 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class MigrationCommandExecutor : IMigrationCommandExecutor
+/// <remarks>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </remarks>
+public class MigrationCommandExecutor(IExecutionStrategy executionStrategy) : IMigrationCommandExecutor
 {
-    private readonly IExecutionStrategy _executionStrategy;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public MigrationCommandExecutor(IExecutionStrategy executionStrategy)
-    {
-        _executionStrategy = executionStrategy;
-    }
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -36,19 +29,20 @@ public class MigrationCommandExecutor : IMigrationCommandExecutor
         IEnumerable<MigrationCommand> migrationCommands,
         IRelationalConnection connection)
     {
+        var commands = migrationCommands.ToList();
         var userTransaction = connection.CurrentTransaction;
         if (userTransaction is not null
-            && (migrationCommands.Any(x => x.TransactionSuppressed) || _executionStrategy.RetriesOnFailure))
+            && (commands.Any(x => x.TransactionSuppressed) || executionStrategy.RetriesOnFailure))
         {
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
 
         using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         {
-            var parameters = new ExecuteParameters(migrationCommands.ToList(), connection);
+            var parameters = new ExecuteParameters(commands, connection);
             if (userTransaction is null)
             {
-                _executionStrategy.Execute(parameters, static (_, p) => Execute(p, beginTransaction: true), verifySucceeded: null);
+                executionStrategy.Execute(parameters, static (_, p) => Execute(p, beginTransaction: true), verifySucceeded: null);
             }
             else
             {
@@ -114,9 +108,10 @@ public class MigrationCommandExecutor : IMigrationCommandExecutor
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
     {
+        var commands = migrationCommands.ToList();
         var userTransaction = connection.CurrentTransaction;
         if (userTransaction is not null
-            && (migrationCommands.Any(x => x.TransactionSuppressed) || _executionStrategy.RetriesOnFailure))
+            && (commands.Any(x => x.TransactionSuppressed) || executionStrategy.RetriesOnFailure))
         {
             throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
         }
@@ -124,10 +119,10 @@ public class MigrationCommandExecutor : IMigrationCommandExecutor
         var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
         try
         {
-            var parameters = new ExecuteParameters(migrationCommands.ToList(), connection);
+            var parameters = new ExecuteParameters(commands, connection);
             if (userTransaction is null)
             {
-                await _executionStrategy.ExecuteAsync(
+                await executionStrategy.ExecuteAsync(
                     parameters,
                     static (_, p, ct) => ExecuteAsync(p, beginTransaction: true, ct),
                     verifySucceeded: null,
