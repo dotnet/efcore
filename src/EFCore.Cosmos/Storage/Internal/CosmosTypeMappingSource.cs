@@ -168,18 +168,36 @@ public class CosmosTypeMappingSource : TypeMappingSource
 
     // This ensures that the element reader/writers are not null when using Cosmos dictionary type mappings, but
     // is never actually used because Cosmos does not (yet) read and write JSON using this mechanism.
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
 #pragma warning disable EF1001
-    private sealed class PlaceholderJsonStringKeyedDictionaryReaderWriter<TElement>(JsonValueReaderWriter elementReaderWriter)
+    public sealed class PlaceholderJsonStringKeyedDictionaryReaderWriter<TElement>(JsonValueReaderWriter elementReaderWriter)
         : JsonValueReaderWriter<IEnumerable<KeyValuePair<string, TElement>>>, ICompositeJsonValueReaderWriter
 #pragma warning restore EF1001
     {
         private readonly JsonValueReaderWriter<TElement> _elementReaderWriter = (JsonValueReaderWriter<TElement>)elementReaderWriter;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped(
             ref Utf8JsonReaderManager manager,
             object? existingObject = null)
             => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override void ToJsonTyped(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, TElement>> value)
             => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
 
