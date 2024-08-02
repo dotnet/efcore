@@ -502,7 +502,7 @@ public class CosmosTestStore : TestStore
     private static async Task SeedAsync(DbContext context)
     {
         var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
-        await creator.SeedAsync().ConfigureAwait(false);
+        await creator.InsertDataAsync().ConfigureAwait(false);
     }
 
     public override void Dispose()

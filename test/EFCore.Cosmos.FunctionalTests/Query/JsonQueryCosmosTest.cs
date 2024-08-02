@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+[CosmosCondition(CosmosCondition.DoesNotUseTokenCredential)]
 public class JsonQueryCosmosTest : JsonQueryTestBase<JsonQueryCosmosFixture>
 {
     private const string NotImplementedBindPropertyMessage

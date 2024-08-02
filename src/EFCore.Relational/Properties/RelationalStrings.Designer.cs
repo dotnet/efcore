@@ -2108,7 +2108,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2232,6 +2232,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     {
         private static readonly ResourceManager _resourceManager
             = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.RelationalStrings", typeof(RelationalResources).Assembly);
+
+        /// <summary>
+        ///     Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations for more information if this takes too long.
+        /// </summary>
+        public static EventDefinition LogAcquiringMigrationLock(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAcquiringMigrationLock;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogAcquiringMigrationLock,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.AcquiringMigrationLock,
+                        LogLevel.Information,
+                        "RelationalEventId.AcquiringMigrationLock",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.AcquiringMigrationLock,
+                            _resourceManager.GetString("LogAcquiringMigrationLock")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
 
         /// <summary>
         ///     An ambient transaction has been detected, but the current provider does not support ambient transactions. See https://go.microsoft.com/fwlink/?LinkId=800142

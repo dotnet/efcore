@@ -1396,7 +1396,8 @@ namespace TestNamespace
         if (useContext != null)
         {
             ListLoggerFactory.Clear();
-            await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
+            var testStore = await TestStore.InitializeAsync(ServiceProvider, contextFactory.CreateContext);
+            await using var _ = testStore;
 
             using var compiledModelContext = (await CreateContextFactory<TContext>(
                     onConfiguring: options =>

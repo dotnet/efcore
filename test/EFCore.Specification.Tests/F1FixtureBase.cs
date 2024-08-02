@@ -17,6 +17,26 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
             .UseModel(CreateModelExternal())
+            .UseSeeding((c, _) =>
+            {
+                if (c.Set<EngineSupplier>().Count() != 0)
+                {
+                    return;
+                }
+
+                F1Context.AddSeedData((F1Context)c);
+                c.SaveChanges();
+            })
+            .UseAsyncSeeding(async (c, _, t) =>
+            {
+                if (await c.Set<EngineSupplier>().CountAsync(t) != 0)
+                {
+                    return;
+                }
+
+                F1Context.AddSeedData((F1Context)c);
+                await c.SaveChangesAsync(t);
+            })
             .ConfigureWarnings(
                 w => w.Ignore(CoreEventId.SaveChangesStarting, CoreEventId.SaveChangesCompleted));
 
@@ -248,7 +268,4 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
                 parameterBindings
             );
     }
-
-    protected override Task SeedAsync(F1Context context)
-        => F1Context.SeedAsync(context);
 }
