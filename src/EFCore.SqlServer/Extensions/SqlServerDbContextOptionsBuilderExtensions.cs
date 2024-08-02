@@ -41,10 +41,6 @@ public static class SqlServerDbContextOptionsExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.SqlServer)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.SqlServer, extension.EngineType));
-        }
         extension = extension
             .WithEngineType(SqlServerEngineType.SqlServer);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
@@ -69,10 +65,6 @@ public static class SqlServerDbContextOptionsExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.SqlServer)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.SqlServer, extension.EngineType));
-        }
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.SqlServer)
             .WithConnectionString(connectionString);
@@ -135,10 +127,6 @@ public static class SqlServerDbContextOptionsExtensions
         Check.NotNull(connection, nameof(connection));
 
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.SqlServer)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.SqlServer, extension.EngineType));
-        }
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.SqlServer)
             .WithConnection(connection, contextOwnsConnection);
@@ -276,10 +264,6 @@ public static class SqlServerDbContextOptionsExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.AzureSql)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.AzureSql, extension.EngineType));
-        }
         extension = extension
             .WithEngineType(SqlServerEngineType.AzureSql);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
@@ -304,10 +288,6 @@ public static class SqlServerDbContextOptionsExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.AzureSql)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.AzureSql, extension.EngineType));
-        }
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.AzureSql)
             .WithConnectionString(connectionString);
@@ -370,10 +350,6 @@ public static class SqlServerDbContextOptionsExtensions
         Check.NotNull(connection, nameof(connection));
 
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.AzureSql)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.AzureSql, extension.EngineType));
-        }
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.AzureSql)
             .WithConnection(connection, contextOwnsConnection);
@@ -511,10 +487,6 @@ public static class SqlServerDbContextOptionsExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.AzureSynapse)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.AzureSynapse, extension.EngineType));
-        }
         extension = extension
             .WithEngineType(SqlServerEngineType.AzureSynapse);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
@@ -539,10 +511,6 @@ public static class SqlServerDbContextOptionsExtensions
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.AzureSynapse)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.AzureSynapse, extension.EngineType));
-        }
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.AzureSynapse)
             .WithConnectionString(connectionString);
@@ -605,10 +573,6 @@ public static class SqlServerDbContextOptionsExtensions
         Check.NotNull(connection, nameof(connection));
 
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
-        if (extension.EngineType != SqlServerEngineType.Unknown && extension.EngineType != SqlServerEngineType.AzureSynapse)
-        {
-            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(SqlServerEngineType.AzureSynapse, extension.EngineType));
-        }
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.AzureSynapse)
             .WithConnection(connection, contextOwnsConnection);

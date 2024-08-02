@@ -184,6 +184,11 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     /// </summary>
     public virtual SqlServerOptionsExtension WithEngineType(SqlServerEngineType engineType)
     {
+        if (EngineType != SqlServerEngineType.Unknown && EngineType != engineType)
+        {
+            throw new InvalidOperationException(SqlServerStrings.AlreadyConfiguredEngineType(engineType, EngineType));
+        }
+
         var clone = (SqlServerOptionsExtension)Clone();
 
         clone._engineType = engineType;
