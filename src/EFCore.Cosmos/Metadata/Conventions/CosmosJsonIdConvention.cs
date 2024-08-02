@@ -26,8 +26,7 @@ public class CosmosJsonIdConvention
         IPropertyRemovedConvention,
         IPropertyAnnotationChangedConvention,
         IModelAnnotationChangedConvention,
-        IDiscriminatorPropertySetConvention,
-        IModelFinalizingConvention
+        IDiscriminatorPropertySetConvention
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -78,7 +77,7 @@ public class CosmosJsonIdConvention
         var primaryKey = entityType.FindPrimaryKey();
         if (entityType.BaseType != null // Requires: IEntityTypeBaseTypeChangedConvention
             || !entityType.IsDocumentRoot() // Requires: IEntityTypeAnnotationChangedConvention (ContainerName)
-            || entityType.IsOwned() // Requires: IForeignKeyOwnershipChangedConvention, IForeignKeyRemovedConvention
+            || entityType.GetForeignKeys().Any(fk => fk.IsOwnership) // Requires: IForeignKeyOwnershipChangedConvention, IForeignKeyRemovedConvention
             || primaryKey == null) // Requires: IKeyAddedConvention, IKeyRemovedConvention
         {
             // If the entity type is not a keyed, root document in the container, then it doesn't have an `id` mapping, so
@@ -331,13 +330,4 @@ public class CosmosJsonIdConvention
         string? name,
         IConventionContext<string?> context)
         => ProcessEntityType(entityTypeBuilder.Metadata, context);
-
-    /// <inheritdoc />
-    public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
-    {
-        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-        {
-            ProcessEntityType(entityType, context);
-        }
-    }
 }
