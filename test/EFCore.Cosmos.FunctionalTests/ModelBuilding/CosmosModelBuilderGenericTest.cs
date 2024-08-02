@@ -144,6 +144,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { nameof(Customer.Id), nameof(Customer.AlternateKey) },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -163,6 +165,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { nameof(Customer.Title), nameof(Customer.Name) },
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -183,6 +187,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { nameof(Customer.Title), nameof(Customer.Name), nameof(Customer.AlternateKey) },
                 entity.GetPartitionKeyProperties().Select(p => p.Name));
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -208,6 +214,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             Assert.Equal(
                 new[] { CosmosJsonIdConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -215,7 +223,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, true);
+            modelBuilder.Entity<Customer>().AlwaysCreateShadowIdProperty();
             modelBuilder.Entity<Customer>().HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -259,6 +267,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Null(entity.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName));
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -285,6 +295,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 .Single(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName);
             Assert.Single(idProperty.GetContainingKeys());
             Assert.Null(idProperty.GetValueGeneratorFactory());
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -292,7 +304,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, true);
+            modelBuilder.Entity<Customer>().AlwaysCreateShadowIdProperty();
             modelBuilder.Entity<Customer>().HasKey(CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -307,6 +319,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 new[] { CosmosJsonIdConvention.DefaultIdPropertyName },
                 entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
             Assert.DoesNotContain(entity.GetKeys(), k => k != entity.FindPrimaryKey());
+
+            Assert.Equal(1, entity.GetKeys().Count());
         }
 
         [ConditionalFact]
@@ -314,7 +328,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, true);
+            modelBuilder.Entity<Customer>().AlwaysCreateShadowIdProperty();
             modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey), CosmosJsonIdConvention.DefaultIdPropertyName);
 
             modelBuilder.Entity<Customer>()
@@ -338,7 +352,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, true);
+            modelBuilder.Entity<Customer>().AlwaysCreateShadowIdProperty();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.AlternateKey),
@@ -383,7 +397,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, true);
+            modelBuilder.Entity<Customer>().AlwaysCreateShadowIdProperty();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.Title),
@@ -428,7 +442,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Customer>().HasAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, true);
+            modelBuilder.Entity<Customer>().AlwaysCreateShadowIdProperty();
 
             modelBuilder.Entity<Customer>().HasKey(
                 nameof(Customer.Title),

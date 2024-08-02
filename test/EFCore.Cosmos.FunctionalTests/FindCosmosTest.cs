@@ -479,10 +479,6 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
                 .ToContainer("Base")
                 .IncludeRootDiscriminatorInJsonId();
 
-            modelBuilder.Entity<DerivedType>()
-                .ToContainer("Base")
-                .IncludeRootDiscriminatorInJsonId();
-
             modelBuilder.Entity<ShadowKey>().ToContainer("ShadowKeys");
         }
     }

@@ -162,28 +162,33 @@ public class CosmosJsonIdConvention
             {
                 entityType.Builder.HasNoProperty(computedIdProperty);
             }
-            return;
-        }
 
-        if (entityType.HasSharedClrType)
-        {
-            Console.WriteLine();
+            return;
         }
 
         // Everything fits for making a computed property, so do it.
         var computedIdPropertyBuilder = entityType.Builder
             .Property(typeof(string), DefaultIdPropertyName, setTypeConfigurationSource: false);
 
-        Check.DebugAssert(computedIdPropertyBuilder != null, "Expected to create/get compatible property builder.");
+        if (computedIdPropertyBuilder == null)
+        {
+            // The user explicitly ignored DefaultIdPropertyName.
+            return;
+        }
 
         if (computedIdPropertyBuilder.Metadata.GetJsonPropertyName() != IdPropertyJsonName)
         {
-            computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName);
+            computedIdPropertyBuilder = computedIdPropertyBuilder.ToJsonProperty(IdPropertyJsonName)
+                ?? computedIdPropertyBuilder;
         }
 
         // Don't chain, because each of these could return null if the property has been explicitly configured with some other value.
-        computedIdPropertyBuilder.IsRequired(true);
-        computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory));
+        computedIdPropertyBuilder = computedIdPropertyBuilder.IsRequired(true)
+            ?? computedIdPropertyBuilder;
+
+        computedIdPropertyBuilder = computedIdPropertyBuilder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory))
+            ?? computedIdPropertyBuilder;
+
         computedIdPropertyBuilder.AfterSave(PropertySaveBehavior.Throw);
     }
 
@@ -247,7 +252,14 @@ public class CosmosJsonIdConvention
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionKey key,
         IConventionContext<IConventionKey> context)
-        => ProcessEntityType(entityTypeBuilder.Metadata, context);
+    {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
+        ProcessEntityType(entityTypeBuilder.Metadata, context);
+    }
 
     /// <inheritdoc />
     public virtual void ProcessPropertyAdded(IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
@@ -258,7 +270,14 @@ public class CosmosJsonIdConvention
         IConventionTypeBaseBuilder typeBaseBuilder,
         IConventionProperty property,
         IConventionContext<IConventionProperty> context)
-        => ProcessEntityType(typeBaseBuilder.Metadata.ContainingEntityType, context);
+    {
+        if (!typeBaseBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
+        ProcessEntityType(typeBaseBuilder.Metadata.ContainingEntityType, context);
+    }
 
     /// <inheritdoc />
     public virtual void ProcessPropertyAnnotationChanged(
