@@ -1022,7 +1022,7 @@ public static class RelationalPropertyExtensions
             {
                 return Convert.ChangeType(value, property.ClrType, CultureInfo.InvariantCulture);
             }
-            catch (Exception)
+            catch
             {
                 throw new InvalidOperationException(
                     RelationalStrings.IncorrectDefaultValueType(

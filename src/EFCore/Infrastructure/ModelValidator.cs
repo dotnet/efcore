@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -45,6 +46,7 @@ public class ModelValidator : IModelValidator
     public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         ValidateIgnoredMembers(model, logger);
+        ValidateEntityClrTypes(model, logger);
         ValidatePropertyMapping(model, logger);
         ValidateRelationships(model, logger);
         ValidateOwnership(model, logger);
@@ -1008,6 +1010,31 @@ public class ModelValidator : IModelValidator
     }
 
     /// <summary>
+    ///     Validates that common CLR types are not mapped accidentally as entity types.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateEntityClrTypes(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (entityType.ClrType.IsGenericType)
+            {
+                var genericTypeDefinition = entityType.ClrType.GetGenericTypeDefinition();
+                if (genericTypeDefinition == typeof(List<>)
+                    || genericTypeDefinition == typeof(HashSet<>)
+                    || genericTypeDefinition == typeof(Collection<>)
+                    || genericTypeDefinition == typeof(ObservableCollection<>))
+                {
+                    logger.AccidentalEntityType(entityType);
+                }
+            }
+        }
+    }
+
+    /// <summary>
     ///     Validates the mapping of primitive collection properties the model.
     /// </summary>
     /// <param name="model">The model to validate.</param>
@@ -1018,10 +1045,10 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            Validate(entityType, logger);
+            ValidateType(entityType);
         }
 
-        static void Validate(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        static void ValidateType(ITypeBase typeBase)
         {
             foreach (var property in typeBase.GetDeclaredProperties())
             {
@@ -1040,7 +1067,7 @@ public class ModelValidator : IModelValidator
 
             foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
-                Validate(complexProperty.ComplexType, logger);
+                ValidateType(complexProperty.ComplexType);
             }
         }
     }

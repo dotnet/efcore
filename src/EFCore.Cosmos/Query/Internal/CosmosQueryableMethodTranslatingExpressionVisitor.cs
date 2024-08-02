@@ -317,7 +317,10 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         if (concreteEntityTypes is [var singleEntityType]
             && singleEntityType.GetIsDiscriminatorMappingComplete()
             && entityType.GetContainer() is var container
-            && !entityType.Model.GetEntityTypes().Any(e => e.GetContainer() == container && e != singleEntityType))
+            && !entityType.Model.GetEntityTypes().Any(
+                // If a read-only/view type is mapped to the same container with the same discriminator, then we still don't need
+                // the discriminator, allowing ReadItem in more places.
+                e => e.GetContainer() == container && !Equals(e.GetDiscriminatorValue(), singleEntityType.GetDiscriminatorValue())))
         {
             // There's a single entity type mapped to the container and the discriminator mapping is complete; we can skip the
             // discriminator predicate.
@@ -550,12 +553,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         var select = (SelectExpression)source.QueryExpression;
 
-        // TODO: #34123
-        // if ((select.IsDistinct || select.Limit is not null || select.Offset is not null)
-        //     && !TryPushdownIntoSubquery(select))
-        // {
-        //     return null;
-        // }
+        if ((select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return null;
+        }
 
         select.ApplyDistinct();
 
@@ -1522,11 +1524,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     {
         var select = (SelectExpression)source.QueryExpression;
 
-        // TODO: #34123
-        // if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select))
-        // {
-        //     select.PushdownIntoSubquery();
-        // }
+        if ((select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return false;
+        }
 
         if (TranslateLambdaExpression(source, predicate) is SqlExpression translation)
         {
@@ -1543,11 +1545,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
 
     private bool TryApplyPredicate(SelectExpression select, SqlExpression predicate)
     {
-        // TODO: #34123
-        // if ((select.Limit is not null || select.Offset is not null) && !TryPushdownIntoSubquery(select, predicate))
-        // {
-        //     return false;
-        // }
+        if ((select.Limit is not null || select.Offset is not null)
+            && !TryPushdownIntoSubquery(select))
+        {
+            return false;
+        }
 
         select.ApplyPredicate(predicate);
         return true;

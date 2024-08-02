@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCollectionsQueryTestBase
@@ -13,7 +15,7 @@ public class NonSharedPrimitiveCollectionsQueryCosmosTest : NonSharedPrimitiveCo
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -29,7 +31,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -45,7 +47,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -61,7 +63,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -82,7 +84,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -98,7 +100,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -114,7 +116,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -130,7 +132,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -146,7 +148,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -162,7 +164,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -178,7 +180,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -194,7 +196,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -210,7 +212,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -226,7 +228,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -242,7 +244,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -258,7 +260,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -270,51 +272,30 @@ OFFSET 0 LIMIT 2
 
     public override async Task Array_of_Guid()
     {
-        await base.Array_of_Guid();
+        Assert.Equal(
+            CosmosStrings.ElementWithValueConverter("Guid[]", "TestEntity", "SomeArray", "Guid"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_Guid())).Message);
 
-        AssertSql(
-            """
-SELECT c
-FROM root c
-WHERE ((
-    SELECT VALUE COUNT(1)
-    FROM s IN c["SomeArray"]
-    WHERE (s = "dc8c903d-d655-4144-a0fd-358099d40ae1")) = 2)
-OFFSET 0 LIMIT 2
-""");
+        AssertSql();
     }
 
     public override async Task Array_of_byte_array()
     {
         // TODO: primitive collection over value-converted element, #34153
-        await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte_array());
+        Assert.Equal(
+            CosmosStrings.ElementWithValueConverter("byte[][]", "TestEntity", "SomeArray", "byte[]"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_byte_array())).Message);
 
-        AssertSql(
-            """
-SELECT c
-FROM root c
-WHERE ((
-    SELECT VALUE COUNT(1)
-    FROM s IN c["SomeArray"]
-    WHERE (s = "AQI=")) = 2)
-OFFSET 0 LIMIT 2
-""");
+        AssertSql();
     }
 
     public override async Task Array_of_enum()
     {
-        await base.Array_of_enum();
+        Assert.Equal(
+            CosmosStrings.ElementWithValueConverter("MyEnum[]", "TestEntity", "SomeArray", "MyEnum"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_enum())).Message);
 
-        AssertSql(
-            """
-SELECT c
-FROM root c
-WHERE ((
-    SELECT VALUE COUNT(1)
-    FROM s IN c["SomeArray"]
-    WHERE (s = 0)) = 2)
-OFFSET 0 LIMIT 2
-""");
+        AssertSql();
     }
 
     [ConditionalFact]
@@ -331,7 +312,7 @@ OFFSET 0 LIMIT 2
             """
 @__ints_0='1,2,3'
 
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Ints"] = @__ints_0)
 OFFSET 0 LIMIT 2
@@ -359,7 +340,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE ((
     SELECT VALUE COUNT(1)
@@ -375,7 +356,7 @@ OFFSET 0 LIMIT 2
 
         AssertSql(
             """
-SELECT c["Ints"]
+SELECT VALUE c["Ints"]
 FROM root c
 WHERE (c["Discriminator"] = "TestEntityWithOwned")
 """);

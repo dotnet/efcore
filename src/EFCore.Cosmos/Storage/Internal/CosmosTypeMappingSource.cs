@@ -1,7 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -103,11 +107,12 @@ public class CosmosTypeMappingSource : TypeMappingSource
             return null;
         }
 
-        var jsonValueReaderWriter = Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
-
         if (clrType is { IsGenericType: true, IsGenericTypeDefinition: false })
         {
             var genericTypeDefinition = clrType.GetGenericTypeDefinition();
+
+            // This is legacy type mapping support for dictionaries in Cosmos. This needs to be consolidated with the relational
+            // support, but for now this is being added back in to avoid a regression in EF9.
             if (genericTypeDefinition == typeof(Dictionary<,>)
                 || genericTypeDefinition == typeof(IDictionary<,>)
                 || genericTypeDefinition == typeof(IReadOnlyDictionary<,>))
@@ -122,11 +127,24 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 var elementMappingInfo = new TypeMappingInfo(elementType);
                 elementMapping = FindPrimitiveMapping(elementMappingInfo)
                     ?? FindCollectionMapping(elementMappingInfo);
-                return elementMapping == null
-                    ? null
-                    : new CosmosTypeMapping(
-                        clrType, CreateStringDictionaryComparer(elementMapping, elementType, clrType),
+
+                if (elementMapping != null)
+                {
+                    var jsonValueReaderWriter = Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
+                    if (jsonValueReaderWriter == null
+                        && elementMapping.JsonValueReaderWriter != null)
+                    {
+                        jsonValueReaderWriter = (JsonValueReaderWriter?)Activator.CreateInstance(
+                            typeof(PlaceholderJsonStringKeyedDictionaryReaderWriter<>)
+                                .MakeGenericType(elementMapping.JsonValueReaderWriter.ValueType),
+                            elementMapping.JsonValueReaderWriter);
+                    }
+
+                    return new CosmosTypeMapping(
+                        clrType,
+                        CreateStringDictionaryComparer(elementMapping, elementType, clrType),
                         jsonValueReaderWriter: jsonValueReaderWriter);
+                }
             }
         }
 
@@ -143,9 +161,59 @@ public class CosmosTypeMappingSource : TypeMappingSource
 
         return (ValueComparer)Activator.CreateInstance(
             elementType == unwrappedType
-                ? typeof(StringDictionaryComparer<,>).MakeGenericType(elementType, dictType)
+                ? typeof(StringDictionaryComparer<,>).MakeGenericType(dictType, elementType)
                 : typeof(NullableStringDictionaryComparer<,>).MakeGenericType(unwrappedType, dictType),
-            elementMapping.Comparer,
-            readOnly)!;
+            elementMapping.Comparer)!;
+    }
+
+    // This ensures that the element reader/writers are not null when using Cosmos dictionary type mappings, but
+    // is never actually used because Cosmos does not (yet) read and write JSON using this mechanism.
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+#pragma warning disable EF1001
+    public sealed class PlaceholderJsonStringKeyedDictionaryReaderWriter<TElement>(JsonValueReaderWriter elementReaderWriter)
+        : JsonValueReaderWriter<IEnumerable<KeyValuePair<string, TElement>>>, ICompositeJsonValueReaderWriter
+#pragma warning restore EF1001
+    {
+        private readonly JsonValueReaderWriter<TElement> _elementReaderWriter = (JsonValueReaderWriter<TElement>)elementReaderWriter;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override IEnumerable<KeyValuePair<string, TElement>> FromJsonTyped(
+            ref Utf8JsonReaderManager manager,
+            object? existingObject = null)
+            => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override void ToJsonTyped(Utf8JsonWriter writer, IEnumerable<KeyValuePair<string, TElement>> value)
+            => throw new NotImplementedException("JsonValueReaderWriter infrastructure is not supported on Cosmos.");
+
+        JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
+            => _elementReaderWriter;
+
+        private readonly ConstructorInfo _constructorInfo
+            = typeof(PlaceholderJsonStringKeyedDictionaryReaderWriter<TElement>)
+                .GetConstructor([typeof(JsonValueReaderWriter<TElement>)])!;
+
+        /// <inheritdoc />
+        public override Expression ConstructorExpression
+#pragma warning disable EF9100
+#pragma warning disable EF1001
+            => Expression.New(_constructorInfo, ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression);
+#pragma warning restore EF1001
+#pragma warning restore EF9100
     }
 }

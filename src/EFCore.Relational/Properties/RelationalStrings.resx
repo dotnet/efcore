@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -563,7 +563,7 @@
     <value>This node should be handled by provider-specific sql generator.</value>
   </data>
   <data name="JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution" xml:space="preserve">
-    <value>Using parameter to access the element of a JSON collection '{entityTypeName}' is not supported for '{asNoTrackingWithIdentityResolution}'. Use constant, or project the entire JSON entity collection instead.</value>
+    <value>Using a parameter to access the element of a JSON collection '{entityTypeName}' is not supported when using '{asNoTrackingWithIdentityResolution}'. Use a constant, or project the entire JSON entity collection instead.</value>
   </data>
   <data name="JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution" xml:space="preserve">
     <value>When using '{asNoTrackingWithIdentityResolution}' entities mapped to JSON must be projected in a particular order. Project entire collection of entities '{entityTypeName}' before its individual elements.</value>
@@ -797,6 +797,10 @@
     <value>No migrations were found in assembly '{migrationsAssembly}'.</value>
     <comment>Debug RelationalEventId.MigrationsNotFound string</comment>
   </data>
+  <data name="LogNonTransactionalMigrationOperationWarning" xml:space="preserve">
+    <value>The migration operation '{operation}' from migration '{migration}' cannot be executed in a transaction. If the app is terminated or an unrecoverable error occurs while this operation is being executed then the migration will be left in a partially applied state and would need to be reverted manually before it can be applied again. Create a separate migration that contains just this operation.</value>
+    <comment>Error RelationalEventId.NonTransactionalMigrationOperationWarning string string</comment>
+  </data>
   <data name="LogOpenedConnection" xml:space="preserve">
     <value>Opened connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpened string string</comment>
@@ -816,6 +820,10 @@
   <data name="LogOptionalDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
+  </data>
+  <data name="LogPendingModelChanges" xml:space="preserve">
+    <value>The model for context '{contextType}' has pending changes. Add a new migration before updating the database.</value>
+    <comment>Error RelationalEventId.PendingModelChangesWarning string</comment>
   </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
@@ -942,6 +950,9 @@
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>A root ambient transaction was completed before the nested transaction. The nested transactions should be completed first.</value>
   </data>
+  <data name="NestedCollectionsNotSupported" xml:space="preserve">
+    <value>The property '{propertyType} {type}.{property}' is a primitive collection of a primitive collection. Nested primitive collections are not yet supported with relational database providers.</value>
+  </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
   </data>
@@ -956,9 +967,6 @@
   </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
-  </data>
-  <data name="NonQueryTranslationFailedWithDetails" xml:space="preserve">
-    <value>The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
   </data>
   <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
     <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
@@ -1029,20 +1037,17 @@
   <data name="SelectExpressionNonTphWithCustomTable" xml:space="preserve">
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>
   </data>
-  <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
-    <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
-  </data>
   <data name="SelectExpressionUpdateNotSupportedWhileMutable" xml:space="preserve">
     <value>SelectExpression.Update() is not supported while the expression is in mutable state.</value>
+  </data>
+  <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
+    <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
   </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
     <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
   </data>
   <data name="SetOperationsRequireAtLeastOneSideWithValidTypeMapping" xml:space="preserve">
     <value>A set operation '{setOperationType}' requires valid type mapping for at least one of its sides.</value>
-  </data>
-  <data name="SetPropertyMethodInvoked" xml:space="preserve">
-    <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>
   </data>
   <data name="SplitQueryString" xml:space="preserve">
     <value>This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.</value>
@@ -1201,7 +1206,7 @@
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
   <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
-    <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
+    <value>User transaction is not supported with a TransactionSuppressed migrations or a retrying execution strategy.</value>
   </data>
   <data name="TriggerWithMismatchedTable" xml:space="preserve">
     <value>Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>

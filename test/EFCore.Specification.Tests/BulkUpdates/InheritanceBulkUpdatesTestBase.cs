@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
+public abstract class InheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture) : BulkUpdatesTestBase<TFixture>(fixture)
     where TFixture : InheritanceBulkUpdatesFixtureBase, new()
 {
-    protected FiltersInheritanceBulkUpdatesTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_where_hierarchy(bool async)
@@ -45,7 +40,7 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
         => AssertDelete(
             async,
             ss => ss.Set<Country>().Where(e => e.Animals.Where(a => a.CountryId > 0).Count() > 0),
-            rowsAffectedCount: 1);
+            rowsAffectedCount: 2);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -64,7 +59,7 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
                 .GroupBy(e => e.CountryId)
                 .Where(g => g.Count() < 3)
                 .Select(g => g.First()),
-            rowsAffectedCount: 1);
+            rowsAffectedCount: 2);
 
     [ConditionalTheory(Skip = "Issue#26753")]
     [MemberData(nameof(IsAsyncData))]
@@ -75,7 +70,7 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
                 e => e
                     == ss.Set<Animal>().GroupBy(e => e.CountryId)
                         .Where(g => g.Count() < 3).Select(g => g.First()).FirstOrDefault()),
-            rowsAffectedCount: 1);
+            rowsAffectedCount: 2);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -85,17 +80,7 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
             ss => ss.Set<Animal>().Where(
                 e => ss.Set<Animal>().GroupBy(e => e.CountryId)
                     .Where(g => g.Count() < 3).Select(g => g.First()).Any(i => i == e)),
-            rowsAffectedCount: 1);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator("ExecuteDelete", "EagleQuery"),
-            () => AssertDelete(
-                async,
-                ss => ss.Set<EagleQuery>().Where(e => e.CountryId > 0),
-                rowsAffectedCount: 1));
+            rowsAffectedCount: 2);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -169,7 +154,7 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
             ss => ss.Set<Country>().Where(e => e.Animals.Where(a => a.CountryId > 0).Count() > 0),
             e => e,
             s => s.SetProperty(e => e.Name, "Monovia"),
-            rowsAffectedCount: 1);
+            rowsAffectedCount: 2);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -183,15 +168,21 @@ public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpda
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
-        => AssertTranslationFailed(
-            RelationalStrings.ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator("ExecuteUpdate", "EagleQuery"),
-            () => AssertUpdate(
-                async,
-                ss => ss.Set<EagleQuery>().Where(e => e.CountryId > 0),
-                e => e,
-                s => s.SetProperty(e => e.Name, "Eagle"),
-                rowsAffectedCount: 1));
+    public virtual Task Update_with_interface_in_property_expression(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Coke>(),
+            e => e,
+            s => s.SetProperty(c => ((ISugary)c).SugarGrams, 0),
+            rowsAffectedCount: 1);
 
-    protected abstract void ClearLog();
-}
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Coke>(),
+            e => e,
+            // ReSharper disable once RedundantCast
+            s => s.SetProperty(c => EF.Property<int>((ISugary)c, nameof(ISugary.SugarGrams)), 0),
+            rowsAffectedCount: 1);}

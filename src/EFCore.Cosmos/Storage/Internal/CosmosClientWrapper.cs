@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -76,8 +75,40 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         _enableContentResponseOnWrite = options.EnableContentResponseOnWrite;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     private CosmosClient Client
         => _singletonWrapper.Client;
+
+    private static bool TryDeserializeNextToken(JsonTextReader jsonReader, out JToken? token)
+    {
+        switch (jsonReader.TokenType)
+        {
+            case JsonToken.StartObject:
+                token = Serializer.Deserialize<JObject>(jsonReader);
+                return true;
+            case JsonToken.StartArray:
+                token = Serializer.Deserialize<JArray>(jsonReader);
+                return true;
+            case JsonToken.Date:
+            case JsonToken.Bytes:
+            case JsonToken.Float:
+            case JsonToken.String:
+            case JsonToken.Boolean:
+            case JsonToken.Integer:
+            case JsonToken.Null:
+                token = Serializer.Deserialize<JValue>(jsonReader);
+                return true;
+            case JsonToken.EndArray:
+            default:
+                token = null;
+                return false;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -460,13 +491,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             {
                 case EntityState.Modified:
                 {
-                    var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+                    var jObjectProperty = entry.EntityType.FindProperty(CosmosKeyAugmenterConvention.JObjectPropertyName);
                     enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnUpdate) == ValueGenerated.OnUpdate;
                     break;
                 }
                 case EntityState.Added:
                 {
-                    var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+                    var jObjectProperty = entry.EntityType.FindProperty(CosmosKeyAugmenterConvention.JObjectPropertyName);
                     enabledContentResponse = (jObjectProperty?.ValueGenerated & ValueGenerated.OnAdd) == ValueGenerated.OnAdd;
                     break;
                 }
@@ -505,7 +536,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             entry.SetStoreGeneratedValue(etagProperty, response.Headers.ETag);
         }
 
-        var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
+        var jObjectProperty = entry.EntityType.FindProperty(CosmosKeyAugmenterConvention.JObjectPropertyName);
         if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
             && response.Content != null)
         {
@@ -525,7 +556,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<JObject> ExecuteSqlQuery(
+    public virtual IEnumerable<JToken> ExecuteSqlQuery(
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query)
@@ -543,7 +574,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
+    public virtual IAsyncEnumerable<JToken> ExecuteSqlQueryAsync(
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery query)
@@ -645,9 +676,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         using var reader = new StreamReader(responseStream);
         using var jsonReader = new JsonTextReader(reader);
 
-        var jObject = Serializer.Deserialize<JObject>(jsonReader);
-
-        return new JObject(new JProperty("c", jObject));
+        return Serializer.Deserialize<JObject>(jsonReader);
     }
 
     /// <summary>
@@ -677,6 +706,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     private static JsonTextReader CreateJsonReader(TextReader reader)
     {
         var jsonReader = new JsonTextReader(reader);
+        jsonReader.DateParseHandling = DateParseHandling.None;
 
         while (jsonReader.Read())
         {
@@ -695,55 +725,38 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         return jsonReader;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool TryReadJObject(JsonTextReader jsonReader, [NotNullWhen(true)] out JObject? jObject)
-    {
-        jObject = null;
-
-        while (jsonReader.Read())
-        {
-            if (jsonReader.TokenType == JsonToken.StartObject)
-            {
-                jObject = Serializer.Deserialize<JObject>(jsonReader);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private sealed class DocumentEnumerable(
         CosmosClientWrapper cosmosClient,
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery)
-        : IEnumerable<JObject>
+        : IEnumerable<JToken>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
         private readonly string _containerId = containerId;
         private readonly PartitionKey _partitionKeyValue = partitionKeyValue;
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
 
-        public IEnumerator<JObject> GetEnumerator()
+        public IEnumerator<JToken> GetEnumerator()
             => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        private sealed class Enumerator(DocumentEnumerable documentEnumerable) : IEnumerator<JObject>
+        private sealed class Enumerator(DocumentEnumerable documentEnumerable) : IEnumerator<JToken>
         {
             private readonly CosmosClientWrapper _cosmosClientWrapper = documentEnumerable._cosmosClient;
             private readonly string _containerId = documentEnumerable._containerId;
             private readonly PartitionKey _partitionKeyValue = documentEnumerable._partitionKeyValue;
             private readonly CosmosSqlQuery _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
 
-            private JObject? _current;
+            private JToken? _current;
             private ResponseMessage? _responseMessage;
-            private IEnumerator<JObject>? _responseMessageEnumerator;
+            private IEnumerator<JToken>? _responseMessageEnumerator;
 
             private FeedIterator? _query;
 
-            public JObject Current
+            public JToken Current
                 => _current ?? throw new InvalidOperationException();
 
             object IEnumerator.Current
@@ -821,31 +834,31 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         string containerId,
         PartitionKey partitionKeyValue,
         CosmosSqlQuery cosmosSqlQuery)
-        : IAsyncEnumerable<JObject>
+        : IAsyncEnumerable<JToken>
     {
         private readonly CosmosClientWrapper _cosmosClient = cosmosClient;
         private readonly string _containerId = containerId;
         private readonly PartitionKey _partitionKeyValue = partitionKeyValue;
         private readonly CosmosSqlQuery _cosmosSqlQuery = cosmosSqlQuery;
 
-        public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public IAsyncEnumerator<JToken> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
 
         private sealed class AsyncEnumerator(DocumentAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
-            : IAsyncEnumerator<JObject>
+            : IAsyncEnumerator<JToken>
         {
             private readonly CosmosClientWrapper _cosmosClientWrapper = documentEnumerable._cosmosClient;
             private readonly string _containerId = documentEnumerable._containerId;
             private readonly PartitionKey _partitionKeyValue = documentEnumerable._partitionKeyValue;
             private readonly CosmosSqlQuery _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
 
-            private JObject? _current;
+            private JToken? _current;
             private ResponseMessage? _responseMessage;
-            private IAsyncEnumerator<JObject>? _responseMessageEnumerator;
+            private IAsyncEnumerator<JToken>? _responseMessageEnumerator;
 
             private FeedIterator? _query;
 
-            public JObject Current
+            public JToken Current
                 => _current ?? throw new InvalidOperationException();
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -926,28 +939,28 @@ public class CosmosClientWrapper : ICosmosClientWrapper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<JObject> GetResponseMessageEnumerable(ResponseMessage responseMessage)
+    public virtual IEnumerable<JToken> GetResponseMessageEnumerable(ResponseMessage responseMessage)
         => new ResponseMessageEnumerable(responseMessage);
 
-    private sealed class ResponseMessageEnumerable(ResponseMessage responseMessage) : IEnumerable<JObject>, IAsyncEnumerable<JObject>
+    private sealed class ResponseMessageEnumerable(ResponseMessage responseMessage) : IEnumerable<JToken>, IAsyncEnumerable<JToken>
     {
-        public IEnumerator<JObject> GetEnumerator()
+        public IEnumerator<JToken> GetEnumerator()
             => new ResponseMessageEnumerator(responseMessage);
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
 
-        public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public IAsyncEnumerator<JToken> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new ResponseMessageAsyncEnumerator(responseMessage);
     }
 
-    private sealed class ResponseMessageEnumerator : IEnumerator<JObject>
+    private sealed class ResponseMessageEnumerator : IEnumerator<JToken>
     {
         private readonly Stream _responseStream;
         private readonly StreamReader _reader;
         private readonly JsonTextReader _jsonReader;
 
-        private JObject? _current;
+        private JToken? _current;
 
         public ResponseMessageEnumerator(ResponseMessage responseMessage)
         {
@@ -960,17 +973,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             while (_jsonReader.Read())
             {
-                if (_jsonReader.TokenType == JsonToken.StartObject)
-                {
-                    _current = Serializer.Deserialize<JObject>(_jsonReader);
-                    return true;
-                }
+                return TryDeserializeNextToken(_jsonReader, out _current);
             }
 
             return false;
         }
 
-        public JObject Current
+        public JToken Current
             => _current ?? throw new InvalidOperationException();
 
         object IEnumerator.Current
@@ -987,13 +996,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             => throw new NotSupportedException();
     }
 
-    private sealed class ResponseMessageAsyncEnumerator : IAsyncEnumerator<JObject>
+    private sealed class ResponseMessageAsyncEnumerator : IAsyncEnumerator<JToken>
     {
         private readonly Stream _responseStream;
         private readonly StreamReader _reader;
         private readonly JsonTextReader _jsonReader;
 
-        private JObject? _current;
+        private JToken? _current;
 
         public ResponseMessageAsyncEnumerator(ResponseMessage responseMessage)
         {
@@ -1006,17 +1015,13 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         {
             while (await _jsonReader.ReadAsync().ConfigureAwait(false))
             {
-                if (_jsonReader.TokenType == JsonToken.StartObject)
-                {
-                    _current = Serializer.Deserialize<JObject>(_jsonReader);
-                    return true;
-                }
+                return TryDeserializeNextToken(_jsonReader, out _current);
             }
 
             return false;
         }
 
-        public JObject Current
+        public JToken Current
             => _current ?? throw new InvalidOperationException();
 
         public async ValueTask DisposeAsync()

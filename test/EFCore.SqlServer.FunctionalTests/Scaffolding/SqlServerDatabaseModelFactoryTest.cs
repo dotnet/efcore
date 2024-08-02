@@ -35,8 +35,7 @@ CREATE SEQUENCE db2.CustomFacetsSequence
     INCREMENT BY 2
     MAXVALUE 8
     MINVALUE -3
-    CYCLE
-    CACHE 20;",
+    CYCLE;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
             (dbModel, scaffoldingFactory) =>
@@ -50,8 +49,6 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                 Assert.Null(defaultSequence.StartValue);
                 Assert.Null(defaultSequence.MinValue);
                 Assert.Null(defaultSequence.MaxValue);
-                Assert.True(defaultSequence.IsCached);
-                Assert.Null(defaultSequence.CacheSize);
 
                 var customSequence = dbModel.Sequences.First(ds => ds.Name == "CustomFacetsSequence");
                 Assert.Equal("db2", customSequence.Schema);
@@ -89,73 +86,11 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                         Assert.Null(s.MinValue);
                         Assert.Null(s.MaxValue);
                     });
-                Assert.True(customSequence.IsCached);
-                Assert.Equal(20, customSequence.CacheSize);
             },
             @"
 DROP SEQUENCE DefaultFacetsSequence;
 
 DROP SEQUENCE db2.CustomFacetsSequence");
-
-    [ConditionalFact]
-    public void Create_sequences_caches()
-    => Test(
-        @"
-CREATE SEQUENCE db2.DefaultCacheSequence
-    CACHE;
-
-CREATE SEQUENCE db2.NoCacheSequence
-    NO CACHE;
-
-CREATE SEQUENCE db2.CacheSequence
-    CACHE 20;",
-        Enumerable.Empty<string>(),
-        Enumerable.Empty<string>(),
-        (dbModel, scaffoldingFactory) =>
-        {
-            var defaultCacheSequence = dbModel.Sequences.First(ds => ds.Name == "DefaultCacheSequence");
-            Assert.Equal("db2", defaultCacheSequence.Schema);
-            Assert.Equal("DefaultCacheSequence", defaultCacheSequence.Name);
-            Assert.Equal("bigint", defaultCacheSequence.StoreType);
-            Assert.False(defaultCacheSequence.IsCyclic);
-            Assert.Equal(1, defaultCacheSequence.IncrementBy);
-            Assert.Null(defaultCacheSequence.StartValue);
-            Assert.Null(defaultCacheSequence.MinValue);
-            Assert.Null(defaultCacheSequence.MaxValue);
-            Assert.True(defaultCacheSequence.IsCached);
-            Assert.Null(defaultCacheSequence.CacheSize);
-
-            var noCacheSequence = dbModel.Sequences.First(ds => ds.Name == "NoCacheSequence");
-            Assert.Equal("db2", noCacheSequence.Schema);
-            Assert.Equal("NoCacheSequence", noCacheSequence.Name);
-            Assert.Equal("bigint", noCacheSequence.StoreType);
-            Assert.False(noCacheSequence.IsCyclic);
-            Assert.Equal(1, noCacheSequence.IncrementBy);
-            Assert.Null(noCacheSequence.StartValue);
-            Assert.Null(noCacheSequence.MinValue);
-            Assert.Null(noCacheSequence.MaxValue);
-            Assert.False(noCacheSequence.IsCached);
-            Assert.Null(noCacheSequence.CacheSize);
-
-            var cacheSequence = dbModel.Sequences.First(ds => ds.Name == "CacheSequence");
-            Assert.Equal("db2", cacheSequence.Schema);
-            Assert.Equal("CacheSequence", cacheSequence.Name);
-            Assert.Equal("bigint", cacheSequence.StoreType);
-            Assert.False(cacheSequence.IsCyclic);
-            Assert.Equal(1, cacheSequence.IncrementBy);
-            Assert.Null(cacheSequence.StartValue);
-            Assert.Null(cacheSequence.MinValue);
-            Assert.Null(cacheSequence.MaxValue);
-            Assert.True(cacheSequence.IsCached);
-            Assert.Equal(20, cacheSequence.CacheSize);
-        },
-        @"
-DROP SEQUENCE db2.DefaultCacheSequence;
-
-DROP SEQUENCE db2.NoCacheSequence;
-
-DROP SEQUENCE db2.CacheSequence;");
-
 
     [ConditionalFact]
     public void Sequence_min_max_start_values_are_null_if_default()
@@ -179,9 +114,6 @@ CREATE SEQUENCE [BigIntSequence] AS bigint;",
                         Assert.Null(s.StartValue);
                         Assert.Null(s.MinValue);
                         Assert.Null(s.MaxValue);
-                        Assert.False(s.IsCyclic);
-                        Assert.True(s.IsCached);
-                        Assert.Null(s.CacheSize);
                     });
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -260,9 +192,6 @@ CREATE SEQUENCE [NumericSequence] AS numeric;",
                         Assert.NotNull(s.StartValue);
                         Assert.NotNull(s.MinValue);
                         Assert.NotNull(s.MaxValue);
-                        Assert.False(s.IsCyclic);
-                        Assert.True(s.IsCached);
-                        Assert.Null(s.CacheSize);
                     });
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -322,8 +251,6 @@ CREATE SEQUENCE [dbo].[HighDecimalSequence]
                         Assert.Equal(long.MinValue, s.MinValue);
                         Assert.NotNull(s.MaxValue);
                         Assert.Equal(long.MaxValue, s.MaxValue);
-                        Assert.True(s.IsCached);
-                        Assert.Null(s.CacheSize);
                     });
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -369,8 +296,6 @@ CREATE SEQUENCE [TypeAliasSequence] AS [dbo].[TestTypeAlias];",
                 Assert.Null(sequence.StartValue);
                 Assert.Null(sequence.MinValue);
                 Assert.Null(sequence.MaxValue);
-                Assert.True(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -409,8 +334,6 @@ CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
                 Assert.Equal("decimal(10, 0)", sequence.StoreType);
                 Assert.False(sequence.IsCyclic);
                 Assert.Equal(1, sequence.IncrementBy);
-                Assert.True(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -449,8 +372,6 @@ CREATE SEQUENCE [db2].[Sequence]",
                 Assert.Equal("bigint", sequence.StoreType);
                 Assert.False(sequence.IsCyclic);
                 Assert.Equal(1, sequence.IncrementBy);
-                Assert.True(sequence.IsCached);
-                Assert.Null(sequence.CacheSize);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -1392,11 +1313,11 @@ CREATE TABLE [db2].[DependentTable] (
                 Assert.Equal("db2", sequence.Schema);
 
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "QuotedTableName" }));
-                Assert.Empty(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "Table.With.Dot" }));
+                Assert.DoesNotContain(dbModel.Tables, t => t is { Schema: "db.2", Name: "Table.With.Dot" });
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "SimpleTableName" }));
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db.2", Name: "JustTableName" }));
 
-                Assert.Empty(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "QuotedTableName" }));
+                Assert.DoesNotContain(dbModel.Tables, t => t is { Schema: "dbo", Name: "QuotedTableName" });
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "Table.With.Dot" }));
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "SimpleTableName" }));
                 Assert.Single(dbModel.Tables.Where(t => t is { Schema: "dbo", Name: "JustTableName" }));

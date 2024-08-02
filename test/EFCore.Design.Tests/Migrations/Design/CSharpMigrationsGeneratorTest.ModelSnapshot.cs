@@ -1878,7 +1878,6 @@ namespace RootNamespace
                     .HasMax(3)
                     .IncrementsBy(2)
                     .IsCyclic()
-                    .UseCache(20)
                     .HasAnnotation("foo", "bar");
             },
             AddBoilerPlate(
@@ -1890,7 +1889,6 @@ namespace RootNamespace
                 .HasMin(1L)
                 .HasMax(3L)
                 .IsCyclic()
-                .UseCache(20)
                 .HasAnnotation("foo", "bar");
 """),
             model =>
@@ -1903,8 +1901,6 @@ namespace RootNamespace
                 Assert.Equal(3, sequence.MaxValue);
                 Assert.Equal(2, sequence.IncrementBy);
                 Assert.True(sequence.IsCyclic);
-                Assert.True(sequence.IsCached);
-                Assert.Equal(20, sequence.CacheSize);
                 Assert.Equal("bar", sequence["foo"]);
             });
 

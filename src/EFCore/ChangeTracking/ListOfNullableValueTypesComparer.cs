@@ -11,31 +11,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This comparer should be used for nullable value types. Use <see cref="ListOfNullableValueTypesComparer{TConcreteCollection,TElement}" /> for reference
+///         This comparer should be used for nullable value types. Use <see cref="ListOfNullableValueTypesComparer{TConcreteList,TElement}" /> for reference
 ///         types and non-nullable value types.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
 ///     </para>
 /// </remarks>
-/// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
+/// <typeparam name="TConcreteList">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public sealed class ListOfNullableValueTypesComparer<TConcreteCollection, TElement> : ValueComparer<IEnumerable<TElement?>>, IInfrastructure<ValueComparer>
+public sealed class ListOfNullableValueTypesComparer<TConcreteList, TElement> : ValueComparer<IEnumerable<TElement?>>, IInfrastructure<ValueComparer>
     where TElement : struct
 {
-    private static readonly bool IsArray = typeof(TConcreteCollection).IsArray;
+    private static readonly bool IsArray = typeof(TConcreteList).IsArray;
 
     private static readonly bool IsReadOnly = IsArray
-        || (typeof(TConcreteCollection).IsGenericType
-            && typeof(TConcreteCollection).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
+        || (typeof(TConcreteList).IsGenericType
+            && typeof(TConcreteList).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
-    private static readonly MethodInfo CompareMethod = typeof(ListOfNullableValueTypesComparer<TConcreteCollection, TElement>).GetMethod(
+    private static readonly MethodInfo CompareMethod = typeof(ListOfNullableValueTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement?>), typeof(IEnumerable<TElement?>), typeof(ValueComparer<TElement?>)])!;
 
-    private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfNullableValueTypesComparer<TConcreteCollection, TElement>).GetMethod(
+    private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfNullableValueTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement?>), typeof(ValueComparer<TElement?>)])!;
 
-    private static readonly MethodInfo SnapshotMethod = typeof(ListOfNullableValueTypesComparer<TConcreteCollection, TElement>).GetMethod(
+    private static readonly MethodInfo SnapshotMethod = typeof(ListOfNullableValueTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement?>), typeof(ValueComparer<TElement?>)])!;
 
     /// <summary>
@@ -198,14 +198,14 @@ public sealed class ListOfNullableValueTypesComparer<TConcreteCollection, TEleme
         }
         else
         {
-            var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
+            var snapshot = IsReadOnly ? new List<TElement?>() : (IList<TElement?>)Activator.CreateInstance<TConcreteList>()!;
             foreach (var e in sourceList)
             {
                 snapshot.Add(e == null ? null : elementComparer.Snapshot(e));
             }
 
             return IsReadOnly
-                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteCollection), [snapshot])!
+                ? (IList<TElement?>)Activator.CreateInstance(typeof(TConcreteList), [snapshot])!
                 : snapshot;
         }
     }

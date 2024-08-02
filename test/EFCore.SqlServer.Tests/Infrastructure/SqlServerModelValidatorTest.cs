@@ -11,6 +11,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class SqlServerModelValidatorTest : RelationalModelValidatorTest
 {
+    [ConditionalFact] // Issue #34324
+    public virtual void Throws_for_nested_primitive_collections()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNestedCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.SomeStrings);
+            });
+
+        VerifyError(
+            RelationalStrings.NestedCollectionsNotSupported(
+                "string[][]", nameof(WithNestedCollection), nameof(WithNestedCollection.SomeStrings)), modelBuilder,
+            sensitiveDataLoggingEnabled: false);
+    }
+
+    protected class WithNestedCollection
+    {
+        public int Id { get; set; }
+        public string[][] SomeStrings { get; set; }
+    }
+
     [ConditionalFact]
     public virtual void Passes_on_TPT_with_nested_owned_types()
     {

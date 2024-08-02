@@ -79,7 +79,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
 
         if (instance.Type == typeof(bool))
         {
-            if (instance is ColumnExpression { IsNullable: true })
+            if (instance is not ColumnExpression { IsNullable: false })
             {
                 return _sqlExpressionFactory.Case(
                     instance,
@@ -92,7 +92,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(true),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     },
-                    _sqlExpressionFactory.Constant(null, typeof(string)));
+                    _sqlExpressionFactory.Constant(string.Empty));
             }
 
             return _sqlExpressionFactory.Case(
@@ -108,13 +108,15 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
         // Enums are handled by EnumMethodTranslator
 
         return TypeMapping.TryGetValue(instance.Type, out var storeType)
-            ? _sqlExpressionFactory.Function(
-                "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(storeType), instance },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
-                typeof(string),
-                _typeMappingSource.GetMapping(storeType))
+            ? _sqlExpressionFactory.Coalesce(
+                _sqlExpressionFactory.Function(
+                    "CONVERT",
+                    new[] { _sqlExpressionFactory.Fragment(storeType), instance },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false, true },
+                    typeof(string),
+                    _typeMappingSource.GetMapping(storeType)),
+                _sqlExpressionFactory.Constant(string.Empty))
             : null;
     }
 }

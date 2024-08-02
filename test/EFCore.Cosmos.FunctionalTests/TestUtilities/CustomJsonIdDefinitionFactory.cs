@@ -7,6 +7,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class CustomJsonIdDefinitionFactory : JsonIdDefinitionFactory
 {
-    public override IJsonIdDefinition? Create(IEntityType entityType)
-        => new CustomJsonIdDefinition(base.Create(entityType)!.Properties);
+    public override IJsonIdDefinition Create(IEntityType entityType)
+    {
+        var baseDef = base.Create(entityType)!;
+        return new CustomJsonIdDefinition(baseDef.Properties, entityType, baseDef.DiscriminatorIsRootType);
+    }
 }

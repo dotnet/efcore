@@ -33,5 +33,4 @@ public static class CosmosEntityTypeExtensions
             static e =>
                 ((CosmosModelRuntimeInitializerDependencies)e!.Model.FindRuntimeAnnotationValue(
                     CosmosAnnotationNames.ModelDependencies)!).JsonIdDefinitionFactory.Create(e),
-            entityType);
-}
+            entityType);}

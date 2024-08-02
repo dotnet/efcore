@@ -2990,7 +2990,6 @@ SELECT [l].[Id], [l0].[Name], [l0].[Id], CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
@@ -2998,7 +2997,6 @@ WHERE CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'
     WHEN [l].[Id] = 3 THEN N'03'
-    ELSE NULL
 END = N'02'
 ORDER BY [l].[Id], [l0].[Id]
 """);

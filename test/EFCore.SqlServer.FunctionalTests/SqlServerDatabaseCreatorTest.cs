@@ -532,10 +532,13 @@ public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreator
         using var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting");
         var creator = GetDatabaseCreator(testDatabase);
 
-        var errorNumber
-            = async
-                ? (await Assert.ThrowsAsync<SqlException>(() => creator.CreateTablesAsync())).Number
-                : Assert.Throws<SqlException>(() => creator.CreateTables()).Number;
+        var exception = async
+            ? (await Assert.ThrowsAsync<RetryLimitExceededException>(() => creator.CreateTablesAsync()))
+            : Assert.Throws<RetryLimitExceededException>(() => creator.CreateTables());
+
+        Assert.Equal(CoreStrings.RetryLimitExceeded(6, "TestSqlServerRetryingExecutionStrategy"), exception.Message);
+
+        var errorNumber = ((SqlException)exception.InnerException!).Number;
 
         if (errorNumber != 233) // skip if no-process transient failure
         {

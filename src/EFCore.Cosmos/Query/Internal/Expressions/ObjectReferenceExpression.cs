@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </remarks>
-public class ObjectReferenceExpression(IEntityType entityType, string name) : Expression, IAccessExpression
+public class ObjectReferenceExpression(IEntityType entityType, string name) : Expression, IPrintableExpression, IAccessExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,6 +71,15 @@ public class ObjectReferenceExpression(IEntityType entityType, string name) : Ex
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => this;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void Print(ExpressionPrinter expressionPrinter)
+        => expressionPrinter.Append(Name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

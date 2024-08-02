@@ -40,7 +40,7 @@ public class FromSqlQueryCosmosTest : QueryTestBase<NorthwindQueryCosmosFixture<
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["ContactName"] LIKE '%z%'
 ) s
@@ -51,14 +51,14 @@ FROM (
     public async Task FromSqlRaw_queryable_incorrect_discriminator_throws()
     {
         using var context = CreateContext();
-        var query = context.Set<Customer>().FromSqlRaw("""
-SELECT * FROM root c WHERE c["Discriminator"] = "Order"
+        var query = context.Set<Order>().FromSqlRaw("""
+SELECT * FROM root c WHERE c["Discriminator"] = "OrderDetail"
 """);
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync());
 
         Assert.Equal(
-            CoreStrings.UnableToDiscriminate(context.Model.FindEntityType(typeof(Customer))!.DisplayName(), "Order"),
+            CoreStrings.UnableToDiscriminate(context.Model.FindEntityType(typeof(Order))!.DisplayName(), "OrderDetail"),
             exception.Message);
     }
 
@@ -71,7 +71,7 @@ SELECT * FROM root c WHERE c["Discriminator"] = "Order"
                 using var context = CreateContext();
                 var query = context.Set<Customer>().FromSqlRaw(
                     """
-SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
+SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c["Fax"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
 """);
 
                 var actual = a
@@ -83,9 +83,9 @@ SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c[
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
-    SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
+    SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c["Fax"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
 """);
             });
@@ -99,7 +99,7 @@ FROM (
                 using var context = CreateContext();
                 var query = context.Set<Customer>().FromSqlRaw(
                     """
-SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"] AS Foo, c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
+SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"] AS Foo, c["Phone"], c["Fax"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
 """);
 
                 var actual = a
@@ -111,9 +111,9 @@ SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
-    SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"] AS Foo, c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
+    SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"] AS Foo, c["Phone"], c["Fax"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
 """);
             });
@@ -141,7 +141,7 @@ FROM (
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
@@ -168,7 +168,7 @@ WHERE CONTAINS(s["ContactName"], "z")
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
 
 
@@ -222,7 +222,7 @@ WHERE CONTAINS(s["ContactName"], "z")
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
@@ -240,7 +240,7 @@ WHERE CONTAINS(s["ContactName"], "z")
                 {
                     var query = EF.CompileAsyncQuery(
                         (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
-                                """SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["CustomerID"] = {0}""", "CONSH")
+                                """SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["id"] = {0}""", "CONSH")
                             .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
@@ -254,7 +254,7 @@ WHERE CONTAINS(s["ContactName"], "z")
                 {
                     var query = EF.CompileQuery(
                         (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
-                                """SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["CustomerID"] = {0}""", "CONSH")
+                                """SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["id"] = {0}""", "CONSH")
                             .Where(c => c.ContactName.Contains("z")));
 
                     using (var context = CreateContext())
@@ -267,9 +267,9 @@ WHERE CONTAINS(s["ContactName"], "z")
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
-    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["CustomerID"] = "CONSH"
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["id"] = "CONSH"
 ) s
 WHERE CONTAINS(s["ContactName"], "z")
 """);
@@ -298,7 +298,7 @@ WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT *
     FROM root c
@@ -331,7 +331,7 @@ WHERE c["Discriminator"] = "Customer"
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT *
     FROM root c
@@ -369,7 +369,7 @@ WHERE (s["City"] = "London")
 @p0='London'
 @p1='Sales Representative'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) s
@@ -401,7 +401,7 @@ FROM (
 @p0='London'
 @p1='Sales Representative'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) s
@@ -431,7 +431,7 @@ FROM (
                     """
 @p0=null
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Employee" AND c["ReportsTo"] = @p0 OR (IS_NULL(c["ReportsTo"]) AND IS_NULL(@p0))
 ) s
@@ -466,7 +466,7 @@ FROM (
 @p0='London'
 @__contactTitle_1='Sales Representative'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0
 ) s
@@ -503,14 +503,14 @@ WHERE (s["ContactTitle"] = @__contactTitle_1)
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
 ) s
 """,
                     //
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = 'Seattle'
 ) s
@@ -557,7 +557,7 @@ FROM (
 @p0='London'
 @p1='Sales Representative'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) s
@@ -567,7 +567,7 @@ FROM (
 @p0='Madrid'
 @p1='Accounting Manager'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) s
@@ -595,7 +595,7 @@ FROM (
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
@@ -625,7 +625,7 @@ WHERE c["Discriminator"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInS
 
                 AssertSql(
                     """
-SELECT s["ProductName"]
+SELECT VALUE s["ProductName"]
 FROM (
     SELECT *
     FROM root c
@@ -654,7 +654,7 @@ FROM (
 
                 AssertSql(
                     """
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
@@ -704,7 +704,11 @@ WHERE (s["ContactName"] = s["CompanyName"])
 
                 AssertSql(
                     """
-SELECT s["CustomerID"], s["City"]
+SELECT VALUE
+{
+    "CustomerID" : s["id"],
+    "City" : s["City"]
+}
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) s
@@ -715,16 +719,16 @@ FROM (
     public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws()
     {
         using var context = CreateContext();
-        var query = context.Set<Customer>()
-            .FromSqlRaw("""SELECT * FROM root c WHERE c["Discriminator"] = "Category" """)
+        var query = context.Set<Order>()
+            .FromSqlRaw("""SELECT * FROM root c WHERE c["Discriminator"] = "Product" """)
             .AsNoTracking();
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync());
 
         Assert.Equal(
             CoreStrings.InvalidKeyValue(
-                context.Model.FindEntityType(typeof(Customer))!.DisplayName(),
-                "CustomerID"),
+                context.Model.FindEntityType(typeof(Order))!.DisplayName(),
+                "OrderID"),
             exception.Message);
     }
 
@@ -748,7 +752,7 @@ FROM (
 @p0='London'
 @p1='Sales Representative'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) s
@@ -772,7 +776,7 @@ FROM (
 @p0='London'
 @p1='Sales Representative'
 
-SELECT s
+SELECT VALUE s
 FROM (
     SELECT * FROM root c WHERE c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) s

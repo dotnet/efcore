@@ -117,9 +117,8 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<ISqlExpressionFactory, SqliteSqlExpressionFactory>()
             .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqliteParameterBasedSqlProcessorFactory>()
             .TryAddProviderSpecificServices(
-                b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
-
-        builder.TryAddCoreServices();
+                b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>())
+            .TryAddCoreServices();
 
         return serviceCollection;
     }

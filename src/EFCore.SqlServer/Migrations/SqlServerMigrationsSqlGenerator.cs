@@ -1548,22 +1548,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
-
-        if (!operation.IsCached)
-        {
-            builder.Append(" NO CACHE");
-        }
-        else if (operation.CacheSize.HasValue)
-        {
-            builder
-            .Append(" CACHE ")
-                .Append(IntegerConstant(operation.CacheSize.Value));
-        }
-        else if (forAlter)
-        {
-            builder
-                .Append(" CACHE");
-        }
     }
 
     /// <summary>
@@ -1738,7 +1722,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     }
 
     /// <summary>
-    ///     Generates a transfer from one schema to another..
+    ///     Generates a transfer from one schema to another.
     /// </summary>
     /// <param name="newSchema">The schema to transfer to.</param>
     /// <param name="schema">The schema to transfer from.</param>
@@ -2295,9 +2279,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             && operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
     private static string IntegerConstant(long value)
-        => string.Format(CultureInfo.InvariantCulture, "{0}", value);
-
-    private static string IntegerConstant(int value)
         => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
     private static bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)

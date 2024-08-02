@@ -56,6 +56,13 @@ public class OperatorsData : ISetSource
         () => new DateTimeOffset(new DateTime(2000, 1, 1, 9, 0, 0), new TimeSpan(13, 0, 0))
     ];
 
+   private readonly List<Expression<Func<DateTimeOffset?>>> _nullableDateTimeOffsetValues =
+    [
+        () => null,
+        () => new DateTimeOffset(new DateTime(2000, 1, 1, 10, 0, 0), new TimeSpan(-8, 0, 0)),
+        () => new DateTimeOffset(new DateTime(2000, 1, 1, 9, 0, 0), new TimeSpan(13, 0, 0))
+    ];
+
     public IReadOnlyList<OperatorEntityString> OperatorEntitiesString { get; }
     public IReadOnlyList<OperatorEntityInt> OperatorEntitiesInt { get; }
     public IReadOnlyList<OperatorEntityNullableInt> OperatorEntitiesNullableInt { get; }
@@ -63,6 +70,7 @@ public class OperatorsData : ISetSource
     public IReadOnlyList<OperatorEntityBool> OperatorEntitiesBool { get; }
     public IReadOnlyList<OperatorEntityNullableBool> OperatorEntitiesNullableBool { get; }
     public IReadOnlyList<OperatorEntityDateTimeOffset> OperatorEntitiesDateTimeOffset { get; }
+    public IReadOnlyList<OperatorEntityNullableDateTimeOffset> OperatorEntitiesNullableDateTimeOffset { get; }
     public IDictionary<Type, List<Expression>> ConstantExpressionsPerType { get; }
 
     private OperatorsData()
@@ -74,6 +82,7 @@ public class OperatorsData : ISetSource
         OperatorEntitiesBool = CreateBools();
         OperatorEntitiesNullableBool = CreateNullableBools();
         OperatorEntitiesDateTimeOffset = CreateDateTimeOffsets();
+        OperatorEntitiesNullableDateTimeOffset = CreateNullableDateTimeOffsets();
 
         ConstantExpressionsPerType = new Dictionary<Type, List<Expression>>
         {
@@ -84,6 +93,7 @@ public class OperatorsData : ISetSource
             { typeof(bool), _boolValues.Select(x => x.Body).ToList() },
             { typeof(bool?), _nullableBoolValues.Select(x => x.Body).ToList() },
             { typeof(DateTimeOffset), _dateTimeOffsetValues.Select(x => x.Body).ToList() },
+            { typeof(DateTimeOffset?), _nullableDateTimeOffsetValues.Select(x => x.Body).ToList() },
         };
     }
 
@@ -125,6 +135,11 @@ public class OperatorsData : ISetSource
             return (IQueryable<TEntity>)OperatorEntitiesDateTimeOffset.AsQueryable();
         }
 
+        if (typeof(TEntity) == typeof(OperatorEntityNullableDateTimeOffset))
+        {
+            return (IQueryable<TEntity>)OperatorEntitiesNullableDateTimeOffset.AsQueryable();
+        }
+
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
     }
 
@@ -151,4 +166,8 @@ public class OperatorsData : ISetSource
     public IReadOnlyList<OperatorEntityDateTimeOffset> CreateDateTimeOffsets()
         => _dateTimeOffsetValues
             .Select((x, i) => new OperatorEntityDateTimeOffset { Id = i + 1, Value = _dateTimeOffsetValues[i].Compile()() }).ToList();
+
+    public IReadOnlyList<OperatorEntityNullableDateTimeOffset> CreateNullableDateTimeOffsets()
+        => _nullableDateTimeOffsetValues.Select((x, i) => new OperatorEntityNullableDateTimeOffset { Id = i + 1, Value = _nullableDateTimeOffsetValues[i].Compile()() })
+            .ToList();
 }

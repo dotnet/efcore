@@ -74,7 +74,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
 
         if (instance.Type == typeof(bool))
         {
-            if (instance is ColumnExpression { IsNullable: true })
+            if (instance is not ColumnExpression { IsNullable: false })
             {
                 return _sqlExpressionFactory.Case(
                     instance,
@@ -87,7 +87,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(true),
                             _sqlExpressionFactory.Constant(true.ToString()))
                     },
-                    _sqlExpressionFactory.Constant(null, typeof(string)));
+                    _sqlExpressionFactory.Constant(string.Empty));
             }
 
             return _sqlExpressionFactory.Case(
@@ -103,7 +103,9 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         // Enums are handled by EnumMethodTranslator
 
         return TypeMapping.Contains(instance.Type)
-            ? _sqlExpressionFactory.Convert(instance, typeof(string))
+            ? _sqlExpressionFactory.Coalesce(
+                _sqlExpressionFactory.Convert(instance, typeof(string)),
+                _sqlExpressionFactory.Constant(string.Empty))
             : null;
     }
 }

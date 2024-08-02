@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -30,6 +31,7 @@ public abstract class ReaderColumn
     /// <param name="name">The name of the column.</param>
     /// <param name="property">The property being read if any, null otherwise.</param>
     /// <param name="getFieldValueExpression">A lambda expression to get field value for the column from the reader.</param>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     protected ReaderColumn(Type type, bool nullable, string? name, IPropertyBase? property, LambdaExpression getFieldValueExpression)
     {
         Type = type;
@@ -62,6 +64,7 @@ public abstract class ReaderColumn
     /// <summary>
     ///     A lambda expression to get field value for the column from the reader.
     /// </summary>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public virtual LambdaExpression GetFieldValueExpression { get; }
 
     /// <summary>
@@ -75,6 +78,7 @@ public abstract class ReaderColumn
     ///     A <see cref="T:System.Func{DbDataReader, Int32[], T}" /> used to get the field value for this column.
     /// </param>
     /// <returns>An instance of <see cref="ReaderColumn{T}" />.</returns>
+    [Experimental(EFDiagnostics.PrecompiledQueryExperimental)]
     public static ReaderColumn Create(
         Type type,
         bool nullable,

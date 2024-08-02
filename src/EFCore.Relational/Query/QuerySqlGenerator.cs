@@ -203,7 +203,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)));
     }
 
     /// <summary>
@@ -880,6 +881,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 break;
             }
 
+            case ExpressionType.OnesComplement:
             case ExpressionType.Not:
             {
                 _relationalCommandBuilder.Append("~");
@@ -1098,7 +1100,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             ExpressionType.Or => " | ",
             ExpressionType.ExclusiveOr => " ^ ",
 
-            _ => throw new UnreachableException($"Unsupported unary OperatorType: {binaryExpression.OperatorType}")
+            _ => throw new UnreachableException($"Unsupported binary OperatorType: {binaryExpression.OperatorType}")
         };
 
     /// <summary>
@@ -1540,7 +1542,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)));
     }
 
     /// <summary>

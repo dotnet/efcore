@@ -71,6 +71,8 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), [typeof(float)])!, "DEGREES" }
     };
 
+    // Note: Math.Max/Min are handled in RelationalSqlTranslatingExpressionVisitor
+
     private static readonly IEnumerable<MethodInfo> TruncateMethodInfos = new[]
     {
         typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), [typeof(decimal)])!,
@@ -147,7 +149,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 resultType = typeof(double);
             }
 
-            var result = (SqlExpression)_sqlExpressionFactory.Function(
+            var result = _sqlExpressionFactory.Function(
                 "ROUND",
                 new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
@@ -174,7 +176,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 resultType = typeof(double);
             }
 
-            var result = (SqlExpression)_sqlExpressionFactory.Function(
+            var result = _sqlExpressionFactory.Function(
                 "ROUND",
                 new[] { argument, digits },
                 nullable: true,
@@ -187,31 +189,6 @@ public class SqlServerMathTranslator : IMethodCallTranslator
             }
 
             return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
-        }
-
-        if (method.DeclaringType == typeof(Math))
-        {
-            if (method.Name == nameof(Math.Min))
-            {
-                if (_sqlExpressionFactory.TryCreateLeast(
-                        new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression))
-                {
-                    return leastExpression;
-                }
-
-                throw new InvalidOperationException(SqlServerStrings.LeastGreatestCompatibilityLevelTooLow);
-            }
-
-            if (method.Name == nameof(Math.Max))
-            {
-                if (_sqlExpressionFactory.TryCreateGreatest(
-                        new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression))
-                {
-                    return leastExpression;
-                }
-
-                throw new InvalidOperationException(SqlServerStrings.LeastGreatestCompatibilityLevelTooLow);
-            }
         }
 
         return null;

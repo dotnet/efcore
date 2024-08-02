@@ -48,6 +48,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     private WarningsConfiguration _warningsConfiguration
         = new WarningsConfiguration()
             .TryWithExplicit(CoreEventId.ManyServiceProvidersCreatedWarning, WarningBehavior.Throw)
+            .TryWithExplicit(CoreEventId.AccidentalEntityType, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.DetachedLazyLoadingWarning, WarningBehavior.Throw)
             .TryWithExplicit(CoreEventId.InvalidIncludePathError, WarningBehavior.Throw)

@@ -6,6 +6,7 @@ using System.Data;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
@@ -58,6 +59,7 @@ public class RelationalEventIdTest : EventIdTestBase
             { typeof(IMigrator), () => new FakeMigrator() },
             { typeof(Migration), () => new FakeMigration() },
             { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },
+            { typeof(MigrationCommand), () => new FakeMigrationCommand() },
             { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
             { typeof(Expression), () => constantExpression },
             { typeof(IEntityType), () => entityType },
@@ -146,6 +148,18 @@ public class RelationalEventIdTest : EventIdTestBase
             string toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => throw new NotImplementedException();
+
+        public void Migrate(Action<DbContext, IMigratorData> seed, string targetMigration, TimeSpan? lockTimeout)
+            => throw new NotImplementedException();
+
+        public Task MigrateAsync(Func<DbContext, IMigratorData, CancellationToken, Task> seed,
+            string targetMigration,
+            TimeSpan? lockTimeout,
+            CancellationToken cancellationToken = default)
+            => throw new NotImplementedException();
+
+        public bool HasPendingModelChanges()
+            => throw new NotImplementedException();
     }
 
     private class FakeMigrationsAssembly : IMigrationsAssembly
@@ -163,6 +177,45 @@ public class RelationalEventIdTest : EventIdTestBase
             => throw new NotImplementedException();
 
         public string FindMigrationId(string nameOrId)
+            => throw new NotImplementedException();
+    }
+
+    private class FakeMigrationCommand : MigrationCommand
+    {
+        public FakeMigrationCommand()
+            : base(new FakeRelationalCommand(), null, new FakeRelationalCommandDiagnosticsLogger())
+        {
+        }
+    }
+
+    private class FakeRelationalCommand : IRelationalCommand
+    {
+        public string CommandText { get; } = "";
+
+        public IReadOnlyList<IRelationalParameter> Parameters { get; } = [];
+
+        public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+            => throw new NotImplementedException();
+
+        public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
+            => throw new NotImplementedException();
+
+        public Task<int> ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+            => throw new NotImplementedException();
+
+        public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
+            => throw new NotImplementedException();
+
+        public Task<RelationalDataReader> ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+            => throw new NotImplementedException();
+
+        public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
+            => throw new NotImplementedException();
+
+        public Task<object> ExecuteScalarAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+            => throw new NotImplementedException();
+
+        public void PopulateFrom(IRelationalCommandTemplate commandTemplate)
             => throw new NotImplementedException();
     }
 

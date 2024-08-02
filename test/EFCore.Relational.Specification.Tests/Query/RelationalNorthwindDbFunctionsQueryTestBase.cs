@@ -51,6 +51,16 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Collate_is_null(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>(),
+            c => EF.Functions.Collate(c.Region, CaseSensitiveCollation) == null,
+            c => c.Region == null);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Least(bool async)
         => AssertQuery(
             async,
@@ -63,6 +73,22 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(od.OrderID, 10251) == 10251),
+            ss => ss.Set<OrderDetail>().Where(od => Math.Max(od.OrderID, 10251) == 10251));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Least_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(od.OrderID, (int?)10251) == 10251),
+            ss => ss.Set<OrderDetail>().Where(od => Math.Min(od.OrderID, 10251) == 10251));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Greatest_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(od.OrderID, (int?)10251) == 10251),
             ss => ss.Set<OrderDetail>().Where(od => Math.Max(od.OrderID, 10251) == 10251));
 
     [ConditionalTheory]

@@ -1290,23 +1290,6 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
-
-        if (!operation.IsCached)
-        {
-            builder
-                .Append(" NO CACHE");
-        }
-        else if (operation.CacheSize != null)
-        {
-            builder
-                .Append(" CACHE ")
-                .Append(intTypeMapping.GenerateSqlLiteral(operation.CacheSize.Value));
-        }
-        else if (forAlter)
-        {
-            builder
-                .Append(" CACHE");
-        }
     }
 
     /// <summary>

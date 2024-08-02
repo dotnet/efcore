@@ -53,7 +53,6 @@ public sealed record QueryContextDependencies
         IExecutionStrategy executionStrategy,
         IConcurrencyDetector concurrencyDetector,
         IExceptionDetector exceptionDetector,
-        IEntityMaterializerSource entityMaterializerSource,
         IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
         IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
     {
@@ -61,7 +60,6 @@ public sealed record QueryContextDependencies
         ExecutionStrategy = executionStrategy;
         ConcurrencyDetector = concurrencyDetector;
         ExceptionDetector = exceptionDetector;
-        EntityMaterializerSource = entityMaterializerSource;
         CommandLogger = commandLogger;
         QueryLogger = queryLogger;
     }
@@ -95,11 +93,6 @@ public sealed record QueryContextDependencies
     ///     Gets the exception detector.
     /// </summary>
     public IExceptionDetector ExceptionDetector { get; init; }
-
-    /// <summary>
-    ///    The <see cref="EntityMaterializerSource"/>, which can be used to create stand-alone entity instances.
-    /// </summary>
-    public IEntityMaterializerSource EntityMaterializerSource { get; }
 
     /// <summary>
     ///     The command logger.

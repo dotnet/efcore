@@ -1397,83 +1397,23 @@ WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Where_math_min(bool async)
-    {
-        await base.Where_math_min(async);
+    public override Task Where_math_min(bool async)
+        => AssertTranslationFailed(() => base.Where_math_min(async));
 
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND LEAST([o].[OrderID], [o].[ProductID]) = [o].[ProductID]
-""");
-    }
+    public override Task Where_math_min_nested(bool async)
+        => AssertTranslationFailed(() => base.Where_math_min_nested(async));
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Where_math_min_nested(bool async)
-    {
-        await base.Where_math_min_nested(async);
+    public override Task Where_math_min_nested_twice(bool async)
+        => AssertTranslationFailed(() => base.Where_math_min_nested_twice(async));
 
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND LEAST([o].[OrderID], [o].[ProductID], 99999) = [o].[ProductID]
-""");
-    }
+    public override Task Where_math_max(bool async)
+        => AssertTranslationFailed(() => base.Where_math_max(async));
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Where_math_min_nested_twice(bool async)
-    {
-        await base.Where_math_min_nested_twice(async);
+    public override Task Where_math_max_nested(bool async)
+        => AssertTranslationFailed(() => base.Where_math_max_nested(async));
 
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND LEAST(99999, [o].[OrderID], 99998, [o].[ProductID]) = [o].[ProductID]
-""");
-    }
-
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Where_math_max(bool async)
-    {
-        await base.Where_math_max(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND GREATEST([o].[OrderID], [o].[ProductID]) = [o].[OrderID]
-""");
-    }
-
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Where_math_max_nested(bool async)
-    {
-        await base.Where_math_max_nested(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND GREATEST([o].[OrderID], [o].[ProductID], 1) = [o].[OrderID]
-""");
-    }
-
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Where_math_max_nested_twice(bool async)
-    {
-        await base.Where_math_max_nested_twice(async);
-
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[OrderID] = 11077 AND GREATEST(1, [o].[OrderID], 2, [o].[ProductID]) = [o].[OrderID]
-""");
-    }
+    public override Task Where_math_max_nested_twice(bool async)
+        => AssertTranslationFailed(() => base.Where_math_max_nested_twice(async));
 
     public override async Task Where_math_degrees(bool async)
     {
@@ -2656,31 +2596,11 @@ WHERE LTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task TrimStart_with_char_argument_in_predicate(bool async)
-    {
-        await base.TrimStart_with_char_argument_in_predicate(async);
+    public override Task TrimStart_with_char_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimStart_with_char_argument_in_predicate(async));
 
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE LTRIM([c].[ContactTitle], N'O') = N'wner'
-""");
-    }
-
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
-    {
-        await base.TrimStart_with_char_array_argument_in_predicate(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE LTRIM([c].[ContactTitle], N'Ow') = N'ner'
-""");
-    }
+    public override Task TrimStart_with_char_array_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
 
     public override async Task TrimEnd_without_arguments_in_predicate(bool async)
     {
@@ -2694,31 +2614,11 @@ WHERE RTRIM([c].[ContactTitle]) = N'Owner'
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
-    {
-        await  base.TrimEnd_with_char_argument_in_predicate(async);
+    public override Task TrimEnd_with_char_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimEnd_with_char_argument_in_predicate(async));
 
-        AssertSql(
-           """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE RTRIM([c].[ContactTitle], N'r') = N'Owne'
-""");
-    }
-
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
-    {
-        await base.TrimEnd_with_char_array_argument_in_predicate(async);
-
-        AssertSql(
-           """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE RTRIM([c].[ContactTitle], N'er') = N'Own'
-""");
-    }
+    public override Task TrimEnd_with_char_array_argument_in_predicate(bool async)
+        => AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument_in_predicate(async));
 
     public override async Task Trim_without_argument_in_predicate(bool async)
     {

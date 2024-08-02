@@ -2742,7 +2742,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                                 {
                                     value = propertyInfo.GetValue(rawSeed, [propertyBase.Name]);
                                 }
-                                catch (Exception)
+                                catch
                                 {
                                     // Swallow if the property value is not set on the seed data
                                 }

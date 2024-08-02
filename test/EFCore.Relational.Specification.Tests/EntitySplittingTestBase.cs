@@ -51,7 +51,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
             CreateContext,
             UseTransaction,
             async context => Assert.Contains(
-                RelationalStrings.NonQueryTranslationFailedWithDetails(
+                CoreStrings.NonQueryTranslationFailedWithDetails(
                     "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     async () =>

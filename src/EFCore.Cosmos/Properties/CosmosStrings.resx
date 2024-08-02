@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlwaysCreateShadowIdPropertyOnNonRoot" xml:space="preserve">
+    <value>'AlwaysCreateShadowIdProperty' was called on a non-root entity type '{entityType}'. JSON 'id' configuration can only be made on the document root.</value>
+  </data>
   <data name="AnalyticalTTLMismatch" xml:space="preserve">
     <value>The time to live for analytical store was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same time to live for analytical store.</value>
+  </data>
+  <data name="BadDictionaryType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.</value>
   </data>
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
@@ -132,6 +138,9 @@
   <data name="ContainerContainingPropertyConflict" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.</value>
   </data>
+  <data name="ContainerNotOnRoot" xml:space="preserve">
+    <value>An Azure Cosmos DB container name is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Container names must be defined on the root entity type of a hierarchy.</value>
+  </data>
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
   </data>
@@ -141,8 +150,14 @@
   <data name="DefaultTTLMismatch" xml:space="preserve">
     <value>The default time to live was configured to '{ttl1}' on '{entityType1}', but on '{entityType2}' it was configured to '{ttl2}'. All entity types mapped to the same container '{container}' must be configured with the same default time to live.</value>
   </data>
+  <data name="DiscriminatorInKeyOnNonRoot" xml:space="preserve">
+    <value>'IncludeDiscriminatorInJsonId' or 'IncludeRootDiscriminatorInJsonId' was called on a non-root entity type '{entityType}'. Discriminator configuration for the JSON 'id' property can only be made on the document root.</value>
+  </data>
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' must have a unique discriminator value.</value>
+  </data>
+  <data name="ElementWithValueConverter" xml:space="preserve">
+    <value>The property '{propertyType} {structuralType}.{property}' has element type '{elementType}', which requires a value converter. Elements types requiring value converters are not currently supported with the Azure Cosmos DB database provider.</value>
   </data>
   <data name="ETagNonStringStoreType" xml:space="preserve">
     <value>The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties must be strings or have a string value converter.</value>
@@ -209,6 +224,10 @@
     <value>No partition key has been configured for entity type '{entityType}'. It is highly recommended that an appropriate partition key be defined. See https://aka.ms/efdocs-cosmos-partition-keys for more information.</value>
     <comment>Warning CosmosEventId.NoPartitionKeyDefined string</comment>
   </data>
+  <data name="LogPrimaryKeyValueNotSet" xml:space="preserve">
+    <value>The key property '{entityType}.{property}' is not configured to generate values and has the CLR default or sentinel value while saving a new entity to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.</value>
+    <comment>Warning CosmosEventId.PrimaryKeyValueNotSet string string</comment>
+  </data>
   <data name="LogSyncNotSupported" xml:space="preserve">
     <value>Azure Cosmos DB does not support synchronous I/O. Make sure to use and correctly await only async methods when using Entity Framework Core to access Azure Cosmos DB. See https://aka.ms/ef-cosmos-nosync for more information.</value>
     <comment>Error CosmosEventId.SyncNotSupported</comment>
@@ -228,9 +247,6 @@
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured. Configure a unique discriminator value for this entity type.</value>
   </data>
-  <data name="NoIdKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a key declared on the '{idProperty}' property. Add a key to '{entityType}' that contains '{idProperty}'.</value>
-  </data>
   <data name="NoIdProperty" xml:space="preserve">
     <value>The entity type '{entityType}' does not have a property mapped to the 'id' property in the database. Add a property mapped to 'id'.</value>
   </data>
@@ -245,9 +261,6 @@
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
     <value>The partition key properties for entity type '{entityType1}' are '{props1}', while the partition key properties for entity type '{entityType2}' are '{props2}', and both entity types are mapped to the container '{containerName}'. All entity types mapped to the same container must have compatible partition keys defined.</value>
-  </data>
-  <data name="NoPartitionKeyKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a key declared on '{partitionKey}' and '{idProperty}' properties. Add a key to '{entityType}' that contains '{partitionKey}' and '{idProperty}'.</value>
   </data>
   <data name="NoReadItemQueryString" xml:space="preserve">
     <value>There is no string-based representation of this query as it's executed using 'ReadItemQueryAsync({resourceId}, {partitionKey})'.</value>
@@ -284,6 +297,9 @@
   </data>
   <data name="PartitionKeyBadValueType" xml:space="preserve">
     <value>The partition key value supplied for '{propertyType}' property '{entityType}.{property}' is of type '{valueType}'. Partition key values must be of a type assignable to the property.</value>
+  </data>
+  <data name="PartitionKeyNotOnRoot" xml:space="preserve">
+    <value>A partition key is defined on entity type '{entityType}', which inherits from '{baseEntityType}'. Partition keys must be defined on the root entity type of a hierarchy.</value>
   </data>
   <data name="PartitionKeyMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the partition key value is missing. Consider using the 'WithPartitionKey' method on the query to specify partition key to use.</value>

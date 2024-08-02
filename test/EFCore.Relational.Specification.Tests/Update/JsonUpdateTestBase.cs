@@ -3081,7 +3081,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 entity.Collection[0].TestBooleanCollectionCollection = expected2;
 
                 ClearLog();
-                await context.SaveChangesAsync();
+                Assert.NotEqual(0, await context.SaveChangesAsync());
             },
             async context =>
             {

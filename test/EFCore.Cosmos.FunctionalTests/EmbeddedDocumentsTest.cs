@@ -533,7 +533,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             AssertSql(
                 """
-SELECT c
+SELECT VALUE c
 FROM root c
 WHERE (c["Discriminator"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
 OFFSET 0 LIMIT 1
@@ -737,6 +737,8 @@ OFFSET 0 LIMIT 1
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.IncludeDiscriminatorInJsonId();
+
             modelBuilder.Entity<Vehicle>(
                 eb =>
                 {

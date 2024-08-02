@@ -2,14 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that adds the 'id' property - a key required by Azure Cosmos.
+///     A convention that adds partition key properties to the EF primary key.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public class StoreKeyConvention :
+public class CosmosKeyAugmenterConvention :
     IEntityTypeAddedConvention,
     IPropertyAnnotationChangedConvention,
     IForeignKeyOwnershipChangedConvention,
@@ -38,31 +37,13 @@ public class StoreKeyConvention :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public static readonly string IdPropertyJsonName = "id";
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public static readonly string DefaultIdPropertyName = "__id";
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
     public static readonly string JObjectPropertyName = "__jObject";
 
     /// <summary>
-    ///     Creates a new instance of <see cref="StoreKeyConvention" />.
+    ///     Creates a new instance of <see cref="CosmosKeyAugmenterConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public StoreKeyConvention(ProviderConventionSetBuilderDependencies dependencies)
+    public CosmosKeyAugmenterConvention(ProviderConventionSetBuilderDependencies dependencies)
     {
         Dependencies = dependencies;
     }
@@ -74,87 +55,35 @@ public class StoreKeyConvention :
 
     private static void ProcessIdProperty(IConventionEntityTypeBuilder entityTypeBuilder)
     {
-        IConventionKey? newKey = null;
-        IConventionProperty? idProperty;
         var entityType = entityTypeBuilder.Metadata;
+        var primaryKey = entityType.FindPrimaryKey();
+
         if (entityType.BaseType == null
             && entityType.IsDocumentRoot()
-            && !entityType.IsKeyless)
+            && primaryKey != null
+            && ConfigurationSource.Convention.Overrides(primaryKey.GetConfigurationSource()))
         {
-            idProperty = entityType.FindDeclaredProperty(DefaultIdPropertyName)
-                ?? entityType.GetDeclaredProperties().FirstOrDefault(p => p.GetJsonPropertyName() == IdPropertyJsonName)
-                ?? entityTypeBuilder.Property(typeof(string), DefaultIdPropertyName, setTypeConfigurationSource: false)
-                    ?.ToJsonProperty(IdPropertyJsonName)?.Metadata;
-
-            if (idProperty != null)
+            // Add partition key properties to the primary key, unless they are already in the primary key.
+            var partitionKeyProperties = entityType.GetPartitionKeyProperties();
+            var primaryKeyProperties = primaryKey.Properties.ToList();
+            var keyContainsPartitionProperties = false;
+            if (partitionKeyProperties.Any()
+                && partitionKeyProperties.All(p => p != null))
             {
-                var converter = idProperty.GetValueConverter();
-                if ((converter == null ? idProperty.ClrType : converter.ProviderClrType) == typeof(string))
+                foreach (var partitionKeyProperty in partitionKeyProperties)
                 {
-                    if (idProperty.IsPrimaryKey())
+                    if (!primaryKeyProperties.Contains(partitionKeyProperty!))
                     {
-                        idProperty.Builder.HasValueGenerator((Type?)null);
+                        primaryKeyProperties.Add(partitionKeyProperty!);
+                        keyContainsPartitionProperties = true;
                     }
-                    else
-                    {
-                        idProperty.Builder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory));
-                    }
+
                 }
 
-                var partitionKeyProperties = entityType.GetPartitionKeyProperties();
-                if (partitionKeyProperties.Any()
-                    && partitionKeyProperties.All(p => p != null))
+                if (keyContainsPartitionProperties)
                 {
-                    if (partitionKeyProperties.Count == 1
-                        && partitionKeyProperties[0] == idProperty)
-                    {
-                        newKey = entityTypeBuilder.HasKey([idProperty])?.Metadata;
-                    }
-                    else
-                    {
-                        var keyContainsPartitionProperties = false;
-                        var keys = entityType.GetKeys().ToList();
-                        foreach (var key in keys)
-                        {
-                            if (key.Properties.Contains(idProperty)
-                                && partitionKeyProperties.All(p => key.Properties.Contains(p)))
-                            {
-                                keyContainsPartitionProperties = true;
-                                break;
-                            }
-                        }
-
-                        if (!keyContainsPartitionProperties)
-                        {
-                            var properties = new[] { idProperty }.Concat(partitionKeyProperties).ToList();
-                            newKey = entityTypeBuilder.HasKey(properties!)?.Metadata;
-                        }
-
-                        entityTypeBuilder.HasNoKey(new[] { idProperty });
-                    }
-                }
-                else
-                {
-                    newKey = entityTypeBuilder.HasKey([idProperty])?.Metadata;
-                }
-            }
-        }
-        else
-        {
-            idProperty = entityType.FindDeclaredProperty(DefaultIdPropertyName);
-        }
-
-        // If we created a new key above that maps to the __id property, then remove any existing keys
-        // that were previously mapped to it.
-        if (idProperty != null
-            && newKey != null)
-        {
-            var oldKeys = idProperty.GetContainingKeys().ToList();
-            foreach (var oldKey in oldKeys)
-            {
-                if (oldKey != newKey)
-                {
-                    oldKey.DeclaringEntityType.Builder.HasNoKey(oldKey);
+                    primaryKey.DeclaringEntityType.Builder.HasNoKey(primaryKey);
+                    entityTypeBuilder.HasKey(primaryKeyProperties);
                 }
             }
         }
@@ -246,8 +175,10 @@ public class StoreKeyConvention :
         IConventionKey? previousPrimaryKey,
         IConventionContext<IConventionKey> context)
     {
-        if ((newPrimaryKey != null && newPrimaryKey.Properties.Any(p => p.GetJsonPropertyName() == IdPropertyJsonName))
-            || (previousPrimaryKey != null && previousPrimaryKey.Properties.Any(p => p.GetJsonPropertyName() == IdPropertyJsonName)))
+        if ((newPrimaryKey != null && newPrimaryKey.Properties
+                .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName))
+            || (previousPrimaryKey != null && previousPrimaryKey.Properties
+                .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)))
         {
             ProcessIdProperty(entityTypeBuilder);
         }
@@ -316,12 +247,12 @@ public class StoreKeyConvention :
         IConventionContext<IConventionAnnotation> context)
     {
         if (name == CosmosAnnotationNames.PropertyName
-            && (string?)annotation?.Value == IdPropertyJsonName
-            && propertyBuilder.Metadata.Name != DefaultIdPropertyName)
+            && (string?)annotation?.Value == CosmosJsonIdConvention.IdPropertyJsonName
+            && propertyBuilder.Metadata.Name != CosmosJsonIdConvention.DefaultIdPropertyName)
         {
             var declaringType = propertyBuilder.Metadata.DeclaringType;
 
-            var idProperty = declaringType.FindProperty(DefaultIdPropertyName);
+            var idProperty = declaringType.FindProperty(CosmosJsonIdConvention.DefaultIdPropertyName);
             if (idProperty != null)
             {
                 foreach (var key in idProperty.GetContainingKeys().ToList())

@@ -3,7 +3,6 @@
 
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -75,7 +74,7 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind"
+        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2"
             ? name
             : name + _runId;
 
@@ -188,6 +187,8 @@ public class CosmosTestStore : TestStore
                         if (reader.TokenType == JsonToken.StartObject)
                         {
                             string? entityName = null;
+                            string? containerName = null;
+                            bool? discriminatorInId = null;
                             while (reader.Read())
                             {
                                 if (reader.TokenType == JsonToken.PropertyName)
@@ -198,6 +199,14 @@ public class CosmosTestStore : TestStore
                                             reader.Read();
                                             entityName = (string)reader.Value;
                                             break;
+                                        case "Container":
+                                            reader.Read();
+                                            containerName = (string)reader.Value;
+                                            break;
+                                        case "DiscriminatorInId":
+                                            reader.Read();
+                                            discriminatorInId = (bool)reader.Value;
+                                            break;
                                         case "Data":
                                             while (reader.Read())
                                             {
@@ -205,11 +214,14 @@ public class CosmosTestStore : TestStore
                                                 {
                                                     var document = serializer.Deserialize<JObject>(reader)!;
 
-                                                    document["id"] = $"{entityName}|{document["id"]}";
+                                                    document["id"] = discriminatorInId == true
+                                                        ? $"{entityName}|{document["id"]}"
+                                                        : $"{document["id"]}";
+
                                                     document["Discriminator"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
-                                                        "NorthwindContext", document, new FakeUpdateEntry()).ConfigureAwait(false);
+                                                        containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
                                                 }
                                                 else if (reader.TokenType == JsonToken.EndObject)
                                                 {
@@ -304,13 +316,13 @@ public class CosmosTestStore : TestStore
                 await SeedAsync(context).ConfigureAwait(false);
             }
         }
-        catch (Exception)
+        catch
         {
             try
             {
                 await EnsureDeletedAsync(context).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch
             {
             }
 
@@ -531,7 +543,7 @@ public class CosmosTestStore : TestStore
         public object GetCurrentValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
-        public object GetOriginalOrCurrentValue(IPropertyBase propertyBase)
+        public bool CanHaveOriginalValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
         public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
@@ -544,6 +556,9 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public bool HasTemporaryValue(IProperty property)
+            => throw new NotImplementedException();
+
+        public bool HasExplicitValue(IProperty property)
             => throw new NotImplementedException();
 
         public bool HasStoreGeneratedValue(IProperty property)
@@ -613,7 +628,7 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IReadOnlyEntityType IReadOnlyEntityType.BaseType
-            => throw new NotImplementedException();
+            => null!;
 
         IReadOnlyModel IReadOnlyTypeBase.Model
             => throw new NotImplementedException();

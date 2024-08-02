@@ -121,31 +121,29 @@ WHERE [c].[ContactName] = N'maria anders' COLLATE Latin1_General_CS_AS
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Least(bool async)
+    public override async Task Collate_is_null(bool async)
     {
-        await base.Least(async);
+        await base.Collate_is_null(async);
 
         AssertSql(
             """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE LEAST([o].[OrderID], 10251) = 10251
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL
 """);
     }
 
-    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-    public override async Task Greatest(bool async)
-    {
-        await base.Greatest(async);
+    public override Task Least(bool async)
+        => AssertTranslationFailed(() => base.Least(async));
 
-        AssertSql(
-            """
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE GREATEST([o].[OrderID], 10251) = 10251
-""");
-    }
+    public override Task Greatest(bool async)
+        => AssertTranslationFailed(() => base.Greatest(async));
+
+    public override Task Least_with_nullable_value_type(bool async)
+        => AssertTranslationFailed(() => base.Least_with_nullable_value_type(async));
+
+    public override Task Greatest_with_nullable_value_type(bool async)
+        => AssertTranslationFailed(() => base.Greatest_with_nullable_value_type(async));
 
     public override async Task Least_with_parameter_array_is_not_supported(bool async)
     {
@@ -840,9 +838,9 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)
 
         AssertSql(
             """
-SELECT CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
+SELECT CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -888,9 +886,9 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarch
 
         AssertSql(
             """
-SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) ^ 1 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) ^ 1 AS bit)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
+WHERE ISNUMERIC(COALESCE(CONVERT(varchar(100), [o].[OrderDate]), '')) <> 1
 """);
     }
 
@@ -907,7 +905,7 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1
 
         AssertSql(
             """
-SELECT CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) ^ 1 AS bit) ^ CAST(1 AS bit)
+SELECT ~CAST(ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) ^ 1 AS bit)
 FROM [Order Details] AS [o]
 WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
 """);

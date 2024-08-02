@@ -36,6 +36,9 @@ public static class CosmosEventId
         ExecutedReplaceItem,
         ExecutedDeleteItem,
 
+        // Update events
+        PrimaryKeyValueNotSet = CoreEventId.ProviderBaseId + 200,
+
         // Model validation events
         NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
 
@@ -170,4 +173,22 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId NoPartitionKeyDefined = MakeValidationId(Id.NoPartitionKeyDefined);
+
+    private static EventId MakeUpdateId(Id id)
+        => new((int)id, DbLoggerCategory.Update.Name + "." + id);
+
+    /// <summary>
+    ///     A property is not configured to generate values and has the CLR default or sentinel value while saving a new entity
+    ///     to the database. The Azure Cosmos DB database provider for EF Core does not generate key values by default. This means key
+    ///     values must be explicitly set before saving new entities. See https://aka.ms/ef-cosmos-keys for more information.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId PrimaryKeyValueNotSet = MakeUpdateId(Id.PrimaryKeyValueNotSet);
 }

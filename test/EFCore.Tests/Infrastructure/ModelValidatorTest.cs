@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -13,6 +14,60 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 public partial class ModelValidatorTest : ModelValidatorTestBase
 {
+    [ConditionalFact] // Issue #33913
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type()
+    {
+        Detects_well_known_concrete_collections_mapped_as_entity_type<List<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<HashSet<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<Collection<Customer>>();
+        Detects_well_known_concrete_collections_mapped_as_entity_type<ObservableCollection<Customer>>();
+    }
+
+    public virtual void Detects_well_known_concrete_collections_mapped_as_entity_type<T>()
+        where T : class
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<T>().HasNoKey();
+
+        VerifyError(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.AccidentalEntityType.ToString(),
+                CoreResources.LogAccidentalEntityType(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(typeof(T).ShortDisplayName()),
+                "CoreEventId.AccidentalEntityType"),
+            modelBuilder);
+
+        LoggerFactory.Clear();
+    }
+
+    [ConditionalFact] // Issue #33913
+    public virtual void Detects_well_known_concrete_collections_mapped_as_owned_entity_type()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<MyEntity<List<JsonbField>>>().OwnsMany(x => x.JsonbFields, r => r.ToJson());;
+
+        VerifyError(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.AccidentalEntityType.ToString(),
+                CoreResources.LogAccidentalEntityType(new TestLogger<TestLoggingDefinitions>()).GenerateMessage("List<JsonbField>"),
+                "CoreEventId.AccidentalEntityType"),
+            modelBuilder);
+    }
+
+    private class MyEntity<T>
+    {
+        public int Id { get; set; }
+        public List<T> JsonbFields { get; set; }
+    }
+
+    private class JsonbField
+    {
+        public required string Key { get; set; }
+        public required string Value { get; set; }
+    }
+
     [ConditionalFact]
     public virtual void Detects_key_property_which_cannot_be_compared()
     {
@@ -173,7 +228,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithCollectionConversion
@@ -308,7 +363,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         Validate(modelBuilder);
 
-        Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     protected class WithStringAndBinaryKey

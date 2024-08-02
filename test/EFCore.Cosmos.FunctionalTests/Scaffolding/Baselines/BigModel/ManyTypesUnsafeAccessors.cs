@@ -37,12 +37,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Bytes>k__BackingField")]
         public static extern ref byte[] Bytes(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BytesArray>k__BackingField")]
-        public static extern ref byte[][] BytesArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BytesNestedCollection>k__BackingField")]
-        public static extern ref byte[][][] BytesNestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BytesToStringConverterProperty>k__BackingField")]
         public static extern ref byte[] BytesToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
@@ -64,17 +58,11 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateOnly>k__BackingField")]
         public static extern ref DateOnly DateOnly(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateOnlyArray>k__BackingField")]
-        public static extern ref DateOnly[] DateOnlyArray(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateOnlyToStringConverterProperty>k__BackingField")]
         public static extern ref DateOnly DateOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTime>k__BackingField")]
         public static extern ref DateTime DateTime(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeArray>k__BackingField")]
-        public static extern ref DateTime[] DateTimeArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeOffsetToBinaryConverterProperty>k__BackingField")]
         public static extern ref DateTimeOffset DateTimeOffsetToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this);
@@ -121,80 +109,26 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum16 Enum16(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum16[] Enum16Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum16 Enum16AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum16[] Enum16AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum16> Enum16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum16> Enum16Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum32 Enum32(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum32[] Enum32Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum32 Enum32AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum32[] Enum32AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum32> Enum32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum32> Enum32Collection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32NestedCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum32>[][] Enum32NestedCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum64 Enum64(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum64[] Enum64Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum64 Enum64AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum64[] Enum64AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum64> Enum64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum64> Enum64Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum8 Enum8(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum8[] Enum8Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum8 Enum8AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum8[] Enum8AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum8> Enum8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum8> Enum8Collection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8NestedCollection>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum8[][] Enum8NestedCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumToNumberConverterProperty>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum32 EnumToNumberConverterProperty(CompiledModelTestBase.ManyTypes @this);
@@ -205,77 +139,26 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU16 EnumU16(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU16[] EnumU16Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU16 EnumU16AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU16[] EnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU16> EnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU16> EnumU16Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU32 EnumU32(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU32[] EnumU32Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU32 EnumU32AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU32[] EnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU32> EnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU32> EnumU32Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU64 EnumU64(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU64[] EnumU64Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU64 EnumU64AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU64[] EnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU64> EnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU64> EnumU64Collection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64NestedCollection>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU64[][] EnumU64NestedCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU8 EnumU8(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU8[] EnumU8Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU8 EnumU8AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU8[] EnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU8> EnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU8> EnumU8Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Float>k__BackingField")]
         public static extern ref float Float(CompiledModelTestBase.ManyTypes @this);
@@ -286,12 +169,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Guid>k__BackingField")]
         public static extern ref Guid Guid(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<GuidArray>k__BackingField")]
-        public static extern ref Guid[] GuidArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<GuidNestedCollection>k__BackingField")]
-        public static extern ref ICollection<Guid[][]> GuidNestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<GuidToBytesConverterProperty>k__BackingField")]
         public static extern ref Guid GuidToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
@@ -300,9 +177,6 @@ namespace TestNamespace
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddress>k__BackingField")]
         public static extern ref IPAddress IPAddress(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressArray>k__BackingField")]
-        public static extern ref IPAddress[] IPAddressArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressToBytesConverterProperty>k__BackingField")]
         public static extern ref IPAddress IPAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
@@ -361,12 +235,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBytes>k__BackingField")]
         public static extern ref byte[] NullableBytes(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBytesArray>k__BackingField")]
-        public static extern ref byte[][] NullableBytesArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBytesNestedCollection>k__BackingField")]
-        public static extern ref byte[][][] NullableBytesNestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableChar>k__BackingField")]
         public static extern ref char? NullableChar(CompiledModelTestBase.ManyTypes @this);
 
@@ -376,14 +244,8 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateOnly>k__BackingField")]
         public static extern ref DateOnly? NullableDateOnly(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateOnlyArray>k__BackingField")]
-        public static extern ref DateOnly?[] NullableDateOnlyArray(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateTime>k__BackingField")]
         public static extern ref DateTime? NullableDateTime(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateTimeArray>k__BackingField")]
-        public static extern ref DateTime?[] NullableDateTimeArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDecimal>k__BackingField")]
         public static extern ref decimal? NullableDecimal(CompiledModelTestBase.ManyTypes @this);
@@ -400,155 +262,50 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum16? NullableEnum16(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum16?[] NullableEnum16Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum16? NullableEnum16AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum16?[] NullableEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum16?> NullableEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum16?> NullableEnum16Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum32? NullableEnum32(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum32?[] NullableEnum32Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum32? NullableEnum32AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum32?[] NullableEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum32?> NullableEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum32?> NullableEnum32Collection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32NestedCollection>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum32?[][][] NullableEnum32NestedCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum64? NullableEnum64(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum64?[] NullableEnum64Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum64? NullableEnum64AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum64?[] NullableEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum64?> NullableEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum64?> NullableEnum64Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum8? NullableEnum8(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum8?[] NullableEnum8Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.Enum8? NullableEnum8AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum8?[] NullableEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum8?> NullableEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.Enum8?> NullableEnum8Collection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8NestedCollection>k__BackingField")]
-        public static extern ref CompiledModelTestBase.Enum8?[][] NullableEnum8NestedCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU16? NullableEnumU16(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU16?[] NullableEnumU16Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU16? NullableEnumU16AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU16?[] NullableEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU16?> NullableEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU16?> NullableEnumU16Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU32? NullableEnumU32(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU32?[] NullableEnumU32Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU32? NullableEnumU32AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU32?[] NullableEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU32?> NullableEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU32?> NullableEnumU32Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU64? NullableEnumU64(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU64?[] NullableEnumU64Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU64? NullableEnumU64AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU64?[] NullableEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU64?> NullableEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU64?> NullableEnumU64Collection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64NestedCollection>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU64?[][] NullableEnumU64NestedCollection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU8? NullableEnumU8(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8Array>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU8?[] NullableEnumU8Array(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8AsString>k__BackingField")]
         public static extern ref CompiledModelTestBase.EnumU8? NullableEnumU8AsString(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8AsStringArray>k__BackingField")]
-        public static extern ref CompiledModelTestBase.EnumU8?[] NullableEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8AsStringCollection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU8?> NullableEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8Collection>k__BackingField")]
-        public static extern ref List<CompiledModelTestBase.EnumU8?> NullableEnumU8Collection(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableFloat>k__BackingField")]
         public static extern ref float? NullableFloat(CompiledModelTestBase.ManyTypes @this);
@@ -559,17 +316,8 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableGuid>k__BackingField")]
         public static extern ref Guid? NullableGuid(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableGuidArray>k__BackingField")]
-        public static extern ref Guid?[] NullableGuidArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableGuidNestedCollection>k__BackingField")]
-        public static extern ref Guid?[][] NullableGuidNestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableIPAddress>k__BackingField")]
         public static extern ref IPAddress NullableIPAddress(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableIPAddressArray>k__BackingField")]
-        public static extern ref IPAddress[] NullableIPAddressArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt16>k__BackingField")]
         public static extern ref short? NullableInt16(CompiledModelTestBase.ManyTypes @this);
@@ -604,12 +352,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullablePhysicalAddress>k__BackingField")]
         public static extern ref PhysicalAddress NullablePhysicalAddress(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullablePhysicalAddressArray>k__BackingField")]
-        public static extern ref PhysicalAddress[] NullablePhysicalAddressArray(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullablePhysicalAddressNestedCollection>k__BackingField")]
-        public static extern ref IEnumerable<PhysicalAddress[][]> NullablePhysicalAddressNestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableString>k__BackingField")]
         public static extern ref string NullableString(CompiledModelTestBase.ManyTypes @this);
 
@@ -622,14 +364,8 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeOnly>k__BackingField")]
         public static extern ref TimeOnly? NullableTimeOnly(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeOnlyArray>k__BackingField")]
-        public static extern ref TimeOnly?[] NullableTimeOnlyArray(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeSpan>k__BackingField")]
         public static extern ref TimeSpan? NullableTimeSpan(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeSpanArray>k__BackingField")]
-        public static extern ref TimeSpan?[] NullableTimeSpanArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt16>k__BackingField")]
         public static extern ref ushort? NullableUInt16(CompiledModelTestBase.ManyTypes @this);
@@ -655,20 +391,11 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt8Array>k__BackingField")]
         public static extern ref byte?[] NullableUInt8Array(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt8NestedCollection>k__BackingField")]
-        public static extern ref byte?[][] NullableUInt8NestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUri>k__BackingField")]
         public static extern ref Uri NullableUri(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUriArray>k__BackingField")]
-        public static extern ref Uri[] NullableUriArray(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddress>k__BackingField")]
         public static extern ref PhysicalAddress PhysicalAddress(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddressArray>k__BackingField")]
-        public static extern ref PhysicalAddress[] PhysicalAddressArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddressToBytesConverterProperty>k__BackingField")]
         public static extern ref PhysicalAddress PhysicalAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
@@ -730,9 +457,6 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnly>k__BackingField")]
         public static extern ref TimeOnly TimeOnly(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnlyArray>k__BackingField")]
-        public static extern ref TimeOnly[] TimeOnlyArray(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnlyToStringConverterProperty>k__BackingField")]
         public static extern ref TimeOnly TimeOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
 
@@ -741,9 +465,6 @@ namespace TestNamespace
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpan>k__BackingField")]
         public static extern ref TimeSpan TimeSpan(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpanArray>k__BackingField")]
-        public static extern ref TimeSpan[] TimeSpanArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpanToStringConverterProperty>k__BackingField")]
         public static extern ref TimeSpan TimeSpanToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
@@ -775,14 +496,8 @@ namespace TestNamespace
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt8Array>k__BackingField")]
         public static extern ref byte[] UInt8Array(CompiledModelTestBase.ManyTypes @this);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt8NestedCollection>k__BackingField")]
-        public static extern ref List<byte[]> UInt8NestedCollection(CompiledModelTestBase.ManyTypes @this);
-
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Uri>k__BackingField")]
         public static extern ref Uri Uri(CompiledModelTestBase.ManyTypes @this);
-
-        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UriArray>k__BackingField")]
-        public static extern ref Uri[] UriArray(CompiledModelTestBase.ManyTypes @this);
 
         [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UriToStringConverterProperty>k__BackingField")]
         public static extern ref Uri UriToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);

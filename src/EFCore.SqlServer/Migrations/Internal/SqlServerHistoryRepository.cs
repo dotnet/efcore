@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 
@@ -52,6 +53,96 @@ public class SqlServerHistoryRepository : HistoryRepository
     /// </summary>
     protected override bool InterpretExistsResult(object? value)
         => value != DBNull.Value;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IDisposable GetDatabaseLock(TimeSpan timeout)
+    {
+        var dbLock = CreateMigrationDatabaseLock();
+        int result;
+        try
+        {
+            result = (int)CreateGetLockCommand(timeout).ExecuteScalar(CreateRelationalCommandParameters())!;
+        }
+        catch
+        {
+            try
+            {
+                dbLock.Dispose();
+            }
+            catch
+            {
+            }
+
+            throw;
+        }
+
+        return result < 0
+            ? throw new TimeoutException()
+            : dbLock;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+    {
+        var dbLock = CreateMigrationDatabaseLock();
+        int result;
+        try
+        {
+            result = (int)(await CreateGetLockCommand(timeout).ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken)
+                .ConfigureAwait(false))!;
+        }
+        catch
+        {
+            try
+            {
+                await dbLock.DisposeAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+            }
+
+            throw;
+        }
+
+        return result < 0
+            ? throw new TimeoutException()
+            : dbLock;
+    }
+
+    private IRelationalCommand CreateGetLockCommand(TimeSpan timeout)
+        => Dependencies.RawSqlCommandBuilder.Build("""
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+SELECT @result
+""",
+            [new SqlParameter("@LockTimeout", timeout.TotalMilliseconds)]).RelationalCommand;
+
+    private SqlServerMigrationDatabaseLock CreateMigrationDatabaseLock()
+        => new(
+            Dependencies.RawSqlCommandBuilder.Build("""
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+"""),
+            CreateRelationalCommandParameters());
+
+    private RelationalCommandParameterObject CreateRelationalCommandParameters()
+        => new(
+            Dependencies.Connection,
+            null,
+            null,
+            Dependencies.CurrentContext.Context,
+            Dependencies.CommandLogger, CommandSource.Migrations);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

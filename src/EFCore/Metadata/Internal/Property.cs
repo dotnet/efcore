@@ -594,7 +594,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                 {
                     _sentinel = Convert.ChangeType(sentinel, ClrType, CultureInfo.InvariantCulture);
                 }
-                catch (Exception)
+                catch
                 {
                     throw new InvalidOperationException(
                         CoreStrings.IncompatibleSentinelValue(

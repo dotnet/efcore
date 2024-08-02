@@ -35,6 +35,27 @@ public class PrecompiledQueryRelationalTestBase
         => Test("""
 var id = 3;
 var blogs = await context.Blogs.Where(b => b.Id > id).ToListAsync();
+
+Assert.Equal(2, blogs.Count);
+var orderedBlogs = blogs.OrderBy(x => x.Id).ToList();
+var blog1 = orderedBlogs[0];
+var blog2 = orderedBlogs[1];
+
+Assert.Equal(8, blog1.Id);
+Assert.Equal("Blog1", blog1.Name);
+Assert.Empty(blog1.Json);
+
+Assert.Equal(9, blog2.Id);
+Assert.Equal("Blog2", blog2.Name);
+Assert.Equal(2, blog2.Json.Count);
+
+Assert.Equal(1, blog2.Json[0].Number);
+Assert.Equal("One", blog2.Json[0].Text);
+Assert.Equal(new DateTime(2001, 1, 1), blog2.Json[0].Inner.Date);
+
+Assert.Equal(2, blog2.Json[1].Number);
+Assert.Equal("Two", blog2.Json[1].Text);
+Assert.Equal(new DateTime(2002, 2, 2), blog2.Json[1].Inner.Date);
 """);
 
     [ConditionalFact]
@@ -729,6 +750,23 @@ Assert.Equal(1, await context.Blogs.CountAsync(b => b.Id == 9 && b.Name == "Blog
     public virtual Task Union()
         => Test(
             """
+var posts = await context.Posts.Where(p => p.Id > 11)
+    .Union(context.Posts.Where(p => p.Id < 21))
+    .OrderBy(p => p.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(11, b.Id),
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id),
+    b => Assert.Equal(22, b.Id),
+    b => Assert.Equal(23, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task UnionOnEntitiesWithJson()
+        => Test(
+            """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
     .Union(context.Blogs.Where(b => b.Id < 10))
     .OrderBy(b => b.Id)
@@ -741,6 +779,24 @@ Assert.Collection(blogs,
 
     [ConditionalFact]
     public virtual Task Concat()
+        => Test(
+            """
+var posts = await context.Posts.Where(p => p.Id > 11)
+    .Concat(context.Posts.Where(p => p.Id < 21))
+    .OrderBy(p => p.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(11, b.Id),
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id),
+    b => Assert.Equal(22, b.Id),
+    b => Assert.Equal(23, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task ConcatOnEntitiesWithJson()
         => Test(
             """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
@@ -759,6 +815,20 @@ Assert.Collection(blogs,
     public virtual Task Intersect()
         => Test(
             """
+var posts = await context.Posts.Where(b => b.Id > 11)
+    .Intersect(context.Posts.Where(b => b.Id < 22))
+    .OrderBy(b => b.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task IntersectOnEntitiesWithJson()
+        => Test(
+            """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
     .Intersect(context.Blogs.Where(b => b.Id > 8))
     .OrderBy(b => b.Id)
@@ -769,6 +839,20 @@ Assert.Collection(blogs, b => Assert.Equal(9, b.Id));
 
     [ConditionalFact]
     public virtual Task Except()
+        => Test(
+            """
+var posts = await context.Posts.Where(b => b.Id > 11)
+    .Except(context.Posts.Where(b => b.Id > 21))
+    .OrderBy(b => b.Id)
+    .ToListAsync();
+
+Assert.Collection(posts,
+    b => Assert.Equal(12, b.Id),
+    b => Assert.Equal(21, b.Id));
+""");
+
+    [ConditionalFact(Skip = "issue 33378")]
+    public virtual Task ExceptOnEntitiesWithJson()
         => Test(
             """
 var blogs = await context.Blogs.Where(b => b.Id > 7)
@@ -1066,6 +1150,20 @@ var blogs2 = await context.Blogs.ToListAsync();
     {
         public DbSet<Blog> Blogs { get; set; } = null!;
         public DbSet<Post> Posts { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Blog>().OwnsMany(
+                x => x.Json,
+                n =>
+                {
+                    n.ToJson();
+                    n.OwnsOne(xx => xx.Inner);
+                });
+            modelBuilder.Entity<Blog>().HasMany(x => x.Posts).WithOne(x => x.Blog).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Post>().Property(x => x.Id).ValueGeneratedNever();
+        }
     }
 
     protected PrecompiledQueryRelationalFixture Fixture { get; }
@@ -1128,8 +1226,21 @@ await using var context = new PrecompiledQueryContext(dbContextOptions);
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
         public string? Name { get; set; }
-
         public List<Post> Posts { get; set; } = new();
+        public List<JsonRoot> Json { get; set; } = new();
+    }
+
+    public class JsonRoot
+    {
+        public int Number { get; set; }
+        public string? Text { get; set; }
+
+        public JsonBranch Inner { get; set; } = null!;
+    }
+
+    public class JsonBranch
+    {
+        public DateTime Date { get; set; }
     }
 
     public class Post

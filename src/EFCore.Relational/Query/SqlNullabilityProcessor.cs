@@ -531,7 +531,7 @@ public class SqlNullabilityProcessor
                 continue;
             }
 
-            var newResult = Visit(whenClause.Result, out var resultNullable);
+            var newResult = Visit(whenClause.Result, allowOptimizedExpansion, out var resultNullable);
 
             nullable |= resultNullable;
             whenClauses.Add(new CaseWhenClause(test, newResult));
@@ -554,7 +554,7 @@ public class SqlNullabilityProcessor
         SqlExpression? elseResult = null;
         if (!testEvaluatesToTrue)
         {
-            elseResult = Visit(caseExpression.ElseResult, out var elseResultNullable);
+            elseResult = Visit(caseExpression.ElseResult, allowOptimizedExpansion, out var elseResultNullable);
             nullable |= elseResultNullable;
 
             // if there is no 'else' there is a possibility of null, when none of the conditions are met
@@ -573,7 +573,7 @@ public class SqlNullabilityProcessor
             return elseResult ?? _sqlExpressionFactory.Constant(null, caseExpression.Type, caseExpression.TypeMapping);
         }
 
-        return caseExpression.Update(operand, whenClauses, elseResult);
+        return _sqlExpressionFactory.Case(operand, whenClauses, elseResult, caseExpression);
     }
 
     /// <summary>
@@ -2055,6 +2055,19 @@ public class SqlNullabilityProcessor
                     sqlUnaryExpression.TypeMapping);
             }
 
+            case CollateExpression collate:
+            {
+                // a COLLATE collation == null -> a == null
+                // a COLLATE collation != null -> a != null
+                return ProcessNullNotNull(
+                    _sqlExpressionFactory.MakeUnary(
+                        sqlUnaryExpression.OperatorType,
+                        collate.Operand,
+                        typeof(bool),
+                        sqlUnaryExpression.TypeMapping)!,
+                    operandNullable);
+            }
+
             case SqlUnaryExpression sqlUnaryOperand:
                 switch (sqlUnaryOperand.OperatorType)
                 {
@@ -2079,6 +2092,35 @@ public class SqlNullabilityProcessor
                 }
 
                 break;
+
+            case AtTimeZoneExpression atTimeZone:
+            {
+                // a AT TIME ZONE b == null -> a == null || b == null
+                // a AT TIME ZONE b != null -> a != null && b != null
+                var left = ProcessNullNotNull(
+                    _sqlExpressionFactory.MakeUnary(
+                        sqlUnaryExpression.OperatorType,
+                        atTimeZone.Operand,
+                        typeof(bool),
+                        sqlUnaryExpression.TypeMapping)!,
+                    operandNullable);
+
+                var right = ProcessNullNotNull(
+                    _sqlExpressionFactory.MakeUnary(
+                        sqlUnaryExpression.OperatorType,
+                        atTimeZone.TimeZone,
+                        typeof(bool),
+                        sqlUnaryExpression.TypeMapping)!,
+                    operandNullable);
+
+                return _sqlExpressionFactory.MakeBinary(
+                    sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                        ? ExpressionType.OrElse
+                        : ExpressionType.AndAlso,
+                    left,
+                    right,
+                    sqlUnaryExpression.TypeMapping)!;
+            }
 
             case SqlBinaryExpression sqlBinaryOperand
                 when sqlBinaryOperand.OperatorType != ExpressionType.AndAlso

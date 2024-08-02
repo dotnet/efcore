@@ -95,7 +95,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteDelete)));
     }
 
     /// <summary>
@@ -169,7 +170,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
 
         throw new InvalidOperationException(
-            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(
+                nameof(EntityFrameworkQueryableExtensions.ExecuteUpdate)));
     }
 
     /// <summary>
@@ -679,6 +681,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             SqlUnaryExpression sqlUnaryExpression => sqlUnaryExpression.OperatorType switch
             {
                 ExpressionType.Convert => (1300, false),
+                ExpressionType.OnesComplement => (1200, false),
                 ExpressionType.Not when sqlUnaryExpression.Type != typeof(bool) => (1200, false),
                 ExpressionType.Negate => (1100, false),
                 ExpressionType.Equal => (500, false), // IS NULL
