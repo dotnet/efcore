@@ -196,7 +196,9 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The names of the partition key properties, or <see langword="null"/> if not set.</returns>
     public static IReadOnlyList<string> GetPartitionKeyPropertyNames(this IReadOnlyEntityType entityType)
-        => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string> ?? Array.Empty<string>();
+        => entityType[CosmosAnnotationNames.PartitionKeyNames] as IReadOnlyList<string>
+            ?? entityType.BaseType?.GetPartitionKeyPropertyNames()
+            ?? Array.Empty<string>();
 
     /// <summary>
     ///     Sets the names of the properties that are used to store the hierarchical partition key.

@@ -29,9 +29,11 @@ public static class CosmosEntityTypeExtensions
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     public static IJsonIdDefinition? GetJsonIdDefinition(this IEntityType entityType)
-        => entityType.GetOrAddRuntimeAnnotationValue(CosmosAnnotationNames.JsonIdDefinition,
-            static e =>
-                ((CosmosModelRuntimeInitializerDependencies)e!.Model.FindRuntimeAnnotationValue(
-                    CosmosAnnotationNames.ModelDependencies)!).JsonIdDefinitionFactory.Create(e),
-            entityType);
+        => entityType.BaseType?.GetJsonIdDefinition()
+            ?? entityType.GetOrAddRuntimeAnnotationValue(
+                CosmosAnnotationNames.JsonIdDefinition,
+                static e =>
+                    ((CosmosModelRuntimeInitializerDependencies)e!.Model.FindRuntimeAnnotationValue(
+                        CosmosAnnotationNames.ModelDependencies)!).JsonIdDefinitionFactory.Create(e),
+                entityType);
 }

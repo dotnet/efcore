@@ -155,6 +155,69 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         VerifyError(CosmosStrings.NoPartitionKey(nameof(Customer), "", nameof(Order), "PartitionId", "Orders"), modelBuilder);
     }
 
+    [ConditionalFact] // Issue #34176
+    public virtual void Partition_keys_do_not_need_to_be_explicitly_configured_on_non_root_types()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<B>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<C>();
+        modelBuilder.Entity<D>();
+        modelBuilder.Entity<F>();
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact] // Issue #34176
+    public virtual void Partition_keys_can_only_be_defined_on_the_root_of_a_hierarchy()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>(
+            b =>
+            {
+                b.HasPartitionKey(e => e.P0);
+                b.ToContainer("As");
+                b.HasKey(e => new { e.P0, e.P1 });
+            });
+
+        modelBuilder.Entity<B>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<C>().ToContainer("As");
+        modelBuilder.Entity<D>().HasPartitionKey(e => e.P1).ToContainer("As");
+        modelBuilder.Entity<F>().ToContainer("As");
+
+        VerifyError(CosmosStrings.PartitionKeyNotOnRoot(nameof(D), nameof(A)), modelBuilder);
+    }
+
+    [ConditionalFact] // Issue #34176
+    public virtual void Container_does_not_need_to_be_explicitly_configured_on_non_root_types()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<B>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<C>();
+        modelBuilder.Entity<D>();
+        modelBuilder.Entity<F>();
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact] // Issue #34176
+    public virtual void Container_can_only_be_defined_on_the_root_of_a_hierarchy()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<B>().HasPartitionKey(e => e.P0).ToContainer("As");
+        modelBuilder.Entity<C>();
+        modelBuilder.Entity<D>().ToContainer("Ds");
+        modelBuilder.Entity<F>();
+
+        VerifyError(CosmosStrings.ContainerNotOnRoot(nameof(D), nameof(A)), modelBuilder);
+    }
+
     [ConditionalFact]
     public virtual void Detects_missing_partition_keys_one_last_type()
     {

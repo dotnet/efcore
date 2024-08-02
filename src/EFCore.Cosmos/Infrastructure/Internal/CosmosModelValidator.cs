@@ -107,6 +107,13 @@ public class CosmosModelValidator : ModelValidator
                 continue;
             }
 
+            if (entityType.BaseType != null
+                && entityType.FindAnnotation(CosmosAnnotationNames.ContainerName)?.Value != null)
+            {
+                throw new InvalidOperationException(
+                    CosmosStrings.ContainerNotOnRoot(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+            }
+
             var ownership = entityType.FindOwnership();
             if (ownership != null)
             {
@@ -389,6 +396,13 @@ public class CosmosModelValidator : ModelValidator
             }
             else
             {
+                if (entityType.BaseType != null
+                    && entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyNames)?.Value != null)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.PartitionKeyNotOnRoot(entityType.DisplayName(), entityType.BaseType.DisplayName()));
+                }
+
                 foreach (var partitionKeyPropertyName in partitionKeyPropertyNames)
                 {
                     var partitionKey = entityType.FindProperty(partitionKeyPropertyName);
