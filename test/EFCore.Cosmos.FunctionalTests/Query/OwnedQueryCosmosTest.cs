@@ -391,15 +391,21 @@ ORDER BY c["Id"]
 """);
             });
 
-    // TODO: #34068
-    public override async Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
-    {
-        // Always throws for sync.
-        if (async)
-        {
-            await Assert.ThrowsAsync<NullReferenceException>(() => base.Project_owned_reference_navigation_which_does_not_own_additional(async));
-        }
-    }
+    // Issue #34068
+    public override Task Project_owned_reference_navigation_which_does_not_own_additional(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Project_owned_reference_navigation_which_does_not_own_additional(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c
+FROM root c
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+ORDER BY c["Id"]
+""");
+            });
 
     public override Task No_ignored_include_warning_when_implicit_load(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
