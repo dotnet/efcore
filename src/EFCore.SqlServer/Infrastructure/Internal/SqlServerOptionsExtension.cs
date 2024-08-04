@@ -294,7 +294,6 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
             => other is ExtensionInfo otherInfo
                 && Extension.EngineType == otherInfo.Extension.EngineType
-                && Extension.LegacyAzureSql == otherInfo.Extension.LegacyAzureSql
                 && Extension.SqlServerCompatibilityLevel == otherInfo.Extension.SqlServerCompatibilityLevel
                 && Extension.AzureSqlCompatibilityLevel == otherInfo.Extension.AzureSqlCompatibilityLevel
                 && Extension.AzureSynapseCompatibilityLevel == otherInfo.Extension.AzureSynapseCompatibilityLevel;
@@ -314,10 +313,13 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
                         .Append(Extension._engineType)
                         .Append(' ');
 
-                    builder
-                        .Append("LegacyAzureSql=")
-                        .Append(Extension._legacyAzureSql)
-                        .Append(' ');
+                    if (Extension._legacyAzureSql)
+                    {
+                        builder
+                            .Append("LegacyAzureSql=")
+                            .Append(Extension._legacyAzureSql)
+                            .Append(' ');
+                    }
 
                     if (Extension._sqlServerCompatibilityLevel != null)
                     {

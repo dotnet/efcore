@@ -63,5 +63,5 @@ public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContext
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
     protected override string DefaultOptions
-        => "EngineType=SqlServer LegacyAzureSql=False ";
+        => "EngineType=SqlServer ";
 }
