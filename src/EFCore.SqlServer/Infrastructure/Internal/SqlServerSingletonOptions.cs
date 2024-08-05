@@ -71,16 +71,32 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
     {
         var sqlServerOptions = options.FindExtension<SqlServerOptionsExtension>();
 
-        if (sqlServerOptions != null
-            && (EngineType != sqlServerOptions.EngineType
-                || SqlServerCompatibilityLevel != sqlServerOptions.SqlServerCompatibilityLevel
-                || AzureSqlCompatibilityLevel != sqlServerOptions.AzureSqlCompatibilityLevel
-                || AzureSynapseCompatibilityLevel != sqlServerOptions.AzureSynapseCompatibilityLevel))
+        if (sqlServerOptions != null)
         {
-            throw new InvalidOperationException(
-                CoreStrings.SingletonOptionChanged(
-                    $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSql)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSynapse)}",
-                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            if (EngineType == SqlServerEngineType.SqlServer
+                && (EngineType != sqlServerOptions.EngineType || SqlServerCompatibilityLevel != sqlServerOptions.SqlServerCompatibilityLevel))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.SingletonOptionChanged(
+                        $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}",
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
+            if (EngineType == SqlServerEngineType.AzureSql
+                && (EngineType != sqlServerOptions.EngineType || AzureSqlCompatibilityLevel != sqlServerOptions.AzureSqlCompatibilityLevel))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.SingletonOptionChanged(
+                        $"{nameof(SqlServerDbContextOptionsExtensions.UseAzureSql)}",
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
+            if (EngineType == SqlServerEngineType.AzureSynapse
+                && (EngineType != sqlServerOptions.EngineType || AzureSynapseCompatibilityLevel != sqlServerOptions.AzureSynapseCompatibilityLevel))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.SingletonOptionChanged(
+                        $"{nameof(SqlServerDbContextOptionsExtensions.UseAzureSynapse)}",
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
         }
     }
 }
