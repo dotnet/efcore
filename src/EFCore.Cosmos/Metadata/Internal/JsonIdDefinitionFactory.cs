@@ -20,7 +20,7 @@ public class JsonIdDefinitionFactory : IJsonIdDefinitionFactory
     public virtual IJsonIdDefinition? Create(IEntityType entityType)
     {
         var primaryKey = entityType.FindPrimaryKey();
-        if (entityType.IsOwned() || primaryKey == null)
+        if (entityType.GetForeignKeys().Any(fk => fk.IsOwnership) || primaryKey == null)
         {
             return null;
         }
