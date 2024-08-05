@@ -150,13 +150,13 @@ public partial class ConventionDispatcher
         {
             using (_dispatcher.DelayConventions())
             {
-                _stringConventionContext.ResetState(oldName);
+                _stringConventionContext.ResetState(newName);
 #if DEBUG
                 var initialValue = modelBuilder.Metadata.GetEmbeddedDiscriminatorName();
 #endif
                 foreach (var modelConvention in _conventionSet.ModelEmbeddedDiscriminatorNameConventions)
                 {
-                    modelConvention.ProcessEmbeddedDiscriminatorName(modelBuilder, oldName, newName, _stringConventionContext);
+                    modelConvention.ProcessEmbeddedDiscriminatorName(modelBuilder, newName, oldName, _stringConventionContext);
 
                     if (_stringConventionContext.ShouldStopProcessing())
                     {

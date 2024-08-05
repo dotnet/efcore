@@ -165,8 +165,11 @@ public class CosmosDiscriminatorConvention :
     }
 
     /// <inheritdoc/>
-    public void ProcessEmbeddedDiscriminatorName(
-        IConventionModelBuilder modelBuilder, string? oldName, string? newName, IConventionContext<string> context)
+    public virtual void ProcessEmbeddedDiscriminatorName(
+        IConventionModelBuilder modelBuilder,
+        string? newName,
+        string? oldName,
+        IConventionContext<string> context)
     {
         if (oldName == newName)
         {

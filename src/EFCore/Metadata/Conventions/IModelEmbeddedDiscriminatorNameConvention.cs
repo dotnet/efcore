@@ -15,12 +15,12 @@ public interface IModelEmbeddedDiscriminatorNameConvention : IConvention
     ///     Called after <see cref="ModelBuilder.HasEmbeddedDiscriminatorName"/> has been called.
     /// </summary>
     /// <param name="modelBuilder">The builder for the model.</param>
-    /// <param name="oldName">The current discriminator name.</param>
     /// <param name="newName">The new discriminator name.</param>
+    /// <param name="oldName">The current discriminator name.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
     void ProcessEmbeddedDiscriminatorName(
         IConventionModelBuilder modelBuilder,
-        string? oldName,
         string? newName,
+        string? oldName,
         IConventionContext<string> context);
 }

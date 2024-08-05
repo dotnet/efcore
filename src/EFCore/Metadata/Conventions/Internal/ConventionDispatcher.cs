@@ -70,7 +70,7 @@ public partial class ConventionDispatcher
     {
         if (name == CoreAnnotationNames.EmbeddedDiscriminatorName)
         {
-            _scope.OnModelEmbeddedDiscriminatorNameChanged(modelBuilder, oldAnnotation?.Name, annotation?.Name);
+            _scope.OnModelEmbeddedDiscriminatorNameChanged(modelBuilder, (string?)oldAnnotation?.Value, (string?)annotation?.Value);
             return annotation;
         }
 

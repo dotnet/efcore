@@ -237,6 +237,94 @@ public class ConventionDispatcherTest
     [InlineData(false, true)]
     [InlineData(true, true)]
     [ConditionalTheory]
+    public void ModelEmbeddedDiscriminatorName_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ModelEmbeddedDiscriminatorNameConvention(false);
+        var convention2 = new ModelEmbeddedDiscriminatorNameConvention(true);
+        var convention3 = new ModelEmbeddedDiscriminatorNameConvention(false);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(builder.HasEmbeddedDiscriminatorName("Cheese", ConfigurationSource.Convention));
+        }
+        else
+        {
+            builder.Metadata.SetEmbeddedDiscriminatorName("Cheese", ConfigurationSource.Convention);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { ("Cheese", (string)null) }, convention1.Calls);
+        Assert.Equal(new[] { ("Cheese", (string)null) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(builder.HasEmbeddedDiscriminatorName("Cheese", ConfigurationSource.Convention));
+        }
+        else
+        {
+            builder.Metadata.SetEmbeddedDiscriminatorName("Cheese", ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new[] { ("Cheese", (string)null) }, convention1.Calls);
+        Assert.Equal(new[] { ("Cheese", (string)null) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(builder.HasEmbeddedDiscriminatorName("Onion", ConfigurationSource.Convention));
+        }
+        else
+        {
+            builder.Metadata.SetEmbeddedDiscriminatorName("Onion", ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new[] { ("Cheese", null), ("Onion", "Cheese") }, convention1.Calls);
+        Assert.Equal(new[] { ("Cheese", null), ("Onion", "Cheese") }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ModelEmbeddedDiscriminatorNameConvention(terminate: true),
+            conventions, conventions.ModelEmbeddedDiscriminatorNameConventions);
+    }
+
+    private class ModelEmbeddedDiscriminatorNameConvention(bool terminate) : IModelEmbeddedDiscriminatorNameConvention
+    {
+        public readonly List<(string, string)> Calls = [];
+
+        public void ProcessEmbeddedDiscriminatorName(
+            IConventionModelBuilder modelBuilder, string newName, string oldName, IConventionContext<string> context)
+        {
+            Assert.NotNull(modelBuilder.Metadata.Builder);
+
+            Calls.Add((newName, oldName));
+
+            if (terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
     public void OnEntityTypeAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();

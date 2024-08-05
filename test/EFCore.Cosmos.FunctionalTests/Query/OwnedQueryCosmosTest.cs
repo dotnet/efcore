@@ -402,7 +402,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 """);
             });
