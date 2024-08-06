@@ -1991,7 +1991,7 @@ END IN (
             => SqlServerTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).UseSqlServer(b => b.UseCompatibilityLevel(160));
+            => base.AddOptions(builder).UseSqlServer(b => b.UseSqlServerCompatibilityLevel(160));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

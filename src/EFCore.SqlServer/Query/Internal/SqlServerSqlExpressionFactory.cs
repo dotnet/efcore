@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerSqlExpressionFactory : SqlExpressionFactory
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
-    private readonly int _sqlServerCompatibilityLevel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,12 +24,10 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerSqlExpressionFactory(
-        SqlExpressionFactoryDependencies dependencies,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        SqlExpressionFactoryDependencies dependencies)
         : base(dependencies)
     {
         _typeMappingSource = dependencies.TypeMappingSource;
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
     }
 
     /// <summary>

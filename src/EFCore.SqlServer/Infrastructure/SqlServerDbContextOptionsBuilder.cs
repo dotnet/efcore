@@ -6,10 +6,13 @@ using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
-///     Allows SQL Server specific configuration to be performed on <see cref="DbContextOptions" />.
+///     Allows SQL Server, Azure SQL, Azure Synapse specific configuration to be performed on <see cref="DbContextOptions" />.
 /// </summary>
 /// <remarks>
-///     Instances of this class are returned from a call to <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
+///     Instances of this class are returned from a call to 
+///     <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />, 
+///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSql" />, 
+///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSynapse" /> 
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
 public class SqlServerDbContextOptionsBuilder
@@ -29,7 +32,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server, Azure SQL, Azure Synapse. It is pre-configured with
     ///         error numbers for transient errors that can be retried.
     ///     </para>
     ///     <para>
@@ -48,7 +51,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server, Azure SQL, Azure Synapse. It is pre-configured with
     ///         error numbers for transient errors that can be retried.
     ///     </para>
     ///     <para>
@@ -67,7 +70,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server, Azure SQL, Azure Synapse. It is pre-configured with
     ///         error numbers for transient errors that can be retried.
     ///     </para>
     ///     <para>
@@ -87,7 +90,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server, Azure SQL, Azure Synapse. It is pre-configured with
     ///         error numbers for transient errors that can be retried, but additional error numbers can also be supplied.
     ///     </para>
     ///     <para>
@@ -116,14 +119,45 @@ public class SqlServerDbContextOptionsBuilder
     ///     </see>
     ///     for more information and examples.
     /// </remarks>
-    /// <param name="compatibilityLevel"><see langword="false" /> to have null resource</param>
-    public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
-        => WithOption(e => e.WithCompatibilityLevel(compatibilityLevel));
+    /// <param name="sqlServerCompatibilityLevel"><see langword="false" /> to have null resource</param>
+    public virtual SqlServerDbContextOptionsBuilder UseSqlServerCompatibilityLevel(int sqlServerCompatibilityLevel)
+        => WithOption(e => e.WithSqlServerCompatibilityLevel(sqlServerCompatibilityLevel));
 
     /// <summary>
     ///     Configures the context to use defaults optimized for Azure SQL, including retries on errors.
     /// </summary>
     /// <param name="enable">Whether the defaults should be enabled.</param>
+    [Obsolete("Use UseAzureSql instead of UseSqlServer with UseAzureSqlDefaults.")]
     public virtual SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true)
-        => WithOption(e => e.WithAzureSql(enable));
+        => WithOption(e => e.WithLegacyAzureSql(enable));
+
+    /// <summary>
+    ///     Sets the Azure SQL compatibility level that EF Core will use when interacting with the database. This allows configuring EF
+    ///     Core to work with older (or newer) versions of Azure SQL. Defaults to <c>160</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql">
+    ///         Azure SQL documentation on compatibility level
+    ///     </see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="azureSqlCompatibilityLevel"><see langword="false" /> to have null resource</param>
+    public virtual SqlServerDbContextOptionsBuilder UseAzureSqlCompatibilityLevel(int azureSqlCompatibilityLevel)
+        => WithOption(e => e.WithAzureSqlCompatibilityLevel(azureSqlCompatibilityLevel));
+
+    /// <summary>
+    ///     Sets the Azure Synapse compatibility level that EF Core will use when interacting with the database. This allows configuring EF
+    ///     Core to work with older (or newer) versions of Azure Synapse. Defaults to <c>30</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-scoped-configuration-transact-sql">
+    ///         Azure Synapse documentation on compatibility level
+    ///     </see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="azureSynapseCompatibilityLevel"><see langword="false" /> to have null resource</param>
+    public virtual SqlServerDbContextOptionsBuilder UseAzureSynapseCompatibilityLevel(int azureSynapseCompatibilityLevel)
+        => WithOption(e => e.WithAzureSynapseCompatibilityLevel(azureSynapseCompatibilityLevel));
 }

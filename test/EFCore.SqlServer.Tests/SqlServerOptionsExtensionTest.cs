@@ -52,13 +52,16 @@ public class SqlServerOptionsExtensionTest
     }
 
     [ConditionalFact]
-    public void ApplyServices_adds_SQL_server_services()
+    public void ApplyServices_adds_correct_services()
     {
         var services = new ServiceCollection();
 
-        new SqlServerOptionsExtension().ApplyServices(services);
+        new SqlServerOptionsExtension()
+            .WithEngineType(SqlServerEngineType.SqlServer)
+            .ApplyServices(services);
 
         Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
+        Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerSingletonOptions));
     }
 
     private class ChangedRowNumberContext(bool setInternalServiceProvider) : DbContext

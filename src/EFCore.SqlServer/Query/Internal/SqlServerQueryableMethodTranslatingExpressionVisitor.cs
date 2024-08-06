@@ -20,7 +20,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private readonly int _sqlServerCompatibilityLevel;
+    private readonly ISqlServerSingletonOptions _sqlServerSingletonOptions;
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
 
@@ -40,8 +40,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         _queryCompilationContext = queryCompilationContext;
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-
-        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
+        _sqlServerSingletonOptions = sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -57,8 +56,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         _queryCompilationContext = parentVisitor._queryCompilationContext;
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
-
-        _sqlServerCompatibilityLevel = parentVisitor._sqlServerCompatibilityLevel;
+        _sqlServerSingletonOptions = parentVisitor._sqlServerSingletonOptions;
     }
 
     /// <summary>
@@ -131,9 +129,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         IProperty? property,
         string tableAlias)
     {
-        if (_sqlServerCompatibilityLevel < 130)
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel < 130)
         {
-            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerCompatibilityLevel));
+            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.SqlServerCompatibilityLevel));
+
+            return null;
+        }
+        if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 130)
+        {
+            AddTranslationErrorDetails(SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(_sqlServerSingletonOptions.AzureSqlCompatibilityLevel));
 
             return null;
         }

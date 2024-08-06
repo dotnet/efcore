@@ -202,7 +202,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             // an overload that accepts the characters to trim.
             if (method == TrimStartMethodInfoWithoutArgs
                 || (method == TrimStartMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
                     && (method == TrimStartMethodInfoWithCharArg || method == TrimStartMethodInfoWithCharArrayArg)))
             {
                 return ProcessTrimStartEnd(instance, arguments, "LTRIM");
@@ -210,7 +212,9 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
             if (method == TrimEndMethodInfoWithoutArgs
                 || (method == TrimEndMethodInfoWithCharArrayArg && arguments[0] is SqlConstantExpression { Value: char[] { Length: 0 } })
-                || (_sqlServerSingletonOptions.CompatibilityLevel >= 160
+                || (((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 160)
+                        || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse))
                     && (method == TrimEndMethodInfoWithCharArg || method == TrimEndMethodInfoWithCharArrayArg)))
             {
                 return ProcessTrimStartEnd(instance, arguments, "RTRIM");
