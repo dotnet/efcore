@@ -74,7 +74,7 @@ public class CosmosTestStore : TestStore
     }
 
     private static string CreateName(string name)
-        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2"
+        => TestEnvironment.IsEmulator || name == "Northwind" || name == "Northwind2" || name == "Northwind3"
             ? name
             : name + _runId;
 
@@ -218,7 +218,7 @@ public class CosmosTestStore : TestStore
                                                         ? $"{entityName}|{document["id"]}"
                                                         : $"{document["id"]}";
 
-                                                    document["Discriminator"] = entityName;
+                                                    document["$type"] = entityName;
 
                                                     await cosmosClient.CreateItemAsync(
                                                         containerName!, document, new FakeUpdateEntry()).ConfigureAwait(false);
@@ -661,6 +661,9 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         public IIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+            => throw new NotImplementedException();
+
+        public string GetEmbeddedDiscriminatorName()
             => throw new NotImplementedException();
 
         public PropertyInfo FindIndexerPropertyInfo()

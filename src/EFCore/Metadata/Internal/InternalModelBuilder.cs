@@ -803,6 +803,34 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalModelBuilder? HasEmbeddedDiscriminatorName(string? name, ConfigurationSource configurationSource)
+    {
+        if (CanSetEmbeddedDiscriminatorName(name, configurationSource))
+        {
+            Metadata.SetEmbeddedDiscriminatorName(name, configurationSource);
+
+            return this;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetEmbeddedDiscriminatorName(string? name, ConfigurationSource configurationSource)
+        => configurationSource.Overrides(Metadata.GetEmbeddedDiscriminatorNameConfigurationSource())
+            || Metadata.GetEmbeddedDiscriminatorName() == name;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     IConventionModel IConventionModelBuilder.Metadata
     {
         [DebuggerStepThrough]
@@ -1113,4 +1141,26 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     bool IConventionModelBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
         => CanSetPropertyAccessMode(
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionModelBuilder? IConventionModelBuilder.HasEmbeddedDiscriminatorName(string? name, bool fromDataAnnotation)
+        => HasEmbeddedDiscriminatorName(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IConventionModelBuilder.CanSetEmbeddedDiscriminatorName(string? name, bool fromDataAnnotation)
+        => CanSetEmbeddedDiscriminatorName(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

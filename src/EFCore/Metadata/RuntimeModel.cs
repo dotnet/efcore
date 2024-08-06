@@ -345,6 +345,11 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
 
     /// <inheritdoc />
     [DebuggerStepThrough]
+    string IReadOnlyModel.GetEmbeddedDiscriminatorName()
+        => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
     ChangeTrackingStrategy IReadOnlyModel.GetChangeTrackingStrategy()
         => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
 

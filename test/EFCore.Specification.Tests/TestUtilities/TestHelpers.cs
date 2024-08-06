@@ -481,6 +481,7 @@ public abstract class TestHelpers
             ConventionSet.KeyAnnotationChangedConventions.Clear();
             ConventionSet.KeyRemovedConventions.Clear();
             ConventionSet.ModelAnnotationChangedConventions.Clear();
+            ConventionSet.ModelEmbeddedDiscriminatorNameConventions.Clear();
             ConventionSet.ModelFinalizedConventions.Clear();
             ConventionSet.ModelFinalizingConventions.Clear();
             ConventionSet.ModelInitializedConventions.Clear();

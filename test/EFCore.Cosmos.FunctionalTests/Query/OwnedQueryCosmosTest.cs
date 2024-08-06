@@ -57,7 +57,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 ORDER BY c["Id"]
 """);
             });
@@ -79,7 +79,7 @@ SELECT VALUE (ARRAY(
     FROM o IN c["Orders"]
     ORDER BY o["Id"])[0] ?? false)
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 """);
         }
@@ -108,7 +108,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
             });
 
@@ -122,7 +122,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c["PersonAddress"]["Country"]["Name"]
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
 """);
             });
 
@@ -136,7 +136,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -150,7 +150,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Branch", "LeafA")
+WHERE c["Terminator"] IN ("Branch", "LeafA")
 """);
             });
 
@@ -164,7 +164,7 @@ WHERE c["Discriminator"] IN ("Branch", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("Branch", "LeafA")
+WHERE c["Terminator"] IN ("Branch", "LeafA")
 """);
             });
 
@@ -178,7 +178,7 @@ WHERE c["Discriminator"] IN ("Branch", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "LeafA")
+WHERE (c["Terminator"] = "LeafA")
 """);
             });
 
@@ -313,7 +313,7 @@ WHERE (c["Discriminator"] = "LeafA")
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -334,7 +334,7 @@ SELECT VALUE
 }
 FROM root c
 JOIN o IN c["Orders"]
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -367,7 +367,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Discriminator"] = "LeafA"))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Terminator"] = "LeafA"))
 """);
             });
 
@@ -386,7 +386,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 """);
             });
@@ -402,7 +402,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 """);
             });
@@ -417,7 +417,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE COUNT(1)
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -458,7 +458,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -485,7 +485,7 @@ ORDER BY c["Id"]
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -512,7 +512,7 @@ ORDER BY c["Id"]
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -539,7 +539,7 @@ ORDER BY c["Id"]
 SELECT VALUE o["Details"]
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -566,7 +566,7 @@ ORDER BY c["Id"]
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(o["Details"]) = 1))
 ORDER BY c["Id"]
 """);
             });
@@ -585,7 +585,7 @@ ORDER BY c["Id"]
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
 """);
             });
 
@@ -599,7 +599,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
             });
 
@@ -613,7 +613,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
 """);
             });
 
@@ -627,7 +627,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -641,7 +641,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c["PersonAddress"]["AddressLine"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -655,7 +655,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -674,7 +674,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                 """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Name"], c["Id"]
 """);
         }
@@ -695,7 +695,7 @@ ORDER BY c["Name"], c["Id"]
                 """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Name"], c["Id"]
 """);
         }
@@ -716,7 +716,7 @@ ORDER BY c["Name"], c["Id"]
                 """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
 """);
         }
@@ -737,7 +737,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
                 """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
 """);
         }
@@ -773,7 +773,7 @@ ORDER BY c["PersonAddress"]["ZipCode"], c["Id"]
                     """
 SELECT VALUE c["PersonAddress"]["ZipCode"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -787,7 +787,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c["PersonAddress"]["ZipCode"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -806,7 +806,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c["Name"]
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
     SELECT VALUE COUNT(1)
     FROM o IN c["Orders"]
     WHERE (DateTimePart("yyyy", o["OrderDate"]) = 2018)) = 1))
@@ -850,7 +850,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((
                 """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
 """);
         }
@@ -871,7 +871,7 @@ ORDER BY c["PersonAddress"]["PlaceType"], c["Id"]
 SELECT VALUE o
 FROM root c
 JOIN o IN c["Orders"]
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @__p_0))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o["ClientId"] = @__p_0))
 """);
             });
 
@@ -917,7 +917,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (o[
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
             });
 
@@ -931,7 +931,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
 """);
             });
 
@@ -949,7 +949,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c["PersonAddress"]["AddressLine"]
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -963,7 +963,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("HeliumBalloon", "HydrogenBalloon")
+WHERE c["Terminator"] IN ("HeliumBalloon", "HydrogenBalloon")
 """);
             });
 
@@ -980,7 +980,7 @@ WHERE c["Discriminator"] IN ("HeliumBalloon", "HydrogenBalloon")
 
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
@@ -999,7 +999,7 @@ OFFSET @__p_0 LIMIT @__p_1
 
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET @__p_0 LIMIT @__p_1
 """);
@@ -1022,7 +1022,7 @@ OFFSET @__p_0 LIMIT @__p_1
                         """
 SELECT VALUE c["Throned"]["Value"]
 FROM root c
-WHERE (c["Discriminator"] = "Barton")
+WHERE (c["Terminator"] = "Barton")
 """);
                 });
         }
@@ -1038,7 +1038,7 @@ WHERE (c["Discriminator"] = "Barton")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -1052,7 +1052,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] = "Star")
+WHERE (c["Terminator"] = "Star")
 """);
             });
 
@@ -1066,7 +1066,7 @@ WHERE (c["Discriminator"] = "Star")
                     """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 """);
             });
 
@@ -1080,7 +1080,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Id"] = 1))
 """);
             });
 
@@ -1096,7 +1096,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
 
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET 0 LIMIT @__p_0
 """);
@@ -1116,7 +1116,7 @@ OFFSET 0 LIMIT @__p_0
 
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+WHERE c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
 ORDER BY c["Id"]
 OFFSET 0 LIMIT @__p_0
 """);
@@ -1134,7 +1134,7 @@ OFFSET 0 LIMIT @__p_0
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) = 2))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) = 2))
 """);
             });
 
@@ -1150,7 +1150,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(c["Orders"]) > 0))
 """);
             });
 
@@ -1166,7 +1166,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
     FROM o IN c["Orders"]
     WHERE (o["Id"] = -30)))
@@ -1185,7 +1185,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXI
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXISTS (
     SELECT 1
     FROM o IN c["Orders"]
     WHERE (o["Id"] = -30)))
@@ -1204,7 +1204,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND EXI
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Orders"][1]["Id"] = -11))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Orders"][1]["Id"] = -11))
 """);
             });
 
@@ -1220,7 +1220,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["Orders"][10] ?? null)["Id"] = -11))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c["Orders"][10] ?? null)["Id"] = -11))
 """);
             });
 
@@ -1239,7 +1239,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND ((c
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY(
     SELECT VALUE o["Id"]
     FROM o IN c["Orders"]
     ORDER BY o["Id"])[1] = -10))
@@ -1259,7 +1259,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Orders"], 1, 1)) = 1))
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(ARRAY_SLICE(c["Orders"], 1, 1)) = 1))
 """);
             });
 
@@ -1275,7 +1275,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (DateTimePart("yyyy", (ARRAY(
     SELECT VALUE o["OrderDate"]
     FROM o IN c["Orders"]
     WHERE (o["Id"] > -20))[0] ?? "0001-01-01T00:00:00")) = 2018))
@@ -1308,7 +1308,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (Da
                     """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(SetUnion(ARRAY(
+WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY_LENGTH(SetUnion(ARRAY(
     SELECT VALUE o
     FROM o IN c["Orders"]
     WHERE (o["Id"] = -10)), ARRAY(
@@ -1723,6 +1723,8 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (AR
             modelBuilder
                 .Entity<HeliumBalloon>()
                 .OwnsOne(e => e.Gas);
+
+            modelBuilder.HasEmbeddedDiscriminatorName("Terminator");
         }
     }
 }

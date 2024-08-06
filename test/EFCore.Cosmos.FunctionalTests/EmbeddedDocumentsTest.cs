@@ -535,7 +535,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
+WHERE (c["$type"] IN ("Vehicle", "PoweredVehicle") AND (c["Name"] = "AIM-9M Sidewinder"))
 OFFSET 0 LIMIT 1
 """);
             Assert.Equal("Heat-seeking", missile.Operator.Details.Type);

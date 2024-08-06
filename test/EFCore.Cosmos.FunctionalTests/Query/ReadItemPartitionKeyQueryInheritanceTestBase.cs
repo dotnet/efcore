@@ -325,7 +325,7 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
                 .Where(
                     e => e.Id == 11
-                        && EF.Property<string>(e, "Discriminator") == nameof(DerivedSinglePartitionKeyEntity)
+                        && EF.Property<string>(e, "$type") == nameof(DerivedSinglePartitionKeyEntity)
                         && e.PartitionKey == partitionKey),
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
                 .Where(e => e.Id == 11 && e.PartitionKey == partitionKey));
@@ -341,7 +341,7 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
                 .Where(
                     e => e.Id == 11
-                        && EF.Property<string>(e, "Discriminator") == nameof(SinglePartitionKeyEntity)
+                        && EF.Property<string>(e, "$type") == nameof(SinglePartitionKeyEntity)
                         && e.PartitionKey == partitionKey),
             ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e => false),
             assertEmpty: true);
@@ -356,7 +356,7 @@ public abstract class ReadItemPartitionKeyQueryInheritanceTestBase<TFixture> : R
         return AssertSingle(
             async: true,
             ss => ss.Set<DerivedSinglePartitionKeyEntity>()
-                .Where(e => e.Id == 11 && EF.Property<string>(e, "Discriminator") == discriminator && e.PartitionKey == partitionKey),
+                .Where(e => e.Id == 11 && EF.Property<string>(e, "$type") == discriminator && e.PartitionKey == partitionKey),
             ss => ss.Set<DerivedSinglePartitionKeyEntity>().Where(e => e.Id == 11 && e.PartitionKey == partitionKey));
     }
 }

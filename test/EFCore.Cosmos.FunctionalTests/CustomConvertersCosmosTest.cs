@@ -76,7 +76,7 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
+WHERE (c["$type"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
 """);
     }
 
@@ -89,7 +89,7 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y")))
+WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y")))
 """);
     }
 
@@ -102,7 +102,7 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y"))
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
+WHERE (c["$type"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
 """);
     }
 
@@ -115,7 +115,7 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
             """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
+WHERE (c["$type"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
 """);
     }
 

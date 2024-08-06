@@ -50,7 +50,7 @@ public class BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosTest.BuiltInDataTy
             """
 SELECT c["TestSignedByte"], c["TestByte"], c["TestInt16"], c["TestUnsignedInt16"], c["TestInt32"], c["TestUnsignedInt32"], c["TestInt64"], c["TestUnsignedInt64"], c["TestSingle"], c["TestDouble"], c["TestDecimal"], c["TestCharacter"], c["TestDateTime"], c["TestDateTimeOffset"], c["TestTimeSpan"], c["TestDateOnly"], c["TestTimeOnly"]
 FROM root c
-WHERE ((c["Discriminator"] = "BuiltInDataTypes") AND (c["Id"] = 13))
+WHERE ((c["$type"] = "BuiltInDataTypes") AND (c["Id"] = 13))
 """);
     }
 
