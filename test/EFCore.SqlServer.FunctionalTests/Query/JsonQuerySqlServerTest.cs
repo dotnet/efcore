@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public class JsonQuerySqlServerTest : JsonQueryTestBase<JsonQuerySqlServerFixture>
+public class JsonQuerySqlServerTest : JsonQueryRelationalTestBase<JsonQuerySqlServerFixture>
 {
     public JsonQuerySqlServerTest(JsonQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
