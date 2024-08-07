@@ -955,6 +955,27 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => o.EmployeeID).Distinct().Any(id => id != 1)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => o.EmployeeID).Distinct().Contains(1u)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task All_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => o.EmployeeID).Distinct().All(id => id != 1)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task All_top_level(bool async)
         => AssertAll(
             async,

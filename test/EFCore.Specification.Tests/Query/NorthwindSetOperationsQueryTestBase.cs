@@ -368,6 +368,48 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Intersect_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Intersect(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Union(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Except_on_distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.City == "México D.F.")
+                .Select(c => c.CompanyName)
+                .Distinct()
+                .Except(
+                    ss.Set<Customer>()
+                        .Where(s => s.ContactTitle == "Owner")
+                        .Select(c => c.CompanyName)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_Union_only_on_one_side_throws(bool async)
     {
         var message1 = (await Assert.ThrowsAsync<InvalidOperationException>(
