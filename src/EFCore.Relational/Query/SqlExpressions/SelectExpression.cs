@@ -2006,6 +2006,12 @@ public sealed partial class SelectExpression : TableExpressionBase
             select2.ClearOrdering();
         }
 
+        if (distinct)
+        {
+            select1.IsDistinct = false;
+            select2.IsDistinct = false;
+        }
+
         if (_clientProjections.Count > 0
             || select2._clientProjections.Count > 0)
         {
