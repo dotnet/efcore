@@ -269,6 +269,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
         }
 
+        if (Limit is SqlConstantExpression { Value: 1 })
+        {
+            return;
+        }
+
         if (Limit != null
             || Offset != null)
         {
@@ -1915,6 +1920,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         Limit = sqlExpression;
+
+        if (Offset is null && Limit is SqlConstantExpression { Value: 1 })
+        {
+            IsDistinct = false;
+        }
     }
 
     /// <summary>
