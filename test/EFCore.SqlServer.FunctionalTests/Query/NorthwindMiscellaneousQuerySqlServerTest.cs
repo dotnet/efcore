@@ -1612,7 +1612,7 @@ WHERE [c].[City] = N'London' AND EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE EXISTS (
-    SELECT DISTINCT 1
+    SELECT 1
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[EmployeeID] <> 1 OR [o].[EmployeeID] IS NULL))
 """);
@@ -1627,7 +1627,7 @@ WHERE EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 1 IN (
-    SELECT DISTINCT [o].[EmployeeID]
+    SELECT [o].[EmployeeID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 )
@@ -1643,7 +1643,7 @@ WHERE 1 IN (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE NOT EXISTS (
-    SELECT DISTINCT 1
+    SELECT 1
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[EmployeeID] = 1)
 """);
@@ -4107,7 +4107,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
         SELECT 1
         FROM [Customers] AS [c1]
         WHERE EXISTS (
-            SELECT DISTINCT 1
+            SELECT 1
             FROM (
                 SELECT TOP(10) 1 AS empty
                 FROM [Customers] AS [c2]
@@ -7309,7 +7309,7 @@ ORDER BY (
 
     public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
     {
-        await base.Contains_over_concatenated_columns_with_different_sizes (async);
+        await base.Contains_over_concatenated_columns_with_different_sizes(async);
 
         AssertSql(
             """
@@ -7326,7 +7326,7 @@ WHERE [c].[CustomerID] + [c].[CompanyName] IN (
 
     public override async Task Contains_over_concatenated_column_and_constant(bool async)
     {
-        await base.Contains_over_concatenated_column_and_constant (async);
+        await base.Contains_over_concatenated_column_and_constant(async);
 
         AssertSql(
             """

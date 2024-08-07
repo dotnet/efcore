@@ -1376,7 +1376,7 @@ WHERE [c0].[ContactTitle] = N'Owner'
 
         AssertSql(
             """
-SELECT DISTINCT [c].[CompanyName]
+SELECT [c].[CompanyName]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 INTERSECT
@@ -1392,7 +1392,7 @@ WHERE [c0].[ContactTitle] = N'Owner'
 
         AssertSql(
             """
-SELECT DISTINCT [c].[CompanyName]
+SELECT [c].[CompanyName]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 UNION
@@ -1408,7 +1408,7 @@ WHERE [c0].[ContactTitle] = N'Owner'
 
         AssertSql(
             """
-SELECT DISTINCT [c].[CompanyName]
+SELECT [c].[CompanyName]
 FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.'
 EXCEPT
