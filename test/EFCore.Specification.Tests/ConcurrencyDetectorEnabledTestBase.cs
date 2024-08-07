@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ConcurrencyDetectorEnabledTestBase<TFixture> : ConcurrencyDetectorTestBase<TFixture>
+public abstract class ConcurrencyDetectorEnabledTestBase<TFixture>(TFixture fixture) : ConcurrencyDetectorTestBase<TFixture>(fixture)
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {
-    protected ConcurrencyDetectorEnabledTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task SaveChanges(bool async)

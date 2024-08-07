@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class OwnedQueryRelationalTestBase<TFixture> : OwnedQueryTestBase<TFixture>
+public abstract class OwnedQueryRelationalTestBase<TFixture>(TFixture fixture) : OwnedQueryTestBase<TFixture>(fixture)
     where TFixture : OwnedQueryRelationalTestBase<TFixture>.RelationalOwnedQueryFixture, new()
 {
-    protected OwnedQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Contains_over_owned_collection(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Contains_over_owned_collection(async));
 

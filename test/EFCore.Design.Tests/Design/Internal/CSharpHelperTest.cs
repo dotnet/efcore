@@ -846,13 +846,8 @@ public class CSharpHelperTest
             => throw new NotSupportedException();
     }
 
-    private class SimpleTestNonImplementedTypeMapping : RelationalTypeMapping
+    private class SimpleTestNonImplementedTypeMapping() : RelationalTypeMapping("storeType", typeof(SimpleTestType))
     {
-        public SimpleTestNonImplementedTypeMapping()
-            : base("storeType", typeof(SimpleTestType))
-        {
-        }
-
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => throw new NotSupportedException();
     }

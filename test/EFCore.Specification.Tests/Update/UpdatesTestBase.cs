@@ -9,15 +9,10 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class UpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : UpdatesTestBase<TFixture>.UpdatesFixtureBase
 {
-    protected UpdatesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 

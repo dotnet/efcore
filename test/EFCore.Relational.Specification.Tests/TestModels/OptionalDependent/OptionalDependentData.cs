@@ -7,14 +7,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
 public class OptionalDependentData : ISetSource
 {
-    public OptionalDependentData()
-    {
-        EntitiesAllOptional = CreateEntitiesAllOptional();
-        EntitiesSomeRequired = CreateEntitiesSomeRequired();
-    }
-
-    public IReadOnlyList<OptionalDependentEntityAllOptional> EntitiesAllOptional { get; }
-    public IReadOnlyList<OptionalDependentEntitySomeRequired> EntitiesSomeRequired { get; }
+    public IReadOnlyList<OptionalDependentEntityAllOptional> EntitiesAllOptional { get; } = CreateEntitiesAllOptional();
+    public IReadOnlyList<OptionalDependentEntitySomeRequired> EntitiesSomeRequired { get; } = CreateEntitiesSomeRequired();
 
     public static IReadOnlyList<OptionalDependentEntityAllOptional> CreateEntitiesAllOptional()
     {

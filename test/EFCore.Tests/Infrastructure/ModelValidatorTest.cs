@@ -126,13 +126,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             modelBuilder);
     }
 
-    public class CustomValueComparer<T> : ValueComparer<T> // Doesn't implement IComparer
-    {
-        public CustomValueComparer()
-            : base(false)
-        {
-        }
-    }
+    public class CustomValueComparer<T>() : ValueComparer<T>(false); // Doesn't implement IComparer
 
     [ConditionalFact]
     public virtual void Detects_unique_index_property_which_cannot_be_compared()

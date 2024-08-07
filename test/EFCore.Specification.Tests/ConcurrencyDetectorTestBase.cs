@@ -11,15 +11,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ConcurrencyDetectorTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
 {
-    protected ConcurrencyDetectorTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

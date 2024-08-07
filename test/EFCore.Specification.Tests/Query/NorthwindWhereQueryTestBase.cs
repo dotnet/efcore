@@ -11,14 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 // ReSharper disable RedundantBoolCompare
 // ReSharper disable InconsistentNaming
 
-public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindWhereQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindWhereQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 

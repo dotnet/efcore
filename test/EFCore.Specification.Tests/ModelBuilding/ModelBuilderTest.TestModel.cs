@@ -1035,12 +1035,7 @@ public abstract partial class ModelBuilderTest
 
     protected class ManyToManyNavPrincipal
     {
-        private readonly List<NavDependent> _randomField;
-
-        public ManyToManyNavPrincipal()
-        {
-            _randomField = [];
-        }
+        private readonly List<NavDependent> _randomField = [];
 
         public int Id { get; set; }
         public string? Name { get; set; }

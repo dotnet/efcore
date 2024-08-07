@@ -6,18 +6,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
+public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>(TFixture fixture)
     : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContext, CustomUserString, CustomRoleString, string, CustomUserClaimString,
-        CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>
+        CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>(fixture)
     where TFixture : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContext, CustomUserString, CustomRoleString, string,
         CustomUserClaimString, CustomUserRoleString, CustomUserLoginString, CustomRoleClaimString, CustomUserTokenString>.
     AspNetIdentityFixtureBase
 {
-    protected AspNetIdentityCustomTypesDefaultTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public async Task Can_lazy_load_User_navigations()
     {

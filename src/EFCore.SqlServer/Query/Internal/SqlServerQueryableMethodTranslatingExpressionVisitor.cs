@@ -526,19 +526,13 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         return false;
     }
 
-    private sealed class TemporalAnnotationApplyingExpressionVisitor : ExpressionVisitor
+    private sealed class TemporalAnnotationApplyingExpressionVisitor(Func<TableExpression, TableExpressionBase> annotationApplyingFunc)
+        : ExpressionVisitor
     {
-        private readonly Func<TableExpression, TableExpressionBase> _annotationApplyingFunc;
-
-        public TemporalAnnotationApplyingExpressionVisitor(Func<TableExpression, TableExpressionBase> annotationApplyingFunc)
-        {
-            _annotationApplyingFunc = annotationApplyingFunc;
-        }
-
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
             => expression is TableExpression tableExpression
-                ? _annotationApplyingFunc(tableExpression)
+                ? annotationApplyingFunc(tableExpression)
                 : base.Visit(expression);
     }
 }

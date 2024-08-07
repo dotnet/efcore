@@ -12,15 +12,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>, IAsyncLifetime
+public abstract class TransactionTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>, IAsyncLifetime
     where TFixture : TransactionTestBase<TFixture>.TransactionFixtureBase, new()
 {
-    protected TransactionTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; set; }
+    protected TFixture Fixture { get; set; } = fixture;
 
     [ConditionalTheory]
     [InlineData(true)]

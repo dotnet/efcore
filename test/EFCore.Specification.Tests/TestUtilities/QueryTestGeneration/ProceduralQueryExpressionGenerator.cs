@@ -5,36 +5,31 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 #nullable disable
 
-public class ProceduralQueryExpressionGenerator
+public class ProceduralQueryExpressionGenerator(DbContext context)
 {
-    private readonly List<ExpressionMutator> _mutators;
+    private readonly List<ExpressionMutator> _mutators =
+    [
+        new AppendSelectConstantExpressionMutator(context),
+        new AppendSelectIdentityExpressionMutator(context),
+        new AppendSelectPropertyExpressionMutator(context),
+        new AppendOrderByIdentityExpressionMutator(context),
+        new AppendOrderByPropertyExpressionMutator(context),
+        new AppendThenByIdentityExpressionMutator(context),
+        new AppendTakeExpressionMutator(context),
+        new StringConcatWithSelfExpressionMutator(context),
+        new InjectCoalesceExpressionMutator(context),
+        new InjectStringFunctionExpressionMutator(context),
+        new InjectJoinWithSelfExpressionMutator(context),
+        new InjectOrderByPropertyExpressionMutator(context),
+        new InjectThenByPropertyExpressionMutator(context),
+        new AppendCorrelatedCollectionExpressionMutator(context),
+        new AppendIncludeToExistingExpressionMutator(context),
+        new InjectIncludeExpressionMutator(context),
+        new InjectWhereExpressionMutator(context)
+    ];
 
     // used to hard code the seed used for test generation
     public static readonly int? Seed = null;
-
-    public ProceduralQueryExpressionGenerator(DbContext context)
-    {
-        _mutators =
-        [
-            new AppendSelectConstantExpressionMutator(context),
-            new AppendSelectIdentityExpressionMutator(context),
-            new AppendSelectPropertyExpressionMutator(context),
-            new AppendOrderByIdentityExpressionMutator(context),
-            new AppendOrderByPropertyExpressionMutator(context),
-            new AppendThenByIdentityExpressionMutator(context),
-            new AppendTakeExpressionMutator(context),
-            new StringConcatWithSelfExpressionMutator(context),
-            new InjectCoalesceExpressionMutator(context),
-            new InjectStringFunctionExpressionMutator(context),
-            new InjectJoinWithSelfExpressionMutator(context),
-            new InjectOrderByPropertyExpressionMutator(context),
-            new InjectThenByPropertyExpressionMutator(context),
-            new AppendCorrelatedCollectionExpressionMutator(context),
-            new AppendIncludeToExistingExpressionMutator(context),
-            new InjectIncludeExpressionMutator(context),
-            new InjectWhereExpressionMutator(context)
-        ];
-    }
 
     public Expression Generate(Expression expression, Random random)
     {

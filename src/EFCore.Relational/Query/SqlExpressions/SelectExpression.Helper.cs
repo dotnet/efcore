@@ -16,15 +16,9 @@ public sealed partial class SelectExpression
                 : base.VisitExtension(extensionExpression);
     }
 
-    private sealed class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
+    private sealed class SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression) : ExpressionVisitor
     {
-        private readonly SelectExpression _outerSelectExpression;
         private bool _containsOuterReference;
-
-        public SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression)
-        {
-            _outerSelectExpression = outerSelectExpression;
-        }
 
         public bool ContainsOuterReference(SelectExpression selectExpression)
         {
@@ -44,7 +38,7 @@ public sealed partial class SelectExpression
             }
 
             if (expression is ColumnExpression columnExpression
-                && _outerSelectExpression.ContainsReferencedTable(columnExpression))
+                && outerSelectExpression.ContainsReferencedTable(columnExpression))
             {
                 _containsOuterReference = true;
 
@@ -78,19 +72,11 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class ProjectionMemberToIndexConvertingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionMemberToIndexConvertingExpressionVisitor(
+        SelectExpression queryExpression,
+        Dictionary<ProjectionMember, int> projectionMemberMappings)
+        : ExpressionVisitor
     {
-        private readonly SelectExpression _queryExpression;
-        private readonly Dictionary<ProjectionMember, int> _projectionMemberMappings;
-
-        public ProjectionMemberToIndexConvertingExpressionVisitor(
-            SelectExpression queryExpression,
-            Dictionary<ProjectionMember, int> projectionMemberMappings)
-        {
-            _queryExpression = queryExpression;
-            _projectionMemberMappings = projectionMemberMappings;
-        }
-
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
@@ -101,8 +87,8 @@ public sealed partial class SelectExpression
                     "ProjectionBindingExpression must have projection member.");
 
                 return new ProjectionBindingExpression(
-                    _queryExpression,
-                    _projectionMemberMappings[projectionBindingExpression.ProjectionMember],
+                    queryExpression,
+                    projectionMemberMappings[projectionBindingExpression.ProjectionMember],
                     projectionBindingExpression.Type);
             }
 
@@ -110,35 +96,25 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class ProjectionIndexRemappingExpressionVisitor : ExpressionVisitor
+    private sealed class ProjectionIndexRemappingExpressionVisitor(
+        SelectExpression oldSelectExpression,
+        SelectExpression newSelectExpression,
+        int[] indexMap)
+        : ExpressionVisitor
     {
-        private readonly SelectExpression _oldSelectExpression;
-        private readonly SelectExpression _newSelectExpression;
-        private readonly int[] _indexMap;
-
-        public ProjectionIndexRemappingExpressionVisitor(
-            SelectExpression oldSelectExpression,
-            SelectExpression newSelectExpression,
-            int[] indexMap)
-        {
-            _oldSelectExpression = oldSelectExpression;
-            _newSelectExpression = newSelectExpression;
-            _indexMap = indexMap;
-        }
-
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is ProjectionBindingExpression projectionBindingExpression
-                && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldSelectExpression))
+                && ReferenceEquals(projectionBindingExpression.QueryExpression, oldSelectExpression))
             {
                 Check.DebugAssert(
                     projectionBindingExpression.Index != null,
                     "ProjectionBindingExpression must have index.");
 
                 return new ProjectionBindingExpression(
-                    _newSelectExpression,
-                    _indexMap[projectionBindingExpression.Index.Value],
+                    newSelectExpression,
+                    indexMap[projectionBindingExpression.Index.Value],
                     projectionBindingExpression.Type);
             }
 

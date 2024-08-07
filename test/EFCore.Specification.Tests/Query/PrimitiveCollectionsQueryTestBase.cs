@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
-    protected PrimitiveCollectionsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Inline_collection_of_ints_Contains(bool async)

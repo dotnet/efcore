@@ -8,15 +8,12 @@ using IdentityServer4.EntityFramework.Stores;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ConfigurationDbContextTestBase<TFixture>(
+    ConfigurationDbContextTestBase<TFixture>.ConfigurationDbContextFixtureBase fixture)
+    : IClassFixture<TFixture>
     where TFixture : ConfigurationDbContextTestBase<TFixture>.ConfigurationDbContextFixtureBase
 {
-    protected ConfigurationDbContextTestBase(ConfigurationDbContextFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected ConfigurationDbContextFixtureBase Fixture { get; }
+    protected ConfigurationDbContextFixtureBase Fixture { get; } = fixture;
 
     protected virtual bool HasForeignKeyIndexes
         => true;

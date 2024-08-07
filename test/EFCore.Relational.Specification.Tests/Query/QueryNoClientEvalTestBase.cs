@@ -9,15 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class QueryNoClientEvalTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    protected QueryNoClientEvalTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void Throws_when_where()

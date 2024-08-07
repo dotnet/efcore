@@ -3,13 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class FindInMemoryTest : FindTestBase<FindInMemoryTest.FindInMemoryFixture>
+public abstract class FindInMemoryTest(FindInMemoryTest.FindInMemoryFixture fixture)
+    : FindTestBase<FindInMemoryTest.FindInMemoryFixture>(fixture)
 {
-    protected FindInMemoryTest(FindInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class FindInMemoryTestSet(FindInMemoryFixture fixture) : FindInMemoryTest(fixture)
     {
         protected override TestFinder Finder { get; } = new FindViaSetFinder();

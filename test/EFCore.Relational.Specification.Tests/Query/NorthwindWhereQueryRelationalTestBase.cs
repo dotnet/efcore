@@ -5,14 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindWhereQueryRelationalTestBase<TFixture> : NorthwindWhereQueryTestBase<TFixture>
+public abstract class NorthwindWhereQueryRelationalTestBase<TFixture>(TFixture fixture) : NorthwindWhereQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindWhereQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Where_bool_client_side_negated(bool async)
         => AssertTranslationFailed(() => base.Where_bool_client_side_negated(async));
 

@@ -11,14 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindAggregateOperatorsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 

@@ -12,15 +12,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class FieldMappingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : FieldMappingTestBase<TFixture>.FieldMappingFixtureBase, new()
 {
-    protected FieldMappingTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected static AsyncLocal<bool> _isSeeding = new();
 

@@ -13,36 +13,25 @@ public partial class NavigationExpandingExpressionVisitor
     ///     Expands navigations in the given tree for given source.
     ///     Optionally also expands navigations for includes.
     /// </summary>
-    private class ExpandingExpressionVisitor : ExpressionVisitor
+    private class ExpandingExpressionVisitor(
+        NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
+        NavigationExpansionExpression source,
+        INavigationExpansionExtensibilityHelper extensibilityHelper)
+        : ExpressionVisitor
     {
-        private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
-        private readonly NavigationExpansionExpression _source;
-        private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
-
-        public ExpandingExpressionVisitor(
-            NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
-            NavigationExpansionExpression source,
-            INavigationExpansionExtensibilityHelper extensibilityHelper)
-        {
-            _navigationExpandingExpressionVisitor = navigationExpandingExpressionVisitor;
-            _source = source;
-            _extensibilityHelper = extensibilityHelper;
-            Model = navigationExpandingExpressionVisitor._queryCompilationContext.Model;
-        }
-
         public Expression Expand(Expression expression, bool applyIncludes = false)
         {
             expression = Visit(expression);
             if (applyIncludes)
             {
-                expression = new IncludeExpandingExpressionVisitor(_navigationExpandingExpressionVisitor, _source, _extensibilityHelper)
+                expression = new IncludeExpandingExpressionVisitor(navigationExpandingExpressionVisitor, source, extensibilityHelper)
                     .Visit(expression);
             }
 
             return expression;
         }
 
-        protected IModel Model { get; }
+        protected IModel Model { get; } = navigationExpandingExpressionVisitor._queryCompilationContext.Model;
 
         protected override Expression VisitExtension(Expression expression)
         {
@@ -154,10 +143,10 @@ public partial class NavigationExpandingExpressionVisitor
                 }
 
                 // make sure that we can actually expand this navigation (later)
-                _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.EntityQueryRootExpression);
+                extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.EntityQueryRootExpression);
 
                 var ownedEntityReference = new EntityReference(targetType, entityReference.EntityQueryRootExpression);
-                _navigationExpandingExpressionVisitor.PopulateEagerLoadedNavigations(ownedEntityReference.IncludePaths);
+                navigationExpandingExpressionVisitor.PopulateEagerLoadedNavigations(ownedEntityReference.IncludePaths);
                 ownedEntityReference.MarkAsOptional();
                 if (entityReference.IncludePaths.TryGetValue(navigation, out var includePath))
                 {
@@ -227,9 +216,9 @@ public partial class NavigationExpandingExpressionVisitor
                     var secondTargetType = navigation.TargetEntityType;
                     // we can use the entity reference here. If the join entity wasn't temporal,
                     // the query root creation validator would have thrown the exception when it was being created
-                    _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.EntityQueryRootExpression);
-                    var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.EntityQueryRootExpression);
-                    var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
+                    extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.EntityQueryRootExpression);
+                    var innerQueryable = extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.EntityQueryRootExpression);
+                    var innerSource = (NavigationExpansionExpression)navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
                     if (includeTree != null)
                     {
@@ -277,9 +266,9 @@ public partial class NavigationExpandingExpressionVisitor
                     // Second pseudo-navigation is a collection
                     var secondTargetType = navigation.TargetEntityType;
 
-                    _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.EntityQueryRootExpression);
-                    var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.EntityQueryRootExpression);
-                    var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
+                    extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.EntityQueryRootExpression);
+                    var innerQueryable = extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.EntityQueryRootExpression);
+                    var innerSource = (NavigationExpansionExpression)navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
                     if (includeTree != null)
                     {
@@ -357,9 +346,9 @@ public partial class NavigationExpandingExpressionVisitor
 
             Check.DebugAssert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
 
-            _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.EntityQueryRootExpression);
-            var innerQueryable = _extensibilityHelper.CreateQueryRoot(targetType, entityReference.EntityQueryRootExpression);
-            var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
+            extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.EntityQueryRootExpression);
+            var innerQueryable = extensibilityHelper.CreateQueryRoot(targetType, entityReference.EntityQueryRootExpression);
+            var innerSource = (NavigationExpansionExpression)navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
             // Value known to be non-null
             var innerEntityReference = UnwrapEntityReference(innerSource.PendingSelector)!;
@@ -440,14 +429,14 @@ public partial class NavigationExpandingExpressionVisitor
                             predicateBody, innerParameter)));
             }
 
-            var outerKeySelector = _navigationExpandingExpressionVisitor.GenerateLambda(
-                outerKey, _source.CurrentParameter);
-            var innerKeySelector = _navigationExpandingExpressionVisitor.ProcessLambdaExpression(
+            var outerKeySelector = navigationExpandingExpressionVisitor.GenerateLambda(
+                outerKey, source.CurrentParameter);
+            var innerKeySelector = navigationExpandingExpressionVisitor.ProcessLambdaExpression(
                 innerSource, Expression.Lambda(innerKey, innerParameter));
 
-            var resultSelectorOuterParameter = Expression.Parameter(_source.SourceElementType, "o");
+            var resultSelectorOuterParameter = Expression.Parameter(source.SourceElementType, "o");
             var resultSelectorInnerParameter = Expression.Parameter(innerSource.SourceElementType, "i");
-            var resultType = TransparentIdentifierFactory.Create(_source.SourceElementType, innerSource.SourceElementType);
+            var resultType = TransparentIdentifierFactory.Create(source.SourceElementType, innerSource.SourceElementType);
 
             var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer")!;
             var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner")!;
@@ -471,16 +460,16 @@ public partial class NavigationExpandingExpressionVisitor
                 innerEntityReference.MarkAsOptional();
             }
 
-            _source.UpdateSource(
+            source.UpdateSource(
                 Expression.Call(
                     (innerJoin
                         ? QueryableMethods.Join
                         : QueryableExtensions.LeftJoinMethodInfo).MakeGenericMethod(
-                        _source.SourceElementType,
+                        source.SourceElementType,
                         innerSource.SourceElementType,
                         outerKeySelector.ReturnType,
                         resultSelector.ReturnType),
-                    _source.Source,
+                    source.Source,
                     innerSource.Source,
                     Expression.Quote(outerKeySelector),
                     Expression.Quote(innerKeySelector),
@@ -488,7 +477,7 @@ public partial class NavigationExpandingExpressionVisitor
 
             entityReference.ForeignKeyExpansionMap[(foreignKey, onDependent)] = innerSource.PendingSelector;
 
-            _source.UpdateCurrentTree(new NavigationTreeNode(_source.CurrentTree, innerSource.CurrentTree));
+            source.UpdateCurrentTree(new NavigationTreeNode(source.CurrentTree, innerSource.CurrentTree));
 
             return innerSource.PendingSelector;
         }
@@ -498,26 +487,19 @@ public partial class NavigationExpandingExpressionVisitor
     ///     Expands an include tree. This is separate and needed because we may need to reconstruct parts of
     ///     <see cref="NewExpression" /> to apply includes.
     /// </summary>
-    private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
+    private sealed class IncludeExpandingExpressionVisitor(
+        NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
+        NavigationExpansionExpression source,
+        INavigationExpansionExtensibilityHelper extensibilityHelper)
+        : ExpandingExpressionVisitor(navigationExpandingExpressionVisitor, source, extensibilityHelper)
     {
         private static readonly MethodInfo FetchJoinEntityMethodInfo =
             typeof(NavigationExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity))!;
 
-        private readonly bool _queryStateManager;
-        private readonly bool _ignoreAutoIncludes;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-
-        public IncludeExpandingExpressionVisitor(
-            NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
-            NavigationExpansionExpression source,
-            INavigationExpansionExtensibilityHelper extensibilityHelper)
-            : base(navigationExpandingExpressionVisitor, source, extensibilityHelper)
-        {
-            _logger = navigationExpandingExpressionVisitor._queryCompilationContext.Logger;
-            _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior is
-                QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
-            _ignoreAutoIncludes = navigationExpandingExpressionVisitor._queryCompilationContext.IgnoreAutoIncludes;
-        }
+        private readonly bool _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior is
+            QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+        private readonly bool _ignoreAutoIncludes = navigationExpandingExpressionVisitor._queryCompilationContext.IgnoreAutoIncludes;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger = navigationExpandingExpressionVisitor._queryCompilationContext.Logger;
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
@@ -931,33 +913,23 @@ public partial class NavigationExpandingExpressionVisitor
     ///     <see cref="NavigationExpansionExpression" /> remembers the pending selector so we don't expand
     ///     navigations unless we need to. This visitor applies them when we need to.
     /// </summary>
-    private sealed class PendingSelectorExpandingExpressionVisitor : ExpressionVisitor
+    private sealed class PendingSelectorExpandingExpressionVisitor(
+        NavigationExpandingExpressionVisitor visitor,
+        INavigationExpansionExtensibilityHelper extensibilityHelper,
+        bool applyIncludes = false)
+        : ExpressionVisitor
     {
-        private readonly NavigationExpandingExpressionVisitor _visitor;
-        private readonly bool _applyIncludes;
-        private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
-
-        public PendingSelectorExpandingExpressionVisitor(
-            NavigationExpandingExpressionVisitor visitor,
-            INavigationExpansionExtensibilityHelper extensibilityHelper,
-            bool applyIncludes = false)
-        {
-            _visitor = visitor;
-            _extensibilityHelper = extensibilityHelper;
-            _applyIncludes = applyIncludes;
-        }
-
         [return: NotNullIfNotNull(nameof(expression))]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is NavigationExpansionExpression navigationExpansionExpression)
             {
-                _visitor.ApplyPendingOrderings(navigationExpansionExpression);
+                visitor.ApplyPendingOrderings(navigationExpansionExpression);
 
-                var pendingSelector = new ExpandingExpressionVisitor(_visitor, navigationExpansionExpression, _extensibilityHelper)
-                    .Expand(navigationExpansionExpression.PendingSelector, _applyIncludes);
-                pendingSelector = _visitor._subqueryMemberPushdownExpressionVisitor.Visit(pendingSelector);
-                pendingSelector = _visitor.Visit(pendingSelector);
+                var pendingSelector = new ExpandingExpressionVisitor(visitor, navigationExpansionExpression, extensibilityHelper)
+                    .Expand(navigationExpansionExpression.PendingSelector, applyIncludes);
+                pendingSelector = visitor._subqueryMemberPushdownExpressionVisitor.Visit(pendingSelector);
+                pendingSelector = visitor.Visit(pendingSelector);
                 pendingSelector = Visit(pendingSelector);
                 navigationExpansionExpression.ApplySelector(pendingSelector);
 
@@ -1064,23 +1036,15 @@ public partial class NavigationExpandingExpressionVisitor
     /// <summary>
     ///     Allows self reference of query root inside query filters/defining queries.
     /// </summary>
-    private sealed class SelfReferenceEntityQueryableRewritingExpressionVisitor : ExpressionVisitor
+    private sealed class SelfReferenceEntityQueryableRewritingExpressionVisitor(
+        NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
+        IEntityType entityType)
+        : ExpressionVisitor
     {
-        private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
-        private readonly IEntityType _entityType;
-
-        public SelfReferenceEntityQueryableRewritingExpressionVisitor(
-            NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
-            IEntityType entityType)
-        {
-            _navigationExpandingExpressionVisitor = navigationExpandingExpressionVisitor;
-            _entityType = entityType;
-        }
-
         protected override Expression VisitExtension(Expression extensionExpression)
             => extensionExpression is EntityQueryRootExpression entityQueryRootExpression
-                && entityQueryRootExpression.EntityType == _entityType
-                    ? _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(entityQueryRootExpression, _entityType)
+                && entityQueryRootExpression.EntityType == entityType
+                    ? navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(entityQueryRootExpression, entityType)
                     : base.VisitExtension(extensionExpression);
     }
 
@@ -1208,15 +1172,9 @@ public partial class NavigationExpandingExpressionVisitor
                     : base.VisitMember(memberExpression);
     }
 
-    private sealed class RemoveRedundantNavigationComparisonExpressionVisitor : ExpressionVisitor
+    private sealed class RemoveRedundantNavigationComparisonExpressionVisitor(IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        : ExpressionVisitor
     {
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-
-        public RemoveRedundantNavigationComparisonExpressionVisitor(IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            _logger = logger;
-        }
-
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
             => binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
                 && TryRemoveNavigationComparison(
@@ -1272,7 +1230,7 @@ public partial class NavigationExpandingExpressionVisitor
 
                 if (nonNullNavigationData.Navigation?.IsCollection == true)
                 {
-                    _logger.PossibleUnintendedCollectionNavigationNullComparisonWarning(nonNullNavigationData.Navigation);
+                    logger.PossibleUnintendedCollectionNavigationNullComparisonWarning(nonNullNavigationData.Navigation);
 
                     // Inner would be non-null when navigation is non-null
                     result = Expression.MakeBinary(
@@ -1288,7 +1246,7 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     if (leftNavigationData.Navigation == rightNavigationData.Navigation)
                     {
-                        _logger.PossibleUnintendedReferenceComparisonWarning(leftNavigationData.Current, rightNavigationData.Current);
+                        logger.PossibleUnintendedReferenceComparisonWarning(leftNavigationData.Current, rightNavigationData.Current);
                         // Inner would be non-null when navigation is non-null
                         result = Expression.MakeBinary(nodeType, leftNavigationData.Inner!.Current, rightNavigationData.Inner!.Current);
                     }

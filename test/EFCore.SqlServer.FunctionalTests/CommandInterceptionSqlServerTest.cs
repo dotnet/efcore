@@ -8,13 +8,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CommandInterceptionSqlServerTestBase : CommandInterceptionTestBase
+public abstract class CommandInterceptionSqlServerTestBase(CommandInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : CommandInterceptionTestBase(fixture)
 {
-    protected CommandInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task<string> Intercept_query_passively(bool async, bool inject)
     {
         AssertSql(
@@ -106,13 +102,8 @@ SELECT [s].[Id], [s].[Type] FROM [Singularity] AS [s]
         return interceptor.CommandText;
     }
 
-    protected class StatisticsCommandInterceptor : CommandInterceptorBase
+    protected class StatisticsCommandInterceptor() : CommandInterceptorBase(DbCommandMethod.ExecuteReader)
     {
-        public StatisticsCommandInterceptor()
-            : base(DbCommandMethod.ExecuteReader)
-        {
-        }
-
         public override InterceptionResult<DbDataReader> ReaderExecuting(
             DbCommand command,
             CommandEventData eventData,

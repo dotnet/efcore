@@ -9,18 +9,13 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class StoreGeneratedFixupTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : StoreGeneratedFixupTestBase<TFixture>.StoreGeneratedFixupFixtureBase, new()
 {
     protected static readonly Guid Guid77 = new("{DE390D36-DAAC-4C8B-91F7-E9F5DAA7EF01}");
     protected static readonly Guid Guid78 = new("{4C80406F-49AF-4D85-AFFB-75C146A98A70}");
 
-    protected StoreGeneratedFixupTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual Task Add_dependent_then_principal_one_to_many_FK_set_both_navs_set()
@@ -4233,15 +4228,10 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
 
     protected class CategoryPN
     {
-        public CategoryPN()
-        {
-            Products = new List<ProductPN>();
-        }
-
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<ProductPN> Products { get; }
+        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
     }
 
     protected class ProductPN
@@ -4270,15 +4260,10 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
 
     protected class Category
     {
-        public Category()
-        {
-            Products = new List<Product>();
-        }
-
         public int Id1 { get; set; }
         public Guid Id2 { get; set; }
 
-        public ICollection<Product> Products { get; }
+        public ICollection<Product> Products { get; } = new List<Product>();
     }
 
     protected class Product

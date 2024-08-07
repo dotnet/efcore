@@ -106,15 +106,10 @@ public class OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture) : Op
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, List<byte>>(updateDependentFirst, Mapping.Tpc, "BinaryVersion");
 }
 
-public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersion>
-    : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>
+public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersion>(TFixture fixture)
+    : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>(fixture)
     where TFixture : F1RelationalFixture<TRowVersion>, new()
 {
-    protected OptimisticConcurrencySqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected enum Mapping
     {
         Tph,

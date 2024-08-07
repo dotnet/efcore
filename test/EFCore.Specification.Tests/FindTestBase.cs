@@ -9,15 +9,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class FindTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class FindTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
         where TFixture : FindTestBase<TFixture>.FindFixtureBase
     {
-        protected FindTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
+        protected TFixture Fixture { get; } = fixture;
 
         protected abstract TestFinder Finder { get; }
 

@@ -5,13 +5,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 public class ValueComparerTest
 {
-    protected class FakeValueComparer : ValueComparer<double>
-    {
-        public FakeValueComparer()
-            : base(false)
-        {
-        }
-    }
+    protected class FakeValueComparer() : ValueComparer<double>(false);
 
     private class Foo
     {

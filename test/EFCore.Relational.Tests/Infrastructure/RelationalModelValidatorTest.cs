@@ -3843,26 +3843,17 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         entityType.SetDiscriminatorValue(entityType.Name);
     }
 
-    public class TestDecimalToLongConverter : ValueConverter<decimal, long>
+    public class TestDecimalToLongConverter() : ValueConverter<decimal, long>(convertToProviderExpression, convertFromProviderExpression)
     {
         private static readonly Expression<Func<decimal, long>> convertToProviderExpression = d => (long)(d * 100);
         private static readonly Expression<Func<long, decimal>> convertFromProviderExpression = l => l / 100m;
-
-        public TestDecimalToLongConverter()
-            : base(convertToProviderExpression, convertFromProviderExpression)
-        {
-        }
     }
 
-    public class TestDecimalToDecimalConverter : ValueConverter<decimal, decimal>
+    public class TestDecimalToDecimalConverter()
+        : ValueConverter<decimal, decimal>(convertToProviderExpression, convertFromProviderExpression)
     {
         private static readonly Expression<Func<decimal, decimal>> convertToProviderExpression = d => d * 100m;
         private static readonly Expression<Func<decimal, decimal>> convertFromProviderExpression = l => l / 100m;
-
-        public TestDecimalToDecimalConverter()
-            : base(convertToProviderExpression, convertFromProviderExpression)
-        {
-        }
     }
 
     private class BaseTestMethods

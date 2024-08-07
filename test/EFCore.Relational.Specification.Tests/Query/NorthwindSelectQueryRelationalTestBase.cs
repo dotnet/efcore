@@ -5,14 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindSelectQueryRelationalTestBase<TFixture> : NorthwindSelectQueryTestBase<TFixture>
+public abstract class NorthwindSelectQueryRelationalTestBase<TFixture>(TFixture fixture) : NorthwindSelectQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindSelectQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool async)
         => AssertTranslationFailed(() => base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(async));
 

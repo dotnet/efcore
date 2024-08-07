@@ -8,15 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class FromSqlSprocQueryTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    protected FromSqlSprocQueryTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(false)]

@@ -2116,18 +2116,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
     }
 
-    private sealed class ParameterBasedComplexPropertyChainExpression : Expression
+    private sealed class ParameterBasedComplexPropertyChainExpression(
+        SqlParameterExpression parameterExpression,
+        IComplexProperty firstComplexProperty)
+        : Expression
     {
-        public ParameterBasedComplexPropertyChainExpression(
-            SqlParameterExpression parameterExpression,
-            IComplexProperty firstComplexProperty)
-        {
-            ParameterExpression = parameterExpression;
-            ComplexPropertyChain = [firstComplexProperty];
-        }
-
-        public SqlParameterExpression ParameterExpression { get; }
-        public List<IComplexProperty> ComplexPropertyChain { get; }
+        public SqlParameterExpression ParameterExpression { get; } = parameterExpression;
+        public List<IComplexProperty> ComplexPropertyChain { get; } = [firstComplexProperty];
     }
 
     private static bool CanEvaluate(Expression expression)

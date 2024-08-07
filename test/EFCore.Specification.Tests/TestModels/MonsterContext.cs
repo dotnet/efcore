@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
-public abstract class MonsterContext : PoolableDbContext
+public abstract class MonsterContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    protected MonsterContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public abstract IQueryable<ICustomer> Customers { get; }
     public abstract IQueryable<IBarcode> Barcodes { get; }
     public abstract IQueryable<IIncorrectScan> IncorrectScans { get; }

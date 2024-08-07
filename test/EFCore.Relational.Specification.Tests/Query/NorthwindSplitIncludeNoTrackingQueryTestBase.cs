@@ -11,17 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture> : NorthwindIncludeNoTrackingQueryTestBase<TFixture>
+public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture>(TFixture fixture)
+    : NorthwindIncludeNoTrackingQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly MethodInfo _asSplitIncludeMethodInfo
         = typeof(RelationalQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethod(nameof(RelationalQueryableExtensions.AsSplitQuery));
-
-    protected NorthwindSplitIncludeNoTrackingQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     public override async Task Include_closes_reader(bool async)
     {

@@ -10,15 +10,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class BuiltInDataTypesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
 {
-    protected BuiltInDataTypesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected DbContext CreateContext()
         => Fixture.CreateContext();

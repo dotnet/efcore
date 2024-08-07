@@ -3,13 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpressionInterceptionTestBase
+public abstract class QueryExpressionInterceptionInMemoryTestBase(
+    QueryExpressionInterceptionInMemoryTestBase.InterceptionInMemoryFixtureBase fixture)
+    : QueryExpressionInterceptionTestBase(fixture)
 {
-    protected QueryExpressionInterceptionInMemoryTestBase(InterceptionInMemoryFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task<UniverseContext> SeedAsync(UniverseContext context)
     {
         await base.SeedAsync(context);

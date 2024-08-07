@@ -19,14 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 #nullable disable
 
 // ReSharper disable once UnusedTypeParameter
-public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NorthwindFunctionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindFunctionsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 

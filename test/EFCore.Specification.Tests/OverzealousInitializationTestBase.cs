@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class OverzealousInitializationTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : OverzealousInitializationTestBase<TFixture>.OverzealousInitializationFixtureBase, new()
 {
-    protected OverzealousInitializationTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     [ConditionalFact]
     public virtual void Fixup_ignores_eagerly_initialized_reference_navs()
     {
@@ -84,7 +79,7 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         }
     }
 
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected AlbumViewerContext CreateContext()
         => Fixture.CreateContext();

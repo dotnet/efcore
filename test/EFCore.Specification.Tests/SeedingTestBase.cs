@@ -54,14 +54,9 @@ public abstract class SeedingTestBase
     protected virtual KeylessSeedingContext CreateKeylessContextWithEmptyDatabase()
         => new(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
-    protected abstract class SeedingContext : DbContext
+    protected abstract class SeedingContext(string testId) : DbContext
     {
-        public string TestId { get; }
-
-        protected SeedingContext(string testId)
-        {
-            TestId = testId;
-        }
+        public string TestId { get; } = testId;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Seed>().HasData(

@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 #nullable disable
 
-public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
+public abstract class FiltersInheritanceBulkUpdatesTestBase<TFixture>(TFixture fixture) : BulkUpdatesTestBase<TFixture>(fixture)
     where TFixture : InheritanceBulkUpdatesFixtureBase, new()
 {
-    protected FiltersInheritanceBulkUpdatesTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Delete_where_hierarchy(bool async)

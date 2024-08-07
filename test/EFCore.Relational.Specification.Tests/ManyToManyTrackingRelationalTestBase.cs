@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ManyToManyTrackingRelationalTestBase<TFixture> : ManyToManyTrackingTestBase<TFixture>
+public abstract class ManyToManyTrackingRelationalTestBase<TFixture>(TFixture fixture) : ManyToManyTrackingTestBase<TFixture>(fixture)
     where TFixture : ManyToManyTrackingRelationalTestBase<TFixture>.ManyToManyTrackingRelationalFixture
 {
-    protected ManyToManyTrackingRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public void Many_to_many_delete_behaviors_are_set()
     {

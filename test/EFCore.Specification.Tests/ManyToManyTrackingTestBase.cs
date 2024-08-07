@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class ManyToManyTrackingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ManyToManyTrackingTestBase<TFixture>.ManyToManyTrackingFixtureBase
 {
     [ConditionalTheory]
@@ -5922,12 +5922,7 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixtu
     private ICollection<TEntity> CreateCollection<TEntity>()
         => RequiresDetectChanges ? new List<TEntity>() : new ObservableCollection<TEntity>();
 
-    protected ManyToManyTrackingTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected virtual Task ExecuteWithStrategyInTransactionAsync(
         Func<ManyToManyContext, Task> testOperation,

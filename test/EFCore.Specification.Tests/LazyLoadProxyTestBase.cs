@@ -12,15 +12,10 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class LazyLoadProxyTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : LazyLoadProxyTestBase<TFixture>.LoadFixtureBase
 {
-    protected LazyLoadProxyTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory] // Issue #32390
     [InlineData(false)]

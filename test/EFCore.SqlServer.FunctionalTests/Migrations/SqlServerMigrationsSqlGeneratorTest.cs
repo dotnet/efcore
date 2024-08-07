@@ -9,7 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
+public class SqlServerMigrationsSqlGeneratorTest() : MigrationsSqlGeneratorTestBase(
+    SqlServerTestHelpers.Instance,
+    new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
+    SqlServerTestHelpers.Instance.AddProviderOptions(
+        ((IRelationalDbContextOptionsBuilderInfrastructure)
+            new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
+        .OptionsBuilder).Options)
 {
     [ConditionalFact]
     public void CreateIndexOperation_unique_online()
@@ -1282,15 +1288,4 @@ ALTER TABLE [Person] ADD DEFAULT N'' FOR [Name];
                 pb.Property<string>("Culture").HasColumnName("Culture");
                 pb.HasKey("FirstName", "LastName");
             });
-
-    public SqlServerMigrationsSqlGeneratorTest()
-        : base(
-            SqlServerTestHelpers.Instance,
-            new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite(),
-            SqlServerTestHelpers.Instance.AddProviderOptions(
-                ((IRelationalDbContextOptionsBuilderInfrastructure)
-                    new SqlServerDbContextOptionsBuilder(new DbContextOptionsBuilder()).UseNetTopologySuite())
-                .OptionsBuilder).Options)
-    {
-    }
 }

@@ -297,18 +297,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             CoreStrings.InvalidKeyValue(entityType.DisplayName(), property.Name));
     }
 
-    private sealed class ConstantVerifyingExpressionVisitor : ExpressionVisitor
+    private sealed class ConstantVerifyingExpressionVisitor(ITypeMappingSource typeMappingSource) : ExpressionVisitor
     {
-        private readonly ITypeMappingSource _typeMappingSource;
-
-        public ConstantVerifyingExpressionVisitor(ITypeMappingSource typeMappingSource)
-        {
-            _typeMappingSource = typeMappingSource;
-        }
-
         private bool ValidConstant(ConstantExpression constantExpression)
             => constantExpression.Value == null
-                || _typeMappingSource.FindMapping(constantExpression.Type) != null
+                || typeMappingSource.FindMapping(constantExpression.Type) != null
                 || constantExpression.Value is Array { Length: 0 };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
@@ -364,7 +357,12 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private sealed class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
+    private sealed class EntityMaterializerInjectingExpressionVisitor(
+        IEntityMaterializerSource entityMaterializerSource,
+        ILiftableConstantFactory liftableConstantFactory,
+        QueryTrackingBehavior queryTrackingBehavior,
+        bool supportsPrecompiledQuery)
+        : ExpressionVisitor
     {
         private static readonly ConstructorInfo MaterializationContextConstructor
             = typeof(MaterializationContext).GetConstructors().Single(ci => ci.GetParameters().Length == 2);
@@ -393,34 +391,16 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         private static readonly MethodInfo EntityTypeFindPrimaryKeyMethod =
             typeof(IEntityType).GetMethod(nameof(IEntityType.FindPrimaryKey), [])!;
 
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly ILiftableConstantFactory _liftableConstantFactory;
-        private readonly QueryTrackingBehavior _queryTrackingBehavior;
-        private readonly bool _queryStateManager;
+        private readonly bool _queryStateManager = queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
-        private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter;
-        private readonly bool _supportsPrecompiledQuery;
+        private readonly MaterializationConditionConstantLifter _materializationConditionConstantLifter = new(liftableConstantFactory);
         private int _currentEntityIndex;
-
-        public EntityMaterializerInjectingExpressionVisitor(
-            IEntityMaterializerSource entityMaterializerSource,
-            ILiftableConstantFactory liftableConstantFactory,
-            QueryTrackingBehavior queryTrackingBehavior,
-            bool supportsPrecompiledQuery)
-        {
-            _entityMaterializerSource = entityMaterializerSource;
-            _liftableConstantFactory = liftableConstantFactory;
-            _queryTrackingBehavior = queryTrackingBehavior;
-            _queryStateManager = queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
-            _materializationConditionConstantLifter = new(liftableConstantFactory);
-            _supportsPrecompiledQuery = supportsPrecompiledQuery;
-        }
 
         public Expression Inject(Expression expression)
         {
             var result = Visit(expression);
 
-            if (_queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            if (queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
                 foreach (var entityType in _visitedEntityTypes)
                 {
@@ -493,8 +473,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         Call(
                             QueryCompilationContext.QueryContextParameter,
                             TryGetEntryMethodInfo,
-                            _supportsPrecompiledQuery
-                            ? _liftableConstantFactory.CreateLiftableConstant(
+                            supportsPrecompiledQuery
+                            ? liftableConstantFactory.CreateLiftableConstant(
                                 primaryKey,
                                 Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                     Call(
@@ -575,15 +555,15 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                                     typeof(object), p.GetIndex(), p)))),
                                     Call(
                                         CreateNullKeyValueInNoTrackingQueryMethod,
-                                        _supportsPrecompiledQuery
-                                        ? _liftableConstantFactory.CreateLiftableConstant(
+                                        supportsPrecompiledQuery
+                                        ? liftableConstantFactory.CreateLiftableConstant(
                                             typeBase,
                                             LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(typeBase),
                                             typeBase.Name + "EntityType",
                                             typeof(IEntityType))
                                         : Constant(typeBase),
-                                        _supportsPrecompiledQuery
-                                        ? _liftableConstantFactory.CreateLiftableConstant(
+                                        supportsPrecompiledQuery
+                                        ? liftableConstantFactory.CreateLiftableConstant(
                                             primaryKey.Properties,
                                             Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                                 Property(
@@ -630,8 +610,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             expressions.Add(
                 Assign(
                     shadowValuesVariable,
-                    _supportsPrecompiledQuery
-                    ? _liftableConstantFactory.CreateLiftableConstant(
+                    supportsPrecompiledQuery
+                    ? liftableConstantFactory.CreateLiftableConstant(
                         Snapshot.Empty,
                         static _ => Snapshot.Empty,
                         "emptySnapshot",
@@ -659,8 +639,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 var concreteEntityType = concreteEntityTypes[i];
                 switchCases[i] = SwitchCase(
                     CreateFullMaterializeExpression(concreteEntityTypes[i], expressionContext),
-                    _supportsPrecompiledQuery
-                    ? _liftableConstantFactory.CreateLiftableConstant(
+                    supportsPrecompiledQuery
+                    ? liftableConstantFactory.CreateLiftableConstant(
                         concreteEntityTypes[i],
                         LiftableConstantExpressionHelpers.BuildMemberAccessLambdaForEntityOrComplexType(concreteEntityType),
                         concreteEntityType.ShortName() + (typeBase is IEntityType ? "EntityType" : "ComplexType"),
@@ -721,10 +701,10 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var blockExpressions = new List<Expression>(2);
 
-            var materializer = _entityMaterializerSource
+            var materializer = entityMaterializerSource
                 .CreateMaterializeExpression(
                     new EntityMaterializerSourceParameters(
-                        concreteTypeBase, "instance", _queryTrackingBehavior), materializationContextVariable);
+                        concreteTypeBase, "instance", queryTrackingBehavior), materializationContextVariable);
 
             // TODO: Properly support shadow properties for complex types?
             if (_queryStateManager

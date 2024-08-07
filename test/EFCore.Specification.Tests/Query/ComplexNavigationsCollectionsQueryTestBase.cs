@@ -7,16 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsQueryFixtureBase, new()
 {
     protected ComplexNavigationsContext CreateContext()
         => Fixture.CreateContext();
-
-    protected ComplexNavigationsCollectionsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     protected override Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor(Fixture.GetShadowPropertyMappings()).Visit(expectedQueryExpression);

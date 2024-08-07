@@ -1369,21 +1369,11 @@ public abstract class TrackGraphTestBase
 
     private class OfThis : AreMade;
 
-    private class EarlyLearningCenter : DbContext
+    private class EarlyLearningCenter(string databaseName, IServiceProvider serviceProvider) : DbContext
     {
-        private readonly string _databaseName;
-        private readonly IServiceProvider _serviceProvider;
-
         public EarlyLearningCenter(string databaseName)
+            : this(databaseName, InMemoryTestHelpers.Instance.CreateServiceProvider())
         {
-            _databaseName = databaseName;
-            _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-        }
-
-        public EarlyLearningCenter(string databaseName, IServiceProvider serviceProvider)
-        {
-            _databaseName = databaseName;
-            _serviceProvider = serviceProvider;
         }
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1452,8 +1442,8 @@ public abstract class TrackGraphTestBase
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseInternalServiceProvider(_serviceProvider)
-                .UseInMemoryDatabase(_databaseName);
+                .UseInternalServiceProvider(serviceProvider)
+                .UseInMemoryDatabase(databaseName);
     }
 
     public class KeyValueEntityTracker(bool updateExistingEntities)

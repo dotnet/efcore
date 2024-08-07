@@ -673,21 +673,9 @@ public abstract partial class ModelBuilderTest
             Assert.True(strange.GetProviderValueComparer().IsDefault());
         }
 
-        protected  class UTF8StringToBytesConverter : StringToBytesConverter
-        {
-            public UTF8StringToBytesConverter()
-                : base(Encoding.UTF8)
-            {
-            }
-        }
+        protected class UTF8StringToBytesConverter() : StringToBytesConverter(Encoding.UTF8);
 
-        protected class CustomValueComparer<T> : ValueComparer<T>
-        {
-            public CustomValueComparer()
-                : base(false)
-            {
-            }
-        }
+        protected class CustomValueComparer<T>() : ValueComparer<T>(false);
 
         [ConditionalFact]
         public virtual void Properties_can_have_value_converter_set_inline()
@@ -821,21 +809,10 @@ public abstract partial class ModelBuilderTest
             return obj;
         }
 
-        private class ExpandoObjectConverter : ValueConverter<ExpandoObject, string>
-        {
-            public ExpandoObjectConverter()
-                : base(v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v))
-            {
-            }
-        }
+        private class ExpandoObjectConverter() : ValueConverter<ExpandoObject, string>(
+            v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v));
 
-        private class ExpandoObjectComparer : ValueComparer<ExpandoObject>
-        {
-            public ExpandoObjectComparer()
-                : base((v1, v2) => v1.SequenceEqual(v2), v => v.GetHashCode())
-            {
-            }
-        }
+        private class ExpandoObjectComparer() : ValueComparer<ExpandoObject>((v1, v2) => v1.SequenceEqual(v2), v => v.GetHashCode());
 
         [ConditionalFact]
         public virtual void Properties_can_have_value_converter_configured_by_type()
@@ -932,13 +909,8 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<string>>(wierd.GetProviderValueComparer());
         }
 
-        private class WrappedStringToStringConverter : ValueConverter<WrappedString, string>
-        {
-            public WrappedStringToStringConverter()
-                : base(v => v.Value, v => new WrappedString { Value = v })
-            {
-            }
-        }
+        private class WrappedStringToStringConverter()
+            : ValueConverter<WrappedString, string>(v => v.Value, v => new WrappedString { Value = v });
 
         [ConditionalFact]
         public virtual void Value_converter_type_is_checked()

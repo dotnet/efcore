@@ -91,14 +91,9 @@ public class SqliteOptionsExtension : RelationalOptionsExtension
     public override void ApplyServices(IServiceCollection services)
         => services.AddEntityFrameworkSqlite();
 
-    private sealed class ExtensionInfo : RelationalExtensionInfo
+    private sealed class ExtensionInfo(IDbContextOptionsExtension extension) : RelationalExtensionInfo(extension)
     {
         private string? _logFragment;
-
-        public ExtensionInfo(IDbContextOptionsExtension extension)
-            : base(extension)
-        {
-        }
 
         private new SqliteOptionsExtension Extension
             => (SqliteOptionsExtension)base.Extension;

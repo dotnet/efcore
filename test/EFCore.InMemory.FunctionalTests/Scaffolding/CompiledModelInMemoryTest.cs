@@ -363,13 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         && ((int)constant.Value!) == 1);
                 });
 
-        private class FakeValueComparer : ValueComparer<int>
+        private class FakeValueComparer() : ValueComparer<int>((l, r) => false, v => 0, v => 1)
         {
-            public FakeValueComparer()
-                : base((l, r) => false, v => 0, v => 1)
-            {
-            }
-
             public override Type Type { get; } = typeof(int);
 
             public override bool Equals(object? left, object? right)

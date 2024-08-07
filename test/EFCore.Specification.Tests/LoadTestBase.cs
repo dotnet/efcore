@@ -10,15 +10,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class LoadTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : LoadTestBase<TFixture>.LoadFixtureBase
 {
-    protected LoadTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, false)]

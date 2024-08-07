@@ -5,13 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class TransactionInterceptionSqliteTestBase : TransactionInterceptionTestBase
+public abstract class TransactionInterceptionSqliteTestBase(TransactionInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : TransactionInterceptionTestBase(fixture)
 {
-    protected TransactionInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName

@@ -5,13 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTestBase
+public abstract class CommandInterceptionSqliteTestBase(CommandInterceptionSqliteTestBase.InterceptionSqliteFixtureBase fixture)
+    : CommandInterceptionTestBase(fixture)
 {
-    protected CommandInterceptionSqliteTestBase(InterceptionSqliteFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task<string> Intercept_query_passively(bool async, bool inject)
     {
         AssertSql(

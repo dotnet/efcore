@@ -121,13 +121,8 @@ public class RelationalEventIdTest : EventIdTestBase
             => throw new NotImplementedException();
     }
 
-    private class FakeSqlExpression : SqlExpression
+    private class FakeSqlExpression() : SqlExpression(typeof(object), null)
     {
-        public FakeSqlExpression()
-            : base(typeof(object), null)
-        {
-        }
-
         public override Expression Quote()
             => throw new NotSupportedException();
 
@@ -180,13 +175,7 @@ public class RelationalEventIdTest : EventIdTestBase
             => throw new NotImplementedException();
     }
 
-    private class FakeMigrationCommand : MigrationCommand
-    {
-        public FakeMigrationCommand()
-            : base(new FakeRelationalCommand(), null, new FakeRelationalCommandDiagnosticsLogger())
-        {
-        }
-    }
+    private class FakeMigrationCommand() : MigrationCommand(new FakeRelationalCommand(), null, new FakeRelationalCommandDiagnosticsLogger());
 
     private class FakeRelationalCommand : IRelationalCommand
     {
