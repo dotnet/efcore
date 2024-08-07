@@ -189,7 +189,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <summary>
     ///     A bool value indicating if DISTINCT is applied to projection of this <see cref="SelectExpression" />.
     /// </summary>
-    public bool IsDistinct { get; private set; }
+    public bool IsDistinct { get; set; }
 
     /// <summary>
     ///     The list of expressions being projected out from the result set.
