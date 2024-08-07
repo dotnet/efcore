@@ -1292,7 +1292,7 @@ WHERE ((c["Discriminator"] = "Basic") AND EXISTS (
         """
 SELECT VALUE c
 FROM root c
-WHERE c["Discriminator"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived")
+WHERE c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived")
 """);
             });
 
@@ -1306,7 +1306,7 @@ WHERE c["Discriminator"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritance
         """
 SELECT VALUE c
 FROM root c
-WHERE (c["Discriminator"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived") AND (c["Discriminator"] = "JsonEntityInheritanceDerived"))
+WHERE (c["$type"] IN ("JsonEntityInheritanceBase", "JsonEntityInheritanceDerived") AND (c["$type"] = "JsonEntityInheritanceDerived"))
 """);
             });
 
