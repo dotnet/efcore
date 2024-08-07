@@ -8,7 +8,6 @@ using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Model;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.Extensions.DependencyModel;
 using CompilationOptions = Microsoft.CodeAnalysis.CompilationOptions;
 
@@ -18,7 +17,7 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
     public static DiagnosticResult Diagnostic(string diagnosticId)
-        => CSharpAnalyzerVerifier<TAnalyzer, XUnitVerifier>.Diagnostic(diagnosticId);
+        => CSharpAnalyzerVerifier<TAnalyzer, DefaultVerifier>.Diagnostic(diagnosticId);
 
     public static Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
     {
@@ -27,7 +26,7 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
         return test.RunAsync();
     }
 
-    public class Test : CSharpAnalyzerTest<TAnalyzer, XUnitVerifier>
+    public class Test : CSharpAnalyzerTest<TAnalyzer, DefaultVerifier>
     {
         protected override CompilationOptions CreateCompilationOptions()
         {
