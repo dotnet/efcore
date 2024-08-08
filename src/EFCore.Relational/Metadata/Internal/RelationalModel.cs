@@ -286,12 +286,14 @@ public class RelationalModel : Annotatable, IRelationalModel
                 includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any()
                     ? !isTpc && mappedType == entityType
                     : null);
+
             var containerColumnName = mappedType.GetContainerColumnName();
+            var containerColumnType = mappedType.GetContainerColumnType();
             if (!string.IsNullOrEmpty(containerColumnName))
             {
                 CreateContainerColumn(
-                    defaultTable, containerColumnName, mappedType, relationalTypeMappingSource,
-                    static (c, t, m) => new JsonColumnBase(c, m.StoreType, t, m));
+                    defaultTable, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
+                    static (colName, colType, table, mapping) => new JsonColumnBase(colName, colType ?? mapping.StoreType, table, mapping));
             }
             else
             {
@@ -492,11 +494,12 @@ public class RelationalModel : Annotatable, IRelationalModel
         };
 
         var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnType = mappedType.GetContainerColumnType();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
             CreateContainerColumn(
-                table, containerColumnName, (IEntityType)mappedType, relationalTypeMappingSource,
-                static (c, t, m) => new JsonColumn(c, m.StoreType, (Table)t, m));
+                table, containerColumnName, containerColumnType, (IEntityType)mappedType, relationalTypeMappingSource,
+                static (colName, colType, table, mapping) => new JsonColumn(colName, colType ?? mapping.StoreType, (Table)table, mapping));
         }
         else
         {
@@ -567,9 +570,10 @@ public class RelationalModel : Annotatable, IRelationalModel
     private static void CreateContainerColumn<TColumnMappingBase>(
         TableBase tableBase,
         string containerColumnName,
+        string? containerColumnType,
         IEntityType mappedType,
         IRelationalTypeMappingSource relationalTypeMappingSource,
-        Func<string, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn)
+        Func<string, string?, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn)
         where TColumnMappingBase : class, IColumnMappingBase
     {
         var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
@@ -577,8 +581,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
 
-            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement), mappedType.Model)!;
-            var jsonColumn = createColumn(containerColumnName, tableBase, jsonColumnTypeMapping);
+            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement), storeTypeName: containerColumnType)!;
+            var jsonColumn = createColumn(containerColumnName, containerColumnType, tableBase, jsonColumnTypeMapping);
             tableBase.Columns.Add(containerColumnName, jsonColumn);
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
@@ -684,11 +688,12 @@ public class RelationalModel : Annotatable, IRelationalModel
         };
 
         var containerColumnName = mappedType.GetContainerColumnName();
+        var containerColumnType = mappedType.GetContainerColumnType();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
             CreateContainerColumn(
-                view, containerColumnName, mappedType, relationalTypeMappingSource,
-                static (c, t, m) => new JsonViewColumn(c, m.StoreType, (View)t, m));
+                view, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
+                static (colName, colType, table, mapping) => new JsonViewColumn(colName, colType ?? mapping.StoreType, (View)table, mapping));
         }
         else
         {

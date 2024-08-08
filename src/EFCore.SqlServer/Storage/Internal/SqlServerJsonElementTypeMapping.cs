@@ -1,8 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -12,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerJsonTypeMapping : JsonTypeMapping
+public class SqlServerJsonElementTypeMapping : JsonTypeMapping
 {
     private static readonly MethodInfo GetStringMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), [typeof(int)])!;
@@ -32,7 +34,7 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static SqlServerJsonTypeMapping Default { get; } = new("nvarchar(max)");
+    public static SqlServerJsonElementTypeMapping Default { get; } = new("nvarchar(max)");
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +42,15 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerJsonTypeMapping(string storeType)
+    public static SqlServerJsonElementTypeMapping JsonTypeDefault { get; } = new("json");
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public SqlServerJsonElementTypeMapping(string storeType)
         : base(storeType, typeof(JsonElement), System.Data.DbType.String)
     {
     }
@@ -74,7 +84,7 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqlServerJsonTypeMapping(RelationalTypeMappingParameters parameters)
+    protected SqlServerJsonElementTypeMapping(RelationalTypeMappingParameters parameters)
         : base(parameters)
     {
     }
@@ -104,5 +114,22 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqlServerJsonTypeMapping(parameters);
+        => new SqlServerJsonElementTypeMapping(parameters);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ConfigureParameter(DbParameter parameter)
+    {
+        if ("json".Equals(StoreType, StringComparison.OrdinalIgnoreCase)
+            && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
+        {
+            sqlParameter.SqlDbType = ((SqlDbType)35);
+        }
+
+        base.ConfigureParameter(parameter);
+    }
 }

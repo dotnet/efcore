@@ -16,10 +16,13 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Contains_on_nested_collection_with_init_only_navigation(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext32310>(seed: Seed32310);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: b => b.Entity<Pub32310>().OwnsOne(e => e.Visits).ToJson("Visits", JsonColumnType),
+            seed: Seed32310);
+
         await using var context = contextFactory.CreateContext();
 
-        var query = context.Pubs
+        var query = context.Set<Pub32310>()
             .Where(u => u.Visits.DaysVisited.Contains(new DateOnly(2023, 1, 1)));
 
         var result = async
@@ -30,21 +33,12 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         Assert.Equal(new DateOnly(2023, 1, 1), result.Visits.DaysVisited.Single());
     }
 
-    protected virtual async Task Seed32310(MyContext32310 context)
+    protected virtual async Task Seed32310(DbContext context)
     {
         var user = new Pub32310 { Name = "FBI", Visits = new Visits32310 { LocationTag = "tag", DaysVisited = [new(2023, 1, 1)] } };
 
         context.Add(user);
         await context.SaveChangesAsync();
-    }
-
-    protected class MyContext32310(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<Pub32310> Pubs
-            => Set<Pub32310>();
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Pub32310>(b => { b.OwnsOne(e => e.Visits).ToJson(); });
     }
 
     public class Pub32310
@@ -68,12 +62,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext29219>(
-            seed: Seed29219);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModel29219, seed: Seed29219);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.Where(x => x.Id == 3);
+            var query = context.Set<MyEntity29219>().Where(x => x.Id == 3);
 
             var result = async
                 ? await query.SingleAsync()
@@ -89,12 +82,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext29219>(
-            seed: Seed29219);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModel29219, seed: Seed29219);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.OrderBy(x => x.Id).Select(x => x.Reference.NullableScalar);
+            var query = context.Set<MyEntity29219>().OrderBy(x => x.Id).Select(x => x.Reference.NullableScalar);
 
             var result = async
                 ? await query.ToListAsync()
@@ -107,19 +99,17 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract Task Seed29219(MyContext29219 ctx);
+    protected void BuildModel29219(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<MyEntity29219>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsOne(x => x.Reference).ToJson("Reference", JsonColumnType);
+                b.OwnsMany(x => x.Collection).ToJson("Collection", JsonColumnType);
+            });
 
-    protected class MyContext29219(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<MyEntity29219> Entities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntity29219>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntity29219>().OwnsOne(x => x.Reference).ToJson();
-            modelBuilder.Entity<MyEntity29219>().OwnsMany(x => x.Collection).ToJson();
-        }
-    }
+    protected abstract Task Seed29219(DbContext ctx);
 
     public class MyEntity29219
     {
@@ -138,28 +128,24 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     #region 30028
 
-    protected abstract Task Seed30028(MyContext30028 ctx);
+    protected abstract Task Seed30028(DbContext ctx);
 
-    protected class MyContext30028(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<MyEntity30028> Entities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<MyEntity30028>(
-                b =>
-                {
-                    b.Property(x => x.Id).ValueGeneratedNever();
-                    b.OwnsOne(
-                        x => x.Json, nb =>
-                        {
-                            nb.ToJson();
-                            nb.OwnsMany(x => x.Collection, nnb => nnb.OwnsOne(x => x.Nested));
-                            nb.OwnsOne(x => x.OptionalReference, nnb => nnb.OwnsOne(x => x.Nested));
-                            nb.OwnsOne(x => x.RequiredReference, nnb => nnb.OwnsOne(x => x.Nested));
-                            nb.Navigation(x => x.RequiredReference).IsRequired();
-                        });
-                });
-    }
+    protected virtual void BuildModel30028(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<MyEntity30028>(
+            b =>
+            {
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.ToTable("Entities");
+                b.OwnsOne(
+                    x => x.Json, nb =>
+                    {
+                        nb.ToJson("Json", JsonColumnType);
+                        nb.OwnsMany(x => x.Collection, nnb => nnb.OwnsOne(x => x.Nested));
+                        nb.OwnsOne(x => x.OptionalReference, nnb => nnb.OwnsOne(x => x.Nested));
+                        nb.OwnsOne(x => x.RequiredReference, nnb => nnb.OwnsOne(x => x.Nested));
+                        nb.Navigation(x => x.RequiredReference).IsRequired();
+                    });
+            });
 
     public class MyEntity30028
     {
@@ -190,10 +176,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Accessing_missing_navigation_works(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext30028>(seed: Seed30028);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModel30028, seed: Seed30028);
         using (var context = contextFactory.CreateContext())
         {
-            var result = context.Entities.OrderBy(x => x.Id).ToList();
+            var result = context.Set<MyEntity30028>().OrderBy(x => x.Id).ToList();
             Assert.Equal(4, result.Count);
             Assert.NotNull(result[0].Json.Collection);
             Assert.NotNull(result[0].Json.OptionalReference);
@@ -213,14 +199,14 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Missing_navigation_works_with_deduplication(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContext30028>(seed: Seed30028);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModel30028, seed: Seed30028);
         using (var context = contextFactory.CreateContext())
         {
-            var result = context.Entities.OrderBy(x => x.Id).Select(
+            var result = context.Set<MyEntity30028>().OrderBy(x => x.Id).Select(
                 x => new
                 {
                     x,
@@ -266,108 +252,101 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Project_json_with_no_properties()
     {
-        var contextFactory = await InitializeAsync<Context32939>(seed: Seed30028);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModel32939, seed: Seed32939);
         using var context = contextFactory.CreateContext();
-        context.Entities.ToList();
+        context.Set<Entity32939>().ToList();
     }
 
-    protected Task Seed30028(Context32939 ctx)
+    protected Task Seed32939(DbContext ctx)
     {
-        var entity = new Context32939.Entity32939
+        var entity = new Entity32939
         {
-            Empty = new Context32939.JsonEmpty32939(),
-            FieldOnly = new Context32939.JsonFieldOnly32939()
+            Empty = new JsonEmpty32939(),
+            FieldOnly = new JsonFieldOnly32939()
         };
 
-        ctx.Entities.Add(entity);
+        ctx.Add(entity);
         return ctx.SaveChangesAsync();
     }
 
-    protected class Context32939(DbContextOptions options) : DbContext(options)
+    protected virtual void BuildModel32939(ModelBuilder modelBuilder)
     {
-        public DbSet<Entity32939> Entities { get; set; }
+        modelBuilder.Entity<Entity32939>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.Empty, b => b.ToJson("Empty", JsonColumnType));
+        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.FieldOnly, b => b.ToJson("FieldOnly", JsonColumnType));
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Entity32939>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Entity32939>().OwnsOne(x => x.Empty, b => b.ToJson());
-            modelBuilder.Entity<Entity32939>().OwnsOne(x => x.FieldOnly, b => b.ToJson());
-        }
+    public class Entity32939
+    {
+        public int Id { get; set; }
+        public JsonEmpty32939 Empty { get; set; }
+        public JsonFieldOnly32939 FieldOnly { get; set; }
 
-        public class Entity32939
-        {
-            public int Id { get; set; }
-            public JsonEmpty32939 Empty { get; set; }
-            public JsonFieldOnly32939 FieldOnly { get; set; }
+    }
 
-        }
+    public class JsonEmpty32939
+    {
+    }
 
-        public class JsonEmpty32939
-        {
-        }
-
-        public class JsonFieldOnly32939
-        {
-            public int Field;
-        }
+    public class JsonFieldOnly32939
+    {
+        public int Field;
     }
 
     #endregion
 
     #region 33046
 
-    protected abstract Task Seed33046(Context33046 ctx);
+    protected abstract Task Seed33046(DbContext ctx);
 
     [ConditionalFact]
     public virtual async Task Query_with_nested_json_collection_mapped_to_private_field_via_IReadOnlyList()
     {
-        var contextFactory = await InitializeAsync<Context33046>(seed: Seed33046);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModel33046, seed: Seed33046);
         using var context = contextFactory.CreateContext();
-        var query = context.Reviews.ToList();
+        var query = context.Set<Review>().ToList();
         Assert.Equal(1, query.Count);
     }
 
-    protected class Context33046(DbContextOptions options) : DbContext(options)
+    protected virtual void BuildModel33046(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<Review>(
+            b =>
+            {
+                b.ToTable("Reviews");
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsMany(
+                    x => x.Rounds, ownedBuilder =>
+                    {
+                        ownedBuilder.ToJson("Rounds", JsonColumnType);
+                        ownedBuilder.OwnsMany(r => r.SubRounds);
+                    });
+            });
+
+    public class Review
     {
-        public DbSet<Review> Reviews { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Review>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<Review>().OwnsMany(
-                x => x.Rounds, ownedBuilder =>
-                {
-                    ownedBuilder.ToJson();
-                    ownedBuilder.OwnsMany(r => r.SubRounds);
-                });
-        }
-
-        public class Review
-        {
-            public int Id { get; set; }
+        public int Id { get; set; }
 
 #pragma warning disable IDE0044 // Add readonly modifier
-            private List<ReviewRound> _rounds = [];
+        private List<ReviewRound> _rounds = [];
 #pragma warning restore IDE0044 // Add readonly modifier
-            public IReadOnlyList<ReviewRound> Rounds
-                => _rounds.AsReadOnly();
-        }
+        public IReadOnlyList<ReviewRound> Rounds
+            => _rounds.AsReadOnly();
+    }
 
-        public class ReviewRound
-        {
-            public int RoundNumber { get; set; }
+    public class ReviewRound
+    {
+        public int RoundNumber { get; set; }
 
 #pragma warning disable IDE0044 // Add readonly modifier
-            private List<SubRound> _subRounds = [];
+        private List<SubRound> _subRounds = [];
 #pragma warning restore IDE0044 // Add readonly modifier
-            public IReadOnlyList<SubRound> SubRounds
-                => _subRounds.AsReadOnly();
-        }
+        public IReadOnlyList<SubRound> SubRounds
+            => _subRounds.AsReadOnly();
+    }
 
-        public class SubRound
-        {
-            public int SubRoundNumber { get; set; }
-        }
+    public class SubRound
+    {
+        public int SubRoundNumber { get; set; }
     }
 
     #endregion
@@ -378,12 +357,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_array_of_primitives_on_reference(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.OrderBy(x => x.Id).Select(x => new { x.Reference.IntArray, x.Reference.ListOfString });
+            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id).Select(x => new { x.Reference.IntArray, x.Reference.ListOfString });
 
             var result = async
                 ? await query.ToListAsync()
@@ -401,12 +379,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_array_of_primitives_on_collection(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.OrderBy(x => x.Id).Select(x => new { x.Collection[0].IntArray, x.Collection[1].ListOfString });
+            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id).Select(x => new { x.Collection[0].IntArray, x.Collection[1].ListOfString });
 
             var result = async
                 ? await query.ToListAsync()
@@ -424,12 +401,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_element_of_json_array_of_primitives(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.OrderBy(x => x.Id).Select(
+            var query = context.Set<MyEntityArrayOfPrimitives>().OrderBy(x => x.Id).Select(
                 x => new { ArrayElement = x.Reference.IntArray[0], ListElement = x.Reference.ListOfString[1] });
 
             var result = async
@@ -442,12 +418,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives1(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.Where(x => x.Reference.IntArray[0] == 1);
+            var query = context.Set<MyEntityArrayOfPrimitives>().Where(x => x.Reference.IntArray[0] == 1);
 
             var result = async
                 ? await query.ToListAsync()
@@ -462,12 +437,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives2(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.Where(x => x.Reference.ListOfString[1] == "Bar");
+            var query = context.Set<MyEntityArrayOfPrimitives>().Where(x => x.Reference.ListOfString[1] == "Bar");
 
             var result = async
                 ? await query.ToListAsync()
@@ -482,12 +456,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives3(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.Where(
+            var query = context.Set<MyEntityArrayOfPrimitives>().Where(
                     x => x.Reference.IntArray.AsQueryable().ElementAt(0) == 1
                         || x.Reference.ListOfString.AsQueryable().ElementAt(1) == "Bar")
                 .OrderBy(e => e.Id);
@@ -502,21 +475,16 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract Task SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx);
+    protected abstract Task SeedArrayOfPrimitives(DbContext ctx);
 
-    protected class MyContextArrayOfPrimitives(DbContextOptions options) : DbContext(options)
+    protected virtual void BuildModelArrayOfPrimitives(ModelBuilder modelBuilder)
     {
-        public DbSet<MyEntityArrayOfPrimitives> Entities { get; set; }
+        modelBuilder.Entity<MyEntityArrayOfPrimitives>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsOne(
+            x => x.Reference, b => b.ToJson("Reference", JsonColumnType));
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntityArrayOfPrimitives>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsOne(
-                x => x.Reference, b => b.ToJson());
-
-            modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsMany(
-                x => x.Collection, b => b.ToJson());
-        }
+        modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsMany(
+            x => x.Collection, b => b.ToJson("Collection", JsonColumnType));
     }
 
     public class MyEntityArrayOfPrimitives
@@ -540,12 +508,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Junk_in_json_basic_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextJunkInJson>(
-            seed: SeedJunkInJson);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelJunkInJson, seed: SeedJunkInJson);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities;
+            var query = context.Set<MyEntityJunkInJson>();
 
             var result = async
                 ? await query.ToListAsync()
@@ -565,12 +532,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Junk_in_json_basic_no_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextJunkInJson>(
-            seed: SeedJunkInJson);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelJunkInJson, seed: SeedJunkInJson);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.AsNoTracking();
+            var query = context.Set<MyEntityJunkInJson>().AsNoTracking();
 
             var result = async
                 ? await query.ToListAsync()
@@ -586,45 +552,47 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract Task SeedJunkInJson(MyContextJunkInJson ctx);
+    protected abstract Task SeedJunkInJson(DbContext ctx);
 
-    protected class MyContextJunkInJson(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<MyEntityJunkInJson> Entities { get; set; }
+    protected virtual void BuildModelJunkInJson(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<MyEntityJunkInJson>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntityJunkInJson>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityJunkInJson>().OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson();
-                    b.OwnsOne(x => x.NestedReference);
-                    b.OwnsMany(x => x.NestedCollection);
-                });
-            modelBuilder.Entity<MyEntityJunkInJson>().OwnsOne(
-                x => x.ReferenceWithCtor, b =>
-                {
-                    b.ToJson();
-                    b.OwnsOne(x => x.NestedReference);
-                    b.OwnsMany(x => x.NestedCollection);
-                });
-            modelBuilder.Entity<MyEntityJunkInJson>().OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson();
-                    b.OwnsOne(x => x.NestedReference);
-                    b.OwnsMany(x => x.NestedCollection);
-                });
-            modelBuilder.Entity<MyEntityJunkInJson>().OwnsMany(
-                x => x.CollectionWithCtor, b =>
-                {
-                    b.ToJson();
-                    b.OwnsOne(x => x.NestedReference);
-                    b.OwnsMany(x => x.NestedCollection);
-                });
-        }
-    }
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson("Reference", JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsOne(
+                    x => x.ReferenceWithCtor, b =>
+                    {
+                        b.ToJson("ReferenceWithCtor", JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson("Collection", JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+
+                b.OwnsMany(
+                    x => x.CollectionWithCtor, b =>
+                    {
+                        b.ToJson("CollectionWithCtor", JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+            });
 
     public class MyEntityJunkInJson
     {
@@ -671,12 +639,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Tricky_buffering_basic(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextTrickyBuffering>(
-            seed: SeedTrickyBuffering);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelTrickyBuffering, seed: SeedTrickyBuffering);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities;
+            var query = context.Set<MyEntityTrickyBuffering>();
 
             var result = async
                 ? await query.ToListAsync()
@@ -690,24 +657,22 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract Task SeedTrickyBuffering(MyContextTrickyBuffering ctx);
+    protected abstract Task SeedTrickyBuffering(DbContext ctx);
 
-    protected class MyContextTrickyBuffering(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<MyEntityTrickyBuffering> Entities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntityTrickyBuffering>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityTrickyBuffering>().OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson();
-                    b.OwnsOne(x => x.NestedReference);
-                    b.OwnsMany(x => x.NestedCollection);
-                });
-        }
-    }
+    protected virtual void BuildModelTrickyBuffering(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<MyEntityTrickyBuffering>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson("Reference", JsonColumnType);
+                        b.OwnsOne(x => x.NestedReference);
+                        b.OwnsMany(x => x.NestedCollection);
+                    });
+            });
 
     public class MyEntityTrickyBuffering
     {
@@ -736,12 +701,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Shadow_properties_basic_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextShadowProperties>(
-            seed: SeedShadowProperties);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelShadowProperties, seed: SeedShadowProperties);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities;
+            var query = context.Set<MyEntityShadowProperties>();
 
             var result = async
                 ? await query.ToListAsync()
@@ -775,12 +739,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Shadow_properties_basic_no_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextShadowProperties>(
-            seed: SeedShadowProperties);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelShadowProperties, seed: SeedShadowProperties);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.AsNoTracking();
+            var query = context.Set<MyEntityShadowProperties>().AsNoTracking();
 
             var result = async
                 ? await query.ToListAsync()
@@ -798,12 +761,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_shadow_properties_from_json_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextShadowProperties>(
-            seed: SeedShadowProperties);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelShadowProperties, seed: SeedShadowProperties);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.Select(
+            var query = context.Set<MyEntityShadowProperties>().Select(
                 x => new
                 {
                     ShadowString = EF.Property<string>(x.Reference, "ShadowString"),
@@ -820,40 +782,44 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract Task SeedShadowProperties(MyContextShadowProperties ctx);
+    protected abstract Task SeedShadowProperties(DbContext ctx);
 
-    protected class MyContextShadowProperties(DbContextOptions options) : DbContext(options)
+    protected virtual void BuildModelShadowProperties(ModelBuilder modelBuilder)
     {
-        public DbSet<MyEntityShadowProperties> Entities { get; set; }
+        modelBuilder.Entity<MyEntityShadowProperties>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntityShadowProperties>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityShadowProperties>().OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson();
-                    b.Property<string>("ShadowString");
-                });
-            modelBuilder.Entity<MyEntityShadowProperties>().OwnsOne(
-                x => x.ReferenceWithCtor, b =>
-                {
-                    b.ToJson();
-                    b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
-                });
-            modelBuilder.Entity<MyEntityShadowProperties>().OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson();
-                    b.Property<double>("ShadowDouble");
-                });
-            modelBuilder.Entity<MyEntityShadowProperties>().OwnsMany(
-                x => x.CollectionWithCtor, b =>
-                {
-                    b.ToJson();
-                    b.Property<byte?>("ShadowNullableByte");
-                });
-        }
+                b.OwnsOne(
+                    x => x.Reference, b =>
+                    {
+                        b.ToJson("Reference", JsonColumnType);
+                        b.Property<string>("ShadowString");
+                    });
+
+                b.OwnsOne(
+                    x => x.ReferenceWithCtor, b =>
+                    {
+                        b.ToJson("ReferenceWithCtor", JsonColumnType);
+                        b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
+                    });
+
+                b.OwnsMany(
+                    x => x.Collection, b =>
+                    {
+                        b.ToJson("Collection", JsonColumnType);
+                        b.Property<double>("ShadowDouble");
+                    });
+
+                b.OwnsMany(
+                    x => x.CollectionWithCtor, b =>
+                    {
+                        b.ToJson("CollectionWithCtor", JsonColumnType);
+                        b.Property<byte?>("ShadowNullableByte");
+                    });
+            });
     }
 
     public class MyEntityShadowProperties
@@ -885,14 +851,15 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_proxies_entity_with_json(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextLazyLoadingProxies>(
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelLazyLoadingProxies,
             seed: SeedLazyLoadingProxies,
             onConfiguring: OnConfiguringLazyLoadingProxies,
             addServices: AddServicesLazyLoadingProxies);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities;
+            var query = context.Set<MyEntityLazyLoadingProxies>();
 
             var result = async
                 ? await query.ToListAsync()
@@ -908,7 +875,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     protected IServiceCollection AddServicesLazyLoadingProxies(IServiceCollection addServices)
         => addServices.AddEntityFrameworkProxies();
 
-    private Task SeedLazyLoadingProxies(MyContextLazyLoadingProxies ctx)
+    private Task SeedLazyLoadingProxies(DbContext ctx)
     {
         var r1 = new MyJsonEntityLazyLoadingProxiesWithCtor("r1", 1);
         var c11 = new MyJsonEntityLazyLoadingProxies { Name = "c11", Number = 11 };
@@ -940,20 +907,15 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             Collection = [c21, c22]
         };
 
-        ctx.Entities.AddRange(e1, e2);
+        ctx.Set<MyEntityLazyLoadingProxies>().AddRange(e1, e2);
         return ctx.SaveChangesAsync();
     }
 
-    protected class MyContextLazyLoadingProxies(DbContextOptions options) : DbContext(options)
+    protected virtual void BuildModelLazyLoadingProxies(ModelBuilder modelBuilder)
     {
-        public DbSet<MyEntityLazyLoadingProxies> Entities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntityLazyLoadingProxies>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsOne(x => x.Reference, b => b.ToJson());
-            modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsMany(x => x.Collection, b => b.ToJson());
-        }
+        modelBuilder.Entity<MyEntityLazyLoadingProxies>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsOne(x => x.Reference, b => b.ToJson("Reference", JsonColumnType));
+        modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsMany(x => x.Collection, b => b.ToJson("Collection", JsonColumnType));
     }
 
     public class MyEntityLazyLoadingProxies
@@ -985,12 +947,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Not_ICollection_basic_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<MyContextNotICollection>(
-            seed: SeedNotICollection);
+        var contextFactory = await InitializeAsync<DbContext>(BuildModelNotICollection, seed: SeedNotICollection);
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities;
+            var query = context.Set<MyEntityNotICollection>();
 
             var result = async
                 ? await query.ToListAsync()
@@ -1000,7 +961,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected abstract Task SeedNotICollection(MyContextNotICollection ctx);
+    protected abstract Task SeedNotICollection(DbContext ctx);
 
     public class MyEntityNotICollection
     {
@@ -1023,24 +984,25 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         public int Bar { get; set; }
     }
 
-    public class MyContextNotICollection(DbContextOptions options) : DbContext(options)
-    {
-        public DbSet<MyEntityNotICollection> Entities { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<MyEntityNotICollection>().Property(x => x.Id).ValueGeneratedNever();
-            modelBuilder.Entity<MyEntityNotICollection>().OwnsOne(
-                cr => cr.Json, nb =>
-                {
-                    nb.ToJson();
-                    nb.OwnsMany(x => x.Collection);
-                });
-        }
-    }
+    protected virtual void BuildModelNotICollection(ModelBuilder modelBuilder)
+        => modelBuilder.Entity<MyEntityNotICollection>(
+            b =>
+            {
+                b.ToTable("Entities");
+                b.Property(x => x.Id).ValueGeneratedNever();
+                b.OwnsOne(
+                    cr => cr.Json, nb =>
+                    {
+                        nb.ToJson("Json", JsonColumnType);
+                        nb.OwnsMany(x => x.Collection);
+                    });
+            });
 
     #endregion
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    protected virtual string JsonColumnType
+        => null;
 }

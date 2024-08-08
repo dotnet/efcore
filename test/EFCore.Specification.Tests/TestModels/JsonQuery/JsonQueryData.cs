@@ -1169,6 +1169,7 @@ public class JsonQueryData : ISetSource
                     "S3"
                 ],
                 TestBooleanCollection = new[] { true, false },
+                TestByteCollection = [],
                 TestCharacterCollection =
                 [
                     'A',
@@ -1263,6 +1264,7 @@ public class JsonQueryData : ISetSource
                     "S3"
                 ],
                 TestBooleanCollection = new[] { true, false },
+                TestByteCollection = [],
                 TestCharacterCollection =
                 [
                     'A',

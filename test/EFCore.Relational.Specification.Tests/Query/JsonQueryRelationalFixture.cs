@@ -21,12 +21,12 @@ public abstract class JsonQueryRelationalFixture: JsonQueryFixtureBase, ITestSql
 
         modelBuilder.Entity<JsonEntityBasic>().OwnsOne(x => x.OwnedReferenceRoot).ToJson();
         modelBuilder.Entity<JsonEntityBasic>().OwnsMany(x => x.OwnedCollectionRoot).ToJson();
-            
+
         modelBuilder.Entity<JsonEntityCustomNaming>().OwnsOne(x => x.OwnedReferenceRoot).ToJson("json_reference_custom_naming");
         modelBuilder.Entity<JsonEntityCustomNaming>().OwnsMany(x => x.OwnedCollectionRoot).ToJson("json_collection_custom_naming");
-          
+
         modelBuilder.Entity<JsonEntitySingleOwned>().OwnsMany(x => x.OwnedCollection).ToJson();
-            
+
         modelBuilder.Entity<JsonEntityInheritanceBase>(
             b =>
             {

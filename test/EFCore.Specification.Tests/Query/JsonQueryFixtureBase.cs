@@ -651,7 +651,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             });
     }
 
-    protected override string StoreName { get; } = "JsonQueryTest";
+    protected override string StoreName
+        => "JsonQueryTest";
 
     public override JsonQueryContext CreateContext()
     {

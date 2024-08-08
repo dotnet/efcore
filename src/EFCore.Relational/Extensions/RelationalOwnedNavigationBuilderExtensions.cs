@@ -23,12 +23,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
     /// <param name="builder">The builder for the owned navigation being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static OwnedNavigationBuilder ToJson(this OwnedNavigationBuilder builder)
-    {
-        var navigationName = builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name;
-        builder.ToJson(navigationName);
-
-        return builder;
-    }
+        => builder.ToJson(builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name);
 
     /// <summary>
     ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
@@ -45,12 +40,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
         where TDependentEntity : class
-    {
-        var navigationName = builder.Metadata.GetNavigation(pointsToPrincipal: false)!.Name;
-        builder.ToJson(navigationName);
-
-        return builder;
-    }
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)builder).ToJson();
 
     /// <summary>
     ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
@@ -68,11 +58,7 @@ public static class RelationalOwnedNavigationBuilderExtensions
         string? jsonColumnName)
         where TOwnerEntity : class
         where TDependentEntity : class
-    {
-        builder.OwnedEntityType.SetContainerColumnName(jsonColumnName);
-
-        return builder;
-    }
+        => builder.ToJson(jsonColumnName, null);
 
     /// <summary>
     ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
@@ -88,8 +74,47 @@ public static class RelationalOwnedNavigationBuilderExtensions
     public static OwnedNavigationBuilder ToJson(
         this OwnedNavigationBuilder builder,
         string? jsonColumnName)
+        => builder.ToJson(jsonColumnName, null);
+
+    /// <summary>
+    ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
+    /// </summary>
+    /// <remarks>
+    ///     This method should only be specified for the outer-most owned entity in the given ownership structure.
+    ///     All entities owned by this will be automatically mapped to the same JSON column.
+    ///     The ownerships must still be explicitly defined.
+    /// </remarks>
+    /// <param name="builder">The builder for the owned navigation being configured.</param>
+    /// <param name="jsonColumnName">JSON column name to use.</param>
+    /// <param name="jsonColumnType">The database type for the JSON column, or <see langword="null"/> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
+        this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string? jsonColumnName,
+        string? jsonColumnType)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+        => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((OwnedNavigationBuilder)builder).ToJson(jsonColumnName, jsonColumnType);
+
+    /// <summary>
+    ///     Configures a relationship where this entity type and the entities that it owns are mapped to a JSON column in the database.
+    /// </summary>
+    /// <remarks>
+    ///     This method should only be specified for the outer-most owned entity in the given ownership structure.
+    ///     All entities owned by this will be automatically mapped to the same JSON column.
+    ///     The ownerships must still be explicitly defined.
+    /// </remarks>
+    /// <param name="builder">The builder for the owned navigation being configured.</param>
+    /// <param name="jsonColumnName">JSON column name to use.</param>
+    /// <param name="jsonColumnType">The database type for the JSON column, or <see langword="null"/> to use the database default.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnedNavigationBuilder ToJson(
+        this OwnedNavigationBuilder builder,
+        string? jsonColumnName,
+        string? jsonColumnType)
     {
         builder.OwnedEntityType.SetContainerColumnName(jsonColumnName);
+        builder.OwnedEntityType.SetContainerColumnType(jsonColumnType);
 
         return builder;
     }
