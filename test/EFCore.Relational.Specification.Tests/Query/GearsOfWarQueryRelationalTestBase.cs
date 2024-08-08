@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQueryTestBase<TFixture>
+public abstract class GearsOfWarQueryRelationalTestBase<TFixture>(TFixture fixture) : GearsOfWarQueryTestBase<TFixture>(fixture)
     where TFixture : GearsOfWarQueryFixtureBase, new()
 {
-    protected GearsOfWarQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(bool async)

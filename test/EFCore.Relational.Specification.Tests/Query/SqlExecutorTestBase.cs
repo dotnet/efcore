@@ -11,15 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class SqlExecutorTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<SqlExecutorModelCustomizer>, new()
 {
-    protected SqlExecutorTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(false)]
@@ -333,11 +328,5 @@ public class SqlExecutorModelCustomizer : NoopModelCustomizer
         configurationBuilder.DefaultTypeMapping<City>().HasConversion<CityToStringConverter>();
     }
 
-    private sealed class CityToStringConverter : ValueConverter<City, string>
-    {
-        public CityToStringConverter()
-            : base(value => value.Name, value => new City { Name = value })
-        {
-        }
-    }
+    private sealed class CityToStringConverter() : ValueConverter<City, string>(value => value.Name, value => new City { Name = value });
 }

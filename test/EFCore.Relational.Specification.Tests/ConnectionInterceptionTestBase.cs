@@ -5,13 +5,8 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
+public abstract class ConnectionInterceptionTestBase(InterceptionTestBase.InterceptionFixtureBase fixture) : InterceptionTestBase(fixture)
 {
-    protected ConnectionInterceptionTestBase(InterceptionFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]

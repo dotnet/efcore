@@ -621,28 +621,19 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             return SaveChangesAsync();
         }
 
-        public class Blog
+        public class Blog(List<Post> posts1, CustomCollection posts2, HashSet<Post> posts3)
         {
             public Blog()
+                : this([], [], [])
             {
-                Posts1 = [];
-                Posts2 = [];
-                Posts3 = [];
-            }
-
-            public Blog(List<Post> posts1, CustomCollection posts2, HashSet<Post> posts3)
-            {
-                Posts1 = posts1;
-                Posts2 = posts2;
-                Posts3 = posts3;
             }
 
             public int Id { get; set; }
             public string Name { get; set; }
 
-            public List<Post> Posts1 { get; }
-            public CustomCollection Posts2 { get; }
-            public HashSet<Post> Posts3 { get; }
+            public List<Post> Posts1 { get; } = posts1;
+            public CustomCollection Posts2 { get; } = posts2;
+            public HashSet<Post> Posts3 { get; } = posts3;
         }
 
         public class Post

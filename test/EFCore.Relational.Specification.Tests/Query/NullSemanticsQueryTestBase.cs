@@ -17,14 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class NullSemanticsQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : NullSemanticsQueryFixtureBase, new()
 {
-    protected NullSemanticsQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Rewrite_compare_int_with_int(bool async)

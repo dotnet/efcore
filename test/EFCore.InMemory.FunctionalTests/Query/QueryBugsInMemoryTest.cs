@@ -437,18 +437,13 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class Entity3101
     {
-        public Entity3101()
-        {
-            Children = new Collection<Child3101>();
-        }
-
         public int Id { get; set; }
 
         public int? RootEntityId { get; set; }
 
         public Entity3101 RootEntity { get; set; }
 
-        public ICollection<Child3101> Children { get; set; }
+        public ICollection<Child3101> Children { get; set; } = new Collection<Child3101>();
     }
 
     private class Child3101

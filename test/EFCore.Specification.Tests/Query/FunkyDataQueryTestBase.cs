@@ -11,14 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class FunkyDataQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, new()
 {
-    protected FunkyDataQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task String_contains_on_argument_with_wildcard_constant(bool async)

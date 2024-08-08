@@ -693,37 +693,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
-    public abstract class RelationalOneToManyTestBase : OneToManyTestBase
-    {
-        protected RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture) : OneToManyTestBase(fixture);
 
-    public abstract class RelationalManyToOneTestBase : ManyToOneTestBase
-    {
-        protected RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture) : ManyToOneTestBase(fixture);
 
-    public abstract class RelationalOneToOneTestBase : OneToOneTestBase
-    {
-        protected RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture) : OneToOneTestBase(fixture);
 
-    public abstract class RelationalManyToManyTestBase : ManyToManyTestBase
+    public abstract class RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture) : ManyToManyTestBase(fixture)
     {
-        protected RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact] // Issue #27990
         public virtual void Can_use_ForeignKeyAttribute_with_InversePropertyAttribute()
         {
@@ -859,13 +836,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     }
 
-    public abstract class RelationalOwnedTypesTestBase : OwnedTypesTestBase
+    public abstract class RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture) : OwnedTypesTestBase(fixture)
     {
-        protected RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_use_table_splitting_with_owned_reference()
         {
@@ -2633,14 +2605,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureResultColumnBuilder.HasAnnotation(annotation, value));
     }
 
-    public abstract class TestTableValuedFunctionBuilder<TEntity> : DbFunctionBuilderBase
+    public abstract class TestTableValuedFunctionBuilder<TEntity>(IMutableDbFunction function) : DbFunctionBuilderBase(function)
         where TEntity : class
     {
-        protected TestTableValuedFunctionBuilder(IMutableDbFunction function)
-            : base(function)
-        {
-        }
-
         public new abstract TestTableValuedFunctionBuilder<TEntity> HasName(string name);
 
         public new abstract TestTableValuedFunctionBuilder<TEntity> HasSchema(string? schema);

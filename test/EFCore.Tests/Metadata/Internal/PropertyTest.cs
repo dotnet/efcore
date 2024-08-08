@@ -419,13 +419,7 @@ public class PropertyTest
 
     private class NonDerivedValueComparer;
 
-    private abstract class AbstractValueComparer : ValueComparer<string>
-    {
-        public AbstractValueComparer()
-            : base(false)
-        {
-        }
-    }
+    private abstract class AbstractValueComparer() : ValueComparer<string>(false);
 
     private class StaticValueComparer : ValueComparer<string>
     {

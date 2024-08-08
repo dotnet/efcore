@@ -5,14 +5,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
+public abstract class GraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) : GraphUpdatesTestBase<TFixture>(fixture)
     where TFixture : GraphUpdatesSqlServerTestBase<TFixture>.GraphUpdatesSqlServerFixtureBase, new()
 {
-    protected GraphUpdatesSqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact] // Issue #32638
     public virtual void Key_and_index_properties_use_appropriate_comparer()
     {

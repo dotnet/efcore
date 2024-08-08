@@ -689,29 +689,12 @@ namespace TestNamespace
     protected virtual int ExpectedComplexTypeProperties
         => 14;
 
-    public class CustomValueComparer<T> : ValueComparer<T>
-    {
-        public CustomValueComparer()
-            : base(false)
-        {
-        }
-    }
+    public class CustomValueComparer<T>() : ValueComparer<T>(false);
 
-    public class ManyTypesIdConverter : ValueConverter<ManyTypesId, int>
-    {
-        public ManyTypesIdConverter()
-            : base(v => v.Id, v => new ManyTypesId(v))
-        {
-        }
-    }
+    public class ManyTypesIdConverter() : ValueConverter<ManyTypesId, int>(v => v.Id, v => new ManyTypesId(v));
 
-    public class NullIntToNullStringConverter : ValueConverter<int?, string?>
-    {
-        public NullIntToNullStringConverter()
-            : base(v => v == null ? null : v.ToString()!, v => v == null || v == "<null>" ? null : int.Parse(v), convertsNulls: true)
-        {
-        }
-    }
+    public class NullIntToNullStringConverter() : ValueConverter<int?, string?>(
+        v => v == null ? null : v.ToString()!, v => v == null || v == "<null>" ? null : int.Parse(v), convertsNulls: true);
 
     public abstract class AbstractBase
     {
@@ -1150,15 +1133,9 @@ namespace TestNamespace
         public PrincipalDerived<DependentBase<TKey>>? Principal { get; set; }
     }
 
-    public class DependentDerived<TKey> : DependentBase<TKey>
+    public class DependentDerived<TKey>(TKey id, string data) : DependentBase<TKey>(id)
     {
-        public DependentDerived(TKey id, string data)
-            : base(id)
-        {
-            Data = data;
-        }
-
-        private string? Data { get; set; }
+        private string? Data { get; set; } = data;
 
         public string? GetData()
             => Data;

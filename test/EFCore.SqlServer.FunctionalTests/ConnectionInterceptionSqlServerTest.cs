@@ -6,13 +6,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterceptionTestBase
+public abstract class ConnectionInterceptionSqlServerTestBase(
+    ConnectionInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : ConnectionInterceptionTestBase(fixture)
 {
-    protected ConnectionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
     {
         protected override string StoreName

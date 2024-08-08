@@ -1536,14 +1536,9 @@ public class ShadowFkFixupTest
 
     private class CategoryPN
     {
-        public CategoryPN()
-        {
-            Products = new List<ProductPN>();
-        }
-
         public int Id { get; set; }
 
-        public ICollection<ProductPN> Products { get; }
+        public ICollection<ProductPN> Products { get; } = new List<ProductPN>();
     }
 
     private class ProductPN
@@ -1563,29 +1558,19 @@ public class ShadowFkFixupTest
 
     private class Category
     {
-        public Category()
-        {
-            Products = new List<Product>();
-        }
-
         public int Id { get; set; }
 
-        public ICollection<Product> Products { get; }
+        public ICollection<Product> Products { get; } = new List<Product>();
     }
 
     private class Product
     {
-        public Product()
-        {
-            SpecialOffers = new List<SpecialOffer>();
-        }
-
         public int Id { get; set; }
 
         public Category Category { get; set; }
 
         // ReSharper disable once CollectionNeverUpdated.Local
-        public ICollection<SpecialOffer> SpecialOffers { get; }
+        public ICollection<SpecialOffer> SpecialOffers { get; } = new List<SpecialOffer>();
     }
 
     private class SpecialOffer

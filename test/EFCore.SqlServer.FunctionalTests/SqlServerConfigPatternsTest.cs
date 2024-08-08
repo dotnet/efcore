@@ -764,13 +764,9 @@ public class SqlServerConfigPatternsTest
             Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
             public DbSet<Customer> Customers { get; set; }
-
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            { }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => ConfigureModel(modelBuilder);

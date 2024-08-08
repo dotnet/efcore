@@ -5,15 +5,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class ProxyGraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
 {
-    protected ProxyGraphUpdatesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected abstract bool DoesLazyLoading { get; }
     protected abstract bool DoesChangeTracking { get; }

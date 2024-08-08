@@ -8,7 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-public abstract class MigrationsSqlGeneratorTestBase
+public abstract class MigrationsSqlGeneratorTestBase(
+    TestHelpers testHelpers,
+    IServiceCollection customServices = null,
+    DbContextOptions options = null)
 {
     protected static string EOL
         => Environment.NewLine;
@@ -750,19 +753,9 @@ public abstract class MigrationsSqlGeneratorTestBase
                 pb.HasKey("FirstName", "LastName");
             });
 
-    protected TestHelpers TestHelpers { get; }
-    protected DbContextOptions ContextOptions { get; }
-    protected IServiceCollection CustomServices { get; }
-
-    protected MigrationsSqlGeneratorTestBase(
-        TestHelpers testHelpers,
-        IServiceCollection customServices = null,
-        DbContextOptions options = null)
-    {
-        TestHelpers = testHelpers;
-        CustomServices = customServices;
-        ContextOptions = options;
-    }
+    protected TestHelpers TestHelpers { get; } = testHelpers;
+    protected DbContextOptions ContextOptions { get; } = options;
+    protected IServiceCollection CustomServices { get; } = customServices;
 
     protected virtual void Generate(MigrationOperation operation, MigrationsSqlGenerationOptions options)
         => Generate(null, [operation], options);

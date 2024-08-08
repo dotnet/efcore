@@ -14,15 +14,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class WithConstructorsTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : WithConstructorsTestBase<TFixture>.WithConstructorsFixtureBase, new()
 {
-    protected WithConstructorsTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected DbContext CreateContext()
         => Fixture.CreateContext();

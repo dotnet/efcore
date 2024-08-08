@@ -9,13 +9,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class ManyToManyTestBase : ModelBuilderTestBase
+    public abstract class ManyToManyTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        protected ManyToManyTestBase(ModelBuilderFixtureBase fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Discovers_navigations()
         {

@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class DataAnnotationRelationalTestBase<TFixture> : DataAnnotationTestBase<TFixture>
+public abstract class DataAnnotationRelationalTestBase<TFixture>(TFixture fixture) : DataAnnotationTestBase<TFixture>(fixture)
     where TFixture : DataAnnotationRelationalTestBase<TFixture>.DataAnnotationRelationalFixtureBase, new()
 {
-    protected DataAnnotationRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual void ForeignKey_to_ForeignKey_on_many_to_many()
     {

@@ -632,17 +632,11 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.Equal(["Branston"], commandBuilder.Parameters);
     }
 
-    private class ThudContext : DbContext
-    {
-        public ThudContext()
-            : base(
-                FakeRelationalTestHelpers.Instance.CreateOptions(
-                    FakeRelationalTestHelpers.Instance.CreateServiceProvider(
-                        new ServiceCollection()
-                            .AddScoped<IRawSqlCommandBuilder, TestRawSqlCommandBuilder>())))
-        {
-        }
-    }
+    private class ThudContext() : DbContext(
+        FakeRelationalTestHelpers.Instance.CreateOptions(
+            FakeRelationalTestHelpers.Instance.CreateServiceProvider(
+                new ServiceCollection()
+                    .AddScoped<IRawSqlCommandBuilder, TestRawSqlCommandBuilder>())));
 
     private class TestRawSqlCommandBuilder(
         IRelationalCommandBuilderFactory relationalCommandBuilderFactory) : IRawSqlCommandBuilder

@@ -573,31 +573,24 @@ internal class CommandLineApplication(bool throwOnUnexpectedArg = true)
         return File.ReadLines(fileName);
     }
 
-    private sealed class CommandArgumentEnumerator : IEnumerator<CommandArgument>
+    private sealed class CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator) : IEnumerator<CommandArgument>
     {
-        private readonly IEnumerator<CommandArgument> _enumerator;
-
-        public CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator)
-        {
-            _enumerator = enumerator;
-        }
-
         public CommandArgument Current
-            => _enumerator.Current;
+            => enumerator.Current;
 
         object IEnumerator.Current
             => Current;
 
         public void Dispose()
-            => _enumerator.Dispose();
+            => enumerator.Dispose();
 
         public bool MoveNext()
             // If current argument allows multiple values, we don't move forward and
             // all later values will be added to current CommandArgument.Values
             => Current?.MultipleValues == true
-                || _enumerator.MoveNext();
+                || enumerator.MoveNext();
 
         public void Reset()
-            => _enumerator.Reset();
+            => enumerator.Reset();
     }
 }

@@ -8,15 +8,10 @@ using System.Globalization;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class PropertyValuesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : PropertyValuesTestBase<TFixture>.PropertyValuesFixtureBase, new()
 {
-    protected PropertyValuesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()

@@ -104,16 +104,11 @@ public class RelationalCommandCache : IPrintableExpression
         }
     }
 
-    private readonly struct CommandCacheKey : IEquatable<CommandCacheKey>
+    private readonly struct CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues)
+        : IEquatable<CommandCacheKey>
     {
-        private readonly Expression _queryExpression;
-        private readonly IReadOnlyDictionary<string, object?> _parameterValues;
-
-        public CommandCacheKey(Expression queryExpression, IReadOnlyDictionary<string, object?> parameterValues)
-        {
-            _queryExpression = queryExpression;
-            _parameterValues = parameterValues;
-        }
+        private readonly Expression _queryExpression = queryExpression;
+        private readonly IReadOnlyDictionary<string, object?> _parameterValues = parameterValues;
 
         public override bool Equals(object? obj)
             => obj is CommandCacheKey commandCacheKey

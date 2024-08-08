@@ -40,12 +40,6 @@ public class RelationalGeometryTypeMappingTest
         protected override int GetSrid(object value)
             => throw new NotImplementedException();
 
-        private class NullValueConverter : ValueConverter<TGeometry, TGeometry>
-        {
-            public NullValueConverter()
-                : base(t => t, t => t)
-            {
-            }
-        }
+        private class NullValueConverter() : ValueConverter<TGeometry, TGeometry>(t => t, t => t);
     }
 }

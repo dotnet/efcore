@@ -41,18 +41,13 @@ public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCa
             GenerateCacheKeyCore(query, async),
             _sqlServerConnection.IsMultipleActiveResultSetsEnabled);
 
-    private readonly struct SqlServerCompiledQueryCacheKey : IEquatable<SqlServerCompiledQueryCacheKey>
+    private readonly struct SqlServerCompiledQueryCacheKey(
+        RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
+        bool multipleActiveResultSetsEnabled)
+        : IEquatable<SqlServerCompiledQueryCacheKey>
     {
-        private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey;
-        private readonly bool _multipleActiveResultSetsEnabled;
-
-        public SqlServerCompiledQueryCacheKey(
-            RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
-            bool multipleActiveResultSetsEnabled)
-        {
-            _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
-            _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
-        }
+        private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
+        private readonly bool _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
 
         public override bool Equals(object? obj)
             => obj is SqlServerCompiledQueryCacheKey sqlServerCompiledQueryCacheKey

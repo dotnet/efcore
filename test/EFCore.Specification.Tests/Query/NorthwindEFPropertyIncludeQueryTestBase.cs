@@ -7,15 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
+public abstract class NorthwindEFPropertyIncludeQueryTestBase<TFixture>(TFixture fixture) : NorthwindIncludeQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
-
-    protected NorthwindEFPropertyIncludeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

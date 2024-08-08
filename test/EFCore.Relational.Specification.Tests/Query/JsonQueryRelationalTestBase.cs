@@ -4,14 +4,9 @@
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
-public abstract class JsonQueryRelationalTestBase<TFixture> : JsonQueryTestBase<TFixture>
+public abstract class JsonQueryRelationalTestBase<TFixture>(TFixture fixture) : JsonQueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryRelationalFixture, new()
 {
-    protected JsonQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public override async Task Project_json_reference_in_tracking_query_fails(bool async)

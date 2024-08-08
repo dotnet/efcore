@@ -5,10 +5,4 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SqliteServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTestBase
-{
-    public SqliteServiceCollectionExtensionsTest()
-        : base(SqliteTestHelpers.Instance)
-    {
-    }
-}
+public class SqliteServiceCollectionExtensionsTest() : RelationalServiceCollectionExtensionsTestBase(SqliteTestHelpers.Instance);

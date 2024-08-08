@@ -5,14 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
-    internal sealed class IDictionaryDebugView<TKey, TValue>
+    internal sealed class IDictionaryDebugView<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
     {
-        private readonly IDictionary<TKey, TValue> _dict;
-
-        public IDictionaryDebugView(IDictionary<TKey, TValue> dictionary)
-        {
-            _dict = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
-        }
+        private readonly IDictionary<TKey, TValue> _dict = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         public KeyValuePair<TKey, TValue>[] Items
@@ -26,14 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
     }
 
-    internal sealed class DictionaryKeyCollectionDebugView<TKey, TValue>
+    internal sealed class DictionaryKeyCollectionDebugView<TKey, TValue>(ICollection<TKey> collection)
     {
-        private readonly ICollection<TKey> _collection;
-
-        public DictionaryKeyCollectionDebugView(ICollection<TKey> collection)
-        {
-            _collection = collection ?? throw new ArgumentNullException(nameof(collection));
-        }
+        private readonly ICollection<TKey> _collection = collection ?? throw new ArgumentNullException(nameof(collection));
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         public TKey[] Items
@@ -47,14 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
     }
 
-    internal sealed class DictionaryValueCollectionDebugView<TKey, TValue>
+    internal sealed class DictionaryValueCollectionDebugView<TKey, TValue>(ICollection<TValue> collection)
     {
-        private readonly ICollection<TValue> _collection;
-
-        public DictionaryValueCollectionDebugView(ICollection<TValue> collection)
-        {
-            _collection = collection ?? throw new ArgumentNullException(nameof(collection));
-        }
+        private readonly ICollection<TValue> _collection = collection ?? throw new ArgumentNullException(nameof(collection));
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         public TValue[] Items

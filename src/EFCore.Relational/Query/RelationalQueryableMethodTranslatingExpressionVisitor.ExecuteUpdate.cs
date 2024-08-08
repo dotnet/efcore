@@ -579,17 +579,12 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseValue);
     }
 
-    private sealed class ParameterBasedComplexPropertyChainExpression : Expression
+    private sealed class ParameterBasedComplexPropertyChainExpression(
+        SqlParameterExpression parameterExpression,
+        IComplexProperty firstComplexProperty)
+        : Expression
     {
-        public ParameterBasedComplexPropertyChainExpression(
-            SqlParameterExpression parameterExpression,
-            IComplexProperty firstComplexProperty)
-        {
-            ParameterExpression = parameterExpression;
-            ComplexPropertyChain = new List<IComplexProperty> { firstComplexProperty };
-        }
-
-        public SqlParameterExpression ParameterExpression { get; }
-        public List<IComplexProperty> ComplexPropertyChain { get; }
+        public SqlParameterExpression ParameterExpression { get; } = parameterExpression;
+        public List<IComplexProperty> ComplexPropertyChain { get; } = new() { firstComplexProperty };
     }
 }

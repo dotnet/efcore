@@ -2106,12 +2106,6 @@ public abstract partial class ModelBuilderTest
             public override ValueGenerator Create(IProperty property, ITypeBase entityType)
                 => new CustomValueGenerator();
         }
-        private class CustomValueComparer<T> : ValueComparer<T>
-        {
-            public CustomValueComparer()
-                : base(false)
-            {
-            }
-        }
+        private class CustomValueComparer<T>() : ValueComparer<T>(false);
     }
 }

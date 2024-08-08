@@ -5,14 +5,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindSetOperationsQueryRelationalTestBase<TFixture> : NorthwindSetOperationsQueryTestBase<TFixture>
+public abstract class NorthwindSetOperationsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindSetOperationsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindSetOperationsQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Collection_projection_after_set_operation_fails_if_distinct(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(

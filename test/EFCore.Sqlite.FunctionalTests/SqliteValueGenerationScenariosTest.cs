@@ -619,15 +619,8 @@ public class SqliteValueGenerationScenariosTest
         public byte[] Timestamp { get; set; }
     }
 
-    public abstract class ContextBase : DbContext
+    public abstract class ContextBase(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        protected ContextBase(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
-
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
         public DbSet<FullNameBlog> FullNameBlogs { get; set; }
@@ -649,6 +642,6 @@ public class SqliteValueGenerationScenariosTest
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .EnableServiceProviderCaching(false)
-                .UseSqlite($"DataSource = {_databaseName}.db");
+                .UseSqlite($"DataSource = {databaseName}.db");
     }
 }

@@ -5,13 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class FindSqliteTest : FindTestBase<FindSqliteTest.FindSqliteFixture>
+public abstract class FindSqliteTest(FindSqliteTest.FindSqliteFixture fixture) : FindTestBase<FindSqliteTest.FindSqliteFixture>(fixture)
 {
-    protected FindSqliteTest(FindSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class FindSqliteTestSet(FindSqliteFixture fixture) : FindSqliteTest(fixture)
     {
         protected override TestFinder Finder { get; } = new FindViaSetFinder();

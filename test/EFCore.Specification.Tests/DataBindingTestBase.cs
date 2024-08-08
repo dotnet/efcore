@@ -10,15 +10,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class DataBindingTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class DataBindingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : F1FixtureBase<byte[]>, new()
 {
-    protected DataBindingTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     protected const int TotalCount = 40;
 

@@ -14,15 +14,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+public abstract partial class GraphUpdatesTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
-    protected GraphUpdatesTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     public abstract class GraphUpdatesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {

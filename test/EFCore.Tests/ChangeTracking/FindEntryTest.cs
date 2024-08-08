@@ -2279,12 +2279,7 @@ public class FindEntryTest
 
     private class FindContext : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public FindContext()
-        {
-            _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-        }
+        private readonly IServiceProvider _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -2408,12 +2403,7 @@ public class FindEntryTest
 
     private class FindContextShared : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public FindContextShared()
-        {
-            _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-        }
+        private readonly IServiceProvider _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
