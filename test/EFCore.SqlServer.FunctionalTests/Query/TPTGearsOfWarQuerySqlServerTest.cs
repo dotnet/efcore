@@ -8556,7 +8556,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] <> @__prm_0
+WHERE [g].[HasSoulPatch] = ~@__prm_0
 """,
             //
             """
@@ -8567,7 +8567,7 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] <> @__prm_0
+WHERE [g].[HasSoulPatch] = ~@__prm_0
 """);
     }
 
@@ -10459,7 +10459,7 @@ FROM [Gears] AS [g]
 LEFT JOIN (
     SELECT [w].[Id], [w].[OwnerFullName]
     FROM [Weapons] AS [w]
-    WHERE [w].[IsAutomatic] <> @__isAutomatic_0
+    WHERE [w].[IsAutomatic] = ~@__isAutomatic_0
 ) AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
 """);
     }
