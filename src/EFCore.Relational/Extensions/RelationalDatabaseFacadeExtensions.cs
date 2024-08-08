@@ -126,10 +126,6 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="seed">
     ///     The optional seed method to run after migrating the database. It will be invoked even if no migrations were applied.
     /// </param>
-    /// <param name="lockTimeout">
-    ///     The maximum amount of time that the migration lock should be held. Unless a catastrophic failure occurs, the
-    ///     lock is released when the migration operation completes.
-    /// </param>
     /// <remarks>
     ///     <para>
     ///         Note that this API is mutually exclusive with <see cref="DatabaseFacade.EnsureCreated" />. EnsureCreated does not use migrations
@@ -146,9 +142,8 @@ public static class RelationalDatabaseFacadeExtensions
     public static void Migrate(
         this DatabaseFacade databaseFacade,
         Action<DbContext, IMigratorData>? seed,
-        string? targetMigration = null,
-        TimeSpan? lockTimeout = null)
-        => databaseFacade.GetRelationalService<IMigrator>().Migrate(seed, targetMigration, lockTimeout);
+        string? targetMigration = null)
+        => databaseFacade.GetRelationalService<IMigrator>().Migrate(seed, targetMigration);
 
     /// <summary>
     ///     Asynchronously applies any pending migrations for the context to the database. Will create the database
@@ -187,10 +182,6 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="seed">
     ///     The optional seed method to run after migrating the database. It will be invoked even if no migrations were applied.
     /// </param>
-    /// <param name="lockTimeout">
-    ///     The maximum amount of time that the migration lock should be held. Unless a catastrophic failure occurs, the
-    ///     lock is released when the migration operation completes.
-    /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <remarks>
     ///     <para>
@@ -211,9 +202,8 @@ public static class RelationalDatabaseFacadeExtensions
         this DatabaseFacade databaseFacade,
         Func<DbContext, IMigratorData, CancellationToken, Task>? seed,
         string? targetMigration = null,
-        TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default)
-        => databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(seed, targetMigration, lockTimeout, cancellationToken);
+        => databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(seed, targetMigration, cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.

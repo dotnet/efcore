@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

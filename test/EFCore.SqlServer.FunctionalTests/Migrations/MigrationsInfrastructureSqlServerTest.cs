@@ -6,7 +6,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 #nullable disable
 
@@ -1012,10 +1011,8 @@ END;
 
 SELECT 1
 
-@LockTimeout='?' (DbType = Double)
-
 DECLARE @result int;
-EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
@@ -1107,10 +1104,8 @@ END;
 
 SELECT 1
 
-@LockTimeout='?' (DbType = Double)
-
 DECLARE @result int;
-EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 
 SELECT OBJECT_ID(N'[__EFMigrationsHistory]');

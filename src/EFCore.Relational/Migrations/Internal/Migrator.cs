@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -30,7 +30,6 @@ public class Migrator : IMigrator
     private readonly IMigrationsModelDiffer _migrationsModelDiffer;
     private readonly IDesignTimeModel _designTimeModel;
     private readonly string _activeProvider;
-    private static readonly TimeSpan _defaultLockTimeout = TimeSpan.FromHours(1);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -80,7 +79,7 @@ public class Migrator : IMigrator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Migrate(Action<DbContext, IMigratorData>? seed, string? targetMigration, TimeSpan? lockTimeout)
+    public virtual void Migrate(Action<DbContext, IMigratorData>? seed, string? targetMigration)
     {
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
@@ -94,12 +93,12 @@ public class Migrator : IMigrator
         {
             _databaseCreator.Create();
         }
-
         try
         {
             _connection.Open();
 
-            using var _ = _historyRepository.GetDatabaseLock(lockTimeout ?? _defaultLockTimeout);
+            _logger.MigrationLockCreating();
+            using var _ = _historyRepository.GetDatabaseLock();
 
             if (!_historyRepository.Exists())
             {
@@ -149,7 +148,6 @@ public class Migrator : IMigrator
     public virtual async Task MigrateAsync(
         Func<DbContext, IMigratorData, CancellationToken, Task>? seed,
         string? targetMigration,
-        TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default)
     {
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
@@ -169,7 +167,8 @@ public class Migrator : IMigrator
         {
             await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-            var dbLock = await _historyRepository.GetDatabaseLockAsync(lockTimeout ?? _defaultLockTimeout, cancellationToken).ConfigureAwait(false);
+            _logger.MigrationLockCreating();
+            var dbLock = await _historyRepository.GetDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = dbLock.ConfigureAwait(false);
 
             if (!await _historyRepository.ExistsAsync(cancellationToken).ConfigureAwait(false))

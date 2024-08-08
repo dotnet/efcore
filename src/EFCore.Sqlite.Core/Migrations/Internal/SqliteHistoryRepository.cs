@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
@@ -103,7 +102,7 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IDisposable GetDatabaseLock(TimeSpan timeout)
+    public override IDisposable GetDatabaseLock()
     {
         if (!InterpretExistsResult(Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
             .ExecuteScalar(CreateRelationalCommandParameters())))
@@ -112,8 +111,7 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
         }
 
         var retryDelay = _retryDelay;
-        var startTime = DateTimeOffset.UtcNow;
-        while (DateTimeOffset.UtcNow - startTime < timeout)
+        while (true)
         {
             var dbLock = CreateMigrationDatabaseLock();
             var insertCount = CreateInsertLockCommand(DateTimeOffset.UtcNow)
@@ -121,17 +119,6 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
             if ((long)insertCount! == 1)
             {
                 return dbLock;
-            }
-
-            using var reader = CreateGetLockCommand().ExecuteReader(CreateRelationalCommandParameters());
-            if (reader.Read())
-            {
-                var timestamp = reader.DbDataReader.GetFieldValue<DateTimeOffset>(1);
-                if (DateTimeOffset.UtcNow - timestamp > timeout)
-                {
-                    var id = reader.DbDataReader.GetFieldValue<int>(0);
-                    CreateDeleteLockCommand(id).ExecuteNonQuery(CreateRelationalCommandParameters());
-                }
             }
 
             Thread.Sleep(retryDelay);
@@ -150,7 +137,7 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
     {
         if (!InterpretExistsResult(await Dependencies.RawSqlCommandBuilder.Build(CreateExistsSql(LockTableName))
             .ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken).ConfigureAwait(false)))
@@ -159,8 +146,7 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
         }
 
         var retryDelay = _retryDelay;
-        var startTime = DateTimeOffset.UtcNow;
-        while (DateTimeOffset.UtcNow - startTime < timeout)
+        while (true)
         {
             var dbLock = CreateMigrationDatabaseLock();
             var insertCount = await CreateInsertLockCommand(DateTimeOffset.UtcNow)
@@ -169,19 +155,6 @@ SELECT COUNT(*) FROM "sqlite_master" WHERE "name" = {stringTypeMapping.GenerateS
             if ((long)insertCount! == 1)
             {
                 return dbLock;
-            }
-
-            using var reader = await CreateGetLockCommand().ExecuteReaderAsync(CreateRelationalCommandParameters(), cancellationToken)
-                .ConfigureAwait(false);
-            if (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
-            {
-                var timestamp = await reader.DbDataReader.GetFieldValueAsync<DateTimeOffset>(1).ConfigureAwait(false);
-                if (DateTimeOffset.UtcNow - timestamp > timeout)
-                {
-                    var id = await reader.DbDataReader.GetFieldValueAsync<int>(0).ConfigureAwait(false);
-                    await CreateDeleteLockCommand(id).ExecuteNonQueryAsync(CreateRelationalCommandParameters(), cancellationToken)
-                        .ConfigureAwait(false);
-                }
             }
 
             await Task.Delay(_retryDelay, cancellationToken).ConfigureAwait(true);
@@ -211,11 +184,6 @@ INSERT OR IGNORE INTO "{LockTableName}"("Id", "Timestamp") VALUES(1, {timestampL
 SELECT changes();
 """);
     }
-
-    private IRelationalCommand CreateGetLockCommand()
-        => Dependencies.RawSqlCommandBuilder.Build($"""
-SELECT "Id", "Timestamp" FROM "{LockTableName}" LIMIT 1;
-""");
 
     private IRelationalCommand CreateDeleteLockCommand(int? id = null)
     {

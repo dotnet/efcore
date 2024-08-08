@@ -2100,7 +2100,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(
@@ -2920,6 +2920,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             RelationalEventId.CreatedTransactionSavepoint,
                             _resourceManager.GetString("LogCreatedTransactionSavepoint")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations for more information if this takes too long.
+        /// </summary>
+        public static EventDefinition LogCreatingMigrationLock(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCreatingMigrationLock;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCreatingMigrationLock,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        RelationalEventId.MigrationLockCreating,
+                        LogLevel.Information,
+                        "RelationalEventId.MigrationLockCreating",
+                        level => LoggerMessage.Define(
+                            level,
+                            RelationalEventId.MigrationLockCreating,
+                            _resourceManager.GetString("LogCreatingMigrationLock")!)));
             }
 
             return (EventDefinition)definition;
