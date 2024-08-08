@@ -128,10 +128,7 @@ FROM "PointEntity" AS "p"
 
         AssertSql(
             """
-SELECT "p"."Id", CASE
-    WHEN "p"."Point" IS NULL THEN NULL
-    ELSE AsBinary("p"."Point")
-END AS "Binary"
+SELECT "p"."Id", AsBinary("p"."Point") AS "Binary"
 FROM "PointEntity" AS "p"
 """);
     }
