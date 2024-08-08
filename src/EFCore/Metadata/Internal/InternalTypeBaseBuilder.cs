@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, InternalModelBuilder>,
     IConventionTypeBaseBuilder
 {
+    private static readonly bool UseOldBehavior34201 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue34201", out var enabled34201) && enabled34201;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -204,6 +207,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 || (memberInfo is PropertyInfo propertyInfo && propertyInfo.IsIndexerProperty()))
             {
                 if (existingProperty.GetTypeConfigurationSource() is ConfigurationSource existingTypeConfigurationSource
+                    && (typeConfigurationSource != null || UseOldBehavior34201)
                     && !typeConfigurationSource.Overrides(existingTypeConfigurationSource))
                 {
                     return null;
