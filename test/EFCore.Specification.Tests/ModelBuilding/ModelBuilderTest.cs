@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class ModelBuilderTestBase
+    public abstract class ModelBuilderTestBase(ModelBuilderFixtureBase fixture)
     {
-        protected ModelBuilderTestBase(ModelBuilderFixtureBase fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected virtual ModelBuilderFixtureBase Fixture { get; }
+        protected virtual ModelBuilderFixtureBase Fixture { get; } = fixture;
 
         protected abstract TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null);
 

@@ -6,17 +6,12 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
+public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>(TFixture fixture)
     : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContextInt, CustomUserInt, CustomRoleInt, int, CustomUserClaimInt,
-        CustomUserRoleInt, CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>
+        CustomUserRoleInt, CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>(fixture)
     where TFixture : AspNetIdentityTestBase<TFixture, CustomTypesIdentityContextInt, CustomUserInt, CustomRoleInt, int, CustomUserClaimInt,
         CustomUserRoleInt, CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>.AspNetIdentityFixtureBase
 {
-    protected AspNetIdentityCustomTypesIntKeyTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public async Task Can_use_navigation_properties_on_User()
     {

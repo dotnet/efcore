@@ -96,22 +96,13 @@ public class SqliteTransactionTest
         }
     }
 
-    private class FakeCommand : SqliteCommand
+    private class FakeCommand(FakeConnection connection, SqliteCommand realCommand) : SqliteCommand
     {
-        private readonly FakeConnection _connection;
-        private readonly SqliteCommand _realCommand;
-
-        public FakeCommand(FakeConnection connection, SqliteCommand realCommand)
-        {
-            _connection = connection;
-            _realCommand = realCommand;
-        }
-
         public override int ExecuteNonQuery()
         {
-            var result = _realCommand.ExecuteNonQuery();
+            var result = realCommand.ExecuteNonQuery();
 
-            if (_connection.SimulateFailureOnRollback && CommandText.Contains("ROLLBACK"))
+            if (connection.SimulateFailureOnRollback && CommandText.Contains("ROLLBACK"))
             {
                 throw new SqliteException("Simulated failure", 1);
             }
@@ -120,25 +111,25 @@ public class SqliteTransactionTest
         }
 
         [AllowNull]
-        public override string CommandText { get => _realCommand.CommandText; set => _realCommand.CommandText = value; }
-        public override int CommandTimeout { get => _realCommand.CommandTimeout; set => _realCommand.CommandTimeout = value; }
-        public override CommandType CommandType { get => _realCommand.CommandType; set => _realCommand.CommandType = value; }
-        public override bool DesignTimeVisible { get => _realCommand.DesignTimeVisible; set => _realCommand.DesignTimeVisible = value; }
+        public override string CommandText { get => realCommand.CommandText; set => realCommand.CommandText = value; }
+        public override int CommandTimeout { get => realCommand.CommandTimeout; set => realCommand.CommandTimeout = value; }
+        public override CommandType CommandType { get => realCommand.CommandType; set => realCommand.CommandType = value; }
+        public override bool DesignTimeVisible { get => realCommand.DesignTimeVisible; set => realCommand.DesignTimeVisible = value; }
 
         public override UpdateRowSource UpdatedRowSource
         {
-            get => _realCommand.UpdatedRowSource;
-            set => _realCommand.UpdatedRowSource = value;
+            get => realCommand.UpdatedRowSource;
+            set => realCommand.UpdatedRowSource = value;
         }
 
         public override void Cancel()
-            => _realCommand.Cancel();
+            => realCommand.Cancel();
 
         public override object? ExecuteScalar()
-            => _realCommand.ExecuteScalar();
+            => realCommand.ExecuteScalar();
 
         public override void Prepare()
-            => _realCommand.Prepare();
+            => realCommand.Prepare();
     }
 
     private class FakeConnection(string connectionString) : SqliteConnection(connectionString)

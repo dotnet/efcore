@@ -1744,17 +1744,8 @@ END");
                     v => new NeedsConverter(v.Value)))
             .HasDefaultValue(new NeedsConverter(999));
 
-    public abstract class ContextBase : DbContext
+    public abstract class ContextBase(string databaseName, Action<ModelBuilder> builder) : DbContext
     {
-        private readonly string _databaseName;
-        private readonly Action<ModelBuilder> _modelBuilder;
-
-        protected ContextBase(string databaseName, Action<ModelBuilder> modelBuilder)
-        {
-            _databaseName = databaseName;
-            _modelBuilder = modelBuilder;
-        }
-
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogWithSpatial> SpatialBlogs { get; set; }
         public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
@@ -1763,13 +1754,13 @@ END");
         public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => _modelBuilder(modelBuilder);
+            => builder(modelBuilder);
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .EnableServiceProviderCaching(false)
                 .UseSqlServer(
-                    SqlServerTestStore.CreateConnectionString(_databaseName),
+                    SqlServerTestStore.CreateConnectionString(databaseName),
                     b => b.UseNetTopologySuite().ApplyConfiguration());
     }
 

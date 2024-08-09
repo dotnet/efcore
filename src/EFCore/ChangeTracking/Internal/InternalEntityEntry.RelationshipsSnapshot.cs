@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 public sealed partial class InternalEntityEntry
 {
-    private readonly struct RelationshipsSnapshot
+    private readonly struct RelationshipsSnapshot(InternalEntityEntry entry)
     {
-        private readonly ISnapshot _values;
-
-        public RelationshipsSnapshot(InternalEntityEntry entry)
-        {
-            _values = entry.EntityType.RelationshipSnapshotFactory(entry);
-        }
+        private readonly ISnapshot _values = entry.EntityType.RelationshipSnapshotFactory(entry);
 
         public object? GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
             => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];

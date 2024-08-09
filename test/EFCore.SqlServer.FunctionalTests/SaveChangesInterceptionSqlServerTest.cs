@@ -7,13 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInterceptionTestBase
+public abstract class SaveChangesInterceptionSqlServerTestBase(
+    SaveChangesInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : SaveChangesInterceptionTestBase(fixture)
 {
-    protected SaveChangesInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(false, false, false)]
     [InlineData(true, false, false)]

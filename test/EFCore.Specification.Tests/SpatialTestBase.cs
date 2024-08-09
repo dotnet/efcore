@@ -8,15 +8,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class SpatialTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class SpatialTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : SpatialFixtureBase, new()
 {
-    protected SpatialTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void Values_are_copied_into_change_tracker()

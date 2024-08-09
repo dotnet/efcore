@@ -7,15 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class IncludeOneToOneTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
 {
-    protected IncludeOneToOneTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    public TFixture Fixture { get; }
+    public TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual void Include_address()

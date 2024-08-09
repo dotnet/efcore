@@ -679,15 +679,10 @@ OFFSET 0 LIMIT 1
 
     public class CosmosFixture : ServiceProviderFixtureBase, IAsyncLifetime
     {
-        public CosmosFixture()
-        {
-            TestStore = CosmosTestStore.Create(DatabaseName);
-        }
-
         protected override ITestStoreFactory TestStoreFactory
             => CosmosTestStoreFactory.Instance;
 
-        public virtual CosmosTestStore TestStore { get; }
+        public virtual CosmosTestStore TestStore { get; } = CosmosTestStore.Create(DatabaseName);
 
         public async Task<EmbeddedTransportationContextOptions> CreateOptions(
             Action<ModelBuilder> onModelCreating = null,

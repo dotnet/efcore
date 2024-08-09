@@ -3,14 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
+public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture>(TFixture fixture)
+    : ComplexNavigationsQueryTestBase<TFixture>(fixture)
     where TFixture : ComplexNavigationsSharedTypeQueryFixtureBase, new()
 {
-    protected ComplexNavigationsSharedTypeQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Join_navigation_self_ref(bool async)
         => AssertTranslationFailed(() => base.Join_navigation_self_ref(async));
 

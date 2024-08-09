@@ -7,14 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixture> : NorthwindAggregateOperatorsQueryTestBase<TFixture>
+public abstract class NorthwindAggregateOperatorsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindAggregateOperatorsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    protected NorthwindAggregateOperatorsQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Last_when_no_order_by(bool async)
         => Assert.Equal(
             RelationalStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),

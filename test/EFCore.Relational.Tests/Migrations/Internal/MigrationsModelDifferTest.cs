@@ -9811,12 +9811,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
 
     protected class ApplicationUser
     {
-        private readonly SomeOwnedEntity _ownedEntity;
-
-        public ApplicationUser()
-        {
-            _ownedEntity = null!;
-        }
+        private readonly SomeOwnedEntity _ownedEntity = null!;
 
         public virtual long Id { get; set; }
 
@@ -10060,13 +10055,8 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             upOps => Assert.Empty(upOps),
             downOps => Assert.Empty(downOps));
 
-    private class RightmostValueComparer : ValueComparer<byte[]>
+    private class RightmostValueComparer() : ValueComparer<byte[]>(false)
     {
-        public RightmostValueComparer()
-            : base(false)
-        {
-        }
-
         public override bool Equals(byte[] left, byte[] right)
             => object.Equals(left[^1], right[^1]);
     }

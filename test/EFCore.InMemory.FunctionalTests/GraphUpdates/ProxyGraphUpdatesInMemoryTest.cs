@@ -6,14 +6,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ProxyGraphUpdatesInMemoryTest
 {
-    public abstract class ProxyGraphUpdatesInMemoryTestBase<TFixture> : ProxyGraphUpdatesTestBase<TFixture>
+    public abstract class ProxyGraphUpdatesInMemoryTestBase<TFixture>(TFixture fixture) : ProxyGraphUpdatesTestBase<TFixture>(fixture)
         where TFixture : ProxyGraphUpdatesInMemoryTestBase<TFixture>.ProxyGraphUpdatesInMemoryFixtureBase, new()
     {
-        protected ProxyGraphUpdatesInMemoryTestBase(TFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
         public override Task Optional_one_to_one_relationships_are_one_to_one()
             => base.Optional_one_to_one_relationships_are_one_to_one();

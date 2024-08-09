@@ -47,13 +47,8 @@ public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTe
         public string Value { get; set; } = value;
     }
 
-    public abstract class LibraryContext : PoolableDbContext
+    public abstract class LibraryContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        protected LibraryContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Book>(

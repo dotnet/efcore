@@ -10,14 +10,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ApiConsistencyTestBase<TFixture>.ApiConsistencyFixtureBase, new()
 {
-    protected ApiConsistencyTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     protected const BindingFlags PublicInstance
         = BindingFlags.Instance | BindingFlags.Public;
 
@@ -35,7 +30,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             && firstParam.Name == "original"
             && firstParam.ParameterType == method.DeclaringType;
 
-    protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Fluent_api_methods_should_not_return_void()

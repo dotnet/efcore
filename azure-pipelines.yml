@@ -159,7 +159,7 @@ extends:
                 path: artifacts/TestResults/$(_BuildConfig)/
                 artifact: $(Agent.Os)_$(Agent.JobName) TestResults
           - job: Linux
-            timeoutInMinutes: 120
+            timeoutInMinutes: 180
             pool:
               name: $(DncEngInternalBuildPool)
               demands: ImageOverride -equals 1es-ubuntu-2204

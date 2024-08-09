@@ -6,19 +6,14 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class AspNetIdentityIntKeyTestBase<TFixture>
+public abstract class AspNetIdentityIntKeyTestBase<TFixture>(TFixture fixture)
     : AspNetIdentityTestBase<TFixture, IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>,
         IdentityUser<int>, IdentityRole<int>, int, IdentityUserClaim<int>, IdentityUserRole<int>, IdentityUserLogin<int>,
-        IdentityRoleClaim<int>, IdentityUserToken<int>>
+        IdentityRoleClaim<int>, IdentityUserToken<int>>(fixture)
     where TFixture : AspNetIdentityTestBase<TFixture, IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>, IdentityUser<int>,
         IdentityRole<int>, int, IdentityUserClaim<int>, IdentityUserRole<int>, IdentityUserLogin<int>, IdentityRoleClaim<int>,
         IdentityUserToken<int>>.AspNetIdentityFixtureBase
 {
-    protected AspNetIdentityIntKeyTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override List<EntityTypeMapping> ExpectedMappings
         =>
         [

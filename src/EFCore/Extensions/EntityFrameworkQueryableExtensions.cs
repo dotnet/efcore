@@ -2565,29 +2565,23 @@ public static class EntityFrameworkQueryableExtensions
                         arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
 
-    private sealed class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
+    private sealed class IncludableQueryable<TEntity, TProperty>(IQueryable<TEntity> queryable)
+        : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
     {
-        private readonly IQueryable<TEntity> _queryable;
-
-        public IncludableQueryable(IQueryable<TEntity> queryable)
-        {
-            _queryable = queryable;
-        }
-
         public Expression Expression
-            => _queryable.Expression;
+            => queryable.Expression;
 
         public Type ElementType
-            => _queryable.ElementType;
+            => queryable.ElementType;
 
         public IQueryProvider Provider
-            => _queryable.Provider;
+            => queryable.Provider;
 
         public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-            => ((IAsyncEnumerable<TEntity>)_queryable).GetAsyncEnumerator(cancellationToken);
+            => ((IAsyncEnumerable<TEntity>)queryable).GetAsyncEnumerator(cancellationToken);
 
         public IEnumerator<TEntity> GetEnumerator()
-            => _queryable.GetEnumerator();
+            => queryable.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();

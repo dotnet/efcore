@@ -7,14 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class ManyToManyTrackingSqlServerTestBase<TFixture> : ManyToManyTrackingRelationalTestBase<TFixture>
+public abstract class ManyToManyTrackingSqlServerTestBase<TFixture>(TFixture fixture)
+    : ManyToManyTrackingRelationalTestBase<TFixture>(fixture)
     where TFixture : ManyToManyTrackingSqlServerTestBase<TFixture>.ManyToManyTrackingSqlServerFixtureBase
 {
-    protected ManyToManyTrackingSqlServerTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Dictionary<string, DeleteBehavior> CustomDeleteBehaviors { get; } = new()
     {
         { "EntityBranch.RootSkipShared", DeleteBehavior.ClientCascade },

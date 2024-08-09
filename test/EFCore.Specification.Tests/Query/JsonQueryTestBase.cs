@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class JsonQueryTestBase<TFixture>(TFixture fixture) : QueryTestBase<TFixture>(fixture)
     where TFixture : JsonQueryFixtureBase, new()
 {
-    protected JsonQueryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owner_entity(bool async)

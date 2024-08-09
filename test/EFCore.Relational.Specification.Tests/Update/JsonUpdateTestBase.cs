@@ -8,15 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class JsonUpdateTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : JsonUpdateFixtureBase, new()
 {
-    public TFixture Fixture { get; }
-
-    protected JsonUpdateTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    public TFixture Fixture { get; } = fixture;
 
     public JsonQueryContext CreateContext()
         => Fixture.CreateContext();

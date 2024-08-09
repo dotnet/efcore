@@ -6,14 +6,9 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixture>
+public abstract class UpdatesInMemoryTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesInMemoryTestBase<TFixture>.UpdatesInMemoryFixtureBase
 {
-    protected UpdatesInMemoryTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override string UpdateConcurrencyMessage
         => InMemoryStrings.UpdateConcurrencyException;
 

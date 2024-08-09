@@ -95,17 +95,10 @@ public class ModelCleanupConvention :
         }
     }
 
-    private sealed class GraphAdapter : Graph<IConventionEntityType>
+    private sealed class GraphAdapter(IConventionModel model) : Graph<IConventionEntityType>
     {
-        private readonly IConventionModel _model;
-
-        public GraphAdapter(IConventionModel model)
-        {
-            _model = model;
-        }
-
         public override IEnumerable<IConventionEntityType> Vertices
-            => _model.GetEntityTypes();
+            => model.GetEntityTypes();
 
         public override IEnumerable<IConventionEntityType> GetOutgoingNeighbors(IConventionEntityType from)
             => from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)

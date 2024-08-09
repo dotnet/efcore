@@ -5,10 +5,4 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public class SqlServerServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTestBase
-{
-    public SqlServerServiceCollectionExtensionsTest()
-        : base(SqlServerTestHelpers.Instance)
-    {
-    }
-}
+public class SqlServerServiceCollectionExtensionsTest() : RelationalServiceCollectionExtensionsTestBase(SqlServerTestHelpers.Instance);

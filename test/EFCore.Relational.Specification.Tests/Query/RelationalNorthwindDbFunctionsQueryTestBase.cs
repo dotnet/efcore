@@ -7,14 +7,10 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
 
-public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : NorthwindDbFunctionsQueryTestBase<TFixture>
+public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture>(TFixture fixture)
+    : NorthwindDbFunctionsQueryTestBase<TFixture>(fixture)
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    protected NorthwindDbFunctionsQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
         => new RelationalQueryAsserter(
             fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression);

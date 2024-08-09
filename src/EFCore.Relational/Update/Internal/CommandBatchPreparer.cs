@@ -1240,7 +1240,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     {
                         AddMatchingPredecessorEdge(
                             indexPredecessorsMap, value, command,
-                            new CommandDependency(index, breakable: index.Filter != null || hasNullValue));
+                            new CommandDependency(index, Breakable: index.Filter != null || hasNullValue));
                     }
                 }
             }
@@ -1322,13 +1322,13 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         for (var i = 0; i < deletedCommands.List.Count - 1; i++)
                         {
                             var deleted = deletedCommands.List[i];
-                            _modificationCommandGraph.AddEdge(deleted, lastDelete, new CommandDependency(deleted.Table!, breakable: true));
+                            _modificationCommandGraph.AddEdge(deleted, lastDelete, new CommandDependency(deleted.Table!, Breakable: true));
                         }
 
                         deletedDictionary[table] = (deletedCommands.List, true);
                     }
 
-                    _modificationCommandGraph.AddEdge(lastDelete, command, new CommandDependency(command.Table!, breakable: true));
+                    _modificationCommandGraph.AddEdge(lastDelete, command, new CommandDependency(command.Table!, Breakable: true));
                 }
             }
         }
@@ -1345,15 +1345,5 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         return Task.CompletedTask;
     }
 
-    private sealed record class CommandDependency
-    {
-        public CommandDependency(IAnnotatable metadata, bool breakable = false)
-        {
-            Metadata = metadata;
-            Breakable = breakable;
-        }
-
-        public IAnnotatable Metadata { get; }
-        public bool Breakable { get; }
-    }
+    private sealed record class CommandDependency(IAnnotatable Metadata, bool Breakable = false);
 }

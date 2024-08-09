@@ -850,43 +850,27 @@ public static class ExecutionStrategyExtensions
                 s.CommitFailed && await s.VerifySucceeded(s.State, ct).ConfigureAwait(false),
                 s.Result), cancellationToken);
 
-    private sealed class ExecutionState<TState, TResult>
+    private sealed class ExecutionState<TState, TResult>(
+        Func<TState, TResult> operation,
+        Func<TState, bool> verifySucceeded,
+        TState state)
     {
-        public ExecutionState(
-            Func<TState, TResult> operation,
-            Func<TState, bool> verifySucceeded,
-            TState state)
-        {
-            Operation = operation;
-            VerifySucceeded = verifySucceeded;
-            State = state;
-            Result = default!;
-        }
-
-        public Func<TState, TResult> Operation { get; }
-        public Func<TState, bool> VerifySucceeded { get; }
-        public TState State { get; }
-        public TResult Result { get; set; }
+        public Func<TState, TResult> Operation { get; } = operation;
+        public Func<TState, bool> VerifySucceeded { get; } = verifySucceeded;
+        public TState State { get; } = state;
+        public TResult Result { get; set; } = default!;
         public bool CommitFailed { get; set; }
     }
 
-    private sealed class ExecutionStateAsync<TState, TResult>
+    private sealed class ExecutionStateAsync<TState, TResult>(
+        Func<TState, CancellationToken, Task<TResult>> operation,
+        Func<TState, CancellationToken, Task<bool>> verifySucceeded,
+        TState state)
     {
-        public ExecutionStateAsync(
-            Func<TState, CancellationToken, Task<TResult>> operation,
-            Func<TState, CancellationToken, Task<bool>> verifySucceeded,
-            TState state)
-        {
-            Operation = operation;
-            VerifySucceeded = verifySucceeded;
-            State = state;
-            Result = default!;
-        }
-
-        public Func<TState, CancellationToken, Task<TResult>> Operation { get; }
-        public Func<TState, CancellationToken, Task<bool>> VerifySucceeded { get; }
-        public TState State { get; }
-        public TResult Result { get; set; }
+        public Func<TState, CancellationToken, Task<TResult>> Operation { get; } = operation;
+        public Func<TState, CancellationToken, Task<bool>> VerifySucceeded { get; } = verifySucceeded;
+        public TState State { get; } = state;
+        public TResult Result { get; set; } = default!;
         public bool CommitFailed { get; set; }
     }
 }

@@ -7,13 +7,10 @@ namespace Microsoft.EntityFrameworkCore;
 
 #nullable disable
 
-public abstract class QueryExpressionInterceptionSqlServerTestBase : QueryExpressionInterceptionTestBase
+public abstract class QueryExpressionInterceptionSqlServerTestBase(
+    QueryExpressionInterceptionSqlServerTestBase.InterceptionSqlServerFixtureBase fixture)
+    : QueryExpressionInterceptionTestBase(fixture)
 {
-    protected QueryExpressionInterceptionSqlServerTestBase(InterceptionSqlServerFixtureBase fixture)
-        : base(fixture)
-    {
-    }
-
     public abstract class InterceptionSqlServerFixtureBase : InterceptionFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

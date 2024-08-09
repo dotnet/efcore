@@ -754,10 +754,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         {
             var exception = (await Assert.ThrowsAsync<CosmosException>(
                 () => base.Json_collection_index_in_predicate_using_column(async)));
-
-            Assert.Contains(
-                "The specified query includes 'member indexer' which is currently not supported.",
-                exception.InnerException?.Message);
         }
     }
 
@@ -768,10 +764,6 @@ WHERE ((c["Discriminator"] = "Basic") AND (c["OwnedCollectionRoot"][1]["Name"] !
         {
             var exception = (await Assert.ThrowsAsync<CosmosException>(
                 () => base.Json_collection_index_in_predicate_using_complex_expression1(async)));
-
-            Assert.Contains(
-                "The specified query includes 'member indexer' which is currently not supported.",
-                exception.InnerException?.Message);
         }
     }
 

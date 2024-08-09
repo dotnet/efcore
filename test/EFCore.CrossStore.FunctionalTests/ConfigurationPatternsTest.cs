@@ -8,13 +8,8 @@ using Microsoft.EntityFrameworkCore.TestModels;
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerConfiguredCondition]
-public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IAsyncLifetime
+public class ConfigurationPatternsTest(CrossStoreFixture fixture) : IClassFixture<CrossStoreFixture>, IAsyncLifetime
 {
-    public ConfigurationPatternsTest(CrossStoreFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
     [ConditionalFact]
     public void Can_register_multiple_context_types()
     {
@@ -182,7 +177,7 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IAsyn
         public MultipleProvidersContext Context { get; } = context;
     }
 
-    private CrossStoreFixture Fixture { get; }
+    private CrossStoreFixture Fixture { get; } = fixture;
     private TestStore ExistingTestStore { get; set; }
     private static readonly string StoreName = "CrossStoreConfigurationPatternsTest";
 
@@ -194,13 +189,8 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IAsyn
     }
 
     [SqlServerConfiguredCondition]
-    public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IAsyncLifetime
+    public class NestedContextDifferentStores(CrossStoreFixture fixture) : IClassFixture<CrossStoreFixture>, IAsyncLifetime
     {
-        public NestedContextDifferentStores(CrossStoreFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
         [ConditionalFact]
         public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
         {
@@ -241,7 +231,7 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IAsyn
             Assert.NotSame(blog0, blog0Prime);
         }
 
-        private CrossStoreFixture Fixture { get; }
+        private CrossStoreFixture Fixture { get; } = fixture;
         private TestStore ExistingTestStore { get; set; }
         private static readonly string StoreName = "CrossStoreNestedContextTest";
 

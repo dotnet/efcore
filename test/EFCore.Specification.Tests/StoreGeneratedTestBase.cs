@@ -7,15 +7,10 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class StoreGeneratedTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : StoreGeneratedTestBase<TFixture>.StoreGeneratedFixtureBase, new()
 {
-    protected StoreGeneratedTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual async Task Value_generation_works_for_common_GUID_conversions()
@@ -1891,26 +1886,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public int Value { get; set; }
     }
 
-    protected class WrappedIntClassConverter : ValueConverter<WrappedIntClass, int>
-    {
-        public WrappedIntClassConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntClassConverter() : ValueConverter<WrappedIntClass, int>(
+        v => v.Value,
+        v => new WrappedIntClass { Value = v });
 
-    protected class WrappedIntClassComparer : ValueComparer<WrappedIntClass?>
-    {
-        public WrappedIntClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
-                v => v != null ? v.Value : 0,
-                v => v == null ? null : new WrappedIntClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedIntClassComparer() : ValueComparer<WrappedIntClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+        v => v != null ? v.Value : 0,
+        v => v == null ? null : new WrappedIntClass { Value = v.Value });
 
     protected class WrappedIntClassValueGenerator : ValueGenerator<WrappedIntClass>
     {
@@ -1926,15 +1909,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public int Value { get; set; }
     }
 
-    protected class WrappedIntStructConverter : ValueConverter<WrappedIntStruct, int>
-    {
-        public WrappedIntStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntStructConverter() : ValueConverter<WrappedIntStruct, int>(
+        v => v.Value,
+        v => new WrappedIntStruct { Value = v });
 
     protected class WrappedIntStructValueGenerator : ValueGenerator<WrappedIntStruct>
     {
@@ -1950,15 +1927,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public int Value { get; set; }
     }
 
-    protected class WrappedIntRecordConverter : ValueConverter<WrappedIntRecord, int>
-    {
-        public WrappedIntRecordConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntRecordConverter() : ValueConverter<WrappedIntRecord, int>(
+        v => v.Value,
+        v => new WrappedIntRecord { Value = v });
 
     protected class WrappedIntRecordValueGenerator : ValueGenerator<WrappedIntRecord>
     {
@@ -1974,26 +1945,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public int Value { get; set; }
     }
 
-    protected class WrappedIntKeyClassConverter : ValueConverter<WrappedIntKeyClass, int>
-    {
-        public WrappedIntKeyClassConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntKeyClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntKeyClassConverter() : ValueConverter<WrappedIntKeyClass, int>(
+        v => v.Value,
+        v => new WrappedIntKeyClass { Value = v });
 
-    protected class WrappedIntKeyClassComparer : ValueComparer<WrappedIntKeyClass?>
-    {
-        public WrappedIntKeyClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
-                v => v != null ? v.Value : 0,
-                v => v == null ? null : new WrappedIntKeyClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedIntKeyClassComparer() : ValueComparer<WrappedIntKeyClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+        v => v != null ? v.Value : 0,
+        v => v == null ? null : new WrappedIntKeyClass { Value = v.Value });
 
     public struct WrappedIntKeyStruct
     {
@@ -2012,30 +1971,18 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             => !left.Equals(right);
     }
 
-    protected class WrappedIntKeyStructConverter : ValueConverter<WrappedIntKeyStruct, int>
-    {
-        public WrappedIntKeyStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntKeyStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntKeyStructConverter() : ValueConverter<WrappedIntKeyStruct, int>(
+        v => v.Value,
+        v => new WrappedIntKeyStruct { Value = v });
 
     public record WrappedIntKeyRecord
     {
         public int Value { get; set; }
     }
 
-    protected class WrappedIntKeyRecordConverter : ValueConverter<WrappedIntKeyRecord, int>
-    {
-        public WrappedIntKeyRecordConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedIntKeyRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedIntKeyRecordConverter() : ValueConverter<WrappedIntKeyRecord, int>(
+        v => v.Value,
+        v => new WrappedIntKeyRecord { Value = v });
 
     protected class WrappedIntClassPrincipal
     {
@@ -2574,26 +2521,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public string? Value { get; set; }
     }
 
-    protected class WrappedStringClassConverter : ValueConverter<WrappedStringClass, string>
-    {
-        public WrappedStringClassConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedStringClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedStringClassConverter() : ValueConverter<WrappedStringClass, string>(
+        v => v.Value!,
+        v => new WrappedStringClass { Value = v });
 
-    protected class WrappedStringClassComparer : ValueComparer<WrappedStringClass?>
-    {
-        public WrappedStringClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
-                v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new WrappedStringClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedStringClassComparer() : ValueComparer<WrappedStringClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
+        v => v != null ? v.Value!.GetHashCode() : 0,
+        v => v == null ? null : new WrappedStringClass { Value = v.Value });
 
     protected class WrappedStringClassValueGenerator : ValueGenerator<WrappedStringClass>
     {
@@ -2609,15 +2544,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public string? Value { get; set; }
     }
 
-    protected class WrappedStringStructConverter : ValueConverter<WrappedStringStruct, string>
-    {
-        public WrappedStringStructConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedStringStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedStringStructConverter() : ValueConverter<WrappedStringStruct, string>(
+        v => v.Value!,
+        v => new WrappedStringStruct { Value = v });
 
     protected class WrappedStringStructValueGenerator : ValueGenerator<WrappedStringStruct>
     {
@@ -2633,15 +2562,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public string? Value { get; set; }
     }
 
-    protected class WrappedStringRecordConverter : ValueConverter<WrappedStringRecord, string>
-    {
-        public WrappedStringRecordConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedStringRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedStringRecordConverter() : ValueConverter<WrappedStringRecord, string>(
+        v => v.Value!,
+        v => new WrappedStringRecord { Value = v });
 
     protected class WrappedStringRecordValueGenerator : ValueGenerator<WrappedStringRecord>
     {
@@ -2657,26 +2580,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public string? Value { get; set; }
     }
 
-    protected class WrappedStringKeyClassConverter : ValueConverter<WrappedStringKeyClass, string>
-    {
-        public WrappedStringKeyClassConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedStringKeyClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedStringKeyClassConverter() : ValueConverter<WrappedStringKeyClass, string>(
+        v => v.Value!,
+        v => new WrappedStringKeyClass { Value = v });
 
-    protected class WrappedStringKeyClassComparer : ValueComparer<WrappedStringKeyClass?>
-    {
-        public WrappedStringKeyClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
-                v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new WrappedStringKeyClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedStringKeyClassComparer() : ValueComparer<WrappedStringKeyClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
+        v => v != null ? v.Value!.GetHashCode() : 0,
+        v => v == null ? null : new WrappedStringKeyClass { Value = v.Value });
 
     public struct WrappedStringKeyStruct
     {
@@ -2695,30 +2606,18 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             => !left.Equals(right);
     }
 
-    protected class WrappedStringKeyStructConverter : ValueConverter<WrappedStringKeyStruct, string>
-    {
-        public WrappedStringKeyStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedStringKeyStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedStringKeyStructConverter() : ValueConverter<WrappedStringKeyStruct, string>(
+        v => v.Value,
+        v => new WrappedStringKeyStruct { Value = v });
 
     public record WrappedStringKeyRecord
     {
         public string? Value { get; set; }
     }
 
-    protected class WrappedStringKeyRecordConverter : ValueConverter<WrappedStringKeyRecord, string>
-    {
-        public WrappedStringKeyRecordConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedStringKeyRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedStringKeyRecordConverter() : ValueConverter<WrappedStringKeyRecord, string>(
+        v => v.Value!,
+        v => new WrappedStringKeyRecord { Value = v });
 
     protected class WrappedStringClassPrincipal
     {
@@ -3132,26 +3031,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Guid Value { get; set; }
     }
 
-    protected class WrappedGuidClassConverter : ValueConverter<WrappedGuidClass, Guid>
-    {
-        public WrappedGuidClassConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedGuidClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedGuidClassConverter() : ValueConverter<WrappedGuidClass, Guid>(
+        v => v.Value,
+        v => new WrappedGuidClass { Value = v });
 
-    protected class WrappedGuidClassComparer : ValueComparer<WrappedGuidClass?>
-    {
-        public WrappedGuidClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
-                v => v != null ? v.Value.GetHashCode() : 0,
-                v => v == null ? null : new WrappedGuidClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedGuidClassComparer() : ValueComparer<WrappedGuidClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+        v => v != null ? v.Value.GetHashCode() : 0,
+        v => v == null ? null : new WrappedGuidClass { Value = v.Value });
 
     protected class WrappedGuidClassValueGenerator : ValueGenerator<WrappedGuidClass>
     {
@@ -3167,15 +3054,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Guid Value { get; set; }
     }
 
-    protected class WrappedGuidStructConverter : ValueConverter<WrappedGuidStruct, Guid>
-    {
-        public WrappedGuidStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedGuidStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedGuidStructConverter() : ValueConverter<WrappedGuidStruct, Guid>(
+        v => v.Value,
+        v => new WrappedGuidStruct { Value = v });
 
     protected class WrappedGuidStructValueGenerator : ValueGenerator<WrappedGuidStruct>
     {
@@ -3191,15 +3072,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Guid Value { get; set; }
     }
 
-    protected class WrappedGuidRecordConverter : ValueConverter<WrappedGuidRecord, Guid>
-    {
-        public WrappedGuidRecordConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedGuidRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedGuidRecordConverter() : ValueConverter<WrappedGuidRecord, Guid>(
+        v => v.Value,
+        v => new WrappedGuidRecord { Value = v });
 
     protected class WrappedGuidRecordValueGenerator : ValueGenerator<WrappedGuidRecord>
     {
@@ -3215,26 +3090,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Guid Value { get; set; }
     }
 
-    protected class WrappedGuidKeyClassConverter : ValueConverter<WrappedGuidKeyClass, Guid>
-    {
-        public WrappedGuidKeyClassConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedGuidKeyClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedGuidKeyClassConverter() : ValueConverter<WrappedGuidKeyClass, Guid>(
+        v => v.Value,
+        v => new WrappedGuidKeyClass { Value = v });
 
-    protected class WrappedGuidKeyClassComparer : ValueComparer<WrappedGuidKeyClass?>
-    {
-        public WrappedGuidKeyClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
-                v => v != null ? v.Value.GetHashCode() : 0,
-                v => v == null ? null : new WrappedGuidKeyClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedGuidKeyClassComparer() : ValueComparer<WrappedGuidKeyClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
+        v => v != null ? v.Value.GetHashCode() : 0,
+        v => v == null ? null : new WrappedGuidKeyClass { Value = v.Value });
 
     public struct WrappedGuidKeyStruct
     {
@@ -3253,30 +3116,18 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             => !left.Equals(right);
     }
 
-    protected class WrappedGuidKeyStructConverter : ValueConverter<WrappedGuidKeyStruct, Guid>
-    {
-        public WrappedGuidKeyStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedGuidKeyStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedGuidKeyStructConverter() : ValueConverter<WrappedGuidKeyStruct, Guid>(
+        v => v.Value,
+        v => new WrappedGuidKeyStruct { Value = v });
 
     public record WrappedGuidKeyRecord
     {
         public Guid Value { get; set; }
     }
 
-    protected class WrappedGuidKeyRecordConverter : ValueConverter<WrappedGuidKeyRecord, Guid>
-    {
-        public WrappedGuidKeyRecordConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedGuidKeyRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedGuidKeyRecordConverter() : ValueConverter<WrappedGuidKeyRecord, Guid>(
+        v => v.Value,
+        v => new WrappedGuidKeyRecord { Value = v });
 
     protected class WrappedGuidClassPrincipal
     {
@@ -3675,26 +3526,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Uri? Value { get; set; }
     }
 
-    protected class WrappedUriClassConverter : ValueConverter<WrappedUriClass, Uri>
-    {
-        public WrappedUriClassConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedUriClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedUriClassConverter() : ValueConverter<WrappedUriClass, Uri>(
+        v => v.Value!,
+        v => new WrappedUriClass { Value = v });
 
-    protected class WrappedUriClassComparer : ValueComparer<WrappedUriClass?>
-    {
-        public WrappedUriClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
-                v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new WrappedUriClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedUriClassComparer() : ValueComparer<WrappedUriClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
+        v => v != null ? v.Value!.GetHashCode() : 0,
+        v => v == null ? null : new WrappedUriClass { Value = v.Value });
 
     protected class WrappedUriClassValueGenerator : ValueGenerator<WrappedUriClass>
     {
@@ -3710,15 +3549,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Uri Value { get; set; }
     }
 
-    protected class WrappedUriStructConverter : ValueConverter<WrappedUriStruct, Uri>
-    {
-        public WrappedUriStructConverter()
-            : base(
-                v => v.Value,
-                v => new WrappedUriStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedUriStructConverter() : ValueConverter<WrappedUriStruct, Uri>(
+        v => v.Value,
+        v => new WrappedUriStruct { Value = v });
 
     protected class WrappedUriStructValueGenerator : ValueGenerator<WrappedUriStruct>
     {
@@ -3734,15 +3567,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Uri? Value { get; set; }
     }
 
-    protected class WrappedUriRecordConverter : ValueConverter<WrappedUriRecord, Uri>
-    {
-        public WrappedUriRecordConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedUriRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedUriRecordConverter() : ValueConverter<WrappedUriRecord, Uri>(
+        v => v.Value!,
+        v => new WrappedUriRecord { Value = v });
 
     protected class WrappedUriRecordValueGenerator : ValueGenerator<WrappedUriRecord>
     {
@@ -3758,26 +3585,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public Uri? Value { get; set; }
     }
 
-    protected class WrappedUriKeyClassConverter : ValueConverter<WrappedUriKeyClass, Uri>
-    {
-        public WrappedUriKeyClassConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedUriKeyClass { Value = v })
-        {
-        }
-    }
+    protected class WrappedUriKeyClassConverter() : ValueConverter<WrappedUriKeyClass, Uri>(
+        v => v.Value!,
+        v => new WrappedUriKeyClass { Value = v });
 
-    protected class WrappedUriKeyClassComparer : ValueComparer<WrappedUriKeyClass?>
-    {
-        public WrappedUriKeyClassComparer()
-            : base(
-                (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
-                v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new WrappedUriKeyClass { Value = v.Value })
-        {
-        }
-    }
+    protected class WrappedUriKeyClassComparer() : ValueComparer<WrappedUriKeyClass?>(
+        (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
+        v => v != null ? v.Value!.GetHashCode() : 0,
+        v => v == null ? null : new WrappedUriKeyClass { Value = v.Value });
 
     public struct WrappedUriKeyStruct
     {
@@ -3799,30 +3614,18 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             => !left.Equals(right);
     }
 
-    protected class WrappedUriKeyStructConverter : ValueConverter<WrappedUriKeyStruct, Uri>
-    {
-        public WrappedUriKeyStructConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedUriKeyStruct { Value = v })
-        {
-        }
-    }
+    protected class WrappedUriKeyStructConverter() : ValueConverter<WrappedUriKeyStruct, Uri>(
+        v => v.Value!,
+        v => new WrappedUriKeyStruct { Value = v });
 
     public record WrappedUriKeyRecord
     {
         public Uri? Value { get; set; }
     }
 
-    protected class WrappedUriKeyRecordConverter : ValueConverter<WrappedUriKeyRecord, Uri>
-    {
-        public WrappedUriKeyRecordConverter()
-            : base(
-                v => v.Value!,
-                v => new WrappedUriKeyRecord { Value = v })
-        {
-        }
-    }
+    protected class WrappedUriKeyRecordConverter() : ValueConverter<WrappedUriKeyRecord, Uri>(
+        v => v.Value!,
+        v => new WrappedUriKeyRecord { Value = v });
 
     protected class WrappedUriClassPrincipal
     {

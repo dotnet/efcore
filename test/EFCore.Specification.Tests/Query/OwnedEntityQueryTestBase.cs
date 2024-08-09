@@ -896,13 +896,8 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         Assert.Equal("IM Free shipping", owner.OwnedEntity.SupplierData.AdditionalSupplierData);
     }
 
-    protected abstract class MyContext26592Base : DbContext
+    protected abstract class MyContext26592Base(DbContextOptions options) : DbContext(options)
     {
-        protected MyContext26592Base(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Company> Companies { get; set; }
         public DbSet<Owner> Owners { get; set; }
 

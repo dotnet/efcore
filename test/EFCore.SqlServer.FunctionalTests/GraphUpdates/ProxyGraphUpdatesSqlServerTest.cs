@@ -7,14 +7,9 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class ProxyGraphUpdatesSqlServerTest
 {
-    public abstract class ProxyGraphUpdatesSqlServerTestBase<TFixture> : ProxyGraphUpdatesTestBase<TFixture>
+    public abstract class ProxyGraphUpdatesSqlServerTestBase<TFixture>(TFixture fixture) : ProxyGraphUpdatesTestBase<TFixture>(fixture)
         where TFixture : ProxyGraphUpdatesSqlServerTestBase<TFixture>.ProxyGraphUpdatesSqlServerFixtureBase, new()
     {
-        protected ProxyGraphUpdatesSqlServerTestBase(TFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 

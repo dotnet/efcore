@@ -478,6 +478,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+        subquery.IsDistinct = false;
 
         translation = _sqlExpressionFactory.Not(_sqlExpressionFactory.Exists(subquery));
         subquery = new SelectExpression(translation, _sqlAliasManager);
@@ -509,6 +510,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+        subquery.IsDistinct = false;
 
         var translation = _sqlExpressionFactory.Exists(subquery);
         var selectExpression = new SelectExpression(translation, _sqlAliasManager);
@@ -589,6 +591,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+        subquery.IsDistinct = false;
 
         subquery.ReplaceProjection(new List<Expression> { projection });
         subquery.ApplyProjection();
@@ -1786,22 +1789,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             return source.CreateEFPropertyExpression(property);
         }
 
-        private sealed class AnnotationApplyingExpressionVisitor : ExpressionVisitor
+        private sealed class AnnotationApplyingExpressionVisitor(IReadOnlyList<IAnnotation> annotations) : ExpressionVisitor
         {
-            private readonly IReadOnlyList<IAnnotation> _annotations;
-
-            public AnnotationApplyingExpressionVisitor(IReadOnlyList<IAnnotation> annotations)
-            {
-                _annotations = annotations;
-            }
-
             [return: NotNullIfNotNull(nameof(expression))]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is TableExpression te)
                 {
                     TableExpressionBase ownedTable = te;
-                    foreach (var annotation in _annotations)
+                    foreach (var annotation in annotations)
                     {
                         ownedTable = ownedTable.AddAnnotation(annotation.Name, annotation.Value);
                     }

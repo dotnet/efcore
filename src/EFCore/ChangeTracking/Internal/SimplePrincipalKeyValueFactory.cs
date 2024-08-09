@@ -119,19 +119,12 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
                 : CreateFromCurrentValues(entry),
             EqualityComparer);
 
-    private sealed class NoNullsCustomEqualityComparer : IEqualityComparer<TKey>
+    private sealed class NoNullsCustomEqualityComparer(ValueComparer<TKey> comparer) : IEqualityComparer<TKey>
     {
-        private readonly ValueComparer<TKey> _comparer;
-
-        public NoNullsCustomEqualityComparer(ValueComparer<TKey> comparer)
-        {
-            _comparer = comparer;
-        }
-
         public bool Equals(TKey? x, TKey? y)
-            => _comparer.Equals(x, y);
+            => comparer.Equals(x, y);
 
         public int GetHashCode([DisallowNull] TKey obj)
-            => _comparer.GetHashCode(obj);
+            => comparer.GetHashCode(obj);
     }
 }

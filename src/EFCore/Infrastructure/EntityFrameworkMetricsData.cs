@@ -47,7 +47,7 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     /// Number of currently active <see cref="DbContext" /> instances.
     /// </summary>
-    public static int GetActiveDbContexts()
+    internal static int GetActiveDbContexts()
         => Volatile.Read(ref _activeDbContexts);
 
     /// <summary>
@@ -59,7 +59,7 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     /// Cumulative count of queries executed.
     /// </summary>
-    public static long GetTotalQueriesExecuted()
+    internal static long GetTotalQueriesExecuted()
         => Interlocked.Read(ref _totalQueriesExecuted);
 
     /// <summary>
@@ -71,7 +71,7 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     /// Cumulative count of changes saved.
     /// </summary>
-    public static long GetTotalSaveChanges()
+    internal static long GetTotalSaveChanges()
         => Interlocked.Read(ref _totalSaveChanges);
 
     /// <summary>
@@ -95,7 +95,7 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     /// Gets number of hits and misses and also the computed hit rate for the compiled query cache.
     /// </summary>
-    public static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRate()
+    internal static (int hits, int misses, double hitRate) GetCompiledQueryCacheHitRate()
         => _compiledQueryCacheInfo.CalculateHitsMissesHitRate(false);
 
     /// <summary>
@@ -113,7 +113,7 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     /// Cumulative number of failed operation executed by an <see cref="IExecutionStrategy" />.
     /// </summary>
-    public static long GetTotalExecutionStrategyOperationFailures()
+    internal static long GetTotalExecutionStrategyOperationFailures()
         => Interlocked.Read(ref _totalExecutionStrategyOperationFailures);
 
     /// <summary>
@@ -125,7 +125,7 @@ public static class EntityFrameworkMetricsData
     /// <summary>
     /// Cumulative number of optimistic concurrency failures.
     /// </summary>
-    public static long GetTotalOptimisticConcurrencyFailures()
+    internal static long GetTotalOptimisticConcurrencyFailures()
         => Interlocked.Read(ref _totalOptimisticConcurrencyFailures);
 
     [StructLayout(LayoutKind.Explicit)]

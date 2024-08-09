@@ -157,15 +157,8 @@ public class CompositeValueFactory : IDependentKeyValueFactory<IReadOnlyList<obj
     protected static IEqualityComparer<IReadOnlyList<object?>> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
         => new CompositeCustomComparer(properties.Select(p => p.GetKeyValueComparer()).ToArray());
 
-    private sealed class CompositeCustomComparer : IEqualityComparer<IReadOnlyList<object?>>
+    private sealed class CompositeCustomComparer(ValueComparer[] comparers) : IEqualityComparer<IReadOnlyList<object?>>
     {
-        private readonly ValueComparer[] _comparers;
-
-        public CompositeCustomComparer(ValueComparer[] comparers)
-        {
-            _comparers = comparers;
-        }
-
         public bool Equals(IReadOnlyList<object?>? x, IReadOnlyList<object?>? y)
         {
             if (ReferenceEquals(x, y))
@@ -183,15 +176,15 @@ public class CompositeValueFactory : IDependentKeyValueFactory<IReadOnlyList<obj
                 return false;
             }
 
-            if (x.Count != _comparers.Length
-                || y.Count != _comparers.Length)
+            if (x.Count != comparers.Length
+                || y.Count != comparers.Length)
             {
                 return false;
             }
 
-            for (var i = 0; i < _comparers.Length; i++)
+            for (var i = 0; i < comparers.Length; i++)
             {
-                if (!_comparers[i].Equals(x[i], y[i]))
+                if (!comparers[i].Equals(x[i], y[i]))
                 {
                     return false;
                 }
@@ -208,7 +201,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<IReadOnlyList<obj
             // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < obj.Count; i++)
             {
-                hashCode.Add(_comparers[i].GetHashCode(obj[i]));
+                hashCode.Add(comparers[i].GetHashCode(obj[i]));
             }
 
             return hashCode.ToHashCode();

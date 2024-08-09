@@ -8,24 +8,15 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public abstract class RelationalTypeMappingTest
 {
-    protected class FakeValueConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
+    protected class FakeValueConverter<TModel, TProvider>()
+        : ValueConverter<TModel, TProvider>(_ => (TProvider)(object)_, _ => (TModel)(object)_)
     {
-        public FakeValueConverter()
-            : base(_ => (TProvider)(object)_, _ => (TModel)(object)_)
-        {
-        }
-
         public override Type ModelClrType { get; } = typeof(TModel);
         public override Type ProviderClrType { get; } = typeof(TProvider);
     }
 
-    protected class FakeValueComparer<T> : ValueComparer<T>
+    protected class FakeValueComparer<T>() : ValueComparer<T>(false)
     {
-        public FakeValueComparer()
-            : base(false)
-        {
-        }
-
         public override Type Type { get; } = typeof(T);
     }
 

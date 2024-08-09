@@ -607,15 +607,10 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         }
     }
 
-    private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
+    private sealed class ExtensionInfo(CoreOptionsExtension extension) : DbContextOptionsExtensionInfo(extension)
     {
         private int? _serviceProviderHash;
         private string? _logFragment;
-
-        public ExtensionInfo(CoreOptionsExtension extension)
-            : base(extension)
-        {
-        }
 
         private new CoreOptionsExtension Extension
             => (CoreOptionsExtension)base.Extension;

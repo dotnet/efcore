@@ -8,14 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable disable
 
-public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFixture>
+public abstract class UpdatesRelationalTestBase<TFixture>(TFixture fixture) : UpdatesTestBase<TFixture>(fixture)
     where TFixture : UpdatesRelationalTestBase<TFixture>.UpdatesRelationalFixture
 {
-    protected UpdatesRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual Task SaveChanges_works_for_entities_also_mapped_to_view()
         => ExecuteWithStrategyInTransactionAsync(
