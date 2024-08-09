@@ -112,17 +112,29 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             return expression;
         }
 
-        if (method.DeclaringType == typeof(EF)
-            && method.Name == nameof(EF.Constant))
+        if (method.DeclaringType == typeof(EF))
         {
-            if (!_isEfConstantSupported)
+            switch (method.Name)
             {
-                throw new InvalidOperationException(CoreStrings.EFConstantNotSupported);
-            }
+                case nameof(EF.Constant):
+                {
+                    if (!_isEfConstantSupported)
+                    {
+                        throw new InvalidOperationException(CoreStrings.EFConstantNotSupported);
+                    }
 
-            var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
-            _queryCompilationContext.ParametersToConstantize.Add(parameterExpression.Name!);
-            return parameterExpression;
+                    var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.ParametersToConstantize.Add(parameterExpression.Name!);
+                    return parameterExpression;
+                }
+
+                case nameof(EF.Parameter):
+                {
+                    var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
+                    _queryCompilationContext.ParametersToNotConstantize.Add(parameterExpression.Name!);
+                    return parameterExpression;
+                }
+            }
         }
 
         // Normalize list[x] to list.ElementAt(x)

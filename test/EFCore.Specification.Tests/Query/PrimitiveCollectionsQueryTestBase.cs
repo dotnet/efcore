@@ -289,6 +289,26 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_Contains_with_EF_Parameter(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Contains(c.Id)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Contains(c.Id)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Parameter(new[] { 2, 999, 1000 }).Count(i => i > c.Id) == 2),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 999, 1000 }.Count(i => i > c.Id) == 2));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Parameter_collection_Count(bool async)
     {
         var ids = new[] { 2, 999 };

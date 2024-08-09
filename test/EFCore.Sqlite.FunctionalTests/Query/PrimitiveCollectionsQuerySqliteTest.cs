@@ -431,6 +431,40 @@ WHERE (
 """);
     }
 
+    public override async Task Inline_collection_Contains_with_EF_Parameter(bool async)
+    {
+        await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='[2,999,1000]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" IN (
+    SELECT "p0"."value"
+    FROM json_each(@__p_0) AS "p0"
+)
+""");
+    }
+
+    public override async Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+    {
+        await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='[2,999,1000]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each(@__p_0) AS "p0"
+    WHERE "p0"."value" > "p"."Id") = 2
+""");
+    }
+
     public override async Task Parameter_collection_Count(bool async)
     {
         await base.Parameter_collection_Count(async);

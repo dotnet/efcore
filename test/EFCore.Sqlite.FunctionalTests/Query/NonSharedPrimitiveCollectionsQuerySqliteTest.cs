@@ -7,6 +7,20 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NonSharedPrimitiveCollectionsQuerySqliteTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
 {
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToConstants(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqliteDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToConstants();
+
+        return optionsBuilder;
+    }
+
+    protected override DbContextOptionsBuilder SetTranslateParameterizedCollectionsToParameters(DbContextOptionsBuilder optionsBuilder)
+    {
+        new SqliteDbContextOptionsBuilder(optionsBuilder).TranslateParameterizedCollectionsToParameters();
+
+        return optionsBuilder;
+    }
+
     #region Support for specific element types
 
     public override async Task Array_of_int()
@@ -319,6 +333,128 @@ SELECT "t"."Id", "t"."Owned"
 FROM "TestOwner" AS "t"
 WHERE "t"."Owned" ->> 'Strings' ->> 1 = 'bar'
 LIMIT 2
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_constants();
+
+        AssertSql(
+            """
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999)) AS "i"
+    WHERE "i"."Value" > "t"."Id") = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_constants();
+
+        AssertSql(
+            """
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (2, 999)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_constants_EF_Parameter();
+
+        AssertSql(
+            """
+@__ids_0='[2,999]' (Size = 7)
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each(@__ids_0) AS "i"
+    WHERE "i"."value" > "t"."Id") = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_constants_EF_Parameter();
+
+        AssertSql(
+            """
+@__ints_0='[2,999]' (Size = 7)
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters();
+
+        AssertSql(
+            """
+@__ids_0='[2,999]' (Size = 7)
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each(@__ids_0) AS "i"
+    WHERE "i"."value" > "t"."Id") = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters();
+
+        AssertSql(
+            """
+@__ints_0='[2,999]' (Size = 7)
+
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant()
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_default_parameters_EF_Constant();
+
+        AssertSql(
+            """
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT 2 AS "Value" UNION ALL VALUES (999)) AS "i"
+    WHERE "i"."Value" > "t"."Id") = 1
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant()
+    {
+        await base.Parameter_collection_of_ints_Contains_int_with_default_parameters_EF_Constant();
+
+        AssertSql(
+            """
+SELECT "t"."Id"
+FROM "TestEntity" AS "t"
+WHERE "t"."Id" IN (2, 999)
 """);
     }
 

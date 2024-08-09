@@ -453,6 +453,12 @@ WHERE (
 """);
     }
 
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Contains_with_EF_Parameter(async));
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async));
+
     public override Task Parameter_collection_Count(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count(async));
 
