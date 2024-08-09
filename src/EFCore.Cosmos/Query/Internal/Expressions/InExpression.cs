@@ -49,6 +49,12 @@ public class InExpression : SqlExpression
         CoreTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
     {
+        if ((values is null ? 0 : 1) + (valuesParameter is null ? 0 : 1) != 1)
+        {
+            throw new ArgumentException(
+                CosmosStrings.OneOfTwoValuesMustBeSet(nameof(values), nameof(valuesParameter)));
+        }
+
         Item = item;
         Values = values;
         ValuesParameter = valuesParameter;
@@ -154,17 +160,9 @@ public class InExpression : SqlExpression
         SqlExpression item,
         IReadOnlyList<SqlExpression>? values,
         SqlParameterExpression? valuesParameter)
-    {
-        if (!(values is null ^ valuesParameter is null))
-        {
-            throw new ArgumentException(
-                CosmosStrings.OneOfTwoValuesMustBeSet(nameof(values), nameof(valuesParameter)));
-        }
-
-        return item == Item && values == Values && valuesParameter == ValuesParameter
+        => item == Item && values == Values && valuesParameter == ValuesParameter
             ? this
             : new InExpression(item, values, valuesParameter, TypeMapping);
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

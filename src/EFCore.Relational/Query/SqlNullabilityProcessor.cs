@@ -28,15 +28,16 @@ public class SqlNullabilityProcessor
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
-    /// <param name="useRelationalNulls">A bool value indicating whether relational null semantics are in use.</param>
+    /// <param name="parameters">Parameter object containing parameters for this class.</param>
     public SqlNullabilityProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
     {
         Dependencies = dependencies;
+        UseRelationalNulls = parameters.UseRelationalNulls;
+        ParametersToConstantize = parameters.ParametersToConstantize;
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
-        UseRelationalNulls = useRelationalNulls;
         _nonNullableColumns = [];
         _nullValueColumns = [];
         ParameterValues = null!;
@@ -51,6 +52,11 @@ public class SqlNullabilityProcessor
     ///     A bool value indicating whether relational null semantics are in use.
     /// </summary>
     protected virtual bool UseRelationalNulls { get; }
+
+    /// <summary>
+    ///     A collection of parameter names to constantize.
+    /// </summary>
+    protected virtual HashSet<string> ParametersToConstantize { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.
@@ -187,29 +193,54 @@ public class SqlNullabilityProcessor
 
             case ValuesExpression valuesExpression:
             {
-                RowValueExpression[]? newRowValues = null;
-
-                for (var i = 0; i < valuesExpression.RowValues.Count; i++)
+                switch (valuesExpression)
                 {
-                    var rowValue = valuesExpression.RowValues[i];
-                    var newRowValue = (RowValueExpression)VisitRowValue(rowValue, allowOptimizedExpansion: false, out _);
-
-                    if (newRowValue != rowValue && newRowValues is null)
-                    {
-                        newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
-                        for (var j = 0; j < i; j++)
+                    case { RowValues: not null }:
+                        RowValueExpression[]? newRowValues = null;
+                        for (var i = 0; i < valuesExpression.RowValues.Count; i++)
                         {
-                            newRowValues[j] = valuesExpression.RowValues[j];
+                            var rowValue = valuesExpression.RowValues[i];
+                            var newRowValue = (RowValueExpression)VisitRowValue(rowValue, allowOptimizedExpansion: false, out _);
+
+                            if (newRowValue != rowValue && newRowValues is null)
+                            {
+                                newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
+                                for (var j = 0; j < i; j++)
+                                {
+                                    newRowValues[j] = valuesExpression.RowValues[j];
+                                }
+                            }
+
+                            if (newRowValues is not null)
+                            {
+                                newRowValues[i] = newRowValue;
+                            }
                         }
-                    }
+                        return newRowValues is not null
+                            ? valuesExpression.Update(newRowValues)
+                            : valuesExpression;
 
-                    if (newRowValues is not null)
-                    {
-                        newRowValues[i] = newRowValue;
-                    }
+                    case { ValuesParameter: SqlParameterExpression valuesParameter }:
+                        DoNotCache();
+                        Check.DebugAssert(valuesParameter.TypeMapping is not null, "valuesParameter.TypeMapping is not null");
+                        Check.DebugAssert(valuesParameter.TypeMapping.ElementTypeMapping is not null, "valuesParameter.TypeMapping.ElementTypeMapping is not null");
+                        var typeMapping = (RelationalTypeMapping)valuesParameter.TypeMapping.ElementTypeMapping;
+                        var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
+
+                        var processedValues = new List<RowValueExpression>();
+                        foreach (var value in values)
+                        {
+                            processedValues.Add(
+                                new RowValueExpression([
+                                    _sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping)]));
+                        }
+                        return processedValues is not []
+                            ? valuesExpression.Update(processedValues)
+                            : valuesExpression;
+
+                    default:
+                        throw new UnreachableException();
                 }
-
-                return newRowValues is null ? valuesExpression : valuesExpression.Update(newRowValues);
             }
 
             case SelectExpression selectExpression:
@@ -1496,11 +1527,27 @@ public class SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        nullable = ParameterValues[sqlParameterExpression.Name] == null;
+        var parameterValue = ParameterValues[sqlParameterExpression.Name];
+        nullable = parameterValue == null;
 
-        return nullable
-            ? _sqlExpressionFactory.Constant(null, sqlParameterExpression.Type, sqlParameterExpression.TypeMapping)
-            : sqlParameterExpression;
+        if (nullable)
+        {
+            return _sqlExpressionFactory.Constant(
+                null,
+                sqlParameterExpression.Type,
+                sqlParameterExpression.TypeMapping);
+        }
+
+        if (ParametersToConstantize.Contains(sqlParameterExpression.Name))
+        {
+            DoNotCache();
+            return _sqlExpressionFactory.Constant(
+                parameterValue,
+                sqlParameterExpression.Type,
+                sqlParameterExpression.TypeMapping);
+        }
+
+        return sqlParameterExpression;
     }
 
     /// <summary>

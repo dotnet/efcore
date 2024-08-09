@@ -1004,6 +1004,9 @@
   <data name="OneOfThreeValuesMustBeSet" xml:space="preserve">
     <value>Exactly one of '{param1}', '{param2}' or '{param3}' must be set.</value>
   </data>
+  <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
+    <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
+  </data>
   <data name="OnlyConstantsSupportedInInlineCollectionQueryRoots" xml:space="preserve">
     <value>Only constants are supported inside inline collection query roots.</value>
   </data>

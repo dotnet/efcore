@@ -22,8 +22,8 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
     /// </summary>
     public SqliteSqlNullabilityProcessor(
         RelationalParameterBasedSqlProcessorDependencies dependencies,
-        bool useRelationalNulls)
-        : base(dependencies, useRelationalNulls)
+        RelationalParameterBasedSqlProcessorParameters parameters)
+        : base(dependencies, parameters)
     {
     }
 
