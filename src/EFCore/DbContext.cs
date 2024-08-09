@@ -108,7 +108,7 @@ public class DbContext :
         "EF Core isn't fully compatible with NativeAOT, and running the application may generate unexpected runtime failures.")]
     public DbContext(DbContextOptions options)
     {
-        Check.NotNull(options, nameof(options));
+        Check.NotNull(options);
 
         if (!options.ContextType.IsAssignableFrom(GetType()))
         {
@@ -1155,7 +1155,7 @@ public class DbContext :
     public virtual EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
         where TEntity : class
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1188,7 +1188,7 @@ public class DbContext :
     /// <returns>The entry for the given entity.</returns>
     public virtual EntityEntry Entry(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1261,7 +1261,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        return SetEntityState(Check.NotNull(entity), EntityState.Added);
     }
 
     /// <summary>
@@ -1302,7 +1302,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -1353,7 +1353,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        return SetEntityState(Check.NotNull(entity), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -1399,7 +1399,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        return SetEntityState(Check.NotNull(entity), EntityState.Modified);
     }
 
     /// <summary>
@@ -1433,7 +1433,7 @@ public class DbContext :
     public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
         where TEntity : class
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1488,7 +1488,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added);
+        return SetEntityState(Check.NotNull(entity), EntityState.Added);
     }
 
     /// <summary>
@@ -1530,7 +1530,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        var entry = EntryWithoutDetectChanges(Check.NotNull(entity, nameof(entity)));
+        var entry = EntryWithoutDetectChanges(Check.NotNull(entity));
 
         await SetEntityStateAsync(entry.GetInfrastructure(), EntityState.Added, cancellationToken)
             .ConfigureAwait(false);
@@ -1579,7 +1579,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged);
+        return SetEntityState(Check.NotNull(entity), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -1623,7 +1623,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified);
+        return SetEntityState(Check.NotNull(entity), EntityState.Modified);
     }
 
     /// <summary>
@@ -1655,7 +1655,7 @@ public class DbContext :
     /// </returns>
     public virtual EntityEntry Remove(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
         CheckDisposed();
 
         var entry = EntryWithoutDetectChanges(entity);
@@ -1874,7 +1874,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added);
+        SetEntityStates(Check.NotNull(entities), EntityState.Added);
     }
 
     /// <summary>
@@ -1964,7 +1964,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged);
+        SetEntityStates(Check.NotNull(entities), EntityState.Unchanged);
     }
 
     /// <summary>
@@ -2006,7 +2006,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified);
+        SetEntityStates(Check.NotNull(entities), EntityState.Modified);
     }
 
     /// <summary>
@@ -2033,7 +2033,7 @@ public class DbContext :
     /// <param name="entities">The entities to remove.</param>
     public virtual void RemoveRange(IEnumerable<object> entities)
     {
-        Check.NotNull(entities, nameof(entities));
+        Check.NotNull(entities);
         CheckDisposed();
 
         var stateManager = DbContextDependencies.StateManager;
@@ -2257,7 +2257,7 @@ public class DbContext :
     /// <returns>An <see cref="IQueryable{T}" /> representing the query.</returns>
     public virtual IQueryable<TResult> FromExpression<TResult>(Expression<Func<IQueryable<TResult>>> expression)
     {
-        Check.NotNull(expression, nameof(expression));
+        Check.NotNull(expression);
 
         return DbContextDependencies.QueryProvider.CreateQuery<TResult>(expression.Body);
     }

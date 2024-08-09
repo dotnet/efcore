@@ -31,7 +31,7 @@ public static class CosmosModelBuilderExtensions
         this ModelBuilder modelBuilder,
         string? name)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         modelBuilder.Model.SetDefaultContainer(name);
 
@@ -84,7 +84,7 @@ public static class CosmosModelBuilderExtensions
         string? name,
         bool fromDataAnnotation = false)
     {
-        Check.NullButNotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(name);
 
         return modelBuilder.CanSetAnnotation(CosmosAnnotationNames.ContainerName, name, fromDataAnnotation);
     }

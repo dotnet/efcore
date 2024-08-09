@@ -56,7 +56,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression)
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new PropertyEntry<TEntity, TProperty>(
             InternalEntry,
@@ -77,7 +77,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual ComplexPropertyEntry<TEntity, TProperty> ComplexProperty<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression)
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new ComplexPropertyEntry<TEntity, TProperty>(
             InternalEntry,
@@ -103,7 +103,7 @@ public class EntityEntry<TEntity> : EntityEntry
         Expression<Func<TEntity, TProperty?>> propertyExpression)
         where TProperty : class
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
     }
@@ -127,7 +127,7 @@ public class EntityEntry<TEntity> : EntityEntry
         Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
         where TProperty : class
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyExpression.GetMemberAccess().GetSimpleMemberName());
     }
@@ -144,7 +144,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         ValidateType<TProperty>(property);
 
@@ -163,7 +163,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry<TEntity, TProperty> ComplexProperty<TProperty>(IComplexProperty complexProperty)
     {
-        Check.NotNull(complexProperty, nameof(complexProperty));
+        Check.NotNull(complexProperty);
 
         ValidateType<TProperty>(complexProperty);
 
@@ -186,7 +186,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(INavigationBase navigation)
         where TProperty : class
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
 
         return new ReferenceEntry<TEntity, TProperty>(InternalEntry, (INavigation)navigation);
     }
@@ -207,7 +207,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(INavigationBase navigation)
         where TProperty : class
     {
-        Check.NotNull(navigation, nameof(navigation));
+        Check.NotNull(navigation);
 
         return new CollectionEntry<TEntity, TProperty>(InternalEntry, navigation);
     }
@@ -228,7 +228,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(string propertyName)
         where TProperty : class
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new ReferenceEntry<TEntity, TProperty>(InternalEntry, propertyName);
     }
@@ -249,7 +249,7 @@ public class EntityEntry<TEntity> : EntityEntry
     public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(string propertyName)
         where TProperty : class
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         return new CollectionEntry<TEntity, TProperty>(InternalEntry, propertyName);
     }
@@ -266,7 +266,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         ValidateType<TProperty>(InternalEntry.EntityType.FindProperty(propertyName));
 
@@ -285,7 +285,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry<TEntity, TProperty> ComplexProperty<TProperty>(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         ValidateType<TProperty>(InternalEntry.EntityType.FindComplexProperty(propertyName));
 

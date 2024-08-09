@@ -27,8 +27,8 @@ public sealed class IndexAttribute : Attribute
     /// <param name="additionalPropertyNames">The additional properties which constitute the index, if any, in order.</param>
     public IndexAttribute(string propertyName, params string[] additionalPropertyNames)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
-        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
+        Check.NotEmpty(propertyName);
+        Check.HasNoEmptyElements(additionalPropertyNames);
 
         PropertyNames = new List<string> { propertyName };
         ((List<string>)PropertyNames).AddRange(additionalPropertyNames);
@@ -41,8 +41,8 @@ public sealed class IndexAttribute : Attribute
     [Obsolete("Use the other constructor")]
     public IndexAttribute(params string[] propertyNames)
     {
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
-        Check.HasNoEmptyElements(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(propertyNames);
+        Check.HasNoEmptyElements(propertyNames);
 
         PropertyNames = propertyNames.ToList();
     }
@@ -59,7 +59,7 @@ public sealed class IndexAttribute : Attribute
     public string? Name
     {
         get => _name;
-        set => _name = Check.NotNull(value, nameof(value));
+        set => _name = Check.NotNull(value);
     }
 
     /// <summary>

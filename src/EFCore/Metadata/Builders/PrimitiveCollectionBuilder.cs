@@ -31,7 +31,7 @@ public class PrimitiveCollectionBuilder : IInfrastructure<IConventionPropertyBui
     [EntityFrameworkInternal]
     public PrimitiveCollectionBuilder(IMutableProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         Builder = ((Property)property).Builder;
     }
@@ -59,7 +59,7 @@ public class PrimitiveCollectionBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PrimitiveCollectionBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -353,7 +353,7 @@ public class PrimitiveCollectionBuilder : IInfrastructure<IConventionPropertyBui
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PrimitiveCollectionBuilder HasField(string fieldName)
     {
-        Check.NotEmpty(fieldName, nameof(fieldName));
+        Check.NotEmpty(fieldName);
 
         Builder.HasField(fieldName, ConfigurationSource.Explicit);
 

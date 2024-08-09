@@ -28,7 +28,7 @@ public sealed class DbContextModelAttribute : Attribute
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type contextType,
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type modelType)
     {
-        Check.NotNull(contextType, nameof(contextType));
+        Check.NotNull(contextType);
 
         ContextType = contextType;
         ModelType = modelType;

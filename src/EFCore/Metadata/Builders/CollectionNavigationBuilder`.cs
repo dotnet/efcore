@@ -55,7 +55,7 @@ public class CollectionNavigationBuilder<
             DeclaringEntityType,
             RelatedEntityType,
             WithOneBuilder(
-                Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
+                Check.NullButNotEmpty(navigationName)).Metadata);
 
     /// <summary>
     ///     Configures this as a one-to-many relationship.

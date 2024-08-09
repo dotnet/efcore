@@ -19,7 +19,7 @@ public abstract class InstantiationBinding
     protected InstantiationBinding(
         IReadOnlyList<ParameterBinding> parameterBindings)
     {
-        Check.NotNull(parameterBindings, nameof(parameterBindings));
+        Check.NotNull(parameterBindings);
 
         ParameterBindings = parameterBindings;
     }

@@ -70,7 +70,7 @@ public class WarningsConfigurationBuilder
     public virtual WarningsConfigurationBuilder Throw(
         params EventId[] eventIds)
     {
-        Check.NotNull(eventIds, nameof(eventIds));
+        Check.NotNull(eventIds);
 
         return WithOption(e => e.WithExplicit(eventIds, WarningBehavior.Throw));
     }
@@ -96,7 +96,7 @@ public class WarningsConfigurationBuilder
     public virtual WarningsConfigurationBuilder Log(
         params EventId[] eventIds)
     {
-        Check.NotNull(eventIds, nameof(eventIds));
+        Check.NotNull(eventIds);
 
         return WithOption(e => e.WithExplicit(eventIds, WarningBehavior.Log));
     }
@@ -122,7 +122,7 @@ public class WarningsConfigurationBuilder
     public virtual WarningsConfigurationBuilder Log(
         params (EventId Id, LogLevel Level)[] eventsAndLevels)
     {
-        Check.NotNull(eventsAndLevels, nameof(eventsAndLevels));
+        Check.NotNull(eventsAndLevels);
 
         return WithOption(e => e.WithExplicit(eventsAndLevels));
     }
@@ -148,7 +148,7 @@ public class WarningsConfigurationBuilder
     public virtual WarningsConfigurationBuilder Ignore(
         params EventId[] eventIds)
     {
-        Check.NotNull(eventIds, nameof(eventIds));
+        Check.NotNull(eventIds);
 
         return WithOption(e => e.WithExplicit(eventIds, WarningBehavior.Ignore));
     }

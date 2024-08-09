@@ -31,7 +31,7 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     [EntityFrameworkInternal]
     public ComplexTypePrimitiveCollectionBuilder(IMutableProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         Builder = ((Property)property).Builder;
     }
@@ -59,7 +59,7 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder HasAnnotation(string annotation, object? value)
     {
-        Check.NotEmpty(annotation, nameof(annotation));
+        Check.NotEmpty(annotation);
 
         Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -353,7 +353,7 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder HasField(string fieldName)
     {
-        Check.NotEmpty(fieldName, nameof(fieldName));
+        Check.NotEmpty(fieldName);
 
         Builder.HasField(fieldName, ConfigurationSource.Explicit);
 

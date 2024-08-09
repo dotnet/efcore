@@ -32,7 +32,7 @@ public static class CosmosModelExtensions
     public static void SetDefaultContainer(this IMutableModel model, string? name)
         => model.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the default container name.
@@ -47,7 +47,7 @@ public static class CosmosModelExtensions
         bool fromDataAnnotation = false)
         => (string?)model.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
