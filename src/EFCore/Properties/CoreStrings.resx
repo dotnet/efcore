@@ -150,6 +150,9 @@
   <data name="AnnotationNotFound" xml:space="preserve">
     <value>The annotation '{annotation}' was not found. Ensure that the annotation has been added to the object {annotatable}</value>
   </data>
+  <data name="ArgumentNotConstant" xml:space="preserve">
+    <value>The '{parameter}' value passed to '{methodName}' must be a constant.</value>
+  </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
   </data>
