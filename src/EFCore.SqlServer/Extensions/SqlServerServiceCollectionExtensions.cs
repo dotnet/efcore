@@ -52,7 +52,7 @@ public static class SqlServerServiceCollectionExtensions
     /// <typeparam name="TContext">The type of context to be registered.</typeparam>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
     public static IServiceCollection AddSqlServer<TContext>(
@@ -126,20 +126,20 @@ public static class SqlServerServiceCollectionExtensions
     /// <typeparam name="TContext">The type of context to be registered.</typeparam>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
     public static IServiceCollection AddAzureSql<TContext>(
         this IServiceCollection serviceCollection,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null,
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
         => serviceCollection.AddDbContext<TContext>(
             (_, options) =>
             {
                 optionsAction?.Invoke(options);
-                options.UseAzureSql(connectionString, sqlServerOptionsAction);
+                options.UseAzureSql(connectionString, azureSqlOptionsAction);
             });
 
     /// <summary>
@@ -200,20 +200,20 @@ public static class SqlServerServiceCollectionExtensions
     /// <typeparam name="TContext">The type of context to be registered.</typeparam>
     /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
     public static IServiceCollection AddAzureSynapse<TContext>(
         this IServiceCollection serviceCollection,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null,
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
         => serviceCollection.AddDbContext<TContext>(
             (_, options) =>
             {
                 optionsAction?.Invoke(options);
-                options.UseAzureSynapse(connectionString, sqlServerOptionsAction);
+                options.UseAzureSynapse(connectionString, azureSynapseOptionsAction);
             });
 
     /// <summary>

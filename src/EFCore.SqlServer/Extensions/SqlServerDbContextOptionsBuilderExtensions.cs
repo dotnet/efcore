@@ -34,7 +34,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseSqlServer(
         this DbContextOptionsBuilder optionsBuilder,
@@ -57,7 +57,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseSqlServer(
         this DbContextOptionsBuilder optionsBuilder,
@@ -88,7 +88,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     state then EF will open and close the connection as needed. The caller owns the connection and is
     ///     responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseSqlServer(
         this DbContextOptionsBuilder optionsBuilder,
@@ -116,7 +116,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
     ///     owns the connection and is responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseSqlServer(
         this DbContextOptionsBuilder optionsBuilder,
@@ -151,7 +151,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
@@ -171,7 +171,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// <typeparam name="TContext">The type of context to be configured.</typeparam>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
@@ -198,7 +198,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     state then EF will open and close the connection as needed. The caller owns the connection and is
     ///     responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
@@ -229,7 +229,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
     ///     owns the connection and is responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
@@ -257,17 +257,17 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSql(
         this DbContextOptionsBuilder optionsBuilder,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
         extension = extension
             .WithEngineType(SqlServerEngineType.AzureSql);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, azureSqlOptionsAction);
     }
 
     /// <summary>
@@ -280,19 +280,19 @@ public static class SqlServerDbContextOptionsExtensions
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSql(
         this DbContextOptionsBuilder optionsBuilder,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.AzureSql)
             .WithConnectionString(connectionString);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, azureSqlOptionsAction);
     }
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
@@ -311,13 +311,13 @@ public static class SqlServerDbContextOptionsExtensions
     ///     state then EF will open and close the connection as needed. The caller owns the connection and is
     ///     responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSql(
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
-        => UseAzureSql(optionsBuilder, connection, false, sqlServerOptionsAction);
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
+        => UseAzureSql(optionsBuilder, connection, false, azureSqlOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -339,13 +339,13 @@ public static class SqlServerDbContextOptionsExtensions
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
     ///     owns the connection and is responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSql(
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
         bool contextOwnsConnection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
     {
         Check.NotNull(connection, nameof(connection));
 
@@ -354,7 +354,7 @@ public static class SqlServerDbContextOptionsExtensions
             .WithEngineType(SqlServerEngineType.AzureSql)
             .WithConnection(connection, contextOwnsConnection);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, azureSqlOptionsAction);
     }
 
     /// <summary>
@@ -374,14 +374,14 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, azureSqlOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a Azure SQL database.
@@ -394,15 +394,15 @@ public static class SqlServerDbContextOptionsExtensions
     /// <typeparam name="TContext">The type of context to be configured.</typeparam>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, connectionString, azureSqlOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -421,15 +421,15 @@ public static class SqlServerDbContextOptionsExtensions
     ///     state then EF will open and close the connection as needed. The caller owns the connection and is
     ///     responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         DbConnection connection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, connection, azureSqlOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -452,16 +452,16 @@ public static class SqlServerDbContextOptionsExtensions
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
     ///     owns the connection and is responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSqlOptionsAction">An optional action to allow additional Azure SQL specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSql<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         DbConnection connection,
         bool contextOwnsConnection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSql(
-            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, azureSqlOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a Azure Synapse database, but without initially setting any
@@ -480,17 +480,17 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSynapse(
         this DbContextOptionsBuilder optionsBuilder,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
         extension = extension
             .WithEngineType(SqlServerEngineType.AzureSynapse);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, azureSynapseOptionsAction);
     }
 
     /// <summary>
@@ -503,19 +503,19 @@ public static class SqlServerDbContextOptionsExtensions
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSynapse(
         this DbContextOptionsBuilder optionsBuilder,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
     {
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
         extension = (SqlServerOptionsExtension)extension
             .WithEngineType(SqlServerEngineType.AzureSynapse)
             .WithConnectionString(connectionString);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, azureSynapseOptionsAction);
     }
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
@@ -534,13 +534,13 @@ public static class SqlServerDbContextOptionsExtensions
     ///     state then EF will open and close the connection as needed. The caller owns the connection and is
     ///     responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSynapse(
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
-        => UseAzureSynapse(optionsBuilder, connection, false, sqlServerOptionsAction);
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
+        => UseAzureSynapse(optionsBuilder, connection, false, azureSynapseOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -562,13 +562,13 @@ public static class SqlServerDbContextOptionsExtensions
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
     ///     owns the connection and is responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder UseAzureSynapse(
         this DbContextOptionsBuilder optionsBuilder,
         DbConnection connection,
         bool contextOwnsConnection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
     {
         Check.NotNull(connection, nameof(connection));
 
@@ -577,7 +577,7 @@ public static class SqlServerDbContextOptionsExtensions
             .WithEngineType(SqlServerEngineType.AzureSynapse)
             .WithConnection(connection, contextOwnsConnection);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, azureSynapseOptionsAction);
     }
 
     /// <summary>
@@ -597,14 +597,14 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, azureSynapseOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a Azure Synapse database.
@@ -617,15 +617,15 @@ public static class SqlServerDbContextOptionsExtensions
     /// <typeparam name="TContext">The type of context to be configured.</typeparam>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
     /// <param name="connectionString">The connection string of the database to connect to.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         string? connectionString,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, connectionString, azureSynapseOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -644,15 +644,15 @@ public static class SqlServerDbContextOptionsExtensions
     ///     state then EF will open and close the connection as needed. The caller owns the connection and is
     ///     responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         DbConnection connection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, connection, azureSynapseOptionsAction);
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
     /// <summary>
@@ -675,16 +675,16 @@ public static class SqlServerDbContextOptionsExtensions
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
     ///     owns the connection and is responsible for its disposal.
     /// </param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="azureSynapseOptionsAction">An optional action to allow additional Azure Synapse specific configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseAzureSynapse<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         DbConnection connection,
         bool contextOwnsConnection,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseAzureSynapse(
-            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, connection, contextOwnsConnection, azureSynapseOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to any of SQL Server, Azure SQL, Azure Synapse databases, but without initially setting any
@@ -703,14 +703,14 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlEngineOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder ConfigureSqlEngine(
         this DbContextOptionsBuilder optionsBuilder,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null)
     {
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder));
-        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
+        return ApplyConfiguration(optionsBuilder, sqlEngineOptionsAction);
     }
 
     /// <summary>
@@ -730,14 +730,14 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
-    /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse specific configuration.</param>
+    /// <param name="sqlEngineOptionsAction">An optional action to allow additional SQL Server, Azure SQL, Azure Synapse configuration.</param>
     /// <returns>The options builder so that further configuration can be chained.</returns>
     public static DbContextOptionsBuilder<TContext> ConfigureSqlEngine<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        Action<SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)ConfigureSqlEngine(
-            (DbContextOptionsBuilder)optionsBuilder, sqlServerOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder, sqlEngineOptionsAction);
 
     private static T GetOrCreateExtension<T>(DbContextOptionsBuilder optionsBuilder)
         where T : RelationalOptionsExtension, new()
@@ -751,6 +751,45 @@ public static class SqlServerDbContextOptionsExtensions
         ConfigureWarnings(optionsBuilder);
 
         sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
+
+        var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder).ApplyDefaults(optionsBuilder.Options);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        return optionsBuilder;
+    }
+    private static DbContextOptionsBuilder ApplyConfiguration(
+        DbContextOptionsBuilder optionsBuilder,
+        Action<AzureSqlDbContextOptionsBuilder>? azureSqlOptionsAction)
+    {
+        ConfigureWarnings(optionsBuilder);
+
+        azureSqlOptionsAction?.Invoke(new AzureSqlDbContextOptionsBuilder(optionsBuilder));
+
+        var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder).ApplyDefaults(optionsBuilder.Options);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        return optionsBuilder;
+    }
+    private static DbContextOptionsBuilder ApplyConfiguration(
+        DbContextOptionsBuilder optionsBuilder,
+        Action<AzureSynapseDbContextOptionsBuilder>? azureSynapseOptionsAction)
+    {
+        ConfigureWarnings(optionsBuilder);
+
+        azureSynapseOptionsAction?.Invoke(new AzureSynapseDbContextOptionsBuilder(optionsBuilder));
+
+        var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder).ApplyDefaults(optionsBuilder.Options);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        return optionsBuilder;
+    }
+    private static DbContextOptionsBuilder ApplyConfiguration(
+        DbContextOptionsBuilder optionsBuilder,
+        Action<SqlEngineDbContextOptionsBuilder>? sqlEngineOptionsAction)
+    {
+        ConfigureWarnings(optionsBuilder);
+
+        sqlEngineOptionsAction?.Invoke(new SqlEngineDbContextOptionsBuilder(optionsBuilder));
 
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder).ApplyDefaults(optionsBuilder.Options);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);

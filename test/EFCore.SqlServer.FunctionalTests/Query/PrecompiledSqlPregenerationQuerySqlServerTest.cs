@@ -258,7 +258,7 @@ WHERE [b].[Name] IN (N'foo', N'bar')
             // TODO: Figure out if there's a nice way to continue using the retrying strategy
             var sqlServerOptionsBuilder = new SqlServerDbContextOptionsBuilder(builder);
             sqlServerOptionsBuilder
-                .UseSqlServerCompatibilityLevel(120)
+                .UseCompatibilityLevel(120)
                 .ExecutionStrategy(d => new NonRetryingExecutionStrategy(d));
             return builder;
         }
