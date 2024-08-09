@@ -438,4 +438,15 @@ public static class ExpressionExtensions
                 ? Expression.Convert(expression, typeof(object))
                 : expression;
     }
+
+    /// <summary>
+    ///     Creates an <see cref="Expression" /> tree representing an identity lambda <c>x => x</c>.
+    /// </summary>
+    /// <param name="type">The parameter type.</param>
+    /// <returns>An identity lambda expression.</returns>
+    public static LambdaExpression CreateIdentityLambda(Type type)
+    {
+        var parameter = Expression.Parameter(type);
+        return Expression.Lambda(parameter, parameter);
+    }
 }
