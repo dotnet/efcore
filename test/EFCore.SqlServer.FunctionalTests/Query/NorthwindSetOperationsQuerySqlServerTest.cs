@@ -1370,6 +1370,54 @@ WHERE [c0].[ContactTitle] = N'Owner'
         AssertSql();
     }
 
+    public override async Task Intersect_on_distinct(bool async)
+    {
+        await base.Intersect_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CompanyName]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'México D.F.'
+INTERSECT
+SELECT [c0].[CompanyName]
+FROM [Customers] AS [c0]
+WHERE [c0].[ContactTitle] = N'Owner'
+""");
+    }
+
+    public override async Task Union_on_distinct(bool async)
+    {
+        await base.Union_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CompanyName]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'México D.F.'
+UNION
+SELECT [c0].[CompanyName]
+FROM [Customers] AS [c0]
+WHERE [c0].[ContactTitle] = N'Owner'
+""");
+    }
+
+    public override async Task Except_on_distinct(bool async)
+    {
+        await base.Except_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CompanyName]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'México D.F.'
+EXCEPT
+SELECT [c0].[CompanyName]
+FROM [Customers] AS [c0]
+WHERE [c0].[ContactTitle] = N'Owner'
+""");
+    }
+
     public override async Task Include_Union_only_on_one_side_throws(bool async)
     {
         await base.Include_Union_only_on_one_side_throws(async);

@@ -478,6 +478,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+        subquery.IsDistinct = false;
 
         translation = _sqlExpressionFactory.Not(_sqlExpressionFactory.Exists(subquery));
         subquery = new SelectExpression(translation, _sqlAliasManager);
@@ -509,6 +510,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+        subquery.IsDistinct = false;
 
         var translation = _sqlExpressionFactory.Exists(subquery);
         var selectExpression = new SelectExpression(translation, _sqlAliasManager);
@@ -589,6 +591,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+        subquery.IsDistinct = false;
 
         subquery.ReplaceProjection(new List<Expression> { projection });
         subquery.ApplyProjection();

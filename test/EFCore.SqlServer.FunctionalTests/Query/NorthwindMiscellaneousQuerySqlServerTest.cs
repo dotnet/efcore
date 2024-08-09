@@ -1603,6 +1603,52 @@ WHERE [c].[City] = N'London' AND EXISTS (
 """);
     }
 
+    public override async Task Any_on_distinct(bool async)
+    {
+        await base.Any_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[EmployeeID] <> 1 OR [o].[EmployeeID] IS NULL))
+""");
+    }
+
+    public override async Task Contains_on_distinct(bool async)
+    {
+        await base.Contains_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 1 IN (
+    SELECT [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+""");
+    }
+
+    public override async Task All_on_distinct(bool async)
+    {
+        await base.All_on_distinct(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[EmployeeID] = 1)
+""");
+    }
+
     public override async Task All_top_level(bool async)
     {
         await base.All_top_level(async);
@@ -4061,7 +4107,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
         SELECT 1
         FROM [Customers] AS [c1]
         WHERE EXISTS (
-            SELECT DISTINCT 1
+            SELECT 1
             FROM (
                 SELECT TOP(10) 1 AS empty
                 FROM [Customers] AS [c2]
@@ -7263,7 +7309,7 @@ ORDER BY (
 
     public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
     {
-        await base.Contains_over_concatenated_columns_with_different_sizes (async);
+        await base.Contains_over_concatenated_columns_with_different_sizes(async);
 
         AssertSql(
             """
@@ -7280,7 +7326,7 @@ WHERE [c].[CustomerID] + [c].[CompanyName] IN (
 
     public override async Task Contains_over_concatenated_column_and_constant(bool async)
     {
-        await base.Contains_over_concatenated_column_and_constant (async);
+        await base.Contains_over_concatenated_column_and_constant(async);
 
         AssertSql(
             """

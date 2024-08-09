@@ -887,6 +887,30 @@ SELECT VALUE EXISTS (
         AssertSql();
     }
 
+    public override async Task Any_on_distinct(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Any_on_distinct(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_on_distinct(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Contains_on_distinct(async));
+
+        AssertSql();
+    }
+
+    public override async Task All_on_distinct(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.All_on_distinct(async));
+
+        AssertSql();
+    }
+
     public override async Task All_top_level(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
@@ -3675,7 +3699,7 @@ ORDER BY c["City"], c["id"]
         // Cosmos client evaluation. Issue #17246.
         Assert.Equal(
             CoreStrings.ExpressionParameterizationExceptionSensitive(
-                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass169_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
+                "value(Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase`1+<>c__DisplayClass172_0[Microsoft.EntityFrameworkCore.Query.NorthwindQueryCosmosFixture`1[Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer]]).ss.Set().Any()"),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.SelectMany_primitive_select_subquery(async))).Message);
 
