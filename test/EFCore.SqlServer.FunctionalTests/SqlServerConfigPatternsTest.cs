@@ -732,7 +732,7 @@ public class SqlServerConfigPatternsTest
         }
     }
 
-    public class AddConfigureDbContext
+    public class AddConfigureDbContextWithRetry
     {
         [Fact]
         public void Does_not_throw_for_Add_Configure()
@@ -762,6 +762,66 @@ public class SqlServerConfigPatternsTest
 
             var context = serviceProvider.GetRequiredService<NorthwindContext>();
             Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+        }
+
+        [Fact]
+        public void Fallback_execution_strategy_used()
+        {
+            using var scope = new ServiceCollection()
+                .AddDbContext<NorthwindContext>(b => b.UseSqlServer())
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.TryEnableRetryOnFailure()))
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
+
+            var serviceProvider = scope.ServiceProvider;
+
+            var context = serviceProvider.GetRequiredService<NorthwindContext>();
+            Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
+        }
+
+        [Fact]
+        public void Fallback_execution_strategy_not_used()
+        {
+            using var scope = new ServiceCollection()
+                .AddDbContext<NorthwindContext>(b => b.UseSqlServer())
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine())
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
+
+            var serviceProvider = scope.ServiceProvider;
+
+            var context = serviceProvider.GetRequiredService<NorthwindContext>();
+            Assert.IsType<SqlServerExecutionStrategy>(context.Database.CreateExecutionStrategy());
+        }
+
+        [Fact]
+        public void Fallback_execution_strategy_does_not_overwrite_Add_first()
+        {
+            using var scope = new ServiceCollection()
+                .AddDbContext<NorthwindContext>(b => b.UseSqlServer(o => o.ExecutionStrategy(_ => new DummyExecutionStrategy())))
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.TryEnableRetryOnFailure()))
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
+
+            var serviceProvider = scope.ServiceProvider;
+
+            var context = serviceProvider.GetRequiredService<NorthwindContext>();
+            Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
+        }
+
+        [Fact]
+        public void Fallback_execution_strategy_does_not_overwrite_Configure_first()
+        {
+            using var scope = new ServiceCollection()
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.TryEnableRetryOnFailure()))
+                .AddDbContext<NorthwindContext>(b => b.UseSqlServer(o => o.ExecutionStrategy(_ => new DummyExecutionStrategy())))
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
+
+            var serviceProvider = scope.ServiceProvider;
+
+            var context = serviceProvider.GetRequiredService<NorthwindContext>();
+            Assert.IsType<DummyExecutionStrategy>(context.Database.CreateExecutionStrategy());
         }
 
         private class NorthwindContext : DbContext
