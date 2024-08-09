@@ -36,6 +36,8 @@ public static class MigrationsBundle
         _assembly = assembly;
         _startupAssembly = startupAssembly;
 
+        EF.IsMigrationBundle = true;
+
         var app = new CommandLineApplication { Name = "efbundle" };
 
         Configure(app);

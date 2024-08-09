@@ -42,6 +42,20 @@ public static partial class EF
     public static bool IsDesignTime { get; set; }
 
     /// <summary>
+    ///     This flag is set to <see langword="true" /> when code is being run from a migration bundle.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This flag can be inspected to change application behavior.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-commandline">EF Core command-line reference </see> for more information
+    ///         and examples.
+    ///     </para>
+    /// </remarks>
+    public static bool IsMigrationBundle { get; set; }
+
+    /// <summary>
     ///     References a given property or navigation on an entity or complex type instance. This is useful for shadow state properties, for
     ///     which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to
     ///     access the value assigned to a property in other scenarios.
