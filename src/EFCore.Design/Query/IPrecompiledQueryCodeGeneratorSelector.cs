@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-namespace Microsoft.EntityFrameworkCore.Query.Design;
+namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     Selects an <see cref="IPrecompiledQueryCodeGenerator" /> service for a given programming language.
