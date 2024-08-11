@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 givenType, dictionaryType);
 
         /// <summary>
-        ///     The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, and ReadOnlyMemory&lt;float&gt; are supported.
+        ///     The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, ReadOnlyMemory&lt;float&gt;, byte[], sbyte[], and float[] are supported.
         /// </summary>
         public static string BadVectorDataType(object? clrType)
             => string.Format(

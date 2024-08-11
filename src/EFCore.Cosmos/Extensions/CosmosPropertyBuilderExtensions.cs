@@ -239,13 +239,8 @@ public static class CosmosPropertyBuilderExtensions
 
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     private static CosmosVectorType CreateVectorType(DistanceFunction distanceFunction, int dimensions)
-    {
-        if (!Enum.IsDefined(distanceFunction))
-        {
-            throw new ArgumentException(CoreStrings.InvalidEnumValue(distanceFunction, nameof(distanceFunction), typeof(DistanceFunction)));
-        }
-
-        var vectorType = new CosmosVectorType(distanceFunction, dimensions);
-        return vectorType;
-    }
+        => Enum.IsDefined(distanceFunction)
+            ? new CosmosVectorType(distanceFunction, dimensions)
+            : throw new ArgumentException(
+                CoreStrings.InvalidEnumValue(distanceFunction, nameof(distanceFunction), typeof(DistanceFunction)));
 }

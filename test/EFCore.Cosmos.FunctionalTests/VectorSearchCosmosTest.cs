@@ -94,6 +94,47 @@ FROM root c
     }
 
     [ConditionalFact]
+    public virtual async Task Query_for_vector_distance_bytes_array()
+    {
+        await using var context = CreateContext();
+        var inputVector = new byte[] { 2, 1, 4, 3, 5, 2, 5, 7, 3, 1 };
+
+        // See Issue #34402
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Book>().Select(e => EF.Functions.VectorDistance(e.BytesArray, inputVector)).ToListAsync());
+
+        // Assert.Equal(3, booksFromStore.Count);
+        // Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
+
+        AssertSql(
+            """
+SELECT VALUE c["BytesArray"]
+FROM root c
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Query_for_vector_distance_singles_array()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f };
+
+        // See Issue #34402
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Book>()
+                .Select(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector, false, DistanceFunction.DotProduct)).ToListAsync());
+
+        // Assert.Equal(3, booksFromStore.Count);
+        // Assert.All(booksFromStore, s => Assert.NotEqual(0.0, s));
+
+        AssertSql(
+            """
+SELECT VALUE c["SinglesArray"]
+FROM root c
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task Vector_distance_sbytes_in_OrderBy()
     {
         await using var context = CreateContext();
@@ -128,8 +169,8 @@ ORDER BY VectorDistance(c["SBytes"], @__p_1, false, {'distanceFunction':'dotprod
             .ToListAsync();
 
         Assert.Equal(3, booksFromStore.Count);
-AssertSql(
-    """
+        AssertSql(
+            """
 @__p_1='[2,1,4,6,5,2,5,7,3,1]'
 
 SELECT VALUE c
@@ -158,6 +199,37 @@ SELECT VALUE c
 FROM root c
 ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine', 'dataType':'float32'})
 """);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Vector_distance_bytes_array_in_OrderBy()
+    {
+        await using var context = CreateContext();
+        var inputVector = new byte[] { 2, 1, 4, 6, 5, 2, 5, 7, 3, 1 };
+
+        // See Issue #34402
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Book>().OrderBy(e => EF.Functions.VectorDistance(e.BytesArray, inputVector)).ToListAsync());
+
+        // Assert.Equal(3, booksFromStore.Count);
+
+        AssertSql(
+);
+    }
+
+    [ConditionalFact]
+    public virtual async Task Vector_distance_singles_array_in_OrderBy()
+    {
+        await using var context = CreateContext();
+        var inputVector = new[] { 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f };
+
+        // See Issue #34402
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Book>().OrderBy(e => EF.Functions.VectorDistance(e.SinglesArray, inputVector)).ToListAsync());
+
+        // Assert.Equal(3, booksFromStore.Count);
+
+        AssertSql();
     }
 
     [ConditionalFact]
@@ -239,6 +311,10 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
 
         public ReadOnlyMemory<float> Singles { get; set; } = null!;
 
+        public byte[] BytesArray { get; set; } = null!;
+
+        public float[] SinglesArray { get; set; } = null!;
+
         public Owned1 OwnedReference { get; set; } = null!;
         public List<Owned1> OwnedCollection { get; set; } = null!;
     }
@@ -279,10 +355,14 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                     b.HasIndex(e => e.Bytes).ForVectors(VectorIndexType.Flat);
                     b.HasIndex(e => e.SBytes).ForVectors(VectorIndexType.Flat);
                     b.HasIndex(e => e.Singles).ForVectors(VectorIndexType.Flat);
+                    b.HasIndex(e => e.BytesArray).ForVectors(VectorIndexType.Flat);
+                    b.HasIndex(e => e.SinglesArray).ForVectors(VectorIndexType.Flat);
 
                     b.Property(e => e.Bytes).IsVector(DistanceFunction.Cosine, 10);
                     b.Property(e => e.SBytes).IsVector(DistanceFunction.DotProduct, 10);
                     b.Property(e => e.Singles).IsVector(DistanceFunction.Cosine, 10);
+                    b.Property(e => e.BytesArray).IsVector(DistanceFunction.Cosine, 10);
+                    b.Property(e => e.SinglesArray).IsVector(DistanceFunction.Cosine, 10);
                 });
 
         protected override Task SeedAsync(PoolableDbContext context)
@@ -293,17 +373,18 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                 Author = "Jon P Smith",
                 Title = "Entity Framework Core in Action",
                 Isbn = new ReadOnlyMemory<byte>("978-1617298363"u8.ToArray()),
-                Bytes = new([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
-                SBytes = new([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
-                Singles = new([ 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f ]),
-
-                OwnedReference = new()
+                Bytes = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
+                SBytes = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
+                Singles = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]),
+                BytesArray = [2, 1, 4, 3, 5, 2, 5, 7, 3, 1],
+                SinglesArray = [0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f],
+                OwnedReference = new Owned1
                 {
                     Prop = 7,
-                    NestedOwned = new() { Prop = "7" },
-                    NestedOwnedCollection = new() { new() { Prop = "71" }, new() { Prop = "72" } }
+                    NestedOwned = new Owned2 { Prop = "7" },
+                    NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                 },
-                OwnedCollection = new() { new() { Prop = 71 }, new() { Prop = 72 } }
+                OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
             };
 
             var book2 = new Book
@@ -312,17 +393,18 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                 Author = "Julie Lerman",
                 Title = "Programming Entity Framework: DbContext",
                 Isbn = new ReadOnlyMemory<byte>("978-1449312961"u8.ToArray()),
-                Bytes = new([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
-                SBytes = new([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
-                Singles = new([ 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f ]),
-
-                OwnedReference = new()
+                Bytes = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
+                SBytes = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
+                Singles = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]),
+                BytesArray = [2, 1, 4, 3, 5, 2, 5, 7, 3, 1],
+                SinglesArray = [0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f],
+                OwnedReference = new Owned1
                 {
                     Prop = 7,
-                    NestedOwned = new() { Prop = "7" },
-                    NestedOwnedCollection = new() { new() { Prop = "71" }, new() { Prop = "72" } }
+                    NestedOwned = new Owned2 { Prop = "7" },
+                    NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                 },
-                OwnedCollection = new() { new() { Prop = 71 }, new() { Prop = 72 } }
+                OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
             };
 
             var book3 = new Book
@@ -331,17 +413,18 @@ ORDER BY VectorDistance(c["Singles"], @__p_1, false, {'distanceFunction':'cosine
                 Author = "Julie Lerman",
                 Title = "Programming Entity Framework",
                 Isbn = new ReadOnlyMemory<byte>("978-0596807269"u8.ToArray()),
-                Bytes = new([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
-                SBytes = new([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
-                Singles = new([ 0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f ]),
-
-                OwnedReference = new()
+                Bytes = new ReadOnlyMemory<byte>([2, 1, 4, 3, 5, 2, 5, 7, 3, 1]),
+                SBytes = new ReadOnlyMemory<sbyte>([2, -1, 4, 3, 5, -2, 5, -7, 3, 1]),
+                Singles = new ReadOnlyMemory<float>([0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f]),
+                BytesArray = [2, 1, 4, 3, 5, 2, 5, 7, 3, 1],
+                SinglesArray = [0.33f, -0.52f, 0.45f, -0.67f, 0.89f, -0.34f, 0.86f, -0.78f, 0.86f, -0.78f],
+                OwnedReference = new Owned1
                 {
                     Prop = 7,
-                    NestedOwned = new() { Prop = "7" },
-                    NestedOwnedCollection = new() { new() { Prop = "71" }, new() { Prop = "72" } }
+                    NestedOwned = new Owned2 { Prop = "7" },
+                    NestedOwnedCollection = new List<Owned2> { new() { Prop = "71" }, new() { Prop = "72" } }
                 },
-                OwnedCollection = new() { new() { Prop = 71 }, new() { Prop = 72 } }
+                OwnedCollection = new List<Owned1> { new Owned1 { Prop = 71 }, new Owned1 { Prop = 72 } }
             };
 
             context.AddRange(book1, book2, book3);

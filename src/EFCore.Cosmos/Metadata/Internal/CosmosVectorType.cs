@@ -23,7 +23,9 @@ public sealed record class CosmosVectorType(DistanceFunction DistanceFunction, i
     /// </summary>
     public static VectorDataType CreateDefaultVectorDataType(Type clrType)
     {
-        var elementType = clrType.TryGetElementType(typeof(ReadOnlyMemory<>))?.UnwrapNullableType();
+        var elementType = clrType.TryGetElementType(typeof(ReadOnlyMemory<>))?.UnwrapNullableType()
+            ?? clrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType();
+
         return elementType == typeof(sbyte)
             ? VectorDataType.Int8
             : elementType == typeof(byte)

@@ -127,7 +127,7 @@
     <value>The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.</value>
   </data>
   <data name="BadVectorDataType" xml:space="preserve">
-    <value>The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, and ReadOnlyMemory&lt;float&gt; are supported.</value>
+    <value>The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, ReadOnlyMemory&lt;float&gt;, byte[], sbyte[], and float[] are supported.</value>
   </data>
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
