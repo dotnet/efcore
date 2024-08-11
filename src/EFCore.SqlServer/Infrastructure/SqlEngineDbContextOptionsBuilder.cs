@@ -61,7 +61,7 @@ public class SqlEngineDbContextOptionsBuilder
     ///     </para>
     /// </remarks>
     public virtual SqlEngineDbContextOptionsBuilder TryEnableRetryOnFailure()
-        => WithOption(e => e.WithUseRetryStrategyByDefault(true));
+        => WithOption(e => e.WithUseRetryingStrategyByDefault(true));
 
     /// <summary>
     ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.

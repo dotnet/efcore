@@ -19,7 +19,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     private int? _sqlServerCompatibilityLevel;
     private int? _azureSqlCompatibilityLevel;
     private int? _azureSynapseCompatibilityLevel;
-    private bool _useRetryStrategyByDefault;
+    private bool _useRetryingStrategyByDefault;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +83,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         _sqlServerCompatibilityLevel = copyFrom._sqlServerCompatibilityLevel;
         _azureSqlCompatibilityLevel = copyFrom._azureSqlCompatibilityLevel;
         _azureSynapseCompatibilityLevel = copyFrom._azureSynapseCompatibilityLevel;
-        _useRetryStrategyByDefault = copyFrom._useRetryStrategyByDefault;
+        _useRetryingStrategyByDefault = copyFrom._useRetryingStrategyByDefault;
     }
 
     /// <summary>
@@ -146,8 +146,8 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool UseRetryStrategyByDefault
-        => _useRetryStrategyByDefault;
+    public virtual bool UseRetryingStrategyByDefault
+        => _useRetryingStrategyByDefault;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -180,7 +180,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         var clone = (SqlServerOptionsExtension)Clone();
 
         clone._engineType = SqlServerEngineType.SqlServer;
-        clone._useRetryStrategyByDefault = enable;
+        clone._useRetryingStrategyByDefault = enable;
 
         return clone;
     }
@@ -236,11 +236,11 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlServerOptionsExtension WithUseRetryStrategyByDefault(bool enable)
+    public virtual SqlServerOptionsExtension WithUseRetryingStrategyByDefault(bool enable)
     {
         var clone = (SqlServerOptionsExtension)Clone();
 
-        clone._useRetryStrategyByDefault = enable;
+        clone._useRetryingStrategyByDefault = enable;
 
         return clone;
     }
@@ -251,7 +251,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         if (ExecutionStrategyFactory == null
             && (EngineType == SqlServerEngineType.AzureSql
                 || EngineType == SqlServerEngineType.AzureSynapse
-                || UseRetryStrategyByDefault))
+                || UseRetryingStrategyByDefault))
             {
                 return WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c));
             }
@@ -325,11 +325,11 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
                         .Append(Extension._engineType)
                         .Append(' ');
 
-                    if (Extension._useRetryStrategyByDefault)
+                    if (Extension._useRetryingStrategyByDefault)
                     {
                         builder
-                            .Append("UseRetryStrategyByDefault=")
-                            .Append(Extension._useRetryStrategyByDefault)
+                            .Append("UseRetryingStrategyByDefault=")
+                            .Append(Extension._useRetryingStrategyByDefault)
                             .Append(' ');
                     }
 
@@ -365,7 +365,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
             debugInfo["EngineType"] = Extension.EngineType.ToString();
-            debugInfo["UseRetryStrategyByDefault"] = Extension.UseRetryStrategyByDefault.ToString();
+            debugInfo["UseRetryingStrategyByDefault"] = Extension.UseRetryingStrategyByDefault.ToString();
 
             if (Extension.SqlServerCompatibilityLevel is int sqlServerCompatibilityLevel)
             {
