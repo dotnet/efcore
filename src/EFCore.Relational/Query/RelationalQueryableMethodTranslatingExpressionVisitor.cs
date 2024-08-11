@@ -295,12 +295,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
+
         if (QueryCompilationContext.ParametersToConstantize.Contains(sqlParameterExpression.Name))
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,
                 sqlParameterExpression,
-                new[] { ValuesOrderingColumnName, ValuesValueColumnName });
+                [ValuesOrderingColumnName, ValuesValueColumnName]);
             return CreateShapedQueryExpressionForValuesExpression(
                 valuesExpression,
                 tableAlias,
@@ -308,10 +309,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 sqlParameterExpression.TypeMapping,
                 sqlParameterExpression.IsNullable);
         }
-        else
-        {
-            return TranslatePrimitiveCollection(sqlParameterExpression, property: null, tableAlias);
-        }
+
+        return TranslatePrimitiveCollection(sqlParameterExpression, property: null, tableAlias);
     }
 
     /// <summary>
@@ -329,7 +328,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     ///     represents a parameter, and this contains <see langword="null" />.
     /// </param>
     /// <param name="tableAlias">
-    ///     Provides an tableAlias to be used for the table returned from translation, which will represent the collection.
+    ///     Provides an alias to be used for the table returned from translation, which will represent the collection.
     /// </param>
     /// <returns>A <see cref="ShapedQueryExpression" /> if the translation was successful, otherwise <see langword="null" />.</returns>
     protected virtual ShapedQueryExpression? TranslatePrimitiveCollection(
@@ -401,15 +400,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                 new RowValueExpression(
                     new[]
                     {
-                    // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
-                    _sqlExpressionFactory.Constant(i, intTypeMapping),
-                    // If no type mapping was inferred (i.e. no column in the inline collection), it's left null, to allow it to get
-                    // inferred later based on usage. Note that for the element in the VALUES expression, we'll also apply an explicit
-                    // CONVERT to make sure the database gets the right type (see
-                    // RelationalTypeMappingPostprocessor.ApplyTypeMappingsOnValuesExpression)
-                    sqlExpression.TypeMapping is null && inferredTypeMaping is not null
-                        ? _sqlExpressionFactory.ApplyTypeMapping(sqlExpression, inferredTypeMaping)
-                        : sqlExpression
+                        // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
+                        _sqlExpressionFactory.Constant(i, intTypeMapping),
+                        // If no type mapping was inferred (i.e. no column in the inline collection), it's left null, to allow it to get
+                        // inferred later based on usage. Note that for the element in the VALUES expression, we'll also apply an explicit
+                        // CONVERT to make sure the database gets the right type (see
+                        // RelationalTypeMappingPostprocessor.ApplyTypeMappingsOnValuesExpression)
+                        sqlExpression.TypeMapping is null && inferredTypeMaping is not null
+                            ? _sqlExpressionFactory.ApplyTypeMapping(sqlExpression, inferredTypeMaping)
+                            : sqlExpression
                     });
         }
         var alias = _sqlAliasManager.GenerateTableAlias("values");
@@ -953,8 +952,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // Note that some providers propagate NULL arguments (SQLite, MySQL), while others only return NULL if all arguments evaluate to
         // NULL (SQL Server, PostgreSQL). If the argument is a nullable value type, don't translate to GREATEST() if it propagates NULLs,
         // to match the .NET behavior.
-        if (TryExtractBareInlineCollectionValues(source, out var values, out _)
-            && _sqlTranslator.GenerateGreatest(values!, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression
+        if (TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlTranslator.GenerateGreatest(values, resultType.UnwrapNullableType()) is SqlFunctionExpression greatestExpression
             && (Nullable.GetUnderlyingType(resultType) is null
                 || greatestExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
         {
@@ -969,8 +968,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
     {
         // See comments above in TranslateMax()
-        if (TryExtractBareInlineCollectionValues(source, out var values, out _)
-            && _sqlTranslator.GenerateLeast(values!, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
+        if (TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlTranslator.GenerateLeast(values, resultType.UnwrapNullableType()) is SqlFunctionExpression leastExpression
             && (Nullable.GetUnderlyingType(resultType) is null
                 || leastExpression.ArgumentsPropagateNullability?.All(a => a == false) == true))
         {
@@ -2067,6 +2066,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         projection = null;
         return false;
     }
+    private bool TryExtractBareInlineCollectionValues(ShapedQueryExpression shapedQuery, [NotNullWhen(true)] out SqlExpression[]? values)
+        => TryExtractBareInlineCollectionValues(shapedQuery, out values, out _);
 
     private bool TryExtractBareInlineCollectionValues(ShapedQueryExpression shapedQuery, out SqlExpression[]? values, out SqlParameterExpression? valuesParameter)
     {
@@ -2089,24 +2090,24 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && projection is ColumnExpression { TableAlias: var tableAlias }
             && tableAlias == valuesExpression.Alias)
         {
-            if (valuesExpression.RowValues is not null)
+            switch (valuesExpression)
             {
-                values = new SqlExpression[valuesExpression.RowValues.Count];
+                case { RowValues: not null }:
+                    values = new SqlExpression[valuesExpression.RowValues.Count];
 
-                for (var i = 0; i < values.Length; i++)
-                {
-                    // Skip the first value (_ord) - this function assumes ordering doesn't matter
-                    values[i] = valuesExpression.RowValues[i].Values[1];
-                }
+                    for (var i = 0; i < values.Length; i++)
+                    {
+                        // Skip the first value (_ord) - this function assumes ordering doesn't matter
+                        values[i] = valuesExpression.RowValues[i].Values[1];
+                    }
 
-                valuesParameter = null;
-                return true;
-            }
-            if (valuesExpression.ValuesParameter is not null)
-            {
-                valuesParameter = valuesExpression.ValuesParameter;
-                values = null;
-                return true;
+                    valuesParameter = null;
+                    return true;
+
+                case { ValuesParameter: not null }:
+                    valuesParameter = valuesExpression.ValuesParameter;
+                    values = null;
+                    return true;
             }
         }
 

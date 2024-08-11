@@ -81,13 +81,14 @@ public class ValuesExpression : TableExpressionBase
                 rowValues.All(rv => rv.Values.Count == columnNames.Count),
                 "All row values must have a value count matching the number of column names");
         }
+
         if (valuesParameter is not null)
         {
             Check.DebugAssert(
                 columnNames.Count is 1 or 2,
                 $"Column names do not match usage of {nameof(ValuesParameter)}");
         }
-        if ((rowValues is null ? 0 : 1) + (valuesParameter is null ? 0 : 1) != 1)
+        if (!(rowValues is null ^ valuesParameter is null))
         {
             throw new ArgumentException(
                 RelationalStrings.OneOfTwoValuesMustBeSet(nameof(rowValues), nameof(valuesParameter)));

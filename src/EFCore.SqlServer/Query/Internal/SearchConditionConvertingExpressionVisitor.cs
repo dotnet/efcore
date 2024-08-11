@@ -842,30 +842,24 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     {
         var parentSearchCondition = _isSearchCondition;
         _isSearchCondition = false;
-        try
+        switch (valuesExpression)
         {
-            switch (valuesExpression)
-            {
-                case { RowValues: not null }:
-                    var rowValues = new RowValueExpression[valuesExpression.RowValues!.Count];
-                    for (var i = 0; i < rowValues.Length; i++)
-                    {
-                        rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
-                    }
-                    return valuesExpression.Update(rowValues);
+            case { RowValues: not null }:
+                var rowValues = new RowValueExpression[valuesExpression.RowValues!.Count];
+                for (var i = 0; i < rowValues.Length; i++)
+                {
+                    rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
+                }
+                _isSearchCondition = parentSearchCondition;
+                return valuesExpression.Update(rowValues);
 
-                case { ValuesParameter: not null }:
-                    var valuesParameter = (SqlParameterExpression)Visit(valuesExpression.ValuesParameter);
-                    return valuesExpression.Update(valuesParameter);
+            case { ValuesParameter: not null }:
+                var valuesParameter = (SqlParameterExpression)Visit(valuesExpression.ValuesParameter);
+                _isSearchCondition = parentSearchCondition;
+                return valuesExpression.Update(valuesParameter);
 
-                default:
-                    throw new UnreachableException();
-            }
-
-        }
-        finally
-        {
-            _isSearchCondition = parentSearchCondition;
+            default:
+                throw new UnreachableException();
         }
     }
 }

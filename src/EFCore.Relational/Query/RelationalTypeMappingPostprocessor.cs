@@ -212,8 +212,9 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
                         throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
                     }
 
-                    valuesParameter = (SqlParameterExpression)_sqlExpressionFactory.ApplyTypeMapping(valuesParameter, parameterTypeMapping);
+                    valuesParameter = (SqlParameterExpression)valuesParameter.ApplyTypeMapping(parameterTypeMapping);
                 }
+
                 return new ValuesExpression(valuesExpression.Alias, null, valuesParameter, newColumnNames);
             }
 

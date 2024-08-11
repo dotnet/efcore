@@ -387,6 +387,37 @@ WHERE GREATEST(30, [p].[NullableInt], NULL) = 30
 """);
     }
 
+    public override async Task Inline_collection_with_single_parameter_element_Contains(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Contains(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] = @__i_0
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Count(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Count(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (CAST(@__i_0 AS int))) AS [v]([Value])
+    WHERE [v].[Value] > [p].[Id]) = 1
+""");
+    }
+
     public override async Task Parameter_collection_Count(bool async)
     {
         await base.Parameter_collection_Count(async);
@@ -761,37 +792,6 @@ WHERE (
     SELECT COUNT(*)
     FROM (VALUES (2), (999), (1000)) AS [i]([Value])
     WHERE [i].[Value] > [p].[Id]) = 2
-""");
-    }
-
-    public override async Task Single_collection_parameter_Contains_is_not_confused_with_EF_Constant(bool async)
-    {
-        await base.Single_collection_parameter_Contains_is_not_confused_with_EF_Constant(async);
-
-        AssertSql(
-            """
-@__i_0='2'
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Id] = @__i_0
-""");
-    }
-
-    public override async Task Single_collection_parameter_Count_with_column_predicate_is_not_confused_with_EF_Constant(bool async)
-    {
-        await base.Single_collection_parameter_Count_with_column_predicate_is_not_confused_with_EF_Constant(async);
-
-        AssertSql(
-            """
-@__i_0='2'
-
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT COUNT(*)
-    FROM (VALUES (CAST(@__i_0 AS int))) AS [v]([Value])
-    WHERE [v].[Value] > [p].[Id]) = 1
 """);
     }
 

@@ -119,6 +119,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             {
                 throw new InvalidOperationException(CoreStrings.EFConstantNotSupported);
             }
+
             var parameterExpression = (ParameterExpression)Visit(methodCallExpression.Arguments[0]);
             _queryCompilationContext.ParametersToConstantize.Add(parameterExpression.Name!);
             return parameterExpression;

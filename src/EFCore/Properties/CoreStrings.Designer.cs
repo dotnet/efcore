@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantInvoked");
 
         /// <summary>
-        ///     'EF.Constant()' isn't supported by provider.
+        ///     'EF.Constant()' isn't supported your by provider.
         /// </summary>
         public static string EFConstantNotSupported
             => GetString("EFConstantNotSupported");

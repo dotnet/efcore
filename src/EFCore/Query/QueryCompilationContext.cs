@@ -55,7 +55,7 @@ public class QueryCompilationContext
 
     /// <summary>
     ///     <para>
-    ///         Expressions on which EF.Constant was used. This will be later used to transform the parts into constants.
+    ///         Names of parameters on which <see cref="EF.Constant{T}" /> was used. Such parameters are later transformed into constants.
     ///     </para>
     ///     <para>
     ///         This property is typically used by database providers (and other extensions). It is generally

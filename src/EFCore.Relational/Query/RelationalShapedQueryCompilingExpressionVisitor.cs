@@ -519,17 +519,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             GenerateRelationalCommandCacheExpression(),
             "relationalCommandCache",
             typeof(RelationalCommandCache));
-        //var commandLiftableConstant = RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
-        //    relationalCommandCache,
-        //    c => new RelationalCommandCache(
-        //        c.Dependencies.MemoryCache,
-        //        c.RelationalDependencies.QuerySqlGeneratorFactory,
-        //        c.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-        //        queryExpression,
-        //        _useRelationalNulls,
-        //        _parametersToConstantize),
-        //    "relationalCommandCache",
-        //    typeof(RelationalCommandCache));
 
         var parametersParameter = Parameter(typeof(IReadOnlyDictionary<string, object?>), "parameters");
 
