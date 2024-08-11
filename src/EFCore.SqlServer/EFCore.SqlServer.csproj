@@ -41,7 +41,6 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
-    <Compile Remove="Storage\Internal\SqlServerJsonTypeMapping.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,7 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.0-dev" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.1" />
   </ItemGroup>
 
   <ItemGroup>

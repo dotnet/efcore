@@ -6,7 +6,8 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class AdHocJsonQuerySqlServerJsonTypeTest : AdHocJsonQuerySqlServerTestBase
+// TODO:SQLJSON Enable tests
+internal class AdHocJsonQuerySqlServerJsonTypeTest : AdHocJsonQuerySqlServerTestBase
 {
     public override async Task Contains_on_nested_collection_with_init_only_navigation(bool async)
         // TODO:SQLJSON (See JsonTypeToFunction.cs)

@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class JsonQueryJsonTypeSqlServerTest : JsonQueryRelationalTestBase<JsonQueryJsonTypeSqlServerFixture>
+// TODO:SQLJSON Enable tests
+internal class JsonQueryJsonTypeSqlServerTest : JsonQueryRelationalTestBase<JsonQueryJsonTypeSqlServerFixture>
 {
     public JsonQueryJsonTypeSqlServerTest(JsonQueryJsonTypeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)

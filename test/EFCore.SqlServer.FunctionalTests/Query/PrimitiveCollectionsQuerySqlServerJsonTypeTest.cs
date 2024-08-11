@@ -5,8 +5,9 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
+// TODO:SQLJSON Enable tests
 [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
+internal class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerJsonTypeTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
     public PrimitiveCollectionsQuerySqlServerJsonTypeTest(PrimitiveCollectionsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
