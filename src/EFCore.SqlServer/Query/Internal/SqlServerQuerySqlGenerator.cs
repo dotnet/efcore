@@ -210,6 +210,11 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override void GenerateValues(ValuesExpression valuesExpression)
     {
+        if (valuesExpression.RowValues is null)
+        {
+            throw new UnreachableException();
+        }
+
         if (valuesExpression.RowValues.Count == 0)
         {
             throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);

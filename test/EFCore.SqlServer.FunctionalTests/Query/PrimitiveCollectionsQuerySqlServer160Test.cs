@@ -150,18 +150,6 @@ WHERE [p].[Id] IN (2, 999, 1000)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_EF_Constant(bool async)
-    {
-        await base.Inline_collection_Contains_with_EF_Constant(async);
-
-        AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Id] IN (2, 999, 1000)
-""");
-    }
-
     public override async Task Inline_collection_Contains_with_all_parameters(bool async)
     {
         await base.Inline_collection_Contains_with_all_parameters(async);
@@ -396,6 +384,37 @@ WHERE LEAST(30, [p].[NullableInt], NULL) = 30
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE GREATEST(30, [p].[NullableInt], NULL) = 30
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Contains(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Contains(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] = @__i_0
+""");
+    }
+
+    public override async Task Inline_collection_with_single_parameter_element_Count(bool async)
+    {
+        await base.Inline_collection_with_single_parameter_element_Count(async);
+
+        AssertSql(
+            """
+@__i_0='2'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (CAST(@__i_0 AS int))) AS [v]([Value])
+    WHERE [v].[Value] > [p].[Id]) = 1
 """);
     }
 
@@ -731,6 +750,48 @@ WHERE [p].[Int] IN (
     SELECT [i].[value]
     FROM OPENJSON(NULL) AS [i]
 )
+""");
+    }
+
+    public override async Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        await base.Parameter_collection_Contains_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] IN (2, 999, 1000)
+""");
+    }
+
+    public override async Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        await base.Parameter_collection_Where_with_EF_Constant_Where_Any(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    WHERE [i].[Value] > 0)
+""");
+    }
+
+    public override async Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        await base.Parameter_collection_Count_with_column_predicate_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT COUNT(*)
+    FROM (VALUES (2), (999), (1000)) AS [i]([Value])
+    WHERE [i].[Value] > [p].[Id]) = 2
 """);
     }
 

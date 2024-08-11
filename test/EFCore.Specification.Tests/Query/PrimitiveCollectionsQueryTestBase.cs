@@ -89,18 +89,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Inline_collection_Contains_with_EF_Constant(bool async)
-    {
-        var ids = new[] { 2, 999, 1000 };
-
-        return AssertQuery(
-            async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Constant(ids).Contains(c.Id)),
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, 99, 1000 }.Contains(c.Id)));
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Inline_collection_Contains_with_all_parameters(bool async)
     {
         var (i, j) = (2, 999);
@@ -273,6 +261,30 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
         await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 30, c.NullableInt, i }.Max() == 30));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_with_single_parameter_element_Contains(bool async)
+    {
+        var i = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i }.Contains(c.Id)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i }.Contains(c.Id)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_with_single_parameter_element_Count(bool async)
+    {
+        var i = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i }.Count(i => i > c.Id) == 1),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i }.Count(i => i > c.Id) == 1));
     }
 
     [ConditionalTheory]
@@ -461,6 +473,42 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture>(TFixture fixtu
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints!.Contains(c.Int)),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => false),
             assertEmpty: true);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_Contains_with_EF_Constant(bool async)
+    {
+        var ids = new[] { 2, 999, 1000 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Constant(ids).Contains(c.Id)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Contains(c.Id)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_Where_with_EF_Constant_Where_Any(bool async)
+    {
+        var ids = new[] { 2, 999, 1000 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Constant(ids).Where(x => x > 0).Any()),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Where(x => x > 0).Any()));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_Count_with_column_predicate_with_EF_Constant(bool async)
+    {
+        var ids = new[] { 2, 999, 1000 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => EF.Constant(ids).Count(i => i > c.Id) == 2),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ids.Count(i => i > c.Id) == 2));
     }
 
     [ConditionalTheory]

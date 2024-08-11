@@ -5,6 +5,7 @@ using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -925,13 +926,12 @@ public class ExpressionTreeFuncletizer : ExpressionVisitor
                         throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluatableArgument);
                     }
 
-                    argumentState = argumentState with
-                    {
-                        StateType = StateType.EvaluatableWithoutCapturedVariable, ForceConstantization = true
-                    };
+                    // Even EF.Constant will be parameter here.
+                    // To have a query cache hit, the constantization will happen later in pipeline.
+                    argumentState = argumentState with { StateType = StateType.EvaluatableWithCapturedVariable };
                     var evaluatedArgument = ProcessEvaluatableRoot(argument, ref argumentState);
                     _state = argumentState;
-                    return evaluatedArgument;
+                    return Call(method, evaluatedArgument);
                 }
 
                 case nameof(EF.Parameter):

@@ -162,40 +162,65 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
             ? valuesExpression.ColumnNames.Skip(1).ToArray()
             : valuesExpression.ColumnNames;
 
-        var newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
-        for (var i = 0; i < newRowValues.Length; i++)
+        switch (valuesExpression)
         {
-            var rowValue = valuesExpression.RowValues[i];
-            var newValues = new SqlExpression[newColumnNames.Count];
-            for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
+            case { RowValues: not null }:
             {
-                if (j == 0 && stripOrdering)
+                var newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
+                for (var i = 0; i < newRowValues.Length; i++)
                 {
-                    continue;
+                    var rowValue = valuesExpression.RowValues[i];
+                    var newValues = new SqlExpression[newColumnNames.Count];
+                    for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
+                    {
+                        if (j == 0 && stripOrdering)
+                        {
+                            continue;
+                        }
+
+                        var value = rowValue.Values[j];
+
+                        if (value.TypeMapping is null
+                            && inferredTypeMappings[j] is RelationalTypeMapping inferredTypeMapping)
+                        {
+                            value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
+                        }
+
+                        // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred types
+                        // are properly typed. See #30605 for removing that when not needed.
+                        if (i == 0 && j > 0 && value is not ColumnExpression)
+                        {
+                            value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
+                        }
+
+                        newValues[j - (stripOrdering ? 1 : 0)] = value;
+                    }
+
+                    newRowValues[i] = new RowValueExpression(newValues);
                 }
-
-                var value = rowValue.Values[j];
-
-                if (value.TypeMapping is null
-                    && inferredTypeMappings[j] is RelationalTypeMapping inferredTypeMapping)
-                {
-                    value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
-                }
-
-                // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred types
-                // are properly typed. See #30605 for removing that when not needed.
-                if (i == 0 && j > 0 && value is not ColumnExpression)
-                {
-                    value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
-                }
-
-                newValues[j - (stripOrdering ? 1 : 0)] = value;
+                return new ValuesExpression(valuesExpression.Alias, newRowValues, null, newColumnNames);
             }
 
-            newRowValues[i] = new RowValueExpression(newValues);
-        }
+            case { ValuesParameter: not null }:
+            {
+                var valuesParameter = valuesExpression.ValuesParameter;
+                if (valuesParameter.TypeMapping is null
+                    && inferredTypeMappings[1] is RelationalTypeMapping elementTypeMapping)
+                {
+                    if (RelationalDependencies.TypeMappingSource.FindMapping(valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping) is not RelationalTypeMapping { ElementTypeMapping: not null } parameterTypeMapping)
+                    {
+                        throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
+                    }
 
-        return new ValuesExpression(valuesExpression.Alias, newRowValues, newColumnNames);
+                    valuesParameter = (SqlParameterExpression)valuesParameter.ApplyTypeMapping(parameterTypeMapping);
+                }
+
+                return new ValuesExpression(valuesExpression.Alias, null, valuesParameter, newColumnNames);
+            }
+
+            default:
+                throw new UnreachableException();
+        };
     }
 
     /// <summary>

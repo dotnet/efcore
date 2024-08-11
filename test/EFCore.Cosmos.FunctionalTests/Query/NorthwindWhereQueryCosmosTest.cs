@@ -3157,36 +3157,29 @@ WHERE ((@__i_0 || c["id"]) = "AALFKI")
 """);
             });
 
-    public override Task EF_Constant(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EF_Constant(a);
+    public override async Task EF_Constant(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.EF_Constant(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
 
-                AssertSql("ReadItem(None, ALFKI)");
-            });
+    public override async Task EF_Constant_with_subtree(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.EF_Constant_with_subtree(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
 
-    public override Task EF_Constant_with_subtree(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EF_Constant_with_subtree(a);
-
-                AssertSql("ReadItem(None, ALFKI)");
-            });
-
-    public override Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
-        => Fixture.NoSyncTest(
-            async, async a =>
-            {
-                await base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(a);
-AssertSql(
-    """
-SELECT VALUE c
-FROM root c
-WHERE (c["id"] = ("ALF" || "KI"))
-""");
-            });
+    public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
+    {
+        // #34327
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async));
+        Assert.Equal(CoreStrings.EFConstantNotSupported, exception.Message);
+    }
 
     public override async Task EF_Constant_with_non_evaluatable_argument_throws(bool async)
     {
