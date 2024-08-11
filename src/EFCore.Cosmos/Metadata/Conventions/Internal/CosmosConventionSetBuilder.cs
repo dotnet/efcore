@@ -50,7 +50,7 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
 
         conventionSet.Add(new ContextContainerConvention(Dependencies));
         conventionSet.Add(new ETagPropertyConvention());
-        conventionSet.Add(new CosmosKeyAugmenterConvention(Dependencies));
+        conventionSet.Add(new CosmosPartitionKeyInPrimaryKeyConvention(Dependencies));
         conventionSet.Add(new CosmosJsonIdConvention(Dependencies, DefinitionFactory));
         conventionSet.Remove(typeof(ForeignKeyIndexConvention));
 

@@ -1627,7 +1627,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                 pb =>
                 {
                     pb.ToContainer("Planets");
-                    pb.IncludeDiscriminatorInJsonId();
+                    pb.HasDiscriminatorInJsonId();
                     pb.HasData(
                         new
                         {
@@ -1641,7 +1641,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                 mb =>
                 {
                     mb.ToContainer("Planets");
-                    mb.IncludeDiscriminatorInJsonId();
+                    mb.HasDiscriminatorInJsonId();
                     mb.HasData(
                         new
                         {
@@ -1656,7 +1656,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                 sb =>
                 {
                     sb.ToContainer("Planets");
-                    sb.IncludeDiscriminatorInJsonId();
+                    sb.HasDiscriminatorInJsonId();
                     sb.HasData(
                         new
                         {
@@ -1689,7 +1689,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                 b =>
                 {
                     b.ToContainer("Bartons");
-                    b.IncludeDiscriminatorInJsonId();
+                    b.HasDiscriminatorInJsonId();
                     b.OwnsOne(
                         e => e.Throned, b => b.HasData(
                             new
@@ -1707,7 +1707,7 @@ WHERE (c["Terminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (ARRAY
                 b =>
                 {
                     b.ToContainer("Bartons");
-                    b.IncludeDiscriminatorInJsonId();
+                    b.HasDiscriminatorInJsonId();
                     b.HasData(
                         new { Id = 1, BartonId = 1 });
                 });

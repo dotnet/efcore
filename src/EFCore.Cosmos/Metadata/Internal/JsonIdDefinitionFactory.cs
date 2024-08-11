@@ -51,7 +51,7 @@ public class JsonIdDefinitionFactory : IJsonIdDefinitionFactory
 
         var includeDiscriminator = entityType.GetDiscriminatorInKey();
 
-        if (includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName or DiscriminatorInKeyBehavior.RootEntityTypeName)
+        if (includeDiscriminator is IdDiscriminatorMode.EntityType or IdDiscriminatorMode.RootEntityType)
         {
             var discriminator = entityType.GetDiscriminatorValue();
             // If the discriminator is not part of the primary key already, then add it to the Cosmos `id`.
@@ -61,7 +61,7 @@ public class JsonIdDefinitionFactory : IJsonIdDefinitionFactory
                 if (!primaryKey.Properties.Contains(discriminatorProperty))
                 {
                     // Use the actual type for backwards compat, but the base type to allow lookup using ReadItem.
-                    return includeDiscriminator is DiscriminatorInKeyBehavior.EntityTypeName
+                    return includeDiscriminator is IdDiscriminatorMode.EntityType
                         ? new JsonIdDefinition(properties, entityType, false)
                         : new JsonIdDefinition(properties, entityType.GetRootType(), true);
                 }

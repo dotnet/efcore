@@ -967,7 +967,7 @@ OFFSET 0 LIMIT 2
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.IncludeDiscriminatorInJsonId();
+            modelBuilder.HasDiscriminatorInJsonIds();
         }
     }
 }

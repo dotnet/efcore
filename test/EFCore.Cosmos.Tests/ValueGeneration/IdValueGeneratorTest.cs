@@ -10,7 +10,7 @@ public class IdValueGeneratorTest
     {
         var modelBuilder = CosmosTestHelpers.Instance.CreateConventionBuilder();
 
-        modelBuilder.IncludeDiscriminatorInJsonId();
+        modelBuilder.HasDiscriminatorInJsonIds();
 
         modelBuilder.Entity<Blog>().HasKey(p => new { p.OtherId, p.Id });
         modelBuilder.Entity<Post>().HasKey(p => new { p.OtherId, p.Id });
