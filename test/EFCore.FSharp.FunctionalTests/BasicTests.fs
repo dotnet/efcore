@@ -12,7 +12,7 @@ type CliMutableRecord = {
 
 type TodoContext() =
     inherit DbContext()
-    member val Todos : DbSet<CliMutableRecord> = null with get, set
+    member val Todos = base.Set<CliMutableRecord>() with get, set
 
 let [<Fact>] ``Can create a basic Context``() =
     use ctx = new TodoContext()
