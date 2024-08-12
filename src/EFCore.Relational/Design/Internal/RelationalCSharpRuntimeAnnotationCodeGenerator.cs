@@ -40,23 +40,26 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             annotations.Remove(RelationalAnnotationNames.RelationalModel);
             annotations.Remove(RelationalAnnotationNames.RelationalModelFactory);
 
-            GenerateSimpleAnnotation(RelationalAnnotationNames.RelationalModelFactory, "() => CreateRelationalModel()", parameters);
-
-            var methodBuilder = new IndentedStringBuilder();
-            var newScope = new BidirectionalDictionary<string, object>();
-            Create(
-                model.GetRelationalModel(), parameters with
-                {
-                    MainBuilder = parameters.MethodBuilder,
-                    MethodBuilder = methodBuilder,
-                    ScopeObjects = newScope,
-                    ScopeVariables = newScope.Inverse
-                });
-
-            var methods = methodBuilder.ToString();
-            if (!string.IsNullOrEmpty(methods))
+            if (parameters.ForNativeAot)
             {
-                parameters.MethodBuilder.AppendLines(methods);
+                GenerateSimpleAnnotation(RelationalAnnotationNames.RelationalModelFactory, "() => CreateRelationalModel()", parameters);
+
+                var methodBuilder = new IndentedStringBuilder();
+                var newScope = new BidirectionalDictionary<string, object>();
+                Create(
+                    model.GetRelationalModel(), parameters with
+                    {
+                        MainBuilder = parameters.MethodBuilder,
+                        MethodBuilder = methodBuilder,
+                        ScopeObjects = newScope,
+                        ScopeVariables = newScope.Inverse
+                    });
+
+                var methods = methodBuilder.ToString();
+                if (!string.IsNullOrEmpty(methods))
+                {
+                    parameters.MethodBuilder.AppendLines(methods);
+                }
             }
         }
         else
@@ -1626,7 +1629,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             Create(parameter, parameters);
         }
 
-        if (function.TypeMapping != null)
+        if (function.TypeMapping != null && parameters.ForNativeAot)
         {
             mainBuilder.Append(functionVariable).Append(".TypeMapping = ");
             Create(function.TypeMapping, parameters with { TargetName = functionVariable });
@@ -1667,9 +1670,12 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(code.Literal(parameter.PropagatesNullability)).AppendLine(",")
             .Append(code.Literal(parameter.StoreType)).AppendLine(");").DecrementIndent();
 
-        mainBuilder.Append(parameterVariable).Append(".TypeMapping = ");
-        Create(parameter.TypeMapping!, parameters with { TargetName = parameterVariable });
-        mainBuilder.AppendLine(";");
+        if (parameters.ForNativeAot)
+        {
+            mainBuilder.Append(parameterVariable).Append(".TypeMapping = ");
+            Create(parameter.TypeMapping!, parameters with { TargetName = parameterVariable });
+            mainBuilder.AppendLine(";");
+        }
 
         CreateAnnotations(
             parameter,

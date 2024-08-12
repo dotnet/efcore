@@ -113,7 +113,7 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
+            var id = runtimeEntityType.FindProperty("Id");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));

@@ -208,12 +208,12 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var referenceNavigationId = runtimeEntityType.FindProperty("ReferenceNavigationId");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<int>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<int>(key));
-            var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation")!;
+            var referenceNavigation = runtimeEntityType.FindNavigation("ReferenceNavigation");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

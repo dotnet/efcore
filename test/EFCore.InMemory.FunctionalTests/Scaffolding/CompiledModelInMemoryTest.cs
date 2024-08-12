@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 {
                     Assert.NotNull(model.FindEntityType("1"));
                 },
-                options: new CompiledModelCodeGenerationOptions { ModelNamespace = string.Empty });
+                options: new CompiledModelCodeGenerationOptions { ModelNamespace = string.Empty, ForNativeAot = true });
 
         [ConditionalFact]
         public virtual Task Self_referential_property()
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     Assert.Same(principal, principal.CollectionNavigation!.Single().ReferenceNavigation);
                 },
                 options => options.UseLazyLoadingProxies(),
-                new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true },
+                new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true },
                 services => services.AddEntityFrameworkProxies());
 
         [ConditionalFact]
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     Assert.Equal(4, model.GetEntityTypes().Count());
                     Assert.Same(model, model.FindRuntimeAnnotationValue("ReadOnlyModel"));
                 },
-                options: new CompiledModelCodeGenerationOptions { ModelNamespace = "Scaffolding" },
+                options: new CompiledModelCodeGenerationOptions { ModelNamespace = "Scaffolding", ForNativeAot = true },
                 addDesignTimeServices: services => services.AddSingleton<ICSharpHelper, FullyQualifiedCSharpHelper>());
 
         [ConditionalFact]
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             => Test(
                 BuildCyclesModel,
                 AssertCyclesModel,
-                options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+                options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
         protected virtual void BuildCyclesModel(ModelBuilder modelBuilder)
         {

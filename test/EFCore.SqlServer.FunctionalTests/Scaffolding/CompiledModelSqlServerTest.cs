@@ -428,7 +428,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                 Assert.Equal(SqlServerValueGenerationStrategy.None, pointProperty.GetValueGenerationStrategy());
                 Assert.Null(pointProperty[CoreAnnotationNames.PropertyAccessMode]);
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
     protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;

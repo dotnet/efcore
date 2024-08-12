@@ -393,15 +393,15 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var partitionId = runtimeEntityType.FindProperty("PartitionId")!;
-            var blob = runtimeEntityType.FindProperty("Blob")!;
-            var bytes = runtimeEntityType.FindProperty("Bytes")!;
-            var list = runtimeEntityType.FindProperty("List")!;
-            var map = runtimeEntityType.FindProperty("Map")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var _etag = runtimeEntityType.FindProperty("_etag")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var partitionId = runtimeEntityType.FindProperty("PartitionId");
+            var blob = runtimeEntityType.FindProperty("Blob");
+            var bytes = runtimeEntityType.FindProperty("Bytes");
+            var list = runtimeEntityType.FindProperty("List");
+            var map = runtimeEntityType.FindProperty("Map");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var _etag = runtimeEntityType.FindProperty("_etag");
             var key = runtimeEntityType.FindKey(new[] { id, partitionId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));

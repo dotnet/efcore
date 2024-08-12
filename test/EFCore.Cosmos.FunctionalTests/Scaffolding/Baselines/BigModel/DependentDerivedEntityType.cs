@@ -115,15 +115,15 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var principalId = runtimeEntityType.FindProperty("PrincipalId")!;
-            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId")!;
-            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator")!;
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var data = runtimeEntityType.FindProperty("Data")!;
-            var money = runtimeEntityType.FindProperty("Money")!;
-            var principal = runtimeEntityType.FindNavigation("Principal")!;
+            var principalId = runtimeEntityType.FindProperty("PrincipalId");
+            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId");
+            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator");
+            var id = runtimeEntityType.FindProperty("Id");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var data = runtimeEntityType.FindProperty("Data");
+            var money = runtimeEntityType.FindProperty("Money");
+            var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

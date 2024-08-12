@@ -82,6 +82,8 @@ public class OptimizeDbContext : OperationTaskBase
                 AdditionalArguments.Add("--precompile-queries");
             }
 
+            AdditionalArguments.Add("--nativeaot");
+
             AdditionalArguments.Add("--suffix");
             AdditionalArguments.Add(".g");
 
