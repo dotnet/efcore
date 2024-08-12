@@ -397,14 +397,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping,
-        SqlExpression? existingExpr = null)
+        SqlExpression? existingExpression = null)
     {
         switch (operatorType)
         {
             case ExpressionType.AndAlso:
-                return ApplyTypeMapping(AndAlso(left, right, existingExpr), typeMapping);
+                return ApplyTypeMapping(AndAlso(left, right, existingExpression), typeMapping);
             case ExpressionType.OrElse:
-                return ApplyTypeMapping(OrElse(left, right, existingExpr), typeMapping);
+                return ApplyTypeMapping(OrElse(left, right, existingExpression), typeMapping);
         }
 
         if (!SqlBinaryExpression.IsValidOperator(operatorType))
@@ -457,7 +457,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression AndAlso(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.AndAlso, left, right, null)!;
 
-    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    private SqlExpression AndAlso(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
     {
         // false && x -> false
         // x && true -> x
@@ -483,11 +483,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // the case in which left and right are the same expression is handled above
             return Constant(false);
         }
-        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
-            return existingExpr;
+            return existingExpression;
         }
 
         return new SqlBinaryExpression(ExpressionType.AndAlso, left, right, typeof(bool), null);
@@ -497,7 +497,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression OrElse(SqlExpression left, SqlExpression right)
         => MakeBinary(ExpressionType.OrElse, left, right, null)!;
 
-    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpr)
+    private SqlExpression OrElse(SqlExpression left, SqlExpression right, SqlExpression? existingExpression)
     {
         // true || x -> true
         // x || false -> x
@@ -524,11 +524,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // the case in which left and right are the same expression is handled above
             return Constant(true);
         }
-        if (existingExpr is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
+        if (existingExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse } binaryExpr
             && left == binaryExpr.Left
             && right == binaryExpr.Right)
         {
-            return existingExpr;
+            return existingExpression;
         }
 
         return new SqlBinaryExpression(ExpressionType.OrElse, left, right, typeof(bool), null);
@@ -597,10 +597,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         SqlExpression operand,
         Type type,
         RelationalTypeMapping? typeMapping = null,
-        SqlExpression? existingExpr = null)
+        SqlExpression? existingExpression = null)
         => operatorType switch
         {
-            ExpressionType.Not => ApplyTypeMapping(Not(operand, existingExpr), typeMapping),
+            ExpressionType.Not => ApplyTypeMapping(Not(operand, existingExpression), typeMapping),
             _ when SqlUnaryExpression.IsValidOperator(operatorType)
                 => ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping),
             _ => null,
@@ -622,7 +622,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual SqlExpression Not(SqlExpression operand)
         => MakeUnary(ExpressionType.Not, operand, operand.Type, operand.TypeMapping)!;
 
-    private SqlExpression Not(SqlExpression operand, SqlExpression? existingExpr)
+    private SqlExpression Not(SqlExpression operand, SqlExpression? existingExpression)
         => operand switch
         {
             // !(null) -> null
@@ -677,8 +677,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     [.. caseExpression.WhenClauses.Select(clause => new CaseWhenClause(clause.Test, Not(clause.Result)))],
                     caseExpression.ElseResult is null ? null : Not(caseExpression.ElseResult)),
 
-            _ => existingExpr is SqlUnaryExpression { OperatorType: ExpressionType.Not } unaryExpr && unaryExpr.Operand == operand
-                ? existingExpr
+            _ => existingExpression is SqlUnaryExpression { OperatorType: ExpressionType.Not } unaryExpr && unaryExpr.Operand == operand
+                ? existingExpression
                 : new SqlUnaryExpression(ExpressionType.Not, operand, operand.Type, null),
         };
 
@@ -691,7 +691,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         SqlExpression? operand,
         IReadOnlyList<CaseWhenClause> whenClauses,
         SqlExpression? elseResult,
-        SqlExpression? existingExpr = null)
+        SqlExpression? existingExpression = null)
     {
         RelationalTypeMapping? testTypeMapping;
         if (operand == null)
@@ -814,7 +814,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             elseResult = lastCase.ElseResult;
         }
 
-        return existingExpr is CaseExpression expr
+        return existingExpression is CaseExpression expr
             && operand == expr.Operand
             && typeMappedWhenClauses.SequenceEqual(expr.WhenClauses)
             && elseResult == expr.ElseResult

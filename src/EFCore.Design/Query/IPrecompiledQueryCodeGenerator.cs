@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Editing;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using static Microsoft.EntityFrameworkCore.Query.Internal.PrecompiledQueryCodeGenerator;
 
-namespace Microsoft.EntityFrameworkCore.Migrations.Design;
+namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     Used to generate code for precompiled queries.

@@ -41,14 +41,14 @@ public interface ISqlExpressionFactory
     /// <param name="operand">A <see cref="SqlExpression" /> to apply unary operator on.</param>
     /// <param name="type">The type of the created expression.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
-    /// <param name="existingExpr">An optional expression that can be re-used if it matches the new expression.</param>
+    /// <param name="existingExpression">An optional expression that can be re-used if it matches the new expression.</param>
     /// <returns>A <see cref="SqlExpression" /> with the given arguments.</returns>
     SqlExpression? MakeUnary(
         ExpressionType operatorType,
         SqlExpression operand,
         Type type,
         RelationalTypeMapping? typeMapping = null,
-        SqlExpression? existingExpr = null);
+        SqlExpression? existingExpression = null);
 
     /// <summary>
     ///     Creates a new <see cref="SqlExpression" /> with the given arguments.
@@ -57,14 +57,14 @@ public interface ISqlExpressionFactory
     /// <param name="left">The left operand of binary operation.</param>
     /// <param name="right">The right operand of binary operation.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
-    /// <param name="existingExpr">An optional expression that can be re-used if it matches the new expression.</param>
+    /// <param name="existingExpression">An optional expression that can be re-used if it matches the new expression.</param>
     /// <returns>A <see cref="SqlExpression" /> with the given arguments.</returns>
     SqlExpression? MakeBinary(
         ExpressionType operatorType,
         SqlExpression left,
         SqlExpression right,
         RelationalTypeMapping? typeMapping,
-        SqlExpression? existingExpr = null);
+        SqlExpression? existingExpression = null);
 
     // Comparison
     /// <summary>
@@ -250,13 +250,13 @@ public interface ISqlExpressionFactory
     /// <param name="operand">An expression to compare with <see cref="CaseWhenClause.Test" /> in <paramref name="whenClauses" />.</param>
     /// <param name="whenClauses">A list of <see cref="CaseWhenClause" /> to compare or evaluate and get result from.</param>
     /// <param name="elseResult">A value to return if no <paramref name="whenClauses" /> matches, if any.</param>
-    /// <param name="existingExpr">An optional expression that can be re-used if it matches the new expression.</param>
+    /// <param name="existingExpression">An optional expression that can be re-used if it matches the new expression.</param>
     /// <returns>An expression representing a CASE statement in a SQL tree.</returns>
     SqlExpression Case(
         SqlExpression? operand,
         IReadOnlyList<CaseWhenClause> whenClauses,
         SqlExpression? elseResult,
-        SqlExpression? existingExpr = null);
+        SqlExpression? existingExpression = null);
 
     /// <summary>
     ///     Creates a new <see cref="CaseExpression" /> which represent a CASE statement in a SQL tree.

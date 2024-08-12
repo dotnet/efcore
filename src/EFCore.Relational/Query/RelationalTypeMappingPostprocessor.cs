@@ -10,9 +10,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     A visitor executed after translation, which verifies that all <see cref="SqlExpression" /> nodes have a type mapping,
 ///     and applies type mappings inferred for queryable constants (VALUES) and parameters (e.g. OPENJSON) back on their root tables.
 /// </summary>
-public class RelationalTypeMappingPostprocessor : ExpressionVisitor
+public class RelationalTypeMappingPostprocessor(
+    QueryTranslationPostprocessorDependencies dependencies,
+    RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+    RelationalQueryCompilationContext queryCompilationContext)
+    : ExpressionVisitor
 {
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+
     private SelectExpression? _currentSelectExpression;
 
     /// <summary>
@@ -21,36 +26,19 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
     private IReadOnlyDictionary<(string TableAlias, string ColumnName), RelationalTypeMapping?> _inferredTypeMappings = null!;
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="RelationalTypeMappingPostprocessor" /> class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
-    /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
-    /// <param name="queryCompilationContext">The query compilation context object to use.</param>
-    public RelationalTypeMappingPostprocessor(
-        QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        RelationalQueryCompilationContext queryCompilationContext)
-    {
-        Dependencies = dependencies;
-        RelationalDependencies = relationalDependencies;
-        QueryCompilationContext = queryCompilationContext;
-        _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-    }
-
-    /// <summary>
     ///     Parameter object containing dependencies for this class.
     /// </summary>
-    protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; }
+    protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; } = dependencies;
 
     /// <summary>
     ///     Parameter object containing relational dependencies for this class.
     /// </summary>
-    protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
+    protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; } = relationalDependencies;
 
     /// <summary>
     ///     The query compilation context object to use.
     /// </summary>
-    protected virtual RelationalQueryCompilationContext QueryCompilationContext { get; }
+    protected virtual RelationalQueryCompilationContext QueryCompilationContext { get; } = queryCompilationContext;
 
     /// <summary>
     ///     Processes type mappings in the expression tree.
@@ -164,12 +152,13 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
 
         switch (valuesExpression)
         {
-            case { RowValues: not null }:
+            // Regular VALUES over a collection of scalar values. Apply the inferred type mappings on each of the values.
+            case { RowValues: IReadOnlyList<RowValueExpression> rowValues }:
             {
-                var newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
+                var newRowValues = new RowValueExpression[rowValues.Count];
                 for (var i = 0; i < newRowValues.Length; i++)
                 {
-                    var rowValue = valuesExpression.RowValues[i];
+                    var rowValue = rowValues[i];
                     var newValues = new SqlExpression[newColumnNames.Count];
                     for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
                     {
@@ -186,8 +175,8 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
                             value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
                         }
 
-                        // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred types
-                        // are properly typed. See #30605 for removing that when not needed.
+                        // We currently add explicit conversions on the first row (but not to the _ord column), to ensure that the inferred
+                        // types are properly typed. See #30605 for removing that when not needed.
                         if (i == 0 && j > 0 && value is not ColumnExpression)
                         {
                             value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
@@ -198,29 +187,31 @@ public class RelationalTypeMappingPostprocessor : ExpressionVisitor
 
                     newRowValues[i] = new RowValueExpression(newValues);
                 }
+
                 return new ValuesExpression(valuesExpression.Alias, newRowValues, null, newColumnNames);
             }
 
-            case { ValuesParameter: not null }:
+            // VALUES over a values parameter (i.e. a parameter representing the entire collection, that will be constantized into the SQL
+            // later). Apply the inferred type mapping on the parameter.
+            case { ValuesParameter: { TypeMapping: null } valuesParameter }
+                when inferredTypeMappings[1] is RelationalTypeMapping elementTypeMapping:
             {
-                var valuesParameter = valuesExpression.ValuesParameter;
-                if (valuesParameter.TypeMapping is null
-                    && inferredTypeMappings[1] is RelationalTypeMapping elementTypeMapping)
+                if (RelationalDependencies.TypeMappingSource.FindMapping(
+                        valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping) is not
+                    { ElementTypeMapping: not null } collectionParameterTypeMapping)
                 {
-                    if (RelationalDependencies.TypeMappingSource.FindMapping(valuesParameter.Type, QueryCompilationContext.Model, elementTypeMapping) is not RelationalTypeMapping { ElementTypeMapping: not null } parameterTypeMapping)
-                    {
-                        throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
-                    }
-
-                    valuesParameter = (SqlParameterExpression)valuesParameter.ApplyTypeMapping(parameterTypeMapping);
+                    throw new UnreachableException("A RelationalTypeMapping collection type mapping could not be found");
                 }
 
-                return new ValuesExpression(valuesExpression.Alias, null, valuesParameter, newColumnNames);
+                return new ValuesExpression(
+                    valuesExpression.Alias,
+                    (SqlParameterExpression)valuesParameter.ApplyTypeMapping(collectionParameterTypeMapping),
+                    newColumnNames);
             }
 
             default:
                 throw new UnreachableException();
-        };
+        }
     }
 
     /// <summary>
