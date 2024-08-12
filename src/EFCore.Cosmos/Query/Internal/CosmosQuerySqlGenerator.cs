@@ -632,6 +632,19 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitFragment(FragmentExpression fragmentExpression)
+    {
+        _sqlBuilder.Append(fragmentExpression.Fragment);
+
+        return fragmentExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
     {
         _sqlBuilder.Append('(');
@@ -657,11 +670,13 @@ public class CosmosQuerySqlGenerator(ITypeMappingSource typeMappingSource) : Sql
 
         if (_sqlParameters.All(sp => sp.Name != parameterName))
         {
-            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping");
-            var jToken = ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
-                .GenerateJToken(_parameterValues[sqlParameterExpression.Name]);
+            Check.DebugAssert(sqlParameterExpression.TypeMapping is not null, "SqlParameterExpression without a type mapping.");
 
-            _sqlParameters.Add(new SqlParameter(parameterName, jToken));
+            _sqlParameters.Add(
+                new SqlParameter(
+                    parameterName,
+                    ((CosmosTypeMapping)sqlParameterExpression.TypeMapping)
+                    .GenerateJToken(_parameterValues[sqlParameterExpression.Name])));
         }
 
         _sqlBuilder.Append(parameterName);

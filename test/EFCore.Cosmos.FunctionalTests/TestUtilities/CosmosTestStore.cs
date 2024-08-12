@@ -9,6 +9,7 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.CosmosDB;
 using Azure.ResourceManager.CosmosDB.Models;
 using Microsoft.Azure.Cosmos;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -390,12 +391,15 @@ public class CosmosTestStore : TestStore
             mappedTypes.Add(entityType);
         }
 
+#pragma warning disable EF9103
         foreach (var (containerName, mappedTypes) in containers)
         {
             IReadOnlyList<string> partitionKeyStoreNames = Array.Empty<string>();
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
+            var indexes = new List<IIndex>();
+            var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -406,14 +410,26 @@ public class CosmosTestStore : TestStore
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
+                indexes.AddRange(entityType.GetIndexes());
+
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                    {
+                        vectors.Add((property, vectorTypeMapping.VectorType));
+                    }
+                }
             }
+#pragma warning restore EF9103
 
             yield return new(
                 containerName,
                 partitionKeyStoreNames,
                 analyticalTtl,
                 defaultTtl,
-                throughput);
+                throughput,
+                indexes,
+                vectors);
         }
     }
 

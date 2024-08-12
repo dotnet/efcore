@@ -22,6 +22,7 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
     /// </summary>
     public CosmosMethodCallTranslatorProvider(
         ISqlExpressionFactory sqlExpressionFactory,
+        ITypeMappingSource typeMappingSource,
         IEnumerable<IMethodCallTranslatorPlugin> plugins)
     {
         _plugins.AddRange(plugins.SelectMany(p => p.Translators));
@@ -34,7 +35,8 @@ public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
             new CosmosRandomTranslator(sqlExpressionFactory),
             new CosmosRegexTranslator(sqlExpressionFactory),
             new CosmosStringMethodTranslator(sqlExpressionFactory),
-            new CosmosTypeCheckingTranslator(sqlExpressionFactory)
+            new CosmosTypeCheckingTranslator(sqlExpressionFactory),
+            new CosmosVectorSearchTranslator(sqlExpressionFactory, typeMappingSource)
             //new LikeTranslator(sqlExpressionFactory),
             //new EnumHasFlagTranslator(sqlExpressionFactory),
             //new GetValueOrDefaultTranslator(sqlExpressionFactory),

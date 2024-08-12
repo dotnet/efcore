@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
@@ -112,6 +113,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             int? analyticalTtl = null;
             int? defaultTtl = null;
             ThroughputProperties? throughput = null;
+            var indexes = new List<IIndex>();
+            var vectors = new List<(IProperty Property, CosmosVectorType VectorType)>();
 
             foreach (var entityType in mappedTypes)
             {
@@ -122,6 +125,15 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
+                indexes.AddRange(entityType.GetIndexes());
+
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.FindTypeMapping() is CosmosVectorTypeMapping vectorTypeMapping)
+                    {
+                        vectors.Add((property, vectorTypeMapping.VectorType));
+                    }
+                }
             }
 
             yield return new ContainerProperties(
@@ -129,7 +141,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 partitionKeyStoreNames,
                 analyticalTtl,
                 defaultTtl,
-                throughput);
+                throughput,
+                indexes,
+                vectors);
         }
     }
 
@@ -212,11 +226,16 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
     /// <summary>
+    ///     Returns the store names of the properties that is used to store the partition keys.
+    /// </summary>
+    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
+    /// </remarks>
+    /// <param name="entityType">The entity type to get the partition key property names for.</param>
+    /// <returns>The names of the partition key property.</returns>
     private static IReadOnlyList<string> GetPartitionKeyStoreNames(IEntityType entityType)
     {
         var properties = entityType.GetPartitionKeyProperties();

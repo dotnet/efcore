@@ -123,11 +123,17 @@
   <data name="BadDictionaryType" xml:space="preserve">
     <value>The type '{givenType}' cannot be mapped as a dictionary because it does not implement '{dictionaryType}'.</value>
   </data>
+  <data name="BadVectorDataType" xml:space="preserve">
+    <value>The type '{clrType}' is being used as a vector, but the vector data type cannot be inferred. Only 'ReadOnlyMemory&lt;byte&gt;, ReadOnlyMemory&lt;sbyte&gt;, ReadOnlyMemory&lt;float&gt;, byte[], sbyte[], and float[] are supported.</value>
+  </data>
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
   <data name="ComplexProjectionInSubqueryNotSupported" xml:space="preserve">
     <value>Complex projections in subqueries are currently unsupported.</value>
+  </data>
+  <data name="CompositeVectorIndex" xml:space="preserve">
+    <value>A vector index on '{entityType}' is defined over properties `{properties}`. A vector index can only target a single property.</value>
   </data>
   <data name="ConnectionInfoMissing" xml:space="preserve">
     <value>None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.</value>
@@ -268,6 +274,9 @@
   <data name="NoSubqueryPushdown" xml:space="preserve">
     <value>Azure Cosmos DB does not have an appropriate subquery for this translation.</value>
   </data>
+  <data name="NoVectorContainerConfig" xml:space="preserve">
+    <value>Container configuration for embeddings is not yet supported by the Cosmos SDK. Instead, configure the container manually. See https://aka.ms/ef-cosmos-vectors for more information.</value>
+  </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
   </data>
@@ -339,6 +348,12 @@
   </data>
   <data name="UpdateStoreException" xml:space="preserve">
     <value>An error occurred while saving the item with id '{itemId}'. See the inner exception for details.</value>
+  </data>
+  <data name="VectorIndexOnNonVector" xml:space="preserve">
+    <value>A vector index is defined for `{entityType}.{property}`, but this property has not been configured as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
+  </data>
+  <data name="VectorSearchRequiresVector" xml:space="preserve">
+    <value>The 'VectorDistance' function can only be used with a property mapped as a vector. Use 'IsVector()' in 'OnModelCreating' to configure the property as a vector.</value>
   </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>

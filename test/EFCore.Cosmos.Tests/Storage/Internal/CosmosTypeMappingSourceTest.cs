@@ -332,8 +332,6 @@ public class CosmosTypeMappingSourceTest
     {
         Assert.Null(GetTypeMapping(typeof(Memory<float>)));
         Assert.Null(GetTypeMapping(typeof(Memory<float>?)));
-        Assert.Null(GetTypeMapping(typeof(ReadOnlyMemory<float>)));
-        Assert.Null(GetTypeMapping(typeof(ReadOnlyMemory<float>?)));
     }
 
     private static Type UnwrapNullableType(Type type)
