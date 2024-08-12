@@ -205,6 +205,7 @@ public class RelationalModelAsserter : ModelAsserter
         Assert.Multiple(
             () => Assert.Equal(expected.GetDbSetName(), actual.GetDbSetName()),
             () => Assert.Equal(expected.GetContainerColumnName(), actual.GetContainerColumnName()),
+            () => Assert.Equal(expected.GetContainerColumnType(), actual.GetContainerColumnType()),
             () => Assert.Equal(expected.GetJsonPropertyName(), actual.GetJsonPropertyName()),
             () =>
             {
@@ -543,6 +544,7 @@ public class RelationalModelAsserter : ModelAsserter
 
         Assert.Multiple(
             () => Assert.Equal(expected.GetContainerColumnName(), actual.GetContainerColumnName()),
+            () => Assert.Equal(expected.GetContainerColumnType(), actual.GetContainerColumnType()),
             () => Assert.Equal(expectedStructuralType.GetJsonPropertyName(), actualStructuralType.GetJsonPropertyName()),
             () => Assert.Equal(expectedStructuralType.GetTableName(), actualStructuralType.GetTableName()),
             () => Assert.Equal(expectedStructuralType.GetViewName(), actualStructuralType.GetViewName()),

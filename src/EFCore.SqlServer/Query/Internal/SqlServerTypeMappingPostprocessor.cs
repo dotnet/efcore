@@ -43,7 +43,8 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
         => expression switch
         {
             SqlServerOpenJsonExpression openJsonExpression
-                => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression),
+                when TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var typeMapping)
+                => ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression, new[] { typeMapping }),
 
             _ => base.VisitExtension(expression)
         };
@@ -54,21 +55,12 @@ public class SqlServerTypeMappingPostprocessor : RelationalTypeMappingPostproces
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SqlServerOpenJsonExpression ApplyTypeMappingsOnOpenJsonExpression(SqlServerOpenJsonExpression openJsonExpression)
+    protected virtual SqlServerOpenJsonExpression ApplyTypeMappingsOnOpenJsonExpression(
+        SqlServerOpenJsonExpression openJsonExpression,
+        IReadOnlyList<RelationalTypeMapping> typeMappings)
     {
-        if (openJsonExpression is { JsonExpression.TypeMapping: SqlServerStringTypeMapping { StoreType: "json" } } or
-            { JsonExpression.TypeMapping: SqlServerJsonElementTypeMapping { StoreType: "json" } })
-        {
-            openJsonExpression = openJsonExpression.Update(
-                new SqlUnaryExpression(
-                    ExpressionType.Convert, (SqlExpression)Visit(openJsonExpression.JsonExpression), typeof(string),
-                    _typeMappingSource.FindMapping(typeof(string))!));
-        }
-
-        if (!TryGetInferredTypeMapping(openJsonExpression.Alias, "value", out var elementTypeMapping))
-        {
-            return openJsonExpression;
-        }
+        Check.DebugAssert(typeMappings.Count == 1, "typeMappings.Count == 1");
+        var elementTypeMapping = typeMappings[0];
 
         // Constant queryables are translated to VALUES, no need for JSON.
         // Column queryables have their type mapping from the model, so we don't ever need to apply an inferred mapping on them.

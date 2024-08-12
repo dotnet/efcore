@@ -196,6 +196,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNonRoot(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNonRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is not mapped to a container column, such as for JSON. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNonContainer(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNonContainer", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
         /// </summary>
         public static string CreateIndexOperationWithInvalidSortOrder(object? numSortOrderProperties, object? numColumns)

@@ -187,6 +187,12 @@
   <data name="ConflictingTypeMappingsInferredForColumn" xml:space="preserve">
     <value>Conflicting type mappings were inferred for column '{column}'.</value>
   </data>
+  <data name="ContainerTypeOnNonRoot" xml:space="preserve">
+    <value>The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.</value>
+  </data>
+  <data name="ContainerTypeOnNonContainer" xml:space="preserve">
+    <value>The entity type '{entityType}' has a container column type configured, but is not mapped to a container column, such as for JSON. The container column type can only be specified on a top-level owned type mapped to a container.</value>
+  </data>
   <data name="CreateIndexOperationWithInvalidSortOrder" xml:space="preserve">
     <value>{numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.</value>
   </data>

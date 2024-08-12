@@ -55,6 +55,29 @@ public sealed class SqlServerJsonPostprocessor(
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitExtension(Expression expression)
+        => expression switch
+        {
+            SqlServerOpenJsonExpression openJsonExpression
+                => openJsonExpression is { JsonExpression.TypeMapping: SqlServerStringTypeMapping { StoreType: "json" } } or
+                    { JsonExpression.TypeMapping: SqlServerJsonElementTypeMapping { StoreType: "json" } }
+                    ? openJsonExpression.Update(
+                        new SqlUnaryExpression(
+                            ExpressionType.Convert,
+                            (SqlExpression)Visit(openJsonExpression.JsonExpression),
+                            typeof(string),
+                            typeMappingSource.FindMapping(typeof(string))!))
+                    : openJsonExpression,
+
+            _ => base.VisitExtension(expression)
+        };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     [return: NotNullIfNotNull(nameof(expression))]
     public override Expression? Visit(Expression? expression)
     {

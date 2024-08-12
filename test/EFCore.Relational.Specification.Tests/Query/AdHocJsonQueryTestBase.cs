@@ -10,6 +10,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     protected override string StoreName
         => "AdHocJsonQueryTest";
 
+    protected virtual void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    {
+    }
+
     #region 32310
 
     [ConditionalTheory]
@@ -17,7 +21,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     public virtual async Task Contains_on_nested_collection_with_init_only_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(
-            onModelCreating: b => b.Entity<Pub32310>().OwnsOne(e => e.Visits).ToJson("Visits", JsonColumnType),
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            onModelCreating: b => b.Entity<Pub32310>().OwnsOne(e => e.Visits).ToJson().HasColumnType(JsonColumnType),
             seed: Seed32310);
 
         await using var context = contextFactory.CreateContext();
@@ -62,7 +67,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModel29219, seed: Seed29219);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModel29219,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: Seed29219);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -82,7 +90,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModel29219, seed: Seed29219);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModel29219,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: Seed29219);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -105,8 +116,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             {
                 b.ToTable("Entities");
                 b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Reference).ToJson("Reference", JsonColumnType);
-                b.OwnsMany(x => x.Collection).ToJson("Collection", JsonColumnType);
+                b.OwnsOne(x => x.Reference).ToJson().HasColumnType(JsonColumnType);
+                b.OwnsMany(x => x.Collection).ToJson().HasColumnType(JsonColumnType);
             });
 
     protected abstract Task Seed29219(DbContext ctx);
@@ -139,7 +150,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsOne(
                     x => x.Json, nb =>
                     {
-                        nb.ToJson("Json", JsonColumnType);
+                        nb.ToJson().HasColumnType(JsonColumnType);
                         nb.OwnsMany(x => x.Collection, nnb => nnb.OwnsOne(x => x.Nested));
                         nb.OwnsOne(x => x.OptionalReference, nnb => nnb.OwnsOne(x => x.Nested));
                         nb.OwnsOne(x => x.RequiredReference, nnb => nnb.OwnsOne(x => x.Nested));
@@ -176,7 +187,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Accessing_missing_navigation_works(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModel30028, seed: Seed30028);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModel30028,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: Seed30028);
+
         using (var context = contextFactory.CreateContext())
         {
             var result = context.Set<MyEntity30028>().OrderBy(x => x.Id).ToList();
@@ -203,7 +218,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Missing_navigation_works_with_deduplication(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModel30028, seed: Seed30028);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModel30028,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: Seed30028);
+
         using (var context = contextFactory.CreateContext())
         {
             var result = context.Set<MyEntity30028>().OrderBy(x => x.Id).Select(
@@ -252,7 +271,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Project_json_with_no_properties()
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModel32939, seed: Seed32939);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModel32939,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: Seed32939);
+
         using var context = contextFactory.CreateContext();
         context.Set<Entity32939>().ToList();
     }
@@ -272,8 +295,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     protected virtual void BuildModel32939(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Entity32939>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.Empty, b => b.ToJson("Empty", JsonColumnType));
-        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.FieldOnly, b => b.ToJson("FieldOnly", JsonColumnType));
+        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.Empty, b => b.ToJson().HasColumnType(JsonColumnType));
+        modelBuilder.Entity<Entity32939>().OwnsOne(x => x.FieldOnly, b => b.ToJson().HasColumnType(JsonColumnType));
     }
 
     public class Entity32939
@@ -302,7 +325,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Query_with_nested_json_collection_mapped_to_private_field_via_IReadOnlyList()
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModel33046, seed: Seed33046);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModel33046,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: Seed33046);
+
         using var context = contextFactory.CreateContext();
         var query = context.Set<Review>().ToList();
         Assert.Equal(1, query.Count);
@@ -317,7 +344,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsMany(
                     x => x.Rounds, ownedBuilder =>
                     {
-                        ownedBuilder.ToJson("Rounds", JsonColumnType);
+                        ownedBuilder.ToJson().HasColumnType(JsonColumnType);
                         ownedBuilder.OwnsMany(r => r.SubRounds);
                     });
             });
@@ -357,7 +384,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_array_of_primitives_on_reference(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelArrayOfPrimitives,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -379,7 +409,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_array_of_primitives_on_collection(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelArrayOfPrimitives,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -401,7 +434,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_element_of_json_array_of_primitives(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelArrayOfPrimitives,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -418,7 +454,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives1(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelArrayOfPrimitives,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -437,7 +476,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives2(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelArrayOfPrimitives,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -456,7 +498,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives3(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelArrayOfPrimitives, seed: SeedArrayOfPrimitives);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelArrayOfPrimitives,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -481,10 +526,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     {
         modelBuilder.Entity<MyEntityArrayOfPrimitives>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsOne(
-            x => x.Reference, b => b.ToJson("Reference", JsonColumnType));
+            x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
 
         modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsMany(
-            x => x.Collection, b => b.ToJson("Collection", JsonColumnType));
+            x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
     }
 
     public class MyEntityArrayOfPrimitives
@@ -508,7 +553,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Junk_in_json_basic_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelJunkInJson, seed: SeedJunkInJson);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelJunkInJson,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedJunkInJson);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -532,7 +580,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Junk_in_json_basic_no_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelJunkInJson, seed: SeedJunkInJson);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelJunkInJson,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedJunkInJson);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -564,7 +615,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsOne(
                     x => x.Reference, b =>
                     {
-                        b.ToJson("Reference", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.OwnsOne(x => x.NestedReference);
                         b.OwnsMany(x => x.NestedCollection);
                     });
@@ -572,7 +623,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsOne(
                     x => x.ReferenceWithCtor, b =>
                     {
-                        b.ToJson("ReferenceWithCtor", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.OwnsOne(x => x.NestedReference);
                         b.OwnsMany(x => x.NestedCollection);
                     });
@@ -580,7 +631,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsMany(
                     x => x.Collection, b =>
                     {
-                        b.ToJson("Collection", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.OwnsOne(x => x.NestedReference);
                         b.OwnsMany(x => x.NestedCollection);
                     });
@@ -588,7 +639,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsMany(
                     x => x.CollectionWithCtor, b =>
                     {
-                        b.ToJson("CollectionWithCtor", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.OwnsOne(x => x.NestedReference);
                         b.OwnsMany(x => x.NestedCollection);
                     });
@@ -639,7 +690,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Tricky_buffering_basic(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelTrickyBuffering, seed: SeedTrickyBuffering);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelTrickyBuffering,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedTrickyBuffering);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -668,7 +722,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsOne(
                     x => x.Reference, b =>
                     {
-                        b.ToJson("Reference", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.OwnsOne(x => x.NestedReference);
                         b.OwnsMany(x => x.NestedCollection);
                     });
@@ -701,7 +755,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Shadow_properties_basic_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelShadowProperties, seed: SeedShadowProperties);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelShadowProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedShadowProperties);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -739,7 +796,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Shadow_properties_basic_no_tracking(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelShadowProperties, seed: SeedShadowProperties);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelShadowProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedShadowProperties);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -761,7 +821,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_shadow_properties_from_json_entity(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelShadowProperties, seed: SeedShadowProperties);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelShadowProperties,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedShadowProperties);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -795,28 +858,28 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsOne(
                     x => x.Reference, b =>
                     {
-                        b.ToJson("Reference", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.Property<string>("ShadowString");
                     });
 
                 b.OwnsOne(
                     x => x.ReferenceWithCtor, b =>
                     {
-                        b.ToJson("ReferenceWithCtor", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.Property<int>("Shadow_Int").HasJsonPropertyName("ShadowInt");
                     });
 
                 b.OwnsMany(
                     x => x.Collection, b =>
                     {
-                        b.ToJson("Collection", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.Property<double>("ShadowDouble");
                     });
 
                 b.OwnsMany(
                     x => x.CollectionWithCtor, b =>
                     {
-                        b.ToJson("CollectionWithCtor", JsonColumnType);
+                        b.ToJson().HasColumnType(JsonColumnType);
                         b.Property<byte?>("ShadowNullableByte");
                     });
             });
@@ -854,7 +917,11 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: BuildModelLazyLoadingProxies,
             seed: SeedLazyLoadingProxies,
-            onConfiguring: OnConfiguringLazyLoadingProxies,
+            onConfiguring: b =>
+            {
+                b = b.ConfigureWarnings(ConfigureWarnings);
+                OnConfiguringLazyLoadingProxies(b);
+            },
             addServices: AddServicesLazyLoadingProxies);
 
         using (var context = contextFactory.CreateContext())
@@ -914,8 +981,8 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     protected virtual void BuildModelLazyLoadingProxies(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<MyEntityLazyLoadingProxies>().Property(x => x.Id).ValueGeneratedNever();
-        modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsOne(x => x.Reference, b => b.ToJson("Reference", JsonColumnType));
-        modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsMany(x => x.Collection, b => b.ToJson("Collection", JsonColumnType));
+        modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+        modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
     }
 
     public class MyEntityLazyLoadingProxies
@@ -947,7 +1014,10 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Not_ICollection_basic_projection(bool async)
     {
-        var contextFactory = await InitializeAsync<DbContext>(BuildModelNotICollection, seed: SeedNotICollection);
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: BuildModelNotICollection,
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
+            seed: SeedNotICollection);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -993,7 +1063,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                 b.OwnsOne(
                     cr => cr.Json, nb =>
                     {
-                        nb.ToJson("Json", JsonColumnType);
+                        nb.ToJson().HasColumnType(JsonColumnType);
                         nb.OwnsMany(x => x.Collection);
                     });
             });

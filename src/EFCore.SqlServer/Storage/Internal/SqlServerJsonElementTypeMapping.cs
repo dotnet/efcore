@@ -124,7 +124,7 @@ public class SqlServerJsonElementTypeMapping : JsonTypeMapping
     /// </summary>
     protected override void ConfigureParameter(DbParameter parameter)
     {
-        if ("json".Equals(StoreType, StringComparison.OrdinalIgnoreCase)
+        if (StoreType == "json"
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
             sqlParameter.SqlDbType = ((SqlDbType)35);

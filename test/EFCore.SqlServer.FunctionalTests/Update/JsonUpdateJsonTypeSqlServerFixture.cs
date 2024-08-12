@@ -18,30 +18,30 @@ public class JsonUpdateJsonTypeSqlServerFixture : JsonUpdateSqlServerFixture
         modelBuilder.Entity<JsonEntityBasic>(
             b =>
             {
-                b.OwnsOne(x => x.OwnedReferenceRoot).ToJson("OwnedReferenceRoot", "json");
-                b.OwnsMany(x => x.OwnedCollectionRoot).ToJson("OwnedCollectionRoot", "json");
+                b.OwnsOne(x => x.OwnedReferenceRoot).ToJson().HasColumnType("json");
+                b.OwnsMany(x => x.OwnedCollectionRoot).ToJson().HasColumnType("json");
             });
 
         modelBuilder.Entity<JsonEntityInheritanceBase>(
             b =>
             {
-                b.OwnsOne(x => x.ReferenceOnBase).ToJson("ReferenceOnBase", "json");
-                b.OwnsMany(x => x.CollectionOnBase).ToJson("CollectionOnBase", "json");
+                b.OwnsOne(x => x.ReferenceOnBase).ToJson().HasColumnType("json");
+                b.OwnsMany(x => x.CollectionOnBase).ToJson().HasColumnType("json");
             });
 
         modelBuilder.Entity<JsonEntityInheritanceDerived>(
             b =>
             {
                 b.HasBaseType<JsonEntityInheritanceBase>();
-                b.OwnsOne(x => x.ReferenceOnDerived).ToJson("ReferenceOnDerived", "json");
-                b.OwnsMany(x => x.CollectionOnDerived).ToJson("CollectionOnDerived", "json");
+                b.OwnsOne(x => x.ReferenceOnDerived).ToJson().HasColumnType("json");
+                b.OwnsMany(x => x.CollectionOnDerived).ToJson().HasColumnType("json");
             });
 
         modelBuilder.Entity<JsonEntityAllTypes>(
             b =>
             {
-                b.OwnsOne(x => x.Reference).ToJson("Reference", "json");
-                b.OwnsMany(x => x.Collection).ToJson("Collection", "json");
+                b.OwnsOne(x => x.Reference).ToJson().HasColumnType("json");
+                b.OwnsMany(x => x.Collection).ToJson().HasColumnType("json");
                 b.PrimitiveCollection(e => e.TestDefaultStringCollection).HasColumnType("json");
                 b.PrimitiveCollection(e => e.TestMaxLengthStringCollection).HasColumnType("json");
                 b.PrimitiveCollection(e => e.TestInt16Collection).HasColumnType("json");
@@ -69,6 +69,6 @@ public class JsonUpdateJsonTypeSqlServerFixture : JsonUpdateSqlServerFixture
                 b.PrimitiveCollection(e => e.TestNullableEnumWithConverterThatHandlesNullsCollection).HasColumnType("json");
             });
 
-        modelBuilder.Entity<JsonEntityConverters>().OwnsOne(x => x.Reference).ToJson("Reference", "json");
+        modelBuilder.Entity<JsonEntityConverters>().OwnsOne(x => x.Reference).ToJson().HasColumnType("json");
     }
 }

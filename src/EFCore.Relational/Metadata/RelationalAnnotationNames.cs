@@ -413,6 +413,7 @@ public static class RelationalAnnotationNames
         ModelDependencies,
         FieldValueGetter,
         ContainerColumnName,
+        ContainerColumnType,
         #pragma warning disable CS0618 // Type or member is obsolete
         ContainerColumnTypeMapping,
         #pragma warning restore CS0618 // Type or member is obsolete

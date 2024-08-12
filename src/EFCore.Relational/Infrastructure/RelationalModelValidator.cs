@@ -2592,6 +2592,23 @@ public class RelationalModelValidator : ModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (entityType[RelationalAnnotationNames.ContainerColumnType] != null)
+            {
+                if (entityType.FindOwnership()?.PrincipalEntityType.IsOwned() == true)
+                {
+                    throw new InvalidOperationException(RelationalStrings.ContainerTypeOnNonRoot(entityType.DisplayName()));
+                }
+
+                if (!entityType.IsOwned()
+                    || entityType.GetContainerColumnName() == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.ContainerTypeOnNonContainer(entityType.DisplayName()));
+                }
+            }
+        }
+
         var tables = BuildSharedTableEntityMap(model.GetEntityTypes());
         foreach (var (table, mappedTypes) in tables)
         {

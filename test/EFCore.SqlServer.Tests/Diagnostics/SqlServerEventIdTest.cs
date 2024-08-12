@@ -22,6 +22,7 @@ public class SqlServerEventIdTest : EventIdTestBase
         {
             { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
             { typeof(IProperty), () => property },
+            { typeof(IEntityType), () => entityType },
             { typeof(IReadOnlyProperty), () => property },
             { typeof(string), () => "Fake" }
         };

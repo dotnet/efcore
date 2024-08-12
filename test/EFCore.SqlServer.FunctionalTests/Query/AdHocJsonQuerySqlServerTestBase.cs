@@ -13,6 +13,13 @@ public abstract class AdHocJsonQuerySqlServerTestBase : AdHocJsonQueryTestBase
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    protected override void ConfigureWarnings(WarningsConfigurationBuilder builder)
+    {
+        base.ConfigureWarnings(builder);
+
+        builder.Log(CoreEventId.StringEnumValueInJson, SqlServerEventId.JsonTypeExperimental);
+    }
+
     protected override async Task Seed29219(DbContext ctx)
     {
         var entity1 = new MyEntity29219
@@ -196,7 +203,7 @@ N'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
     {
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: BuildModelEnumLegacyValues,
-            onConfiguring: b => b.ConfigureWarnings(b => b.Log(CoreEventId.StringEnumValueInJson)),
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEnumLegacyValues);
 
         using (var context = contextFactory.CreateContext())
@@ -225,7 +232,7 @@ N'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
     {
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: BuildModelEnumLegacyValues,
-            onConfiguring: b => b.ConfigureWarnings(b => b.Log(CoreEventId.StringEnumValueInJson)),
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEnumLegacyValues,
             shouldLogCategory: c => c == DbLoggerCategory.Query.Name);
 
@@ -266,7 +273,7 @@ N'{"Collection":[{"Bar":21,"Foo":"c21"},{"Bar":22,"Foo":"c22"}]}',
     {
         var contextFactory = await InitializeAsync<DbContext>(
             onModelCreating: BuildModelEnumLegacyValues,
-            onConfiguring: b => b.ConfigureWarnings(b => b.Log(CoreEventId.StringEnumValueInJson)),
+            onConfiguring: b => b.ConfigureWarnings(ConfigureWarnings),
             seed: SeedEnumLegacyValues,
             shouldLogCategory: c => c == DbLoggerCategory.Query.Name);
 
@@ -324,8 +331,8 @@ N'e1')
             {
                 b.ToTable("Entities");
                 b.Property(x => x.Id).ValueGeneratedNever();
-                b.OwnsOne(x => x.Reference, b => b.ToJson("Reference", JsonColumnType));
-                b.OwnsMany(x => x.Collection, b => b.ToJson("Collection", JsonColumnType));
+                b.OwnsOne(x => x.Reference, b => b.ToJson().HasColumnType(JsonColumnType));
+                b.OwnsMany(x => x.Collection, b => b.ToJson().HasColumnType(JsonColumnType));
             });
 
     private class MyEntityEnumLegacyValues
