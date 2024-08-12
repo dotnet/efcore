@@ -118,7 +118,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression, IAcc
             // TODO: Remove once __jObject is translated to the access root in a better fashion and
             // would not otherwise be found to be non-translatable. See issues #17670 and #14121.
             // TODO: We shouldn't be returning null from here
-            && property.Name != CosmosKeyAugmenterConvention.JObjectPropertyName
+            && property.Name != CosmosPartitionKeyInPrimaryKeyConvention.JObjectPropertyName
             && expression.PropertyName?.Length is null or 0)
         {
             // Non-persisted property can't be translated

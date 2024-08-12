@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -118,9 +117,9 @@ public static class CosmosModelBuilderExtensions
     ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
-    public static ModelBuilder AlwaysCreateShadowIdProperties(this ModelBuilder modelBuilder, bool? alwaysCreate = true)
+    public static ModelBuilder HasShadowIds(this ModelBuilder modelBuilder, bool? alwaysCreate = true)
     {
-        modelBuilder.Model.SetAlwaysCreateShadowIdProperty(alwaysCreate);
+        modelBuilder.Model.SetHasShadowIds(alwaysCreate);
 
         return modelBuilder;
     }
@@ -138,7 +137,7 @@ public static class CosmosModelBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ModelBuilder IncludeDiscriminatorInJsonId(
+    public static ModelBuilder HasDiscriminatorInJsonIds(
         this ModelBuilder modelBuilder,
         bool? includeDiscriminator = true)
     {
@@ -146,8 +145,8 @@ public static class CosmosModelBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.EntityTypeName
-                    : DiscriminatorInKeyBehavior.None);
+                    ? IdDiscriminatorMode.EntityType
+                    : IdDiscriminatorMode.None);
 
         return modelBuilder;
     }
@@ -174,8 +173,8 @@ public static class CosmosModelBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.RootEntityTypeName
-                    : DiscriminatorInKeyBehavior.None);
+                    ? IdDiscriminatorMode.RootEntityType
+                    : IdDiscriminatorMode.None);
 
         return modelBuilder;
     }

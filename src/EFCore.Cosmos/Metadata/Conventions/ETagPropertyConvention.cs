@@ -1,7 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions;
+// ReSharper disable once CheckNamespace
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
 ///     A convention that adds etag metadata on the concurrency token, if present.

@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -103,7 +104,7 @@ public class CosmosJsonIdConvention
         // the appropriate values into a single string for the JSON `id` property.
 
         // The line below requires: IModelAnnotationChangedConvention, IPropertyAnnotationChangedConvention
-        var alwaysCreateId = entityType.GetAlwaysCreateShadowIdProperty();
+        var alwaysCreateId = entityType.GetHasShadowId();
         if (alwaysCreateId != true)
         {
             // The line below requires:
@@ -228,9 +229,9 @@ public class CosmosJsonIdConvention
                 }
                 break;
 
-            case CosmosAnnotationNames.AlwaysCreateShadowIdProperty:
+            case CosmosAnnotationNames.HasShadowId:
                 if (oldAnnotation?.Value != null
-                    || !Equals(annotation?.Value, entityTypeBuilder.ModelBuilder.Metadata.GetAlwaysCreateShadowIdProperty()))
+                    || !Equals(annotation?.Value, entityTypeBuilder.ModelBuilder.Metadata.GetHasShadowIds()))
                 {
                     ProcessEntityType(entityTypeBuilder.Metadata, context);
                 }
@@ -309,7 +310,7 @@ public class CosmosJsonIdConvention
     {
         switch (name)
         {
-            case CosmosAnnotationNames.AlwaysCreateShadowIdProperty:
+            case CosmosAnnotationNames.HasShadowId:
             case CosmosAnnotationNames.DiscriminatorInKey:
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
                 {

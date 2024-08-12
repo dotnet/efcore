@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>

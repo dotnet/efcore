@@ -100,7 +100,7 @@ WHERE ((c["$type"] = "BuiltInDataTypes") AND (c["Id"] = 13))
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.IncludeDiscriminatorInJsonId();
+            modelBuilder.HasDiscriminatorInJsonIds();
 
             var shadowJObject = (Property)modelBuilder.Entity<BuiltInDataTypesShadow>().Property("__jObject").Metadata;
             shadowJObject.SetConfigurationSource(ConfigurationSource.Convention);

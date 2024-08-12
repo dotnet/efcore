@@ -732,7 +732,7 @@ OFFSET 0 LIMIT 1
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.IncludeDiscriminatorInJsonId();
+            modelBuilder.HasDiscriminatorInJsonIds();
 
             modelBuilder.Entity<Vehicle>(
                 eb =>

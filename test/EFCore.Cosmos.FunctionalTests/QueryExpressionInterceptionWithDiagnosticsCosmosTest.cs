@@ -36,7 +36,7 @@ public class QueryExpressionInterceptionWithDiagnosticsCosmosTest(
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.IncludeDiscriminatorInJsonId();
+            modelBuilder.HasDiscriminatorInJsonIds();
         }
 
         protected override string StoreName

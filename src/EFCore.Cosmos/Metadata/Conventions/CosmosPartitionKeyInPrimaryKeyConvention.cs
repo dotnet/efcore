@@ -8,18 +8,14 @@ using Newtonsoft.Json.Linq;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that adds partition key properties to the EF primary key.
+///     A convention that adds partition key properties to the EF primary key and adds the '__jObject' containing the JSON
+///     object returned by the store.
 /// </summary>
 /// <remarks>
-///     <para>
-///         This convention also adds the '__jObject' containing the JSON object returned by the store.
-///     </para>
-///     <para>
-///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-///     </para>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
 /// </remarks>
-public class CosmosKeyAugmenterConvention :
+public class CosmosPartitionKeyInPrimaryKeyConvention :
     IEntityTypeAddedConvention,
     IPropertyAnnotationChangedConvention,
     IForeignKeyOwnershipChangedConvention,
@@ -40,10 +36,10 @@ public class CosmosKeyAugmenterConvention :
     public static readonly string JObjectPropertyName = "__jObject";
 
     /// <summary>
-    ///     Creates a new instance of <see cref="CosmosKeyAugmenterConvention" />.
+    ///     Creates a new instance of <see cref="CosmosPartitionKeyInPrimaryKeyConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public CosmosKeyAugmenterConvention(ProviderConventionSetBuilderDependencies dependencies)
+    public CosmosPartitionKeyInPrimaryKeyConvention(ProviderConventionSetBuilderDependencies dependencies)
     {
         Dependencies = dependencies;
     }

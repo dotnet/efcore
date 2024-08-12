@@ -31,7 +31,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
         modelBuilder.Entity<JsonEntityBasic>()
             .ToContainer("JsonEntities")
-            .IncludeDiscriminatorInJsonId()
+            .HasDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("Basic");
 
         modelBuilder.Entity<EntityBasic>().ToContainer("EntitiesBasic");
@@ -81,12 +81,12 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
         modelBuilder.Entity<JsonEntityCustomNaming>()
             .ToContainer("JsonEntities")
-            .IncludeDiscriminatorInJsonId()
+            .HasDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("CustomNaming");
 
         modelBuilder.Entity<JsonEntitySingleOwned>()
             .ToContainer("JsonEntities")
-            .IncludeDiscriminatorInJsonId()
+            .HasDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("SingleOwned");
 
         modelBuilder.Entity<JsonEntitySingleOwned>().OwnsMany(
@@ -139,7 +139,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
         modelBuilder.Entity<JsonEntityAllTypes>()
             .ToContainer("JsonEntities")
-            .IncludeDiscriminatorInJsonId()
+            .HasDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("AllTypes");
 
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsOne(
@@ -181,7 +181,7 @@ public class JsonQueryCosmosFixture : JsonQueryFixtureBase
 
         modelBuilder.Entity<JsonEntityConverters>()
             .ToContainer("JsonEntities")
-            .IncludeDiscriminatorInJsonId()
+            .HasDiscriminatorInJsonId()
             .HasDiscriminator<string>("Discriminator").HasValue("Converters");
     }
 

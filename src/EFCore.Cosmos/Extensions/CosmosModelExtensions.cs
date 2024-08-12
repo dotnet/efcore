@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -64,8 +63,8 @@ public static class CosmosModelExtensions
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns>The configured value.</returns>
-    public static bool? GetAlwaysCreateShadowIdProperty(this IReadOnlyModel model)
-        => (bool?)model[CosmosAnnotationNames.AlwaysCreateShadowIdProperty];
+    public static bool? GetHasShadowIds(this IReadOnlyModel model)
+        => (bool?)model[CosmosAnnotationNames.HasShadowId];
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
@@ -76,8 +75,8 @@ public static class CosmosModelExtensions
     ///     <see langword="true" /> to force __id creation, <see langword="false" /> to not force __id creation,
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
-    public static void SetAlwaysCreateShadowIdProperty(this IMutableModel model, bool? alwaysCreate)
-        => model.SetOrRemoveAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, alwaysCreate);
+    public static void SetHasShadowIds(this IMutableModel model, bool? alwaysCreate)
+        => model.SetOrRemoveAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate);
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
@@ -89,36 +88,36 @@ public static class CosmosModelExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static bool? SetAlwaysCreateShadowIdProperty(
+    public static bool? SetHasShadowIds(
         this IConventionModel model,
         bool? alwaysCreate,
         bool fromDataAnnotation = false)
-        => (bool?)model.SetOrRemoveAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, alwaysCreate, fromDataAnnotation)?.Value;
+        => (bool?)model.SetOrRemoveAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" />
-    ///     for <see cref="GetAlwaysCreateShadowIdProperty(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel)"/>.
+    ///     for <see cref="GetHasShadowIds"/>.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns>The <see cref="ConfigurationSource" />.</returns>
-    public static ConfigurationSource? GetAlwaysCreateShadowIdPropertyConfigurationSource(this IConventionModel model)
-        => model.FindAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty)?.GetConfigurationSource();
+    public static ConfigurationSource? GetHasShadowIdsConfigurationSource(this IConventionModel model)
+        => model.FindAnnotation(CosmosAnnotationNames.HasShadowId)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns a value indicating whether the entity type discriminator should be included in the JSON "id" value.
     ///     Prior to EF Core 9, it was always included. Starting with EF Core 9, it is not included by default.
     /// </summary>
     /// <param name="model">The model.</param>
-    /// <returns>The <see cref="DiscriminatorInKeyBehavior"/> or <see langword="null" /> if not set.</returns>
-    public static DiscriminatorInKeyBehavior? GetDiscriminatorInKey(this IReadOnlyModel model)
-        => (DiscriminatorInKeyBehavior?)model[CosmosAnnotationNames.DiscriminatorInKey];
+    /// <returns>The <see cref="IdDiscriminatorMode"/> or <see langword="null" /> if not set.</returns>
+    public static IdDiscriminatorMode? GetDiscriminatorInKey(this IReadOnlyModel model)
+        => (IdDiscriminatorMode?)model[CosmosAnnotationNames.DiscriminatorInKey];
 
     /// <summary>
     ///     Includes the entity type discriminator in the JSON "id".
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
-    public static void SetDiscriminatorInKey(this IMutableModel model, DiscriminatorInKeyBehavior? behavior)
+    public static void SetDiscriminatorInKey(this IMutableModel model, IdDiscriminatorMode? behavior)
         => model.SetOrRemoveAnnotation(CosmosAnnotationNames.DiscriminatorInKey, behavior);
 
     /// <summary>
@@ -127,16 +126,16 @@ public static class CosmosModelExtensions
     /// <param name="model">The model.</param>
     /// <param name="behavior">The behavior to use, or <see langword="null" /> to reset the behavior to the default.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static DiscriminatorInKeyBehavior? SetDiscriminatorInKey(
+    public static IdDiscriminatorMode? SetDiscriminatorInKey(
         this IConventionModel model,
-        DiscriminatorInKeyBehavior? behavior,
+        IdDiscriminatorMode? behavior,
         bool fromDataAnnotation = false)
-        => (DiscriminatorInKeyBehavior?)model.SetOrRemoveAnnotation(
+        => (IdDiscriminatorMode?)model.SetOrRemoveAnnotation(
             CosmosAnnotationNames.DiscriminatorInKey, behavior, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" />
-    ///     for <see cref="GetAlwaysCreateShadowIdProperty(Microsoft.EntityFrameworkCore.Metadata.IReadOnlyModel)"/>.
+    ///     for <see cref="GetDiscriminatorInKey"/>.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns>The <see cref="ConfigurationSource" />.</returns>

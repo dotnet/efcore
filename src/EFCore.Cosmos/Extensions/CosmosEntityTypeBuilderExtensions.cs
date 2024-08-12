@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -406,11 +405,11 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder AlwaysCreateShadowIdProperty(
+    public static EntityTypeBuilder HasShadowId(
         this EntityTypeBuilder entityTypeBuilder,
         bool? alwaysCreate = true)
     {
-        entityTypeBuilder.Metadata.SetAlwaysCreateShadowIdProperty(alwaysCreate);
+        entityTypeBuilder.Metadata.SetHasShadowId(alwaysCreate);
 
         return entityTypeBuilder;
     }
@@ -430,11 +429,11 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder<TEntity> AlwaysCreateShadowIdProperty<TEntity>(
+    public static EntityTypeBuilder<TEntity> HasShadowId<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         bool? alwaysCreate = true)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)AlwaysCreateShadowIdProperty((EntityTypeBuilder)entityTypeBuilder, alwaysCreate);
+        => (EntityTypeBuilder<TEntity>)HasShadowId((EntityTypeBuilder)entityTypeBuilder, alwaysCreate);
 
     /// <summary>
     ///     Forces model building to always create a "__id" shadow property mapped to the JSON "id". This was the default
@@ -451,17 +450,17 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
-    public static IConventionEntityTypeBuilder? AlwaysCreateShadowIdProperty(
+    public static IConventionEntityTypeBuilder? HasShadowId(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         bool? alwaysCreate,
         bool fromDataAnnotation = false)
     {
-        if (!entityTypeBuilder.CanSetAlwaysCreateShadowIdProperty(alwaysCreate, fromDataAnnotation))
+        if (!entityTypeBuilder.CanSetShadowId(alwaysCreate, fromDataAnnotation))
         {
             return null;
         }
 
-        entityTypeBuilder.Metadata.SetAlwaysCreateShadowIdProperty(alwaysCreate, fromDataAnnotation);
+        entityTypeBuilder.Metadata.SetHasShadowId(alwaysCreate, fromDataAnnotation);
 
         return entityTypeBuilder;
     }
@@ -481,14 +480,14 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    public static bool CanSetAlwaysCreateShadowIdProperty(
+    public static bool CanSetShadowId(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         bool? alwaysCreate,
         bool fromDataAnnotation = false)
     {
         Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-        return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty, alwaysCreate, fromDataAnnotation);
+        return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.HasShadowId, alwaysCreate, fromDataAnnotation);
     }
 
     /// <summary>
@@ -504,7 +503,7 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder IncludeDiscriminatorInJsonId(
+    public static EntityTypeBuilder HasDiscriminatorInJsonId(
         this EntityTypeBuilder entityTypeBuilder,
         bool? includeDiscriminator = true)
     {
@@ -512,8 +511,8 @@ public static class CosmosEntityTypeBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.EntityTypeName
-                    : DiscriminatorInKeyBehavior.None);
+                    ? IdDiscriminatorMode.EntityType
+                    : IdDiscriminatorMode.None);
 
         return entityTypeBuilder;
     }
@@ -540,8 +539,8 @@ public static class CosmosEntityTypeBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.RootEntityTypeName
-                    : DiscriminatorInKeyBehavior.None);
+                    ? IdDiscriminatorMode.RootEntityType
+                    : IdDiscriminatorMode.None);
 
         return entityTypeBuilder;
     }
@@ -559,10 +558,10 @@ public static class CosmosEntityTypeBuilderExtensions
     ///     <see langword="null" /> to revert to the default setting.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static EntityTypeBuilder<TEntity> IncludeDiscriminatorInJsonId<TEntity>(
+    public static EntityTypeBuilder<TEntity> HasDiscriminatorInJsonId<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder, bool? includeDiscriminator = true)
         where TEntity : class
-        => (EntityTypeBuilder<TEntity>)IncludeDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
+        => (EntityTypeBuilder<TEntity>)HasDiscriminatorInJsonId((EntityTypeBuilder)entityTypeBuilder, includeDiscriminator);
 
     /// <summary>
     ///     Includes the discriminator value of the root entity type in the JSON "id" value. This allows types with the same
@@ -597,10 +596,10 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
-    public static IConventionEntityTypeBuilder? IncludeDiscriminatorInJsonId(
+    public static IConventionEntityTypeBuilder? HasDiscriminatorInJsonId(
         this IConventionEntityTypeBuilder entityTypeBuilder, bool? includeDiscriminator, bool fromDataAnnotation = false)
     {
-        if (!entityTypeBuilder.CanSetIncludeDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
+        if (!entityTypeBuilder.CanSetDiscriminatorInJsonId(includeDiscriminator, fromDataAnnotation))
         {
             return null;
         }
@@ -609,8 +608,8 @@ public static class CosmosEntityTypeBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.EntityTypeName
-                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+                    ? IdDiscriminatorMode.EntityType
+                    : IdDiscriminatorMode.None, fromDataAnnotation);
 
         return entityTypeBuilder;
     }
@@ -642,8 +641,8 @@ public static class CosmosEntityTypeBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.EntityTypeName
-                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+                    ? IdDiscriminatorMode.EntityType
+                    : IdDiscriminatorMode.None, fromDataAnnotation);
 
         return entityTypeBuilder;
     }
@@ -663,7 +662,7 @@ public static class CosmosEntityTypeBuilderExtensions
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-    public static bool CanSetIncludeDiscriminatorInJsonId(
+    public static bool CanSetDiscriminatorInJsonId(
         this IConventionEntityTypeBuilder entityTypeBuilder,
         bool? includeDiscriminator,
         bool fromDataAnnotation = false)
@@ -675,8 +674,8 @@ public static class CosmosEntityTypeBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.EntityTypeName
-                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+                    ? IdDiscriminatorMode.EntityType
+                    : IdDiscriminatorMode.None, fromDataAnnotation);
     }
 
 
@@ -707,8 +706,8 @@ public static class CosmosEntityTypeBuilderExtensions
             includeDiscriminator == null
                 ? null
                 : includeDiscriminator.Value
-                    ? DiscriminatorInKeyBehavior.RootEntityTypeName
-                    : DiscriminatorInKeyBehavior.None, fromDataAnnotation);
+                    ? IdDiscriminatorMode.RootEntityType
+                    : IdDiscriminatorMode.None, fromDataAnnotation);
     }
 
     /// <summary>

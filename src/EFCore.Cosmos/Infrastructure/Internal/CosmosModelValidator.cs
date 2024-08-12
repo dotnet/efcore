@@ -514,9 +514,9 @@ public class CosmosModelValidator : ModelValidator
             }
 
             if (!entityType.IsDocumentRoot()
-                && entityType.FindAnnotation(CosmosAnnotationNames.AlwaysCreateShadowIdProperty) != null)
+                && entityType.FindAnnotation(CosmosAnnotationNames.HasShadowId) != null)
             {
-                throw new InvalidOperationException(CosmosStrings.AlwaysCreateShadowIdPropertyOnNonRoot(entityType.DisplayName()));
+                throw new InvalidOperationException(CosmosStrings.HasShadowIdOnNonRoot(entityType.DisplayName()));
             }
         }
     }
