@@ -2498,6 +2498,32 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture>(TFixture fix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_Order(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).Order(),
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).Order(StringComparer.Ordinal),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_OrderDescending(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).OrderDescending(),
+            ss => ss.Set<Customer>().Select(c => c.CustomerID).OrderDescending(StringComparer.Ordinal),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_Order_First(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Order().First().OrderID == 10248).Select(c => c.CustomerID),
+            ss => ss.Set<Customer>().AsEnumerable().Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()?.OrderID == 10248).Select(c => c.CustomerID).AsQueryable());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_ThenBy_Any(bool async)
         => AssertAny(
             async,
