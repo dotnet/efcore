@@ -14,15 +14,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerDateOnlyMemberTranslator : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> DatePartMapping
-        = new()
-        {
-            { nameof(DateOnly.Year), "year" },
-            { nameof(DateOnly.Month), "month" },
-            { nameof(DateOnly.DayOfYear), "dayofyear" },
-            { nameof(DateOnly.Day), "day" }
-        };
-
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -47,12 +38,27 @@ public class SqlServerDateOnlyMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => member.DeclaringType == typeof(DateOnly) && DatePartMapping.TryGetValue(member.Name, out var datePart)
-            ? _sqlExpressionFactory.Function(
-                "DATEPART",
-                new[] { _sqlExpressionFactory.Fragment(datePart), instance! },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
-                returnType)
-            : null;
+    {
+        if (member.DeclaringType != typeof(DateOnly))
+        {
+            return null;
+        }
+
+        return member.Name switch
+        {
+            nameof(DateOnly.Year) => Function(instance, returnType, "year"),
+            nameof(DateOnly.Month) => Function(instance, returnType, "month"),
+            nameof(DateOnly.DayOfYear) => Function(instance, returnType, "dayofyear"),
+            nameof(DateOnly.Day) => Function(instance, returnType, "day"),
+            _ => null
+        };
+    }
+
+    private SqlExpression Function(SqlExpression? instance, Type returnType, string datePart)
+        => _sqlExpressionFactory.Function(
+            "DATEPART",
+            [_sqlExpressionFactory.Fragment(datePart), instance!],
+            nullable: true,
+            argumentsPropagateNullability: [false, true],
+            returnType);
 }
