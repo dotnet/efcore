@@ -931,7 +931,10 @@ public abstract partial class ModelBuilderTest
             Expression<Func<TDependentEntity, object?>> propertyExpression);
 
         public abstract TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames);
+        public abstract TestIndexBuilder<TDependentEntity> HasIndex(string[] propertyNames, string name);
+
         public abstract TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression);
+        public abstract TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression, string name);
 
         public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference);
 

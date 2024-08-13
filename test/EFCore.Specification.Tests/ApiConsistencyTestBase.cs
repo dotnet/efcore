@@ -579,9 +579,7 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
             var expectedName = methodName.StartsWith("HasNo", StringComparison.Ordinal)
                 ? "CanRemove" + methodName[5..]
-                : methodName.StartsWith("Ignore", StringComparison.Ordinal)
-                    ? methodName
-                    : "CanSet"
+                : "CanSet"
                     + (methodName.StartsWith("Has", StringComparison.Ordinal)
                         || methodName.StartsWith("Use", StringComparison.Ordinal)
                             ? methodName[3..]
@@ -593,18 +591,33 @@ public abstract class ApiConsistencyTestBase<TFixture>(TFixture fixture) : IClas
 
             if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
             {
-                if (methodName.StartsWith("Has", StringComparison.Ordinal))
-                {
-                    var otherExpectedName = "CanHave" + methodName[3..];
-                    if (!methodLookup.TryGetValue(otherExpectedName, out canSetMethod))
-                    {
-                        return $"{declaringType.Name} expected to have a {expectedName} or {otherExpectedName} method";
-                    }
-                }
-                else
+                if (methodName.StartsWith("HasNo", StringComparison.Ordinal)
+                    || methodName.StartsWith("To", StringComparison.Ordinal)
+                    || methodName.StartsWith("With", StringComparison.Ordinal))
                 {
                     return $"{declaringType.Name} expected to have a {expectedName} method";
                 }
+
+                var otherExpectedName = "Can" + methodName;
+                if (methodName.StartsWith("Has", StringComparison.Ordinal))
+                {
+                    otherExpectedName = "CanHave" + methodName[3..];
+                }
+                else if (methodName.StartsWith("HasNo", StringComparison.Ordinal))
+                {
+                    otherExpectedName = "CanHaveNo" + methodName[3..];
+                }
+
+                if (!methodLookup.TryGetValue(otherExpectedName, out canSetMethod))
+                {
+                    return $"{declaringType.Name} expected to have a {expectedName} or {otherExpectedName} method";
+                }
+            }
+
+            if (canSetMethod.ReturnType != typeof(bool))
+            {
+                return $"{declaringType.Name}.{canSetMethod.Name}({Format(canSetMethod.GetParameters())})"
+                    + $" expected to have return type of 'bool'";
             }
 
             var parameterIndex = method.IsStatic ? 1 : 0;

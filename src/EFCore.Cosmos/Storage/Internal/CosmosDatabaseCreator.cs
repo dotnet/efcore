@@ -64,19 +64,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             InsertData();
         }
 
-        var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
-
-        var seed = coreOptionsExtension.Seeder;
-        if (seed != null)
-        {
-            seed(_currentContext.Context, created);
-        }
-        else if (coreOptionsExtension.AsyncSeeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
+        SeedData(created);
 
         return created;
     }
@@ -104,19 +92,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             await InsertDataAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
-            ?? new CoreOptionsExtension();
-
-        var seedAsync = coreOptionsExtension.AsyncSeeder;
-        if (seedAsync != null)
-        {
-            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
-        }
-        else if (coreOptionsExtension.Seeder != null)
-        {
-            throw new InvalidOperationException(CoreStrings.MissingSeeder);
-        }
+        await SeedDataAsync(created, cancellationToken).ConfigureAwait(false);
 
         return created;
     }
@@ -221,6 +197,52 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         }
 
         return updateAdapter;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SeedData(bool created)
+    {
+        var coreOptionsExtension =
+                    _contextOptions.FindExtension<CoreOptionsExtension>()
+                    ?? new CoreOptionsExtension();
+
+        var seed = coreOptionsExtension.Seeder;
+        if (seed != null)
+        {
+            seed(_currentContext.Context, created);
+        }
+        else if (coreOptionsExtension.AsyncSeeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async Task SeedDataAsync(bool created, CancellationToken cancellationToken = default)
+    {
+        var coreOptionsExtension =
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
+
+        var seedAsync = coreOptionsExtension.AsyncSeeder;
+        if (seedAsync != null)
+        {
+            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
+        }
+        else if (coreOptionsExtension.Seeder != null)
+        {
+            throw new InvalidOperationException(CoreStrings.MissingSeeder);
+        }
     }
 
     /// <summary>

@@ -978,7 +978,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
 
         public override void Can_configure_owned_type_collection()
             => Assert.Equal(
-                CosmosStrings.IndexesExist(nameof(Order), "foo"),
+                CosmosStrings.IndexesExist(nameof(Order), "CustomerId"),
                 Assert.Throws<InvalidOperationException>(
                     base.Can_configure_owned_type_collection).Message);
 

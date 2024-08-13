@@ -445,6 +445,9 @@ public abstract partial class ModelBuilderTest
                 .Ignore(o => o.Details);
             entityBuilder.Property<int>("foo");
             entityBuilder.HasIndex("foo");
+            entityBuilder.HasIndex(["foo"], "Foo2");
+            entityBuilder.HasIndex(o => new { o.CustomerId });
+            entityBuilder.HasIndex(o => new { o.CustomerId }, "Customer2");
             entityBuilder.HasKey(o => o.AnotherCustomerId);
             entityBuilder.WithOwner(o => o.Customer)
                 .HasPrincipalKey(c => c.AlternateKey);
@@ -462,17 +465,25 @@ public abstract partial class ModelBuilderTest
             Assert.Null(owner.FindProperty("foo"));
             Assert.Equal(nameof(Order.AnotherCustomerId), owned.FindPrimaryKey().Properties.Single().Name);
 
+            var unnamedIndexes = owned.GetIndexes().Where(i => i.Name == null).ToList();
             if (Fixture.ForeignKeysHaveIndexes)
             {
-                Assert.Equal(2, owned.GetIndexes().Count());
-                Assert.Equal("CustomerAlternateKey", owned.GetIndexes().First().Properties.Single().Name);
-            }
-            else
-            {
-                Assert.Single(owned.GetIndexes());
+                var fkIndex = unnamedIndexes.Single(i => i.Properties.Contains(ownership.Properties.Single()));
+                Assert.Equal("CustomerAlternateKey", fkIndex.Properties.Single().Name);
+                unnamedIndexes.Remove(fkIndex);
             }
 
-            Assert.Equal("foo", owned.GetIndexes().Last().Properties.Single().Name);
+            Assert.Equal(2, unnamedIndexes.Count());
+            Assert.Equal(nameof(Order.CustomerId), unnamedIndexes.First().Properties.Single().Name);
+            Assert.Equal("foo", unnamedIndexes.Last().Properties.Single().Name);
+
+            var namedIndexes = owned.GetIndexes().Where(i => i.Name != null).ToList();
+            Assert.Equal(2, namedIndexes.Count());
+            Assert.Equal(nameof(Order.CustomerId), namedIndexes.First().Properties.Single().Name);
+            Assert.Equal("Customer2", namedIndexes.First().Name);
+            Assert.Equal("foo", namedIndexes.Last().Properties.Single().Name);
+            Assert.Equal("Foo2", namedIndexes.Last().Name);
+
             Assert.Equal(PropertyAccessMode.FieldDuringConstruction, owned.GetPropertyAccessMode());
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, owned.GetChangeTrackingStrategy());
 
