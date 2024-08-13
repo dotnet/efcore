@@ -5055,6 +5055,44 @@ WHERE ((c["id"] = @__customerId_0) AND (c["City"] = @__details_City_1))
                 AssertSql("ReadItem(None, ALFKI)");
             });
 
+    public override Task Select_Order(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_Order(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c["CustomerID"]
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+ORDER BY c["CustomerID"]
+""");
+            });
+
+    public override Task Select_OrderDescending(bool async)
+        => Fixture.NoSyncTest(
+            async, async a =>
+            {
+                await base.Select_OrderDescending(a);
+
+                AssertSql(
+                    """
+SELECT VALUE c["CustomerID"]
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+ORDER BY c["CustomerID"] DESC
+""");
+            });
+
+    public override async Task Where_Order_First(bool async)
+    {
+        await AssertTranslationFailed(
+            () => base.Where_Order_First(async));
+
+        AssertSql();
+    }
+
     #region ToPageAsync
 
     [ConditionalFact]

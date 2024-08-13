@@ -4343,22 +4343,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture>(TFixture fixture) : Quer
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Order(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Gear>().Select(f => f.FullName).Order(),
-            assertOrder: true);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task OrderDescending(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Gear>().Select(f => f.FullName).OrderDescending(),
-            assertOrder: true);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Join_on_entity_qsre_keys(bool async)
         => AssertQuery(
             async,

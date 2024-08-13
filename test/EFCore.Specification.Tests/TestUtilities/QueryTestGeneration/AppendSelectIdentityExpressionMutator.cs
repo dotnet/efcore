@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
-
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class AppendSelectIdentityExpressionMutator(DbContext context) : ExpressionMutator(context)
@@ -14,7 +12,8 @@ public class AppendSelectIdentityExpressionMutator(DbContext context) : Expressi
     {
         var typeArgument = expression.Type.GetGenericArguments()[0];
         var select = QueryableMethods.Select.MakeGenericMethod(typeArgument, typeArgument);
-        var lambda = ExpressionExtensions.CreateIdentityLambda(typeArgument);
+        var prm = Expression.Parameter(typeArgument, "prm");
+        var lambda = Expression.Lambda(prm, prm);
         var resultExpression = Expression.Call(select, expression, lambda);
 
         return resultExpression;

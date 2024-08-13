@@ -7413,6 +7413,46 @@ WHERE [c].[CustomerID] = @__p_0
 """);
     }
 
+    public override async Task Select_Order(bool async)
+    {
+        await base.Select_Order(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Select_OrderDescending(bool async)
+    {
+        await base.Select_OrderDescending(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID] DESC
+""");
+    }
+
+    public override async Task Where_Order_First(bool async)
+    {
+        await base.Where_Order_First(async);
+
+        AssertSql(
+            """
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) = 10248
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

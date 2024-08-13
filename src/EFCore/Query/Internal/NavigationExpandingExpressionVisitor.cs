@@ -1195,7 +1195,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 var (result, filterExpression) = ExtractIncludeFilter(methodCallExpression.Arguments[0], includeExpression);
                 if (filterExpression == null)
                 {
-                    filterExpression = ExpressionExtensions.CreateIdentityLambda(result.Type);
+                    var prm = Expression.Parameter(result.Type);
+                    filterExpression = Expression.Lambda(prm, prm);
                 }
 
                 var arguments = new List<Expression> { filterExpression.Body };

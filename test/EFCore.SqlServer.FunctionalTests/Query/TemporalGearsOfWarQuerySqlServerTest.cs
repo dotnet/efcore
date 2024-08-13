@@ -5567,30 +5567,6 @@ ORDER BY [w].[IsAutomatic], [g].[Nickname] DESC, [g].[SquadId] DESC, [w0].[Id], 
 """);
     }
 
-    public override async Task Order(bool async)
-    {
-        await base.Order(async);
-
-        AssertSql(
-            """
-SELECT [g].[FullName]
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-ORDER BY [g].[FullName]
-""");
-    }
-
-    public override async Task OrderDescending(bool async)
-    {
-        await base.OrderDescending(async);
-
-        AssertSql(
-            """
-SELECT [g].[FullName]
-FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-ORDER BY [g].[FullName] DESC
-""");
-    }
-
     public override async Task Select_subquery_projecting_multiple_constants_inside_anonymous(bool async)
     {
         await base.Select_subquery_projecting_multiple_constants_inside_anonymous(async);

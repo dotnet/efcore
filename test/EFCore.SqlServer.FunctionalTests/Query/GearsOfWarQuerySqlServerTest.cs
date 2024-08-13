@@ -5223,30 +5223,6 @@ ORDER BY [w].[IsAutomatic], [g].[Nickname] DESC, [g].[SquadId] DESC, [w0].[Id], 
 """);
     }
 
-    public override async Task Order(bool async)
-    {
-        await base.Order(async);
-
-        AssertSql(
-            """
-SELECT [g].[FullName]
-FROM [Gears] AS [g]
-ORDER BY [g].[FullName]
-""");
-    }
-
-    public override async Task OrderDescending(bool async)
-    {
-        await base.OrderDescending(async);
-
-        AssertSql(
-            """
-SELECT [g].[FullName]
-FROM [Gears] AS [g]
-ORDER BY [g].[FullName] DESC
-""");
-    }
-
     public override async Task Join_on_entity_qsre_keys(bool async)
     {
         await base.Join_on_entity_qsre_keys(async);

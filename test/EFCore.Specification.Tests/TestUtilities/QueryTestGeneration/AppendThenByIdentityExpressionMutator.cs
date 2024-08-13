@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
-
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 public class AppendThenByIdentityExpressionMutator(DbContext context) : ExpressionMutator(context)
@@ -20,7 +18,8 @@ public class AppendThenByIdentityExpressionMutator(DbContext context) : Expressi
             ? QueryableMethods.ThenByDescending.MakeGenericMethod(typeArgument, typeArgument)
             : QueryableMethods.ThenBy.MakeGenericMethod(typeArgument, typeArgument);
 
-        var lambda = ExpressionExtensions.CreateIdentityLambda(typeArgument);
+        var prm = Expression.Parameter(typeArgument, "prm");
+        var lambda = Expression.Lambda(prm, prm);
         var resultExpression = Expression.Call(thenBy, expression, lambda);
 
         return resultExpression;
