@@ -102,7 +102,7 @@ public class IdentityMap<TKey> : IIdentityMap<TKey>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalEntityEntry? TryGetEntryTyped(TKey keyValue)
-        => _identityMap.TryGetValue(keyValue, out var entry) ? entry : null;
+        => _identityMap.GetValueOrDefault(keyValue);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -141,9 +141,7 @@ public class IdentityMap<TKey> : IIdentityMap<TKey>
 
         try
         {
-            return _identityMap.TryGetValue((TKey)key, out var entry)
-                ? entry
-                : null;
+            return _identityMap.GetValueOrDefault((TKey)key);
         }
         catch (InvalidCastException e)
         {

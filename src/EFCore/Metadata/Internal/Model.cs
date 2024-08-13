@@ -845,12 +845,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             return null;
         }
 
-        if (_propertiesByType.TryGetValue(unwrappedType, out var properties))
-        {
-            return properties;
-        }
-
-        return null;
+        return _propertiesByType.GetValueOrDefault(unwrappedType);
     }
 
     /// <summary>

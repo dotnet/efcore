@@ -817,9 +817,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Key? FindDeclaredKey(IReadOnlyList<IReadOnlyProperty> properties)
-        => _keys.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var key)
-            ? key
-            : null;
+        => _keys.GetValueOrDefault(Check.NotEmpty(properties, nameof(properties)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1529,9 +1527,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Navigation? FindDeclaredNavigation(string name)
-        => _navigations.TryGetValue(Check.NotEmpty(name, nameof(name)), out var navigation)
-            ? navigation
-            : null;
+        => _navigations.GetValueOrDefault(Check.NotEmpty(name, nameof(name)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1720,9 +1716,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SkipNavigation? FindDeclaredSkipNavigation(string name)
-        => _skipNavigations.TryGetValue(Check.NotEmpty(name, nameof(name)), out var navigation)
-            ? navigation
-            : null;
+        => _skipNavigations.GetValueOrDefault(Check.NotEmpty(name, nameof(name)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2084,9 +2078,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? FindDeclaredIndex(IReadOnlyList<IReadOnlyProperty> properties)
-        => _unnamedIndexes.TryGetValue(Check.NotEmpty(properties, nameof(properties)), out var index)
-            ? index
-            : null;
+        => _unnamedIndexes.GetValueOrDefault(Check.NotEmpty(properties, nameof(properties)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2095,9 +2087,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Index? FindDeclaredIndex(string name)
-        => _namedIndexes.TryGetValue(Check.NotEmpty(name, nameof(name)), out var index)
-            ? index
-            : null;
+        => _namedIndexes.GetValueOrDefault(Check.NotEmpty(name, nameof(name)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2455,9 +2445,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ServiceProperty? FindDeclaredServiceProperty(string name)
-        => _serviceProperties.TryGetValue(Check.NotEmpty(name, nameof(name)), out var property)
-            ? property
-            : null;
+        => _serviceProperties.GetValueOrDefault(Check.NotEmpty(name, nameof(name)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2627,9 +2615,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     {
         Check.NotEmpty(modelName, nameof(modelName));
 
-        return _triggers.TryGetValue(modelName, out var trigger)
-            ? trigger
-            : null;
+        return _triggers.GetValueOrDefault(modelName);
     }
 
     /// <summary>
@@ -2653,12 +2639,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
         EnsureMutable();
 
-        if (!_triggers.TryGetValue(modelName, out var trigger))
+        if (!_triggers.Remove(modelName, out var trigger))
         {
             return null;
         }
-
-        _triggers.Remove(modelName);
 
         trigger.SetRemovedFromModel();
 

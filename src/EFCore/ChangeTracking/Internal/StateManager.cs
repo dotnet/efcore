@@ -812,10 +812,8 @@ public class StateManager : IStateManager
         InternalEntityEntry referencedFromEntry)
     {
         if (_referencedUntrackedEntities != null
-            && _referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
+            && _referencedUntrackedEntities.Remove(referencedEntity, out var danglers))
         {
-            _referencedUntrackedEntities.Remove(referencedEntity);
-
             if (!_referencedUntrackedEntities.TryGetValue(newReferencedEntity, out var newDanglers))
             {
                 newDanglers = new List<Tuple<INavigationBase, InternalEntityEntry>>();

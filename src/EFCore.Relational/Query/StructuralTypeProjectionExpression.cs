@@ -418,9 +418,7 @@ public class StructuralTypeProjectionExpression : Expression
                 RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, entityType.DisplayName()));
         }
 
-        return _ownedNavigationMap.TryGetValue(navigation, out var expression)
-            ? expression
-            : null;
+        return _ownedNavigationMap.GetValueOrDefault(navigation);
     }
 
     /// <inheritdoc />

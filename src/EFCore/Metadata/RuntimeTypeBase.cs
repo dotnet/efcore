@@ -255,9 +255,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     protected virtual RuntimeProperty? FindDeclaredProperty(string name)
-        => _properties.TryGetValue(name, out var property)
-            ? property
-            : null;
+        => _properties.GetValueOrDefault(name);
 
     /// <summary>
     ///     Gets all scalar properties declared on this type.
