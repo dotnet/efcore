@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Frozen;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 // ReSharper disable once CheckNamespace
@@ -14,14 +15,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerDateOnlyMemberTranslator : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> DatePartMapping
-        = new()
+    private static readonly FrozenDictionary<string, string> DatePartMapping
+        = new List<KeyValuePair<string, string>>
         {
-            { nameof(DateOnly.Year), "year" },
-            { nameof(DateOnly.Month), "month" },
-            { nameof(DateOnly.DayOfYear), "dayofyear" },
-            { nameof(DateOnly.Day), "day" }
-        };
+            new(nameof(DateOnly.Year), "year"),
+            new(nameof(DateOnly.Month), "month"),
+            new(nameof(DateOnly.DayOfYear), "dayofyear"),
+            new(nameof(DateOnly.Day), "day"),
+        }.ToFrozenDictionary();
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
