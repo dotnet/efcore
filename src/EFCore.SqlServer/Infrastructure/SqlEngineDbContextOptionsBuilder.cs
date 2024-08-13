@@ -60,7 +60,7 @@ public class SqlEngineDbContextOptionsBuilder
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
-    public virtual SqlEngineDbContextOptionsBuilder TryEnableRetryOnFailure()
+    public virtual SqlEngineDbContextOptionsBuilder EnableRetryOnFailureByDefault()
         => WithOption(e => e.WithUseRetryingStrategyByDefault(true));
 
     /// <summary>

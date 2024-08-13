@@ -769,7 +769,7 @@ public class SqlServerConfigPatternsTest
         {
             using var scope = new ServiceCollection()
                 .AddDbContext<NorthwindContext>(b => b.UseSqlServer())
-                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.TryEnableRetryOnFailure()))
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.EnableRetryOnFailureByDefault()))
                 .BuildServiceProvider(validateScopes: true)
                 .CreateScope();
 
@@ -799,7 +799,7 @@ public class SqlServerConfigPatternsTest
         {
             using var scope = new ServiceCollection()
                 .AddDbContext<NorthwindContext>(b => b.UseSqlServer(o => o.ExecutionStrategy(_ => new DummyExecutionStrategy())))
-                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.TryEnableRetryOnFailure()))
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.EnableRetryOnFailureByDefault()))
                 .BuildServiceProvider(validateScopes: true)
                 .CreateScope();
 
@@ -813,7 +813,7 @@ public class SqlServerConfigPatternsTest
         public void Fallback_execution_strategy_does_not_overwrite_Configure_first()
         {
             using var scope = new ServiceCollection()
-                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.TryEnableRetryOnFailure()))
+                .ConfigureDbContext<NorthwindContext>(b => b.ConfigureSqlEngine(o => o.EnableRetryOnFailureByDefault()))
                 .AddDbContext<NorthwindContext>(b => b.UseSqlServer(o => o.ExecutionStrategy(_ => new DummyExecutionStrategy())))
                 .BuildServiceProvider(validateScopes: true)
                 .CreateScope();
