@@ -39,39 +39,41 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
-            && arguments[0].Type == typeof(byte[]))
+        if (method.IsGenericMethod)
         {
-            var source = arguments[0];
-            var sourceTypeMapping = source.TypeMapping;
+            var methodDefinition = method.GetGenericMethodDefinition();
+            if (methodDefinition.Equals(EnumerableMethods.Contains)
+                && arguments[0].Type == typeof(byte[]))
+            {
+                var source = arguments[0];
+                var sourceTypeMapping = source.TypeMapping;
 
-            var value = arguments[1] is SqlConstantExpression constantValue
-                ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
-                : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
+                var value = arguments[1] is SqlConstantExpression constantValue
+                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
+                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
-            return _sqlExpressionFactory.GreaterThan(
-                _sqlExpressionFactory.Function(
-                    "CHARINDEX",
-                    new[] { value, source },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    typeof(int)),
-                _sqlExpressionFactory.Constant(0));
-        }
+                return _sqlExpressionFactory.GreaterThan(
+                    _sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        new[] { value, source },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        typeof(int)),
+                    _sqlExpressionFactory.Constant(0));
+            }
 
-        if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
-            && arguments[0].Type == typeof(byte[]))
-        {
-            return _sqlExpressionFactory.Convert(
-                _sqlExpressionFactory.Function(
-                    "SUBSTRING",
-                    new[] { arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
-                    typeof(byte[])),
-                method.ReturnType);
+            if (methodDefinition.Equals(EnumerableMethods.FirstWithoutPredicate)
+                && arguments[0].Type == typeof(byte[]))
+            {
+                return _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function(
+                        "SUBSTRING",
+                        new[] { arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true, true },
+                        typeof(byte[])),
+                    method.ReturnType);
+            }
         }
 
         return null;
