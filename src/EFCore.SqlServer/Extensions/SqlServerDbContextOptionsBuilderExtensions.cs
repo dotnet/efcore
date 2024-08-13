@@ -124,7 +124,7 @@ public static class SqlServerDbContextOptionsExtensions
         bool contextOwnsConnection,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
     {
-        Check.NotNull(connection, nameof(connection));
+        Check.NotNull(connection);
 
         var extension = GetOrCreateExtension<SqlServerOptionsExtension>(optionsBuilder);
         extension = (SqlServerOptionsExtension)extension

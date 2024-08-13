@@ -51,8 +51,8 @@ public class SqlServerParameterBasedSqlProcessor : RelationalParameterBasedSqlPr
         IReadOnlyDictionary<string, object?> parametersValues,
         out bool canCache)
     {
-        Check.NotNull(selectExpression, nameof(selectExpression));
-        Check.NotNull(parametersValues, nameof(parametersValues));
+        Check.NotNull(selectExpression);
+        Check.NotNull(parametersValues);
 
         return new SqlServerSqlNullabilityProcessor(Dependencies, Parameters).Process(
             selectExpression, parametersValues, out canCache);

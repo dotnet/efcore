@@ -67,8 +67,8 @@ public class ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> : Re
         string annotation,
         object? value)
         => (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(
-            Check.NotEmpty(annotation, nameof(annotation)),
-            Check.NotNull(value, nameof(value)));
+            Check.NotEmpty(annotation),
+            Check.NotNull(value));
 
     /// <summary>
     ///     Configures the property(s) to use as the foreign key for this relationship.
@@ -95,7 +95,7 @@ public class ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> : Re
     public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
         params string[] foreignKeyPropertyNames)
         => new(
-            HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
+            HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames)),
             this,
             foreignKeySet: true);
 
@@ -125,7 +125,7 @@ public class ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> : Re
     public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
         Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
         => new(
-            HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
+            HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression).GetMemberAccessList()),
             this,
             foreignKeySet: true);
 
@@ -140,7 +140,7 @@ public class ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> : Re
     public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
         params string[] keyPropertyNames)
         => new(
-            HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
+            HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames)),
             this,
             principalKeySet: true);
 
@@ -164,7 +164,7 @@ public class ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> : Re
     public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
         Expression<Func<TPrincipalEntity, object?>> keyExpression)
         => new(
-            HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
+            HasPrincipalKeyBuilder(Check.NotNull(keyExpression).GetMemberAccessList()),
             this,
             principalKeySet: true);
 

@@ -21,7 +21,7 @@ public class EntityTypeConfigurationAttribute : Attribute
     /// <param name="entityConfigurationType">The IEntityTypeConfiguration&lt;&gt; type to use.</param>
     public EntityTypeConfigurationAttribute(Type entityConfigurationType)
     {
-        Check.NotNull(entityConfigurationType, nameof(entityConfigurationType));
+        Check.NotNull(entityConfigurationType);
 
         EntityTypeConfigurationType = entityConfigurationType;
     }

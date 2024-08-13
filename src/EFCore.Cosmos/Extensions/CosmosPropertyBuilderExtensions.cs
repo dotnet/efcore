@@ -35,7 +35,7 @@ public static class CosmosPropertyBuilderExtensions
         this PropertyBuilder propertyBuilder,
         string name)
     {
-        Check.NotNull(name, nameof(name));
+        Check.NotNull(name);
 
         propertyBuilder.Metadata.SetJsonPropertyName(name);
 

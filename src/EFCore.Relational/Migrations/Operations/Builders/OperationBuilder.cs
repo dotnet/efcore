@@ -18,7 +18,7 @@ public class OperationBuilder<TOperation> : IInfrastructure<TOperation>
     /// <param name="operation">The <see cref="MigrationOperation" />.</param>
     public OperationBuilder(TOperation operation)
     {
-        Check.NotNull(operation, nameof(operation));
+        Check.NotNull(operation);
 
         Operation = operation;
     }
@@ -41,7 +41,7 @@ public class OperationBuilder<TOperation> : IInfrastructure<TOperation>
         string name,
         object? value)
     {
-        Check.NotEmpty(name, nameof(name));
+        Check.NotEmpty(name);
 
         Operation.AddAnnotation(name, value);
 

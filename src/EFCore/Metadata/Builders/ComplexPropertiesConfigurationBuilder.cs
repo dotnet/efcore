@@ -27,7 +27,7 @@ public class ComplexPropertiesConfigurationBuilder
     [EntityFrameworkInternal]
     public ComplexPropertiesConfigurationBuilder(ComplexPropertyConfiguration property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         Configuration = property;
     }

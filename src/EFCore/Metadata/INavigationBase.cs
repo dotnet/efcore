@@ -52,7 +52,7 @@ public interface INavigationBase : IReadOnlyNavigationBase, IPropertyBase
     /// <param name="entity">The entity for which the navigation has been loaded.</param>
     void SetIsLoadedWhenNoTracking(object entity)
     {
-        Check.NotNull(entity, nameof(entity));
+        Check.NotNull(entity);
 
         var serviceProperties = DeclaringEntityType
             .GetDerivedTypesInclusive()

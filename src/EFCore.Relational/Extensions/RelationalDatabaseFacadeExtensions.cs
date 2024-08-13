@@ -356,8 +356,8 @@ public static class RelationalDatabaseFacadeExtensions
         string sql,
         IEnumerable<object?> parameters)
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotNull(sql);
+        Check.NotNull(parameters);
 
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
         var concurrencyDetector = facadeDependencies.CoreOptions.AreThreadSafetyChecksEnabled
@@ -423,8 +423,8 @@ public static class RelationalDatabaseFacadeExtensions
         [NotParameterized] string sql,
         params object[] parameters)
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotNull(sql);
+        Check.NotNull(parameters);
 
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
         var queryProvider = facadeDependencies.QueryProvider;
@@ -665,8 +665,8 @@ public static class RelationalDatabaseFacadeExtensions
         IEnumerable<object> parameters,
         CancellationToken cancellationToken = default)
     {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotNull(sql);
+        Check.NotNull(parameters);
 
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
         var concurrencyDetector = facadeDependencies.CoreOptions.AreThreadSafetyChecksEnabled

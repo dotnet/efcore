@@ -78,7 +78,7 @@ public static class RelationalIndexExtensions
     public static void SetDatabaseName(this IMutableIndex index, string? name)
         => index.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)));
+            Check.NullButNotEmpty(name));
 
     /// <summary>
     ///     Sets the name of the index in the database.
@@ -93,7 +93,7 @@ public static class RelationalIndexExtensions
         bool fromDataAnnotation = false)
         => (string?)index.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
-            Check.NullButNotEmpty(name, nameof(name)),
+            Check.NullButNotEmpty(name),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -138,7 +138,7 @@ public static class RelationalIndexExtensions
     public static void SetFilter(this IMutableIndex index, string? value)
         => index.SetAnnotation(
             RelationalAnnotationNames.Filter,
-            Check.NullButNotEmpty(value, nameof(value)));
+            Check.NullButNotEmpty(value));
 
     /// <summary>
     ///     Sets the index filter expression.
@@ -150,7 +150,7 @@ public static class RelationalIndexExtensions
     public static string? SetFilter(this IConventionIndex index, string? value, bool fromDataAnnotation = false)
         => (string?)index.SetAnnotation(
             RelationalAnnotationNames.Filter,
-            Check.NullButNotEmpty(value, nameof(value)),
+            Check.NullButNotEmpty(value),
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -188,7 +188,7 @@ public static class RelationalIndexExtensions
     /// <returns>The index found, or <see langword="null" /> if none was found.</returns>
     public static IReadOnlyIndex? FindSharedObjectRootIndex(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        Check.NotNull(index, nameof(index));
+        Check.NotNull(index);
 
         var indexName = index.GetDatabaseName(storeObject);
         var rootIndex = index;

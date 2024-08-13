@@ -29,7 +29,7 @@ public class ConventionSetBuilder
     [EntityFrameworkInternal]
     public ConventionSetBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)
     {
-        Check.NotNull(conventionSet, nameof(conventionSet));
+        Check.NotNull(conventionSet);
 
         _conventionSet = conventionSet;
         _serviceProvider = serviceProvider;

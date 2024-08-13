@@ -58,7 +58,7 @@ public static class CosmosQueryableExtensions
         params object[] additionalPartitionKeyValues)
         where TEntity : class
     {
-        Check.NotNull(partitionKeyValue, nameof(partitionKeyValue));
+        Check.NotNull(partitionKeyValue);
         Check.HasNoNulls(additionalPartitionKeyValues, nameof(additionalPartitionKeyValues));
 
         return
@@ -145,8 +145,8 @@ public static class CosmosQueryableExtensions
         params object?[] parameters)
         where TEntity : class
     {
-        Check.NotEmpty(sql, nameof(sql));
-        Check.NotNull(parameters, nameof(parameters));
+        Check.NotEmpty(sql);
+        Check.NotNull(parameters);
 
         var queryableSource = (IQueryable)source;
         return queryableSource.Provider.CreateQuery<TEntity>(

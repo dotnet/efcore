@@ -77,7 +77,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
         Expression<Func<TComplexProperty, TProperty>> propertyExpression)
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new PropertyEntry<TEntity, TProperty>(
             InternalEntry,
@@ -98,7 +98,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     public virtual ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(
         Expression<Func<TComplexProperty, TNestedComplexProperty>> propertyExpression)
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new ComplexPropertyEntry<TEntity, TNestedComplexProperty>(
             InternalEntry,
@@ -117,7 +117,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(IProperty property)
     {
-        Check.NotNull(property, nameof(property));
+        Check.NotNull(property);
 
         ValidateType<TProperty>(property);
 
@@ -137,7 +137,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     public virtual ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(
         IComplexProperty complexProperty)
     {
-        Check.NotNull(complexProperty, nameof(complexProperty));
+        Check.NotNull(complexProperty);
 
         ValidateType<TNestedComplexProperty>(complexProperty);
 
@@ -156,7 +156,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         ValidateType<TProperty>(Metadata.ComplexType.FindProperty(propertyName));
 
@@ -175,7 +175,7 @@ public class ComplexPropertyEntry<TEntity, TComplexProperty> : ComplexPropertyEn
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual ComplexPropertyEntry<TEntity, TNestedComplexProperty> ComplexProperty<TNestedComplexProperty>(string propertyName)
     {
-        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.NotEmpty(propertyName);
 
         ValidateType<TNestedComplexProperty>(Metadata.ComplexType.FindComplexProperty(propertyName));
 

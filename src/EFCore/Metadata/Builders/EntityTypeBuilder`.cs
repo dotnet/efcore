@@ -82,7 +82,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual KeyBuilder HasKey(Expression<Func<TEntity, object?>> keyExpression)
         => new KeyBuilder<TEntity>(
             Builder.PrimaryKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
+                Check.NotNull(keyExpression).GetMemberAccessList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -93,7 +93,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public new virtual KeyBuilder<TEntity> HasKey(params string[] propertyNames)
         => new(
             Builder.PrimaryKey(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
@@ -114,7 +114,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual KeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object?>> keyExpression)
         => new(
             Builder.HasKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),
+                Check.NotNull(keyExpression).GetMemberAccessList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -128,7 +128,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public new virtual KeyBuilder<TEntity> HasAlternateKey(params string[] propertyNames)
         => new(
             Builder.HasKey(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
+                Check.NotEmpty(propertyNames), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures the entity type to have no keys. It will only be usable for queries.
@@ -149,7 +149,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual PropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(
             Builder.Property(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)!
+                    Check.NotNull(propertyExpression).GetMemberAccess(), ConfigurationSource.Explicit)!
                 .Metadata);
 
     /// <summary>
@@ -165,7 +165,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(
             Builder.PrimitiveCollection(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                Check.NotNull(propertyExpression).GetMemberAccess(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -282,7 +282,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, TProperty?>> propertyExpression)
         => new(
             Builder.ComplexProperty(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                    Check.NotNull(propertyExpression).GetMemberAccess(),
                     complexTypeName: null,
                     collection: false,
                     ConfigurationSource.Explicit)!
@@ -303,8 +303,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         string complexTypeName)
         => new(
             Builder.ComplexProperty(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
-                    Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
+                    Check.NotNull(propertyExpression).GetMemberAccess(),
+                    Check.NotEmpty(complexTypeName),
                     collection: false,
                     ConfigurationSource.Explicit)!
                 .Metadata);
@@ -323,7 +323,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         Expression<Func<TEntity, TProperty?>> propertyExpression,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyExpression));
 
@@ -346,7 +346,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(buildAction);
 
         buildAction(ComplexProperty(propertyExpression, complexTypeName));
 
@@ -368,7 +368,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TNavigation : class
         => new(
             Builder.Navigation(
-                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+                Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property of the entity type.
@@ -385,7 +385,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TNavigation : class
         => new(
             Builder.Navigation(
-                Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+                Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -397,7 +397,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// </param>
     public virtual EntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object?>> propertyExpression)
         => (EntityTypeBuilder<TEntity>)base.Ignore(
-            Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().GetSimpleMemberName());
+            Check.NotNull(propertyExpression).GetMemberAccess().GetSimpleMemberName());
 
     /// <summary>
     ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -433,7 +433,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
     public virtual EntityTypeBuilder<TEntity> ToQuery(Expression<Func<IQueryable<TEntity>>> query)
     {
-        Check.NotNull(query, nameof(query));
+        Check.NotNull(query);
 
         Builder.HasDefiningQuery(query, ConfigurationSource.Explicit);
 
@@ -459,7 +459,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
         => new(
             Builder.HasIndex(
-                Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
+                Check.NotNull(indexExpression).GetMemberAccessList(),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -484,7 +484,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         string name)
         => new(
             Builder.HasIndex(
-                Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(),
+                Check.NotNull(indexExpression).GetMemberAccessList(),
                 name,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -498,7 +498,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public new virtual IndexBuilder<TEntity> HasIndex(params string[] propertyNames)
         => new(
             Builder.HasIndex(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                Check.NotEmpty(propertyNames),
                 ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
@@ -514,7 +514,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         string name)
         => new(
             Builder.HasIndex(
-                Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                Check.NotEmpty(propertyNames),
                 name,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -545,7 +545,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
             new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -576,8 +576,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             string navigationName)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), typeof(TRelatedEntity)),
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -608,7 +608,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
             new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -640,8 +640,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new TypeIdentity(Check.NotEmpty(ownedTypeName), typeof(TRelatedEntity)),
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -672,8 +672,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
@@ -801,9 +801,9 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
@@ -841,8 +841,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
@@ -883,9 +883,9 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsOneBuilder<TRelatedEntity>(
@@ -938,7 +938,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
             new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -970,7 +970,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
             new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotEmpty(navigationName, nameof(navigationName))));
+            new MemberIdentity(Check.NotEmpty(navigationName)));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -1001,7 +1001,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
             new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -1034,7 +1034,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
         => OwnsManyBuilder<TRelatedEntity>(
             new TypeIdentity(ownedTypeName, typeof(TRelatedEntity)),
-            new MemberIdentity(Check.NotNull(navigationExpression, nameof(navigationExpression)).GetMemberAccess()));
+            new MemberIdentity(Check.NotNull(navigationExpression).GetMemberAccess()));
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -1065,8 +1065,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
@@ -1194,9 +1194,9 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotEmpty(navigationName, nameof(navigationName));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotEmpty(navigationName);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
@@ -1234,8 +1234,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
@@ -1276,9 +1276,9 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
             Action<OwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
         where TRelatedEntity : class
     {
-        Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
-        Check.NotNull(navigationExpression, nameof(navigationExpression));
-        Check.NotNull(buildAction, nameof(buildAction));
+        Check.NotEmpty(ownedTypeName);
+        Check.NotNull(navigationExpression);
+        Check.NotNull(buildAction);
 
         buildAction(
             OwnsManyBuilder<TRelatedEntity>(
@@ -1418,7 +1418,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TRelatedEntity>(string? navigationName)
         where TRelatedEntity : class
     {
-        Check.NullButNotEmpty(navigationName, nameof(navigationName));
+        Check.NullButNotEmpty(navigationName);
 
         var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
 
@@ -1584,7 +1584,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
         Expression<Func<TEntity, TDiscriminator>> propertyExpression)
     {
-        Check.NotNull(propertyExpression, nameof(propertyExpression));
+        Check.NotNull(propertyExpression);
 
         return new DiscriminatorBuilder<TDiscriminator>(
             Builder.HasDiscriminator(propertyExpression.GetMemberAccess(), ConfigurationSource.Explicit)!);
