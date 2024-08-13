@@ -47,7 +47,7 @@ public class SqlServerIsNumericFunctionTranslator : IMethodCallTranslator
                     "ISNUMERIC",
                     new[] { arguments[1] },
                     nullable: false,
-                    argumentsPropagateNullability: new[] { false },
+                    argumentsPropagateNullability: CachedBools.False,
                     typeof(int)),
                 _sqlExpressionFactory.Constant(1))
             : null;

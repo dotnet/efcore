@@ -153,7 +153,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 "ROUND",
                 new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, false, false },
+                argumentsPropagateNullability: CachedBools.TrueFalseFalse,
                 resultType);
 
             if (argument.Type == typeof(float))
@@ -180,7 +180,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 "ROUND",
                 new[] { argument, digits },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrue,
                 resultType);
 
             if (argument.Type == typeof(float))

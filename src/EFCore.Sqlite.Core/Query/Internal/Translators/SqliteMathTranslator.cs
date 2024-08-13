@@ -141,7 +141,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 "round",
                 arguments,
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrue,
                 method.ReturnType,
                 arguments[0].TypeMapping);
         }
@@ -159,7 +159,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.ApplyTypeMapping(newBase, typeMapping), _sqlExpressionFactory.ApplyTypeMapping(a, typeMapping)
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrue,
                 method.ReturnType,
                 typeMapping);
         }

@@ -52,7 +52,7 @@ public class SqlServerDateTimeMemberTranslator(
                     "CONVERT",
                     new[] { sqlExpressionFactory.Fragment("date"), instance! },
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: CachedBools.FalseTrue,
                     returnType,
                     declaringType == typeof(DateTime)
                         ? instance!.TypeMapping
@@ -63,7 +63,7 @@ public class SqlServerDateTimeMemberTranslator(
                     "CONVERT",
                     new[] { sqlExpressionFactory.Fragment("time"), instance! },
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: CachedBools.FalseTrue,
                     returnType),
 
             nameof(DateTime.Now)
@@ -106,7 +106,7 @@ public class SqlServerDateTimeMemberTranslator(
                             typeof(DateTime))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: [false, true],
+                    argumentsPropagateNullability: CachedBools.FalseTrue,
                     returnType),
 
             _ => null
@@ -117,7 +117,7 @@ public class SqlServerDateTimeMemberTranslator(
                 "DATEPART",
                 arguments: [sqlExpressionFactory.Fragment(part), instance!],
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: CachedBools.FalseTrue,
                 returnType);
     }
 }

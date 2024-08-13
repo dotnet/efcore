@@ -72,7 +72,7 @@ public class SqlServerStatisticsAggregateMethodTranslator : IAggregateMethodCall
             source,
             enumerableArgumentIndex: 0,
             nullable: true,
-            argumentsPropagateNullability: new[] { false },
+            argumentsPropagateNullability: CachedBools.False,
             typeof(double),
             _doubleTypeMapping);
     }

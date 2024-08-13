@@ -81,7 +81,7 @@ public class SqlServerDateTimeMethodTranslator(
                 "DATEADD",
                 arguments: [sqlExpressionFactory.Fragment(datePart), sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance],
                 nullable: true,
-                argumentsPropagateNullability: [false, true, true],
+                argumentsPropagateNullability: CachedBools.FalseTrueTrue,
                 instance.Type,
                 instance.TypeMapping);
         }
@@ -137,7 +137,7 @@ public class SqlServerDateTimeMethodTranslator(
                     instance
                 ],
                 nullable: true,
-                argumentsPropagateNullability: [false, true, true],
+                argumentsPropagateNullability: CachedBools.FalseTrueTrue,
                 typeof(long));
         }
 

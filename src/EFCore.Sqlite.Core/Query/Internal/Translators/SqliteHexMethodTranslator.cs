@@ -54,7 +54,7 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
                 "hex",
                 new[] { arguments[1] },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 typeof(string));
         }
 

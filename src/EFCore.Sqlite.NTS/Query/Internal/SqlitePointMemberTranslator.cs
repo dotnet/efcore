@@ -51,7 +51,7 @@ public class SqlitePointMemberTranslator : IMemberTranslator
                 functionName,
                 new[] { instance! },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 returnType)
             : null;
 }

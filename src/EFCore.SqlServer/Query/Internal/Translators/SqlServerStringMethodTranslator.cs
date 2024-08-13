@@ -140,7 +140,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     "REPLACE",
                     new[] { instance, firstArgument, secondArgument },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: CachedBools.TrueTrueTrue,
                     method.ReturnType,
                     stringTypeMapping);
             }
@@ -152,7 +152,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     ToLowerMethodInfo.Equals(method) ? "LOWER" : "UPPER",
                     new[] { instance },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: CachedBools.True,
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -171,11 +171,11 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                             "LEN",
                             new[] { instance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true },
+                            argumentsPropagateNullability: CachedBools.True,
                             typeof(int))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: CachedBools.TrueTrueTrue,
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -193,7 +193,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         arguments[1]
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true, true },
+                    argumentsPropagateNullability: CachedBools.TrueTrueTrue,
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -231,12 +231,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                             "RTRIM",
                             new[] { instance },
                             nullable: true,
-                            argumentsPropagateNullability: new[] { true },
+                            argumentsPropagateNullability: CachedBools.True,
                             instance.Type,
                             instance.TypeMapping)
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: CachedBools.True,
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -271,7 +271,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 "SUBSTRING",
                 new[] { argument, _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrueTrue,
                 method.ReturnType);
         }
 
@@ -287,12 +287,12 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                         "LEN",
                         new[] { argument },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: CachedBools.True,
                         typeof(int)),
                     _sqlExpressionFactory.Constant(1)
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrueTrue,
                 method.ReturnType);
         }
 
@@ -305,7 +305,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                 "PATINDEX",
                 new[] { pattern, expression },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrue,
                 method.ReturnType
             );
         }
@@ -403,7 +403,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
             functionName,
             arguments: charactersToTrim is null ? [instance] : [instance, charactersToTrim],
             nullable: true,
-            argumentsPropagateNullability: charactersToTrim is null ? [true] : [true, true],
+            argumentsPropagateNullability: charactersToTrim is null ? CachedBools.True : CachedBools.TrueTrue,
             instance.Type,
             instance.TypeMapping);
     }

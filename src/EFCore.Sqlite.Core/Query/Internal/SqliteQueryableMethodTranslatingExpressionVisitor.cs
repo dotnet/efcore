@@ -110,7 +110,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         "json_array_length",
                         new[] { array },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true },
+                        argumentsPropagateNullability: CachedBools.True,
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
 
@@ -209,7 +209,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 "json_array_length",
                 new[] { array },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 typeof(int));
 
 #pragma warning disable EF1001
@@ -582,7 +582,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     "unhex",
                     new[] { expression },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: CachedBools.True,
                     typeof(byte[]),
                     typeMapping),
 

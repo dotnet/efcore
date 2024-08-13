@@ -54,7 +54,7 @@ public class SqliteMultiLineStringMemberTranslator : IMemberTranslator
                             "IsClosed",
                             new[] { instance },
                             nullable: false,
-                            argumentsPropagateNullability: new[] { false },
+                            argumentsPropagateNullability: CachedBools.False,
                             returnType))
                 },
                 null);

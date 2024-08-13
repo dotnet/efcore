@@ -60,7 +60,7 @@ public class SqlServerLineStringMethodTranslator : IMethodCallTranslator
                 },
                 nullable: true,
                 instancePropagatesNullability: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 method.ReturnType,
                 _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping!.StoreType));
         }

@@ -65,7 +65,7 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
                     },
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: CachedBools.True,
                     method.ReturnType,
                     _typeMappingSource.FindMapping(method.ReturnType, storeType));
             }
@@ -81,7 +81,7 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
                 },
                 nullable: true,
                 instancePropagatesNullability: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 method.ReturnType,
                 _typeMappingSource.FindMapping(method.ReturnType, storeType));
         }

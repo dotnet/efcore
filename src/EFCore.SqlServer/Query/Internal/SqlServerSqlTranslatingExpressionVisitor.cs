@@ -156,7 +156,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                 "DATALENGTH",
                 new[] { sqlExpression },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 isBinaryMaxDataType ? typeof(long) : typeof(int));
 
             return isBinaryMaxDataType
@@ -376,11 +376,11 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                                     "LEN",
                                                     new[] { translatedPattern },
                                                     nullable: true,
-                                                    argumentsPropagateNullability: new[] { true },
+                                                    argumentsPropagateNullability: CachedBools.True,
                                                     typeof(int))
                                             },
                                             nullable: true,
-                                            argumentsPropagateNullability: new[] { true, true },
+                                            argumentsPropagateNullability: CachedBools.TrueTrue,
                                             typeof(string),
                                             stringTypeMapping),
                                         translatedPattern))),
@@ -398,7 +398,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                                                 "CHARINDEX",
                                                 new[] { translatedPattern, translatedInstance },
                                                 nullable: true,
-                                                argumentsPropagateNullability: new[] { true, true },
+                                                argumentsPropagateNullability: CachedBools.TrueTrue,
                                                 typeof(int)),
                                             _sqlExpressionFactory.Constant(0)),
                                         _sqlExpressionFactory.Like(
@@ -601,7 +601,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             Dependencies.SqlExpressionFactory.Constant(1)
                         },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true, true },
+                        argumentsPropagateNullability: CachedBools.TrueTrueTrue,
                         typeof(byte[])),
                     resultType)
                 : QueryCompilationContext.NotTranslatedExpression;

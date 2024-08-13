@@ -52,7 +52,7 @@ public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(1))
                 },
                 nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
+                argumentsPropagateNullability: CachedBools.TrueTrue,
                 method.ReturnType);
         }
 

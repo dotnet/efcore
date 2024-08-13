@@ -59,7 +59,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                             "ef_avg",
                             [averageSqlExpression],
                             nullable: true,
-                            argumentsPropagateNullability: [false],
+                            argumentsPropagateNullability: CachedBools.False,
                             averageSqlExpression.Type,
                             averageSqlExpression.TypeMapping);
                     }
@@ -110,7 +110,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                             "ef_sum",
                             [sumSqlExpression],
                             nullable: true,
-                            argumentsPropagateNullability: [false],
+                            argumentsPropagateNullability: CachedBools.False,
                             sumSqlExpression.Type,
                             sumSqlExpression.TypeMapping);
                     }

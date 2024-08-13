@@ -77,9 +77,9 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         => SupportedMethods.Contains(method)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(TypeMapping[method.Name]), arguments[0] },
+                [_sqlExpressionFactory.Fragment(TypeMapping[method.Name]), arguments[0]],
                 nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+                argumentsPropagateNullability: CachedBools.FalseTrue,
                 method.ReturnType)
             : null;
 }

@@ -125,7 +125,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                             _sqlExpressionFactory.Constant(1))
                     },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability: CachedBools.TrueTrue,
                     method.ReturnType);
             }
 
@@ -136,7 +136,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                         "Distance",
                         new[] { instance, arguments[0] },
                         nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
+                        argumentsPropagateNullability: CachedBools.TrueTrue,
                         typeof(double)),
                     arguments[1]);
             }

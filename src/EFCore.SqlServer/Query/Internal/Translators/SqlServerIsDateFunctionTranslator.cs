@@ -47,7 +47,7 @@ public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
                     "ISDATE",
                     new[] { arguments[1] },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: CachedBools.True,
                     MethodInfo.ReturnType),
                 MethodInfo.ReturnType)
             : null;

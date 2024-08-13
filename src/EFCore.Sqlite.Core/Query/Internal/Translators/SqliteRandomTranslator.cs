@@ -57,7 +57,7 @@ public class SqliteRandomTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(9223372036854780000.0))
                 },
                 nullable: false,
-                argumentsPropagateNullability: [true],
+                argumentsPropagateNullability: CachedBools.True,
                 method.ReturnType)
             : null;
 }

@@ -147,7 +147,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                     },
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: new[] { false },
+                    argumentsPropagateNullability: CachedBools.False,
                     method.ReturnType,
                     _typeMappingSource.FindMapping(method.ReturnType, storeType));
             }

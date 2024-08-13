@@ -83,7 +83,7 @@ public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
                     "DATALENGTH",
                     arguments.Skip(1),
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
+                    argumentsPropagateNullability: CachedBools.True,
                     typeof(long));
 
                 return _sqlExpressionFactory.Convert(result, method.ReturnType.UnwrapNullableType());
@@ -93,7 +93,7 @@ public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
                 "DATALENGTH",
                 arguments.Skip(1),
                 nullable: true,
-                argumentsPropagateNullability: new[] { true },
+                argumentsPropagateNullability: CachedBools.True,
                 method.ReturnType.UnwrapNullableType());
         }
 
