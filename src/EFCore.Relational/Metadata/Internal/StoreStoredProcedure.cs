@@ -103,9 +103,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IStoreStoredProcedureParameter? FindParameter(string name)
-        => _parametersSet.TryGetValue(name, out var parameter)
-            ? parameter
-            : null;
+        => _parametersSet.GetValueOrDefault(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

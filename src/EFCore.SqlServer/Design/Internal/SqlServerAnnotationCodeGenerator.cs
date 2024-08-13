@@ -473,9 +473,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         MethodInfo methodInfo,
         List<MethodCallCodeFragment> methodCallCodeFragments)
     {
-        if (annotations.TryGetValue(annotationName, out var annotation))
+        if (annotations.Remove(annotationName, out var annotation))
         {
-            annotations.Remove(annotationName);
             if (annotation.Value is object annotationValue)
             {
                 methodCallCodeFragments.Add(

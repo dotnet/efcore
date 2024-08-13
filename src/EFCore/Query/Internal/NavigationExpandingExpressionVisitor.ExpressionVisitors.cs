@@ -183,9 +183,7 @@ public partial class NavigationExpandingExpressionVisitor
             bool derivedTypeConversion)
         {
             var inverseNavigation = navigation.Inverse;
-            var includeTree = entityReference.IncludePaths.TryGetValue(navigation, out var tree)
-                ? tree
-                : null;
+            var includeTree = entityReference.IncludePaths.GetValueOrDefault(navigation);
 
             var primaryExpansion = ExpandForeignKey(
                 root,

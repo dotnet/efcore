@@ -397,9 +397,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => (RuntimeNavigation?)((IReadOnlyEntityType)this).FindNavigation(name);
 
     private RuntimeNavigation? FindDeclaredNavigation(string name)
-        => _navigations.TryGetValue(name, out var navigation)
-            ? navigation
-            : null;
+        => _navigations.GetValueOrDefault(name);
 
     private IEnumerable<RuntimeNavigation> GetDeclaredNavigations()
         => _navigations.Values;
