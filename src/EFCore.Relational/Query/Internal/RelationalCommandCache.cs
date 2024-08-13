@@ -36,7 +36,7 @@ public class RelationalCommandCache : IPrintableExpression
         IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
         Expression queryExpression,
         bool useRelationalNulls,
-        HashSet<string> parametersToConstantize)
+        IReadOnlySet<string> parametersToConstantize)
     {
         _memoryCache = memoryCache;
         _querySqlGeneratorFactory = querySqlGeneratorFactory;

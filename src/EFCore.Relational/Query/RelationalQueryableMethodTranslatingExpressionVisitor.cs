@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -242,7 +243,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
             && method.GetGenericMethodDefinition() == QueryableMethods.Contains
             && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
             && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
-            && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
+            && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression
+            && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name))
         {
             var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
             var selectExpression = new SelectExpression(inExpression, _sqlAliasManager);
@@ -294,9 +296,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
-        var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
+        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
+            .ParameterizedCollectionTranslationMode;
 
-        if (QueryCompilationContext.ParametersToConstantize.Contains(sqlParameterExpression.Name))
+        var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
+        if (QueryCompilationContext.ParametersToConstantize.Contains(sqlParameterExpression.Name)
+            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
+                && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name)))
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,

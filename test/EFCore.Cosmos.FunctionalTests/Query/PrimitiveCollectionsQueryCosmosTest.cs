@@ -517,6 +517,41 @@ WHERE ((
 """);
             });
 
+    public override Task Inline_collection_Contains_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Contains_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@__p_0='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ARRAY_CONTAINS(@__p_0, c["Id"])
+""");
+            });
+
+    public override Task Inline_collection_Count_with_column_predicate_with_EF_Parameter(bool async)
+        => CosmosTestHelpers.Instance.NoSyncTest(
+            async, async a =>
+            {
+                await base.Inline_collection_Count_with_column_predicate_with_EF_Parameter(async);
+
+                AssertSql(
+                    """
+@__p_0='[2,999,1000]'
+
+SELECT VALUE c
+FROM root c
+WHERE ((
+    SELECT VALUE COUNT(1)
+    FROM p IN (SELECT VALUE @__p_0)
+    WHERE (p > c["Id"])) = 2)
+""");
+            });
+
     public override Task Parameter_collection_Count(bool async)
         => CosmosTestHelpers.Instance.NoSyncTest(
             async, async a =>

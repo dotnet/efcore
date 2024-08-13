@@ -56,7 +56,7 @@ public class SqlNullabilityProcessor
     /// <summary>
     ///     A collection of parameter names to constantize.
     /// </summary>
-    protected virtual HashSet<string> ParametersToConstantize { get; }
+    protected virtual IReadOnlySet<string> ParametersToConstantize { get; }
 
     /// <summary>
     ///     Dictionary of current parameter values in use.

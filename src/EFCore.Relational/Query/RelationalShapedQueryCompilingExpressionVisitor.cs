@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
 {
-    private readonly HashSet<string> _parametersToConstantize;
+    private readonly IReadOnlySet<string> _parametersToConstantize;
     private readonly Type _contextType;
     private readonly ISet<string> _tags;
     private readonly bool _threadSafetyChecksEnabled;
@@ -53,7 +53,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
     {
         RelationalDependencies = relationalDependencies;
 
-        _parametersToConstantize = QueryCompilationContext.ParametersToConstantize;
+        _parametersToConstantize = (IReadOnlySet<string>)QueryCompilationContext.ParametersToConstantize;
 
         _relationalParameterBasedSqlProcessor =
             relationalDependencies.RelationalParameterBasedSqlProcessorFactory.Create(new RelationalParameterBasedSqlProcessorParameters(_useRelationalNulls, _parametersToConstantize));

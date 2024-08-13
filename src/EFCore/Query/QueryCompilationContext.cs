@@ -62,7 +62,19 @@ public class QueryCompilationContext
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public virtual HashSet<string> ParametersToConstantize { get; } = new(StringComparer.Ordinal);
+    public virtual ISet<string> ParametersToConstantize { get; } = new HashSet<string>(StringComparer.Ordinal);
+
+    /// <summary>
+    ///     <para>
+    ///         Names of parameters on which <see cref="EF.Parameter{T}" /> was used. Such parameters are later not transformed into
+    ///         constants even when parameterized collection constantization is configured as the default.
+    ///     </para>
+    ///     <para>
+    ///         This property is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    public virtual ISet<string> ParametersToNotConstantize { get; } = new HashSet<string>(StringComparer.Ordinal);
 
     private static readonly IReadOnlySet<string> EmptySet = new HashSet<string>();
 
