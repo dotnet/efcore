@@ -5,9 +5,8 @@ using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-// TODO:SQLJSON Enable tests
-[SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
-internal class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
+[SqlServerCondition(SqlServerCondition.SupportsFunctions2022 | SqlServerCondition.SupportsJsonType)]
+public class PrimitiveCollectionsQuerySqlServerJsonTypeTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqlServerJsonTypeTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
     public PrimitiveCollectionsQuerySqlServerJsonTypeTest(PrimitiveCollectionsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -827,7 +826,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE 10 IN (
     SELECT [n].[value]
-    FROM OPENJSON([p].[NullableInts]) WITH ([value] int '$') AS [n]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) WITH ([value] int '$') AS [n]
 )
 """);
     }
@@ -842,7 +841,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([p].[NullableInts]) WITH ([value] int '$') AS [n]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) WITH ([value] int '$') AS [n]
     WHERE [n].[value] IS NULL)
 """);
     }
@@ -1816,7 +1815,7 @@ SELECT [p].[Id], [n0].[value], [n0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT TOP(20) CAST([n].[value] AS int) AS [value], [n].[key], CAST([n].[key] AS int) AS [c]
-    FROM OPENJSON([p].[NullableInts]) AS [n]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) AS [n]
     ORDER BY CAST([n].[key] AS int)
 ) AS [n0]
 ORDER BY [p].[Id], [n0].[c]
@@ -1833,7 +1832,7 @@ SELECT [p].[Id], [n0].[value], [n0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([n].[value] AS int) AS [value], [n].[key]
-    FROM OPENJSON([p].[NullableInts]) AS [n]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) AS [n]
     ORDER BY CAST([n].[value] AS int)
     OFFSET 1 ROWS
 ) AS [n0]
@@ -1851,7 +1850,7 @@ SELECT [p].[Id], [n0].[value], [n0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([n].[value] AS int) AS [value], [n].[key], CAST([n].[key] AS int) AS [c]
-    FROM OPENJSON([p].[NullableInts]) AS [n]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) AS [n]
     ORDER BY CAST([n].[key] AS int)
     OFFSET 2 ROWS
 ) AS [n0]
@@ -1909,12 +1908,12 @@ SELECT [p].[Id], [n1].[value], [n1].[key], [n2].[value], [n2].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([n].[value] AS int) AS [value], [n].[key], CAST([n].[key] AS int) AS [c]
-    FROM OPENJSON([p].[NullableInts]) AS [n]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) AS [n]
     WHERE 0 = 1
 ) AS [n1]
 OUTER APPLY (
     SELECT CAST([n0].[value] AS int) AS [value], [n0].[key], CAST([n0].[key] AS int) AS [c]
-    FROM OPENJSON([p].[NullableInts]) AS [n0]
+    FROM OPENJSON(CAST([p].[NullableInts] AS nvarchar(max))) AS [n0]
     WHERE [n0].[value] IS NULL
 ) AS [n2]
 ORDER BY [p].[Id], [n1].[c], [n1].[key], [n2].[c]
@@ -2081,6 +2080,7 @@ END IN (
                     b.PrimitiveCollection(e => e.Ints).HasColumnType("json");
                     b.PrimitiveCollection(e => e.Enums).HasColumnType("json");
                     b.PrimitiveCollection(e => e.NullableStrings).HasColumnType("json");
+                    b.PrimitiveCollection(e => e.NullableInts).HasColumnType("json");
                 });
         }
     }

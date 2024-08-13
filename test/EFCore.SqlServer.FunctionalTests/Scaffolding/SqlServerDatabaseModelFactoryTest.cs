@@ -2453,7 +2453,8 @@ CREATE TABLE MaxColumns (
             },
             "DROP TABLE MaxColumns;");
 
-    [ConditionalFact (Skip = "TODO:SQLJSON")]
+    [SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+    [ConditionalFact]
     public void Handles_native_JSON_type()
         => Test(
             @"

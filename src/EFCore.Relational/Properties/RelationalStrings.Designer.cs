@@ -198,9 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.
         /// </summary>
-        public static string ContainerTypeOnNonRoot(object? entityType)
+        public static string ContainerTypeOnNestedOwnedEntityType(object? entityType)
             => string.Format(
-                GetString("ContainerTypeOnNonRoot", nameof(entityType)),
+                GetString("ContainerTypeOnNestedOwnedEntityType", nameof(entityType)),
                 entityType);
 
         /// <summary>
@@ -1068,6 +1068,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("JsonCantNavigateToParentEntity", nameof(jsonEntity), nameof(parentEntity), nameof(navigation)),
                 jsonEntity, parentEntity, navigation);
+
+        /// <summary>
+        ///     The database returned the empty string when a JSON object was expected.
+        /// </summary>
+        public static string JsonEmptyString
+            => GetString("JsonEmptyString");
 
         /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.

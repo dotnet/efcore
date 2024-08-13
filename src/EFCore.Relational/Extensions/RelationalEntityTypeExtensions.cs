@@ -1606,9 +1606,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type to get the container column name for.</param>
     /// <returns>The container column name to which the entity type is mapped.</returns>
     public static string? GetContainerColumnName(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName
-            ? columnName
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName());
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value as string
+            ?? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName();
 
     /// <summary>
     ///     Sets the column type to use for the container column to which the entity type is mapped.
@@ -1646,9 +1645,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value is string columnType
-            ? columnType
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType());
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value as string
+            ?? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType();
 
     /// <summary>
     ///     Sets the type mapping for the container column to which the entity type is mapped.

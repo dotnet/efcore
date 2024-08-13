@@ -187,7 +187,7 @@
   <data name="ConflictingTypeMappingsInferredForColumn" xml:space="preserve">
     <value>Conflicting type mappings were inferred for column '{column}'.</value>
   </data>
-  <data name="ContainerTypeOnNonRoot" xml:space="preserve">
+  <data name="ContainerTypeOnNestedOwnedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.</value>
   </data>
   <data name="ContainerTypeOnNonContainer" xml:space="preserve">
@@ -519,6 +519,9 @@
   </data>
   <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
     <value>Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.</value>
+  </data>
+  <data name="JsonEmptyString" xml:space="preserve">
+    <value>The database returned the empty string when a JSON object was expected.</value>
   </data>
   <data name="JsonEntityMappedToDifferentTableOrViewThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.</value>

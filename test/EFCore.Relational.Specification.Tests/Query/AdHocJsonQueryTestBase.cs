@@ -214,7 +214,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Missing_navigation_works_with_deduplication(bool async)
     {
@@ -225,7 +225,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            var result = context.Set<MyEntity30028>().OrderBy(x => x.Id).Select(
+            var queryable = context.Set<MyEntity30028>().OrderBy(x => x.Id).Select(
                 x => new
                 {
                     x,
@@ -235,7 +235,9 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
                     NestedOptional = x.Json.OptionalReference.Nested,
                     NestedRequired = x.Json.RequiredReference.Nested,
                     x.Json.Collection,
-                }).AsNoTracking().ToList();
+                }).AsNoTracking();
+
+            var result = async ? await queryable.ToListAsync() : queryable.ToList();
 
             Assert.Equal(4, result.Count);
             Assert.NotNull(result[0].OptionalReference);

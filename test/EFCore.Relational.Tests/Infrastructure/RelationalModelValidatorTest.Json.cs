@@ -45,7 +45,7 @@ public partial class RelationalModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.ContainerTypeOnNonRoot(nameof(ValidatorJsonOwnedBranch)),
+            RelationalStrings.ContainerTypeOnNestedOwnedEntityType(nameof(ValidatorJsonOwnedBranch)),
             modelBuilder);
     }
 

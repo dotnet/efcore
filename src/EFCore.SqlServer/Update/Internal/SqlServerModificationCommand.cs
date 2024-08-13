@@ -49,7 +49,7 @@ public class SqlServerModificationCommand : ModificationCommand
         var value = parameters.Value;
 
         // JSON-compatible non-string values (bool, numeric, null) are sent directly as non-string parameters.
-        if (value == null
+        if (value is null
             || propertyProviderClrType == typeof(bool)
             || propertyProviderClrType.IsNumeric())
         {
@@ -83,7 +83,7 @@ public class SqlServerModificationCommand : ModificationCommand
             parameters = parameters with
             {
                 Value = value,
-                TypeMapping = parameters.TypeMapping is SqlServerJsonElementTypeMapping
+                TypeMapping = parameters.TypeMapping is SqlServerOwnedJsonTypeMapping
                     ? SqlServerStringTypeMapping.UnicodeDefault
                     : parameters.TypeMapping
             };

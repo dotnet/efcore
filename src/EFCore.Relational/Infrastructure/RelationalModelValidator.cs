@@ -2598,7 +2598,7 @@ public class RelationalModelValidator : ModelValidator
             {
                 if (entityType.FindOwnership()?.PrincipalEntityType.IsOwned() == true)
                 {
-                    throw new InvalidOperationException(RelationalStrings.ContainerTypeOnNonRoot(entityType.DisplayName()));
+                    throw new InvalidOperationException(RelationalStrings.ContainerTypeOnNestedOwnedEntityType(entityType.DisplayName()));
                 }
 
                 if (!entityType.IsOwned()

@@ -15,11 +15,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     public void Detects_use_of_json_column()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Cheese>(
-            b =>
-            {
-                b.Property(e => e.Name).HasColumnType("json");
-            });
+        modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("json");
 
         VerifyWarning(
             SqlServerResources.LogJsonTypeExperimental(new TestLogger<SqlServerLoggingDefinitions>())

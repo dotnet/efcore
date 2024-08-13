@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-// TODO:SQLJSON Enable tests
-internal class JsonQueryJsonTypeSqlServerTest : JsonQueryRelationalTestBase<JsonQueryJsonTypeSqlServerFixture>
+[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+public class JsonQueryJsonTypeSqlServerTest : JsonQueryRelationalTestBase<JsonQueryJsonTypeSqlServerFixture>
 {
     public JsonQueryJsonTypeSqlServerTest(JsonQueryJsonTypeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -593,10 +593,22 @@ FROM [JsonEntitiesSingleOwned] AS [j]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Left_join_json_entities(bool async)
     {
-        await base.Left_join_json_entities(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Left_join_json_entities(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Left_join_json_entities(false)))
+                .Message);
+        }
 
         AssertSql(
             """
@@ -606,10 +618,22 @@ LEFT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Left_join_json_entities_complex_projection(bool async)
     {
-        await base.Left_join_json_entities_complex_projection(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Left_join_json_entities_complex_projection(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Left_join_json_entities_complex_projection(false)))
+                .Message);
+        }
 
         AssertSql(
             """
@@ -734,10 +758,22 @@ ORDER BY [j].[Id]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Json_entity_with_inheritance_basic_projection(bool async)
     {
-        await base.Json_entity_with_inheritance_basic_projection(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Json_entity_with_inheritance_basic_projection(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_entity_with_inheritance_basic_projection(false)))
+                .Message);
+        }
 
         AssertSql(
             """
@@ -905,10 +941,22 @@ FROM [JsonEntitiesBasic] AS [j]
             message);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Json_collection_index_outside_bounds(bool async)
     {
-        await base.Json_collection_index_outside_bounds(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Json_collection_index_outside_bounds(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_collection_index_outside_bounds(false)))
+                .Message);
+        }
 
         AssertSql(
             """
@@ -917,10 +965,22 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Json_collection_index_outside_bounds2(bool async)
     {
-        await base.Json_collection_index_outside_bounds2(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Json_collection_index_outside_bounds2(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Json_collection_index_outside_bounds2(false)))
+                .Message);
+        }
 
         AssertSql(
             """
@@ -2042,7 +2102,6 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Group_by_FirstOrDefault_on_json_scalar(bool async)
     {
         await base.Group_by_FirstOrDefault_on_json_scalar(async);
@@ -2072,10 +2131,19 @@ LEFT JOIN (
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task Group_by_Skip_Take_on_json_scalar(bool async)
     {
-        await base.Group_by_Skip_Take_on_json_scalar(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.Group_by_Skip_Take_on_json_scalar(true))).Message);
+        }
+        else
+        {
+            await base.Group_by_Skip_Take_on_json_scalar(false);
+        }
 
         AssertSql(
             """
@@ -2934,10 +3002,22 @@ FROM (
 """);
     }
 
-    [ConditionalTheory(Skip = "TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)")]
     public override async Task FromSql_on_entity_with_json_inheritance_on_base(bool async)
     {
-        await base.FromSql_on_entity_with_json_inheritance_on_base(async);
+        // TODO:SQLJSON Returns empty (invalid) JSON (See BadJson.cs)
+        if (async)
+        {
+            Assert.Equal(
+                "Unable to cast object of type 'System.DBNull' to type 'System.String'.",
+                (await Assert.ThrowsAsync<InvalidCastException>(() => base.FromSql_on_entity_with_json_inheritance_on_base(true))).Message);
+        }
+        else
+        {
+            Assert.Equal(
+                RelationalStrings.JsonEmptyString,
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.FromSql_on_entity_with_json_inheritance_on_base(false)))
+                .Message);
+        }
 
         AssertSql(
             """

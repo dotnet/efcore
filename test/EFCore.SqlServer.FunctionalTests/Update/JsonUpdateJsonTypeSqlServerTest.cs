@@ -6,8 +6,8 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-// TODO:SQLJSON Enable tests
-internal class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJsonTypeSqlServerFixture>
+[SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+public class JsonUpdateJsonTypeSqlServerTest : JsonUpdateTestBase<JsonUpdateJsonTypeSqlServerFixture>
 {
     public JsonUpdateJsonTypeSqlServerTest(JsonUpdateJsonTypeSqlServerFixture fixture)
         : base(fixture)

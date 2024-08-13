@@ -398,6 +398,9 @@ public static class TestEnvironment
         }
     }
 
+    public static bool IsJsonTypeSupported
+        => false;
+
     public static byte SqlServerMajorVersion
         => GetProductMajorVersion();
 
