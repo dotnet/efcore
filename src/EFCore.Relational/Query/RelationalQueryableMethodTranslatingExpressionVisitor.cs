@@ -296,11 +296,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
 
         Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
 
-        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions).ParameterizedCollectionTranslationMode;
+        var primitiveCollectionsBehavior = RelationalOptionsExtension.Extract(QueryCompilationContext.ContextOptions)
+            .ParameterizedCollectionTranslationMode;
 
         var tableAlias = _sqlAliasManager.GenerateTableAlias(sqlParameterExpression.Name.TrimStart('_'));
         if (QueryCompilationContext.ParametersToConstantize.Contains(sqlParameterExpression.Name)
-            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constants && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name)))
+            || (primitiveCollectionsBehavior == ParameterizedCollectionTranslationMode.Constantize
+                && !QueryCompilationContext.ParametersToNotConstantize.Contains(sqlParameterExpression.Name)))
         {
             var valuesExpression = new ValuesExpression(
                 tableAlias,

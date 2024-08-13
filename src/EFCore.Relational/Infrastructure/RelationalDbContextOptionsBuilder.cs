@@ -163,14 +163,50 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <summary>
     ///     Configures the context to translate parameterized collections to inline constants.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a LINQ query contains a parameterized collection, by default EF Core parameterizes the entire collection as a single
+    ///         SQL parameter, if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@__ids_0) ...)</c>. While this helps with query plan caching, it can
+    ///         produce worse query plans for certain query types.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
+    ///         <c>WHERE [b].[Id] IN (1, 2, 3)</c>. This can produce better query plans for certain query types, but can also lead to query
+    ///         plan bloat.
+    ///     </para>
+    ///     <para>
+    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
+    ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
+    ///         the default.
+    ///     </para>
+    /// </remarks>
     public virtual TBuilder TranslateParameterizedCollectionsToConstants()
-        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Constants));
+        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Constantize));
 
     /// <summary>
-    ///     Configures the context to translate parameterized collections to SQL parameters.
+    ///     Configures the context to translate parameterized collections to inline constants.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         When a LINQ query contains a parameterized collection, by default EF Core parameterizes the entire collection as a single
+    ///         SQL parameter, if possible. For example, on SQL Server, the LINQ query <c>Where(b => ids.Contains(b.Id)</c> is translated to
+    ///         <c>WHERE [b].[Id] IN (SELECT [i].[value] FROM OPENJSON(@__ids_0) ...)</c>. While this helps with query plan caching, it can
+    ///         produce worse query plans for certain query types.
+    ///     </para>
+    ///     <para>
+    ///         <see cref="TranslateParameterizedCollectionsToConstants" /> instructs EF to translate the collection to a set of constants:
+    ///         <c>WHERE [b].[Id] IN (1, 2, 3)</c>. This can produce better query plans for certain query types, but can also lead to query
+    ///         plan bloat.
+    ///     </para>
+    ///     <para>
+    ///         Note that it's possible to cause EF to translate a specific collection in a specific query to constants by wrapping the
+    ///         parameterized collection in <see cref="EF.Constant{T}" />: <c>Where(b => EF.Constant(ids).Contains(b.Id)</c>. This overrides
+    ///         the default.
+    ///     </para>
+    /// </remarks>
     public virtual TBuilder TranslateParameterizedCollectionsToParameters()
-        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Parameters));
+        => WithOption(e => (TExtension)e.WithParameterizedCollectionTranslationMode(ParameterizedCollectionTranslationMode.Parameterize));
 
     /// <summary>
     ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
