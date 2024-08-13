@@ -5063,10 +5063,9 @@ WHERE ((c["id"] = @__customerId_0) AND (c["City"] = @__details_City_1))
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"]
+ORDER BY c["id"]
 """);
             });
 
@@ -5078,10 +5077,9 @@ ORDER BY c["CustomerID"]
 
                 AssertSql(
                     """
-SELECT VALUE c["CustomerID"]
+SELECT VALUE c["id"]
 FROM root c
-WHERE (c["Discriminator"] = "Customer")
-ORDER BY c["CustomerID"] DESC
+ORDER BY c["id"] DESC
 """);
             });
 
