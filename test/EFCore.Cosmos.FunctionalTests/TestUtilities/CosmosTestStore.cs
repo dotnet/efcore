@@ -503,6 +503,7 @@ public class CosmosTestStore : TestStore
     {
         var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
         await creator.InsertDataAsync().ConfigureAwait(false);
+        await creator.SeedDataAsync(created: true).ConfigureAwait(false);
     }
 
     public override void Dispose()

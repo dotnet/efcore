@@ -1482,10 +1482,18 @@ public abstract partial class ModelBuilderTest
         public override TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames)
             => new NonGenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames));
 
+        public override TestIndexBuilder<TDependentEntity> HasIndex(string[] propertyNames, string name)
+            => new NonGenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames, name));
+
         public override TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
             => new NonGenericTestIndexBuilder<TDependentEntity>(
                 OwnedNavigationBuilder.HasIndex(
                     indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+
+        public override TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression, string name)
+            => new NonGenericTestIndexBuilder<TDependentEntity>(
+                OwnedNavigationBuilder.HasIndex(
+                    indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray(), name));
 
         public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference)
             => new NonGenericTestOwnershipBuilder<TEntity, TDependentEntity>(

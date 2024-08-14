@@ -31,6 +31,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
             typeof(SqlServerEntityTypeBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerDbFunctionsExtensions),
+            typeof(SqlServerTableBuilderExtensions),
             typeof(OwnedNavigationTemporalPeriodPropertyBuilder),
             typeof(OwnedNavigationTemporalTableBuilder),
             typeof(OwnedNavigationTemporalTableBuilder<,>),

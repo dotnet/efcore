@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -257,7 +256,7 @@ public class SqlServerMetadataBuilderExtensionsTest
     }
 
     [ConditionalFact]
-    public void Can_access_entity_type()
+    public void Can_change_entity_type_IsMemoryOptimized()
     {
         var typeBuilder = CreateBuilder().Entity(typeof(Splot));
 
@@ -278,6 +277,50 @@ public class SqlServerMetadataBuilderExtensionsTest
         Assert.NotNull(typeBuilder.IsMemoryOptimized(null, fromDataAnnotation: true));
         Assert.False(typeBuilder.Metadata.IsMemoryOptimized());
         Assert.Null(typeBuilder.Metadata.GetIsMemoryOptimizedConfigurationSource());
+    }
+
+    [ConditionalFact]
+    public void Can_change_entity_type_UseSqlOutputClause()
+    {
+        var typeBuilder = CreateBuilder().Entity(typeof(Splot));
+
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(true));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.Equal(ConfigurationSource.Convention, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false, fromDataAnnotation: true));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.Equal(ConfigurationSource.DataAnnotation, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        Assert.Null(typeBuilder.UseSqlOutputClause(true));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(null, fromDataAnnotation: true));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed());
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource());
+
+        var fragmentId = StoreObjectIdentifier.Table("Split");
+
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(true, fragmentId));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.Equal(ConfigurationSource.Convention, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false, fragmentId, fromDataAnnotation: true));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.Equal(ConfigurationSource.DataAnnotation, typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
+
+        Assert.Null(typeBuilder.UseSqlOutputClause(true, fragmentId));
+        Assert.False(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(false, fragmentId));
+
+        Assert.NotNull(typeBuilder.UseSqlOutputClause(null, fragmentId, fromDataAnnotation: true));
+        Assert.True(typeBuilder.Metadata.IsSqlOutputClauseUsed(fragmentId));
+        Assert.Null(typeBuilder.Metadata.GetUseSqlOutputClauseConfigurationSource(fragmentId));
     }
 
     [ConditionalFact]

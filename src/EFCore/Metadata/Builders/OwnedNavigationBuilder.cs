@@ -335,6 +335,23 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
                 Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
+    ///     Configures an index on the specified properties and with the given name.
+    ///     If there is an existing index on the given list of properties and with
+    ///     the given name, then the existing index will be returned for configuration.
+    /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the index.</param>
+    /// <param name="name">The name to assign to the index.</param>
+    /// <returns>An object that can be used to configure the index.</returns>
+    public virtual IndexBuilder HasIndex(
+        string[] propertyNames,
+        string name)
+        => new(
+            DependentEntityType.Builder.HasIndex(
+                Check.NotEmpty(propertyNames, nameof(propertyNames)),
+                Check.NotEmpty(name, nameof(name)),
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
     ///     Configures the relationship to the owner.
     /// </summary>
     /// <remarks>
