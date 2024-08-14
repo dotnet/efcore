@@ -77,13 +77,11 @@ public sealed class SqlServerJsonPostprocessor(
                     var table = selectExpression.Tables[i];
 
                     if (table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: { } columnInfos } openJsonExpression
-
                         // Condition 1: an ordering/projection still refers to the OPENJSON's [key] column - it needs to be preserved.
                         && (selectExpression.Orderings.Select(o => o.Expression)
                                 .Concat(selectExpression.Projection.Select(p => p.Expression))
                                 .Any(x => IsKeyColumn(x, openJsonExpression.Alias))
                             ||
-
                             // Condition 2: a column type in the WITH clause is a SQL Server "CLR type" (e.g. hierarchy id).
                             // These are not supported by OPENJSON with WITH.
                             columnInfos.Any(c => c.TypeMapping.StoreType is "hierarchyid")))
@@ -252,12 +250,14 @@ public sealed class SqlServerJsonPostprocessor(
             }
 
             case SqlServerOpenJsonExpression openJsonExpression:
-                // Currently, OPEN_JSON does not accept a "json" type, so we must cast the value to a string.
+                // Currently, OPENJSON does not accept a "json" type, so we must cast the value to a string.
                 // We do this for both the case where is a string type mapping for a top-level property with the store type
                 // of "json", and when there is an "element" type mapping to something in the document but is now being used
-                // with OPEN_JSON.
-                return openJsonExpression is { JsonExpression.TypeMapping: SqlServerStringTypeMapping { StoreType: "json" } } or
-                    { JsonExpression.TypeMapping: SqlServerOwnedJsonTypeMapping { StoreType: "json" } }
+                // with OPENJSON.
+                return openJsonExpression.JsonExpression.TypeMapping
+                    is SqlServerStringTypeMapping { StoreType: "json" }
+                    or SqlServerOwnedJsonTypeMapping { StoreType: "json" }
+
                     ? openJsonExpression.Update(
                         new SqlUnaryExpression(
                             ExpressionType.Convert,

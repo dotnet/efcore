@@ -1645,8 +1645,7 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The database column type.</returns>
     public static string? GetContainerColumnType(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value as string
-            ?? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnType();
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value as string;
 
     /// <summary>
     ///     Sets the type mapping for the container column to which the entity type is mapped.

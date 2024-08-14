@@ -398,6 +398,7 @@ public static class TestEnvironment
         }
     }
 
+    // TODO:SQLJSON Issue #34414
     public static bool IsJsonTypeSupported
         => false;
 
