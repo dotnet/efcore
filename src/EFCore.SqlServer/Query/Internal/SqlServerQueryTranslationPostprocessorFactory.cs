@@ -11,8 +11,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
 {
-    private readonly IRelationalTypeMappingSource _typeMappingSource;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -21,12 +19,10 @@ public class SqlServerQueryTranslationPostprocessorFactory : IQueryTranslationPo
     /// </summary>
     public SqlServerQueryTranslationPostprocessorFactory(
         QueryTranslationPostprocessorDependencies dependencies,
-        RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        IRelationalTypeMappingSource typeMappingSource)
+        RelationalQueryTranslationPostprocessorDependencies relationalDependencies)
     {
         Dependencies = dependencies;
         RelationalDependencies = relationalDependencies;
-        _typeMappingSource = typeMappingSource;
     }
 
     /// <summary>
