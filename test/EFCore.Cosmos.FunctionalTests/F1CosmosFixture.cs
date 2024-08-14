@@ -16,20 +16,19 @@ public class F1CosmosFixture<TRowVersion> : F1FixtureBase<TRowVersion>
     public override TestHelpers TestHelpers
         => CosmosTestHelpers.Instance;
 
-    public override async Task ReseedAsync()
+    protected override async Task<bool> ShouldSeedAsync(F1Context context)
     {
-        await base.ReseedAsync();
-
-        using var context = CreateContext();
         try
         {
-            await context.Teams.SingleAsync(t => t.Id == Team.Ferrari);
+            await base.ShouldSeedAsync(context);
         }
         catch
         {
             // Recreating the containers without using CosmosClient causes cached metadata in CosmosClient to be out of sync
             // and causes the first query to fail. This is a workaround for that.
         }
+
+        return await base.ShouldSeedAsync(context);
     }
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
