@@ -324,6 +324,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("NamespaceDescription");
 
         /// <summary>
+        ///     Additionally generate all the code required for NativeAOT compilation and precompiled queries (experimental)
+        /// </summary>
+        public static string NativeAotDescription
+            => GetString("NativeAotDescription");
+
+        /// <summary>
+        ///     NativeAOT support is experimental and can change in the future.
+        /// </summary>
+        public static string NativeAotWarning
+            => GetString("NativeAotWarning");
+
+        /// <summary>
         ///     Startup project '{startupProject}' targets framework '.NETCoreApp' version '{targetFrameworkVersion}'. This version of the Entity Framework Core .NET Command-line Tools only supports version 2.0 or higher. For information on using older versions of the tools, see https://go.microsoft.com/fwlink/?linkid=871254
         /// </summary>
         public static string NETCoreApp1StartupProject(object? startupProject, object? targetFrameworkVersion)

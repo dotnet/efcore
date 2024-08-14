@@ -286,14 +286,14 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var principalId = runtimeEntityType.FindProperty("PrincipalId")!;
-            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId")!;
-            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator")!;
-            var id = runtimeEntityType.FindProperty("Id")!;
+            var principalId = runtimeEntityType.FindProperty("PrincipalId");
+            var principalAlternateId = runtimeEntityType.FindProperty("PrincipalAlternateId");
+            var enumDiscriminator = runtimeEntityType.FindProperty("EnumDiscriminator");
+            var id = runtimeEntityType.FindProperty("Id");
             var key = runtimeEntityType.FindKey(new[] { principalId, principalAlternateId });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateCompositeFactory(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<IReadOnlyList<object>>(key));
-            var principal = runtimeEntityType.FindNavigation("Principal")!;
+            var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

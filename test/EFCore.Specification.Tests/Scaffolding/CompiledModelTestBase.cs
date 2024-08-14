@@ -43,7 +43,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
                 Assert.Equal(1, stored.GetId());
                 Assert.Equal("one", stored.GetData());
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true },
             additionalSourceFiles:
             [
                 new("DbContextModelStub.cs",
@@ -76,6 +76,34 @@ namespace TestNamespace
             });
 
     [ConditionalFact]
+    public virtual Task No_NativeAOT()
+        => Test(
+            modelBuilder =>
+            {
+                modelBuilder.Ignore<DependentBase<int>>();
+                modelBuilder.Entity<DependentDerived<int>>(
+                    b =>
+                    {
+                        b.Ignore(e => e.Principal);
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property<string>("Data");
+                    });
+            },
+            model => Assert.Single(model.GetEntityTypes()),
+            async c =>
+            {
+                c.Add(new DependentDerived<int>(1, "one"));
+
+                await c.SaveChangesAsync();
+
+                var stored = await c.Set<DependentDerived<int>>().SingleAsync();
+                Assert.Equal(0, stored.Id);
+                Assert.Equal(1, stored.GetId());
+                Assert.Equal("one", stored.GetData());
+            },
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = false });
+
+    [ConditionalFact]
     public virtual Task BigModel()
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
@@ -100,7 +128,7 @@ namespace TestNamespace
 
                 await c.SaveChangesAsync();
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected virtual void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -502,7 +530,7 @@ namespace TestNamespace
         Assert.Same(dependentNavigation.Inverse, dependentForeignKey.DependentToPrincipal);
         Assert.Same(dependentNavigation, dependentForeignKey.PrincipalToDependent);
         Assert.Equal(DeleteBehavior.ClientNoAction, dependentForeignKey.DeleteBehavior);
-        Assert.Equal(new[] { "PrincipalId", "PrincipalAlternateId" }, dependentForeignKey.Properties.Select(p => p.Name));
+        Assert.Equal(["PrincipalId", "PrincipalAlternateId"], dependentForeignKey.Properties.Select(p => p.Name));
         Assert.Same(principalKey, dependentForeignKey.PrincipalKey);
 
         var dependentBase = dependentNavigation.TargetEntityType;
@@ -517,7 +545,7 @@ namespace TestNamespace
         var dependentForeignKeyProperty = dependentBaseForeignKey.Properties.Single();
 
         Assert.Equal(
-            new[] { dependentBaseForeignKey, dependentForeignKey }, dependentForeignKeyProperty.GetContainingForeignKeys());
+            [dependentBaseForeignKey, dependentForeignKey], dependentForeignKeyProperty.GetContainingForeignKeys());
 
         var dependentDerived = dependentBase.GetDerivedTypes().Single();
         Assert.Equal(Enum1.Two, dependentDerived.GetDiscriminatorValue());
@@ -553,7 +581,7 @@ namespace TestNamespace
         Assert.Equal(3, dependentMoney.GetScale());
 
         Assert.Equal(
-            new[] { derivedSkipNavigation.ForeignKey, collectionOwnership, dependentForeignKey },
+            [derivedSkipNavigation.ForeignKey, collectionOwnership, dependentForeignKey],
             principalDerived.GetDeclaredReferencingForeignKeys());
     }
 
@@ -562,23 +590,20 @@ namespace TestNamespace
         => Test(
             BuildComplexTypesModel,
             AssertComplexTypes,
-            c =>
+            async c =>
             {
-                // Blocked by https://github.com/dotnet/runtime/issues/102792
-                //c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
-                //    new PrincipalDerived<DependentBase<byte?>>
-                //    {
-                //        Id = 1,
-                //        AlternateId = new Guid(),
-                //        Dependent = new DependentBase<byte?>(1),
-                //        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
-                //    });
+                c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                    new PrincipalDerived<DependentBase<byte?>>
+                    {
+                        Id = 1,
+                        AlternateId = new Guid(),
+                        Dependent = new DependentBase<byte?>(1),
+                        Owned = new OwnedType(c) { Principal = new PrincipalBase() }
+                    });
 
-                //c.SaveChanges();
-
-                return Task.CompletedTask;
+                await c.SaveChangesAsync();
             },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
 
     protected virtual void BuildComplexTypesModel(ModelBuilder modelBuilder)
     {
@@ -631,7 +656,7 @@ namespace TestNamespace
 
         var complexProperty = principalBase.GetComplexProperties().Single();
         Assert.Equal(
-            new[] { "goo" },
+            ["goo"],
             complexProperty.GetAnnotations().Select(a => a.Name));
         Assert.Equal(nameof(PrincipalBase.Owned), complexProperty.Name);
         Assert.False(complexProperty.IsCollection);
@@ -1350,7 +1375,7 @@ namespace TestNamespace
         using var context = contextFactory.CreateContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
-        options ??= new CompiledModelCodeGenerationOptions();
+        options ??= new CompiledModelCodeGenerationOptions { ForNativeAot = true };
         options.ModelNamespace ??= "TestNamespace";
         options.ContextType ??= context.GetType();
 

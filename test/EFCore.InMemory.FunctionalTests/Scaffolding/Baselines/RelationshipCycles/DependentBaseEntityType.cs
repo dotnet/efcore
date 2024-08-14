@@ -193,15 +193,15 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var principalId = runtimeEntityType.FindProperty("PrincipalId")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var principalId = runtimeEntityType.FindProperty("PrincipalId");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<long?, long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long?>(key));
             var key0 = runtimeEntityType.FindKey(new[] { principalId });
             key0.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNonNullableFactory<long>(key0));
             key0.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long>(key0));
-            var principal = runtimeEntityType.FindNavigation("Principal")!;
+            var principal = runtimeEntityType.FindNavigation("Principal");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

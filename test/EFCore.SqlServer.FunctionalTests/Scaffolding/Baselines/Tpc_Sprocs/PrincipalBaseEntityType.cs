@@ -1044,25 +1044,25 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var enum1 = runtimeEntityType.FindProperty("Enum1")!;
-            var enum2 = runtimeEntityType.FindProperty("Enum2")!;
-            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1")!;
-            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2")!;
-            var principalBaseId = runtimeEntityType.FindProperty("PrincipalBaseId")!;
-            var principalDerivedId = runtimeEntityType.FindProperty("PrincipalDerivedId")!;
-            var refTypeArray = runtimeEntityType.FindProperty("RefTypeArray")!;
-            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable")!;
-            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList")!;
-            var refTypeList = runtimeEntityType.FindProperty("RefTypeList")!;
-            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray")!;
-            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable")!;
-            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
-            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var enum1 = runtimeEntityType.FindProperty("Enum1");
+            var enum2 = runtimeEntityType.FindProperty("Enum2");
+            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1");
+            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2");
+            var principalBaseId = runtimeEntityType.FindProperty("PrincipalBaseId");
+            var principalDerivedId = runtimeEntityType.FindProperty("PrincipalDerivedId");
+            var refTypeArray = runtimeEntityType.FindProperty("RefTypeArray");
+            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable");
+            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList");
+            var refTypeList = runtimeEntityType.FindProperty("RefTypeList");
+            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray");
+            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable");
+            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList");
+            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList");
             var key = runtimeEntityType.FindKey(new[] { id });
             key.SetPrincipalKeyValueFactory(KeyValueFactoryFactory.CreateSimpleNullableFactory<long?, long>(key));
             key.SetIdentityMapFactory(IdentityMapFactoryFactory.CreateFactory<long?>(key));
-            var deriveds = runtimeEntityType.FindNavigation("Deriveds")!;
+            var deriveds = runtimeEntityType.FindNavigation("Deriveds");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

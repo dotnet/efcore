@@ -87,24 +87,24 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            var id = runtimeEntityType.FindProperty("Id")!;
-            var alternateId = runtimeEntityType.FindProperty("AlternateId")!;
-            var type = runtimeEntityType.FindProperty("$type")!;
-            var enum1 = runtimeEntityType.FindProperty("Enum1")!;
-            var enum2 = runtimeEntityType.FindProperty("Enum2")!;
-            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1")!;
-            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2")!;
-            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable")!;
-            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList")!;
-            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray")!;
-            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable")!;
-            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
-            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
-            var __id = runtimeEntityType.FindProperty("__id")!;
-            var __jObject = runtimeEntityType.FindProperty("__jObject")!;
-            var owned = runtimeEntityType.FindNavigation("Owned")!;
-            var dependent = runtimeEntityType.FindNavigation("Dependent")!;
-            var manyOwned = runtimeEntityType.FindNavigation("ManyOwned")!;
+            var id = runtimeEntityType.FindProperty("Id");
+            var alternateId = runtimeEntityType.FindProperty("AlternateId");
+            var type = runtimeEntityType.FindProperty("$type");
+            var enum1 = runtimeEntityType.FindProperty("Enum1");
+            var enum2 = runtimeEntityType.FindProperty("Enum2");
+            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1");
+            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2");
+            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable");
+            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList");
+            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray");
+            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable");
+            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList");
+            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList");
+            var __id = runtimeEntityType.FindProperty("__id");
+            var __jObject = runtimeEntityType.FindProperty("__jObject");
+            var owned = runtimeEntityType.FindNavigation("Owned");
+            var dependent = runtimeEntityType.FindNavigation("Dependent");
+            var manyOwned = runtimeEntityType.FindNavigation("ManyOwned");
             runtimeEntityType.SetOriginalValuesFactory(
                 ISnapshot (InternalEntityEntry source) =>
                 {

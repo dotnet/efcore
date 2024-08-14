@@ -10,21 +10,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 /// <summary>
 ///     Base class to be used by database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
 /// </summary>
-public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCodeGenerator
+/// <remarks>
+///     Initializes a new instance of this class.
+/// </remarks>
+/// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
+    : ICSharpRuntimeAnnotationCodeGenerator
 {
-    /// <summary>
-    ///     Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    public CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
-    {
-        Dependencies = dependencies;
-    }
-
     /// <summary>
     ///     Dependencies for this service.
     /// </summary>
-    protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; }
+    protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; } = dependencies;
 
     /// <inheritdoc />
     public virtual void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
