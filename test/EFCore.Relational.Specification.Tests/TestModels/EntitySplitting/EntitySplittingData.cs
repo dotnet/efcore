@@ -276,15 +276,25 @@ public class EntitySplittingData : ISetSource
         }
     }
 
-    public Task Seed(EntitySplittingContext context)
+    public void AddSeedData(EntitySplittingContext context)
     {
+        try
+        {
+            if (context.Set<EntityOne>().AsNoTracking().Any())
+            {
+                return;
+            }
+        }
+        catch
+        {
+            return;
+        }
+
         // Seed data cannot contain any store generated value,
         // or recreate instances when calling AddRange
         context.AddRange(_entityOnes);
         context.AddRange(_entityTwos);
         context.AddRange(_entityThrees);
         context.AddRange(_baseEntities);
-
-        return context.SaveChangesAsync();
     }
 }

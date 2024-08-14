@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 
@@ -26,11 +25,10 @@ public class Migrator : IMigrator
     private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
     private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
-    private readonly IEnumerable<IMigratorPlugin> _plugins;
     private readonly IMigrationsModelDiffer _migrationsModelDiffer;
     private readonly IDesignTimeModel _designTimeModel;
     private readonly string _activeProvider;
-    private static readonly TimeSpan _defaultLockTimeout = TimeSpan.FromHours(1);
+    private readonly IDbContextOptions _contextOptions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,9 +50,9 @@ public class Migrator : IMigrator
         IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
         IRelationalCommandDiagnosticsLogger commandLogger,
         IDatabaseProvider databaseProvider,
-        IEnumerable<IMigratorPlugin> plugins,
         IMigrationsModelDiffer migrationsModelDiffer,
-        IDesignTimeModel designTimeModel)
+        IDesignTimeModel designTimeModel,
+        IDbContextOptions contextOptions)
     {
         _migrationsAssembly = migrationsAssembly;
         _historyRepository = historyRepository;
@@ -68,10 +66,10 @@ public class Migrator : IMigrator
         _modelRuntimeInitializer = modelRuntimeInitializer;
         _logger = logger;
         _commandLogger = commandLogger;
-        _plugins = plugins;
         _migrationsModelDiffer = migrationsModelDiffer;
         _designTimeModel = designTimeModel;
         _activeProvider = databaseProvider.Name;
+        _contextOptions = contextOptions;
     }
 
     /// <summary>
@@ -80,7 +78,7 @@ public class Migrator : IMigrator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Migrate(Action<DbContext, IMigratorData>? seed, string? targetMigration, TimeSpan? lockTimeout)
+    public virtual void Migrate(string? targetMigration)
     {
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
             && HasPendingModelChanges())
@@ -99,7 +97,8 @@ public class Migrator : IMigrator
         {
             _connection.Open();
 
-            using var _ = _historyRepository.GetDatabaseLock(lockTimeout ?? _defaultLockTimeout);
+            _logger.AcquiringMigrationLock();
+            using var _ = _historyRepository.GetDatabaseLock();
 
             if (!_historyRepository.Exists())
             {
@@ -111,27 +110,29 @@ public class Migrator : IMigrator
                 targetMigration,
                 out var migratorData);
 
-            foreach (var plugin in _plugins)
-            {
-                plugin.Migrating(_currentContext.Context, migratorData);
-            }
-
             var commandLists = GetMigrationCommandLists(migratorData);
             foreach (var commandList in commandLists)
             {
                 _migrationCommandExecutor.ExecuteNonQuery(commandList(), _connection);
             }
 
-            foreach (var plugin in _plugins)
-            {
-                plugin.Migrated(_currentContext.Context, migratorData);
-            }
+            var coreOptionsExtension =
+                _contextOptions.FindExtension<CoreOptionsExtension>()
+                ?? new CoreOptionsExtension();
 
+            var seed = coreOptionsExtension.Seeder;
             if (seed != null)
             {
-                using var transaction = _connection.BeginTransaction();
-                seed(_currentContext.Context, migratorData);
+                var context = _currentContext.Context;
+                var operationsPerformed = migratorData.AppliedMigrations.Count != 0
+                    || migratorData.RevertedMigrations.Count != 0;
+                using var transaction = context.Database.BeginTransaction();
+                seed(context, operationsPerformed);
                 transaction.Commit();
+            }
+            else if (coreOptionsExtension.AsyncSeeder != null)
+            {
+                throw new InvalidOperationException(CoreStrings.MissingSeeder);
             }
         }
         finally
@@ -147,9 +148,7 @@ public class Migrator : IMigrator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task MigrateAsync(
-        Func<DbContext, IMigratorData, CancellationToken, Task>? seed,
         string? targetMigration,
-        TimeSpan? lockTimeout = null,
         CancellationToken cancellationToken = default)
     {
         if (RelationalResources.LogPendingModelChanges(_logger).WarningBehavior != WarningBehavior.Ignore
@@ -169,7 +168,8 @@ public class Migrator : IMigrator
         {
             await _connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-            var dbLock = await _historyRepository.GetDatabaseLockAsync(lockTimeout ?? _defaultLockTimeout, cancellationToken).ConfigureAwait(false);
+            _logger.AcquiringMigrationLock();
+            var dbLock = await _historyRepository.GetDatabaseLockAsync(cancellationToken).ConfigureAwait(false);
             await using var _ = dbLock.ConfigureAwait(false);
 
             if (!await _historyRepository.ExistsAsync(cancellationToken).ConfigureAwait(false))
@@ -182,11 +182,6 @@ public class Migrator : IMigrator
                 targetMigration,
                 out var migratorData);
 
-            foreach (var plugin in _plugins)
-            {
-                await plugin.MigratingAsync(_currentContext.Context, migratorData, cancellationToken).ConfigureAwait(false);
-            }
-
             var commandLists = GetMigrationCommandLists(migratorData);
             foreach (var commandList in commandLists)
             {
@@ -194,17 +189,24 @@ public class Migrator : IMigrator
                     .ConfigureAwait(false);
             }
 
-            foreach (var plugin in _plugins)
-            {
-                await plugin.MigratedAsync(_currentContext.Context, migratorData, cancellationToken).ConfigureAwait(false);
-            }
+            var coreOptionsExtension =
+                _contextOptions.FindExtension<CoreOptionsExtension>()
+                ?? new CoreOptionsExtension();
 
-            if (seed != null)
+            var seedAsync = coreOptionsExtension.AsyncSeeder;
+            if (seedAsync != null)
             {
-                var transaction = await _connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+                var context = _currentContext.Context;
+                var operationsPerformed = migratorData.AppliedMigrations.Count != 0
+                    || migratorData.RevertedMigrations.Count != 0;
+                var transaction = await context.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
                 await using var __ = transaction.ConfigureAwait(false);
-                await seed(_currentContext.Context, migratorData, cancellationToken).ConfigureAwait(false);
+                await seedAsync(context, operationsPerformed, cancellationToken).ConfigureAwait(false);
                 await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            else if (coreOptionsExtension.Seeder != null)
+            {
+                throw new InvalidOperationException(CoreStrings.MissingSeeder);
             }
         }
         finally
@@ -213,7 +215,7 @@ public class Migrator : IMigrator
         }
     }
 
-    private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(IMigratorData parameters)
+    private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(MigratorData parameters)
     {
         var migrationsToApply = parameters.AppliedMigrations;
         var migrationsToRevert = parameters.RevertedMigrations;
@@ -273,7 +275,7 @@ public class Migrator : IMigrator
     protected virtual void PopulateMigrations(
         IEnumerable<string> appliedMigrationEntries,
         string? targetMigration,
-        out IMigratorData parameters)
+        out MigratorData parameters)
     {
         var appliedMigrations = new Dictionary<string, TypeInfo>();
         var unappliedMigrations = new Dictionary<string, TypeInfo>();

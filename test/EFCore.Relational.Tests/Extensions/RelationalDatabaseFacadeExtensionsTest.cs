@@ -361,10 +361,10 @@ public class RelationalDatabaseFacadeExtensionsTest
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock(TimeSpan timeout)
+        public IDisposable GetDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 

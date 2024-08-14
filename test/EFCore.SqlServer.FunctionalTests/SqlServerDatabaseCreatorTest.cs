@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore;
 // Tests are split into classes to enable parallel execution
 // Some combinations are skipped to reduce run time
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true, true, false)]
@@ -108,7 +108,7 @@ public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
 }
 
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true, true, true)]
@@ -202,7 +202,7 @@ public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreato
 }
 
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true, true)]
@@ -342,10 +342,30 @@ public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreato
 
         Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
     }
+
+    [ConditionalFact]
+    public async Task Throws_for_missing_seed()
+    {
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        using var context = new BloggingContext(testDatabase.ConnectionString, asyncSeed: true);
+
+        Assert.Equal(CoreStrings.MissingSeeder,
+            Assert.Throws<InvalidOperationException>(() => context.Database.EnsureCreated()).Message);
+    }
+
+    [ConditionalFact]
+    public async Task Throws_for_missing_seed_async()
+    {
+        using var testDatabase = await SqlServerTestStore.CreateInitializedAsync("EnsureCreatedSeedTest");
+        using var context = new BloggingContext(testDatabase.ConnectionString, seed: true);
+
+        Assert.Equal(CoreStrings.MissingSeeder,
+           (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnsureCreatedAsync())).Message);
+    }
 }
 
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true)]
@@ -410,7 +430,7 @@ public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTes
 }
 
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true, true)]
@@ -453,7 +473,7 @@ public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
         }
         else
         {
-            Assert.Throws<SqlException>(() => creator.Delete());
+            Assert.Throws<SqlException>(creator.Delete);
         }
     }
 
@@ -465,14 +485,14 @@ public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
 
         var creator = GetDatabaseCreator(connectionStringBuilder.ToString());
 
-        var ex = Assert.Throws<InvalidOperationException>(() => creator.Delete());
+        var ex = Assert.Throws<InvalidOperationException>(creator.Delete);
 
         Assert.Equal(SqlServerStrings.NoInitialCatalog, ex.Message);
     }
 }
 
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true, true)]
@@ -534,7 +554,7 @@ public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreator
 
         var exception = async
             ? (await Assert.ThrowsAsync<RetryLimitExceededException>(() => creator.CreateTablesAsync()))
-            : Assert.Throws<RetryLimitExceededException>(() => creator.CreateTables());
+            : Assert.Throws<RetryLimitExceededException>(creator.CreateTables);
 
         Assert.Equal(CoreStrings.RetryLimitExceeded(6, "TestSqlServerRetryingExecutionStrategy"), exception.Message);
 
@@ -599,7 +619,7 @@ public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreator
 }
 
 [SqlServerCondition(SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
+public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTestBase
 {
     [ConditionalTheory]
     [InlineData(true, false)]
@@ -656,7 +676,7 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
 
         var ex = async
             ? await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync())
-            : Assert.Throws<SqlException>(() => creator.Create());
+            : Assert.Throws<SqlException>(creator.Create);
         Assert.Equal(
             1801, // Database with given name already exists
             ex.Number);
@@ -665,7 +685,7 @@ public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
 
 #pragma warning disable RCS1102 // Make class static.
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
-public class SqlServerDatabaseCreatorTest
+public abstract class SqlServerDatabaseCreatorTestBase
 {
     protected static IDisposable CreateTransactionScope(bool useTransaction)
         => TestStore.CreateTransactionScope(useTransaction);
@@ -697,7 +717,11 @@ public class SqlServerDatabaseCreatorTest
             .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>()
             .BuildServiceProvider(validateScopes: true);
 
-    protected class BloggingContext(string connectionString) : DbContext
+    protected class BloggingContext(
+        string connectionString,
+        bool seed = false,
+        bool asyncSeed = false)
+        : DbContext
     {
         private readonly string _connectionString = connectionString;
 
@@ -707,9 +731,20 @@ public class SqlServerDatabaseCreatorTest
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
+        {
+            optionsBuilder
                 .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                 .UseInternalServiceProvider(CreateServiceProvider());
+            if (seed)
+            {
+                optionsBuilder.UseSeeding((_, __) => { });
+            }
+
+            if (asyncSeed)
+            {
+                optionsBuilder.UseAsyncSeeding((_, __, ___) => Task.CompletedTask);
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Blog>(

@@ -123,9 +123,9 @@ public class MigrationsScaffolderTest
                     services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
                     services.GetRequiredService<IRelationalCommandDiagnosticsLogger>(),
                     services.GetRequiredService<IDatabaseProvider>(),
-                    services.GetServices<IMigratorPlugin>(),
                     services.GetRequiredService<IMigrationsModelDiffer>(),
-                    services.GetRequiredService<IDesignTimeModel>())));
+                    services.GetRequiredService<IDesignTimeModel>(),
+                    services.GetRequiredService<IDbContextOptions>())));
     }
 
     // ReSharper disable once UnusedTypeParameter
@@ -182,10 +182,10 @@ public class MigrationsScaffolderTest
         public Task CreateAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
 
-        public IDisposable GetDatabaseLock(TimeSpan timeout)
+        public IDisposable GetDatabaseLock()
             => throw new NotImplementedException();
 
-        public Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+        public Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
             => throw new NotImplementedException();
     }
 

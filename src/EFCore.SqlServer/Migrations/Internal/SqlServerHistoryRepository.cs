@@ -60,13 +60,13 @@ public class SqlServerHistoryRepository : HistoryRepository
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IDisposable GetDatabaseLock(TimeSpan timeout)
+    public override IDisposable GetDatabaseLock()
     {
         var dbLock = CreateMigrationDatabaseLock();
         int result;
         try
         {
-            result = (int)CreateGetLockCommand(timeout).ExecuteScalar(CreateRelationalCommandParameters())!;
+            result = (int)CreateGetLockCommand().ExecuteScalar(CreateRelationalCommandParameters())!;
         }
         catch
         {
@@ -92,13 +92,13 @@ public class SqlServerHistoryRepository : HistoryRepository
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+    public override async Task<IAsyncDisposable> GetDatabaseLockAsync(CancellationToken cancellationToken = default)
     {
         var dbLock = CreateMigrationDatabaseLock();
         int result;
         try
         {
-            result = (int)(await CreateGetLockCommand(timeout).ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken)
+            result = (int)(await CreateGetLockCommand().ExecuteScalarAsync(CreateRelationalCommandParameters(), cancellationToken)
                 .ConfigureAwait(false))!;
         }
         catch
@@ -119,13 +119,13 @@ public class SqlServerHistoryRepository : HistoryRepository
             : dbLock;
     }
 
-    private IRelationalCommand CreateGetLockCommand(TimeSpan timeout)
+    private IRelationalCommand CreateGetLockCommand()
         => Dependencies.RawSqlCommandBuilder.Build("""
 DECLARE @result int;
-EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive', @LockTimeout = @LockTimeout;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
 """,
-            [new SqlParameter("@LockTimeout", timeout.TotalMilliseconds)]).RelationalCommand;
+            []).RelationalCommand;
 
     private SqlServerMigrationDatabaseLock CreateMigrationDatabaseLock()
         => new(

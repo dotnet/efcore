@@ -2394,6 +2394,36 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.AcquiringMigrationLock" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void AcquiringMigrationLock(
+        this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics)
+    {
+        var definition = RelationalResources.LogAcquiringMigrationLock(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                AcquiringMigrationLock);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string AcquiringMigrationLock(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition)definition;
+        return d.GenerateMessage();
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
