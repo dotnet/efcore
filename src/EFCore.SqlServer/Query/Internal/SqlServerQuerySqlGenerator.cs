@@ -475,7 +475,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             return jsonScalarExpression;
         }
 
-        if (jsonScalarExpression.TypeMapping is SqlServerJsonTypeMapping
+        if (jsonScalarExpression.TypeMapping is SqlServerOwnedJsonTypeMapping
             || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null)
         {
             Sql.Append("JSON_QUERY(");
@@ -494,7 +494,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         GenerateJsonPath(jsonScalarExpression.Path);
         Sql.Append(")");
 
-        if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
+        if (jsonScalarExpression.TypeMapping is not SqlServerOwnedJsonTypeMapping and not StringTypeMapping)
         {
             Sql.Append(" AS ");
             Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);

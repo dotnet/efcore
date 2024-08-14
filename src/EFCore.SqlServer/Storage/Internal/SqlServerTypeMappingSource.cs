@@ -141,8 +141,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { typeof(float), SqlServerFloatTypeMapping.Default },
                 { typeof(decimal), SqlServerDecimalTypeMapping.Default },
                 { typeof(TimeOnly), SqlServerTimeOnlyTypeMapping.Default },
-                { typeof(TimeSpan), SqlServerTimeSpanTypeMapping.Default },
-                { typeof(JsonElement), SqlServerJsonTypeMapping.Default }
+                { typeof(TimeSpan), SqlServerTimeSpanTypeMapping.Default }
             };
 
         _clrNoFacetTypeMappings
@@ -180,6 +179,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { "float", [SqlServerDoubleTypeMapping.Default] },
                 { "image", [ImageBinary] },
                 { "int", [IntTypeMapping.Default] },
+                { "json", [SqlServerStringTypeMapping.JsonTypeDefault] },
                 { "money", [Money] },
                 { "national char varying", [VariableLengthUnicodeString] },
                 { "national char varying(max)", [VariableLengthMaxUnicodeString] },
@@ -238,6 +238,13 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     {
         var clrType = mappingInfo.ClrType;
         var storeTypeName = mappingInfo.StoreTypeName;
+
+        if (clrType == typeof(JsonElement))
+        {
+            return storeTypeName == "json"
+                ? SqlServerOwnedJsonTypeMapping.OwnedJsonTypeDefault
+                : SqlServerOwnedJsonTypeMapping.Default;
+        }
 
         if (storeTypeName != null)
         {
@@ -310,6 +317,11 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
             if (clrType == typeof(string))
             {
+                if (storeTypeName == "json")
+                {
+                    return SqlServerStringTypeMapping.JsonTypeDefault;
+                }
+
                 var isAnsi = mappingInfo.IsUnicode == false;
                 var isFixedLength = mappingInfo.IsFixedLength == true;
                 var maxSize = isAnsi ? 8000 : 4000;

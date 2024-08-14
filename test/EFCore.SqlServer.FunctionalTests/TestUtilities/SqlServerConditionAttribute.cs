@@ -92,6 +92,11 @@ public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) :
             isMet &= TestEnvironment.IsFunctions2022Supported;
         }
 
+        if (Conditions.HasFlag(SqlServerCondition.SupportsJsonType))
+        {
+            isMet &= TestEnvironment.IsJsonTypeSupported;
+        }
+
         return ValueTask.FromResult(isMet);
     }
 

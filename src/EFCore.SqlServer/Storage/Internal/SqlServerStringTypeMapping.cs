@@ -40,6 +40,24 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // TODO:SQLJSON Issue #34414
+    public static SqlServerStringTypeMapping JsonTypeDefault { get; } = new("json", sqlDbType: (SqlDbType)35);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static SqlServerStringTypeMapping UnicodeDefault { get; } = new(
+        "nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public SqlServerStringTypeMapping(
         string? storeType = null,
         bool unicode = false,
@@ -138,10 +156,14 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         var value = parameter.Value;
         var length = (value as string)?.Length;
 
-        if (_sqlDbType.HasValue
+        // TODO:SQLJSON Issue #34414
+        var sqlDbType = _sqlDbType
+            ?? (StoreType == "json" ? (SqlDbType)35 : null);
+
+        if (sqlDbType.HasValue
             && parameter is SqlParameter sqlParameter) // To avoid crashing wrapping providers
         {
-            sqlParameter.SqlDbType = _sqlDbType.Value;
+            sqlParameter.SqlDbType = sqlDbType.Value;
         }
 
         if ((value == null

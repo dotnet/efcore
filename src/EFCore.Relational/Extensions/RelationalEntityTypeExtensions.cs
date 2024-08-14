@@ -1606,9 +1606,46 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type to get the container column name for.</param>
     /// <returns>The container column name to which the entity type is mapped.</returns>
     public static string? GetContainerColumnName(this IReadOnlyEntityType entityType)
-        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName
-            ? columnName
-            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName());
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value as string
+            ?? entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName();
+
+    /// <summary>
+    ///     Sets the column type to use for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="columnType">The database column type.</param>
+    public static void SetContainerColumnType(this IMutableEntityType entityType, string? columnType)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType);
+
+    /// <summary>
+    ///     Sets the column type to use for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="columnType">The database column type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetContainerColumnType(
+        this IConventionEntityType entityType,
+        string? columnType,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetAnnotation(RelationalAnnotationNames.ContainerColumnType, columnType, fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column type.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" />.</returns>
+    public static ConfigurationSource? GetContainerColumnTypeConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the column type to use for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The database column type.</returns>
+    public static string? GetContainerColumnType(this IReadOnlyEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnType)?.Value as string;
 
     /// <summary>
     ///     Sets the type mapping for the container column to which the entity type is mapped.

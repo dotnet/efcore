@@ -2453,6 +2453,46 @@ CREATE TABLE MaxColumns (
             },
             "DROP TABLE MaxColumns;");
 
+    [SqlServerCondition(SqlServerCondition.SupportsJsonType)]
+    [ConditionalFact]
+    public void Handles_native_JSON_type()
+        => Test(
+            @"
+CREATE TABLE JsonColumns (
+    Id int,
+    jsonTypeColumn json NULL
+);",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
+
+                Assert.Equal("json", columns.Single(c => c.Name == "jsonTypeColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("JsonColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("JsonTypeColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
+            },
+            "DROP TABLE JsonColumns;");
+
     [ConditionalFact]
     public void Specific_max_length_are_add_to_store_type()
         => Test(

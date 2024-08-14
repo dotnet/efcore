@@ -325,6 +325,11 @@ public static class RelationalAnnotationNames
     public const string ContainerColumnName = Prefix + "ContainerColumnName";
 
     /// <summary>
+    ///     The column type for the container column to which the object is mapped.
+    /// </summary>
+    public const string ContainerColumnType = Prefix + nameof(ContainerColumnType);
+
+    /// <summary>
     ///     The name for the annotation specifying container column type mapping.
     /// </summary>
     [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
@@ -408,6 +413,7 @@ public static class RelationalAnnotationNames
         ModelDependencies,
         FieldValueGetter,
         ContainerColumnName,
+        ContainerColumnType,
         #pragma warning disable CS0618 // Type or member is obsolete
         ContainerColumnTypeMapping,
         #pragma warning restore CS0618 // Type or member is obsolete

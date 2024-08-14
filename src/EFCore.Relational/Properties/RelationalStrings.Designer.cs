@@ -196,6 +196,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column);
 
         /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is nested in another owned type. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNestedOwnedEntityType(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNestedOwnedEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has a container column type configured, but is not mapped to a container column, such as for JSON. The container column type can only be specified on a top-level owned type mapped to a container.
+        /// </summary>
+        public static string ContainerTypeOnNonContainer(object? entityType)
+            => string.Format(
+                GetString("ContainerTypeOnNonContainer", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
         /// </summary>
         public static string CreateIndexOperationWithInvalidSortOrder(object? numSortOrderProperties, object? numColumns)
@@ -1052,6 +1068,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("JsonCantNavigateToParentEntity", nameof(jsonEntity), nameof(parentEntity), nameof(navigation)),
                 jsonEntity, parentEntity, navigation);
+
+        /// <summary>
+        ///     The database returned the empty string when a JSON object was expected.
+        /// </summary>
+        public static string JsonEmptyString
+            => GetString("JsonEmptyString");
 
         /// <summary>
         ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.

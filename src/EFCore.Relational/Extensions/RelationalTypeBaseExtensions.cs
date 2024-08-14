@@ -368,6 +368,17 @@ public static class RelationalTypeBaseExtensions
             ? entityType.GetContainerColumnName()
             : ((IReadOnlyComplexType)typeBase).GetContainerColumnName();
 
+
+    /// <summary>
+    ///     Gets the column type to use for the container column to which the type is mapped.
+    /// </summary>
+    /// <param name="typeBase">The type.</param>
+    /// <returns>The database column type.</returns>
+    public static string? GetContainerColumnType(this IReadOnlyTypeBase typeBase)
+        => typeBase is IReadOnlyEntityType entityType
+            ? entityType.GetContainerColumnType()
+            : null;
+
     /// <summary>
     ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
     /// </summary>

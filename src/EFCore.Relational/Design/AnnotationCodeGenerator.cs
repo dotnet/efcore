@@ -243,6 +243,18 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
 #pragma warning restore CS0618
         }
 
+        if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnType, out var containerColumnTypeAnnotation)
+            && containerColumnTypeAnnotation is { Value: string containerColumnType }
+            && entityType.IsOwned())
+        {
+            methodCallCodeFragments.Add(
+                new MethodCallCodeFragment(
+                    nameof(RelationalOwnedNavigationBuilderExtensions.HasColumnType),
+                    containerColumnType));
+
+            annotations.Remove(RelationalAnnotationNames.ContainerColumnType);
+        }
+
         methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(entityType, annotations, GenerateFluentApi));
 
         return methodCallCodeFragments;

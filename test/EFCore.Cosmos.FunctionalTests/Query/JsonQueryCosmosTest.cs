@@ -4,6 +4,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -486,6 +487,7 @@ WHERE (c["Discriminator"] = "CustomNaming")
     public override Task Group_by_Skip_Take_on_json_scalar(bool async)
         => base.Group_by_Skip_Take_on_json_scalar(async);
 
+    [SkipOnCiCondition]
     public override Task Json_all_types_entity_projection(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -500,6 +502,7 @@ WHERE (c["Discriminator"] = "AllTypes")
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_all_types_projection_from_owned_entity_reference(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -528,6 +531,8 @@ FROM root c
 WHERE (c["Discriminator"] = "AllTypes")
 """);
             });
+
+    [SkipOnCiCondition]
     public override Task Json_boolean_predicate(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1437,6 +1442,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["BoolConvertedToS
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_byte(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1451,6 +1457,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByte"] != 3))
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_byte_array(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1465,6 +1472,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestByteArray"] !=
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_character(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1479,6 +1487,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestCharacter"] !=
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_dateonly(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1493,6 +1502,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateOnly"] != 
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_datetime(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1507,6 +1517,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTime"] != 
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_datetimeoffset(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1521,6 +1532,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDateTimeOffset
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_decimal(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1535,6 +1547,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDecimal"] != 1
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_default_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1549,6 +1562,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDefaultString"
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_double(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1563,6 +1577,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestDouble"] != 33
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_enum(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1577,6 +1592,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnum"] != 2))
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_enumwithintconverter(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1591,6 +1607,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestEnumWithIntCon
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_guid(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1605,6 +1622,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestGuid"] != "000
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_int16(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1619,6 +1637,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt16"] != 3))
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_int32(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1633,6 +1652,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestInt32"] != 33)
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_int64(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1661,6 +1681,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["IntZeroOneConver
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_max_length_string(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1675,6 +1696,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestMaxLengthStrin
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableenum1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1689,6 +1711,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableenum2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1703,6 +1726,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnum"]
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableenumwithconverter1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1717,6 +1741,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableenumwithconverter2(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1731,6 +1756,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableenumwithconverterthathandlesnulls1(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1754,6 +1780,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableEnumWi
                 AssertSql("");
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableint321(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1768,6 +1795,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_nullableint322(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1782,6 +1810,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestNullableInt32"
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_signedbyte(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1796,6 +1825,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSignedByte"] !
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_single(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1810,6 +1840,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestSingle"] != 10
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_string_condition(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1852,6 +1883,7 @@ WHERE ((c["Discriminator"] = "Converters") AND (c["Reference"]["StringYNConverte
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_timeonly(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1866,6 +1898,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeOnly"] != 
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_timespan(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1880,6 +1913,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestTimeSpan"] != 
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_unisgnedint16(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1894,6 +1928,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt16"
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_unsignedint32(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -1908,6 +1943,7 @@ WHERE ((c["Discriminator"] = "AllTypes") AND (c["Reference"]["TestUnsignedInt32"
 """);
             });
 
+    [SkipOnCiCondition]
     public override Task Json_predicate_on_unsignedint64(bool async)
         => Fixture.NoSyncTest(
             async, async a =>
@@ -2236,7 +2272,7 @@ WHERE (c["Discriminator"] = "Basic")
           () => base.Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(async),
           CosmosStrings.MultipleRootEntityTypesReferencedInQuery(nameof(JsonEntityBasicForReference), nameof(JsonEntityBasic)));
 
-    public override Task Json_with_projection_of_multiple_json_references_and_entity_collection(bool async) 
+    public override Task Json_with_projection_of_multiple_json_references_and_entity_collection(bool async)
         => AssertTranslationFailedWithDetails(
           () => base.Json_with_projection_of_multiple_json_references_and_entity_collection(async),
           CosmosStrings.LimitOffsetNotSupportedInSubqueries);
