@@ -1000,6 +1000,8 @@ GO
 
             context.Database.Migrate();
 
+            SetSql(Fixture.TestSqlLoggerFactory.Sql);
+
             Assert.Equal(
                 """
 CREATE DATABASE [MigrationsTest];
@@ -1030,7 +1032,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+VALUES (N'00000000000000_Empty', N'7.0.0-test');
 
 --Before
 
@@ -1057,18 +1059,18 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Fixture.TestSqlLoggerFactory.Sql,
+                Sql,
                 ignoreLineEndingDifferences: true);
         }
 
@@ -1093,6 +1095,8 @@ SELECT @result
 
             await context.Database.MigrateAsync();
 
+            SetSql(Fixture.TestSqlLoggerFactory.Sql);
+
             Assert.Equal(
                 """
 CREATE DATABASE [MigrationsTest];
@@ -1123,7 +1127,7 @@ FROM [__EFMigrationsHistory]
 ORDER BY [MigrationId];
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000000_Empty', N'9.0.0-dev');
+VALUES (N'00000000000000_Empty', N'7.0.0-test');
 
 --Before
 
@@ -1150,18 +1154,18 @@ BEGIN
 END
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000001_Migration1', N'9.0.0-dev');
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 
 --After
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'00000000000002_Migration2', N'9.0.0-dev');
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result
 """,
-                Fixture.TestSqlLoggerFactory.Sql,
+                Sql,
                 ignoreLineEndingDifferences: true);
         }
 
