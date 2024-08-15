@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -52,5 +51,6 @@ public sealed class SqliteJsonGuidReaderWriter : JsonValueReaderWriter<Guid>
         => writer.WriteStringValue(value.ToString().ToUpperInvariant());
 
     /// <inheritdoc />
-    public override Expression ConstructorExpression => Expression.Property(null, InstanceProperty);
+    public override Expression ConstructorExpression
+        => Expression.Property(null, InstanceProperty);
 }

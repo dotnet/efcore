@@ -2017,9 +2017,10 @@ public class RelationalModelValidator : ModelValidator
                 var unmappedOwnedType = entityType.GetReferencingForeignKeys()
                     .Where(fk => fk.IsOwnership)
                     .Select(fk => fk.DeclaringEntityType)
-                    .FirstOrDefault(owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
-                        && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
-                        && !owned.IsMappedToJson());
+                    .FirstOrDefault(
+                        owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
+                            && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
+                            && !owned.IsMappedToJson());
                 if (unmappedOwnedType != null
                     && entityType.GetDerivedTypes().Any(derived => StoreObjectIdentifier.Create(derived, storeObjectType) != null))
                 {
@@ -2521,8 +2522,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ValidateData(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         foreach (var entityType in model.GetEntityTypes())
@@ -2532,11 +2532,13 @@ public class RelationalModelValidator : ModelValidator
                 throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
+            foreach (var navigation in entityType.GetNavigations()
+                         .Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
             {
                 if (entityType.GetSeedData().Any(x => x.TryGetValue(navigation.Name, out var _)))
                 {
-                    throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
                 }
             }
         }

@@ -45,7 +45,10 @@ public partial class ConventionDispatcher
             return annotation;
         }
 
-        public override string? OnModelEmbeddedDiscriminatorNameChanged(IConventionModelBuilder modelBuilder, string? oldName, string? newName)
+        public override string? OnModelEmbeddedDiscriminatorNameChanged(
+            IConventionModelBuilder modelBuilder,
+            string? oldName,
+            string? newName)
         {
             Add(new OnModelEmbeddedDiscriminatorNameChangedNode(modelBuilder, oldName, newName));
             return newName;

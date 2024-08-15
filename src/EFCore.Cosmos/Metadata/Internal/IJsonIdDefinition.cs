@@ -20,7 +20,7 @@ public interface IJsonIdDefinition
     IReadOnlyList<IProperty> Properties { get; }
 
     /// <summary>
-    ///     <see langword="true"/> if the discriminator is included in the key.
+    ///     <see langword="true" /> if the discriminator is included in the key.
     /// </summary>
     /// <para>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +31,7 @@ public interface IJsonIdDefinition
     bool IncludesDiscriminator { get; }
 
     /// <summary>
-    ///     <see langword="true"/> if the discriminator is for the root entity type.
+    ///     <see langword="true" /> if the discriminator is for the root entity type.
     /// </summary>
     /// <para>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

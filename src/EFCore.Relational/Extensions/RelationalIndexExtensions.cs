@@ -3,7 +3,6 @@
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -170,8 +169,8 @@ public static class RelationalIndexExtensions
     {
         index.DeclaringEntityType.Model.EnsureRelationalModel();
         return (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.TableIndexMappings)
-                ?? Enumerable.Empty<ITableIndex>();
+                RelationalAnnotationNames.TableIndexMappings)
+            ?? Enumerable.Empty<ITableIndex>();
     }
 
     /// <summary>

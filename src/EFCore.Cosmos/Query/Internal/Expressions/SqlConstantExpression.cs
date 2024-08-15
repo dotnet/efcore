@@ -25,7 +25,9 @@ public class SqlConstantExpression : SqlExpression
     /// </summary>
     public SqlConstantExpression(object? value, Type type, CoreTypeMapping? typeMapping)
         : base(type.UnwrapNullableType(), typeMapping)
-        => Value = value;
+    {
+        Value = value;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

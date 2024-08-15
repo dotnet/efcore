@@ -5,6 +5,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using Microsoft.EntityFrameworkCore.Tools;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tasks.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public abstract class OperationTaskBase : Build.Utilities.ToolTask
+public abstract class OperationTaskBase : ToolTask
 {
     /// <summary>
     ///     The assembly to use.
@@ -51,12 +52,12 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
     public ITaskItem? DataDir { get; set; }
 
     /// <summary>
-    ///    The target project.
+    ///     The target project.
     /// </summary>
     public ITaskItem? Project { get; set; }
 
     /// <summary>
-    ///    The project directory.
+    ///     The project directory.
     /// </summary>
     public ITaskItem? ProjectDir { get; set; }
 
@@ -66,7 +67,7 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
     public string? RootNamespace { get; set; }
 
     /// <summary>
-    ///    The language to use. Defaults to C#.
+    ///     The language to use. Defaults to C#.
     /// </summary>
     public string? Language { get; set; }
 
@@ -85,9 +86,11 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
     /// </summary>
     protected string Output { get; set; } = null!;
 
-    protected override string ToolName => "dotnet";
+    protected override string ToolName
+        => "dotnet";
 
-    protected override string GenerateFullPathToTool() => ToolName;
+    protected override string GenerateFullPathToTool()
+        => ToolName;
 
     protected override bool ValidateParameters()
     {
@@ -133,7 +136,8 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
         return success;
     }
 
-    protected override string? GetWorkingDirectory() => ProjectDir?.ItemSpec;
+    protected override string? GetWorkingDirectory()
+        => ProjectDir?.ItemSpec;
 
     protected override string GenerateCommandLineCommands()
     {
@@ -184,13 +188,14 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
             args.Add(runtimeFrameworkVersion);
         }
 
-        args.Add(Path.Combine(
-            Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
-            "..",
-            "..",
-            "tools",
-            "netcoreapp2.0",
-            "ef.dll"));
+        args.Add(
+            Path.Combine(
+                Path.GetDirectoryName(typeof(OperationTaskBase).Assembly.Location)!,
+                "..",
+                "..",
+                "tools",
+                "netcoreapp2.0",
+                "ef.dll"));
 
         args.AddRange(AdditionalArguments);
         args.Add("--assembly");
@@ -289,7 +294,7 @@ public abstract class OperationTaskBase : Build.Utilities.ToolTask
             Log.LogMessage(singleLine.Substring(6));
         }
         else if (singleLine.StartsWith("dbug: ", StringComparison.InvariantCulture)
-            || singleLine.StartsWith("trce: ", StringComparison.InvariantCulture))
+                 || singleLine.StartsWith("trce: ", StringComparison.InvariantCulture))
         {
             Log.LogMessage(MessageImportance.Low, singleLine.Substring(6));
         }

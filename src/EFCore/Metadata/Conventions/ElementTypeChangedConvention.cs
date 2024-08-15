@@ -46,7 +46,8 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
 
     /// <inheritdoc />
     public void ProcessForeignKeyAdded(
-        IConventionForeignKeyBuilder foreignKeyBuilder, IConventionContext<IConventionForeignKeyBuilder> context)
+        IConventionForeignKeyBuilder foreignKeyBuilder,
+        IConventionContext<IConventionForeignKeyBuilder> context)
     {
         var foreignKeyProperties = foreignKeyBuilder.Metadata.Properties;
         var principalKeyProperties = foreignKeyBuilder.Metadata.PrincipalKey.Properties;

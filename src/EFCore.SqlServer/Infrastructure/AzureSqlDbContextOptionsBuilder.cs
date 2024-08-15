@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     Allows Azure SQL specific configuration to be performed on <see cref="DbContextOptions" />.
 /// </summary>
 /// <remarks>
-///     Instances of this class are returned from a call to 
-///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSql" /> 
+///     Instances of this class are returned from a call to
+///     <see cref="O:SqlServerDbContextOptionsExtensions.UseAzureSql" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>
 public class AzureSqlDbContextOptionsBuilder

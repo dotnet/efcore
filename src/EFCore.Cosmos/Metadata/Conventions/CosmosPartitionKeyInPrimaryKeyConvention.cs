@@ -73,7 +73,6 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
                         primaryKeyProperties.Add(partitionKeyProperty!);
                         keyContainsPartitionProperties = true;
                     }
-
                 }
 
                 if (keyContainsPartitionProperties)
@@ -171,10 +170,12 @@ public class CosmosPartitionKeyInPrimaryKeyConvention :
         IConventionKey? previousPrimaryKey,
         IConventionContext<IConventionKey> context)
     {
-        if ((newPrimaryKey != null && newPrimaryKey.Properties
-                .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName))
-            || (previousPrimaryKey != null && previousPrimaryKey.Properties
-                .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)))
+        if ((newPrimaryKey != null
+                && newPrimaryKey.Properties
+                    .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName))
+            || (previousPrimaryKey != null
+                && previousPrimaryKey.Properties
+                    .Any(p => p.GetJsonPropertyName() == CosmosJsonIdConvention.IdPropertyJsonName)))
         {
             ProcessIdProperty(entityTypeBuilder);
         }

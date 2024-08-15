@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public class TypeLoadingEventData : AssemblyEventData, IErrorEventData
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="TypeLoadingEventData"/> class.
+    ///     Initializes a new instance of the <see cref="TypeLoadingEventData" /> class.
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>

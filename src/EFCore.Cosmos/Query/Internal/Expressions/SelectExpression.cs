@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -63,7 +63,9 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SelectExpression(Expression projection)
-        => _projectionMapping[new ProjectionMember()] = projection;
+    {
+        _projectionMapping[new ProjectionMember()] = projection;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -534,7 +536,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public sealed override ExpressionType NodeType
+    public override ExpressionType NodeType
         => ExpressionType.Extension;
 
     /// <summary>
@@ -632,8 +634,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
 
         return new SelectExpression(sources, predicate, projections, IsDistinct, orderings, offset, limit)
         {
-            _projectionMapping = projectionMapping,
-            ReadItemInfo = ReadItemInfo
+            _projectionMapping = projectionMapping, ReadItemInfo = ReadItemInfo
         };
     }
 
@@ -646,8 +647,7 @@ public sealed class SelectExpression : Expression, IPrintableExpression
     public SelectExpression WithReadItemInfo(ReadItemInfo readItemInfo)
         => new(Sources.ToList(), Predicate, Projection.ToList(), IsDistinct, Orderings.ToList(), Offset, Limit)
         {
-            _projectionMapping = _projectionMapping,
-            ReadItemInfo = readItemInfo
+            _projectionMapping = _projectionMapping, ReadItemInfo = readItemInfo
         };
 
     /// <summary>

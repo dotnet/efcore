@@ -68,7 +68,7 @@ public class PropertyDiscoveryConvention :
         => DiscoverPrimitiveProperties(propertyBuilder.Metadata.ComplexType.Builder, context);
 
     /// <summary>
-    ///    Discovers properties on the given structural type.
+    ///     Discovers properties on the given structural type.
     /// </summary>
     /// <param name="structuralTypeBuilder">The type for which the properties will be discovered.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
@@ -105,7 +105,7 @@ public class PropertyDiscoveryConvention :
         => structuralType is IConventionComplexType
             ? structuralType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(structuralType.GetRuntimeFields().Values)
-            : structuralType.GetRuntimeProperties().Values.Cast<MemberInfo>();
+            : structuralType.GetRuntimeProperties().Values;
 
     /// <summary>
     ///     Returns a value indicating whether the given member is a primitive property candidate.
@@ -114,7 +114,9 @@ public class PropertyDiscoveryConvention :
     /// <param name="structuralType">The type for which the properties will be discovered.</param>
     /// <param name="mapping">The type mapping for the property.</param>
     protected virtual bool IsCandidatePrimitiveProperty(
-        MemberInfo memberInfo, IConventionTypeBase structuralType, out CoreTypeMapping? mapping)
+        MemberInfo memberInfo,
+        IConventionTypeBase structuralType,
+        out CoreTypeMapping? mapping)
         => Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(memberInfo, structuralType.Model, UseAttributes, out mapping)
             && ((Model)structuralType.Model).FindIsComplexConfigurationSource(memberInfo.GetMemberType().UnwrapNullableType()) == null;
 }

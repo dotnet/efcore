@@ -508,7 +508,8 @@ public static class CosmosLoggerExtensions
         {
             var eventData = new PropertyEventData(
                 definition,
-                (d, p) => ((EventDefinition<string, string>)d).GenerateMessage(((PropertyEventData)p).Property.DeclaringType.DisplayName(), ((PropertyEventData)p).Property.Name),
+                (d, p) => ((EventDefinition<string, string>)d).GenerateMessage(
+                    ((PropertyEventData)p).Property.DeclaringType.DisplayName(), ((PropertyEventData)p).Property.Name),
                 property);
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }

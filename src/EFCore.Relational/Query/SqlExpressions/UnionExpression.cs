@@ -90,7 +90,10 @@ public class UnionExpression : SetOperationBase
     public override Expression Quote()
         => New(
             _quotingConstructor ??= typeof(UnionExpression).GetConstructor(
-                [typeof(string), typeof(SelectExpression), typeof(SelectExpression), typeof(bool), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            [
+                typeof(string), typeof(SelectExpression), typeof(SelectExpression), typeof(bool),
+                typeof(IReadOnlyDictionary<string, IAnnotation>)
+            ])!,
             Constant(Alias, typeof(string)),
             Source1.Quote(),
             Source2.Quote(),

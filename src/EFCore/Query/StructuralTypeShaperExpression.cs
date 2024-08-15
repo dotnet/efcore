@@ -161,14 +161,14 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
                         discriminatorComparer.ExtractEqualsBody(
                             discriminatorValueVariable,
                             LiftableConstantExpressionHelpers.IsLiteral(discriminatorValueObject)
-                            ? Constant(
-                                discriminatorValueObject,
-                                discriminatorProperty.ClrType)
-                            : Convert(
-                                Call(
-                                    Constant(concreteEntityTypes[i], typeof(IEntityType)),
-                                    GetDiscriminatorValueMethod),
-                                discriminatorProperty.ClrType)),
+                                ? Constant(
+                                    discriminatorValueObject,
+                                    discriminatorProperty.ClrType)
+                                : Convert(
+                                    Call(
+                                        Constant(concreteEntityTypes[i], typeof(IEntityType)),
+                                        GetDiscriminatorValueMethod),
+                                    discriminatorProperty.ClrType)),
                         Constant(concreteEntityTypes[i], typeof(IEntityType)),
                         conditions);
                 }

@@ -1112,6 +1112,7 @@ public class DbContext :
                     // This is necessary for the corner case where a pooled context is used only for design-time operations
                     var _ = Model;
                 }
+
                 _disposed = true;
                 _lease = DbContextLease.InactiveLease;
             }

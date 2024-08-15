@@ -99,11 +99,13 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
                     property.ClrType);
         }
 
-        return Expression.Condition(Expression.Call(parameter, PropertyAccessorsFactory.ContainsKeyMethod, Expression.Constant(property.Name)),
-            Expression.Convert(Expression.MakeIndex(
-                parameter,
-                DictionaryIndexer,
-                new[] { Expression.Constant(property.Name) }),
+        return Expression.Condition(
+            Expression.Call(parameter, PropertyAccessorsFactory.ContainsKeyMethod, Expression.Constant(property.Name)),
+            Expression.Convert(
+                Expression.MakeIndex(
+                    parameter,
+                    DictionaryIndexer,
+                    new[] { Expression.Constant(property.Name) }),
                 property.ClrType),
             Expression.Constant(property.Sentinel, property.ClrType));
     }

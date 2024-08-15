@@ -64,5 +64,6 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
                 && !_multipleActiveResultSetsEnabled);
 
     /// <inheritdoc />
-    public override bool SupportsPrecompiledQuery => true;
+    public override bool SupportsPrecompiledQuery
+        => true;
 }

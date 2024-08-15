@@ -43,7 +43,10 @@ public static class CosmosDbFunctionsExtensions
     ///     <paramref name="expression2" /> will be returned.
     /// </param>
     /// <param name="expression2">The expression to be returned if <paramref name="expression1" /> is <c>undefined</c>.</param>
-    /// <seealso href="https://learn.microsoft.com/azure/cosmos-db/nosql/query/ternary-coalesce-operators#coalesce-operator">Cosmos coalesce operator</seealso>
+    /// <seealso href="https://learn.microsoft.com/azure/cosmos-db/nosql/query/ternary-coalesce-operators#coalesce-operator">
+    ///     Cosmos coalesce
+    ///     operator
+    /// </seealso>
     public static T CoalesceUndefined<T>(
         this DbFunctions _,
         T expression1,
@@ -52,7 +55,9 @@ public static class CosmosDbFunctionsExtensions
 
     /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
-    ///     <see cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)"/>.
+    ///     <see
+    ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
+    ///     .
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
@@ -67,9 +72,11 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
-    /// <param name="useBruteForce">A <see langword="bool"/> specifying how the computed value is used in an ORDER BY
-    /// expression. If <see langword="true"/>, then brute force is used, otherwise any index defined on the vector
-    /// property is leveraged.</param>
+    /// <param name="useBruteForce">
+    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
+    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
+    ///     property is leveraged.
+    /// </param>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
@@ -85,9 +92,11 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
     /// <param name="distanceFunction">The distance function to use.</param>
-    /// <param name="useBruteForce">A <see langword="bool"/> specifying how the computed value is used in an ORDER BY
-    /// expression. If <see langword="true"/>, then brute force is used, otherwise any index defined on the vector
-    /// property is leveraged.</param>
+    /// <param name="useBruteForce">
+    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
+    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
+    ///     property is leveraged.
+    /// </param>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
@@ -99,7 +108,9 @@ public static class CosmosDbFunctionsExtensions
 
     /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
-    ///     <see cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)"/>.
+    ///     <see
+    ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
+    ///     .
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
@@ -114,9 +125,11 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
-    /// <param name="useBruteForce">A <see langword="bool"/> specifying how the computed value is used in an ORDER BY
-    /// expression. If <see langword="true"/>, then brute force is used, otherwise any index defined on the vector
-    /// property is leveraged.</param>
+    /// <param name="useBruteForce">
+    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
+    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
+    ///     property is leveraged.
+    /// </param>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
@@ -132,9 +145,11 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
     /// <param name="distanceFunction">The distance function to use.</param>
-    /// <param name="useBruteForce">A <see langword="bool"/> specifying how the computed value is used in an ORDER BY
-    /// expression. If <see langword="true"/>, then brute force is used, otherwise any index defined on the vector
-    /// property is leveraged.</param>
+    /// <param name="useBruteForce">
+    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
+    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
+    ///     property is leveraged.
+    /// </param>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
@@ -146,7 +161,9 @@ public static class CosmosDbFunctionsExtensions
 
     /// <summary>
     ///     Returns the distance between two vectors, using the distance function and data type defined using
-    ///     <see cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)"/>.
+    ///     <see
+    ///         cref="CosmosPropertyBuilderExtensions.IsVector(Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder,Microsoft.Azure.Cosmos.DistanceFunction,int)" />
+    ///     .
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
@@ -161,9 +178,11 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
-    /// <param name="useBruteForce">A <see langword="bool"/> specifying how the computed value is used in an ORDER BY
-    /// expression. If <see langword="true"/>, then brute force is used, otherwise any index defined on the vector
-    /// property is leveraged.</param>
+    /// <param name="useBruteForce">
+    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
+    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
+    ///     property is leveraged.
+    /// </param>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,
@@ -179,9 +198,11 @@ public static class CosmosDbFunctionsExtensions
     /// <param name="vector1">The first vector.</param>
     /// <param name="vector2">The second vector.</param>
     /// <param name="distanceFunction">The distance function to use.</param>
-    /// <param name="useBruteForce">A <see langword="bool"/> specifying how the computed value is used in an ORDER BY
-    /// expression. If <see langword="true"/>, then brute force is used, otherwise any index defined on the vector
-    /// property is leveraged.</param>
+    /// <param name="useBruteForce">
+    ///     A <see langword="bool" /> specifying how the computed value is used in an ORDER BY
+    ///     expression. If <see langword="true" />, then brute force is used, otherwise any index defined on the vector
+    ///     property is leveraged.
+    /// </param>
     [Experimental(EFDiagnostics.CosmosVectorSearchExperimental)]
     public static double VectorDistance(
         this DbFunctions _,

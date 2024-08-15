@@ -41,7 +41,8 @@ public class RelationalCommandCache : IPrintableExpression
         _memoryCache = memoryCache;
         _querySqlGeneratorFactory = querySqlGeneratorFactory;
         _queryExpression = queryExpression;
-        _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls, parametersToConstantize));
+        _relationalParameterBasedSqlProcessor = relationalParameterBasedSqlProcessorFactory.Create(
+            new RelationalParameterBasedSqlProcessorParameters(useRelationalNulls, parametersToConstantize));
     }
 
     /// <summary>

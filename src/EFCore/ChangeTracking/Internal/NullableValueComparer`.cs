@@ -38,18 +38,18 @@ public class NullableValueComparer<T> : ValueComparer<T?>, IInfrastructure<Value
         var v1HasValue = Expression.MakeMemberAccess(newEqualsParam1, _hasValueProperty);
         var v2HasValue = Expression.MakeMemberAccess(newEqualsParam2, _hasValueProperty);
         return Expression.Lambda<Func<T?, T?, bool>>(
-                    Expression.OrElse(
-                        Expression.AndAlso(
-                            v1HasValue,
-                            Expression.AndAlso(
-                                v2HasValue,
-                                valueComparer.ExtractEqualsBody(
-                                    Expression.Convert(newEqualsParam1, valueComparer.Type),
-                                    Expression.Convert(newEqualsParam2, valueComparer.Type)))),
-                        Expression.AndAlso(
-                            Expression.Not(v1HasValue),
-                            Expression.Not(v2HasValue))),
-                    newEqualsParam1, newEqualsParam2);
+            Expression.OrElse(
+                Expression.AndAlso(
+                    v1HasValue,
+                    Expression.AndAlso(
+                        v2HasValue,
+                        valueComparer.ExtractEqualsBody(
+                            Expression.Convert(newEqualsParam1, valueComparer.Type),
+                            Expression.Convert(newEqualsParam2, valueComparer.Type)))),
+                Expression.AndAlso(
+                    Expression.Not(v1HasValue),
+                    Expression.Not(v2HasValue))),
+            newEqualsParam1, newEqualsParam2);
     }
 
     private static Expression<Func<T?, int>> CreateHashCode(ValueComparer valueComparer)
@@ -57,12 +57,12 @@ public class NullableValueComparer<T> : ValueComparer<T?>, IInfrastructure<Value
         var clrType = typeof(T?);
         var newHashCodeParam = Expression.Parameter(clrType, "v");
         return Expression.Lambda<Func<T?, int>>(
-                    Expression.Condition(
-                        Expression.MakeMemberAccess(newHashCodeParam, _hasValueProperty),
-                        valueComparer.ExtractHashCodeBody(
-                            Expression.Convert(newHashCodeParam, valueComparer.Type)),
-                        Expression.Constant(0, typeof(int))),
-                    newHashCodeParam);
+            Expression.Condition(
+                Expression.MakeMemberAccess(newHashCodeParam, _hasValueProperty),
+                valueComparer.ExtractHashCodeBody(
+                    Expression.Convert(newHashCodeParam, valueComparer.Type)),
+                Expression.Constant(0, typeof(int))),
+            newHashCodeParam);
     }
 
     private static Expression<Func<T?, T?>> CreateSnapshot(ValueComparer valueComparer)
@@ -70,14 +70,15 @@ public class NullableValueComparer<T> : ValueComparer<T?>, IInfrastructure<Value
         var clrType = typeof(T?);
         var newSnapshotParam = Expression.Parameter(clrType, "v");
         return Expression.Lambda<Func<T?, T?>>(
-                    Expression.Condition(
-                        Expression.MakeMemberAccess(newSnapshotParam, _hasValueProperty),
-                        Expression.Convert(
-                            valueComparer.ExtractSnapshotBody(
-                                Expression.Convert(newSnapshotParam, valueComparer.Type)), clrType),
-                        Expression.Default(clrType)),
-                    newSnapshotParam);
+            Expression.Condition(
+                Expression.MakeMemberAccess(newSnapshotParam, _hasValueProperty),
+                Expression.Convert(
+                    valueComparer.ExtractSnapshotBody(
+                        Expression.Convert(newSnapshotParam, valueComparer.Type)), clrType),
+                Expression.Default(clrType)),
+            newSnapshotParam);
     }
 
-    ValueComparer IInfrastructure<ValueComparer>.Instance => _valueComparer;
+    ValueComparer IInfrastructure<ValueComparer>.Instance
+        => _valueComparer;
 }

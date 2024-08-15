@@ -26,7 +26,9 @@ public class SqlConstantExpression : SqlExpression
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public SqlConstantExpression(object? value, Type type, RelationalTypeMapping? typeMapping)
         : base(type.UnwrapNullableType(), typeMapping)
-        => Value = value;
+    {
+        Value = value;
+    }
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.

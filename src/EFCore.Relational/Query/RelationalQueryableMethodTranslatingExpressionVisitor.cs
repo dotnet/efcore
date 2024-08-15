@@ -3,11 +3,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -417,6 +414,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                             : sqlExpression
                     });
         }
+
         var alias = _sqlAliasManager.GenerateTableAlias("values");
         var valuesExpression = new ValuesExpression(alias, rowExpressions, new[] { ValuesOrderingColumnName, ValuesValueColumnName });
 
@@ -471,6 +469,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+
         subquery.IsDistinct = false;
 
         translation = _sqlExpressionFactory.Not(_sqlExpressionFactory.Exists(subquery));
@@ -503,6 +502,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+
         subquery.IsDistinct = false;
 
         var translation = _sqlExpressionFactory.Exists(subquery);
@@ -589,6 +589,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         {
             subquery.ClearOrdering();
         }
+
         subquery.IsDistinct = false;
 
         subquery.ReplaceProjection(new List<Expression> { projection });
@@ -2072,10 +2073,14 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         projection = null;
         return false;
     }
+
     private bool TryExtractBareInlineCollectionValues(ShapedQueryExpression shapedQuery, [NotNullWhen(true)] out SqlExpression[]? values)
         => TryExtractBareInlineCollectionValues(shapedQuery, out values, out _);
 
-    private bool TryExtractBareInlineCollectionValues(ShapedQueryExpression shapedQuery, out SqlExpression[]? values, out SqlParameterExpression? valuesParameter)
+    private bool TryExtractBareInlineCollectionValues(
+        ShapedQueryExpression shapedQuery,
+        out SqlExpression[]? values,
+        out SqlParameterExpression? valuesParameter)
     {
         if (TryGetProjection(shapedQuery, out var projection)
             && shapedQuery.QueryExpression is SelectExpression
@@ -2152,7 +2157,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         selectExpression.AppendOrdering(new OrderingExpression(orderingColumn, ascending: true));
 
         Expression shaperExpression = new ProjectionBindingExpression(
-        selectExpression, new ProjectionMember(), encounteredNull ? elementType.MakeNullable() : elementType);
+            selectExpression, new ProjectionMember(), encounteredNull ? elementType.MakeNullable() : elementType);
 
         if (elementType != shaperExpression.Type)
         {
@@ -2170,6 +2175,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     ///     This visitor has been obsoleted; Extend RelationalTypeMappingPostprocessor instead, and invoke it from
     ///     <see cref="RelationalQueryTranslationPostprocessor.ProcessTypeMappings" />.
     /// </summary>
-    [Obsolete("Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
+    [Obsolete(
+        "Extend RelationalTypeMappingPostprocessor instead, and invoke it from  RelationalQueryTranslationPostprocessor.ProcessTypeMappings().")]
     protected class RelationalInferredTypeMappingApplier;
 }

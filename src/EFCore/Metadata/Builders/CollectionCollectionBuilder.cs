@@ -463,6 +463,7 @@ public class CollectionCollectionBuilder
         {
             rightForeignKey = GetOrCreateSkipNavigationForeignKey((SkipNavigation)RightNavigation, newJoinEntityType);
         }
+
         ((SkipNavigation)RightNavigation).Builder
             .HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit);
 
@@ -477,6 +478,7 @@ public class CollectionCollectionBuilder
         {
             leftForeignKey = GetOrCreateSkipNavigationForeignKey((SkipNavigation)LeftNavigation, newJoinEntityType);
         }
+
         ((SkipNavigation)LeftNavigation).Builder
             .HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit);
 

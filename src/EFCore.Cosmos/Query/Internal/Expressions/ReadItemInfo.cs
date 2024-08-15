@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 /// <summary>
@@ -27,5 +28,7 @@ public class ReadItemInfo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ReadItemInfo(IDictionary<IProperty, Expression> propertyValues)
-        => PropertyValues = propertyValues;
+    {
+        PropertyValues = propertyValues;
+    }
 }

@@ -46,7 +46,8 @@ public sealed class StringDictionaryComparer<TDictionary, TElement> : ValueCompa
     /// </summary>
     public ValueComparer ElementComparer { get; }
 
-    ValueComparer IInfrastructure<ValueComparer>.Instance => ElementComparer;
+    ValueComparer IInfrastructure<ValueComparer>.Instance
+        => ElementComparer;
 
     private static Expression<Func<object?, object?, bool>> CompareLambda(ValueComparer elementComparer)
     {

@@ -850,6 +850,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
                 {
                     rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
                 }
+
                 _isSearchCondition = parentSearchCondition;
                 return valuesExpression.Update(rowValues);
 

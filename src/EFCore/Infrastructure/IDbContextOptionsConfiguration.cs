@@ -5,7 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
 ///     Configures the options to be used by a <see cref="DbContext" />. You normally call
-///     <see cref="EntityFrameworkServiceCollectionExtensions.ConfigureDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime)" />
+///     <see
+///         cref="EntityFrameworkServiceCollectionExtensions.ConfigureDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}, ServiceLifetime)" />
 ///     to register this class, it is not designed to be directly constructed in your application code.
 /// </summary>
 /// <typeparam name="TContext">The type of the context these options apply to.</typeparam>

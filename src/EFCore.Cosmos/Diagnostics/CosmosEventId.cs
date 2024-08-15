@@ -41,7 +41,6 @@ public static class CosmosEventId
 
         // Model validation events
         NoPartitionKeyDefined = CoreEventId.ProviderBaseId + 600,
-
     }
 
     private static readonly string DatabasePrefix = DbLoggerCategory.Database.Name + ".";

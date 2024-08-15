@@ -27,9 +27,12 @@ public class RelationalLiftableConstantProcessor : LiftableConstantProcessor
         RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
         RelationalCommandBuilderDependencies commandBuilderDependencies)
         : base(dependencies)
-        => _relationalMaterializerLiftableConstantContext = new(dependencies, relationalDependencies, commandBuilderDependencies);
+    {
+        _relationalMaterializerLiftableConstantContext = new RelationalMaterializerLiftableConstantContext(
+            dependencies, relationalDependencies, commandBuilderDependencies);
+    }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override ConstantExpression InlineConstant(LiftableConstantExpression liftableConstant)
     {
         if (liftableConstant.ResolverExpression is Expression<Func<RelationalMaterializerLiftableConstantContext, object>>

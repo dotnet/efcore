@@ -12,12 +12,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// <summary>
 ///     Performs various post-processing rewriting to account for SQL Server JSON quirks.
 ///     1. Converts <see cref="SqlServerOpenJsonExpression" /> expressions with WITH (the default) to OPENJSON without WITH under the
-///        following conditions:
-///         * When an ordering still exists on the [key] column, i.e. when the ordering of the original JSON array needs to be preserved
-///           (e.g. limit/offset).
-///         * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
+///     following conditions:
+///     * When an ordering still exists on the [key] column, i.e. when the ordering of the original JSON array needs to be preserved
+///     (e.g. limit/offset).
+///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 ///     2. Rewrite JsonScalarExpression (JSON_VALUE()) to OPENJSON for when JSON_VALUE() isn't compatible with the type (e.g. binary data
-///        which needs to be base64-decoded).
+///     which needs to be base64-decoded).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -101,7 +101,7 @@ public sealed class SqlServerJsonPostprocessor(
 
                         foreach (var columnInfo in columnInfos)
                         {
-                            columnsToRewrite ??= new();
+                            columnsToRewrite ??= new Dictionary<(string, string), ColumnInfo>();
                             columnsToRewrite.Add((newOpenJsonExpression.Alias, columnInfo.Name), columnInfo);
                         }
 
@@ -236,7 +236,7 @@ public sealed class SqlServerJsonPostprocessor(
                             tableAlias,
                             jsonScalar.Json,
                             path: null,
-                            columnInfos: [new(name, jsonScalar.TypeMapping, jsonScalar.Path)]));
+                            columnInfos: [new ColumnInfo(name, jsonScalar.TypeMapping, jsonScalar.Path)]));
 
                 // We record the new OUTER APPLY in _openWithOuterAppliesToAdd (it gets added after visiting the SelectExpression above),
                 // and return a ColumnExpression referencing that new OUTER APPLY.
@@ -257,7 +257,6 @@ public sealed class SqlServerJsonPostprocessor(
                 return openJsonExpression.JsonExpression.TypeMapping
                     is SqlServerStringTypeMapping { StoreType: "json" }
                     or SqlServerOwnedJsonTypeMapping { StoreType: "json" }
-
                     ? openJsonExpression.Update(
                         new SqlUnaryExpression(
                             ExpressionType.Convert,

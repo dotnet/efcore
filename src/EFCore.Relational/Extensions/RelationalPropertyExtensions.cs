@@ -521,8 +521,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.DefaultColumnMappings)
-                ?? Enumerable.Empty<IColumnMappingBase>();
+                RelationalAnnotationNames.DefaultColumnMappings)
+            ?? Enumerable.Empty<IColumnMappingBase>();
     }
 
     /// <summary>
@@ -534,8 +534,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.TableColumnMappings)
-                ?? Enumerable.Empty<IColumnMapping>();
+                RelationalAnnotationNames.TableColumnMappings)
+            ?? Enumerable.Empty<IColumnMapping>();
     }
 
     /// <summary>
@@ -547,8 +547,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.ViewColumnMappings)
-                ?? Enumerable.Empty<IViewColumnMapping>();
+                RelationalAnnotationNames.ViewColumnMappings)
+            ?? Enumerable.Empty<IViewColumnMapping>();
     }
 
     /// <summary>
@@ -560,8 +560,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<ISqlQueryColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.SqlQueryColumnMappings)
-                ?? Enumerable.Empty<ISqlQueryColumnMapping>();
+                RelationalAnnotationNames.SqlQueryColumnMappings)
+            ?? Enumerable.Empty<ISqlQueryColumnMapping>();
     }
 
     /// <summary>
@@ -573,8 +573,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IFunctionColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.FunctionColumnMappings)
-                ?? Enumerable.Empty<IFunctionColumnMapping>();
+                RelationalAnnotationNames.FunctionColumnMappings)
+            ?? Enumerable.Empty<IFunctionColumnMapping>();
     }
 
     /// <summary>
@@ -586,8 +586,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings)
-                ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+                RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings)
+            ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
     }
 
     /// <summary>
@@ -599,8 +599,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.InsertStoredProcedureParameterMappings)
-                ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+                RelationalAnnotationNames.InsertStoredProcedureParameterMappings)
+            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
     }
 
     /// <summary>
@@ -612,8 +612,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.DeleteStoredProcedureParameterMappings)
-                ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+                RelationalAnnotationNames.DeleteStoredProcedureParameterMappings)
+            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
     }
 
     /// <summary>
@@ -625,8 +625,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureResultColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings)
-                ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
+                RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings)
+            ?? Enumerable.Empty<IStoredProcedureResultColumnMapping>();
     }
 
     /// <summary>
@@ -638,8 +638,8 @@ public static class RelationalPropertyExtensions
     {
         property.DeclaringType.Model.EnsureRelationalModel();
         return (IEnumerable<IStoredProcedureParameterMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.UpdateStoredProcedureParameterMappings)
-                ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
+                RelationalAnnotationNames.UpdateStoredProcedureParameterMappings)
+            ?? Enumerable.Empty<IStoredProcedureParameterMapping>();
     }
 
     /// <summary>

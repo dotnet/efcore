@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -55,7 +54,7 @@ public class MemberClassifier : IMemberClassifier
             return navigationCandidates;
         }
 
-        navigationCandidates = new();
+        navigationCandidates = new OrderedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)>();
 
         var model = entityType.Model;
         if (model.FindAnnotation(inverseAnnotationName)?.Value
@@ -169,9 +168,9 @@ public class MemberClassifier : IMemberClassifier
         var memberType = memberInfo.GetMemberType();
         return isConfiguredAsEntityType == true
             || targetType != typeof(object)
-                && (memberType != targetType
-                    || (_parameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
-                        && _typeMappingSource.FindMapping(memberInfo, model, useAttributes) == null));
+            && (memberType != targetType
+                || (_parameterBindingFactories.FindFactory(memberType, memberInfo.GetSimpleMemberName()) == null
+                    && _typeMappingSource.FindMapping(memberInfo, model, useAttributes) == null));
     }
 
     /// <summary>
@@ -181,7 +180,10 @@ public class MemberClassifier : IMemberClassifier
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsCandidatePrimitiveProperty(
-        MemberInfo memberInfo, IConventionModel model, bool useAttributes, out CoreTypeMapping? typeMapping)
+        MemberInfo memberInfo,
+        IConventionModel model,
+        bool useAttributes,
+        out CoreTypeMapping? typeMapping)
     {
         typeMapping = null;
         if (!memberInfo.IsCandidateProperty())

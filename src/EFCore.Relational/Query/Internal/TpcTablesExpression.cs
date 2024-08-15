@@ -122,7 +122,7 @@ public sealed class TpcTablesExpression : TableExpressionBase
         var visitedColumn = (ColumnExpression)visitor.Visit(DiscriminatorColumn);
         return visitedColumn == DiscriminatorColumn
             ? this
-            : new(Alias, EntityType, SelectExpressions, visitedColumn, DiscriminatorValues, Annotations);
+            : new TpcTablesExpression(Alias, EntityType, SelectExpressions, visitedColumn, DiscriminatorValues, Annotations);
     }
 
     /// <summary>

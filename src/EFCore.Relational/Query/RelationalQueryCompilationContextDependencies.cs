@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -48,7 +46,9 @@ public sealed record RelationalQueryCompilationContextDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public RelationalQueryCompilationContextDependencies(ISqlAliasManagerFactory sqlAliasManagerFactory)
-        => SqlAliasManagerFactory = sqlAliasManagerFactory;
+    {
+        SqlAliasManagerFactory = sqlAliasManagerFactory;
+    }
 
     /// <summary>
     ///     A manager for SQL aliases, capable of generate uniquified table aliases.

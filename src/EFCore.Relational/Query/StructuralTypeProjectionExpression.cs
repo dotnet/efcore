@@ -116,22 +116,22 @@ public class StructuralTypeProjectionExpression : Expression
     public virtual SqlExpression? DiscriminatorExpression { get; }
 
     /// <summary>
-    ///     The <see cref="ExpressionType"/> of the <see cref="Expression"/>.
+    ///     The <see cref="ExpressionType" /> of the <see cref="Expression" />.
     /// </summary>
     public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
 
     /// <summary>
-    ///     The <see cref="Type"/> of the value represented by this <see cref="Expression"/>.
+    ///     The <see cref="Type" /> of the value represented by this <see cref="Expression" />.
     /// </summary>
     public override Type Type
         => StructuralType.ClrType;
 
     /// <summary>
-    ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)"/> method passing the reduced expression.
+    ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the reduced expression.
     ///     Throws an exception if the node isn't reducible.
     /// </summary>
-    /// <param name="visitor">An instance of <see cref="ExpressionVisitor"/>.</param>
+    /// <param name="visitor">An instance of <see cref="ExpressionVisitor" />.</param>
     /// <returns>The expression being visited, or an expression which should replace it in the tree.</returns>
     /// <remarks>
     ///     Override this method to provide logic to walk the node's children.
@@ -154,7 +154,7 @@ public class StructuralTypeProjectionExpression : Expression
         var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
         if (_complexPropertyCache != null)
         {
-            complexPropertyCache = new();
+            complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
                 var newComplexShaper = (StructuralTypeShaperExpression)visitor.Visit(complexShaper);
@@ -176,7 +176,8 @@ public class StructuralTypeProjectionExpression : Expression
 
         return changed
             ? new StructuralTypeProjectionExpression(
-                StructuralType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, TableMap, IsNullable, discriminatorExpression)
+                StructuralType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, TableMap, IsNullable,
+                discriminatorExpression)
             : this;
     }
 
@@ -195,7 +196,7 @@ public class StructuralTypeProjectionExpression : Expression
         var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
         if (_complexPropertyCache != null)
         {
-            complexPropertyCache = new();
+            complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
                 complexPropertyCache[complexProperty] = complexShaper.MakeNullable();
@@ -266,7 +267,7 @@ public class StructuralTypeProjectionExpression : Expression
         var complexPropertyCache = default(Dictionary<IComplexProperty, StructuralTypeShaperExpression>);
         if (_complexPropertyCache != null)
         {
-            complexPropertyCache = new();
+            complexPropertyCache = new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
             foreach (var (complexProperty, complexShaper) in _complexPropertyCache)
             {
                 if (derivedType.IsAssignableFrom(complexProperty.DeclaringType)
@@ -328,7 +329,8 @@ public class StructuralTypeProjectionExpression : Expression
         }
 
         return new StructuralTypeProjectionExpression(
-            derivedType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, newTableMap ?? TableMap, IsNullable, discriminatorExpression);
+            derivedType, propertyExpressionMap, ownedNavigationMap, complexPropertyCache, newTableMap ?? TableMap, IsNullable,
+            discriminatorExpression);
     }
 
     /// <summary>
@@ -339,8 +341,9 @@ public class StructuralTypeProjectionExpression : Expression
     /// </summary>
     [EntityFrameworkInternal]
     public virtual StructuralTypeProjectionExpression UpdateTableMap(IReadOnlyDictionary<ITableBase, string> newTableMap)
-        => new StructuralTypeProjectionExpression(
-            StructuralType, _propertyExpressionMap, _ownedNavigationMap, _complexPropertyCache, newTableMap, IsNullable, DiscriminatorExpression);
+        => new(
+            StructuralType, _propertyExpressionMap, _ownedNavigationMap, _complexPropertyCache, newTableMap, IsNullable,
+            DiscriminatorExpression);
 
     /// <summary>
     ///     Binds a property with this structural type projection to get the SQL representation.

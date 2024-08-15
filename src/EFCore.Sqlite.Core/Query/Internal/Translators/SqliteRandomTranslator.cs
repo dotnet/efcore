@@ -45,7 +45,7 @@ public class SqliteRandomTranslator : IMethodCallTranslator
         => MethodInfo.Equals(method)
             ? _sqlExpressionFactory.Function(
                 "abs",
-                new SqlExpression[]
+                new[]
                 {
                     _sqlExpressionFactory.Divide(
                         _sqlExpressionFactory.Function(

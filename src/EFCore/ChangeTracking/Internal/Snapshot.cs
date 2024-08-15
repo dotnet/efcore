@@ -70,7 +70,8 @@ public sealed class Snapshot : ISnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo GetValueMethod
-        = typeof(ISnapshot).GetMethod(nameof(GetValue), 1, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+        = typeof(ISnapshot).GetMethod(
+            nameof(GetValue), 1, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
             null, CallingConventions.Any, [typeof(int)], null)!;
 
     /// <summary>
@@ -117,7 +118,7 @@ public sealed class Snapshot : ISnapshot
             _ => throw new IndexOutOfRangeException()
         };
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     bool ISnapshot.IsEmpty
         => true;
 }
@@ -129,7 +130,7 @@ public sealed class Snapshot : ISnapshot
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26, T27, T28, T29>
+    T23, T24, T25, T26, T27, T28, T29>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =
@@ -487,7 +488,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26, T27, T28>
+    T23, T24, T25, T26, T27, T28>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =
@@ -835,7 +836,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26, T27>
+    T23, T24, T25, T26, T27>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =
@@ -1173,7 +1174,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25, T26>
+    T23, T24, T25, T26>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =
@@ -1501,7 +1502,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24, T25>
+    T23, T24, T25>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =
@@ -1819,7 +1820,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23, T24>
+    T23, T24>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =
@@ -2102,7 +2103,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22,
-        T23>
+    T23>
     : ISnapshot
 {
     private static readonly Delegate[] ValueReaders =

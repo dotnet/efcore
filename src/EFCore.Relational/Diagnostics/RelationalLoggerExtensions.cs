@@ -2365,6 +2365,7 @@ public static class RelationalLoggerExtensions
             {
                 commandText = commandText.Substring(0, 100) + "...";
             }
+
             definition.Log(diagnostics, commandText, migration.GetType().ShortDisplayName());
         }
 
@@ -2390,6 +2391,7 @@ public static class RelationalLoggerExtensions
         {
             commandText = commandText.Substring(0, 100) + "...";
         }
+
         return d.GenerateMessage(commandText, p.Migration.GetType().ShortDisplayName());
     }
 

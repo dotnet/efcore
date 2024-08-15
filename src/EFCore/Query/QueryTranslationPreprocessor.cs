@@ -95,7 +95,7 @@ public class QueryTranslationPreprocessor
         => new QueryRootProcessor(Dependencies, QueryCompilationContext).Visit(expression);
 
     /// <summary>
-    ///    A value indicating whether 'EF.Constant' are handled appropriately in postprocessing of query.
+    ///     A value indicating whether 'EF.Constant' are handled appropriately in postprocessing of query.
     /// </summary>
     [Experimental(EFDiagnostics.ProviderExperimentalApi)]
     protected virtual bool IsEfConstantSupported

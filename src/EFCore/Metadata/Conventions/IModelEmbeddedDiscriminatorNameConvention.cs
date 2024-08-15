@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 public interface IModelEmbeddedDiscriminatorNameConvention : IConvention
 {
     /// <summary>
-    ///     Called after <see cref="ModelBuilder.HasEmbeddedDiscriminatorName"/> has been called.
+    ///     Called after <see cref="ModelBuilder.HasEmbeddedDiscriminatorName" /> has been called.
     /// </summary>
     /// <param name="modelBuilder">The builder for the model.</param>
     /// <param name="newName">The new discriminator name.</param>

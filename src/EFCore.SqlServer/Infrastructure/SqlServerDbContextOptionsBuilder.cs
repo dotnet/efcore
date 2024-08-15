@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     Allows SQL Server specific configuration to be performed on <see cref="DbContextOptions" />.
 /// </summary>
 /// <remarks>
-///     Instances of this class are returned from a call to 
+///     Instances of this class are returned from a call to
 ///     <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
 ///     and it is not designed to be directly constructed in your application code.
 /// </remarks>

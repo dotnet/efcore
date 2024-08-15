@@ -73,7 +73,8 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <inheritdoc />
     public override Expression Quote()
         => New(
-            _quotingConstructor ??= typeof(LeftJoinExpression).GetConstructor([typeof(TableExpressionBase), typeof(SqlExpression), typeof(bool), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
+            _quotingConstructor ??= typeof(LeftJoinExpression).GetConstructor(
+                [typeof(TableExpressionBase), typeof(SqlExpression), typeof(bool), typeof(IReadOnlyDictionary<string, IAnnotation>)])!,
             Table.Quote(),
             JoinPredicate.Quote(),
             Constant(IsPrunable),

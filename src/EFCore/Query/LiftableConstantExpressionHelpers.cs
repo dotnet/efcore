@@ -52,13 +52,14 @@ public static class LiftableConstantExpressionHelpers
     {
         return value switch
         {
-            int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or string or char or bool => true,
+            int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or string or char
+                or bool => true,
             null or Type or Enum => true,
             TimeSpan or DateTime or DateTimeOffset or DateOnly or TimeOnly or Guid => true,
             ITuple tuple
                 when tuple.GetType() is { IsGenericType: true } tupleType
-                     && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
-                     && tupleType.Namespace == "System"
+                && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
+                && tupleType.Namespace == "System"
                 => IsTupleLiteral(tuple),
 
             Array array => IsCollectionOfLiterals(array),
@@ -99,7 +100,9 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression BuildMemberAccessForEntityOrComplexType(ITypeBase targetType, ParameterExpression liftableConstantContextParameter)
+    public static Expression BuildMemberAccessForEntityOrComplexType(
+        ITypeBase targetType,
+        ParameterExpression liftableConstantContextParameter)
     {
         var (rootEntityType, complexTypes) = FindPathForEntityOrComplexType(targetType);
 
@@ -117,7 +120,6 @@ public static class LiftableConstantExpressionHelpers
                     typeof(RuntimeModel)),
                 RuntimeModelFindAdHocEntiyTypeMethod,
                 Constant(rootEntityType.ClrType));
-
         }
         else
         {
@@ -148,7 +150,8 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildMemberAccessLambdaForEntityOrComplexType(ITypeBase type)
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildMemberAccessLambdaForEntityOrComplexType(
+        ITypeBase type)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
         var body = BuildMemberAccessForEntityOrComplexType(type, prm);
@@ -255,7 +258,8 @@ public static class LiftableConstantExpressionHelpers
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildClrCollectionAccessorLambda(INavigationBase? navigation)
+    public static Expression<Func<MaterializerLiftableConstantContext, object>> BuildClrCollectionAccessorLambda(
+        INavigationBase? navigation)
     {
         var prm = Parameter(typeof(MaterializerLiftableConstantContext));
         var body = BuildClrCollectionAccessor(navigation, prm);

@@ -35,8 +35,8 @@ public class MigrationsAssembly : IMigrationsAssembly
         var assemblyObject = RelationalOptionsExtension.Extract(options).MigrationsAssemblyObject;
 
         Assembly = assemblyName == null
-            ?   assemblyObject ?? _contextType.Assembly
-            :   Assembly.Load(new AssemblyName(assemblyName));
+            ? assemblyObject ?? _contextType.Assembly
+            : Assembly.Load(new AssemblyName(assemblyName));
 
         _idGenerator = idGenerator;
         _logger = logger;

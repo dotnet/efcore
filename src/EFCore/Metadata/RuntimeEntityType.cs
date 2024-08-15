@@ -74,7 +74,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         int namedIndexCount,
         int keyCount,
         int triggerCount)
-        : base(name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+        : base(
+            name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount)
@@ -83,25 +84,29 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
         SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
         _discriminatorValue = discriminatorValue;
-        _foreignKeys = new(foreignKeyCount);
-        _navigations = new(navigationCount, StringComparer.Ordinal);
+        _foreignKeys = new List<RuntimeForeignKey>(foreignKeyCount);
+        _navigations = new OrderedDictionary<string, RuntimeNavigation>(navigationCount, StringComparer.Ordinal);
         if (skipNavigationCount > 0)
         {
-            _skipNavigations = new(skipNavigationCount, StringComparer.Ordinal);
+            _skipNavigations = new OrderedDictionary<string, RuntimeSkipNavigation>(skipNavigationCount, StringComparer.Ordinal);
         }
+
         if (servicePropertyCount > 0)
         {
-            _serviceProperties = new(servicePropertyCount, StringComparer.Ordinal);
+            _serviceProperties = new OrderedDictionary<string, RuntimeServiceProperty>(servicePropertyCount, StringComparer.Ordinal);
         }
-        _unnamedIndexes = new(unnamedIndexCount, PropertyListComparer.Instance);
+
+        _unnamedIndexes =
+            new OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeIndex>(unnamedIndexCount, PropertyListComparer.Instance);
         if (namedIndexCount > 0)
         {
-            _namedIndexes = new(namedIndexCount, StringComparer.Ordinal);
+            _namedIndexes = new OrderedDictionary<string, RuntimeIndex>(namedIndexCount, StringComparer.Ordinal);
         }
-        _keys = new(keyCount, PropertyListComparer.Instance);
+
+        _keys = new OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeKey>(keyCount, PropertyListComparer.Instance);
         if (triggerCount > 0)
         {
-            _triggers = new(triggerCount, StringComparer.Ordinal);
+            _triggers = new OrderedDictionary<string, RuntimeTrigger>(triggerCount, StringComparer.Ordinal);
         }
     }
 
@@ -290,7 +295,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     Use <see cref="GetForeignKeys" /> to also return foreign keys declared on base types.
     /// </remarks>
     /// <returns>Declared foreign keys.</returns>
-    public virtual List<RuntimeForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
+    public virtual List<RuntimeForeignKey> GetDeclaredForeignKeys()
+        => _foreignKeys;
 
     private IEnumerable<RuntimeForeignKey> GetDerivedForeignKeys()
         => !HasDirectlyDerivedTypes
@@ -470,7 +476,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             eagerLoaded,
             lazyLoadingEnabled);
 
-        _skipNavigations ??= new(StringComparer.Ordinal);
+        _skipNavigations ??= new OrderedDictionary<string, RuntimeSkipNavigation>(StringComparer.Ordinal);
         _skipNavigations.Add(name, skipNavigation);
 
         return skipNavigation;
@@ -541,7 +547,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         var index = new RuntimeIndex(properties, this, name, unique);
         if (name != null)
         {
-            (_namedIndexes ??= new(StringComparer.Ordinal)).Add(name, index);
+            (_namedIndexes ??= new OrderedDictionary<string, RuntimeIndex>(StringComparer.Ordinal)).Add(name, index);
         }
         else
         {
@@ -640,7 +646,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             this,
             propertyAccessMode);
 
-        (_serviceProperties ??= new(StringComparer.Ordinal))[serviceProperty.Name] = serviceProperty;
+        (_serviceProperties ??= new OrderedDictionary<string, RuntimeServiceProperty>(StringComparer.Ordinal))[serviceProperty.Name] =
+            serviceProperty;
 
         return serviceProperty;
     }
@@ -768,7 +775,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         var trigger = new RuntimeTrigger(this, modelName);
 
-        (_triggers ??= new(StringComparer.Ordinal)).Add(modelName, trigger);
+        (_triggers ??= new OrderedDictionary<string, RuntimeTrigger>(StringComparer.Ordinal)).Add(modelName, trigger);
 
         return trigger;
     }
@@ -850,8 +857,9 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     [EntityFrameworkInternal]
     public virtual PropertyCounts Counts
     {
-        get => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static entityType =>
-            entityType.CalculateCounts());
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _counts, this, static entityType =>
+                entityType.CalculateCounts());
 
         [DebuggerStepThrough]
         set => _counts = value;
@@ -1304,7 +1312,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IProperty? IEntityType.FindProperty(string name) => FindProperty(name);
+    IProperty? IEntityType.FindProperty(string name)
+        => FindProperty(name);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -1313,15 +1322,18 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IProperty? IEntityType.FindDeclaredProperty(string name) => FindDeclaredProperty(name);
+    IProperty? IEntityType.FindDeclaredProperty(string name)
+        => FindDeclaredProperty(name);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetDeclaredProperties() => GetDeclaredProperties();
+    IEnumerable<IProperty> IEntityType.GetDeclaredProperties()
+        => GetDeclaredProperties();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+    IEnumerable<IProperty> IEntityType.GetProperties()
+        => GetProperties();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

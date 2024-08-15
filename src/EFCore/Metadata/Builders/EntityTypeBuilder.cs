@@ -1148,7 +1148,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             && skipNavigation.ForeignKey?.DeclaringEntityType == Builder.Metadata)
         {
             return navigationId.MemberInfo != null
-                ? skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.MemberInfo, pointsToPrincipal: true, ConfigurationSource.Explicit)
+                ? skipNavigation.ForeignKey.Builder.HasNavigation(
+                        navigationId.MemberInfo, pointsToPrincipal: true, ConfigurationSource.Explicit)
                     !.Metadata
                 : skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.Name, pointsToPrincipal: true, ConfigurationSource.Explicit)
                     !.Metadata;
