@@ -28,7 +28,7 @@ public class InMemoryStore : IInMemoryStore
     /// </summary>
     public InMemoryStore(IInMemoryTableFactory tableFactory)
     {
-        _tableFactory = tableFactory;
+        this._tableFactory = tableFactory;
     }
 
     /// <summary>
@@ -37,15 +37,14 @@ public class InMemoryStore : IInMemoryStore
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(
-        IProperty property)
+    public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property)
     {
         var entityType = property.DeclaringType.ContainingEntityType;
-        lock (_lock)
+        lock (this._lock)
         {
-            return EnsureTable(entityType).GetIntegerValueGenerator<TProperty>(
+            return this.EnsureTable(entityType).GetIntegerValueGenerator<TProperty>(
                 property,
-                entityType.GetDerivedTypesInclusive().Select(EnsureTable).ToArray());
+                entityType.GetDerivedTypesInclusive().Select(this.EnsureTable).ToArray());
         }
     }
 
@@ -60,13 +59,13 @@ public class InMemoryStore : IInMemoryStore
         IModel designModel,
         IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
-        lock (_lock)
+        lock (this._lock)
         {
-            var valuesSeeded = _tables == null;
+            var valuesSeeded = this._tables == null;
             if (valuesSeeded)
             {
                 // ReSharper disable once AssignmentIsFullyDiscarded
-                _tables = CreateTables();
+                this._tables = CreateTables();
 
                 var updateAdapter = updateAdapterFactory.CreateStandalone();
                 var entries = new List<IUpdateEntry>();
@@ -82,7 +81,7 @@ public class InMemoryStore : IInMemoryStore
                     }
                 }
 
-                ExecuteTransaction(entries, updateLogger);
+                this.ExecuteTransaction(entries, updateLogger);
             }
 
             return valuesSeeded;
@@ -97,14 +96,14 @@ public class InMemoryStore : IInMemoryStore
     /// </summary>
     public virtual bool Clear()
     {
-        lock (_lock)
+        lock (this._lock)
         {
-            if (_tables == null)
+            if (this._tables == null)
             {
                 return false;
             }
 
-            _tables = null;
+            this._tables = null;
 
             return true;
         }
@@ -122,13 +121,13 @@ public class InMemoryStore : IInMemoryStore
     public virtual IReadOnlyList<InMemoryTableSnapshot> GetTables(IEntityType entityType)
     {
         var data = new List<InMemoryTableSnapshot>();
-        lock (_lock)
+        lock (this._lock)
         {
-            if (_tables != null)
+            if (this._tables != null)
             {
                 foreach (var et in entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()))
                 {
-                    if (_tables.TryGetValue(et.Name, out var table))
+                    if (this._tables.TryGetValue(et.Name, out var table))
                     {
                         data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
                     }
@@ -151,7 +150,7 @@ public class InMemoryStore : IInMemoryStore
     {
         var rowsAffected = 0;
 
-        lock (_lock)
+        lock (this._lock)
         {
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < entries.Count; i++)
@@ -161,7 +160,7 @@ public class InMemoryStore : IInMemoryStore
 
                 Check.DebugAssert(!entityType.IsAbstract(), "entityType is abstract");
 
-                var table = EnsureTable(entityType);
+                var table = this.EnsureTable(entityType);
 
                 if (entry.SharedIdentityEntry != null)
                 {
@@ -198,7 +197,7 @@ public class InMemoryStore : IInMemoryStore
     // Must be called from inside the lock
     private IInMemoryTable EnsureTable(IEntityType entityType)
     {
-        _tables ??= CreateTables();
+        this._tables ??= CreateTables();
 
         IInMemoryTable? baseTable = null;
 
@@ -206,14 +205,14 @@ public class InMemoryStore : IInMemoryStore
         foreach (var currentEntityType in entityTypes)
         {
             var key = currentEntityType.Name;
-            if (!_tables.TryGetValue(key, out var table))
+            if (!this._tables.TryGetValue(key, out var table))
             {
-                _tables.Add(key, table = _tableFactory.Create(currentEntityType, baseTable));
+                this._tables.Add(key, table = this._tableFactory.Create(currentEntityType, baseTable));
             }
 
             baseTable = table;
         }
 
-        return _tables[entityType.Name];
+        return this._tables[entityType.Name];
     }
 }

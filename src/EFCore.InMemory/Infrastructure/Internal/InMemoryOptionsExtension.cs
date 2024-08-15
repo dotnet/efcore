@@ -37,8 +37,8 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     protected InMemoryOptionsExtension(InMemoryOptionsExtension copyFrom)
     {
-        _storeName = copyFrom._storeName;
-        _databaseRoot = copyFrom._databaseRoot;
+        this._storeName = copyFrom._storeName;
+        this._databaseRoot = copyFrom._databaseRoot;
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbContextOptionsExtensionInfo Info
-        => _info ??= new ExtensionInfo(this);
+        => this._info ??= new ExtensionInfo(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +66,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string StoreName
-        => _storeName!;
+        => this._storeName!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +75,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsNullabilityCheckEnabled
-        => _nullabilityCheckEnabled;
+        => this._nullabilityCheckEnabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,7 +85,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual InMemoryOptionsExtension WithStoreName(string storeName)
     {
-        var clone = Clone();
+        var clone = this.Clone();
 
         clone._storeName = storeName;
 
@@ -100,7 +100,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual InMemoryOptionsExtension WithNullabilityCheckEnabled(bool nullabilityCheckEnabled)
     {
-        var clone = Clone();
+        var clone = this.Clone();
 
         clone._nullabilityCheckEnabled = nullabilityCheckEnabled;
 
@@ -114,7 +114,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InMemoryDatabaseRoot? DatabaseRoot
-        => _databaseRoot;
+        => this._databaseRoot;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -124,7 +124,7 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual InMemoryOptionsExtension WithDatabaseRoot(InMemoryDatabaseRoot databaseRoot)
     {
-        var clone = Clone();
+        var clone = this.Clone();
 
         clone._databaseRoot = databaseRoot;
 
@@ -164,43 +164,43 @@ public class InMemoryOptionsExtension : IDbContextOptionsExtension
         {
             get
             {
-                if (_logFragment == null)
+                if (this._logFragment == null)
                 {
                     var builder = new StringBuilder();
 
-                    builder.Append("StoreName=").Append(Extension._storeName).Append(' ');
+                    builder.Append("StoreName=").Append(this.Extension._storeName).Append(' ');
 
-                    if (!Extension._nullabilityCheckEnabled)
+                    if (!this.Extension._nullabilityCheckEnabled)
                     {
                         builder.Append("NullabilityChecksEnabled ");
                     }
 
-                    _logFragment = builder.ToString();
+                    this._logFragment = builder.ToString();
                 }
 
-                return _logFragment;
+                return this._logFragment;
             }
         }
 
         public override int GetServiceProviderHashCode()
         {
             var hashCode = new HashCode();
-            hashCode.Add(Extension._databaseRoot);
-            hashCode.Add(Extension._nullabilityCheckEnabled);
+            hashCode.Add(this.Extension._databaseRoot);
+            hashCode.Add(this.Extension._nullabilityCheckEnabled);
             return hashCode.ToHashCode();
         }
 
         public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
             => other is ExtensionInfo otherInfo
-                && Extension._databaseRoot == otherInfo.Extension._databaseRoot
-                && Extension._nullabilityCheckEnabled == otherInfo.Extension._nullabilityCheckEnabled;
+                && this.Extension._databaseRoot == otherInfo.Extension._databaseRoot
+                && this.Extension._nullabilityCheckEnabled == otherInfo.Extension._nullabilityCheckEnabled;
 
         public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
         {
             debugInfo["InMemoryDatabase:DatabaseRoot"]
-                = (Extension._databaseRoot?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
+                = (this.Extension._databaseRoot?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
             debugInfo["InMemoryDatabase:NullabilityChecksEnabled"]
-                = (!Extension._nullabilityCheckEnabled).GetHashCode().ToString(CultureInfo.InvariantCulture);
+                = (!this.Extension._nullabilityCheckEnabled).GetHashCode().ToString(CultureInfo.InvariantCulture);
         }
     }
 }

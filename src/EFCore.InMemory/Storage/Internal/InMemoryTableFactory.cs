@@ -30,8 +30,8 @@ public class InMemoryTableFactory : IInMemoryTableFactory
         ILoggingOptions loggingOptions,
         IInMemorySingletonOptions options)
     {
-        _sensitiveLoggingEnabled = loggingOptions.IsSensitiveDataLoggingEnabled;
-        _nullabilityCheckEnabled = options.IsNullabilityCheckEnabled;
+        this._sensitiveLoggingEnabled = loggingOptions.IsSensitiveDataLoggingEnabled;
+        this._nullabilityCheckEnabled = options.IsNullabilityCheckEnabled;
     }
 
     /// <summary>
@@ -41,8 +41,11 @@ public class InMemoryTableFactory : IInMemoryTableFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IInMemoryTable Create(IEntityType entityType, IInMemoryTable? baseTable)
-        => _factories.GetOrAdd(entityType.FindPrimaryKey()!.GetKeyType(), CreateTable)
-            (entityType, baseTable, _sensitiveLoggingEnabled, _nullabilityCheckEnabled);
+        => this._factories.GetOrAdd(entityType.FindPrimaryKey()!.GetKeyType(), this.CreateTable)(
+            entityType,
+            baseTable,
+            this._sensitiveLoggingEnabled,
+            this._nullabilityCheckEnabled);
 
     private Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable> CreateTable(Type keyType)
         => (Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()

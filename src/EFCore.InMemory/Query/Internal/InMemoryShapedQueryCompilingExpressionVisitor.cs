@@ -21,8 +21,8 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQuery
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, queryCompilationContext)
     {
-        _contextType = queryCompilationContext.ContextType;
-        _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
+        this._contextType = queryCompilationContext.ContextType;
+        this._threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
     }
 
     /// <summary>
@@ -57,19 +57,20 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQuery
         inMemoryQueryExpression.ApplyProjection();
 
         var shaperExpression = new ShaperExpressionProcessingExpressionVisitor(
-                this, inMemoryQueryExpression, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                this,
+                inMemoryQueryExpression,
+                this.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             .ProcessShaper(shapedQueryExpression.ShaperExpression);
-        var innerEnumerable = Visit(inMemoryQueryExpression.ServerQueryExpression);
+        var innerEnumerable = this.Visit(inMemoryQueryExpression.ServerQueryExpression);
 
         return New(
             typeof(QueryingEnumerable<>).MakeGenericType(shaperExpression.ReturnType).GetConstructors()[0],
             QueryCompilationContext.QueryContextParameter,
             innerEnumerable,
             Constant(shaperExpression.Compile()),
-            Constant(_contextType),
-            Constant(
-                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-            Constant(_threadSafetyChecksEnabled));
+            Constant(this._contextType),
+            Constant(this.QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+            Constant(this._threadSafetyChecksEnabled));
     }
 
     private static readonly MethodInfo TableMethodInfo

@@ -17,10 +17,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitorFactory : IQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InMemoryQueryableMethodTranslatingExpressionVisitorFactory(
-        QueryableMethodTranslatingExpressionVisitorDependencies dependencies)
+    public InMemoryQueryableMethodTranslatingExpressionVisitorFactory(QueryableMethodTranslatingExpressionVisitorDependencies dependencies)
     {
-        Dependencies = dependencies;
+        this.Dependencies = dependencies;
     }
 
     /// <summary>
@@ -35,5 +34,5 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitorFactory : IQuery
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
-        => new InMemoryQueryableMethodTranslatingExpressionVisitor(Dependencies, queryCompilationContext);
+        => new InMemoryQueryableMethodTranslatingExpressionVisitor(this.Dependencies, queryCompilationContext);
 }

@@ -25,8 +25,7 @@ public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     ///     Creates a new <see cref="InMemoryConventionSetBuilder" /> instance.
     /// </summary>
     /// <param name="dependencies">The core dependencies for this service.</param>
-    public InMemoryConventionSetBuilder(
-        ProviderConventionSetBuilderDependencies dependencies)
+    public InMemoryConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
     }
@@ -36,7 +35,7 @@ public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     {
         var conventionSet = base.CreateConventionSet();
 
-        conventionSet.Add(new DefiningQueryRewritingConvention(Dependencies));
+        conventionSet.Add(new DefiningQueryRewritingConvention(this.Dependencies));
         conventionSet.Remove(typeof(ForeignKeyIndexConvention));
 
         return conventionSet;

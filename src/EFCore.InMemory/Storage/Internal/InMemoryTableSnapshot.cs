@@ -21,8 +21,8 @@ public class InMemoryTableSnapshot
         IEntityType entityType,
         IReadOnlyList<object?[]> rows)
     {
-        EntityType = entityType;
-        Rows = rows;
+        this.EntityType = entityType;
+        this.Rows = rows;
     }
 
     /// <summary>

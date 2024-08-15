@@ -33,14 +33,13 @@ public class InMemoryTypeMappingSource : TypeMappingSource
         var clrType = mappingInfo.ClrType;
         Check.DebugAssert(clrType != null, "ClrType is null");
 
-        var jsonValueReaderWriter = Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
+        var jsonValueReaderWriter = this.Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
 
         if (clrType.IsValueType
             || clrType == typeof(string)
             || (clrType == typeof(byte[]) && mappingInfo.ElementTypeMapping == null))
         {
-            return new InMemoryTypeMapping(
-                clrType, jsonValueReaderWriter: jsonValueReaderWriter);
+            return new InMemoryTypeMapping(clrType, jsonValueReaderWriter: jsonValueReaderWriter);
         }
 
         if (clrType.FullName == "NetTopologySuite.Geometries.Geometry"

@@ -26,7 +26,7 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
         IInMemoryDatabase inMemoryDatabase)
         : base(dependencies)
     {
-        _inMemoryStore = inMemoryDatabase.Store;
+        this._inMemoryStore = inMemoryDatabase.Store;
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     [Obsolete("Use TrySelect and throw if needed when the generator is not found.")]
     public override ValueGenerator? Select(IProperty property, ITypeBase typeBase)
     {
-        if (TrySelect(property, typeBase, out var valueGenerator))
+        if (this.TrySelect(property, typeBase, out var valueGenerator))
         {
             return valueGenerator;
         }
@@ -57,56 +57,56 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
         => property.GetValueGeneratorFactory() == null
             && property.ClrType.IsInteger()
             && property.ClrType.UnwrapNullableType() != typeof(char)
-                ? FindGenerator(property, property.ClrType.UnwrapNullableType().UnwrapEnumType(), out valueGenerator)
+                ? this.FindGenerator(property, property.ClrType.UnwrapNullableType().UnwrapEnumType(), out valueGenerator)
                 : base.TrySelect(property, typeBase, out valueGenerator);
 
     private bool FindGenerator(IProperty property, Type type, out ValueGenerator? valueGenerator)
     {
         if (type == typeof(long))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<long>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<long>(property);
             return true;
         }
 
         if (type == typeof(int))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<int>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<int>(property);
             return true;
         }
 
         if (type == typeof(short))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<short>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<short>(property);
             return true;
         }
 
         if (type == typeof(byte))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<byte>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<byte>(property);
             return true;
         }
 
         if (type == typeof(ulong))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ulong>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<ulong>(property);
             return true;
         }
 
         if (type == typeof(uint))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<uint>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<uint>(property);
             return true;
         }
 
         if (type == typeof(ushort))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ushort>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<ushort>(property);
             return true;
         }
 
         if (type == typeof(sbyte))
         {
-            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<sbyte>(property);
+            valueGenerator = this._inMemoryStore.GetIntegerValueGenerator<sbyte>(property);
             return true;
         }
 
@@ -116,7 +116,7 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
 
     /// <inheritdoc />
     protected override ValueGenerator? FindForType(IProperty property, ITypeBase typeBase, Type clrType)
-        => property.ValueGenerated != ValueGenerated.Never && FindGenerator(property, clrType, out var valueGenerator)
+        => property.ValueGenerated != ValueGenerated.Never && this.FindGenerator(property, clrType, out var valueGenerator)
             ? valueGenerator!
             : base.FindForType(property, typeBase, clrType);
 }

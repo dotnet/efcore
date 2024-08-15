@@ -26,9 +26,9 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
         ICurrentDbContext currentContext,
         IDbContextOptions contextOptions)
     {
-        _database = database;
-        _currentContext = currentContext;
-        _contextOptions = contextOptions;
+        this._database = database;
+        this._currentContext = currentContext;
+        this._contextOptions = contextOptions;
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual IInMemoryDatabase Database
-        => (IInMemoryDatabase)_database;
+        => (IInMemoryDatabase)this._database;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +47,7 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool EnsureDeleted()
-        => Database.Store.Clear();
+        => this.Database.Store.Clear();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,7 +56,7 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
-        => Task.FromResult(EnsureDeleted());
+        => Task.FromResult(this.EnsureDeleted());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,16 +66,15 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     /// </summary>
     public virtual bool EnsureCreated()
     {
-        var created = Database.EnsureDatabaseCreated();
+        var created = this.Database.EnsureDatabaseCreated();
 
-        var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
+        var coreOptionsExtension = this._contextOptions.FindExtension<CoreOptionsExtension>()
             ?? new CoreOptionsExtension();
 
         var seed = coreOptionsExtension.Seeder;
         if (seed != null)
         {
-            seed(_currentContext.Context, created);
+            seed(this._currentContext.Context, created);
         }
         else if (coreOptionsExtension.AsyncSeeder != null)
         {
@@ -93,16 +92,15 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     /// </summary>
     public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
     {
-        var created = Database.EnsureDatabaseCreated();
+        var created = this.Database.EnsureDatabaseCreated();
 
-        var coreOptionsExtension =
-            _contextOptions.FindExtension<CoreOptionsExtension>()
+        var coreOptionsExtension = this._contextOptions.FindExtension<CoreOptionsExtension>()
             ?? new CoreOptionsExtension();
 
         var seedAsync = coreOptionsExtension.AsyncSeeder;
         if (seedAsync != null)
         {
-            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
+            await seedAsync(this._currentContext.Context, created, cancellationToken).ConfigureAwait(false);
         }
         else if (coreOptionsExtension.Seeder != null)
         {

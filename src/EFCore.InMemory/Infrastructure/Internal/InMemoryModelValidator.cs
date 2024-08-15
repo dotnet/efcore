@@ -32,7 +32,7 @@ public class InMemoryModelValidator : ModelValidator
     {
         base.Validate(model, logger);
 
-        ValidateDefiningQuery(model, logger);
+        this.ValidateDefiningQuery(model, logger);
     }
 
     /// <summary>

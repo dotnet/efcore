@@ -24,10 +24,9 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public InMemoryTransactionManager(
-        IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
+    public InMemoryTransactionManager(IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
     {
-        _logger = logger;
+        this._logger = logger;
     }
 
     /// <summary>
@@ -38,7 +37,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     /// </summary>
     public virtual IDbContextTransaction BeginTransaction()
     {
-        _logger.TransactionIgnoredWarning();
+        this._logger.TransactionIgnoredWarning();
 
         return StubTransaction;
     }
@@ -49,10 +48,9 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Task<IDbContextTransaction> BeginTransactionAsync(
-        CancellationToken cancellationToken = default)
+    public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        _logger.TransactionIgnoredWarning();
+        this._logger.TransactionIgnoredWarning();
 
         return Task.FromResult<IDbContextTransaction>(StubTransaction);
     }
@@ -64,7 +62,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void CommitTransaction()
-        => _logger.TransactionIgnoredWarning();
+        => this._logger.TransactionIgnoredWarning();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,7 +72,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     /// </summary>
     public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
-        _logger.TransactionIgnoredWarning();
+        this._logger.TransactionIgnoredWarning();
         return Task.CompletedTask;
     }
 
@@ -85,7 +83,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void RollbackTransaction()
-        => _logger.TransactionIgnoredWarning();
+        => this._logger.TransactionIgnoredWarning();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +93,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     /// </summary>
     public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
-        _logger.TransactionIgnoredWarning();
+        this._logger.TransactionIgnoredWarning();
         return Task.CompletedTask;
     }
 
@@ -124,7 +122,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void EnlistTransaction(Transaction? transaction)
-        => _logger.TransactionIgnoredWarning();
+        => this._logger.TransactionIgnoredWarning();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -144,7 +142,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     /// </summary>
     public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
     {
-        ResetState();
+        this.ResetState();
 
         return Task.CompletedTask;
     }

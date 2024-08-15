@@ -24,7 +24,7 @@ public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IIn
     /// </summary>
     public InMemoryIntegerValueGenerator(int propertyIndex)
     {
-        _propertyIndex = propertyIndex;
+        this._propertyIndex = propertyIndex;
     }
 
     /// <summary>
@@ -35,11 +35,11 @@ public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IIn
     /// </summary>
     public virtual void Bump(object?[] row)
     {
-        var newValue = (long)Convert.ChangeType(row[_propertyIndex]!, typeof(long));
+        var newValue = (long)Convert.ChangeType(row[this._propertyIndex]!, typeof(long));
 
-        if (_current < newValue)
+        if (this._current < newValue)
         {
-            Interlocked.Exchange(ref _current, newValue);
+            Interlocked.Exchange(ref this._current, newValue);
         }
     }
 
@@ -50,7 +50,7 @@ public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IIn
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override TValue Next(EntityEntry entry)
-        => (TValue)Convert.ChangeType(Interlocked.Increment(ref _current), typeof(TValue), CultureInfo.InvariantCulture);
+        => (TValue)Convert.ChangeType(Interlocked.Increment(ref this._current), typeof(TValue), CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -24,14 +24,14 @@ public class InMemoryQueryContext : QueryContext
     /// </summary>
     public virtual IEnumerable<ValueBuffer> GetValueBuffers(IEntityType entityType)
     {
-        if (!_valueBuffersCache.TryGetValue(entityType, out var valueBuffers))
+        if (!this._valueBuffersCache.TryGetValue(entityType, out var valueBuffers))
         {
-            valueBuffers = Store
+            valueBuffers = this.Store
                 .GetTables(entityType)
                 .SelectMany(t => t.Rows.Select(vs => new ValueBuffer(vs)))
                 .ToList();
 
-            _valueBuffersCache[entityType] = valueBuffers;
+            this._valueBuffersCache[entityType] = valueBuffers;
         }
 
         return valueBuffers;
@@ -48,7 +48,7 @@ public class InMemoryQueryContext : QueryContext
         IInMemoryStore store)
         : base(dependencies)
     {
-        Store = store;
+        this.Store = store;
     }
 
     /// <summary>

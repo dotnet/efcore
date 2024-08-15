@@ -27,7 +27,7 @@ public class InMemoryStoreCache : IInMemoryStoreCache
         IInMemoryTableFactory tableFactory,
         IInMemorySingletonOptions? options)
     {
-        _tableFactory = tableFactory;
+        this._tableFactory = tableFactory;
 
         if (options?.DatabaseRoot != null)
         {
@@ -35,11 +35,11 @@ public class InMemoryStoreCache : IInMemoryStoreCache
                 ref options.DatabaseRoot.Instance,
                 () => new ConcurrentDictionary<string, IInMemoryStore>());
 
-            _namedStores = (ConcurrentDictionary<string, IInMemoryStore>)options.DatabaseRoot.Instance;
+            this._namedStores = (ConcurrentDictionary<string, IInMemoryStore>)options.DatabaseRoot.Instance;
         }
         else
         {
-            _namedStores = new ConcurrentDictionary<string, IInMemoryStore>();
+            this._namedStores = new ConcurrentDictionary<string, IInMemoryStore>();
         }
     }
 
@@ -50,5 +50,5 @@ public class InMemoryStoreCache : IInMemoryStoreCache
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IInMemoryStore GetStore(string name)
-        => _namedStores.GetOrAdd(name, _ => new InMemoryStore(_tableFactory));
+        => this._namedStores.GetOrAdd(name, _ => new InMemoryStore(this._tableFactory));
 }

@@ -29,7 +29,7 @@ public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderI
     /// <param name="optionsBuilder">The options builder.</param>
     public InMemoryDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        OptionsBuilder = optionsBuilder;
+        this.OptionsBuilder = optionsBuilder;
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderI
 
     /// <inheritdoc />
     DbContextOptionsBuilder IInMemoryDbContextOptionsBuilderInfrastructure.OptionsBuilder
-        => OptionsBuilder;
+        => this.OptionsBuilder;
 
     /// <summary>
     ///     Enables nullability check for all properties across all entities within the in-memory database.
@@ -53,12 +53,12 @@ public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderI
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual InMemoryDbContextOptionsBuilder EnableNullChecks(bool nullChecksEnabled = true)
     {
-        var extension = OptionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
+        var extension = this.OptionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
             ?? new InMemoryOptionsExtension();
 
         extension = extension.WithNullabilityCheckEnabled(nullChecksEnabled);
 
-        ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
+        ((IDbContextOptionsBuilderInfrastructure)this.OptionsBuilder).AddOrUpdateExtension(extension);
 
         return this;
     }

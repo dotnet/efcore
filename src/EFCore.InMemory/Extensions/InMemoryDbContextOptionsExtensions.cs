@@ -37,7 +37,9 @@ public static class InMemoryDbContextOptionsExtensions
         Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
-            (DbContextOptionsBuilder)optionsBuilder, databaseName, inMemoryOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder,
+            databaseName,
+            inMemoryOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a named in-memory database.
@@ -92,7 +94,10 @@ public static class InMemoryDbContextOptionsExtensions
         Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
-            (DbContextOptionsBuilder)optionsBuilder, databaseName, databaseRoot, inMemoryOptionsAction);
+            (DbContextOptionsBuilder)optionsBuilder,
+            databaseName,
+            databaseRoot,
+            inMemoryOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to a named in-memory database.
@@ -153,8 +158,7 @@ public static class InMemoryDbContextOptionsExtensions
             ?? new CoreOptionsExtension();
 
         coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
-            coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
-                InMemoryEventId.TransactionIgnoredWarning, WarningBehavior.Throw));
+            coreOptionsExtension.WarningsConfiguration.TryWithExplicit(InMemoryEventId.TransactionIgnoredWarning, WarningBehavior.Throw));
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
     }

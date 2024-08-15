@@ -14,7 +14,7 @@ public partial class InMemoryQueryExpression
             => new ResultEnumerator(getElement());
 
         IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+            => this.GetEnumerator();
 
         private sealed class ResultEnumerator : IEnumerator<ValueBuffer>
         {
@@ -23,30 +23,30 @@ public partial class InMemoryQueryExpression
 
             public ResultEnumerator(ValueBuffer value)
             {
-                _value = value;
-                _moved = _value.IsEmpty;
+                this._value = value;
+                this._moved = this._value.IsEmpty;
             }
 
             public bool MoveNext()
             {
-                if (!_moved)
+                if (!this._moved)
                 {
-                    _moved = true;
+                    this._moved = true;
 
-                    return _moved;
+                    return this._moved;
                 }
 
                 return false;
             }
 
             public void Reset()
-                => _moved = false;
+                => this._moved = false;
 
             object IEnumerator.Current
-                => Current;
+                => this.Current;
 
             public ValueBuffer Current
-                => !_moved ? ValueBuffer.Empty : _value;
+                => !this._moved ? ValueBuffer.Empty : this._value;
 
             void IDisposable.Dispose()
             {
@@ -143,9 +143,13 @@ public partial class InMemoryQueryExpression
                 && ReferenceEquals(projectionBindingExpression.QueryExpression, oldQuery)
                     ? projectionBindingExpression.ProjectionMember != null
                         ? new ProjectionBindingExpression(
-                            newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
+                            newQuery,
+                            projectionBindingExpression.ProjectionMember!,
+                            projectionBindingExpression.Type)
                         : new ProjectionBindingExpression(
-                            newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
+                            newQuery,
+                            projectionBindingExpression.Index!.Value,
+                            projectionBindingExpression.Type)
                     : base.Visit(expression);
     }
 
@@ -156,21 +160,22 @@ public partial class InMemoryQueryExpression
         {
             if (expression is InMemoryQueryExpression inMemoryQueryExpression)
             {
-                var clonedInMemoryQueryExpression = new InMemoryQueryExpression(
-                    inMemoryQueryExpression.ServerQueryExpression, inMemoryQueryExpression._valueBufferParameter)
-                {
-                    _groupingParameter = inMemoryQueryExpression._groupingParameter,
-                    _singleResultMethodInfo = inMemoryQueryExpression._singleResultMethodInfo,
-                    _scalarServerQuery = inMemoryQueryExpression._scalarServerQuery
-                };
+                var clonedInMemoryQueryExpression =
+                    new InMemoryQueryExpression(
+                        inMemoryQueryExpression.ServerQueryExpression,
+                        inMemoryQueryExpression._valueBufferParameter)
+                    {
+                        _groupingParameter = inMemoryQueryExpression._groupingParameter,
+                        _singleResultMethodInfo = inMemoryQueryExpression._singleResultMethodInfo,
+                        _scalarServerQuery = inMemoryQueryExpression._scalarServerQuery
+                    };
 
                 clonedInMemoryQueryExpression._clientProjections.AddRange(
-                    inMemoryQueryExpression._clientProjections.Select(e => Visit(e)));
-                clonedInMemoryQueryExpression._projectionMappingExpressions.AddRange(
-                    inMemoryQueryExpression._projectionMappingExpressions);
+                    inMemoryQueryExpression._clientProjections.Select(e => this.Visit(e)));
+                clonedInMemoryQueryExpression._projectionMappingExpressions.AddRange(inMemoryQueryExpression._projectionMappingExpressions);
                 foreach (var (projectionMember, value) in inMemoryQueryExpression._projectionMapping)
                 {
-                    clonedInMemoryQueryExpression._projectionMapping[projectionMember] = Visit(value);
+                    clonedInMemoryQueryExpression._projectionMapping[projectionMember] = this.Visit(value);
                 }
 
                 return clonedInMemoryQueryExpression;

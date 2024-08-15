@@ -34,7 +34,7 @@ public class DefiningQueryRewritingConvention : QueryFilterRewritingConvention
             var definingQuery = entityType.GetInMemoryQuery();
             if (definingQuery != null)
             {
-                entityType.SetInMemoryQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
+                entityType.SetInMemoryQuery((LambdaExpression)this.DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
             }
         }
     }

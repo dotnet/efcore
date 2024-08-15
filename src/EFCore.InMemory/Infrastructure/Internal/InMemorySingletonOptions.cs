@@ -23,8 +23,8 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
 
         if (inMemoryOptions != null)
         {
-            DatabaseRoot = inMemoryOptions.DatabaseRoot;
-            IsNullabilityCheckEnabled = inMemoryOptions.IsNullabilityCheckEnabled;
+            this.DatabaseRoot = inMemoryOptions.DatabaseRoot;
+            this.IsNullabilityCheckEnabled = inMemoryOptions.IsNullabilityCheckEnabled;
         }
     }
 
@@ -39,7 +39,7 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
         var inMemoryOptions = options.FindExtension<InMemoryOptionsExtension>();
 
         if (inMemoryOptions != null
-            && DatabaseRoot != inMemoryOptions.DatabaseRoot)
+            && this.DatabaseRoot != inMemoryOptions.DatabaseRoot)
         {
             throw new InvalidOperationException(
                 CoreStrings.SingletonOptionChanged(
@@ -48,7 +48,7 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
         }
 
         if (inMemoryOptions != null
-            && IsNullabilityCheckEnabled != inMemoryOptions.IsNullabilityCheckEnabled)
+            && this.IsNullabilityCheckEnabled != inMemoryOptions.IsNullabilityCheckEnabled)
         {
             throw new InvalidOperationException(
                 CoreStrings.SingletonOptionChanged(

@@ -19,7 +19,7 @@ public class InMemoryTableExpression : Expression, IPrintableExpression
     /// </summary>
     public InMemoryTableExpression(IEntityType entityType)
     {
-        EntityType = entityType;
+        this.EntityType = entityType;
     }
 
     /// <summary>
@@ -64,5 +64,5 @@ public class InMemoryTableExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append(nameof(InMemoryTableExpression) + ": Entity: " + EntityType.DisplayName());
+        => expressionPrinter.Append(nameof(InMemoryTableExpression) + ": Entity: " + this.EntityType.DisplayName());
 }

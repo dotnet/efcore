@@ -26,8 +26,8 @@ public class InMemoryQueryContextFactory : IQueryContextFactory
         IInMemoryStoreCache storeCache,
         IDbContextOptions contextOptions)
     {
-        _store = storeCache.GetStore(contextOptions);
-        Dependencies = dependencies;
+        this._store = storeCache.GetStore(contextOptions);
+        this.Dependencies = dependencies;
     }
 
     /// <summary>
@@ -42,5 +42,5 @@ public class InMemoryQueryContextFactory : IQueryContextFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual QueryContext Create()
-        => new InMemoryQueryContext(Dependencies, _store);
+        => new InMemoryQueryContext(this.Dependencies, this._store);
 }

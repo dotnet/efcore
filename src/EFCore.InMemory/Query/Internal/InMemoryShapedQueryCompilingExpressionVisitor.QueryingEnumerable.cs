@@ -38,7 +38,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
+            => this.GetEnumerator();
 
         public string ToQueryString()
             => InMemoryStrings.NoQueryStrings;
@@ -59,43 +59,43 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
             public Enumerator(QueryingEnumerable<T> queryingEnumerable, CancellationToken cancellationToken = default)
             {
-                _queryContext = queryingEnumerable._queryContext;
-                _innerEnumerable = queryingEnumerable._innerEnumerable;
-                _shaper = queryingEnumerable._shaper;
-                _contextType = queryingEnumerable._contextType;
-                _queryLogger = queryingEnumerable._queryLogger;
-                _standAloneStateManager = queryingEnumerable._standAloneStateManager;
-                _cancellationToken = cancellationToken;
-                _exceptionDetector = _queryContext.ExceptionDetector;
-                Current = default!;
+                this._queryContext = queryingEnumerable._queryContext;
+                this._innerEnumerable = queryingEnumerable._innerEnumerable;
+                this._shaper = queryingEnumerable._shaper;
+                this._contextType = queryingEnumerable._contextType;
+                this._queryLogger = queryingEnumerable._queryLogger;
+                this._standAloneStateManager = queryingEnumerable._standAloneStateManager;
+                this._cancellationToken = cancellationToken;
+                this._exceptionDetector = this._queryContext.ExceptionDetector;
+                this.Current = default!;
 
-                _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
-                    ? _queryContext.ConcurrencyDetector
+                this._concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
+                    ? this._queryContext.ConcurrencyDetector
                     : null;
             }
 
             public T Current { get; private set; }
 
             object IEnumerator.Current
-                => Current!;
+                => this.Current!;
 
             public bool MoveNext()
             {
                 try
                 {
-                    using var _ = _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = this._concurrencyDetector?.EnterCriticalSection();
 
-                    return MoveNextHelper();
+                    return this.MoveNextHelper();
                 }
                 catch (Exception exception)
                 {
-                    if (_exceptionDetector.IsCancellation(exception))
+                    if (this._exceptionDetector.IsCancellation(exception))
                     {
-                        _queryLogger.QueryCanceled(_contextType);
+                        this._queryLogger.QueryCanceled(this._contextType);
                     }
                     else
                     {
-                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                        this._queryLogger.QueryIterationFailed(this._contextType, exception);
                     }
 
                     throw;
@@ -106,21 +106,21 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             {
                 try
                 {
-                    using var _ = _concurrencyDetector?.EnterCriticalSection();
+                    using var _ = this._concurrencyDetector?.EnterCriticalSection();
 
-                    _cancellationToken.ThrowIfCancellationRequested();
+                    this._cancellationToken.ThrowIfCancellationRequested();
 
-                    return ValueTask.FromResult(MoveNextHelper());
+                    return ValueTask.FromResult(this.MoveNextHelper());
                 }
                 catch (Exception exception)
                 {
-                    if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
+                    if (this._exceptionDetector.IsCancellation(exception, this._cancellationToken))
                     {
-                        _queryLogger.QueryCanceled(_contextType);
+                        this._queryLogger.QueryCanceled(this._contextType);
                     }
                     else
                     {
-                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                        this._queryLogger.QueryIterationFailed(this._contextType, exception);
                     }
 
                     throw;
@@ -129,18 +129,18 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
             private bool MoveNextHelper()
             {
-                if (_enumerator == null)
+                if (this._enumerator == null)
                 {
                     EntityFrameworkMetricsData.ReportQueryExecuting();
 
-                    _enumerator = _innerEnumerable.GetEnumerator();
-                    _queryContext.InitializeStateManager(_standAloneStateManager);
+                    this._enumerator = this._innerEnumerable.GetEnumerator();
+                    this._queryContext.InitializeStateManager(this._standAloneStateManager);
                 }
 
-                var hasNext = _enumerator.MoveNext();
+                var hasNext = this._enumerator.MoveNext();
 
-                Current = hasNext
-                    ? _shaper(_queryContext, _enumerator.Current)
+                this.Current = hasNext
+                    ? this._shaper(this._queryContext, this._enumerator.Current)
                     : default!;
 
                 return hasNext;
@@ -148,14 +148,14 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
             public void Dispose()
             {
-                _enumerator?.Dispose();
-                _enumerator = null;
+                this._enumerator?.Dispose();
+                this._enumerator = null;
             }
 
             public ValueTask DisposeAsync()
             {
-                var enumerator = _enumerator;
-                _enumerator = null;
+                var enumerator = this._enumerator;
+                this._enumerator = null;
 
                 return enumerator.DisposeAsyncIfAvailable();
             }

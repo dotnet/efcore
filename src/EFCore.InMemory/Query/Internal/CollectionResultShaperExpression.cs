@@ -54,15 +54,15 @@ public class CollectionResultShaperExpression(
 
     /// <inheritdoc />
     public override Type Type
-        => Navigation?.ClrType ?? typeof(List<>).MakeGenericType(ElementType);
+        => this.Navigation?.ClrType ?? typeof(List<>).MakeGenericType(this.ElementType);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var projection = visitor.Visit(Projection);
-        var innerShaper = visitor.Visit(InnerShaper);
+        var projection = visitor.Visit(this.Projection);
+        var innerShaper = visitor.Visit(this.InnerShaper);
 
-        return Update(projection, innerShaper);
+        return this.Update(projection, innerShaper);
     }
 
     /// <summary>
@@ -74,8 +74,8 @@ public class CollectionResultShaperExpression(
     public virtual CollectionResultShaperExpression Update(
         Expression projection,
         Expression innerShaper)
-        => projection != Projection || innerShaper != InnerShaper
-            ? new CollectionResultShaperExpression(projection, innerShaper, Navigation, ElementType)
+        => projection != this.Projection || innerShaper != this.InnerShaper
+            ? new CollectionResultShaperExpression(projection, innerShaper, this.Navigation, this.ElementType)
             : this;
 
     /// <inheritdoc />
@@ -85,10 +85,10 @@ public class CollectionResultShaperExpression(
         using (expressionPrinter.Indent())
         {
             expressionPrinter.Append("(");
-            expressionPrinter.Visit(Projection);
+            expressionPrinter.Visit(this.Projection);
             expressionPrinter.Append(", ");
-            expressionPrinter.Visit(InnerShaper);
-            expressionPrinter.AppendLine($", {Navigation?.Name}, {ElementType.ShortDisplayName()})");
+            expressionPrinter.Visit(this.InnerShaper);
+            expressionPrinter.AppendLine($", {this.Navigation?.Name}, {this.ElementType.ShortDisplayName()})");
         }
     }
 }

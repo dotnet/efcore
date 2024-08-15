@@ -21,9 +21,9 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
         Expression projection,
         Expression innerShaper)
     {
-        Projection = projection;
-        InnerShaper = innerShaper;
-        Type = innerShaper.Type;
+        this.Projection = projection;
+        this.InnerShaper = innerShaper;
+        this.Type = innerShaper.Type;
     }
 
     /// <summary>
@@ -34,10 +34,10 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
     /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var projection = visitor.Visit(Projection);
-        var innerShaper = visitor.Visit(InnerShaper);
+        var projection = visitor.Visit(this.Projection);
+        var innerShaper = visitor.Visit(this.InnerShaper);
 
-        return Update(projection, innerShaper);
+        return this.Update(projection, innerShaper);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
-        => projection != Projection || innerShaper != InnerShaper
+        => projection != this.Projection || innerShaper != this.InnerShaper
             ? new SingleResultShaperExpression(projection, innerShaper)
             : this;
 
@@ -96,9 +96,9 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
         using (expressionPrinter.Indent())
         {
             expressionPrinter.Append("(");
-            expressionPrinter.Visit(Projection);
+            expressionPrinter.Visit(this.Projection);
             expressionPrinter.Append(", ");
-            expressionPrinter.Visit(InnerShaper);
+            expressionPrinter.Visit(this.InnerShaper);
             expressionPrinter.AppendLine(")");
         }
     }

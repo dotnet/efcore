@@ -35,7 +35,7 @@ public readonly struct AnonymousObject
     [UsedImplicitly]
     public AnonymousObject(object[] values)
     {
-        _values = values;
+        this._values = values;
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public readonly struct AnonymousObject
     public override bool Equals(object? obj)
         => obj is not null
             && (obj is AnonymousObject anonymousObject
-                && _values.SequenceEqual(anonymousObject._values));
+                && this._values.SequenceEqual(anonymousObject._values));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,7 +76,7 @@ public readonly struct AnonymousObject
     public override int GetHashCode()
     {
         var hash = new HashCode();
-        foreach (var value in _values)
+        foreach (var value in this._values)
         {
             hash.Add(value);
         }
