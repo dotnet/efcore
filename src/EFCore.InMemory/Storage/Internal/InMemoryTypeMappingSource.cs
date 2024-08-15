@@ -31,7 +31,7 @@ public class InMemoryTypeMappingSource : TypeMappingSource
     protected override CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType;
-        Check.DebugAssert(clrType != null, "ClrType is null");
+        Check.DebugAssert(clrType != null, message: "ClrType is null");
 
         var jsonValueReaderWriter = Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
 

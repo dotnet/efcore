@@ -26,16 +26,17 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     private static readonly ConstructorInfo ResultEnumerableConstructor
         = typeof(ResultEnumerable).GetConstructors().Single();
 
-    private readonly ParameterExpression _valueBufferParameter;
-    private ParameterExpression? _groupingParameter;
-    private MethodInfo? _singleResultMethodInfo;
-    private bool _scalarServerQuery;
-
-    private CloningExpressionVisitor? _cloningExpressionVisitor;
-
-    private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private readonly List<Expression> _clientProjections = [];
     private readonly List<Expression> _projectionMappingExpressions = [];
+
+    private readonly ParameterExpression _valueBufferParameter;
+
+    private CloningExpressionVisitor? _cloningExpressionVisitor;
+    private ParameterExpression? _groupingParameter;
+
+    private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private bool _scalarServerQuery;
+    private MethodInfo? _singleResultMethodInfo;
 
     private InMemoryQueryExpression(
         Expression serverQueryExpression,
@@ -53,7 +54,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public InMemoryQueryExpression(IEntityType entityType)
     {
-        _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
+        _valueBufferParameter = Parameter(typeof(ValueBuffer), name: "valueBuffer");
         ServerQueryExpression = new InMemoryTableExpression(entityType);
         var propertyExpressionsMap = new Dictionary<IProperty, MethodCallExpression>();
         var selectorExpressions = new List<Expression>();
@@ -64,7 +65,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
             Check.DebugAssert(
                 property.GetIndex() == selectorExpressions.Count - 1,
-                "Properties should be ordered in same order as their indexes.");
+                message: "Properties should be ordered in same order as their indexes.");
             propertyExpressionsMap[property] = propertyExpression;
             _projectionMappingExpressions.Add(propertyExpression);
         }
@@ -140,6 +141,73 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override Type Type
+        => typeof(IEnumerable<ValueBuffer>);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public sealed override ExpressionType NodeType
+        => ExpressionType.Extension;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+    {
+        expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
+        using (expressionPrinter.Indent())
+        {
+            expressionPrinter.AppendLine(nameof(ServerQueryExpression) + ": ");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.Visit(ServerQueryExpression);
+            }
+
+            expressionPrinter.AppendLine();
+            if (_clientProjections.Count > 0)
+            {
+                expressionPrinter.AppendLine(value: "ClientProjections:");
+                using (expressionPrinter.Indent())
+                {
+                    for (var i = 0; i < _clientProjections.Count; i++)
+                    {
+                        expressionPrinter.AppendLine();
+                        expressionPrinter.Append(i.ToString()).Append(value: " -> ");
+                        expressionPrinter.Visit(_clientProjections[i]);
+                    }
+                }
+            }
+            else
+            {
+                expressionPrinter.AppendLine(value: "ProjectionMapping:");
+                using (expressionPrinter.Indent())
+                {
+                    foreach (var (projectionMember, expression) in _projectionMapping)
+                    {
+                        expressionPrinter.Append("Member: " + projectionMember + " Projection: ");
+                        expressionPrinter.Visit(expression);
+                        expressionPrinter.AppendLine(value: ",");
+                    }
+                }
+            }
+
+            expressionPrinter.AppendLine();
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void ReplaceProjection(IReadOnlyList<Expression> clientProjections)
     {
         _projectionMapping.Clear();
@@ -179,7 +247,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         if (selectorExpressions.Count == 0)
         {
             // No server correlated term in projection so add dummy 1.
-            selectorExpressions.Add(Constant(1));
+            selectorExpressions.Add(Constant(value: 1));
         }
 
         var selectorLambda = Lambda(
@@ -251,7 +319,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     {
         if (_scalarServerQuery)
         {
-            _projectionMapping[new ProjectionMember()] = Constant(0);
+            _projectionMapping[new ProjectionMember()] = Constant(value: 0);
             return;
         }
 
@@ -284,7 +352,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                         var serverQuery = inMemoryQueryExpression.ServerQueryExpression;
                         if (singleResult)
                         {
-                            serverQuery = ((LambdaExpression)((NewExpression)serverQuery).Arguments[0]).Body;
+                            serverQuery = ((LambdaExpression)((NewExpression)serverQuery).Arguments[index: 0]).Body;
                         }
 
                         selectorExpressions.Add(serverQuery);
@@ -370,7 +438,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual void ApplySetOperation(MethodInfo setOperationMethodInfo, InMemoryQueryExpression source2)
     {
-        Check.DebugAssert(_groupingParameter == null, "Cannot apply set operation after GroupBy without flattening.");
+        Check.DebugAssert(_groupingParameter == null, message: "Cannot apply set operation after GroupBy without flattening.");
         if (_clientProjections.Count == 0)
         {
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
@@ -492,8 +560,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual void ApplyDistinct()
     {
-        Check.DebugAssert(!_scalarServerQuery && _singleResultMethodInfo == null, "Cannot apply distinct on single result query");
-        Check.DebugAssert(_groupingParameter == null, "Cannot apply distinct after GroupBy before flattening.");
+        Check.DebugAssert(!_scalarServerQuery && _singleResultMethodInfo == null, message: "Cannot apply distinct on single result query");
+        Check.DebugAssert(_groupingParameter == null, message: "Cannot apply distinct after GroupBy before flattening.");
 
         var selectorExpressions = new List<Expression>();
         if (_clientProjections.Count == 0)
@@ -502,7 +570,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             if (selectorExpressions.Count == 0)
             {
                 // No server correlated term in projection so add dummy 1.
-                selectorExpressions.Add(Constant(1));
+                selectorExpressions.Add(Constant(value: 1));
             }
         }
         else
@@ -571,11 +639,11 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         else
         {
             var selectMethodCall = (MethodCallExpression)ServerQueryExpression;
-            source = selectMethodCall.Arguments[0];
-            selector = selectMethodCall.Arguments[1];
+            source = selectMethodCall.Arguments[index: 0];
+            selector = selectMethodCall.Arguments[index: 1];
         }
 
-        _groupingParameter = Parameter(typeof(IGrouping<ValueBuffer, ValueBuffer>), "grouping");
+        _groupingParameter = Parameter(typeof(IGrouping<ValueBuffer, ValueBuffer>), name: "grouping");
         var groupingKeyAccessExpression = PropertyOrField(_groupingParameter, nameof(IGrouping<int, int>.Key));
         var groupingKeyExpressions = new List<Expression>();
         groupingKey = GetGroupingKey(groupingKey, groupingKeyExpressions, groupingKeyAccessExpression);
@@ -648,7 +716,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         Expression outerShaperExpression,
         Expression innerShaperExpression,
         bool innerNullable)
-        => AddJoin(innerQueryExpression, null, null, outerShaperExpression, innerShaperExpression, innerNullable);
+        => AddJoin(
+            innerQueryExpression, outerKeySelector: null, innerKeySelector: null, outerShaperExpression, innerShaperExpression,
+            innerNullable);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -663,9 +733,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         LambdaExpression outerKeySelector,
         LambdaExpression innerKeySelector)
     {
-        Check.DebugAssert(_clientProjections.Count == 0, "Cannot expand weak entity navigation after client projection yet.");
-        var outerParameter = Parameter(typeof(ValueBuffer), "outer");
-        var innerParameter = Parameter(typeof(ValueBuffer), "inner");
+        Check.DebugAssert(_clientProjections.Count == 0, message: "Cannot expand weak entity navigation after client projection yet.");
+        var outerParameter = Parameter(typeof(ValueBuffer), name: "outer");
+        var innerParameter = Parameter(typeof(ValueBuffer), name: "inner");
         var replacingVisitor = new ReplacingExpressionVisitor(
             new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
             new Expression[] { outerParameter, innerParameter });
@@ -707,7 +777,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             innerKeySelector,
             resultSelector,
             Constant(new ValueBuffer(Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())),
-            Constant(null, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
+            Constant(value: null, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
 
         var entityShaper = new StructuralTypeShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
         entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
@@ -738,7 +808,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual Expression GetSingleScalarProjection()
     {
-        var expression = CreateReadValueExpression(ServerQueryExpression.Type, 0, null);
+        var expression = CreateReadValueExpression(ServerQueryExpression.Type, index: 0, property: null);
         _projectionMapping.Clear();
         _projectionMappingExpressions.Clear();
         _clientProjections.Clear();
@@ -760,73 +830,6 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual void ConvertToSingleResult(MethodInfo methodInfo)
         => _singleResultMethodInfo = methodInfo;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override Type Type
-        => typeof(IEnumerable<ValueBuffer>);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public sealed override ExpressionType NodeType
-        => ExpressionType.Extension;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
-    {
-        expressionPrinter.AppendLine(nameof(InMemoryQueryExpression) + ": ");
-        using (expressionPrinter.Indent())
-        {
-            expressionPrinter.AppendLine(nameof(ServerQueryExpression) + ": ");
-            using (expressionPrinter.Indent())
-            {
-                expressionPrinter.Visit(ServerQueryExpression);
-            }
-
-            expressionPrinter.AppendLine();
-            if (_clientProjections.Count > 0)
-            {
-                expressionPrinter.AppendLine("ClientProjections:");
-                using (expressionPrinter.Indent())
-                {
-                    for (var i = 0; i < _clientProjections.Count; i++)
-                    {
-                        expressionPrinter.AppendLine();
-                        expressionPrinter.Append(i.ToString()).Append(" -> ");
-                        expressionPrinter.Visit(_clientProjections[i]);
-                    }
-                }
-            }
-            else
-            {
-                expressionPrinter.AppendLine("ProjectionMapping:");
-                using (expressionPrinter.Indent())
-                {
-                    foreach (var (projectionMember, expression) in _projectionMapping)
-                    {
-                        expressionPrinter.Append("Member: " + projectionMember + " Projection: ");
-                        expressionPrinter.Visit(expression);
-                        expressionPrinter.AppendLine(",");
-                    }
-                }
-            }
-
-            expressionPrinter.AppendLine();
-        }
-    }
 
     private InMemoryQueryExpression Clone()
     {
@@ -904,13 +907,13 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         bool innerNullable)
     {
         var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaperExpression.Type, innerShaperExpression.Type);
-        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
-        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
+        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField(name: "Outer")!;
+        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField(name: "Inner")!;
         var outerClientEval = _clientProjections.Count > 0;
         var innerClientEval = innerQueryExpression._clientProjections.Count > 0;
         var resultSelectorExpressions = new List<Expression>();
-        var outerParameter = Parameter(typeof(ValueBuffer), "outer");
-        var innerParameter = Parameter(typeof(ValueBuffer), "inner");
+        var outerParameter = Parameter(typeof(ValueBuffer), name: "outer");
+        var innerParameter = Parameter(typeof(ValueBuffer), name: "inner");
         var replacingVisitor = new ReplacingExpressionVisitor(
             new Expression[] { CurrentParameter, innerQueryExpression.CurrentParameter },
             new Expression[] { outerParameter, innerParameter });
@@ -1159,7 +1162,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     private static IPropertyBase? InferPropertyFromInner(Expression expression)
         => expression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
-                ? methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase>()
+                ? methodCallExpression.Arguments[index: 2].GetConstantValue<IPropertyBase>()
                 : null;
 
     private static EntityProjectionExpression MakeEntityProjectionNullable(EntityProjectionExpression entityProjectionExpression)
@@ -1256,7 +1259,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
     private static MethodCallExpression MakeReadValueNullable(Expression expression)
     {
-        Check.DebugAssert(expression is MethodCallExpression, "Expression must be method call expression.");
+        Check.DebugAssert(expression is MethodCallExpression, message: "Expression must be method call expression.");
 
         var methodCallExpression = (MethodCallExpression)expression;
 

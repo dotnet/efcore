@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryStoreCache : IInMemoryStoreCache
 {
-    private readonly IInMemoryTableFactory _tableFactory;
     private readonly ConcurrentDictionary<string, IInMemoryStore> _namedStores;
+    private readonly IInMemoryTableFactory _tableFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

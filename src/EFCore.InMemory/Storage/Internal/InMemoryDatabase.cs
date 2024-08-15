@@ -11,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryDatabase : Database, IInMemoryDatabase
 {
+    private readonly IDesignTimeModel _designTimeModel;
     private readonly IInMemoryStore _store;
     private readonly IUpdateAdapterFactory _updateAdapterFactory;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
-    private readonly IDesignTimeModel _designTimeModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

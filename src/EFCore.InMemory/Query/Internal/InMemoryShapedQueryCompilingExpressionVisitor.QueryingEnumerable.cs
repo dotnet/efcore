@@ -23,11 +23,11 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         bool threadSafetyChecksEnabled)
         : IAsyncEnumerable<T>, IEnumerable<T>, IQueryingEnumerable
     {
-        private readonly QueryContext _queryContext = queryContext;
-        private readonly IEnumerable<ValueBuffer> _innerEnumerable = innerEnumerable;
-        private readonly Func<QueryContext, ValueBuffer, T> _shaper = shaper;
         private readonly Type _contextType = contextType;
+        private readonly IEnumerable<ValueBuffer> _innerEnumerable = innerEnumerable;
+        private readonly QueryContext _queryContext = queryContext;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger = queryContext.QueryLogger;
+        private readonly Func<QueryContext, ValueBuffer, T> _shaper = shaper;
         private readonly bool _standAloneStateManager = standAloneStateManager;
         private readonly bool _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
 
@@ -45,15 +45,15 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
         private sealed class Enumerator : IEnumerator<T>, IAsyncEnumerator<T>
         {
-            private readonly QueryContext _queryContext;
-            private readonly IEnumerable<ValueBuffer> _innerEnumerable;
-            private readonly Func<QueryContext, ValueBuffer, T> _shaper;
-            private readonly Type _contextType;
-            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
-            private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector? _concurrencyDetector;
+            private readonly Type _contextType;
             private readonly IExceptionDetector _exceptionDetector;
+            private readonly IEnumerable<ValueBuffer> _innerEnumerable;
+            private readonly QueryContext _queryContext;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
+            private readonly Func<QueryContext, ValueBuffer, T> _shaper;
+            private readonly bool _standAloneStateManager;
 
             private IEnumerator<ValueBuffer>? _enumerator;
 
@@ -72,6 +72,39 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
                     ? _queryContext.ConcurrencyDetector
                     : null;
+            }
+
+            public ValueTask<bool> MoveNextAsync()
+            {
+                try
+                {
+                    using var _ = _concurrencyDetector?.EnterCriticalSection();
+
+                    _cancellationToken.ThrowIfCancellationRequested();
+
+                    return ValueTask.FromResult(MoveNextHelper());
+                }
+                catch (Exception exception)
+                {
+                    if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
+                    {
+                        _queryLogger.QueryCanceled(_contextType);
+                    }
+                    else
+                    {
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                    }
+
+                    throw;
+                }
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                var enumerator = _enumerator;
+                _enumerator = null;
+
+                return enumerator.DisposeAsyncIfAvailable();
             }
 
             public T Current { get; private set; }
@@ -102,30 +135,14 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            public ValueTask<bool> MoveNextAsync()
+            public void Dispose()
             {
-                try
-                {
-                    using var _ = _concurrencyDetector?.EnterCriticalSection();
-
-                    _cancellationToken.ThrowIfCancellationRequested();
-
-                    return ValueTask.FromResult(MoveNextHelper());
-                }
-                catch (Exception exception)
-                {
-                    if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
-                    {
-                        _queryLogger.QueryCanceled(_contextType);
-                    }
-                    else
-                    {
-                        _queryLogger.QueryIterationFailed(_contextType, exception);
-                    }
-
-                    throw;
-                }
+                _enumerator?.Dispose();
+                _enumerator = null;
             }
+
+            public void Reset()
+                => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
 
             private bool MoveNextHelper()
             {
@@ -145,23 +162,6 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
                 return hasNext;
             }
-
-            public void Dispose()
-            {
-                _enumerator?.Dispose();
-                _enumerator = null;
-            }
-
-            public ValueTask DisposeAsync()
-            {
-                var enumerator = _enumerator;
-                _enumerator = null;
-
-                return enumerator.DisposeAsyncIfAvailable();
-            }
-
-            public void Reset()
-                => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
         }
     }
 }

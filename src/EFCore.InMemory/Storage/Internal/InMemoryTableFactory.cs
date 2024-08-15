@@ -15,10 +15,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryTableFactory : IInMemoryTableFactory
 {
-    private readonly bool _sensitiveLoggingEnabled;
-    private readonly bool _nullabilityCheckEnabled;
-
     private readonly ConcurrentDictionary<Type, Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable>> _factories = new();
+    private readonly bool _nullabilityCheckEnabled;
+    private readonly bool _sensitiveLoggingEnabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +47,7 @@ public class InMemoryTableFactory : IInMemoryTableFactory
         => (Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
             .GetDeclaredMethod(nameof(CreateFactory))!
             .MakeGenericMethod(keyType)
-            .Invoke(null, [])!;
+            .Invoke(obj: null, [])!;
 
     [UsedImplicitly]
     private static Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable> CreateFactory<TKey>()

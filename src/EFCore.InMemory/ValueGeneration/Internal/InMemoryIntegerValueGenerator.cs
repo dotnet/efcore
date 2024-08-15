@@ -33,6 +33,15 @@ public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IIn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public override bool GeneratesTemporaryValues
+        => false;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void Bump(object?[] row)
     {
         var newValue = (long)Convert.ChangeType(row[_propertyIndex]!, typeof(long));
@@ -51,13 +60,4 @@ public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>, IIn
     /// </summary>
     public override TValue Next(EntityEntry entry)
         => (TValue)Convert.ChangeType(Interlocked.Increment(ref _current), typeof(TValue), CultureInfo.InvariantCulture);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override bool GeneratesTemporaryValues
-        => false;
 }

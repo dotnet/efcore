@@ -25,14 +25,15 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
 
+        private readonly List<Expression> _expressions = [];
+
         private readonly InMemoryShapedQueryCompilingExpressionVisitor _inMemoryShapedQueryCompilingExpressionVisitor;
-        private readonly bool _tracking;
-        private ParameterExpression? _valueBufferParameter;
 
         private readonly Dictionary<Expression, ParameterExpression> _mapping = new();
-        private readonly List<ParameterExpression> _variables = [];
-        private readonly List<Expression> _expressions = [];
         private readonly Dictionary<ParameterExpression, Dictionary<IProperty, int>> _materializationContextBindings = new();
+        private readonly bool _tracking;
+        private readonly List<ParameterExpression> _variables = [];
+        private ParameterExpression? _valueBufferParameter;
 
         public ShaperExpressionProcessingExpressionVisitor(
             InMemoryShapedQueryCompilingExpressionVisitor inMemoryShapedQueryCompilingExpressionVisitor,
@@ -207,7 +208,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             {
                 var newExpression = (NewExpression)binaryExpression.Right;
 
-                var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
+                var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[index: 0];
                 var queryExpression = (InMemoryQueryExpression)projectionBindingExpression.QueryExpression;
                 _valueBufferParameter ??= queryExpression.CurrentParameter;
 
@@ -215,7 +216,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     = queryExpression.GetProjection(projectionBindingExpression).GetConstantValue<Dictionary<IProperty, int>>();
 
                 var updatedExpression = newExpression.Update(
-                    new[] { Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
+                    new[] { Constant(ValueBuffer.Empty), newExpression.Arguments[index: 1] });
 
                 return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
             }
@@ -234,18 +235,18 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
-                var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
+                var property = methodCallExpression.Arguments[index: 2].GetConstantValue<IProperty?>();
                 var indexMap = _materializationContextBindings[
-                    (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!];
+                    (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[index: 0]).Object!];
 
                 Check.DebugAssert(
-                    property != null || methodCallExpression.Type.IsNullableType(), "Must read nullable value without property");
+                    property != null || methodCallExpression.Type.IsNullableType(), message: "Must read nullable value without property");
 
                 return Call(
                     methodCallExpression.Method,
                     _valueBufferParameter!,
                     Constant(indexMap[property!]),
-                    methodCallExpression.Arguments[2]);
+                    methodCallExpression.Arguments[index: 2]);
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -406,6 +407,6 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 CollectionAccessorAddMethodInfo,
                 entity,
                 relatedEntity,
-                Constant(true));
+                Constant(value: true));
     }
 }

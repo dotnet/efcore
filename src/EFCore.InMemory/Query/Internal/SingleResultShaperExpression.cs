@@ -32,31 +32,6 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        var projection = visitor.Visit(Projection);
-        var innerShaper = visitor.Visit(InnerShaper);
-
-        return Update(projection, innerShaper);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
-        => projection != Projection || innerShaper != InnerShaper
-            ? new SingleResultShaperExpression(projection, innerShaper)
-            : this;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
 
@@ -95,11 +70,36 @@ public class SingleResultShaperExpression : Expression, IPrintableExpression
         expressionPrinter.AppendLine($"{nameof(SingleResultShaperExpression)}:");
         using (expressionPrinter.Indent())
         {
-            expressionPrinter.Append("(");
+            expressionPrinter.Append(value: "(");
             expressionPrinter.Visit(Projection);
-            expressionPrinter.Append(", ");
+            expressionPrinter.Append(value: ", ");
             expressionPrinter.Visit(InnerShaper);
-            expressionPrinter.AppendLine(")");
+            expressionPrinter.AppendLine(value: ")");
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+    {
+        var projection = visitor.Visit(Projection);
+        var innerShaper = visitor.Visit(InnerShaper);
+
+        return Update(projection, innerShaper);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
+        => projection != Projection || innerShaper != InnerShaper
+            ? new SingleResultShaperExpression(projection, innerShaper)
+            : this;
 }

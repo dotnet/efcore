@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryDatabaseCreator : IDatabaseCreator
 {
-    private readonly IDatabase _database;
-    private readonly ICurrentDbContext _currentContext;
     private readonly IDbContextOptions _contextOptions;
+    private readonly ICurrentDbContext _currentContext;
+    private readonly IDatabase _database;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,7 +102,7 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
         var seedAsync = coreOptionsExtension.AsyncSeeder;
         if (seedAsync != null)
         {
-            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(false);
+            await seedAsync(_currentContext.Context, created, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
         }
         else if (coreOptionsExtension.Seeder != null)
         {
@@ -128,5 +128,5 @@ public class InMemoryDatabaseCreator : IDatabaseCreator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-        => Task.FromResult(true);
+        => Task.FromResult(result: true);
 }

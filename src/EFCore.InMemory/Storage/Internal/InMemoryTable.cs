@@ -18,12 +18,12 @@ public class InMemoryTable<TKey> : IInMemoryTable
     where TKey : notnull
 {
     private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
-    private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _nullabilityCheckEnabled;
-    private readonly Dictionary<TKey, object?[]> _rows;
-    private readonly IList<(int, ValueConverter)>? _valueConverters;
-    private readonly IList<(int, ValueComparer)>? _valueComparers;
     private readonly int _propertyCount;
+    private readonly Dictionary<TKey, object?[]> _rows;
+    private readonly bool _sensitiveLoggingEnabled;
+    private readonly IList<(int, ValueComparer)>? _valueComparers;
+    private readonly IList<(int, ValueConverter)>? _valueConverters;
 
     private Dictionary<int, IInMemoryIntegerValueGenerator>? _integerGenerators;
 
@@ -152,9 +152,6 @@ public class InMemoryTable<TKey> : IInMemoryTable
         return rows;
     }
 
-    private static List<ValueComparer> GetKeyComparers(IEnumerable<IProperty> properties)
-        => properties.Select(p => p.GetKeyValueComparer()).ToList();
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -216,45 +213,11 @@ public class InMemoryTable<TKey> : IInMemoryTable
         {
             var entries = new[] { entry };
             var exception = new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, entries);
-            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
+            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, createEventData: null).IsSuppressed)
             {
                 throw exception;
             }
         }
-    }
-
-    private static bool IsConcurrencyConflict(
-        IUpdateEntry entry,
-        IProperty property,
-        object? rowValue,
-        Dictionary<IProperty, object?> concurrencyConflicts)
-    {
-        if (!property.IsConcurrencyToken)
-        {
-            return false;
-        }
-
-        var comparer = property.GetKeyValueComparer()
-            ?? StructuralComparisons.StructuralEqualityComparer;
-
-        var originalValue = entry.GetOriginalValue(property);
-
-        var converter = property.GetValueConverter()
-            ?? property.FindTypeMapping()?.Converter;
-
-        if (converter != null)
-        {
-            rowValue = converter.ConvertFromProvider(rowValue);
-        }
-
-        if (comparer.Equals(rowValue, originalValue))
-        {
-            return false;
-        }
-
-        concurrencyConflicts.Add(property, rowValue);
-
-        return true;
     }
 
     /// <summary>
@@ -311,7 +274,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         {
             var entries = new[] { entry };
             var exception = new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, entries);
-            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
+            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, createEventData: null).IsSuppressed)
             {
                 throw exception;
             }
@@ -335,6 +298,43 @@ public class InMemoryTable<TKey> : IInMemoryTable
                 generator.Bump(row);
             }
         }
+    }
+
+    private static List<ValueComparer> GetKeyComparers(IEnumerable<IProperty> properties)
+        => properties.Select(p => p.GetKeyValueComparer()).ToList();
+
+    private static bool IsConcurrencyConflict(
+        IUpdateEntry entry,
+        IProperty property,
+        object? rowValue,
+        Dictionary<IProperty, object?> concurrencyConflicts)
+    {
+        if (!property.IsConcurrencyToken)
+        {
+            return false;
+        }
+
+        var comparer = property.GetKeyValueComparer()
+            ?? StructuralComparisons.StructuralEqualityComparer;
+
+        var originalValue = entry.GetOriginalValue(property);
+
+        var converter = property.GetValueConverter()
+            ?? property.FindTypeMapping()?.Converter;
+
+        if (converter != null)
+        {
+            rowValue = converter.ConvertFromProvider(rowValue);
+        }
+
+        if (comparer.Equals(rowValue, originalValue))
+        {
+            return false;
+        }
+
+        concurrencyConflicts.Add(property, rowValue);
+
+        return true;
     }
 
     private TKey CreateKey(IUpdateEntry entry)
@@ -421,7 +421,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
                         entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
                         "{"
                         + string.Join(
-                            ", ",
+                            separator: ", ",
                             concurrencyConflicts.Select(
                                 c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
                         + "}"),
@@ -432,7 +432,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
                         concurrencyConflicts.Keys.Format()),
                     entries);
 
-        if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
+        if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, createEventData: null).IsSuppressed)
         {
             throw exception;
         }

@@ -19,22 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// </remarks>
 public static class InMemoryEventId
 {
-    // Warning: These values must not change between releases.
-    // Only add new values to the end of sections, never in the middle.
-    // Try to use <Noun><Verb> naming and be consistent with existing names.
-    private enum Id
-    {
-        // Transaction events
-        TransactionIgnoredWarning = CoreEventId.ProviderBaseId,
-
-        // Update events
-        ChangesSaved = CoreEventId.ProviderBaseId + 100
-    }
-
     private static readonly string TransactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
-
-    private static EventId MakeTransactionId(Id id)
-        => new((int)id, TransactionPrefix + id);
 
     /// <summary>
     ///     A transaction operation was requested, but ignored because in-memory does not support transactions.
@@ -51,9 +36,6 @@ public static class InMemoryEventId
 
     private static readonly string UpdatePrefix = DbLoggerCategory.Update.Name + ".";
 
-    private static EventId MakeUpdateId(Id id)
-        => new((int)id, UpdatePrefix + id);
-
     /// <summary>
     ///     Changes were saved to the database.
     /// </summary>
@@ -66,4 +48,22 @@ public static class InMemoryEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ChangesSaved = MakeUpdateId(Id.ChangesSaved);
+
+    private static EventId MakeTransactionId(Id id)
+        => new((int)id, TransactionPrefix + id);
+
+    private static EventId MakeUpdateId(Id id)
+        => new((int)id, UpdatePrefix + id);
+
+    // Warning: These values must not change between releases.
+    // Only add new values to the end of sections, never in the middle.
+    // Try to use <Noun><Verb> naming and be consistent with existing names.
+    private enum Id
+    {
+        // Transaction events
+        TransactionIgnoredWarning = CoreEventId.ProviderBaseId,
+
+        // Update events
+        ChangesSaved = CoreEventId.ProviderBaseId + 100
+    }
 }

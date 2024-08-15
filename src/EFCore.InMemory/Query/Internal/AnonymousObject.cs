@@ -64,8 +64,8 @@ public readonly struct AnonymousObject
     /// </summary>
     public override bool Equals(object? obj)
         => obj is not null
-            && (obj is AnonymousObject anonymousObject
-                && _values.SequenceEqual(anonymousObject._values));
+            && obj is AnonymousObject anonymousObject
+            && _values.SequenceEqual(anonymousObject._values);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

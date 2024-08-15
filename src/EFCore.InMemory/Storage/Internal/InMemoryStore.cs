@@ -14,9 +14,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryStore : IInMemoryStore
 {
-    private readonly IInMemoryTableFactory _tableFactory;
-
     private readonly object _lock = new();
+    private readonly IInMemoryTableFactory _tableFactory;
 
     private Dictionary<string, IInMemoryTable>? _tables;
 
@@ -110,9 +109,6 @@ public class InMemoryStore : IInMemoryStore
         }
     }
 
-    private static Dictionary<string, IInMemoryTable> CreateTables()
-        => new();
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -159,7 +155,7 @@ public class InMemoryStore : IInMemoryStore
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Check.DebugAssert(!entityType.IsAbstract(), "entityType is abstract");
+                Check.DebugAssert(!entityType.IsAbstract(), message: "entityType is abstract");
 
                 var table = EnsureTable(entityType);
 
@@ -194,6 +190,9 @@ public class InMemoryStore : IInMemoryStore
 
         return rowsAffected;
     }
+
+    private static Dictionary<string, IInMemoryTable> CreateTables()
+        => new();
 
     // Must be called from inside the lock
     private IInMemoryTable EnsureTable(IEntityType entityType)

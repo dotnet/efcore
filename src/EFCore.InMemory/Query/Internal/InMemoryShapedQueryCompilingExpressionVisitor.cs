@@ -7,6 +7,9 @@ using static Expression;
 
 public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
 {
+    private static readonly MethodInfo TableMethodInfo
+        = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(Table))!;
+
     private readonly Type _contextType;
     private readonly bool _threadSafetyChecksEnabled;
 
@@ -71,9 +74,6 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQuery
                 QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
             Constant(_threadSafetyChecksEnabled));
     }
-
-    private static readonly MethodInfo TableMethodInfo
-        = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(Table))!;
 
     private static IEnumerable<ValueBuffer> Table(
         QueryContext queryContext,

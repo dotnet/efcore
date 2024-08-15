@@ -35,7 +35,7 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [Obsolete("Use TrySelect and throw if needed when the generator is not found.")]
+    [Obsolete(message: "Use TrySelect and throw if needed when the generator is not found.")]
     public override ValueGenerator? Select(IProperty property, ITypeBase typeBase)
     {
         if (TrySelect(property, typeBase, out var valueGenerator))

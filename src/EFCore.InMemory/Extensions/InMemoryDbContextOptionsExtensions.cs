@@ -61,7 +61,7 @@ public static class InMemoryDbContextOptionsExtensions
         this DbContextOptionsBuilder optionsBuilder,
         string databaseName,
         Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
-        => UseInMemoryDatabase(optionsBuilder, databaseName, null, inMemoryOptionsAction);
+        => UseInMemoryDatabase(optionsBuilder, databaseName, databaseRoot: null, inMemoryOptionsAction);
 
     /// <summary>
     ///     Configures the context to connect to an in-memory database.
@@ -134,7 +134,7 @@ public static class InMemoryDbContextOptionsExtensions
             extension = extension.WithDatabaseRoot(databaseRoot);
         }
 
-        extension = extension.WithNullabilityCheckEnabled(true);
+        extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled: true);
 
         ConfigureWarnings(optionsBuilder);
 

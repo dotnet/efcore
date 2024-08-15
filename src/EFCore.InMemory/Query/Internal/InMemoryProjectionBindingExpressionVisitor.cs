@@ -13,17 +13,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 /// </summary>
 public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 {
-    private readonly InMemoryQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslatingExpressionVisitor;
 
-    private InMemoryQueryExpression _queryExpression;
-    private bool _indexBasedBinding;
+    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+    private readonly Stack<ProjectionMember> _projectionMembers = new();
+    private readonly InMemoryQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
+    private List<Expression>? _clientProjections;
 
     private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
+    private bool _indexBasedBinding;
 
-    private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
-    private List<Expression>? _clientProjections;
-    private readonly Stack<ProjectionMember> _projectionMembers = new();
+    private InMemoryQueryExpression _queryExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,10 +134,10 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                             && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
                             && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
                             && methodCallExpression.Arguments.Count == 1
-                            && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                            && methodCallExpression.Arguments[index: 0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
                         {
                             var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                methodCallExpression.Arguments[0]);
+                                methodCallExpression.Arguments[index: 0]);
                             if (subquery != null)
                             {
                                 _clientProjections!.Add(subquery.QueryExpression);
@@ -145,7 +145,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
                                     new ProjectionBindingExpression(
                                         _queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
                                     subquery.ShaperExpression,
-                                    null,
+                                    navigation: null,
                                     methodCallExpression.Method.GetGenericArguments()[0]);
                             }
                         }
@@ -216,7 +216,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
         var left = MatchTypes(Visit(binaryExpression.Left), binaryExpression.Left.Type);
         var right = MatchTypes(Visit(binaryExpression.Right), binaryExpression.Right.Type);
 
-        return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, "VisitBinary"), right);
+        return binaryExpression.Update(left, VisitAndConvert(binaryExpression.Conversion, callerName: "VisitBinary"), right);
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
         if (test.Type == typeof(bool?))
         {
-            test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
+            test = Expression.Equal(test, Expression.Constant(value: true, typeof(bool?)));
         }
 
         ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
@@ -322,7 +322,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
             updatedMemberExpression = Expression.Condition(
                 Expression.Equal(expression, Expression.Default(expression.Type)),
-                Expression.Constant(null, nullableReturnType),
+                Expression.Constant(value: null, nullableReturnType),
                 updatedMemberExpression);
         }
 
@@ -426,7 +426,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
             return Expression.Condition(
                 Expression.Equal(@object, Expression.Default(@object.Type)),
-                Expression.Constant(null, nullableReturnType),
+                Expression.Constant(value: null, nullableReturnType),
                 updatedMethodCallExpression);
         }
 
@@ -510,7 +510,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
         if (targetType != expression.Type
             && targetType.TryGetElementType(typeof(IQueryable<>)) == null)
         {
-            Check.DebugAssert(targetType.MakeNullable() == expression.Type, "Not a nullable to non-nullable conversion");
+            Check.DebugAssert(targetType.MakeNullable() == expression.Type, message: "Not a nullable to non-nullable conversion");
 
             expression = Expression.Convert(expression, targetType);
         }

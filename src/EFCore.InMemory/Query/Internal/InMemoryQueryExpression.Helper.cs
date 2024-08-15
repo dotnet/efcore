@@ -65,7 +65,7 @@ public partial class InMemoryQueryExpression
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember is not null,
-                    "ProjectionBindingExpression must have projection member.");
+                    message: "ProjectionBindingExpression must have projection member.");
 
                 return new ProjectionBindingExpression(
                     queryExpression,
@@ -89,7 +89,7 @@ public partial class InMemoryQueryExpression
             {
                 Check.DebugAssert(
                     projectionBindingExpression.ProjectionMember != null,
-                    "ProjectionBindingExpression must have projection member.");
+                    message: "ProjectionBindingExpression must have projection member.");
 
                 return new ProjectionBindingExpression(
                     queryExpression,
@@ -115,7 +115,7 @@ public partial class InMemoryQueryExpression
             {
                 Check.DebugAssert(
                     projectionBindingExpression.Index != null,
-                    "ProjectionBindingExpression must have index.");
+                    message: "ProjectionBindingExpression must have index.");
 
                 return new ProjectionBindingExpression(
                     newExpression,

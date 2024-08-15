@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
 
-[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.InMemory.Design.Internal.InMemoryDesignTimeServices")]
+[assembly: DesignTimeProviderServices(typeName: "Microsoft.EntityFrameworkCore.InMemory.Design.Internal.InMemoryDesignTimeServices")]
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal;
 
