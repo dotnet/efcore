@@ -74,7 +74,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         int namedIndexCount,
         int keyCount,
         int triggerCount)
-        : base(name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+        : base(
+            name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
             derivedTypesCount: derivedTypesCount,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount)
@@ -89,15 +90,18 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         {
             _skipNavigations = new(skipNavigationCount, StringComparer.Ordinal);
         }
+
         if (servicePropertyCount > 0)
         {
             _serviceProperties = new(servicePropertyCount, StringComparer.Ordinal);
         }
+
         _unnamedIndexes = new(unnamedIndexCount, PropertyListComparer.Instance);
         if (namedIndexCount > 0)
         {
             _namedIndexes = new(namedIndexCount, StringComparer.Ordinal);
         }
+
         _keys = new(keyCount, PropertyListComparer.Instance);
         if (triggerCount > 0)
         {
@@ -290,7 +294,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     Use <see cref="GetForeignKeys" /> to also return foreign keys declared on base types.
     /// </remarks>
     /// <returns>Declared foreign keys.</returns>
-    public virtual List<RuntimeForeignKey> GetDeclaredForeignKeys() => _foreignKeys;
+    public virtual List<RuntimeForeignKey> GetDeclaredForeignKeys()
+        => _foreignKeys;
 
     private IEnumerable<RuntimeForeignKey> GetDerivedForeignKeys()
         => !HasDirectlyDerivedTypes
@@ -850,8 +855,9 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     [EntityFrameworkInternal]
     public virtual PropertyCounts Counts
     {
-        get => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static entityType =>
-            entityType.CalculateCounts());
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _counts, this, static entityType =>
+                entityType.CalculateCounts());
 
         [DebuggerStepThrough]
         set => _counts = value;
@@ -1304,7 +1310,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IProperty? IEntityType.FindProperty(string name) => FindProperty(name);
+    IProperty? IEntityType.FindProperty(string name)
+        => FindProperty(name);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -1313,15 +1320,18 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IProperty? IEntityType.FindDeclaredProperty(string name) => FindDeclaredProperty(name);
+    IProperty? IEntityType.FindDeclaredProperty(string name)
+        => FindDeclaredProperty(name);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetDeclaredProperties() => GetDeclaredProperties();
+    IEnumerable<IProperty> IEntityType.GetDeclaredProperties()
+        => GetDeclaredProperties();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+    IEnumerable<IProperty> IEntityType.GetProperties()
+        => GetProperties();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

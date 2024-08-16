@@ -28,7 +28,7 @@ public class DiscriminatorConvention :
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionEntityType? newBaseType,
@@ -75,7 +75,7 @@ public class DiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessDiscriminatorPropertySet(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string? name,
@@ -93,7 +93,7 @@ public class DiscriminatorConvention :
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessEntityTypeRemoved(
         IConventionModelBuilder modelBuilder,
         IConventionEntityType entityType,

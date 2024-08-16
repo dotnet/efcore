@@ -129,5 +129,4 @@ public sealed class DeleteExpression : Expression, IRelationalQuotableExpression
     /// <inheritdoc />
     public override int GetHashCode()
         => HashCode.Combine(Table, SelectExpression);
-
 }

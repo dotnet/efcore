@@ -822,6 +822,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
             : GetConversion(throwOnValueConverterConflict: FindAnnotation(CoreAnnotationNames.ValueConverter) == null)
                 .ProviderClrType;
     }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -909,6 +910,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                             currentNode = null;
                         }
                     }
+
                     break;
                 }
             }
@@ -917,12 +919,12 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         return (valueConverter, valueConverterType, providerClrType);
 
         bool GetConversion(
-        Property principalProperty,
-        bool throwOnValueConverterConflict,
-        bool throwOnProviderClrTypeConflict,
-        ref ValueConverter? valueConverter,
-        ref Type? valueConverterType,
-        ref Type? providerClrType)
+            Property principalProperty,
+            bool throwOnValueConverterConflict,
+            bool throwOnProviderClrTypeConflict,
+            ref ValueConverter? valueConverter,
+            ref Type? valueConverterType,
+            ref Type? providerClrType)
         {
             var annotationFound = false;
             var valueConverterAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
@@ -960,6 +962,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
                     valueConverter = annotationValue;
                 }
+
                 annotationFound = true;
             }
 
@@ -998,6 +1001,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
                     valueConverterType = annotationValue;
                 }
+
                 annotationFound = true;
             }
 
@@ -1036,6 +1040,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
                     providerClrType = annotationValue;
                 }
+
                 annotationFound = true;
             }
 

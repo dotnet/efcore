@@ -1245,11 +1245,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             // for non-nullable collections of primitives that are mapped to JSON we set a default value corresponding to empty JSON collection
             defaultValue = !inline
-                && column is { IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: ValueConverter columnValueConverter } }
+                && column is
+                {
+                    IsNullable: false, StoreTypeMapping: { ElementTypeMapping: not null, Converter: ValueConverter columnValueConverter }
+                }
                 && columnValueConverter.GetType() is Type { IsGenericType: true } columnValueConverterType
                 && columnValueConverterType.GetGenericTypeDefinition() == typeof(CollectionToJsonStringConverter<>)
-                ? "[]"
-                : null;
+                    ? "[]"
+                    : null;
         }
 
         columnOperation.DefaultValue = defaultValue

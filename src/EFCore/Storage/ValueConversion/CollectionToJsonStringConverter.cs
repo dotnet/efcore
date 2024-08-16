@@ -36,7 +36,7 @@ public class CollectionToJsonStringConverter<TElement> : ValueConverter<IEnumera
     {
         var prm = Parameter(typeof(IEnumerable<TElement>), "v");
 
-        return  Lambda<Func<IEnumerable<TElement>, string>>(
+        return Lambda<Func<IEnumerable<TElement>, string>>(
             Call(
                 collectionJsonReaderWriter.ConstructorExpression,
                 ToJsonStringMethod,

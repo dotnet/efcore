@@ -33,7 +33,6 @@ public class QueryLocator : CSharpSyntaxWalker
     private List<InvocationExpressionSyntax> _locatedQueries = null!;
     private List<PrecompiledQueryCodeGenerator.QueryPrecompilationError> _precompilationErrors = null!;
 
-
     /// <summary>
     ///     Loads a new <see cref="Compilation" />, representing a user project in which to locate queries.
     /// </summary>
@@ -55,7 +54,7 @@ public class QueryLocator : CSharpSyntaxWalker
     /// </summary>
     /// <param name="syntaxTree">A <see cref="SyntaxTree" /> in which to locate EF LINQ queries.</param>
     /// <param name="precompilationErrors">
-    ///     A list of errors populated with dynamic LINQ queries detected in <paramref name="syntaxTree"/>.
+    ///     A list of errors populated with dynamic LINQ queries detected in <paramref name="syntaxTree" />.
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A list of EF LINQ queries confirmed to be compatible with precompilation.</returns>

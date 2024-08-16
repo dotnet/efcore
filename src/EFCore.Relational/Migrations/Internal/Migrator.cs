@@ -240,6 +240,7 @@ public class Migrator : IMigrator
                 {
                     _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
                 }
+
                 return commands;
             };
         }
@@ -256,6 +257,7 @@ public class Migrator : IMigrator
                 {
                     _logger.NonTransactionalMigrationOperationWarning(this, migration, nonTransactionalCommand);
                 }
+
                 return commands;
             };
         }
@@ -520,8 +522,8 @@ public class Migrator : IMigrator
 
     private IModel? FinalizeModel(IModel? model)
         => model == null
-        ? null
-        : _modelRuntimeInitializer.Initialize(model);
+            ? null
+            : _modelRuntimeInitializer.Initialize(model);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

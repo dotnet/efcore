@@ -21,7 +21,10 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
     private readonly UnsupportedConstantChecker _unsupportedConstantChecker;
     private readonly MaterializerLiftableConstantContext _materializerLiftableConstantContext;
 
-    private sealed record LiftedConstant(ParameterExpression Parameter, Expression Expression, ParameterExpression? ReplacingParameter = null);
+    private sealed record LiftedConstant(
+        ParameterExpression Parameter,
+        Expression Expression,
+        ParameterExpression? ReplacingParameter = null);
 
     private readonly List<LiftedConstant> _liftedConstants = new();
     private readonly LiftedExpressionProcessor _liftedExpressionProcessor = new();
@@ -116,7 +119,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             {
                 // This lifted constant is being removed, since it's a duplicate of another with the same expression.
                 // We still need to remap the parameter in the expression, but no uniquification etc.
-                replacedParameters.Add(liftedConstant.Parameter,
+                replacedParameters.Add(
+                    liftedConstant.Parameter,
                     replacedParameters.TryGetValue(liftedConstant.ReplacingParameter, out var replacedReplacingParameter)
                         ? replacedReplacingParameter
                         : liftedConstant.ReplacingParameter);
@@ -155,6 +159,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             newParameters[index] = newParameter;
             index++;
         }
+
         var remappedExpression = ReplacingExpressionVisitor.Replace(originalParameters, newParameters, expressionAfterLifting);
 
         for (var i = 0; i < _liftedConstants.Count; i++)
@@ -239,8 +244,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 
         return binaryExpression.NodeType is ExpressionType.Assign
             && left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } initFieldMember
-            ? initFieldMember.Assign(right)
-            : binaryExpression.Update(left, conversion, right);
+                ? initFieldMember.Assign(right)
+                : binaryExpression.Update(left, conversion, right);
     }
 
 #if DEBUG
@@ -274,17 +279,16 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             if (LiftableConstantExpressionHelpers.IsLiteral(node.Value)
                 // TODO: this part is temporary - we can't inline these constants but we need proper way to deal with them,
                 // without risk breaking existing scenarios
-                || node.Value is ParameterBindingInfo or RuntimeServiceProperty or IMaterializationInterceptor or IInstantiationBindingInterceptor
+                || node.Value is ParameterBindingInfo or RuntimeServiceProperty or IMaterializationInterceptor
+                    or IInstantiationBindingInterceptor
                 || node.Type.Name is "ProxyFactory" or "Point")
             {
                 return node;
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    $"Shaper expression contains a non-literal constant of type '{node.Value!.GetType().Name}'. " +
-                    $"Use a {nameof(LiftableConstantExpression)} to reference any non-literal constants.");
-            }
+
+            throw new InvalidOperationException(
+                $"Shaper expression contains a non-literal constant of type '{node.Value!.GetType().Name}'. "
+                + $"Use a {nameof(LiftableConstantExpression)} to reference any non-literal constants.");
         }
     }
 
@@ -293,6 +297,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
         private List<LiftedConstant> _liftedConstants = null!;
 
         private sealed record ExpressionInfo(ExpressionStatus Status, ParameterExpression? Parameter = null, string? PreferredName = null);
+
         private readonly Dictionary<Expression, ExpressionInfo> _indexedExpressions = new(ExpressionEqualityComparer.Instance);
         private LiftedConstant _currentLiftedConstant = null!;
         private bool _firstPass;
@@ -322,7 +327,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                     continue;
                 }
 
-                Check.DebugAssert(expressionInfo.Status == ExpressionStatus.SeenMultipleTimes,
+                Check.DebugAssert(
+                    expressionInfo.Status == ExpressionStatus.SeenMultipleTimes,
                     "expressionInfo.Status == ExpressionStatus.SeenMultipleTimes");
             }
 
@@ -381,8 +387,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                     // This is the 2nd time we're seeing the expression - mark it as a common denominator
                     _indexedExpressions[node] = _indexedExpressions[node] with
                     {
-                        Status = ExpressionStatus.SeenMultipleTimes,
-                        PreferredName = preferredName
+                        Status = ExpressionStatus.SeenMultipleTimes, PreferredName = preferredName
                     };
                 }
 
@@ -408,13 +413,14 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                         }
 
                         // Otherwise, we need to extract a new variable, integrating it just before this one.
-                        var parameter = Expression.Parameter(node.Type, node switch
-                        {
-                            _ when expressionInfo.PreferredName is not null => expressionInfo.PreferredName,
-                            MemberExpression me => char.ToLowerInvariant(me.Member.Name[0]) + me.Member.Name[1..],
-                            MethodCallExpression mce => char.ToLowerInvariant(mce.Method.Name[0]) + mce.Method.Name[1..],
-                            _ => "unknown"
-                        });
+                        var parameter = Expression.Parameter(
+                            node.Type, node switch
+                            {
+                                _ when expressionInfo.PreferredName is not null => expressionInfo.PreferredName,
+                                MemberExpression me => char.ToLowerInvariant(me.Member.Name[0]) + me.Member.Name[1..],
+                                MethodCallExpression mce => char.ToLowerInvariant(mce.Method.Name[0]) + mce.Method.Name[1..],
+                                _ => "unknown"
+                            });
 
                         var visitedNode = base.Visit(node);
                         _liftedConstants.Insert(_index++, new(parameter, visitedNode));

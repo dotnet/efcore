@@ -543,16 +543,18 @@ public class OperationExecutor : MarshalByRefObject
             var precompileQueries = (bool)(args["precompileQueries"] ?? false);
             var nativeAot = (bool)(args["nativeAot"] ?? false);
 
-            Execute(() => executor.OptimizeContextImpl(
-                outputDir,
-                modelNamespace,
-                contextType,
-                suffix,
-                scaffoldModel,
-                precompileQueries,
-                nativeAot));
+            Execute(
+                () => executor.OptimizeContextImpl(
+                    outputDir,
+                    modelNamespace,
+                    contextType,
+                    suffix,
+                    scaffoldModel,
+                    precompileQueries,
+                    nativeAot));
         }
     }
+
     private IReadOnlyList<string> OptimizeContextImpl(
         string? outputDir,
         string? modelNamespace,

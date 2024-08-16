@@ -106,7 +106,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     [EntityFrameworkInternal]
     protected virtual bool HasDirectlyDerivedTypes
         => _directlyDerivedTypes != null
-        && _directlyDerivedTypes.Count > 0;
+            && _directlyDerivedTypes.Count > 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -416,8 +416,8 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
     private RuntimeComplexProperty? FindDeclaredComplexProperty(string name)
         => _complexProperties != null
             && _complexProperties.TryGetValue(name, out var property)
-            ? property
-            : null;
+                ? property
+                : null;
 
     /// <summary>
     ///     Gets the complex properties declared on this type.

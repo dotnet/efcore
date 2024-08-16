@@ -368,6 +368,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 tableMappings = new List<TableMappingBase<ColumnMappingBase>>();
                 complexType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
             }
+
             tableMappings.Add(tableMapping);
 
             defaultTable.ComplexTypeMappings.Add(tableMapping);
@@ -397,8 +398,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static IEnumerable<ITableMapping> GetTableMappings(ITypeBase typeBase)
         => (IEnumerable<ITableMapping>?)typeBase.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.TableMappings)
-                ?? Enumerable.Empty<ITableMapping>();
+                RelationalAnnotationNames.TableMappings)
+            ?? Enumerable.Empty<ITableMapping>();
 
     private static void AddTables(
         RelationalModel databaseModel,
@@ -419,8 +420,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         var mappingStrategy = entityType.GetMappingStrategy();
         var isTpc = mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy;
         var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
-                ? !isTpc && mappedType == entityType
-                : (bool?)null;
+            ? !isTpc && mappedType == entityType
+            : (bool?)null;
         while (mappedType != null)
         {
             var mappedTableName = mappedType.GetTableName();
@@ -533,7 +534,8 @@ public class RelationalModel : Annotatable, IRelationalModel
             {
                 var complexType = complexProperty.ComplexType;
 
-                var complexTableMappings = (List<TableMapping>?)complexType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings);
+                var complexTableMappings =
+                    (List<TableMapping>?)complexType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings);
                 if (complexTableMappings == null)
                 {
                     complexTableMappings = [];
@@ -629,8 +631,8 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
-                    ? !isTpc && mappedType == entityType
-                    : (bool?)null;
+                ? !isTpc && mappedType == entityType
+                : (bool?)null;
             foreach (var fragment in mappedType.GetMappingFragments(StoreObjectType.View))
             {
                 CreateViewMapping(
@@ -693,7 +695,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             CreateContainerColumn(
                 view, containerColumnName, containerColumnType, mappedType, relationalTypeMappingSource,
-                static (colName, colType, table, mapping) => new JsonViewColumn(colName, colType ?? mapping.StoreType, (View)table, mapping));
+                static (colName, colType, table, mapping) => new JsonViewColumn(
+                    colName, colType ?? mapping.StoreType, (View)table, mapping));
         }
         else
         {
@@ -775,11 +778,9 @@ public class RelationalModel : Annotatable, IRelationalModel
                 databaseModel.Queries.Add(mappedQuery.Name, sqlQuery);
             }
 
-            var queryMapping = new SqlQueryMapping(entityType, sqlQuery,
-                includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null)
-            {
-                IsDefaultSqlQueryMapping = true
-            };
+            var queryMapping = new SqlQueryMapping(
+                entityType, sqlQuery,
+                includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null) { IsDefaultSqlQueryMapping = true };
 
             foreach (var property in mappedType.GetProperties())
             {
@@ -914,11 +915,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var storeFunction = GetOrCreateStoreFunction(dbFunction, model);
 
         var mappedFunction = StoreObjectIdentifier.DbFunction(dbFunction.Name);
-        var functionMapping = new FunctionMapping(entityType, storeFunction, dbFunction,
-            includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null)
-        {
-            IsDefaultFunctionMapping = @default
-        };
+        var functionMapping = new FunctionMapping(
+            entityType, storeFunction, dbFunction,
+            includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null) { IsDefaultFunctionMapping = @default };
 
         foreach (var property in mappedType.GetProperties())
         {
@@ -1002,8 +1001,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         while (mappedType != null)
         {
             var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
-                    ? !isTpc && mappedType == entityType
-                    : (bool?)null;
+                ? !isTpc && mappedType == entityType
+                : (bool?)null;
 
             var tableMappings = GetTableMappings(entityType).Where(
                 m => m.Table.Name == mappedType.GetTableName()
@@ -1250,7 +1249,8 @@ public class RelationalModel : Annotatable, IRelationalModel
             var storeStoredProcedure = (StoreStoredProcedure?)storedProcedure.StoreStoredProcedure;
             if (storeStoredProcedure == null)
             {
-                storeStoredProcedure = (StoreStoredProcedure?)databaseModel.FindStoredProcedure(storedProcedure.Name, storedProcedure.Schema);
+                storeStoredProcedure =
+                    (StoreStoredProcedure?)databaseModel.FindStoredProcedure(storedProcedure.Name, storedProcedure.Schema);
                 if (storeStoredProcedure == null)
                 {
                     storeStoredProcedure = new StoreStoredProcedure(storedProcedure.Name, storedProcedure.Schema, databaseModel);
@@ -1364,8 +1364,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static IEnumerable<IColumnMapping> GetTableColumnMappings(IProperty property)
         => (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
-                    RelationalAnnotationNames.TableColumnMappings)
-                ?? Enumerable.Empty<IColumnMapping>();
+                RelationalAnnotationNames.TableColumnMappings)
+            ?? Enumerable.Empty<IColumnMapping>();
 
     private static IColumn? FindColumn(Table table, IProperty property)
         => GetTableColumnMappings(property)
@@ -1462,7 +1462,9 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             if (designTime)
             {
-                foreach (var checkConstraint in includeInherited ? entityType.GetCheckConstraints() : entityType.GetDeclaredCheckConstraints())
+                foreach (var checkConstraint in includeInherited
+                             ? entityType.GetCheckConstraints()
+                             : entityType.GetDeclaredCheckConstraints())
                 {
                     var name = checkConstraint.GetName(storeObject);
                     if (name == null)

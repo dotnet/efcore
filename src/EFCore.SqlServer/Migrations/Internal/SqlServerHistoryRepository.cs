@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal;
 
@@ -120,7 +119,8 @@ public class SqlServerHistoryRepository : HistoryRepository
     }
 
     private IRelationalCommand CreateGetLockCommand()
-        => Dependencies.RawSqlCommandBuilder.Build("""
+        => Dependencies.RawSqlCommandBuilder.Build(
+            """
 DECLARE @result int;
 EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
 SELECT @result
@@ -129,7 +129,8 @@ SELECT @result
 
     private SqlServerMigrationDatabaseLock CreateMigrationDatabaseLock()
         => new(
-            Dependencies.RawSqlCommandBuilder.Build("""
+            Dependencies.RawSqlCommandBuilder.Build(
+                """
 DECLARE @result int;
 EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
 SELECT @result

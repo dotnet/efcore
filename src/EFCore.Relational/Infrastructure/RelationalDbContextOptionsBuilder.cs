@@ -103,7 +103,7 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
-    /// <param name="assembly">The <see cref="Assembly"/> where the migrations are located.</param>
+    /// <param name="assembly">The <see cref="Assembly" /> where the migrations are located.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual TBuilder MigrationsAssembly(Assembly assembly)
         => WithOption(e => (TExtension)e.WithMigrationsAssembly(assembly));

@@ -213,6 +213,7 @@ public class ValueGenerationManager : IValueGenerationManager
             {
                 propertyWithNoGenerator ??= property;
             }
+
             return false;
         }
 
@@ -222,7 +223,6 @@ public class ValueGenerationManager : IValueGenerationManager
         {
             return false;
         }
-
 
         return true;
     }

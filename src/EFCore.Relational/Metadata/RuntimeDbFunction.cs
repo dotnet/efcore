@@ -145,7 +145,8 @@ public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IStoreFunction? StoreFunction => _storeFunction;
+    public virtual IStoreFunction? StoreFunction
+        => _storeFunction;
 
     /// <summary>
     ///     Returns a string that represents the current object.

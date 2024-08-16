@@ -227,12 +227,13 @@ public readonly record struct TypeMappingInfo
         Type type,
         ITypeMappingConfiguration typeMappingConfiguration,
         CoreTypeMapping? elementTypeMapping = null)
-        : this(typeMappingConfiguration.GetValueConverter()?.ProviderClrType ?? type,
-              elementTypeMapping,
-              unicode: typeMappingConfiguration.IsUnicode(),
-              size: typeMappingConfiguration.GetMaxLength(),
-              precision: typeMappingConfiguration.GetPrecision(),
-              scale: typeMappingConfiguration.GetScale())
+        : this(
+            typeMappingConfiguration.GetValueConverter()?.ProviderClrType ?? type,
+            elementTypeMapping,
+            unicode: typeMappingConfiguration.IsUnicode(),
+            size: typeMappingConfiguration.GetMaxLength(),
+            precision: typeMappingConfiguration.GetPrecision(),
+            scale: typeMappingConfiguration.GetScale())
     {
     }
 

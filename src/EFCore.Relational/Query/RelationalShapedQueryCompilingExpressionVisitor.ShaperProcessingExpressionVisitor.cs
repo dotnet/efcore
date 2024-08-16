@@ -94,10 +94,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
 
-        private readonly static MethodInfo PropertyGetJsonValueReaderWriterMethod =
+        private static readonly MethodInfo PropertyGetJsonValueReaderWriterMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetJsonValueReaderWriter), [])!;
 
-        private readonly static MethodInfo PropertyGetTypeMappingMethod =
+        private static readonly MethodInfo PropertyGetTypeMappingMethod =
             typeof(IReadOnlyProperty).GetMethod(nameof(IReadOnlyProperty.GetTypeMapping), [])!;
 
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
@@ -360,7 +360,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             // see issue #33073 for more context
             if (_queryStateManager && !_isTracking && collectionId == 0)
             {
-                var jsonCorrectOrderOfEntitiesForChangeTrackerValidator = new JsonCorrectOrderOfEntitiesForChangeTrackerValidator(_selectExpression);
+                var jsonCorrectOrderOfEntitiesForChangeTrackerValidator =
+                    new JsonCorrectOrderOfEntitiesForChangeTrackerValidator(_selectExpression);
                 jsonCorrectOrderOfEntitiesForChangeTrackerValidator.Validate(shaperExpression);
             }
 
@@ -457,7 +458,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 relationalCommandResolver = _generateCommandResolver
                     ? _parentVisitor.CreateRelationalCommandResolverExpression(_selectExpression)
-                    : Constant(null, typeof(RelationalCommandCache));;
+                    : Constant(null, typeof(RelationalCommandCache));
+                ;
                 readerColumns = _readerColumns;
 
                 collectionId = _collectionId;
@@ -501,16 +503,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 ? value
                                 : propertyMap.Values.Max() + 1;
 
-                    var updatedExpression = newExpression.Update(
-                        new[]
-                        {
-                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                ValueBuffer.Empty,
-                                static _ => ValueBuffer.Empty,
-                                "emptyValueBuffer",
-                                typeof(ValueBuffer)),
-                            newExpression.Arguments[1]
-                        });
+                        var updatedExpression = newExpression.Update(
+                            new[]
+                            {
+                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                    ValueBuffer.Empty,
+                                    static _ => ValueBuffer.Empty,
+                                    "emptyValueBuffer",
+                                    typeof(ValueBuffer)),
+                                newExpression.Arguments[1]
+                            });
 
                         return Assign(binaryExpression.Left, updatedExpression);
                     }
@@ -909,29 +911,35 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 outerIdentifierLambda,
                                 selfIdentifierLambda,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalCollectionShaperExpression.ParentIdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "parentIdentifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalCollectionShaperExpression.OuterIdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "outerIdentifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalCollectionShaperExpression.SelfIdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "selfIdentifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
@@ -1025,16 +1033,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 _resultCoordinatorParameter,
                                 childIdentifierLambda,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalSplitCollectionShaperExpression.IdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalSplitCollectionShaperExpression.IdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalSplitCollectionShaperExpression.IdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalSplitCollectionShaperExpression.IdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "identifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
                                 innerShaper,
-                                relatedDataLoaders ?? (Expression)Constant(null,
+                                relatedDataLoaders
+                                ?? (Expression)Constant(
+                                    null,
                                     _isAsync
                                         ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
                                         : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>)),
@@ -1187,29 +1199,35 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 outerIdentifierLambda,
                                 selfIdentifierLambda,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalCollectionShaperExpression.ParentIdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "parentIdentifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalCollectionShaperExpression.OuterIdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "parentIdentifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalCollectionShaperExpression.SelfIdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "parentIdentifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
@@ -1299,19 +1317,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 _resultCoordinatorParameter,
                                 childIdentifierLambda,
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
-                                    relationalSplitCollectionShaperExpression.IdentifierValueComparers.Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
+                                    relationalSplitCollectionShaperExpression.IdentifierValueComparers
+                                        .Select(x => (Func<object, object, bool>)x.Equals).ToArray(),
                                     Lambda<Func<MaterializerLiftableConstantContext, object>>(
                                         NewArrayInit(
                                             typeof(Func<object, object, bool>),
-                                            relationalSplitCollectionShaperExpression.IdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                            relationalSplitCollectionShaperExpression.IdentifierValueComparers.Select(
+                                                vc => vc.ObjectEqualsExpression)),
                                         Parameter(typeof(MaterializerLiftableConstantContext), "_")),
                                     "identifierValueComparers",
                                     typeof(Func<object, object, bool>[])),
                                 innerShaper,
                                 relatedDataLoaders == null
-                                    ? Constant(null, _isAsync
-                                        ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
-                                        : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>))
+                                    ? Constant(
+                                        null, _isAsync
+                                            ? typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>)
+                                            : typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>))
                                     : relatedDataLoaders));
 
                         _variableShaperMapping[relationalSplitCollectionShaperExpression] = accessor;
@@ -2503,7 +2524,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 if (methodCallExpression is
                     {
                         Method: { IsGenericMethod: true } method,
-                        Arguments: [_, _, Expression  argumentExpression]
+                        Arguments: [_, _, Expression argumentExpression]
                     }
                     && argumentExpression.TryGetNonNullConstantValue<IProperty>(out var property)
                     && method.GetGenericMethodDefinition() == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
@@ -2620,7 +2641,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         CollectionAccessorGetOrCreateMethodInfo,
                         prm,
                         Constant(true))),
-                    prm);
+                prm);
         }
 
         private Expression AddToCollectionNavigation(
@@ -2724,10 +2745,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // return incorrect mapping. So for that case we would prefer to incorporate the FromProvider lambda, like we used to do before AOT
                 // and only resort to unreliable TypeMappingSource lookup, if the converter expression captures "forbidden" constant
                 // see issue #33517 for more details
-                var requiresLiftableConstant = new ConstantValidator().RequiresLiftableConstant(converter.ConvertFromProviderExpression.Body);
+                var requiresLiftableConstant =
+                    new ConstantValidator().RequiresLiftableConstant(converter.ConvertFromProviderExpression.Body);
                 if (property != null || requiresLiftableConstant)
                 {
-                    var typeMappingExpression = CreateTypeMappingExpression(property, type, typeMapping, _parentVisitor.Dependencies.LiftableConstantFactory);
+                    var typeMappingExpression = CreateTypeMappingExpression(
+                        property, type, typeMapping, _parentVisitor.Dependencies.LiftableConstantFactory);
                     converterExpression = Property(typeMappingExpression, nameof(CoreTypeMapping.Converter));
 
                     var converterType = converter.GetType();
@@ -2940,16 +2963,16 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var jsonReaderWriterExpression = _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                 property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!,
                 Lambda<Func<MaterializerLiftableConstantContext, object>>(
-                Coalesce(
-                    Call(
-                        LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
-                        PropertyGetJsonValueReaderWriterMethod),
-                    Property(
+                    Coalesce(
                         Call(
                             LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
-                            PropertyGetTypeMappingMethod),
-                        nameof(CoreTypeMapping.JsonValueReaderWriter))),
-                prm),
+                            PropertyGetJsonValueReaderWriterMethod),
+                        Property(
+                            Call(
+                                LiftableConstantExpressionHelpers.BuildMemberAccessForProperty(property, prm),
+                                PropertyGetTypeMappingMethod),
+                            nameof(CoreTypeMapping.JsonValueReaderWriter))),
+                    prm),
                 property.Name + "PropertyName",
                 jsonReaderWriter.GetType());
 
@@ -3034,7 +3057,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             private bool _insideCollection;
             private bool _insideInclude;
-            private readonly List<(IEntityType JsonEntityType, List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)> KeyAccessInfo)> _projectedKeyAccessInfos = [];
+
+            private readonly
+                List<(IEntityType JsonEntityType, List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)>
+                    KeyAccessInfo)> _projectedKeyAccessInfos = [];
+
             private readonly List<IEntityType> _includedJsonEntityTypes = [];
 
             public void Validate(Expression expression)
@@ -3058,8 +3085,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     for (var i = _projectedKeyAccessInfos.Count - 1; i >= 0; i--)
                     {
-                        if (_includedJsonEntityTypes.Any(t => t == _projectedKeyAccessInfos[i].JsonEntityType
-                            || _projectedKeyAccessInfos[i].JsonEntityType.IsInOwnershipPath(t)))
+                        if (_includedJsonEntityTypes.Any(
+                                t => t == _projectedKeyAccessInfos[i].JsonEntityType
+                                    || _projectedKeyAccessInfos[i].JsonEntityType.IsInOwnershipPath(t)))
                         {
                             _projectedKeyAccessInfos.RemoveAt(i);
                         }
@@ -3092,11 +3120,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         // })
                         if (outerKeyAccessInfo.Any(x => x.KeyProperty == null && x.KeyProjectionIndex != null))
                         {
-                            throw new InvalidOperationException(RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
-                                outerJsonEntityType.DisplayName(), nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                            throw new InvalidOperationException(
+                                RelationalStrings.JsonProjectingCollectionElementAccessedUsingParmeterNoTrackingWithIdentityResolution(
+                                    outerJsonEntityType.DisplayName(), nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
                         }
 
-                        for (var j = _projectedKeyAccessInfos.Count -1; j > i; j--)
+                        for (var j = _projectedKeyAccessInfos.Count - 1; j > i; j--)
                         {
                             var innerKeyAccessInfo = _projectedKeyAccessInfos[j].KeyAccessInfo;
                             var innerJsonEntityType = _projectedKeyAccessInfos[j].JsonEntityType;
@@ -3126,7 +3155,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     continue;
                                 }
 
-                                if ((outerJsonEntityType == innerJsonEntityType || innerJsonEntityType.IsInOwnershipPath(outerJsonEntityType))
+                                if ((outerJsonEntityType == innerJsonEntityType
+                                        || innerJsonEntityType.IsInOwnershipPath(outerJsonEntityType))
                                     && outerKeyAccessInfo.Count <= innerKeyAccessInfo.Count)
                                 {
                                     // outer and inner are on same ownership paths and outer is the owner of inner
@@ -3135,9 +3165,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     continue;
                                 }
 
-                                throw new InvalidOperationException(RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
-                                    outerJsonEntityType.DisplayName(),
-                                    nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                                throw new InvalidOperationException(
+                                    RelationalStrings.JsonProjectingEntitiesIncorrectOrderNoTrackingWithIdentityResolution(
+                                        outerJsonEntityType.DisplayName(),
+                                        nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
                             }
                         }
 
@@ -3197,7 +3228,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     _insideInclude = insideInclude;
                 }
 
-                if (extensionExpression is StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression entityProjectionBindingExpression } entityShaperExpression)
+                if (extensionExpression is StructuralTypeShaperExpression
+                    {
+                        ValueBufferExpression: ProjectionBindingExpression entityProjectionBindingExpression
+                    } entityShaperExpression)
                 {
                     var entityProjection = selectExpression.GetProjection(entityProjectionBindingExpression).GetConstantValue<object>();
 
@@ -3232,16 +3266,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                if (extensionExpression is CollectionResultExpression { ProjectionBindingExpression: ProjectionBindingExpression collectionProjectionBindingExpression } collectionResultExpression)
+                if (extensionExpression is CollectionResultExpression
+                    {
+                        ProjectionBindingExpression: ProjectionBindingExpression collectionProjectionBindingExpression
+                    } collectionResultExpression)
                 {
-                    var collectionProjection = selectExpression.GetProjection(collectionProjectionBindingExpression).GetConstantValue<object>();
+                    var collectionProjection =
+                        selectExpression.GetProjection(collectionProjectionBindingExpression).GetConstantValue<object>();
 
                     switch (collectionProjection)
                     {
                         case QueryableJsonProjectionInfo:
                         case JsonProjectionInfo when _insideCollection:
                             throw new InvalidOperationException(
-                                RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
+                                RelationalStrings.JsonProjectingQueryableOperationNoTrackingWithIdentityResolution(
+                                    nameof(QueryTrackingBehavior.NoTrackingWithIdentityResolution)));
 
                         case JsonProjectionInfo jsonCollectionProjectionInfo:
                         {

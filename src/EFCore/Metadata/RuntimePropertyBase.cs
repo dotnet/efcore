@@ -93,7 +93,12 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetPropertyIndexes(int index, int originalValueIndex, int shadowIndex, int relationshipIndex, int storeGenerationIndex)
+    public virtual void SetPropertyIndexes(
+        int index,
+        int originalValueIndex,
+        int shadowIndex,
+        int relationshipIndex,
+        int storeGenerationIndex)
         => _indexes = new(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
 
     /// <summary>

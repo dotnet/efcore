@@ -51,8 +51,8 @@ public class ValueGeneratorCache : IValueGeneratorCache
 
         public bool Equals(CacheKey other)
             => (_property!.Equals(other._property, StringComparison.Ordinal)
-                    && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
-                    && _modelId.Equals(other._modelId));
+                && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
+                && _modelId.Equals(other._modelId));
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
@@ -77,5 +77,5 @@ public class ValueGeneratorCache : IValueGeneratorCache
         ITypeBase typeBase,
         Func<IProperty, ITypeBase, ValueGenerator?> factory)
         => _cache.GetOrAdd(
-                new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
+            new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

@@ -30,10 +30,12 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
             && typeof(TConcreteList).GetGenericTypeDefinition() == typeof(ReadOnlyCollection<>));
 
     private static readonly MethodInfo CompareMethod = typeof(ListOfValueTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement>), typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
+        nameof(Compare), BindingFlags.Static | BindingFlags.NonPublic,
+        [typeof(IEnumerable<TElement>), typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
 
     private static readonly MethodInfo GetHashCodeMethod = typeof(ListOfValueTypesComparer<TConcreteList, TElement>).GetMethod(
-        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
+        nameof(GetHashCode), BindingFlags.Static | BindingFlags.NonPublic,
+        [typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
 
     private static readonly MethodInfo SnapshotMethod = typeof(ListOfValueTypesComparer<TConcreteList, TElement>).GetMethod(
         nameof(Snapshot), BindingFlags.Static | BindingFlags.NonPublic, [typeof(IEnumerable<TElement>), typeof(ValueComparer<TElement>)])!;
@@ -56,7 +58,8 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
     /// </summary>
     public ValueComparer ElementComparer { get; }
 
-    ValueComparer IInfrastructure<ValueComparer>.Instance => ElementComparer;
+    ValueComparer IInfrastructure<ValueComparer>.Instance
+        => ElementComparer;
 
     private static Expression<Func<IEnumerable<TElement>?, IEnumerable<TElement>?, bool>> CompareLambda(ValueComparer elementComparer)
     {
@@ -190,7 +193,7 @@ public sealed class ListOfValueTypesComparer<TConcreteList, TElement> : ValueCom
             }
 
             return IsReadOnly
-                ? (IList<TElement>)Activator.CreateInstance(typeof(TConcreteList), [snapshot])!
+                ? (IList<TElement>)Activator.CreateInstance(typeof(TConcreteList), snapshot)!
                 : snapshot;
         }
     }

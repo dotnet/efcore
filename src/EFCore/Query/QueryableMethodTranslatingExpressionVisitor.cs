@@ -559,7 +559,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
         // Identify property access, e.g. primitive collection property (context.Blogs.Where(b => b.Tags.Contains(...)))
         if ((methodCallExpression.TryGetEFPropertyArguments(out var propertyAccessSource, out var propertyName)
-            || methodCallExpression.TryGetIndexerArguments(QueryCompilationContext.Model, out propertyAccessSource, out propertyName))
+                || methodCallExpression.TryGetIndexerArguments(QueryCompilationContext.Model, out propertyAccessSource, out propertyName))
             && TranslateMemberAccess(propertyAccessSource, MemberIdentity.Create(propertyName)) is ShapedQueryExpression translation)
         {
             return translation;
@@ -569,7 +569,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
             ? QueryCompilationContext.NotTranslatedExpression
             : TranslationErrorDetails is null
                 ? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()))
-                : throw new InvalidOperationException(CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
+                : throw new InvalidOperationException(
+                    CoreStrings.TranslationFailedWithDetails(methodCallExpression.Print(), TranslationErrorDetails));
     }
 
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
@@ -673,7 +674,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="predicate">The predicate supplied in the call.</param>
     /// <returns>The shaped query after translation.</returns>
-    protected abstract ShapedQueryExpression? TranslateCount(ShapedQueryExpression source,        LambdaExpression? predicate);
+    protected abstract ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate);
 
     /// <summary>
     ///     Translates <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> method and other overloads over the given source.

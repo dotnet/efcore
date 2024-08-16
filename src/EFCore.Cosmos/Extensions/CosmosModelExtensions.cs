@@ -96,7 +96,7 @@ public static class CosmosModelExtensions
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" />
-    ///     for <see cref="GetHasShadowIds"/>.
+    ///     for <see cref="GetHasShadowIds" />.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns>The <see cref="ConfigurationSource" />.</returns>
@@ -108,7 +108,7 @@ public static class CosmosModelExtensions
     ///     Prior to EF Core 9, it was always included. Starting with EF Core 9, it is not included by default.
     /// </summary>
     /// <param name="model">The model.</param>
-    /// <returns>The <see cref="IdDiscriminatorMode"/> or <see langword="null" /> if not set.</returns>
+    /// <returns>The <see cref="IdDiscriminatorMode" /> or <see langword="null" /> if not set.</returns>
     public static IdDiscriminatorMode? GetDiscriminatorInKey(this IReadOnlyModel model)
         => (IdDiscriminatorMode?)model[CosmosAnnotationNames.DiscriminatorInKey];
 
@@ -135,7 +135,7 @@ public static class CosmosModelExtensions
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" />
-    ///     for <see cref="GetDiscriminatorInKey"/>.
+    ///     for <see cref="GetDiscriminatorInKey" />.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <returns>The <see cref="ConfigurationSource" />.</returns>

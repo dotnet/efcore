@@ -50,6 +50,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             {
                 child.Variables.Add(parameter, name);
             }
+
             child.VariableNames.UnionWith(VariableNames);
 
             return child;
@@ -645,10 +646,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             {
                 throw new NotImplementedException("Label on last expression of an expression block");
             }
-            else
-            {
-                statements.Add(pendingLabeledStatement.WithStatement(EmptyStatement()));
-            }
+
+            statements.Add(pendingLabeledStatement.WithStatement(EmptyStatement()));
         }
 
         // Above we transform top-level assignments (i = 8) to var-declarations with initializers (var i = 8); those variables have
@@ -657,7 +656,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         // and either add them to the block, or lift them if we're an expression block.
         var unassignedVariableDeclarations =
             unassignedVariables.Select(
-                v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(Generate(v.Type), LookupVariableName(v), initializer: _g.DefaultExpression(Generate(v.Type))));
+                v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(
+                    Generate(v.Type), LookupVariableName(v), initializer: _g.DefaultExpression(Generate(v.Type))));
 
         if (blockContext == ExpressionContext.Expression)
         {
@@ -990,25 +990,25 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         return value switch
         {
             int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
-            or string or bool or null
+                or string or bool or null
                 => (ExpressionSyntax)_g.LiteralExpression(value),
 
             Type t => TypeOfExpression(Generate(t)),
             Enum e => HandleEnum(e),
 
             Guid g => ObjectCreationExpression(IdentifierName(nameof(Guid)))
-                        .WithArgumentList(
-                            ArgumentList(
-                                SingletonSeparatedList(
-                                    Argument(
-                                        LiteralExpression(
-                                            SyntaxKind.StringLiteralExpression,
-                                            Literal(g.ToString())))))),
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal(g.ToString())))))),
 
             ITuple tuple
                 when tuple.GetType() is { IsGenericType: true } tupleType
-                     && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
-                     && tupleType.Namespace == "System"
+                && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
+                && tupleType.Namespace == "System"
                 => HandleValueTuple(tuple),
 
             ReferenceEqualityComparer equalityComparer
@@ -1184,7 +1184,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         throw new NotSupportedException(
             $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
-            + Environment.NewLine + value);
+            + Environment.NewLine
+            + value);
     }
 
     /// <inheritdoc />
@@ -1339,6 +1340,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 {
                     return false;
                 }
+
                 genericArguments.Add(syntax);
             }
 
@@ -1362,7 +1364,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         if (type.IsArray)
         {
             result = ArrayType(Generate(type.GetElementType()!))
-                .WithRankSpecifiers(SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
+                .WithRankSpecifiers(
+                    SingletonList(ArrayRankSpecifier(SingletonSeparatedList<ExpressionSyntax>(OmittedArraySizeExpression()))));
             return true;
         }
 
@@ -1537,7 +1540,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 SeparatedList(
                     lambda.Parameters.Select(
                         p => Parameter(Identifier(LookupVariableName(p)))
-                                .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
+                            .WithType(p.Type.IsAnonymousType() ? null : Generate(p.Type))))),
             blockBody,
             expressionBody);
 
@@ -1617,7 +1620,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             case { Member: FieldInfo closureField, Expression: ConstantExpression constantExpression }
                 when constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate)
-                    && System.Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true):
+                && System.Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true):
                 // Unwrap closure
                 VisitConstant(Expression.Constant(closureField.GetValue(constantExpression.Value), member.Type));
                 break;

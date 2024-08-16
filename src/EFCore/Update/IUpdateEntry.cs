@@ -102,10 +102,10 @@ public interface IUpdateEntry
     object? GetOriginalValue(IPropertyBase propertyBase);
 
     /// <summary>
-    /// Returns <see langword="true"/> only if the property has storage for an original value.
+    ///     Returns <see langword="true" /> only if the property has storage for an original value.
     /// </summary>
     /// <param name="propertyBase">The property.</param>
-    /// <returns><see langword="true"/> if the property may have an original value; <see langword="false"/> if it never can.</returns>
+    /// <returns><see langword="true" /> if the property may have an original value; <see langword="false" /> if it never can.</returns>
     bool CanHaveOriginalValue(IPropertyBase propertyBase);
 
     /// <summary>

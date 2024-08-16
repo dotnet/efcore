@@ -252,9 +252,9 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
             && (EngineType == SqlServerEngineType.AzureSql
                 || EngineType == SqlServerEngineType.AzureSynapse
                 || UseRetryingStrategyByDefault))
-            {
-                return WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c));
-            }
+        {
+            return WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c));
+        }
 
         return this;
     }
@@ -292,7 +292,9 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         base.Validate(options);
         if (EngineType == SqlServerEngineType.Unknown)
         {
-            throw new InvalidOperationException(SqlServerStrings.InvalidEngineType($"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSql)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSynapse)}"));
+            throw new InvalidOperationException(
+                SqlServerStrings.InvalidEngineType(
+                    $"{nameof(SqlServerDbContextOptionsExtensions.UseSqlServer)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSql)}/{nameof(SqlServerDbContextOptionsExtensions.UseAzureSynapse)}"));
         }
     }
 
@@ -340,6 +342,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
                             .Append(Extension._sqlServerCompatibilityLevel)
                             .Append(' ');
                     }
+
                     if (Extension._azureSqlCompatibilityLevel != null)
                     {
                         builder
@@ -347,6 +350,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
                             .Append(Extension._azureSqlCompatibilityLevel)
                             .Append(' ');
                     }
+
                     if (Extension._azureSynapseCompatibilityLevel != null)
                     {
                         builder
@@ -371,10 +375,12 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
             {
                 debugInfo["SqlServerCompatibilityLevel"] = sqlServerCompatibilityLevel.ToString();
             }
+
             if (Extension.AzureSqlCompatibilityLevel is int azureSqlCompatibilityLevel)
             {
                 debugInfo["AzureSqlCompatibilityLevel"] = azureSqlCompatibilityLevel.ToString();
             }
+
             if (Extension.AzureSynapseCompatibilityLevel is int azureSynapseCompatibilityLevel)
             {
                 debugInfo["AzureSynapseCompatibilityLevel"] = azureSynapseCompatibilityLevel.ToString();

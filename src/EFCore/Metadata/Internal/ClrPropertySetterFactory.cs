@@ -96,7 +96,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     private void CreateExpression<TEntity, TValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase,
-        out Expression<Action<TEntity, TValue>> setter) where TEntity : class
+        out Expression<Action<TEntity, TValue>> setter)
+        where TEntity : class
     {
         var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TEntity);
         var entityParameter = Expression.Parameter(entityClrType, "entity");

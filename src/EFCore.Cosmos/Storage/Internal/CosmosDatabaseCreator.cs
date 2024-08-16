@@ -132,6 +132,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
                 {
                     partitionKeyStoreNames = GetPartitionKeyStoreNames(entityType);
                 }
+
                 analyticalTtl ??= entityType.GetAnalyticalStoreTimeToLive();
                 defaultTtl ??= entityType.GetDefaultTimeToLive();
                 throughput ??= entityType.GetThroughput();
@@ -208,8 +209,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     public virtual void SeedData(bool created)
     {
         var coreOptionsExtension =
-                    _contextOptions.FindExtension<CoreOptionsExtension>()
-                    ?? new CoreOptionsExtension();
+            _contextOptions.FindExtension<CoreOptionsExtension>()
+            ?? new CoreOptionsExtension();
 
         var seed = coreOptionsExtension.Seeder;
         if (seed != null)

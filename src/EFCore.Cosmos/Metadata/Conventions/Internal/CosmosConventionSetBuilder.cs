@@ -28,14 +28,15 @@ public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
     }
 
     /// <summary>
-    ///     The factory to create a <see cref="IJsonIdDefinition"/> for each entity type.
+    ///     The factory to create a <see cref="IJsonIdDefinition" /> for each entity type.
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>>
+    /// </remarks>
+    /// >
     protected virtual IJsonIdDefinitionFactory DefinitionFactory { get; }
 
     /// <summary>

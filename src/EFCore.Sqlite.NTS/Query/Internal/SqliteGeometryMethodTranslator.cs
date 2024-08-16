@@ -82,7 +82,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
 
                 if (method.ReturnType == typeof(bool))
                 {
-                    var nullCheck = (SqlExpression)_sqlExpressionFactory.IsNotNull(instance);
+                    var nullCheck = _sqlExpressionFactory.IsNotNull(instance);
                     foreach (var argument in arguments)
                     {
                         nullCheck = _sqlExpressionFactory.AndAlso(

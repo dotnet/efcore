@@ -36,7 +36,8 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
         bool propertyBag,
         int propertyCount,
         int complexPropertyCount)
-        : base(name, type, complexProperty.DeclaringType.Model, null, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+        : base(
+            name, type, complexProperty.DeclaringType.Model, null, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
             derivedTypesCount: 0,
             propertyCount: propertyCount,
             complexPropertyCount: complexPropertyCount)

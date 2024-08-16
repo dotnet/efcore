@@ -441,12 +441,14 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                     continue;
                 }
 
-                if (foreignKey.DependentToPrincipal != null && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit)
+                if (foreignKey.DependentToPrincipal != null
+                    && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationToKeylessType(foreignKey.DependentToPrincipal.Name, Metadata.DisplayName()));
                 }
-                else if ((foreignKey.IsUnique || foreignKey.GetIsUniqueConfigurationSource() != ConfigurationSource.Explicit)
+
+                if ((foreignKey.IsUnique || foreignKey.GetIsUniqueConfigurationSource() != ConfigurationSource.Explicit)
                     && foreignKey.GetPrincipalEndConfigurationSource() != ConfigurationSource.Explicit
                     && foreignKey.Builder.CanSetEntityTypes(
                         foreignKey.DeclaringEntityType,
@@ -3644,6 +3646,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 {
                     return null;
                 }
+
                 break;
         }
 

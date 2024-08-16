@@ -8,11 +8,8 @@ using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -1024,11 +1021,11 @@ public class CSharpHelper : ICSharpHelper
         }
 
         return allValues.Aggregate(
-            (string?)null,
-            (previous, current) =>
-                previous == null
-                    ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
-                    : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
+                (string?)null,
+                (previous, current) =>
+                    previous == null
+                        ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
+                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
             ?? $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(flags, Enum.GetUnderlyingType(type)))}";
     }
 

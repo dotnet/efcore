@@ -121,8 +121,8 @@ public class RuntimeAnnotatableBase : IAnnotatable
         Check.NotEmpty(name, nameof(name));
 
         return _annotations != null && _annotations.TryGetValue(name, out var annotation)
-                ? annotation
-                : null;
+            ? annotation
+            : null;
     }
 
     /// <summary>

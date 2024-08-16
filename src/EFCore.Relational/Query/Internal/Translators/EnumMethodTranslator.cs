@@ -63,9 +63,10 @@ public class EnumMethodTranslator : IMethodCallTranslator
                 case not null when converterType.GetGenericTypeDefinition() == typeof(EnumToNumberConverter<,>):
                     var whenClauses = Enum.GetValues(instance.Type)
                         .Cast<object>()
-                        .Select(value => new CaseWhenClause(
-                            _sqlExpressionFactory.Constant(value),
-                            _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
+                        .Select(
+                            value => new CaseWhenClause(
+                                _sqlExpressionFactory.Constant(value),
+                                _sqlExpressionFactory.Constant(value.ToString(), typeof(string))))
                         .ToArray();
 
                     var elseResult = _sqlExpressionFactory.Coalesce(

@@ -2138,7 +2138,8 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(AtTimeZone)));
 
     /// <summary>
-    ///     Returns the starting position of the first occurrence of a pattern in a specified expression, or zero if the pattern is not found, on all valid text and character data types.
+    ///     Returns the starting position of the first occurrence of a pattern in a specified expression, or zero if the pattern is not found, on
+    ///     all valid text and character data types.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and

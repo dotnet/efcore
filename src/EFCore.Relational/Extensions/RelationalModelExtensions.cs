@@ -70,7 +70,7 @@ public static class RelationalModelExtensions
         if (relationalModel == null)
         {
             var relationalModelFactory = (Func<IRelationalModel>?)model.FindRuntimeAnnotationValue(
-                            RelationalAnnotationNames.RelationalModelFactory)
+                    RelationalAnnotationNames.RelationalModelFactory)
                 ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetRelationalModel)));
             lock (relationalModelFactory)
             {

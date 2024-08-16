@@ -369,14 +369,16 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
                 .Append(codeHelper.Reference(converter.ProviderClrType))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .AppendLines(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
+                .AppendLines(
+                    codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
+                .AppendLines(
+                    codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true);
 
-            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " +
-                string.Join(Environment.NewLine, unsafeAccessors));
+            Check.DebugAssert(
+                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
 
             if (converter.ConvertsNulls)
             {
@@ -437,19 +439,22 @@ public class CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGen
                 .Append(codeHelper.Reference(comparer.Type))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces, unsafeAccessors),
+                .AppendLines(
+                    codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces, unsafeAccessors),
+                .AppendLines(
+                    codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces, unsafeAccessors),
+                .AppendLines(
+                    codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces, unsafeAccessors),
                     skipFinalNewline: true)
                 .Append(")")
                 .DecrementIndent();
 
-            Check.DebugAssert(unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " +
-                string.Join(Environment.NewLine, unsafeAccessors));
+            Check.DebugAssert(
+                unsafeAccessors.Count == 0, "Generated unsafe accessors not handled: " + string.Join(Environment.NewLine, unsafeAccessors));
         }
         else
         {

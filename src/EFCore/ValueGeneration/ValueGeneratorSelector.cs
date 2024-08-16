@@ -112,8 +112,8 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
-    /// <param name="valueGenerator">The newly created value generator, or <see langword="null"/> if none is available.</param>
-    /// <returns><see langword="true"/> if a generator was created.</returns>
+    /// <param name="valueGenerator">The newly created value generator, or <see langword="null" /> if none is available.</param>
+    /// <returns><see langword="true" /> if a generator was created.</returns>
     public virtual bool TryCreate(IProperty property, ITypeBase typeBase, out ValueGenerator? valueGenerator)
     {
         var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();

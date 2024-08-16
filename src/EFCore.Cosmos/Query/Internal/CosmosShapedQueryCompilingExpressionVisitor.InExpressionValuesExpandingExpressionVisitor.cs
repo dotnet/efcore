@@ -4,7 +4,6 @@
 #nullable disable
 
 using System.Collections;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -37,6 +36,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         {
                             mutableValues.Add(sqlExpressionFactory.Constant(value, value?.GetType() ?? typeof(object), typeMapping));
                         }
+
                         values = mutableValues;
                         break;
                     }

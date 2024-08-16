@@ -94,7 +94,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Case(
                     _sqlExpressionFactory.Function(
                         "rtrim",
-                        new SqlExpression[]
+                        new[]
                         {
                             _sqlExpressionFactory.Function(
                                 "GeometryType",
@@ -128,7 +128,7 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Case(
                     _sqlExpressionFactory.Function(
                         "rtrim",
-                        new SqlExpression[]
+                        new[]
                         {
                             _sqlExpressionFactory.Function(
                                 "GeometryType",

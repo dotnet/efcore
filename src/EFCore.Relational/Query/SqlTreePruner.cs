@@ -21,7 +21,8 @@ public class SqlTreePruner : ExpressionVisitor
     /// <summary>
     ///     Maps table aliases to the list of column aliases found referenced on them.
     /// </summary>
-    protected virtual IReadOnlyDictionary<string, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
+    protected virtual IReadOnlyDictionary<string, HashSet<string>> ReferencedColumnMap
+        => _referencedColumnMap;
 
     /// <summary>
     ///     When visiting a nested <see cref="TableExpressionBase" /> (e.g. a select within a set operation), this holds the table alias

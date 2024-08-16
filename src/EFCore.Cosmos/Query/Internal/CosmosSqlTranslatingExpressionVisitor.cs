@@ -15,12 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class CosmosSqlTranslatingExpressionVisitor(
-        QueryCompilationContext queryCompilationContext,
-        ISqlExpressionFactory sqlExpressionFactory,
-        ITypeMappingSource typeMappingSource,
-        IMemberTranslatorProvider memberTranslatorProvider,
-        IMethodCallTranslatorProvider methodCallTranslatorProvider,
-        QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+    QueryCompilationContext queryCompilationContext,
+    ISqlExpressionFactory sqlExpressionFactory,
+    ITypeMappingSource typeMappingSource,
+    IMemberTranslatorProvider memberTranslatorProvider,
+    IMethodCallTranslatorProvider methodCallTranslatorProvider,
+    QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
     : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
@@ -346,22 +346,22 @@ public class CosmosSqlTranslatingExpressionVisitor(
             case StructuralTypeShaperExpression shaper:
                 return new EntityReferenceExpression(shaper);
 
-                // var result = Visit(entityShaperExpression.ValueBufferExpression);
-                //
-                // if (result is UnaryExpression
-                //     {
-                //         NodeType: ExpressionType.Convert,
-                //         Operand.NodeType: ExpressionType.Convert
-                //     } outerUnary
-                //     && outerUnary.Type == typeof(ValueBuffer)
-                //     && outerUnary.Operand.Type == typeof(object))
-                // {
-                //     result = ((UnaryExpression)outerUnary.Operand).Operand;
-                // }
-                //
-                // return result is EntityProjectionExpression entityProjectionExpression
-                //     ? new EntityReferenceExpression(entityProjectionExpression)
-                //     : QueryCompilationContext.NotTranslatedExpression;
+            // var result = Visit(entityShaperExpression.ValueBufferExpression);
+            //
+            // if (result is UnaryExpression
+            //     {
+            //         NodeType: ExpressionType.Convert,
+            //         Operand.NodeType: ExpressionType.Convert
+            //     } outerUnary
+            //     && outerUnary.Type == typeof(ValueBuffer)
+            //     && outerUnary.Operand.Type == typeof(object))
+            // {
+            //     result = ((UnaryExpression)outerUnary.Operand).Operand;
+            // }
+            //
+            // return result is EntityProjectionExpression entityProjectionExpression
+            //     ? new EntityReferenceExpression(entityProjectionExpression)
+            //     : QueryCompilationContext.NotTranslatedExpression;
 
             case ProjectionBindingExpression projectionBindingExpression:
                 return projectionBindingExpression.ProjectionMember != null
@@ -855,7 +855,7 @@ public class CosmosSqlTranslatingExpressionVisitor(
                     MemberIdentity.Create(entityType.GetDiscriminatorPropertyName()),
                     out var discriminatorMember,
                     out _)
-                    && discriminatorMember is SqlExpression discriminatorColumn)
+                && discriminatorMember is SqlExpression discriminatorColumn)
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
 

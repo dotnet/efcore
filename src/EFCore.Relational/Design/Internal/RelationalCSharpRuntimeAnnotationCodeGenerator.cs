@@ -72,7 +72,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             {
                 parameters.Namespaces.Add(typeof(Dictionary<,>).Namespace!);
                 parameters.Namespaces.Add(typeof(BindingFlags).Namespace!);
-                var functionsVariable = Dependencies.CSharpHelper.Identifier("functions", functions, parameters.ScopeObjects, capitalize: false);
+                var functionsVariable = Dependencies.CSharpHelper.Identifier(
+                    "functions", functions, parameters.ScopeObjects, capitalize: false);
                 parameters.MainBuilder
                     .Append("var ").Append(functionsVariable).AppendLine(" = new Dictionary<string, IDbFunction>();");
 
@@ -89,7 +90,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     out IReadOnlyDictionary<(string, string?), ISequence> sequences))
             {
                 parameters.Namespaces.Add(typeof(Dictionary<,>).Namespace!);
-                var sequencesVariable = Dependencies.CSharpHelper.Identifier("sequences", sequences, parameters.ScopeObjects, capitalize: false);
+                var sequencesVariable = Dependencies.CSharpHelper.Identifier(
+                    "sequences", sequences, parameters.ScopeObjects, capitalize: false);
                 var mainBuilder = parameters.MainBuilder;
                 mainBuilder.Append("var ").Append(sequencesVariable).Append(" = new Dictionary<(string, string");
 
@@ -193,7 +195,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             var defaultMappings = typeBase.GetDefaultMappings();
             if (defaultMappings.Any())
             {
-                var tableMappingsVariable = code.Identifier("defaultTableMappings", defaultMappings, parameters.ScopeObjects, capitalize: false);
+                var tableMappingsVariable = code.Identifier(
+                    "defaultTableMappings", defaultMappings, parameters.ScopeObjects, capitalize: false);
                 mainBuilder
                     .AppendLine()
                     .AppendLine($"var {tableMappingsVariable} = new List<TableMappingBase<ColumnMappingBase>>();")
@@ -238,7 +241,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             var sqlQueryMappings = typeBase.GetSqlQueryMappings();
             if (sqlQueryMappings.Any())
             {
-                var sqlQueryMappingsVariable = code.Identifier("sqlQueryMappings", sqlQueryMappings, parameters.ScopeObjects, capitalize: false);
+                var sqlQueryMappingsVariable = code.Identifier(
+                    "sqlQueryMappings", sqlQueryMappings, parameters.ScopeObjects, capitalize: false);
                 mainBuilder
                     .AppendLine()
                     .AppendLine($"var {sqlQueryMappingsVariable} = new List<SqlQueryMapping>();")
@@ -253,7 +257,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             var functionMappings = typeBase.GetFunctionMappings();
             if (functionMappings.Any())
             {
-                var functionMappingsVariable = code.Identifier("functionMappings", functionMappings, parameters.ScopeObjects, capitalize: false);
+                var functionMappingsVariable = code.Identifier(
+                    "functionMappings", functionMappings, parameters.ScopeObjects, capitalize: false);
                 mainBuilder
                     .AppendLine()
                     .AppendLine($"var {functionMappingsVariable} = new List<FunctionMapping>();")
@@ -261,14 +266,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine($"{code.Literal(RelationalAnnotationNames.FunctionMappings)}, {functionMappingsVariable});");
                 foreach (var mapping in functionMappings)
                 {
-                    Create(mapping, functionMappingsVariable,  parameters);
+                    Create(mapping, functionMappingsVariable, parameters);
                 }
             }
 
             var deleteStoredProcedureMappings = typeBase.GetDeleteStoredProcedureMappings();
             if (deleteStoredProcedureMappings.Any())
             {
-                var deleteSprocMappingsVariable = code.Identifier("deleteSprocMappings", deleteStoredProcedureMappings, parameters.ScopeObjects, capitalize: false);
+                var deleteSprocMappingsVariable = code.Identifier(
+                    "deleteSprocMappings", deleteStoredProcedureMappings, parameters.ScopeObjects, capitalize: false);
                 mainBuilder
                     .AppendLine()
                     .AppendLine($"var {deleteSprocMappingsVariable} = new List<StoredProcedureMapping>();")
@@ -288,7 +294,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             var insertStoredProcedureMappings = typeBase.GetInsertStoredProcedureMappings();
             if (typeBase.GetInsertStoredProcedureMappings().Any())
             {
-                var insertSprocMappingsVariable = code.Identifier("insertSprocMappings", insertStoredProcedureMappings, parameters.ScopeObjects, capitalize: false);
+                var insertSprocMappingsVariable = code.Identifier(
+                    "insertSprocMappings", insertStoredProcedureMappings, parameters.ScopeObjects, capitalize: false);
                 mainBuilder
                     .AppendLine()
                     .AppendLine($"var {insertSprocMappingsVariable} = new List<StoredProcedureMapping>();")
@@ -308,7 +315,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             var updateStoredProcedureMappings = typeBase.GetUpdateStoredProcedureMappings();
             if (updateStoredProcedureMappings.Any())
             {
-                var updateSprocMappingsVariable = code.Identifier("updateSprocMappings", updateStoredProcedureMappings, parameters.ScopeObjects, capitalize: false);
+                var updateSprocMappingsVariable = code.Identifier(
+                    "updateSprocMappings", updateStoredProcedureMappings, parameters.ScopeObjects, capitalize: false);
                 mainBuilder
                     .AppendLine()
                     .AppendLine($"var {updateSprocMappingsVariable} = new List<StoredProcedureMapping>();")
@@ -535,7 +543,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         foreach (var parameter in function.Parameters)
         {
-            var parameterVariable = code.Identifier(parameter.Name + "FunctionParameter", parameter, parameters.ScopeObjects, capitalize: false);
+            var parameterVariable = code.Identifier(
+                parameter.Name + "FunctionParameter", parameter, parameters.ScopeObjects, capitalize: false);
             mainBuilder.AppendLine($"var {parameterVariable} = {functionVariable}.FindParameter({code.Literal(parameter.Name)})!;");
 
             CreateAnnotations(
@@ -601,7 +610,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         }
 
         var code = Dependencies.CSharpHelper;
-        storedProcedureVariable = code.Identifier(storeStoredProcedure.Name + "StoreSproc", storeStoredProcedure, parameters.ScopeObjects, capitalize: false);
+        storedProcedureVariable = code.Identifier(
+            storeStoredProcedure.Name + "StoreSproc", storeStoredProcedure, parameters.ScopeObjects, capitalize: false);
         var mainBuilder = parameters.MainBuilder;
         mainBuilder
             .Append($"var {storedProcedureVariable} = new StoreStoredProcedure(")
@@ -946,6 +956,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             mainBuilder
                 .Append($"new CompositeRowKeyValueFactory({uniqueConstraintVariable})");
         }
+
         mainBuilder.AppendLine(");");
 
         CreateAnnotations(
@@ -1012,6 +1023,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             mainBuilder
                 .Append($"new CompositeRowIndexValueFactory({indexVariable})");
         }
+
         mainBuilder.AppendLine(");");
 
         CreateAnnotations(
@@ -1097,7 +1109,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             if (!parameters.ScopeVariables.TryGetValue(mappedForeignKey, out var foreignKeyVariable))
             {
-                foreignKeyVariable = code.Identifier(foreignKeyConstraintVariable + "Fk", mappedForeignKey, parameters.ScopeObjects, capitalize: false);
+                foreignKeyVariable = code.Identifier(
+                    foreignKeyConstraintVariable + "Fk", mappedForeignKey, parameters.ScopeObjects, capitalize: false);
 
                 mainBuilder
                     .AppendLine($"var {foreignKeyVariable} = RelationalModel.GetForeignKey(this,").IncrementIndent()
@@ -1306,7 +1319,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         var sqlQuery = sqlQueryMapping.SqlQuery;
         var sqlQueryVariable = GetOrCreate(sqlQuery, parameters);
-        var sqlQueryMappingVariable = code.Identifier(sqlQuery.Name + "SqlQueryMapping", sqlQueryMapping, parameters.ScopeObjects, capitalize: false);
+        var sqlQueryMappingVariable = code.Identifier(
+            sqlQuery.Name + "SqlQueryMapping", sqlQueryMapping, parameters.ScopeObjects, capitalize: false);
 
         GenerateAddMapping(
             sqlQueryMapping,
@@ -1359,7 +1373,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         var storeFunction = functionMapping.StoreFunction;
         var functionVariable = GetOrCreate(storeFunction, parameters);
         var dbFunctionVariable = metadataVariables[functionMapping.DbFunction];
-        var functionMappingVariable = code.Identifier(storeFunction.Name + "FunctionMapping", functionMapping, parameters.ScopeObjects, capitalize: false);
+        var functionMappingVariable = code.Identifier(
+            storeFunction.Name + "FunctionMapping", functionMapping, parameters.ScopeObjects, capitalize: false);
 
         GenerateAddMapping(
             functionMapping,
@@ -1425,11 +1440,13 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         if (!metadataVariables.TryGetValue(sprocMapping.StoredProcedure, out var sprocVariable))
         {
             var sprocSnippet = CreateFindSnippet(sprocMapping.StoredProcedure, metadataVariables);
-            sprocVariable = code.Identifier(storeSproc.Name + sprocMappingType[0] + "Sproc", sprocMapping.StoredProcedure, parameters.ScopeObjects, capitalize: false);
+            sprocVariable = code.Identifier(
+                storeSproc.Name + sprocMappingType[0] + "Sproc", sprocMapping.StoredProcedure, parameters.ScopeObjects, capitalize: false);
             mainBuilder.AppendLine($"var {sprocVariable} = {sprocSnippet};");
         }
 
-        var sprocMappingVariable = code.Identifier(storeSproc.Name + "SprocMapping", sprocMapping, parameters.ScopeObjects, capitalize: false);
+        var sprocMappingVariable = code.Identifier(
+            storeSproc.Name + "SprocMapping", sprocMapping, parameters.ScopeObjects, capitalize: false);
         var tableMappingVariable = sprocMapping.TableMapping != null ? metadataVariables[sprocMapping.TableMapping] : null;
 
         GenerateAddMapping(
@@ -1804,7 +1821,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             {
                 AddNamespace(typeof(StoreObjectDictionary<RuntimeEntityTypeMappingFragment>), parameters.Namespaces);
                 AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
-                var fragmentsVariable = Dependencies.CSharpHelper.Identifier("fragments", fragments, parameters.ScopeObjects, capitalize: false);
+                var fragmentsVariable = Dependencies.CSharpHelper.Identifier(
+                    "fragments", fragments, parameters.ScopeObjects, capitalize: false);
                 parameters.MainBuilder
                     .Append("var ").Append(fragmentsVariable)
                     .AppendLine(" = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();");
@@ -1821,7 +1839,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     RelationalAnnotationNames.InsertStoredProcedure,
                     out StoredProcedure insertStoredProcedure))
             {
-                var sprocVariable = Dependencies.CSharpHelper.Identifier("insertSproc", insertStoredProcedure, parameters.ScopeObjects, capitalize: false);
+                var sprocVariable = Dependencies.CSharpHelper.Identifier(
+                    "insertSproc", insertStoredProcedure, parameters.ScopeObjects, capitalize: false);
 
                 Create(insertStoredProcedure, sprocVariable, parameters);
 
@@ -1833,7 +1852,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     RelationalAnnotationNames.DeleteStoredProcedure,
                     out StoredProcedure deleteStoredProcedure))
             {
-                var sprocVariable = Dependencies.CSharpHelper.Identifier("deleteSproc", deleteStoredProcedure, parameters.ScopeObjects, capitalize: false);
+                var sprocVariable = Dependencies.CSharpHelper.Identifier(
+                    "deleteSproc", deleteStoredProcedure, parameters.ScopeObjects, capitalize: false);
 
                 Create(deleteStoredProcedure, sprocVariable, parameters);
 
@@ -1845,7 +1865,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     RelationalAnnotationNames.UpdateStoredProcedure,
                     out StoredProcedure updateStoredProcedure))
             {
-                var sprocVariable = Dependencies.CSharpHelper.Identifier("updateSproc", updateStoredProcedure, parameters.ScopeObjects, capitalize: false);
+                var sprocVariable = Dependencies.CSharpHelper.Identifier(
+                    "updateSproc", updateStoredProcedure, parameters.ScopeObjects, capitalize: false);
 
                 Create(updateStoredProcedure, sprocVariable, parameters);
 
@@ -1970,7 +1991,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     {
         var code = Dependencies.CSharpHelper;
         var mainBuilder = parameters.MainBuilder;
-        var parameterVariable = code.Identifier(parameter.PropertyName ?? parameter.Name, parameter, parameters.ScopeObjects, capitalize: false);
+        var parameterVariable = code.Identifier(
+            parameter.PropertyName ?? parameter.Name, parameter, parameters.ScopeObjects, capitalize: false);
 
         mainBuilder
             .Append("var ").Append(parameterVariable).Append(" = ")
@@ -2061,7 +2083,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             {
                 AddNamespace(typeof(StoreObjectDictionary<RuntimeRelationalPropertyOverrides>), parameters.Namespaces);
                 AddNamespace(typeof(StoreObjectIdentifier), parameters.Namespaces);
-                var overridesVariable = Dependencies.CSharpHelper.Identifier("overrides", tableOverrides, parameters.ScopeObjects, capitalize: false);
+                var overridesVariable = Dependencies.CSharpHelper.Identifier(
+                    "overrides", tableOverrides, parameters.ScopeObjects, capitalize: false);
                 parameters.MainBuilder.AppendLine()
                     .Append("var ").Append(overridesVariable)
                     .AppendLine(" = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();");

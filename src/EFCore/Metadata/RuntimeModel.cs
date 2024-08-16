@@ -50,7 +50,6 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     [EntityFrameworkInternal]
     [Obsolete("Use a constructor with parameters")]
     public RuntimeModel()
-        : base()
     {
         _entityTypes = new(StringComparer.Ordinal);
         _typeConfigurations = new();

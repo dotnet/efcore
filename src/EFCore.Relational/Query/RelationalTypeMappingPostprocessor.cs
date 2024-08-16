@@ -282,10 +282,10 @@ public class RelationalTypeMappingPostprocessor(
                 // Similar to the above, but with ScalarSubqueryExpression the inferred type mapping is on the expression itself, while the
                 // ColumnExpression we need is on the subquery's projection.
                 case ScalarSubqueryExpression
-                    {
-                        TypeMapping: { } typeMapping,
-                        Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
-                    }:
+                {
+                    TypeMapping: { } typeMapping,
+                    Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
+                }:
                 {
                     var visitedSubquery = base.VisitExtension(node);
 
@@ -299,10 +299,10 @@ public class RelationalTypeMappingPostprocessor(
 
                 // InExpression over a subquery: apply the item's type mapping on the subquery
                 case InExpression
-                    {
-                        Item.TypeMapping: { } typeMapping,
-                        Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
-                    }:
+                {
+                    Item.TypeMapping: { } typeMapping,
+                    Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
+                }:
                 {
                     var visited = base.VisitExtension(node);
 

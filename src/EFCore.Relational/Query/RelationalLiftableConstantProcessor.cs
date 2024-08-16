@@ -29,7 +29,7 @@ public class RelationalLiftableConstantProcessor : LiftableConstantProcessor
         : base(dependencies)
         => _relationalMaterializerLiftableConstantContext = new(dependencies, relationalDependencies, commandBuilderDependencies);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override ConstantExpression InlineConstant(LiftableConstantExpression liftableConstant)
     {
         if (liftableConstant.ResolverExpression is Expression<Func<RelationalMaterializerLiftableConstantContext, object>>

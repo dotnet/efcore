@@ -617,7 +617,7 @@ public static class CoreEventId
     public static readonly EventId TypeLoadingErrorWarning = MakeModelId(Id.TypeLoadingErrorWarning);
 
     /// <summary>
-    ///     A type that implements <see cref="IEntityTypeConfiguration{TEntity}"/> could not be instantiated.
+    ///     A type that implements <see cref="IEntityTypeConfiguration{TEntity}" /> could not be instantiated.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -634,7 +634,7 @@ public static class CoreEventId
     public static readonly EventId SkippedEntityTypeConfigurationWarning = MakeModelId(Id.SkippedEntityTypeConfigurationWarning);
 
     /// <summary>
-    ///     A type that implements <see cref="IEntityTypeConfiguration{TEntity}"/> could not be instantiated.
+    ///     A type that implements <see cref="IEntityTypeConfiguration{TEntity}" /> could not be instantiated.
     /// </summary>
     /// <remarks>
     ///     <para>

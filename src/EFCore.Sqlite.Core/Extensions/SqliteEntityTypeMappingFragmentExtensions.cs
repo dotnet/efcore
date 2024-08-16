@@ -41,7 +41,8 @@ public static class SqliteEntityTypeMappingFragmentExtensions
         this IConventionEntityTypeMappingFragment fragment,
         bool? useSqlReturningClause,
         bool fromDataAnnotation = false)
-        => (bool?)fragment.SetOrRemoveAnnotation(SqliteAnnotationNames.UseSqlReturningClause, useSqlReturningClause, fromDataAnnotation)?.Value;
+        => (bool?)fragment.SetOrRemoveAnnotation(SqliteAnnotationNames.UseSqlReturningClause, useSqlReturningClause, fromDataAnnotation)
+            ?.Value;
 
     /// <summary>
     ///     Gets the configuration source for whether to use the SQL RETURNING clause when saving changes to the associated table.

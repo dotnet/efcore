@@ -151,7 +151,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? scale)
     {
         // Note: Empty string is allowed for store type name because SQLite
-        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale, false);
+        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale);
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
         IsFixedLength = null;

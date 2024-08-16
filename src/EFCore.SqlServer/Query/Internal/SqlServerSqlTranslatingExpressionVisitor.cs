@@ -211,8 +211,10 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         // Translate non-aggregate string.Join to CONCAT_WS (for aggregate string.Join, see SqlServerStringAggregateMethodTranslator)
         if (method == StringJoinMethodInfo
             && methodCallExpression.Arguments[1] is NewArrayExpression newArrayExpression
-            && ((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140)
-                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140)
+            && ((_sqlServerSingletonOptions.EngineType == SqlServerEngineType.SqlServer
+                    && _sqlServerSingletonOptions.SqlServerCompatibilityLevel >= 140)
+                || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
+                    && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel >= 140)
                 || (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSynapse)))
         {
             if (TranslationFailed(methodCallExpression.Arguments[0], Visit(methodCallExpression.Arguments[0]), out var delimiter))
@@ -540,6 +542,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         {
             return null;
         }
+
         if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
             && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 160)
         {
@@ -568,6 +571,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         {
             return null;
         }
+
         if (_sqlServerSingletonOptions.EngineType == SqlServerEngineType.AzureSql
             && _sqlServerSingletonOptions.AzureSqlCompatibilityLevel < 160)
         {
