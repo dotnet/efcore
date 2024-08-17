@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,10 +22,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
     private object? _sentinel;
+    private object? _sentinelFromProviderValue;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, ITypeBase, ValueGenerator>? _valueGeneratorFactory;
-    private readonly ValueConverter? _valueConverter;
+    private ValueConverter? _valueConverter;
     private readonly ValueComparer? _customValueComparer;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
@@ -117,7 +117,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// </summary>
     /// <param name="providerValue">The value, as a provider value if a value converter is being used.</param>
     public virtual void SetSentinelFromProviderValue(object? providerValue)
-        => _sentinel = _typeMapping?.Converter?.ConvertFromProvider(providerValue) ?? providerValue;
+        => _sentinelFromProviderValue = providerValue;
 
     /// <summary>
     ///     Sets the element type for this property.
@@ -241,6 +241,16 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         set => _typeMapping = value;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetValueConverter(ValueConverter converter)
+        => _valueConverter = converter;
+
     /// <inheritdoc />
     public virtual ValueComparer GetValueComparer()
         => NonCapturingLazyInitializer.EnsureInitialized(
@@ -283,7 +293,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual ValueComparer SetValueComparer(ValueComparer valueComparer)
+    public virtual ValueComparer SetComparer(ValueComparer valueComparer)
         => _valueComparer = valueComparer;
 
     /// <inheritdoc />
@@ -300,7 +310,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual ValueComparer SetKeyValueComparer(ValueComparer valueComparer)
+    public virtual ValueComparer SetKeyComparer(ValueComparer valueComparer)
         => _keyValueComparer = valueComparer;
 
     private ValueComparer GetProviderValueComparer()
@@ -321,7 +331,19 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     /// <inheritdoc />
     public override object? Sentinel
-        => _sentinel;
+    {
+        get
+        {
+            if (_sentinelFromProviderValue != null)
+            {
+                var providerValue = _sentinelFromProviderValue;
+                _sentinelFromProviderValue = null;
+                _sentinel = TypeMapping.Converter!.ConvertFromProvider(providerValue);
+            }
+
+            return _sentinel;
+        }
+    }
 
     /// <summary>
     ///     Gets the <see cref="JsonValueReaderWriter" /> for this property, or <see langword="null" /> if none is set.

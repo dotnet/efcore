@@ -77,58 +77,19 @@ namespace TestNamespace
 
     [ConditionalFact]
     public virtual Task No_NativeAOT()
-        => Test(
-            modelBuilder =>
-            {
-                modelBuilder.Ignore<DependentBase<int>>();
-                modelBuilder.Entity<DependentDerived<int>>(
-                    b =>
-                    {
-                        b.Ignore(e => e.Principal);
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.Property<string>("Data");
-                    });
-            },
-            model => Assert.Single(model.GetEntityTypes()),
-            async c =>
-            {
-                c.Add(new DependentDerived<int>(1, "one"));
-
-                await c.SaveChangesAsync();
-
-                var stored = await c.Set<DependentDerived<int>>().SingleAsync();
-                Assert.Equal(0, stored.Id);
-                Assert.Equal(1, stored.GetId());
-                Assert.Equal("one", stored.GetData());
-            },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = false });
+        => BigModel(false);
 
     [ConditionalFact]
     public virtual Task BigModel()
+        => BigModel(true);
+
+    protected virtual Task BigModel(bool forNativeAot, [CallerMemberName] string testName = "")
         => Test(
             modelBuilder => BuildBigModel(modelBuilder, jsonColumns: false),
             model => AssertBigModel(model, jsonColumns: false),
-            async c =>
-            {
-                var principalDerived = new PrincipalDerived<DependentBase<byte?>>
-                {
-                    AlternateId = new Guid(),
-                    Dependent = new DependentBase<byte?>(1),
-                    Owned = new OwnedType(c)
-                };
-
-                var principalBase = c.Model.FindEntityType(typeof(PrincipalBase))!;
-                var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
-                if (principalId.ValueGenerated == ValueGenerated.Never)
-                {
-                    principalDerived.Id = 10;
-                }
-
-                c.Add(principalDerived);
-
-                await c.SaveChangesAsync();
-            },
-            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = true });
+            UseBigModel,
+            options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true, ForNativeAot = forNativeAot },
+            testName: testName);
 
     protected virtual void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
@@ -585,6 +546,26 @@ namespace TestNamespace
             principalDerived.GetDeclaredReferencingForeignKeys());
     }
 
+    protected virtual async Task UseBigModel(DbContext context)
+    {
+        var principalDerived = new PrincipalDerived<DependentBase<byte?>>
+        {
+            AlternateId = new Guid(),
+            Dependent = new DependentBase<byte?>(1),
+            Owned = new OwnedType(context)
+        };
+
+        var principalBase = context.Model.FindEntityType(typeof(PrincipalBase))!;
+        var principalId = principalBase.FindProperty(nameof(PrincipalBase.Id))!;
+        if (principalId.ValueGenerated == ValueGenerated.Never)
+        {
+            principalDerived.Id = 10;
+        }
+
+        context.Add(principalDerived);
+
+        await context.SaveChangesAsync();
+    }
     [ConditionalFact]
     public virtual Task ComplexTypes()
         => Test(

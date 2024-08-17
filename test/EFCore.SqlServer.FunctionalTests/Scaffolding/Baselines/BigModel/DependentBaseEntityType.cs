@@ -187,8 +187,8 @@ namespace TestNamespace
                     bool (byte v1, byte v2) => v1 == v2,
                     int (byte v) => ((int)(v)),
                     byte (byte v) => v));
-            id.SetValueComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
-            id.SetKeyValueComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
+            id.SetComparer(new NullableValueComparer<byte>(id.TypeMapping.Comparer));
+            id.SetKeyComparer(new NullableValueComparer<byte>(id.TypeMapping.KeyComparer));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(

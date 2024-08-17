@@ -329,7 +329,7 @@ public readonly record struct TypeMappingInfo
     public bool IsKeyOrIndex { get; init; }
 
     /// <summary>
-    ///     Indicates the store-size to use for the mapping, or null if none.
+    ///     Indicates the store-size to use for the mapping, or <see langword="null" /> if none.
     /// </summary>
     public int? Size { get; init; }
 

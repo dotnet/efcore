@@ -367,8 +367,8 @@ namespace Scaffolding
                     DateTimeOffset (DateTimeOffset v) => v),
                 clrType: typeof(DateTimeOffset),
                 jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance);
-            lockoutEnd.SetValueComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.Comparer));
-            lockoutEnd.SetKeyValueComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.KeyComparer));
+            lockoutEnd.SetComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.Comparer));
+            lockoutEnd.SetKeyComparer(new NullableValueComparer<DateTimeOffset>(lockoutEnd.TypeMapping.KeyComparer));
 
             var normalizedEmail = runtimeEntityType.AddProperty(
                 "NormalizedEmail",

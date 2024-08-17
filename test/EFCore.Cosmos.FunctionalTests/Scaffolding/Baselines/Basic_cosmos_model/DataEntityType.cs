@@ -108,9 +108,9 @@ namespace TestNamespace
                     new ValueConverter<long, string>(
                         string (long v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
                         long (string v) => long.Parse(v, NumberStyles.Any, CultureInfo.InvariantCulture))));
-            partitionId.SetValueComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
-            partitionId.SetKeyValueComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
             partitionId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(partitionId));
+            partitionId.SetComparer(new NullableValueComparer<long>(partitionId.TypeMapping.Comparer));
+            partitionId.SetKeyComparer(new NullableValueComparer<long>(partitionId.TypeMapping.KeyComparer));
 
             var blob = runtimeEntityType.AddProperty(
                 "Blob",

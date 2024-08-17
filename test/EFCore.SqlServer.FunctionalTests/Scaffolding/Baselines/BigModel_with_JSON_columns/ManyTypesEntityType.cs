@@ -6569,8 +6569,8 @@ namespace TestNamespace
                     bool (bool v1, bool v2) => v1 == v2,
                     int (bool v) => ((object)v).GetHashCode(),
                     bool (bool v) => v));
-            nullableBool.SetValueComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
-            nullableBool.SetKeyValueComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.KeyComparer));
+            nullableBool.SetComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.Comparer));
+            nullableBool.SetKeyComparer(new NullableValueComparer<bool>(nullableBool.TypeMapping.KeyComparer));
             nullableBool.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableBoolArray = runtimeEntityType.AddProperty(
@@ -6800,8 +6800,8 @@ namespace TestNamespace
                     new ValueConverter<char, string>(
                         string (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", ((object)(v))),
                         char (string v) => (v.Length < 1 ? '\0' : v[0]))));
-            nullableChar.SetValueComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
-            nullableChar.SetKeyValueComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.KeyComparer));
+            nullableChar.SetComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.Comparer));
+            nullableChar.SetKeyComparer(new NullableValueComparer<char>(nullableChar.TypeMapping.KeyComparer));
             nullableChar.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableCharArray = runtimeEntityType.AddProperty(
@@ -6928,8 +6928,8 @@ namespace TestNamespace
                     bool (DateOnly v1, DateOnly v2) => v1.Equals(v2),
                     int (DateOnly v) => ((object)v).GetHashCode(),
                     DateOnly (DateOnly v) => v));
-            nullableDateOnly.SetValueComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
-            nullableDateOnly.SetKeyValueComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.KeyComparer));
+            nullableDateOnly.SetComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.Comparer));
+            nullableDateOnly.SetKeyComparer(new NullableValueComparer<DateOnly>(nullableDateOnly.TypeMapping.KeyComparer));
             nullableDateOnly.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableDateOnlyArray = runtimeEntityType.AddProperty(
@@ -7035,8 +7035,8 @@ namespace TestNamespace
                     bool (DateTime v1, DateTime v2) => v1.Equals(v2),
                     int (DateTime v) => ((object)v).GetHashCode(),
                     DateTime (DateTime v) => v));
-            nullableDateTime.SetValueComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
-            nullableDateTime.SetKeyValueComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.KeyComparer));
+            nullableDateTime.SetComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.Comparer));
+            nullableDateTime.SetKeyComparer(new NullableValueComparer<DateTime>(nullableDateTime.TypeMapping.KeyComparer));
             nullableDateTime.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableDateTimeArray = runtimeEntityType.AddProperty(
@@ -7142,8 +7142,8 @@ namespace TestNamespace
                     bool (decimal v1, decimal v2) => v1 == v2,
                     int (decimal v) => ((object)v).GetHashCode(),
                     decimal (decimal v) => v));
-            nullableDecimal.SetValueComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
-            nullableDecimal.SetKeyValueComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.KeyComparer));
+            nullableDecimal.SetComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.Comparer));
+            nullableDecimal.SetKeyComparer(new NullableValueComparer<decimal>(nullableDecimal.TypeMapping.KeyComparer));
             nullableDecimal.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableDecimalArray = runtimeEntityType.AddProperty(
@@ -7249,8 +7249,8 @@ namespace TestNamespace
                     bool (double v1, double v2) => v1.Equals(v2),
                     int (double v) => ((object)v).GetHashCode(),
                     double (double v) => v));
-            nullableDouble.SetValueComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
-            nullableDouble.SetKeyValueComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.KeyComparer));
+            nullableDouble.SetComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.Comparer));
+            nullableDouble.SetKeyComparer(new NullableValueComparer<double>(nullableDouble.TypeMapping.KeyComparer));
             nullableDouble.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableDoubleArray = runtimeEntityType.AddProperty(
@@ -7364,8 +7364,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
                         short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                         CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
-            nullableEnum16.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
-            nullableEnum16.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
+            nullableEnum16.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.Comparer));
+            nullableEnum16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16.TypeMapping.KeyComparer));
             nullableEnum16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum16Array = runtimeEntityType.AddProperty(
@@ -7495,8 +7495,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum16, short>(
                         short (CompiledModelTestBase.Enum16 value) => ((short)(value)),
                         CompiledModelTestBase.Enum16 (short value) => ((CompiledModelTestBase.Enum16)(value)))));
-            nullableEnum16AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
-            nullableEnum16AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
+            nullableEnum16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.Comparer));
+            nullableEnum16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum16>(nullableEnum16AsString.TypeMapping.KeyComparer));
             nullableEnum16AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum16AsStringArray = runtimeEntityType.AddProperty(
@@ -7784,8 +7784,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
                         int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                         CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
-            nullableEnum32.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
-            nullableEnum32.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
+            nullableEnum32.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.Comparer));
+            nullableEnum32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32.TypeMapping.KeyComparer));
             nullableEnum32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum32Array = runtimeEntityType.AddProperty(
@@ -7915,8 +7915,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum32, int>(
                         int (CompiledModelTestBase.Enum32 value) => ((int)(value)),
                         CompiledModelTestBase.Enum32 (int value) => ((CompiledModelTestBase.Enum32)(value)))));
-            nullableEnum32AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
-            nullableEnum32AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
+            nullableEnum32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.Comparer));
+            nullableEnum32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum32>(nullableEnum32AsString.TypeMapping.KeyComparer));
             nullableEnum32AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum32AsStringArray = runtimeEntityType.AddProperty(
@@ -8204,8 +8204,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
                         long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                         CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
-            nullableEnum64.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
-            nullableEnum64.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
+            nullableEnum64.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.Comparer));
+            nullableEnum64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64.TypeMapping.KeyComparer));
             nullableEnum64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum64Array = runtimeEntityType.AddProperty(
@@ -8335,8 +8335,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum64, long>(
                         long (CompiledModelTestBase.Enum64 value) => ((long)(value)),
                         CompiledModelTestBase.Enum64 (long value) => ((CompiledModelTestBase.Enum64)(value)))));
-            nullableEnum64AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
-            nullableEnum64AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
+            nullableEnum64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.Comparer));
+            nullableEnum64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum64>(nullableEnum64AsString.TypeMapping.KeyComparer));
             nullableEnum64AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum64AsStringArray = runtimeEntityType.AddProperty(
@@ -8624,8 +8624,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum8, short>(
                         short (CompiledModelTestBase.Enum8 value) => ((short)(value)),
                         CompiledModelTestBase.Enum8 (short value) => ((CompiledModelTestBase.Enum8)(value)))));
-            nullableEnum8.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
-            nullableEnum8.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
+            nullableEnum8.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.Comparer));
+            nullableEnum8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8.TypeMapping.KeyComparer));
             nullableEnum8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum8Array = runtimeEntityType.AddProperty(
@@ -8755,8 +8755,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.Enum8, short>(
                         short (CompiledModelTestBase.Enum8 value) => ((short)(value)),
                         CompiledModelTestBase.Enum8 (short value) => ((CompiledModelTestBase.Enum8)(value)))));
-            nullableEnum8AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
-            nullableEnum8AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
+            nullableEnum8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.Comparer));
+            nullableEnum8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.Enum8>(nullableEnum8AsString.TypeMapping.KeyComparer));
             nullableEnum8AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnum8AsStringArray = runtimeEntityType.AddProperty(
@@ -9044,8 +9044,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU16, int>(
                         int (CompiledModelTestBase.EnumU16 value) => ((int)(value)),
                         CompiledModelTestBase.EnumU16 (int value) => ((CompiledModelTestBase.EnumU16)(value)))));
-            nullableEnumU16.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
-            nullableEnumU16.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
+            nullableEnumU16.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.Comparer));
+            nullableEnumU16.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16.TypeMapping.KeyComparer));
             nullableEnumU16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU16Array = runtimeEntityType.AddProperty(
@@ -9175,8 +9175,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU16, int>(
                         int (CompiledModelTestBase.EnumU16 value) => ((int)(value)),
                         CompiledModelTestBase.EnumU16 (int value) => ((CompiledModelTestBase.EnumU16)(value)))));
-            nullableEnumU16AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
-            nullableEnumU16AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
+            nullableEnumU16AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.Comparer));
+            nullableEnumU16AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU16>(nullableEnumU16AsString.TypeMapping.KeyComparer));
             nullableEnumU16AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU16AsStringArray = runtimeEntityType.AddProperty(
@@ -9464,8 +9464,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU32, long>(
                         long (CompiledModelTestBase.EnumU32 value) => ((long)(value)),
                         CompiledModelTestBase.EnumU32 (long value) => ((CompiledModelTestBase.EnumU32)(value)))));
-            nullableEnumU32.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
-            nullableEnumU32.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
+            nullableEnumU32.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.Comparer));
+            nullableEnumU32.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32.TypeMapping.KeyComparer));
             nullableEnumU32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU32Array = runtimeEntityType.AddProperty(
@@ -9595,8 +9595,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU32, long>(
                         long (CompiledModelTestBase.EnumU32 value) => ((long)(value)),
                         CompiledModelTestBase.EnumU32 (long value) => ((CompiledModelTestBase.EnumU32)(value)))));
-            nullableEnumU32AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
-            nullableEnumU32AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
+            nullableEnumU32AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.Comparer));
+            nullableEnumU32AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU32>(nullableEnumU32AsString.TypeMapping.KeyComparer));
             nullableEnumU32AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU32AsStringArray = runtimeEntityType.AddProperty(
@@ -9888,8 +9888,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU64, decimal>(
                         decimal (CompiledModelTestBase.EnumU64 value) => ((decimal)(((long)(value)))),
                         CompiledModelTestBase.EnumU64 (decimal value) => ((CompiledModelTestBase.EnumU64)(((long)(value)))))));
-            nullableEnumU64.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
-            nullableEnumU64.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
+            nullableEnumU64.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.Comparer));
+            nullableEnumU64.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64.TypeMapping.KeyComparer));
             nullableEnumU64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU64Array = runtimeEntityType.AddProperty(
@@ -10027,8 +10027,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU64, decimal>(
                         decimal (CompiledModelTestBase.EnumU64 value) => ((decimal)(((long)(value)))),
                         CompiledModelTestBase.EnumU64 (decimal value) => ((CompiledModelTestBase.EnumU64)(((long)(value)))))));
-            nullableEnumU64AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
-            nullableEnumU64AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
+            nullableEnumU64AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.Comparer));
+            nullableEnumU64AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU64>(nullableEnumU64AsString.TypeMapping.KeyComparer));
             nullableEnumU64AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU64AsStringArray = runtimeEntityType.AddProperty(
@@ -10328,8 +10328,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                         byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                         CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
-            nullableEnumU8.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
-            nullableEnumU8.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
+            nullableEnumU8.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.Comparer));
+            nullableEnumU8.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8.TypeMapping.KeyComparer));
             nullableEnumU8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU8Array = runtimeEntityType.AddProperty(
@@ -10459,8 +10459,8 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.EnumU8, byte>(
                         byte (CompiledModelTestBase.EnumU8 value) => ((byte)(value)),
                         CompiledModelTestBase.EnumU8 (byte value) => ((CompiledModelTestBase.EnumU8)(value)))));
-            nullableEnumU8AsString.SetValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
-            nullableEnumU8AsString.SetKeyValueComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
+            nullableEnumU8AsString.SetComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.Comparer));
+            nullableEnumU8AsString.SetKeyComparer(new NullableValueComparer<CompiledModelTestBase.EnumU8>(nullableEnumU8AsString.TypeMapping.KeyComparer));
             nullableEnumU8AsString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableEnumU8AsStringArray = runtimeEntityType.AddProperty(
@@ -10740,8 +10740,8 @@ namespace TestNamespace
                     bool (float v1, float v2) => v1.Equals(v2),
                     int (float v) => ((object)v).GetHashCode(),
                     float (float v) => v));
-            nullableFloat.SetValueComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
-            nullableFloat.SetKeyValueComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.KeyComparer));
+            nullableFloat.SetComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.Comparer));
+            nullableFloat.SetKeyComparer(new NullableValueComparer<float>(nullableFloat.TypeMapping.KeyComparer));
             nullableFloat.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableFloatArray = runtimeEntityType.AddProperty(
@@ -10849,8 +10849,8 @@ namespace TestNamespace
                     Guid (Guid v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "uniqueidentifier"));
-            nullableGuid.SetValueComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.Comparer));
-            nullableGuid.SetKeyValueComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.KeyComparer));
+            nullableGuid.SetComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.Comparer));
+            nullableGuid.SetKeyComparer(new NullableValueComparer<Guid>(nullableGuid.TypeMapping.KeyComparer));
             nullableGuid.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableGuidArray = runtimeEntityType.AddProperty(
@@ -11097,8 +11097,8 @@ namespace TestNamespace
                     bool (short v1, short v2) => v1 == v2,
                     int (short v) => ((int)(v)),
                     short (short v) => v));
-            nullableInt16.SetValueComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
-            nullableInt16.SetKeyValueComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.KeyComparer));
+            nullableInt16.SetComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.Comparer));
+            nullableInt16.SetKeyComparer(new NullableValueComparer<short>(nullableInt16.TypeMapping.KeyComparer));
             nullableInt16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableInt16Array = runtimeEntityType.AddProperty(
@@ -11204,8 +11204,8 @@ namespace TestNamespace
                     bool (int v1, int v2) => v1 == v2,
                     int (int v) => v,
                     int (int v) => v));
-            nullableInt32.SetValueComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
-            nullableInt32.SetKeyValueComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.KeyComparer));
+            nullableInt32.SetComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.Comparer));
+            nullableInt32.SetKeyComparer(new NullableValueComparer<int>(nullableInt32.TypeMapping.KeyComparer));
             nullableInt32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableInt32Array = runtimeEntityType.AddProperty(
@@ -11311,8 +11311,8 @@ namespace TestNamespace
                     bool (long v1, long v2) => v1 == v2,
                     int (long v) => ((object)v).GetHashCode(),
                     long (long v) => v));
-            nullableInt64.SetValueComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
-            nullableInt64.SetKeyValueComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.KeyComparer));
+            nullableInt64.SetComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.Comparer));
+            nullableInt64.SetKeyComparer(new NullableValueComparer<long>(nullableInt64.TypeMapping.KeyComparer));
             nullableInt64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableInt64Array = runtimeEntityType.AddProperty(
@@ -11426,8 +11426,8 @@ namespace TestNamespace
                     new ValueConverter<sbyte, short>(
                         short (sbyte v) => ((short)(v)),
                         sbyte (short v) => ((sbyte)(v)))));
-            nullableInt8.SetValueComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
-            nullableInt8.SetKeyValueComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.KeyComparer));
+            nullableInt8.SetComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.Comparer));
+            nullableInt8.SetKeyComparer(new NullableValueComparer<sbyte>(nullableInt8.TypeMapping.KeyComparer));
             nullableInt8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableInt8Array = runtimeEntityType.AddProperty(
@@ -11803,8 +11803,8 @@ namespace TestNamespace
                     bool (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
                     int (TimeOnly v) => ((object)v).GetHashCode(),
                     TimeOnly (TimeOnly v) => v));
-            nullableTimeOnly.SetValueComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.Comparer));
-            nullableTimeOnly.SetKeyValueComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.KeyComparer));
+            nullableTimeOnly.SetComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.Comparer));
+            nullableTimeOnly.SetKeyComparer(new NullableValueComparer<TimeOnly>(nullableTimeOnly.TypeMapping.KeyComparer));
             nullableTimeOnly.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableTimeOnlyArray = runtimeEntityType.AddProperty(
@@ -11910,8 +11910,8 @@ namespace TestNamespace
                     bool (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
                     int (TimeSpan v) => ((object)v).GetHashCode(),
                     TimeSpan (TimeSpan v) => v));
-            nullableTimeSpan.SetValueComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.Comparer));
-            nullableTimeSpan.SetKeyValueComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.KeyComparer));
+            nullableTimeSpan.SetComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.Comparer));
+            nullableTimeSpan.SetKeyComparer(new NullableValueComparer<TimeSpan>(nullableTimeSpan.TypeMapping.KeyComparer));
             nullableTimeSpan.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableTimeSpanArray = runtimeEntityType.AddProperty(
@@ -12025,8 +12025,8 @@ namespace TestNamespace
                     new ValueConverter<ushort, int>(
                         int (ushort v) => ((int)(v)),
                         ushort (int v) => ((ushort)(v)))));
-            nullableUInt16.SetValueComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
-            nullableUInt16.SetKeyValueComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.KeyComparer));
+            nullableUInt16.SetComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.Comparer));
+            nullableUInt16.SetKeyComparer(new NullableValueComparer<ushort>(nullableUInt16.TypeMapping.KeyComparer));
             nullableUInt16.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableUInt16Array = runtimeEntityType.AddProperty(
@@ -12156,8 +12156,8 @@ namespace TestNamespace
                     new ValueConverter<uint, long>(
                         long (uint v) => ((long)(v)),
                         uint (long v) => ((uint)(v)))));
-            nullableUInt32.SetValueComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
-            nullableUInt32.SetKeyValueComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.KeyComparer));
+            nullableUInt32.SetComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.Comparer));
+            nullableUInt32.SetKeyComparer(new NullableValueComparer<uint>(nullableUInt32.TypeMapping.KeyComparer));
             nullableUInt32.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableUInt32Array = runtimeEntityType.AddProperty(
@@ -12291,8 +12291,8 @@ namespace TestNamespace
                     new ValueConverter<ulong, decimal>(
                         decimal (ulong v) => ((decimal)(v)),
                         ulong (decimal v) => ((ulong)(v)))));
-            nullableUInt64.SetValueComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
-            nullableUInt64.SetKeyValueComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.KeyComparer));
+            nullableUInt64.SetComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.Comparer));
+            nullableUInt64.SetKeyComparer(new NullableValueComparer<ulong>(nullableUInt64.TypeMapping.KeyComparer));
             nullableUInt64.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableUInt64Array = runtimeEntityType.AddProperty(
@@ -12418,8 +12418,8 @@ namespace TestNamespace
                     bool (byte v1, byte v2) => v1 == v2,
                     int (byte v) => ((int)(v)),
                     byte (byte v) => v));
-            nullableUInt8.SetValueComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
-            nullableUInt8.SetKeyValueComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.KeyComparer));
+            nullableUInt8.SetComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.Comparer));
+            nullableUInt8.SetKeyComparer(new NullableValueComparer<byte>(nullableUInt8.TypeMapping.KeyComparer));
             nullableUInt8.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var nullableUInt8Array = runtimeEntityType.AddProperty(

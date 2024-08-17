@@ -111,9 +111,9 @@ namespace TestNamespace
                     int (int v) => v),
                 clrType: typeof(int),
                 jsonValueReaderWriter: JsonInt32ReaderWriter.Instance);
-            referenceNavigationId.SetValueComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.Comparer));
-            referenceNavigationId.SetKeyValueComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.KeyComparer));
             referenceNavigationId.SetCurrentValueComparer(new EntryCurrentValueComparer<int?>(referenceNavigationId));
+            referenceNavigationId.SetComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.Comparer));
+            referenceNavigationId.SetKeyComparer(new NullableValueComparer<int>(referenceNavigationId.TypeMapping.KeyComparer));
 
             var lazyLoader = runtimeEntityType.AddServiceProperty(
                 "LazyLoader",
