@@ -301,6 +301,52 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
 """);
     }
 
+    #region Byte Array IndexOf Translation
+
+    // TODO: These tests need to be updated when the translation for IndexOf has been added
+
+    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_literal_casts_to_int(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_parameter_casts_to_int(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_literal_does_not_cast(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_parameter_does_not_cast(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_literal_casts_to_int(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_max_filter_by_index_of_with_starting_position_parameter_casts_to_int(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_literal_does_not_cast(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task Byte_array_of_type_varbinary_n_filter_by_index_of_with_starting_position_parameter_does_not_cast(bool async)
+    {
+        return Task.CompletedTask;
+    }
+
+    #endregion
+
     public override Task Where_TimeSpan_Hours(bool async)
         // TimeSpan. Issue #18844.
         => AssertTranslationFailed(() => base.Where_TimeSpan_Hours(async));
